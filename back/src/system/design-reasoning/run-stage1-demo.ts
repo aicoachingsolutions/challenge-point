@@ -6,7 +6,7 @@
  * them, and every open decision and missing piece of knowledge. `--json` also writes the full results, every citation included. No
  * network, no database, no route: it reads the committed knowledge and nothing else.
  *
- * Since Stage 2 the two steps run as his D1 and D3 direct (reply received 4 November 2026), so this runner prints their current output.
+ * Since Stage 2 the two steps run as Christian's D1 and D3 direct (reply received 4 November 2026), so this runner prints their current output.
  * Stage 1's evidence files (`docs/audits/design-reasoning-stage1/evidence/`) are the record of Stage 1 as delivered and are not rewritten.
  * The Stage 2 demonstration is `run-stage2-demo.ts`.
  *
@@ -44,7 +44,7 @@ function report(r: Stage1Result): string {
     }
     if (g.profile) {
         const p = g.profile
-        lines.push('2. Composite profile (primary-led; his D1)')
+        lines.push('2. Composite profile (primary-led; Christian\'s D1)')
         for (const e of p.rows) {
             lines.push(`   ${e.role.padEnd(9)} ${e.gameProblemId}: ${CAR_REQUIREMENTS.map((q) => `${q}=${e.ratings[q]}`).join(' ')}  (${e.rowStatus}; ${e.validationStatus}; confidence ${e.confidence})`)
         }

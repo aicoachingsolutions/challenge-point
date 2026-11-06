@@ -1,6 +1,6 @@
 /**
  * **The paired, test-only width comparison** — Stage 2, review pathway only (Christian's reply to the Stage 2 decision package, received
- * 4 November 2026, D5, which authorizes the two width hypotheses "as a paired, test-only comparison of conditional hypotheses" (his
+ * 4 November 2026, D5, which authorizes the two width hypotheses "as a paired, test-only comparison of conditional hypotheses" (Christian's
  * sentence, with the entries' ids, is in `stage2-rulings.json`) / *"The deciding circumstances must be explicitly supplied as test
  * assumptions."* / *"The engine should not claim to infer
  * actual defensive organization or functional available space from pitch dimensions and player numbers alone."* / *"Please do not
@@ -210,7 +210,7 @@ export function compareWidth(k: DesignKnowledge, resolution: DesignResolution, f
     const sourceStandings = (e: ConditionOfUse) => [...new Set(e.sources.map((s) => s.standing))].sort().join(', ')
     const entryItem = (e: ConditionOfUse, role: string): TraceItem =>
         item(`conditions-of-use.stage2.json ${e.id}`, 'OURS', `${e.evidenceClass}, ${e.permittedEngineUse} (its sources: ${sourceStandings(e)}): ${role}`, { file: SOURCE.conditionsOfUse, table: 'entries', row: e.id })
-    const d5Item = item(`stage2-rulings.json ${d5.id}`, sourceStanding(k, 'stage2Rulings'), `his ${d5.decision}: the paired comparison is test-only; widening within the coach's available space`, { file: SOURCE.stage2Rulings, table: 'rulings', row: d5.id })
+    const d5Item = item(`stage2-rulings.json ${d5.id}`, sourceStanding(k, 'stage2Rulings'), `Christian's ${d5.decision}: the paired comparison is test-only; widening within the coach's available space`, { file: SOURCE.stage2Rulings, table: 'rulings', row: d5.id })
     const inputItem = (what: string, value: string) => item(`${fixtureRef} ${scenario.id}.${what}`, 'TEST INPUT', value)
     const assumptionItem = (key: string) => {
         const c = scenario.decidingCircumstances[key]
@@ -388,7 +388,7 @@ export function compareWidth(k: DesignKnowledge, resolution: DesignResolution, f
     const d1 = ruling(k, wcRulings.longTermRequirementRuling)
     const longTermItems: TraceItem[] = [
         ...(longTerm ? [item(`stage1-rulings.json ${longTerm.id}`, sourceStanding(k, 'stage1Rulings'), `${longTerm.status}: the dominant Game Problem must ultimately respond to the interaction circumstances`, longTerm.cite)] : []),
-        item(`stage2-rulings.json ${d1.id}`, sourceStanding(k, 'stage2Rulings'), 'his longer-term requirement, restated in D1; cited, not implemented', { file: SOURCE.stage2Rulings, table: 'rulings', row: d1.id }),
+        item(`stage2-rulings.json ${d1.id}`, sourceStanding(k, 'stage2Rulings'), 'Christian\'s longer-term requirement, restated in D1; cited, not implemented', { file: SOURCE.stage2Rulings, table: 'rulings', row: d1.id }),
     ]
     const permission = ruling(k, wcRulings.referenceCitationRuling)
     const referenceItems = [
@@ -396,7 +396,7 @@ export function compareWidth(k: DesignKnowledge, resolution: DesignResolution, f
             const e = conditionOfUse(k, id)
             return item(`conditions-of-use.stage2.json ${e.id}`, 'REFERENCE ONLY', `${e.evidenceClass}, ${e.permittedEngineUse}: shown with its status; decides nothing`, { file: SOURCE.conditionsOfUse, table: 'entries', row: e.id })
         }),
-        item(`stage2-rulings.json ${permission.id}`, sourceStanding(k, 'stage2Rulings'), 'his permission to cite the boundary statement in review traces as reference knowledge, its status explicit; not an executable rule', { file: SOURCE.stage2Rulings, table: 'rulings', row: permission.id }),
+        item(`stage2-rulings.json ${permission.id}`, sourceStanding(k, 'stage2Rulings'), 'Christian\'s permission to cite the boundary statement in review traces as reference knowledge, its status explicit; not an executable rule', { file: SOURCE.stage2Rulings, table: 'rulings', row: permission.id }),
     ]
     const boundary = conditionOfUse(k, wc.boundaryEntry)
     const circumstanceItems = circumstanceKeys.map(assumptionItem)
@@ -505,7 +505,7 @@ export function compareWidth(k: DesignKnowledge, resolution: DesignResolution, f
     }
     if (tensionText) base.statement += `${tensionText}${basis === 'SECONDARY_INVITING_CONDITIONS_MET' ? '' : ` The primary stays ${primaryId}, as resolved.`}`
 
-    // Structural checks on every scenario: they report structural certainty and decide nothing (his D6 holds any rule that could exclude a design).
+    // Structural checks on every scenario: they report structural certainty and decide nothing (Christian's D6 holds any rule that could exclude a design).
     const precedence = carMergePrecedence(k)
     const strongest = precedence.order[0]
     for (const check of wc.structuralChecks) {
@@ -513,7 +513,7 @@ export function compareWidth(k: DesignKnowledge, resolution: DesignResolution, f
         const requirement = entry.requirement ?? ''
         const essential = resolution.profile?.effectiveProfile.ratings[requirement as CarRequirement] === strongest
         const reqText = `${requirement}${essential ? ' (Essential in the effective profile)' : ''}`
-        const decidesNothing = 'Reported as structurally certain; it decides nothing in this demonstration (his D6 holds any rule that could exclude a design until the rule-level source and status check).'
+        const decidesNothing = 'Reported as structurally certain; it decides nothing in this demonstration (Christian\'s D6 holds any rule that could exclude a design until the rule-level source and status check).'
         if (teamSizes === 'A_TEAM_WITHOUT_PLAYERS') {
             base.structuralChecks.push({ entryId: entry.id, check: check.check, status: 'STRUCTURALLY_CERTAIN', detail: `A team has no players (${players.join(' v ')}): no competitor can influence the interaction, so ${reqText} cannot be met. ${decidesNothing}`, decidesNothing: true, establishedBy: 'LOGICAL INFERENCE' })
         } else if (teamSizes !== 'TWO_TEAMS_WITH_PLAYERS') {
@@ -559,7 +559,7 @@ export function compareWidth(k: DesignKnowledge, resolution: DesignResolution, f
                 if (!row || cls?.class !== 'BREACH DESCRIPTION') {
                     base.risks.push({ kind: risk.kind, ref: risk.conditionId, status: 'NOT_APPLICABLE_TO_THIS_DESIGN', quote: null, quoteSource: null, standing: sourceStanding(k, 'archetypes'), detail: 'Not a breach description of a compatible form\'s archetype.' })
                 } else {
-                    base.risks.push({ kind: risk.kind, ref: `game-archetype-workbook.rc1.1.json knowledge ${row.recordId} (${row.conditionId})`, status: 'REPORTED_RISK', quote: risk.quote ?? null, quoteSource: `game-archetype-workbook.rc1.1.json knowledge ${row.recordId}`, standing: sourceStanding(k, 'archetypes'), detail: `A risk, not a verdict: a breach description under his D6. ${risk.link}` })
+                    base.risks.push({ kind: risk.kind, ref: `game-archetype-workbook.rc1.1.json knowledge ${row.recordId} (${row.conditionId})`, status: 'REPORTED_RISK', quote: risk.quote ?? null, quoteSource: `game-archetype-workbook.rc1.1.json knowledge ${row.recordId}`, standing: sourceStanding(k, 'archetypes'), detail: `A risk, not a verdict: a breach description under Christian's D6. ${risk.link}` })
                 }
             }
         }

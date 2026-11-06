@@ -1,7 +1,7 @@
 /**
  * Unit tests — design-reasoning Stage 2, the bounded demonstration, review pathway only.
  *
- * What his reply to the Stage 2 decision package (received 4 November 2026) authorized the demonstration to show, each pinned here:
+ * What Christian's reply to the Stage 2 decision package (received 4 November 2026) authorized the demonstration to show, each pinned here:
  *   - D1: A05's primary and secondary requirements preserved without concealing their difference (rows, union view with sources, the
  *     primary-led effective profile, one FOI finding at INSUFFICIENT_EVIDENCE, never promoted; lowering the secondary's FOI in a test
  *     copy removes the finding);
@@ -239,7 +239,7 @@ function testEachWidthScenario(): void {
     assert.equal(w.S2.configuredWidthKept, true)
     assert.match(w.S2.statement, /might make exploitation \(GP-002, the secondary Game Problem's problem\) the more immediate one/)
     assert.ok(w.S2.trace.citedOnly.some((i) => i.ref.endsWith('PGPL-CREATE-SPACE-BOUNDARY') && i.standing === 'REFERENCE ONLY'))
-    assert.ok(w.S2.trace.citedOnly.some((i) => i.ref.endsWith('AUTH-4NOV') && i.standing === 'RULING'), 'his permission is cited beside the boundary sentence')
+    assert.ok(w.S2.trace.citedOnly.some((i) => i.ref.endsWith('AUTH-4NOV') && i.standing === 'RULING'), 'Christian\'s permission is cited beside the boundary sentence')
     assert.ok(w.S2.trace.citedOnly.some((i) => i.ref.endsWith('REQ-E1-CONTEXT-SENSITIVE-RESOLUTION')))
     // S2: the source of the not-offered consequence is named among what decided it (the secondary-inviting hypothesis's intended influence,
     // ours); the boundary entry is consulted only, with its role from data, and no Game Problem name is hard-coded in the stage's role text.
@@ -494,11 +494,11 @@ function testStructuralConditionsOfTheA05Forms(): void {
         // The signals are our mapping: every status resting on one is INFERRED and its trace names the mapping with standing OURS.
         for (const c of s.integrity.conditions.filter((x) => x.status === 'STRUCTURAL_SIGNAL_PRESENT')) {
             assert.equal(c.evidenceStatus, 'INFERRED', c.conditionId)
-            assert.ok(c.trace.influencedBy.some((i) => i.standing === 'OURS' && i.role.startsWith('our mapping (INFERRED), not his D6')), c.conditionId)
-            assert.ok(!c.trace.influencedBy.some((i) => i.standing === 'RULING' && i.role.includes(String(c.structuralSignal))), `${c.conditionId}: the signal is never credited to his ruling`)
+            assert.ok(c.trace.influencedBy.some((i) => i.standing === 'OURS' && i.role.startsWith('our mapping (INFERRED), not Christian\'s D6')), c.conditionId)
+            assert.ok(!c.trace.influencedBy.some((i) => i.standing === 'RULING' && i.role.includes(String(c.structuralSignal))), `${c.conditionId}: the signal is never credited to Christian's ruling`)
         }
-        assert.match(s.integrity.wordingConfirmation, /^OURS, for him to check; his acknowledgement is pending/)
-        assert.match(s.integrity.structuralSignalStanding, /^OURS \(INFERRED\), not his D6/)
+        assert.match(s.integrity.wordingConfirmation, /^OURS, for Christian to check; Christian's acknowledgement is pending/)
+        assert.match(s.integrity.structuralSignalStanding, /^OURS \(INFERRED\), not Christian's D6/)
         // A continuum, not a pass-or-fail judgement: no verdict anywhere in the structural output.
         const text = json(s)
         assert.ok(!/"(verdict|passed|failed|integrityHolds)"/.test(text) && !text.includes('"PASS"') && !text.includes('"FAIL"'), s.gameFormId)
@@ -507,7 +507,7 @@ function testStructuralConditionsOfTheA05Forms(): void {
 }
 
 /**
- * A team with no players: the structural signals turn; W-L2 and N-L1 report structural certainty and decide nothing (his D6 holds any rule
+ * A team with no players: the structural signals turn; W-L2 and N-L1 report structural certainty and decide nothing (Christian's D6 holds any rule
  * that could exclude a design). The outcome is insufficient evidence through W-H1's structural assumption (b), which takes two equal team
  * sizes, each a positive whole number, never through W-L2 or N-L1. Removing the two structural checks from the data moves no outcome.
  */
@@ -574,13 +574,13 @@ function testNeitherDecidesRemarkOnlyWhereItApplies(): void {
 // -------------------------------------------------------------------------------------------------------------------------------------
 
 /**
- * Approved knowledge is never grouped with a ruling of his, candidate data, an inference of ours or a test input; an unresolved status is
+ * Approved knowledge is never grouped with a ruling of Christian's, candidate data, an inference of ours or a test input; an unresolved status is
  * never shown as established; structural findings on test inputs are never grouped with test-only hypotheses.
  */
 function testConclusionGroupsKeepStandingsApart(): void {
     const results = runStage2ForEveryGoal()
     const all = results.flatMap((r) => r.conclusions.map((c) => ({ goal: r.learningGoalId, c, group: conclusionGroup(c) })))
-    const established: string[] = ['ESTABLISHED THROUGH APPROVED KNOWLEDGE', 'ESTABLISHED BY HIS RULINGS']
+    const established: string[] = ['ESTABLISHED THROUGH APPROVED KNOWLEDGE', 'ESTABLISHED BY CHRISTIAN\'S RULINGS']
     for (const { goal, c, group } of all) {
         const label = `${goal} ${c.id}`
         const standings = c.trace.influencedBy.map((i) => i.standing)
@@ -601,9 +601,9 @@ function testConclusionGroupsKeepStandingsApart(): void {
         if (c.statement.includes('UNRESOLVED (')) assert.equal(group, 'INSUFFICIENT EVIDENCE', label)
     }
     const groupOf = (goal: string, id: string) => all.find((x) => x.goal === goal && x.c.id === id)?.group
-    assert.equal(groupOf('A05', 'step 1 game problems'), 'ESTABLISHED BY HIS RULINGS', 'A05\'s Game Problems rest on his scoped ruling')
-    assert.equal(groupOf('A05', 'step 1 effective profile'), 'ESTABLISHED BY HIS RULINGS', 'D1, the review pathway only')
-    assert.equal(groupOf('A05', 'step 1 union view'), 'ESTABLISHED BY HIS RULINGS', 'which rows are merged rests on his ruling')
+    assert.equal(groupOf('A05', 'step 1 game problems'), 'ESTABLISHED BY CHRISTIAN\'S RULINGS', 'A05\'s Game Problems rest on Christian\'s scoped ruling')
+    assert.equal(groupOf('A05', 'step 1 effective profile'), 'ESTABLISHED BY CHRISTIAN\'S RULINGS', 'D1, the review pathway only')
+    assert.equal(groupOf('A05', 'step 1 union view'), 'ESTABLISHED BY CHRISTIAN\'S RULINGS', 'which rows are merged rests on Christian\'s ruling')
     assert.equal(groupOf('TA02', 'step 1 union view'), 'ESTABLISHED THROUGH APPROVED KNOWLEDGE')
     for (const goal of ['A01', 'A02', 'A05', 'D02', 'TA01', 'TA02']) assert.equal(groupOf(goal, 'step 2 game form'), 'RESTS ON CANDIDATE DATA', `${goal}: the form declarations are CANDIDATE`)
     for (const form of ['GF2', 'GF3', 'GF7']) {
@@ -701,20 +701,20 @@ function testInfluenceTraceNamesWhatDecides(): void {
     assert.ok(w.S3.trace.consulted.some((i) => i.ref.endsWith('S3.playersPerTeam')))
 }
 
-/** His D3 sentence on the missing defending-goal relationships reaches the goals the data lists, and no other. */
+/** Christian's D3 sentence on the missing defending-goal relationships reaches the goals the data lists, and no other. */
 function testKnowledgePopulationFinding(): void {
     const results = byGoal(runStage2ForEveryGoal())
     for (const id of ['D01', 'D03', 'TD01', 'TD02']) assert.equal(results[id].gameForm.knowledgePopulationFinding?.words, 'The missing defending-goal relationships can remain a separate knowledge-population finding.', id)
     for (const id of Object.keys(results).filter((g) => !['D01', 'D03', 'TD01', 'TD02'].includes(g))) assert.equal(results[id].gameForm.knowledgePopulationFinding, null, id)
 }
 
-/** The entries' kinds claim no acceptance he has not given; the reference sentence is no premise; his examples are not rulings. */
-function testEntryKindsAndStandingsClaimNoMoreThanHisWords(): void {
+/** The entries' kinds claim no acceptance Christian has not given; the reference sentence is no premise; Christian's examples are not rulings. */
+function testEntryKindsAndStandingsClaimNoMoreThanChristiansWords(): void {
     const k = committedKnowledge()
     for (const e of k.conditionsOfUse.entries) assert.ok(!String(e.kind).startsWith('accepted'), `${e.id}: ${e.kind}`)
     assert.equal(k.conditionsOfUse.entries.find((e) => e.id === 'PGPL-CREATE-SPACE-BOUNDARY')?.kind, 'reference knowledge, cited only (not a premise)')
-    for (const e of k.conditionsOfUse.entries) for (const s of e.sources) if (s.ref.includes('(his example)')) assert.equal(s.standing, 'PROVISIONAL', `${e.id}: ${s.ref}`)
-    // W-L1 is the version he was shown, hedged as his words were; it carries no prohibition.
+    for (const e of k.conditionsOfUse.entries) for (const s of e.sources) if (s.ref.includes('(Christian\'s example)')) assert.equal(s.standing, 'PROVISIONAL', `${e.id}: ${s.ref}`)
+    // W-L1 is the version Christian was shown, hedged as Christian's words were; it carries no prohibition.
     const wl1 = k.conditionsOfUse.entries.find((e) => e.id === 'W-L1')
     assert.ok(wl1 && wl1.statement.includes('exploiting it may be the immediate problem') && !wl1.statement.includes('must not'), wl1?.statement)
     // One meaning per circumstance: each hypothesis states its deciding circumstances once, and the organized-defence assumption is background.
@@ -722,16 +722,16 @@ function testEntryKindsAndStandingsClaimNoMoreThanHisWords(): void {
         const e = k.conditionsOfUse.entries.find((x) => x.id === id)
         const circumstances = (e?.assumptions ?? []).filter((a) => a.handling === 'DECIDING_CIRCUMSTANCE').map((a) => a.circumstance)
         assert.deepEqual([...circumstances].sort(), Object.keys(e?.comparison?.decidingCircumstances ?? {}).sort(), id)
-        assert.ok((e?.assumptions ?? []).some((a) => a.handling === 'BACKGROUND_UNVERIFIED' && a.statement.startsWith('The defence is functionally organized, in his sense')), id)
+        assert.ok((e?.assumptions ?? []).some((a) => a.handling === 'BACKGROUND_UNVERIFIED' && a.statement.startsWith('The defence is functionally organized, in Christian\'s sense')), id)
     }
-    // A ruling's scope is his only where his words state it.
+    // A ruling's scope is Christian's only where Christian's words state it.
     for (const r of k.stage2Rulings.rulings) {
         if (r.scope === null) assert.ok(!r.scopeWords, r.id)
-        else assert.ok(r.scopeWords && r.scopeWords.length > 0 && r.scopeWords.every((w) => r.words.includes(w) || k.stage2Rulings.rulings.some((x) => x.words.includes(w))), `${r.id}: a scope needs his words`)
+        else assert.ok(r.scopeWords && r.scopeWords.length > 0 && r.scopeWords.every((w) => r.words.includes(w) || k.stage2Rulings.rulings.some((x) => x.words.includes(w))), `${r.id}: a scope needs Christian's words`)
     }
     assert.equal(k.stage2Rulings.rulings.find((r) => r.id === 'D3-4NOV')?.scope, null)
-    // The composite specification is not called complete; his completeness check is pending.
-    for (const c of k.stage2Rulings.compositeProfile.citedOnly) assert.ok(!c.received.includes('held complete') && c.received.includes('completeness is not confirmed by him'), c.ref)
+    // The composite specification is not called complete; Christian's completeness check is pending.
+    for (const c of k.stage2Rulings.compositeProfile.citedOnly) assert.ok(!c.received.includes('held complete') && c.received.includes('completeness is not confirmed by Christian'), c.ref)
 }
 
 /** Every framework principle names the tests that pin it (each a test that exists), or says it is not exercised. */
@@ -797,15 +797,15 @@ function testEntriesFollowTheApprovedStructure(): void {
         assert.ok(e.intendedInfluence && Array.isArray(e.assumptions) && Array.isArray(e.limitations), e.id)
         if (e.kind === 'hypothesis') assert.ok(Array.isArray(e.failureModes), e.id)
     }
-    // His D4 classifications are data only: no stage file reads them.
+    // Christian's D4 classifications are data only: no stage file reads them.
     for (const f of fs.readdirSync(HERE).filter((x) => x.endsWith('.ts') && !x.endsWith('.unit.ts'))) assert.ok(!fs.readFileSync(path.join(HERE, f), 'utf8').includes('classifications'), f)
     // ASSEMBLY EXPERIMENT TIGHTENING (code review, 6 November): the ban above is on a word, which a reworded report string passes; the data
-    // access is banned too: no property or bracket access by that key, and no positional index into his Stage 2 rulings list (a D4 ruling
+    // access is banned too: no property or bracket access by that key, and no positional index into Christian's Stage 2 rulings list (a D4 ruling
     // reached by position would need neither the word nor its id).
     for (const f of fs.readdirSync(HERE).filter((x) => x.endsWith('.ts') && !x.endsWith('.unit.ts'))) {
         const code = fs.readFileSync(path.join(HERE, f), 'utf8')
         assert.ok(!/\.\s*classifications\b|\[\s*['"`]classifications/i.test(code), `${f} reads the D4 classifications key`)
-        assert.ok(!/stage2Rulings\s*\.\s*rulings\s*\[/.test(code), `${f} indexes his Stage 2 rulings by position`)
+        assert.ok(!/stage2Rulings\s*\.\s*rulings\s*\[/.test(code), `${f} indexes Christian's Stage 2 rulings by position`)
     }
     assert.ok(/stage2Rulings\s*\.\s*rulings\s*\[/.test('k.stage2Rulings.rulings[3]') && /\[\s*['"`]classifications/i.test(`r["classifications"]`), 'bite: both access forms are seen')
 }
@@ -893,7 +893,7 @@ testATeamWithNoPlayers()
 testConclusionGroupsKeepStandingsApart()
 testInfluenceTraceNamesWhatDecides()
 testKnowledgePopulationFinding()
-testEntryKindsAndStandingsClaimNoMoreThanHisWords()
+testEntryKindsAndStandingsClaimNoMoreThanChristiansWords()
 testEveryFrameworkPrincipleNamesItsTests()
 testDataQuotesMatchTheRepositoryRows()
 testEntriesFollowTheApprovedStructure()

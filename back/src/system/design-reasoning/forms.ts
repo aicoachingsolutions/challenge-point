@@ -1,7 +1,7 @@
 /**
  * **Step 2: relational Game Form selection, compatibility only** — review pathway only. Stage 1 (Christian's reply to the development
  * proposal, received 3 November 2026, item 8: *"Where the evidence cannot distinguish compatible forms, return insufficient evidence."*),
- * amended for Stage 2 by his reply to the Stage 2 decision package, received 4 November 2026, D3: *"I agree with your recommendation to treat
+ * amended for Stage 2 by Christian's reply to the Stage 2 decision package, received 4 November 2026, D3: *"I agree with your recommendation to treat
  * the current context strengths and Game Form primary/secondary declarations as compatibility information unless approved knowledge
  * explicitly establishes a preference."* / *"Please withdraw the developer-authored orderings that imply otherwise."*
  *
@@ -9,7 +9,7 @@
  * dominance rule are gone, with `selection-basis.json`. Nothing orders the candidates; they are listed in form-id order only so the output
  * never carries the workbook's listing order, and that order carries no preference.
  *
- * WHAT IS KEPT. Candidates are the forms the routed context relates (its ACTIVE GAME_FORM rows). Each goes through Stage 1's gate, which his
+ * WHAT IS KEPT. Candidates are the forms the routed context relates (its ACTIVE GAME_FORM rows). Each goes through Stage 1's gate, which Christian's
  * D3 now supports (*"Where a Game Form has no governed relationship with the resolved primary Game Problem, I agree that it should remain
  * excluded from automatic selection for now."*): the context's row is not of an excluded type; the form is ACTIVE; its archetype is one the
  * context relates; the archetype workbook does not mark the primary Game Problem with an excluded role; the form declares the primary Game
@@ -28,7 +28,7 @@
  * the primary Game Problem labelled as non-contradiction only. The trace records every gate input among what decided the outcome (the
  * context's form and archetype rows, the archetype workbook's row for the primary Game Problem, the form declarations, and what set the
  * primary in Step 1), each labelled as a gate input, compatibility only; context strengths are consulted, never decisive. Where the data
- * lists the goal, his D3 sentence on the missing defending-goal relationships is attached to a NO_GOVERNED_RELATIONSHIP_ESTABLISHED result
+ * lists the goal, Christian's D3 sentence on the missing defending-goal relationships is attached to a NO_GOVERNED_RELATIONSHIP_ESTABLISHED result
  * as a knowledge-population finding. Not used, and said so: the composite profile, player ranges (declared on no form), and every narrative
  * field. No goal id appears in this file.
  */
@@ -85,7 +85,7 @@ export interface GameFormSelection {
         conditionalPreferenceWords: string | null
     }
     gate: { standing: string; ruling: string; excludedContextRelationshipTypes: string[]; excludedArchetypeGameProblemRoles: string[]; governedPreferenceTypes: string[] }
-    /** His D3 sentence on the missing defending-goal relationships, attached where the data lists the goal; it decides nothing. */
+    /** Christian's D3 sentence on the missing defending-goal relationships, attached where the data lists the goal; it decides nothing. */
     knowledgePopulationFinding: { words: string; standing: string; ruling: string } | null
     withdrawn: string
     notUsed: string[]
@@ -95,11 +95,11 @@ export interface GameFormSelection {
 }
 
 const NOT_USED = [
-    'The composite profile: forms declare the sport module\'s affordance labels, and his D4 classifies only what five labels mean; no element-to-affordance relevance join is approved.',
+    'The composite profile: forms declare the sport module\'s affordance labels, and Christian\'s D4 classifies only what five labels mean; no element-to-affordance relevance join is approved.',
     'Player ranges: minimum_players and maximum_players are declared on no Game Form, and the stage receives no coaching context.',
     'Narrative fields (objective, role_structure, representative_requirements, setup_guidance, known_limitations, notes): carried for people, never parsed.',
     'The sport module\'s Coverage rows: derived from the keyword pools, not from approved relationships.',
-    'Context relationship strength and the forms\' primary and secondary columns as preferences: withdrawn by his D3; shown as compatibility information only.',
+    'Context relationship strength and the forms\' primary and secondary columns as preferences: withdrawn by Christian\'s D3; shown as compatibility information only.',
 ]
 
 /** The form's declared relationship to one Game Problem: PRIMARY, SECONDARY or NONE. */
@@ -115,7 +115,7 @@ export function selectGameForm(k: DesignKnowledge, resolution: DesignResolution)
     const d3Ruling = ruling(k, d3.ruling)
     const gate = d3.gate
     const d3Cite: Cite = { file: SOURCE.stage2Rulings, table: 'rulings', row: d3Ruling.id }
-    const d3Item = item(`stage2-rulings.json ${d3Ruling.id}`, sourceStanding(k, 'stage2Rulings'), `his ${d3Ruling.decision}: compatibility only; the declaration gate kept`, d3Cite)
+    const d3Item = item(`stage2-rulings.json ${d3Ruling.id}`, sourceStanding(k, 'stage2Rulings'), `Christian's ${d3Ruling.decision}: compatibility only; the declaration gate kept`, d3Cite)
     const result: GameFormSelection = {
         learningGoalId: resolution.learningGoalId,
         status: 'NOT_EVALUATED',
@@ -133,7 +133,7 @@ export function selectGameForm(k: DesignKnowledge, resolution: DesignResolution)
             governedPreferenceTypes: [...gate.governedPreferenceTypes],
         },
         knowledgePopulationFinding: null,
-        withdrawn:'selection-basis.json (three orderings and the dominance rule), withdrawn by his D3; the repository history keeps it.',
+        withdrawn:'selection-basis.json (three orderings and the dominance rule), withdrawn by Christian\'s D3; the repository history keeps it.',
         notUsed: [...NOT_USED],
         establishedBy: 'INSUFFICIENT EVIDENCE',
         trace: { influencedBy: [], consulted: [], citedOnly: [] },
@@ -159,7 +159,7 @@ export function selectGameForm(k: DesignKnowledge, resolution: DesignResolution)
     const resolvedRoles: Array<[string, string]> = [[primaryId, 'PRIMARY'], ...resolution.gameProblems.secondary.map((id): [string, string] => [id, 'SECONDARY'])]
     const archetypeRows = activeContextRelationships(k, rpcId, 'GAME_ARCHETYPE').filter((r) => !gate.excludedContextRelationshipTypes.includes(r.type))
     const contextArchetypes = archetypeRows.map((r) => r.relatedId)
-    // The primary Game Problem the gate tests comes from Step 1 (an approved translation, or his ruling), so what set it decides here too.
+    // The primary Game Problem the gate tests comes from Step 1 (an approved translation, or Christian's ruling), so what set it decides here too.
     const basisItems = resolution.gameProblems.trace.influencedBy.map((i) => ({ ...i, role: `names the primary Game Problem the gate tests: ${i.role}` }))
     const influencedBy: TraceItem[] = [d3Item, ...basisItems]
     const consulted: TraceItem[] = []
@@ -268,7 +268,7 @@ export function selectGameForm(k: DesignKnowledge, resolution: DesignResolution)
         result.status = 'SELECTED'
         result.selected = compatible[0].gameFormId
         result.statement = `${compatible[0].gameFormId}: ${d3.selectedWording}.`
-        // His D3 governs the reading (compatibility only, the gate kept); the rows it reads include the sport module's CANDIDATE declarations.
+        // Christian's D3 governs the reading (compatibility only, the gate kept); the rows it reads include the sport module's CANDIDATE declarations.
         result.establishedBy = 'RULING'
         return result
     }

@@ -13,7 +13,7 @@
  * ASSUMPTION, TEST INPUT, and, for the assembly experiment only, ILLUSTRATIVE and UNRESOLVED, on which the Stage 2 grouping throws).
  *
  * Every conclusion carries `establishedBy`. The report groups conclusions by `establishedBy` and by the WEAKEST standing among the items
- * that decided them, so approved knowledge is never shown beside a ruling of his, candidate data, an inference of ours or a test input:
+ * that decided them, so approved knowledge is never shown beside a ruling of Christian's, candidate data, an inference of ours or a test input:
  * a conclusion is grouped as established through approved knowledge only where it is established by approved knowledge and every item
  * that decided it is APPROVED. Nothing here is served, coach text or an authorization.
  */
@@ -49,7 +49,7 @@ export interface Conclusion {
 /**
  * Standings from strongest to weakest, as the report ranks what decided a conclusion. REFERENCE ONLY never decides anything. The assembly
  * experiment's two standings (ILLUSTRATIVE, UNRESOLVED) are appended after TEST INPUT, so every earlier standing keeps its rank and Stage 2's
- * output is unchanged. His six classes are not this order: they live with the assembly experiment, which ranks them in his own order.
+ * output is unchanged. Christian's six classes are not this order: they live with the assembly experiment, which ranks them in Christian's own order.
  */
 export const STANDING_ORDER = ['APPROVED', 'RULING', 'PROVISIONAL', 'CANDIDATE', 'OURS', 'REFERENCE ONLY', 'TEST ASSUMPTION', 'TEST INPUT', 'ILLUSTRATIVE', 'UNRESOLVED'] as const
 
@@ -77,10 +77,10 @@ export function weakestStanding(t: InfluenceTrace): Standing | null {
     return weakest
 }
 
-/** The groups the report keeps apart, as his authorization asks, in the order the report prints them. */
+/** The groups the report keeps apart, as Christian's authorization asks, in the order the report prints them. */
 export const CONCLUSION_GROUPS = [
     'ESTABLISHED THROUGH APPROVED KNOWLEDGE',
-    'ESTABLISHED BY HIS RULINGS',
+    'ESTABLISHED BY CHRISTIAN\'S RULINGS',
     'RESTS ON CANDIDATE DATA',
     'RESTS ON OUR INFERENCE (NO TEST INPUT)',
     'STRUCTURAL FINDINGS ON TEST INPUTS',
@@ -92,9 +92,9 @@ export type ConclusionGroup = (typeof CONCLUSION_GROUPS)[number]
 /** What each group holds, printed under its heading. */
 export const CONCLUSION_GROUP_NOTES: Record<ConclusionGroup, string> = {
     'ESTABLISHED THROUGH APPROVED KNOWLEDGE': 'Established by approved knowledge, and every row that decided it is APPROVED.',
-    'ESTABLISHED BY HIS RULINGS': 'Decided by a ruling of his, with approved knowledge; no candidate data, no entry or identification of ours, no test input. Each ruling keeps its own scope; D1 is approved for the isolated review pathway only, not as a canonical amendment.',
-    'RESTS ON CANDIDATE DATA': 'Among what decided it is CANDIDATE data: the sport module\'s Game Form declarations (module DRAFT), read under his D3 as compatibility information. Not approved knowledge.',
-    'RESTS ON OUR INFERENCE (NO TEST INPUT)': 'A logical inference of ours, or a conclusion that rests on an entry, identification or mapping of ours (OURS), with no test input. Not approved knowledge, and not his ruling.',
+    'ESTABLISHED BY CHRISTIAN\'S RULINGS': 'Decided by a ruling of Christian\'s, with approved knowledge; no candidate data, no entry or identification of ours, no test input. Each ruling keeps its own scope; D1 is approved for the isolated review pathway only, not as a canonical amendment.',
+    'RESTS ON CANDIDATE DATA': 'Among what decided it is CANDIDATE data: the sport module\'s Game Form declarations (module DRAFT), read under Christian\'s D3 as compatibility information. Not approved knowledge.',
+    'RESTS ON OUR INFERENCE (NO TEST INPUT)': 'A logical inference of ours, or a conclusion that rests on an entry, identification or mapping of ours (OURS), with no test input. Not approved knowledge, and not Christian\'s ruling.',
     'STRUCTURAL FINDINGS ON TEST INPUTS': 'Structural findings that read a test input (team sizes, areas): not hypotheses, and not evidence of ecological relevance.',
     'DEMONSTRATED ONLY UNDER TEST-ONLY HYPOTHESES': 'Results of the paired width comparison under test assumptions: not empirically established, not eligible for production.',
     'INSUFFICIENT EVIDENCE': 'Where a condition cannot be evaluated, or nothing approved decides.',
@@ -102,7 +102,7 @@ export const CONCLUSION_GROUP_NOTES: Record<ConclusionGroup, string> = {
 
 /**
  * The group a Stage 2 conclusion is printed under. Fail closed for the assembly experiment's standings: an ILLUSTRATIVE or UNRESOLVED item
- * anywhere among what decided a conclusion throws (Stage 2 never meets one; the assembly prints his six classes instead), and the last group
+ * anywhere among what decided a conclusion throws (Stage 2 never meets one; the assembly prints Christian's six classes instead), and the last group
  * is reached only by a positive match on RULING or APPROVED, never by falling through.
  */
 export function conclusionGroup(c: Conclusion): ConclusionGroup {
@@ -116,7 +116,7 @@ export function conclusionGroup(c: Conclusion): ConclusionGroup {
     if (weakest === null || weakest === 'OURS' || weakest === 'REFERENCE ONLY' || c.establishedBy === 'LOGICAL INFERENCE') return 'RESTS ON OUR INFERENCE (NO TEST INPUT)'
     if (weakest === 'CANDIDATE' || weakest === 'PROVISIONAL') return 'RESTS ON CANDIDATE DATA'
     if (c.establishedBy === 'APPROVED KNOWLEDGE' && weakest === 'APPROVED') return 'ESTABLISHED THROUGH APPROVED KNOWLEDGE'
-    if (weakest === 'RULING' || weakest === 'APPROVED') return 'ESTABLISHED BY HIS RULINGS'
+    if (weakest === 'RULING' || weakest === 'APPROVED') return 'ESTABLISHED BY CHRISTIAN\'S RULINGS'
     throw new Error(`conclusion "${c.id}": no group holds its weakest decisive standing ${weakest}`)
 }
 

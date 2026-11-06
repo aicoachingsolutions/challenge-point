@@ -2,7 +2,7 @@
  * **Structural conditions of a compatible Game Form** — Stage 2, review pathway only, test-only where it reads a test input (Christian's
  * reply to the Stage 2 decision package, received 4 November 2026, D6: *"I agree that the ball as task object and the opposing team as
  * competitor can serve as explicit structural preconditions in the isolated tests, without being treated as sufficient evidence of
- * ecological relevance."* / *"A structural condition does not prove that an affordance will emerge."*; and his classification of one
+ * ecological relevance."* / *"A structural condition does not prove that an affordance will emerge."*; and Christian's classification of one
  * archetype's integrity conditions into required conditions and descriptions of breaches, quoted with its ids in `stage2-rulings.json`;
  * D5: *"I also support retaining continuous play as a baseline representative condition where applicable, separate from specific
  * Interaction Regulations."*).
@@ -17,16 +17,16 @@
  *      wherever no authorized departure is recorded. No knowledge file this stage reads can record a departure and, in Stage 2, no activity
  *      is assembled, so it is reported as a default, never as a condition evaluated and found to hold (in the assembly experiment, as not
  *      evaluable from the assembled configuration). It is a baseline representative condition, not an Interaction Regulation.
- *   3. The archetype's organizational integrity conditions, read by id and role from the archetype workbook, each classified by his D6 as
+ *   3. The archetype's organizational integrity conditions, read by id and role from the archetype workbook, each classified by Christian's D6 as
  *      data (required condition or breach description). Integrity is a continuum, so no pass-or-fail verdict is printed. Before an activity
  *      is assembled (Step 3 is held), each required condition is to be expressed by the assembled activity and is not evaluable (in the
  *      assembly experiment: not evaluable from the assembled configuration, for the form assembled or applied hypothetically), except
  *      where the data records a structural signal (opposition present; the continuous-play baseline default). The signals are OUR mapping
- *      (INFERRED), not his D6: a conclusion resting on one carries evidence status INFERRED and a trace item of standing OURS. Each breach
+ *      (INFERRED), not Christian's D6: a conclusion resting on one carries evidence status INFERRED and a trace item of standing OURS. Each breach
  *      description is a risk, not evaluable before activity assembly, except where the design makes it structurally certain (an opposing
  *      team with no players); an opposing team with players does not show that the opposition can change progression.
  *
- * No condition's statement is read: the classification is his and the signals are ours, as data. No element-to-affordance relevance join
+ * No condition's statement is read: the classification is Christian's and the signals are ours, as data. No element-to-affordance relevance join
  * is made, and nothing here excludes a design. No goal, Game Problem, context, Game Form, archetype or row id appears in this file.
  */
 import { archetypeIntegrityConditions, Cite, conditionOfUse, DesignKnowledge, IntegrityClassification, ruling, SOURCE, sourceStanding, Standing } from './knowledge'
@@ -36,7 +36,7 @@ import { citeRef, Conclusion, EstablishedBy, InfluenceTrace, item, TraceItem } f
 
 /**
  * The configured activity the structural conditions are read against: team sizes only, a test input by default. The assembly experiment
- * (his second reply of 5 November 2026) passes the assembled team sizes with their own standing (ILLUSTRATIVE) and either `assembled: true`
+ * (Christian's second reply of 5 November 2026) passes the assembled team sizes with their own standing (ILLUSTRATIVE) and either `assembled: true`
  * (the form it assembled) or `appliedHypothetically: true` (a compatible form it did not assemble, read with the same team sizes); then
  * the team-size item carries that standing, and the wording says which: assembled, or not assembled with the team sizes applied
  * hypothetically. Without the optional fields (Stage 2) nothing changes, and `activity` is returned exactly as received.
@@ -120,7 +120,7 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
     const missing: MissingKnowledge[] = []
     const d6 = k.stage2Rulings.relevance
     const d6Ruling = ruling(k, d6.ruling)
-    const d6Item = item(`stage2-rulings.json ${d6Ruling.id}`, sourceStanding(k, 'stage2Rulings'), `his ${d6Ruling.decision}`, { file: SOURCE.stage2Rulings, table: 'rulings', row: d6Ruling.id })
+    const d6Item = item(`stage2-rulings.json ${d6Ruling.id}`, sourceStanding(k, 'stage2Rulings'), `Christian's ${d6Ruling.decision}`, { file: SOURCE.stage2Rulings, table: 'rulings', row: d6Ruling.id })
     const archetypeId = form.declaration?.archetypeId ?? ''
     const formItem = form.declaration ? item(citeRef(form.declaration.cite), sourceStanding(k, 'sportModule'), `the form's archetype cell reads ${archetypeId}`, form.declaration.cite) : null
     const assembled = activity?.assembled === true
@@ -167,7 +167,7 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
     } else {
         const basisItems: TraceItem[] = [
             item(`conditions-of-use.stage2.json ${entry.id}`, 'OURS', `${entry.evidenceClass}; ${entry.permittedEngineUse}`, { file: SOURCE.conditionsOfUse, table: 'entries', row: entry.id }),
-            item(`stage2-rulings.json ${d5Ruling.id}`, sourceStanding(k, 'stage2Rulings'), `his ${d5Ruling.decision}: continuous play as a baseline representative condition`, { file: SOURCE.stage2Rulings, table: 'rulings', row: d5Ruling.id }),
+            item(`stage2-rulings.json ${d5Ruling.id}`, sourceStanding(k, 'stage2Rulings'), `Christian's ${d5Ruling.decision}: continuous play as a baseline representative condition`, { file: SOURCE.stage2Rulings, table: 'rulings', row: d5Ruling.id }),
             ...(formItem ? [formItem] : []),
             item('stage2-rulings.json relevance.authorizedDepartures', 'OURS', departures.length ? `${departures.length} authorized departure(s) recorded for the goal` : 'no authorized departure recorded for the goal'),
         ]
@@ -189,7 +189,7 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
     }
     conclusions.push({ id: `${form.gameFormId} continuous play`, step, statement: `Continuous-play baseline: ${continuousPlay.status}. ${continuousPlay.detail}`, establishedBy: continuousPlay.establishedBy, testOnly: false, trace: continuousPlay.trace })
 
-    // 3. Integrity conditions: read by id and role; classified by his D6 as data; no pass-or-fail verdict.
+    // 3. Integrity conditions: read by id and role; classified by Christian's D6 as data; no pass-or-fail verdict.
     const classification = d6.integrityConditions.classification
     const rows = archetypeId ? archetypeIntegrityConditions(k, archetypeId) : []
     for (const c of classification.filter((c) => c.conditionId.startsWith(`${archetypeId}-`) && !rows.some((r) => r.conditionId === c.conditionId))) {
@@ -198,13 +198,13 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
     const conditions: IntegrityConditionResult[] = rows.map((row) => {
         const cls = classification.find((c) => c.conditionId === row.conditionId)
         const rowItem = item(citeRef(row.cite), sourceStanding(k, 'archetypes'), `${row.conditionId}, role ${row.role}`, row.cite)
-        const clsItem = item(`stage2-rulings.json relevance.integrityConditions ${row.conditionId}`, sourceStanding(k, 'stage2Rulings'), cls ? `his D6 classification (the class only): ${cls.class}` : 'not classified')
+        const clsItem = item(`stage2-rulings.json relevance.integrityConditions ${row.conditionId}`, sourceStanding(k, 'stage2Rulings'), cls ? `Christian's D6 classification (the class only): ${cls.class}` : 'not classified')
         if (!cls) {
             missing.push({ kind: 'INTEGRITY_CONDITION_UNCLASSIFIED', detail: `${row.conditionId} has no classification in stage2-rulings.json.`, cites: [row.cite] })
             return { conditionId: row.conditionId, recordId: row.recordId, workbookRole: row.role, class: 'UNCLASSIFIED', structuralSignal: null, status: 'UNCLASSIFIED', detail: 'Not classified; not evaluated.', cite: row.cite, evidenceStatus: null, establishedBy: 'INSUFFICIENT EVIDENCE', testOnly: false, trace: { influencedBy: [rowItem, clsItem], consulted: [], citedOnly: [] } }
         }
-        // The signal mapping is ours (INFERRED), never his D6: where a status rests on it, the trace says so with standing OURS.
-        const signalItem = cls.structuralSignal ? item(`stage2-rulings.json relevance.integrityConditions ${row.conditionId} structuralSignal`, 'OURS', `our mapping (INFERRED), not his D6: ${cls.structuralSignal}`) : null
+        // The signal mapping is ours (INFERRED), never Christian's D6: where a status rests on it, the trace says so with standing OURS.
+        const signalItem = cls.structuralSignal ? item(`stage2-rulings.json relevance.integrityConditions ${row.conditionId} structuralSignal`, 'OURS', `our mapping (INFERRED), not Christian's D6: ${cls.structuralSignal}`) : null
         let status: IntegrityStatus
         let detail: string
         let establishedBy: EstablishedBy = 'INSUFFICIENT EVIDENCE'
@@ -228,7 +228,7 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
                 if (activityItem) influencedBy.push(activityItem)
             } else if (cls.structuralSignal === 'CONTINUOUS_PLAY_BASELINE' && continuousPlay.status === 'APPLIES_AS_BASELINE_DEFAULT') {
                 status = 'STRUCTURAL_SIGNAL_PRESENT'
-                detail = `A structural signal of ours (INFERRED): the continuous-play baseline default (${continuousPlay.entryId}) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: ${assembled ? 'not evaluable from the assembled configuration; only in play.' : hypothetical ? 'only in play (this form is not assembled).' : 'to be expressed by the assembled activity; not evaluable before activity assembly.'}`
+                detail = `A structural signal of ours (INFERRED): the continuous-play baseline default (${continuousPlay.entryId}) applies. Our link, not Christian's: Christian's D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: ${assembled ? 'not evaluable from the assembled configuration; only in play.' : hypothetical ? 'only in play (this form is not assembled).' : 'to be expressed by the assembled activity; not evaluable before activity assembly.'}`
                 establishedBy = 'LOGICAL INFERENCE'
                 evidenceStatus = 'INFERRED'
                 if (signalItem) influencedBy.push(signalItem)
@@ -269,7 +269,7 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
                 detail = assembled ? 'A risk, not a verdict. Not evaluable from the assembled configuration; only in play.' : hypothetical ? 'A risk, not a verdict. Not evaluable: this form is not assembled; only in play.' : 'A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).'
             }
         }
-        if (row.role !== 'CONDITION') missing.push({ kind: 'INTEGRITY_ROLE_CHANGED', detail: `${row.conditionId} has workbook role ${row.role}; his D6 classification was confirmed against role CONDITION.`, cites: [row.cite] })
+        if (row.role !== 'CONDITION') missing.push({ kind: 'INTEGRITY_ROLE_CHANGED', detail: `${row.conditionId} has workbook role ${row.role}; Christian's D6 classification was confirmed against role CONDITION.`, cites: [row.cite] })
         const trace: InfluenceTrace = { influencedBy, consulted: [], citedOnly: [item(d6.integrityConditions.noVerdictSource.ref, d6.integrityConditions.noVerdictSource.standing, 'integrity is a continuum, so no pass-or-fail verdict is printed')] }
         conclusions.push({ id: `${form.gameFormId} ${row.conditionId}`, step, statement: `${row.conditionId} (${cls.class}): ${status}${evidenceStatus ? `; evidence status ${evidenceStatus}` : ''}. ${detail}`, establishedBy, testOnly, trace })
         return { conditionId: row.conditionId, recordId: row.recordId, workbookRole: row.role, class: cls.class, structuralSignal: cls.structuralSignal, status, detail, cite: row.cite, evidenceStatus, establishedBy, testOnly, trace }

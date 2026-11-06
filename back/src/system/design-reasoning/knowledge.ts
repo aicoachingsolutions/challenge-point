@@ -1,11 +1,11 @@
 /**
  * **The knowledge the design-reasoning stage reasons over, as one value that can be copied and changed in a test** — Stages 1 and 2, review
- * pathway only (Christian's reply to the development proposal, received 3 November 2026, item 8; his reply to the Stage 2 decision package,
+ * pathway only (Christian's reply to the development proposal, received 3 November 2026, item 8; Christian's reply to the Stage 2 decision package,
  * received 4 November 2026, which authorized "a bounded, review-only demonstration using the D1, D3, D5 and D6 directions").
  *
- * STAGE 2 CHANGES. His D3 withdrew our Game Form orderings, so `selection-basis.json` is no longer read (the repository history keeps it).
- * Two review-only data files join the value: `stage2-rulings.json` (his D1-D6 words, and the structures they govern) and
- * `conditions-of-use.stage2.json` (our conditions-of-use entries in the structure he approved under D5). Three readers are added, each
+ * STAGE 2 CHANGES. Christian's D3 withdrew our Game Form orderings, so `selection-basis.json` is no longer read (the repository history keeps it).
+ * Two review-only data files join the value: `stage2-rulings.json` (Christian's D1-D6 words, and the structures they govern) and
+ * `conditions-of-use.stage2.json` (our conditions-of-use entries in the structure Christian approved under D5). Three readers are added, each
  * taking ids, categories, roles and statuses only: a context's property row by id, an archetype's integrity-condition rows, and whether a
  * value is in the context library's controlled vocabulary.
  *
@@ -20,7 +20,7 @@
  * coach definition, "choose this when" text, entry-language phrase, Practice Situation name, relationship note or statement text. The readers
  * below take ids, relationship rows, ratings, statuses and declared id columns only. A static test pins this.
  *
- * ASSEMBLY EXPERIMENT (his second reply of 5 November 2026). One stage file, `assembly-display.ts`, reads six allowlisted display cells (a
+ * ASSEMBLY EXPERIMENT (Christian's second reply of 5 November 2026). One stage file, `assembly-display.ts`, reads six allowlisted display cells (a
  * goal's coach definition and name, a Game Problem's name, a Game Form's name, a scoring event's controlled-vocabulary description and a
  * context property's text) after the decisions, for the coach text and the report only; a static test pins the allowlist exactly and that
  * only runners and unit tests import that file, and a unit test rewrites every allowlisted cell and finds every decision unchanged. The
@@ -60,7 +60,7 @@ export const SOURCE = {
     stage2Rulings: 'back/src/system/design-reasoning/stage2-rulings.json',
     conditionsOfUse: 'back/src/system/design-reasoning/conditions-of-use.stage2.json',
     fixture: 'back/src/system/design-reasoning/width-scenarios.test-fixture.json',
-    /** The bounded assembly experiment (his second reply of 5 November 2026): our labelled decision record, and our DRAFT coach wording. */
+    /** The bounded assembly experiment (Christian's second reply of 5 November 2026): our labelled decision record, and our DRAFT coach wording. */
     assemblyExperiment: 'back/src/system/design-reasoning/assembly-experiment.review.json',
     assemblyWording: 'back/src/system/design-reasoning/assembly-wording.draft.json',
 } as const
@@ -73,7 +73,7 @@ export interface ScopedTranslation {
     scope: string
     qualifier: string
     words: string[]
-    /** A later ruling of his that retains this designation (Stage 2: D1). */
+    /** A later ruling of Christian's that retains this designation (Stage 2: D1). */
     continuedBy?: { ruling: string; file: string; words: string[]; note: string }
 }
 
@@ -94,7 +94,7 @@ export interface OpenDecision {
     question: string
     words: string[]
     handling: string
-    /** Set when a later ruling of his answers or replaces the question; a superseded decision is no longer attached to any result. */
+    /** Set when a later ruling of Christian's answers or replaces the question; a superseded decision is no longer attached to any result. */
     supersededBy?: { ruling: string; file: string; note: string }
 }
 
@@ -107,14 +107,14 @@ export interface Stage1Rulings {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
-// Stage 2: his D1-D6 rulings and our conditions-of-use entries, as data (shapes only; the content is in the two JSON files)
+// Stage 2: Christian's D1-D6 rulings and our conditions-of-use entries, as data (shapes only; the content is in the two JSON files)
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
 /**
- * The standing a source carries. TEST ASSUMPTION and TEST INPUT mark the fixture's values. PROVISIONAL marks his words given as an
+ * The standing a source carries. TEST ASSUMPTION and TEST INPUT mark the fixture's values. PROVISIONAL marks Christian's words given as an
  * illustrative example, not as a ruling (it appears among an entry's sources, never in an influence trace).
  *
- * ASSEMBLY EXPERIMENT (his second reply of 5 November 2026, which allows "an illustrative value ... for this offline prototype if clearly
+ * ASSEMBLY EXPERIMENT (Christian's second reply of 5 November 2026, which allows "an illustrative value ... for this offline prototype if clearly
  * labeled"). Two standings are appended at the end, so every earlier member keeps its place: ILLUSTRATIVE (a configuration value chosen for
  * the offline prototype and labelled as such) and UNRESOLVED (no authorized value exists). The list is the single source of the type, so a
  * standing read from a data file can be checked against it at run time; Stage 2 never meets the two new members, and the trace's grouping
@@ -130,19 +130,19 @@ export interface Ruling {
     id: string
     decision: string
     subject: string
-    /** His scope, only where his words state one (quoted in `scopeWords`); null where they state none. */
+    /** Christian's scope, only where Christian's words state one (quoted in `scopeWords`); null where they state none. */
     scope: string | null
     scopeWords?: string[]
-    /** OURS: what his scope words cover, where they cover part of the ruling only. */
+    /** OURS: what Christian's scope words cover, where they cover part of the ruling only. */
     scopeCovers?: string
     canonicalAmendment: boolean
     words: string[]
     supersedes?: string[]
-    /** Assembly experiment: the US Eastern date his reply was received (never one of our filing dates). */
+    /** Assembly experiment: the US Eastern date Christian's reply was received (never one of our filing dates). */
     received?: string
     /** Assembly experiment: a repository-independent reference to the reply (the sources-repository path, or the received date and first words). */
     file?: string
-    /** Assembly experiment: true where his own words call the decision provisional. */
+    /** Assembly experiment: true where Christian's own words call the decision provisional. */
     provisional?: boolean
 }
 
@@ -153,7 +153,7 @@ export interface ReferenceCitation {
     received: string
     quotes: string[]
     use: string
-    /** OURS: a possible tension with his D1 reading, noted for his reconciliation; decides nothing. */
+    /** OURS: a possible tension with Christian's D1 reading, noted for Christian's reconciliation; decides nothing. */
     tension?: string
 }
 
@@ -161,7 +161,7 @@ export interface IntegrityClassification {
     conditionId: string
     recordId: string
     class: 'REQUIRED CONDITION' | 'BREACH DESCRIPTION'
-    /** OURS (INFERRED), not his D6: the structural signal we map to the condition. */
+    /** OURS (INFERRED), not Christian's D6: the structural signal we map to the condition. */
     structuralSignal: 'OPPOSITION_PRESENT' | 'CONTINUOUS_PLAY_BASELINE' | null
 }
 
@@ -202,7 +202,7 @@ export interface Stage2Rulings {
         whatCouldDistinguish: { standing: string; items: Array<{ id: string; what: string; check: 'GOVERNED_PREFERENCE_ROW' | 'RECORDED_ABSENT'; limitation: string }> }
         conditionalPreferenceWords: string
         defendingGoalsWords: string
-        /** OURS: the goals his D3 sentence on the missing defending-goal relationships covers, by id. */
+        /** OURS: the goals Christian's D3 sentence on the missing defending-goal relationships covers, by id. */
         knowledgePopulationFinding: { standing: string; learningGoalIds: string[] }
     }
     relevance: {
@@ -250,7 +250,7 @@ export interface EntryAssumption {
 export type EvidenceClass = 'ESTABLISHED PRINCIPLE' | 'LOGICAL INFERENCE' | 'CAUSAL HYPOTHESIS' | 'REFERENCE KNOWLEDGE'
 export type PermittedEngineUse = 'TEST-ONLY COMPARISON' | 'STRUCTURAL CHECK AND UNCERTAINTY REPORTING' | 'TRACE CITATION ONLY' | 'DEFERRED'
 
-export type EntryKind = 'conceptual or structural principle (proposed; pending his acceptance)' | 'hypothesis' | 'reference knowledge, cited only (not a premise)'
+export type EntryKind = 'conceptual or structural principle (proposed; pending Christian\'s acceptance)' | 'hypothesis' | 'reference knowledge, cited only (not a premise)'
 
 export interface ConditionOfUse {
     id: string
@@ -343,7 +343,7 @@ export function sourceStanding(k: DesignKnowledge, source: string): Standing {
     return typeof entry === 'object' && entry ? entry.standing : 'OURS'
 }
 
-/** One of his rulings in the Stage 2 file, by id; a missing id is a broken data file, so it throws rather than guessing. */
+/** One of Christian's rulings in the Stage 2 file, by id; a missing id is a broken data file, so it throws rather than guessing. */
 export function ruling(k: DesignKnowledge, id: string): Ruling {
     const found = k.stage2Rulings.rulings.find((r) => r.id === id)
     if (!found) throw new Error(`stage2-rulings.json holds no ruling ${id}`)
@@ -540,7 +540,7 @@ export function archetypeGameProblemRole(
 
 /**
  * Stage 2: the archetype workbook's ORGANIZATIONAL_INTEGRITY_CONDITION rows for one archetype, by their ids and role. Their statements are
- * never read here: what a condition means for the demonstration comes from his D6 classification, held as data in `stage2-rulings.json`.
+ * never read here: what a condition means for the demonstration comes from Christian's D6 classification, held as data in `stage2-rulings.json`.
  */
 export function archetypeIntegrityConditions(
     k: DesignKnowledge,

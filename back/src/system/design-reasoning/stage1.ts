@@ -5,11 +5,11 @@
  * goes through the same two calls with the same knowledge value; nothing branches on which goal it is. `runStage1ForEveryGoal` runs every
  * goal in the registry, in id order, which is how the demonstration shows the process reaching goals it was not developed on.
  *
- * Since Stage 2 (his reply to the Stage 2 decision package, received 4 November 2026), both steps run as his D1 and D3 direct: a
+ * Since Stage 2 (Christian's reply to the Stage 2 decision package, received 4 November 2026), both steps run as Christian's D1 and D3 direct: a
  * primary-led composite profile with explicit findings, and Game Forms read as compatibility only. Stage 1's own evidence files keep the
  * Stage 1 results as delivered; `stage2.ts` adds the structural conditions and the test-only width comparison on top of these two calls.
  *
- * Steps 3-5 (configuration, tradeoffs, validation) are held pending his review and are not here.
+ * Steps 3-5 (configuration, tradeoffs, validation) are held pending Christian's review and are not here.
  *
  * Nothing on the live route or the checked pathway imports this folder (a static test pins it). Its output is review evidence: never
  * served, never coach text, and a SELECTED form is the only Game Form with a governed relationship (compatibility, not demonstrated

@@ -36,7 +36,7 @@ export interface Stage2Result {
 }
 
 export const STAGE2_STANDING =
-    'Review evidence only. Not served, not coach text, not an authorization. Compatible Game Forms pass a gate over approved context and archetype rows and the sport module\'s CANDIDATE Game Form declarations (module DRAFT), read under his D3 as compatibility information: compatibility, not demonstrated suitability. Width results are test-only comparisons of conditional hypotheses under test assumptions: not empirically established, not eligible for production. Passing the stage\'s tests is engineering evidence, not evidence of representative learning quality in the field.'
+    'Review evidence only. Not served, not coach text, not an authorization. Compatible Game Forms pass a gate over approved context and archetype rows and the sport module\'s CANDIDATE Game Form declarations (module DRAFT), read under Christian\'s D3 as compatibility information: compatibility, not demonstrated suitability. Width results are test-only comparisons of conditional hypotheses under test assumptions: not empirically established, not eligible for production. Passing the stage\'s tests is engineering evidence, not evidence of representative learning quality in the field.'
 
 /** The committed test fixture, as a fresh deep copy each call. */
 export function committedWidthFixture(): WidthFixture {

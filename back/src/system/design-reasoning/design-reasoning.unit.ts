@@ -1,10 +1,10 @@
 /**
  * Unit tests — design-reasoning Stage 1 (Steps 1 and 2), review pathway only.
  *
- * The acceptance checks of the development proposal (section D) that Steps 1 and 2 can answer, as Christian approved them in his reply of
+ * The acceptance checks of the development proposal (section D) that Steps 1 and 2 can answer, as Christian approved them in Christian's reply of
  * 3 November 2026 (item 10: *"I support your ten proposed acceptance checks, including the wording-invariance and knowledge-mutation
- * tests."*), plus his added test on a goal the stage was not developed on:
- *   - check 1: each resolution cites the approved translation (or his scoped ruling) and the routing; no keyword inference;
+ * tests."*), plus Christian's added test on a goal the stage was not developed on:
+ *   - check 1: each resolution cites the approved translation (or Christian's scoped ruling) and the routing; no keyword inference;
  *   - check 2: (a) the stage imports no keyword parser or token scorer and reads no narrative column; (b) every decision is identical when
  *     every goal's wording, and every note, is rewritten in a test copy, and when two goals' wordings are swapped;
  *   - check 6: no goal id appears in the stage's code; every goal goes through one function;
@@ -12,11 +12,11 @@
  *   - check 8: one CAR rating, one context strength, one form declaration and one ruling, each changed in a test copy, move exactly the
  *     decisions that depend on that row;
  *   - check 10: two runs are byte-identical, and no listing order decides anything;
- *   - his added test: a goal not used in development, plus every goal in the registry, through the same function.
+ *   - Christian's added test: a goal not used in development, plus every goal in the registry, through the same function.
  * The readers are also required to agree with the existing loaders on the committed knowledge, so the stage reads the same knowledge the
  * rest of the engine does. Check 9 (A01 untouched) is the regression snapshot, run outside this file.
  *
- * STAGE 2 AMENDMENTS (his reply to the Stage 2 decision package, received 4 November 2026). Steps 1 and 2 now run as his D1 and D3
+ * STAGE 2 AMENDMENTS (Christian's reply to the Stage 2 decision package, received 4 November 2026). Steps 1 and 2 now run as Christian's D1 and D3
  * direct, so the expectations below changed where those rulings changed the output: the composite profile is primary-led with a union
  * view and explicit findings (no "primary wins" profile, no open merge-rule decision); Game Forms are compatibility only, so the A05 and
  * A01 ties are compatible alternatives GF2, GF3 and GF7, a context strength no longer moves any form decision, and a declaration change
@@ -159,11 +159,11 @@ function testMergeEqualsTheExistingCompositeRuntime(): void {
 // The two development goals (the demonstration's items 1-4) and check 1
 // -------------------------------------------------------------------------------------------------------------------------------------
 
-function testProgressTheAttackResolvesFromHisScopedRuling(): void {
+function testProgressTheAttackResolvesFromChristiansScopedRuling(): void {
     const r = runStage1('A05')
     const g = r.resolution
     assert.equal(g.status, 'RESOLVED')
-    assert.equal(g.gameProblems.basis, 'SCOPED_RULING', 'the Engine Translation row is unpopulated, so his E1 ruling supplies the Game Problems')
+    assert.equal(g.gameProblems.basis, 'SCOPED_RULING', 'the Engine Translation row is unpopulated, so Christian\'s E1 ruling supplies the Game Problems')
     assert.deepEqual([g.gameProblems.primary, g.gameProblems.secondary], [['GP-001'], ['GP-002']])
     assert.deepEqual(g.gameProblems.cites.map((c) => c.row), ['RUL-E1-A05', 'A05'])
     assert.equal(g.gameProblems.scope, 'STAGE1_DEVELOPMENT_DEMONSTRATION')
@@ -171,9 +171,9 @@ function testProgressTheAttackResolvesFromHisScopedRuling(): void {
     assert.equal(g.context?.goalRelationship?.relationshipId, 'RPC-REL-062')
     assert.deepEqual(g.context?.gameProblemRelationships.map((x) => `${x.gameProblemId} ${x.relationship?.relationshipId} ${x.relationship?.strength}`), ['GP-001 RPC-REL-023 PRIMARY', 'GP-002 RPC-REL-024 PRIMARY'])
 
-    assert.equal(g.gameProblems.continuedBy?.ruling, 'D1-4NOV', 'his D1 retains the designation for the Stage 2 demonstration')
+    assert.equal(g.gameProblems.continuedBy?.ruling, 'D1-4NOV', 'Christian\'s D1 retains the designation for the Stage 2 demonstration')
 
-    // E1, as his D1 directs: both rows with role and provenance, the union view, the primary-led effective profile, the FOI finding.
+    // E1, as Christian's D1 directs: both rows with role and provenance, the union view, the primary-led effective profile, the FOI finding.
     const p = g.profile
     assert.ok(p)
     assert.deepEqual(p.rows.map((e) => [e.gameProblemId, e.role, e.ratings]), [
@@ -185,10 +185,10 @@ function testProgressTheAttackResolvesFromHisScopedRuling(): void {
     assert.deepEqual(p.effectiveProfile.ratings, { FOI: 'S', OP: 'E', SA: 'S', CIO: 'E' })
     assert.deepEqual(p.findings.map((d) => [d.requirement, d.primary.rating, d.secondary.rating, d.outcome]), [['FOI', 'S', 'E', 'INSUFFICIENT_EVIDENCE']])
     assert.deepEqual(g.gameProblemRelationships.map((x) => `${x.source} ${x.relationship} ${x.target}`), ['GP-001 same_domain GP-002'])
-    assert.deepEqual(g.openDecisions.map((d) => d.id), [], 'the merge-rule question is superseded by his D1')
+    assert.deepEqual(g.openDecisions.map((d) => d.id), [], 'the merge-rule question is superseded by Christian\'s D1')
     assert.deepEqual(g.requirements.map((q) => [q.id, q.status]), [['REQ-E1-CONTEXT-SENSITIVE-RESOLUTION', 'RECORDED_NOT_IMPLEMENTED']])
 
-    // Check 7, as his D3 directs: GF2, GF3 and GF7 are compatible alternatives, with insufficient evidence to prefer one.
+    // Check 7, as Christian's D3 directs: GF2, GF3 and GF7 are compatible alternatives, with insufficient evidence to prefer one.
     const f = r.gameForm
     assert.equal(f.status, 'COMPATIBLE_ALTERNATIVES')
     assert.equal(f.selected, null)
@@ -204,13 +204,13 @@ function testSecurePossessionResolvesOnItsApprovedRoutingWithTheContextDecisionO
     assert.equal(g.gameProblems.basis, 'APPROVED_TRANSLATION')
     assert.deepEqual([g.gameProblems.primary, g.gameProblems.secondary], [['GP-015'], []])
     assert.deepEqual(g.gameProblems.cites.map((c) => `${c.table} ${c.row}`), ['engine_translation TA02'])
-    assert.equal(g.context?.rpcId, 'RPC-003', 'not routed to Counterattack: his E2 ruling keeps the approved routing until the context decision is made')
+    assert.equal(g.context?.rpcId, 'RPC-003', 'not routed to Counterattack: Christian\'s E2 ruling keeps the approved routing until the context decision is made')
     assert.equal(g.context?.goalRelationship?.strength, 'SECONDARY')
     assert.equal(g.context?.gameProblemRelationships[0].relationship?.strength, 'SECONDARY')
     assert.deepEqual(g.profile?.effectiveProfile.ratings, { FOI: 'E', OP: 'E', SA: 'E', CIO: 'E' })
     assert.deepEqual(g.profile?.rows.map((x) => x.role), ['PRIMARY'])
     assert.deepEqual(g.profile?.findings, [])
-    assert.deepEqual(g.openDecisions.map((d) => d.id), ['OPEN-D2-POSSESSION-STABILIZATION'], 'his D2 supersedes the E2 question; the context stays under review')
+    assert.deepEqual(g.openDecisions.map((d) => d.id), ['OPEN-D2-POSSESSION-STABILIZATION'], 'Christian\'s D2 supersedes the E2 question; the context stays under review')
     assert.deepEqual(g.requirements, [])
 
     const f = r.gameForm
@@ -266,7 +266,7 @@ function testTheStageReachesNoKeywordParserOrTokenScorer(): void {
     ]
     for (const f of forbidden) assert.ok(!closure.includes(f), `the stage reaches ${f}`)
     // Everything it does reach is a knowledge file or a loader that reads only its own knowledge file.
-    // ASSEMBLY EXPERIMENT AMENDMENT (his second reply of 5 November 2026): the three new stage files join the closure; they import only
+    // ASSEMBLY EXPERIMENT AMENDMENT (Christian's second reply of 5 November 2026): the three new stage files join the closure; they import only
     // files already in it (and their own two JSON files), so the closure still reaches no loader beyond the two listed below.
     assert.deepEqual(
         closure.filter((f) => f.endsWith('.ts')),
@@ -286,7 +286,7 @@ function testTheStageReachesNoKeywordParserOrTokenScorer(): void {
             'system/sport-module/design-knowledge-sources.ts',
         ]
     )
-    // And the JSON it reaches is the committed knowledge, his rulings, our review-only entries and the test fixture; never selection-basis.json.
+    // And the JSON it reaches is the committed knowledge, Christian's rulings, our review-only entries and the test fixture; never selection-basis.json.
     assert.ok(!closure.some((f) => f.endsWith('selection-basis.json')), 'the withdrawn orderings are still reached')
     for (const f of STAGE_FILES) {
         const code = stripComments(fs.readFileSync(f, 'utf8'))
@@ -390,7 +390,7 @@ function testNoGoalOrKnowledgeIdAppearsInTheStageCode(): void {
     const k = committedKnowledge()
     const ids = goalIds(k)
     assert.equal(ids.length, 13)
-    // Ids that live in the stage's own data files: his rulings, our entries, the open decisions, the precondition ids.
+    // Ids that live in the stage's own data files: Christian's rulings, our entries, the open decisions, the precondition ids.
     const dataIds = [
         ...k.stage2Rulings.rulings.map((r) => r.id),
         ...k.conditionsOfUse.entries.map((e) => e.id),
@@ -430,7 +430,7 @@ function testOneCarRatingMovesOnlyTheProfileThatReadsIt(): void {
     assert.deepEqual(a05.openDecisions.map((d) => d.id), [])
 }
 
-/** His D3 withdrew the strength ordering: a context strength changed in a test copy moves no form decision, only its own report. */
+/** Christian's D3 withdrew the strength ordering: a context strength changed in a test copy moves no form decision, only its own report. */
 function testOneContextStrengthMovesNoFormDecision(): void {
     const before = runStage1ForEveryGoal()
     const decision = (r: Stage1Result) => json([r.gameForm.status, r.gameForm.selected, r.gameForm.compatible, r.gameForm.preference.status, r.gameForm.preference.preferred])
@@ -458,7 +458,7 @@ function testOneFormDeclarationMovesOnlyTheGoalsWhosePrimaryItNames(): void {
     // Every goal whose context relates GF3 sees the changed declaration reported; only the GP-015 goals' decisions can move.
     for (const id of diff.goals) assert.ok(diff.paths.filter((p) => p.startsWith(`${id}.`)).every((p) => p.includes('.gameForm.')), id)
     for (const id of ['A02', 'TA02']) {
-        // GF2 declares GP-015 primary and GF3 now secondary: compatibility information only, so the two are alternatives (his D3).
+        // GF2 declares GP-015 primary and GF3 now secondary: compatibility information only, so the two are alternatives (Christian's D3).
         assert.equal(after[id].gameForm.status, 'COMPATIBLE_ALTERNATIVES', id)
         assert.equal(after[id].gameForm.selected, null, id)
         assert.deepEqual(after[id].gameForm.compatible, ['GF2', 'GF3'], id)
@@ -483,7 +483,7 @@ function testOneRulingMovesOnlyTheGoalItNames(): void {
     assert.equal(a05.gameForm.status, 'COMPATIBLE_ALTERNATIVES')
 }
 
-/** A governed preference, if he authors one, is honoured: reported as unconditional, the forms staying alternatives (his D3). */
+/** A governed preference, if Christian authors one, is honoured: reported as unconditional, the forms staying alternatives (Christian's D3). */
 function testAPreferredRelationshipIsHonouredAsAGovernedPreference(): void {
     const k = committedKnowledge()
     relationshipRow(k, 'RPC-REL-028')['relationship_type'] = 'PREFERRED' // RPC-003 -> GF2
@@ -542,7 +542,7 @@ function testReversingEveryListChangesNothing(): void {
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------
-// His added test: a goal the stage was not developed on, and every goal in the registry
+// Christian's added test: a goal the stage was not developed on, and every goal in the registry
 // -------------------------------------------------------------------------------------------------------------------------------------
 
 /** Win the Ball Back: a defending goal, another Game Problem (GP-016) and another context (RPC-007); not one of the two development goals. */
@@ -604,7 +604,7 @@ function testNothingOutsideTheStageImportsIt(): void {
 
 testReadersAgreeWithTheExistingLoaders()
 testMergeEqualsTheExistingCompositeRuntime()
-testProgressTheAttackResolvesFromHisScopedRuling()
+testProgressTheAttackResolvesFromChristiansScopedRuling()
 testSecurePossessionResolvesOnItsApprovedRoutingWithTheContextDecisionOpen()
 testTheStageReachesNoKeywordParserOrTokenScorer()
 testTheStageReadsNoNarrativeColumn()

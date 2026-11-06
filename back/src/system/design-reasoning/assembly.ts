@@ -1,26 +1,26 @@
 /**
- * **The bounded activity-assembly experiment: validation, assembly, his six classes, the requirement account and the coach-text join** —
+ * **The bounded activity-assembly experiment: validation, assembly, Christian's six classes, the requirement account and the coach-text join** —
  * review pathway only, offline (Christian's second reply of 5 November 2026: *"I authorize a bounded, offline, review-only
  * activity-assembly experiment"* / *"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if
  * clearly labeled and kept outside production selection authority."* / *"Please distinguish what actually determined the configuration from
  * material merely consulted or cited."*).
  *
  * WHAT IT IS. The architecture has no configuration step (Steps 3-5 are held). So the configuration is a labelled decision record we
- * entered (`assembly-experiment.review.json`): each value carries a declared standing, the items that decided it (his words with the exact
- * substring that states the value, a knowledge cell, or, for a value his words do not state, our own illustrative choice or our own
- * reading) and what was only consulted. Three roles are never decisive and are printed as what they are: his words that PERMIT an
- * illustrative value (permittedBy), his words an OURS value is OUR READING of (readingOf), and his words that SET THE SCOPE a computed
+ * entered (`assembly-experiment.review.json`): each value carries a declared standing, the items that decided it (Christian's words with the exact
+ * substring that states the value, a knowledge cell, or, for a value Christian's words do not state, our own illustrative choice or our own
+ * reading) and what was only consulted. Three roles are never decisive and are printed as what they are: Christian's words that PERMIT an
+ * illustrative value (permittedBy), Christian's words an OURS value is OUR READING of (readingOf), and Christian's words that SET THE SCOPE a computed
  * value is used in (scopeSetBy). Some values are read from knowledge by code (the Game Problems and compatible Game Forms the Stage 1/2
  * code computes, and a few knowledge cells). This file:
  *   - validates the record by hand (unknown keys and wrong types at every level, unknown standings, missing words, file or a received date
- *     that is not a real date, missing value evidence, a number his words state that is not the number his evidence's word gives, his
+ *     that is not a real date, missing value evidence, a number Christian's words state that is not the number Christian's evidence's word gives, Christian's
  *     example words or reference-only material among what decided a value, a declared status stronger than what decided it, a malformed
  *     placeholder, a quotation mark in a template that quotes nothing: each throws);
  *   - assembles the activity, failing closed where the record disagrees with what the code computes (Step 1 unresolved; the illustrative
- *     form not among the compatible ones; Game Problem ids that differ from the ones his words name; a scoring event the routed context
+ *     form not among the compatible ones; Game Problem ids that differ from the ones Christian's words name; a scoring event the routed context
  *     does not hold);
- *   - places each decision in one of his six classes, in his order, as the weakest over what decided it and its declared status;
- *   - joins the requirement account (his four categories; category 3 never counts as satisfied);
+ *   - places each decision in one of Christian's six classes, in Christian's order, as the weakest over what decided it and its declared status;
+ *   - joins the requirement account (Christian's four categories; category 3 never counts as satisfied);
  *   - fills the DRAFT coach wording (`assembly-wording.draft.json`): placeholders and checked values only, so the text can say nothing the
  *     record does not hold, and every sentence carries the weakest class among the values it expresses.
  *
@@ -44,7 +44,7 @@ export const HOW_REACHED = ['READ_BY_CODE', 'ENTERED_EVIDENCED', 'ENTERED_ILLUST
 export type HowReached = (typeof HOW_REACHED)[number]
 export const HOW_REACHED_LABEL: Record<HowReached, string> = {
     READ_BY_CODE: 'READ FROM KNOWLEDGE BY CODE',
-    ENTERED_EVIDENCED: 'ENTERED, VALUE EVIDENCED IN HIS WORDS',
+    ENTERED_EVIDENCED: 'ENTERED, VALUE EVIDENCED IN CHRISTIAN\'S WORDS',
     ENTERED_ILLUSTRATIVE: 'ENTERED, ILLUSTRATIVE',
     ENTERED_OUR_INFERENCE: 'ENTERED, OUR INFERENCE',
     UNRESOLVED: 'UNRESOLVED',
@@ -62,7 +62,7 @@ export interface KnowledgeRef {
 }
 
 /**
- * What decided a value: one of his rulings or a knowledge cell (each with the exact words that state the value), or one of three bare
+ * What decided a value: one of Christian's rulings or a knowledge cell (each with the exact words that state the value), or one of three bare
  * items that state where no authority decided it: our illustrative choice, our own reading, or no authorized value at all.
  */
 export interface DecisiveItem {
@@ -76,19 +76,19 @@ export interface DecisiveItem {
 /** The bare decisive items, each with the only standing it may carry. */
 export const BARE_DECISIVE: Record<NonNullable<DecisiveItem['ref']>, Standing> = { UNRESOLVED: 'UNRESOLVED', ILLUSTRATIVE: 'ILLUSTRATIVE', OURS: 'OURS' }
 
-/** His words in a non-decisive role (permittedBy, readingOf, scopeSetBy): the ruling and the exact words quoted. */
+/** Christian's words in a non-decisive role (permittedBy, readingOf, scopeSetBy): the ruling and the exact words quoted. */
 export interface RoleItem {
     rulingRef: string
     quote: string
-    /** permittedBy only: his permission names this very value (it is still our choice to use it). */
+    /** permittedBy only: Christian's permission names this very value (it is still our choice to use it). */
     namesValue?: true
 }
 
-/** The three non-decisive roles his words can play beside a value, as the report prints them. */
+/** The three non-decisive roles Christian's words can play beside a value, as the report prints them. */
 export const ROLES = ['permittedBy', 'readingOf', 'scopeSetBy'] as const
 export type Role = (typeof ROLES)[number]
 
-/** What kind of words a registry entry holds (his words are not all rulings). */
+/** What kind of words a registry entry holds (Christian's words are not all rulings). */
 export const RULING_KINDS = ['RULING', 'QUESTION', 'OBSERVATION', 'HYPOTHETICAL', 'DEFINITION'] as const
 export type RulingKind = (typeof RULING_KINDS)[number]
 
@@ -106,7 +106,7 @@ export interface Choice {
     path: string
     value: ChoiceValue
     valueIsEvidence?: true
-    /** A number his words state: the word his evidence uses for it ("Two"); the validator requires it to give the value. */
+    /** A number Christian's words state: the word Christian's evidence uses for it ("Two"); the validator requires it to give the value. */
     evidenceStates?: string
     declaredStatus: Standing
     howReached: HowReached
@@ -115,11 +115,11 @@ export interface Choice {
     decidedBy: DecisiveItem[]
     consulted: ConsultedItem[]
     statusSetBy: Array<{ rulingRef: string }>
-    /** His words permitting an ILLUSTRATIVE value (never decisive: the value is our choice). */
+    /** Christian's words permitting an ILLUSTRATIVE value (never decisive: the value is our choice). */
     permittedBy?: RoleItem[]
-    /** His words an OURS value is our reading of (never decisive: the reading is ours). */
+    /** Christian's words an OURS value is our reading of (never decisive: the reading is ours). */
     readingOf?: RoleItem[]
-    /** His words setting the scope a computed value is used in, in this experiment (never decisive). */
+    /** Christian's words setting the scope a computed value is used in, in this experiment (never decisive). */
     scopeSetBy?: RoleItem[]
     note: string
 }
@@ -129,9 +129,9 @@ export interface AssemblyRuling extends Ruling {
     file: string
     provisional: boolean
     kind: RulingKind
-    /** His words made the item owner-authored canonical knowledge: a decisive item citing it may carry APPROVED. */
+    /** Christian's words made the item owner-authored canonical knowledge: a decisive item citing it may carry APPROVED. */
     establishesCanonicalKnowledge?: true
-    /** The values his scope words are said of, where the entry decides several and the scope words qualify only some (our reading). */
+    /** The values Christian's scope words are said of, where the entry decides several and the scope words qualify only some (our reading). */
     scopePaths?: string[]
 }
 
@@ -140,7 +140,7 @@ export interface AccountEntry {
     requirementRef: { table: string; row: string }
     clause: string | null
     reading: string | null
-    /** One of his four categories, or the record's marker for a clause that is no requirement under its reading. */
+    /** One of Christian's four categories, or the record's marker for a clause that is no requirement under its reading. */
     category: string
     standard: string
     paths: string[]
@@ -243,7 +243,7 @@ export interface Wording {
     templates: WordingTemplate[]
 }
 
-// An open decision of the experiment reuses the Stage 1/2 shape where it fits: the question, his words (by reference) and the handling.
+// An open decision of the experiment reuses the Stage 1/2 shape where it fits: the question, Christian's words (by reference) and the handling.
 export type AssemblyOpenDecision = Pick<OpenDecision, 'id' | 'question' | 'handling'> & { blocks: Experiment['openDecisions'][number]['blocks']; rulingRefs: string[] }
 
 const deepCopy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
@@ -254,7 +254,7 @@ export const committedExperimentData = (): unknown => deepCopy(experimentData)
 export const committedWordingData = (): unknown => deepCopy(wordingData)
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
-// His six classes, in his order (AUTH: "For every material design choice, identify whether it follows from: ...")
+// Christian's six classes, in Christian's order (AUTH: "For every material design choice, identify whether it follows from: ...")
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
 export const SIX_CLASSES = [
@@ -267,7 +267,7 @@ export const SIX_CLASSES = [
 ] as const
 export type SixClass = 1 | 2 | 3 | 4 | 5 | 6
 
-/** Each standing's class when it decides something. PROVISIONAL (his example words) and REFERENCE ONLY never decide: they throw. */
+/** Each standing's class when it decides something. PROVISIONAL (Christian's example words) and REFERENCE ONLY never decide: they throw. */
 const CLASS_OF_STANDING: Record<Standing, SixClass | 'NEVER_DECISIVE'> = {
     APPROVED: 1,
     RULING: 2,
@@ -281,8 +281,8 @@ const CLASS_OF_STANDING: Record<Standing, SixClass | 'NEVER_DECISIVE'> = {
     UNRESOLVED: 6,
 }
 
-/** How a standing is printed. The code's PROVISIONAL is his words given as an example, never his provisional decisions. */
-export const standingLabel = (s: Standing): string => (s === 'PROVISIONAL' ? 'HIS EXAMPLE WORDS (PROVISIONAL)' : s)
+/** How a standing is printed. The code's PROVISIONAL is Christian's words given as an example, never Christian's provisional decisions. */
+export const standingLabel = (s: Standing): string => (s === 'PROVISIONAL' ? 'CHRISTIAN\'S EXAMPLE WORDS (PROVISIONAL)' : s)
 
 export interface ClassInput {
     standing: Standing
@@ -290,7 +290,7 @@ export interface ClassInput {
 }
 
 /**
- * His class for one decision: the weakest, in his order, over every decisive item and the declared status. A RULING whose ruling he called
+ * Christian's class for one decision: the weakest, in Christian's order, over every decisive item and the declared status. A RULING whose ruling Christian called
  * provisional is class 3 ("Candidate or provisional knowledge."). Nothing decisive, an OURS or UNRESOLVED item, or a conclusion
  * established by logical inference is class 6. A standing outside the type throws.
  */
@@ -309,7 +309,7 @@ export function sixClassOf(decisive: ClassInput[], declared: Standing | null = n
     return worst
 }
 
-/** His class with his words, without their closing full stop (so it reads inside a sentence). */
+/** Christian's class with Christian's words, without their closing full stop (so it reads inside a sentence). */
 export const classLabel = (c: SixClass): string => `class ${c}: ${SIX_CLASSES[c - 1].slice(0, -1)}`
 
 const DATE_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -350,7 +350,7 @@ const isDate = (v: unknown): boolean => typeof v === 'string' && /^\d{4}-\d{2}-\
 const isStringList = (v: unknown): v is string[] => Array.isArray(v) && v.every(isString)
 
 /**
- * A numeric value his words state, read from the word his evidence uses for it ("Two", or digits). Words up to twenty, in lower case or
+ * A numeric value Christian's words state, read from the word Christian's evidence uses for it ("Two", or digits). Words up to twenty, in lower case or
  * with a capital first letter; anything else is not a number word and gives null.
  */
 const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty']
@@ -390,15 +390,15 @@ const CHOICE_KEYS = ['path', 'value', 'valueIsEvidence', 'evidenceStates', 'decl
 
 /**
  * The record, validated. Throws on: an unknown key anywhere this checks; an unknown standing; a ruling without words, file or received
- * date; a scope without his scope words; a decisive RULING or APPROVED item without the exact substring of his words (or the cell) that
- * states the value; his example words or reference-only material among what decided a value; a ruling reference not in the registry; a
+ * date; a scope without Christian's scope words; a decisive RULING or APPROVED item without the exact substring of Christian's words (or the cell) that
+ * states the value; Christian's example words or reference-only material among what decided a value; a ruling reference not in the registry; a
  * declared status stronger than what decided it; an UNRESOLVED value that is not exactly one UNRESOLVED decisive item with no value.
  */
 export function validateExperiment(raw: unknown): Experiment {
     const top = onlyKeys('(top)', raw, TOP_KEYS, TOP_KEYS)
     if (!isString(top.standing) || !isString(top.learningGoalId)) fail('(top)', 'standing and learningGoalId must be strings')
 
-    // Rulings: filed once each, with his words, a repository-independent file reference and the received date.
+    // Rulings: filed once each, with Christian's words, a repository-independent file reference and the received date.
     if (!Array.isArray(top.rulings) || !top.rulings.length) fail('rulings', 'must be a non-empty list')
     const rulings = new Map<string, AssemblyRuling>()
     ;(top.rulings as unknown[]).forEach((r, i) => {
@@ -419,9 +419,9 @@ export function validateExperiment(raw: unknown): Experiment {
         if (o.canonicalAmendment !== false) fail(where, 'no ruling filed here is a canonical amendment')
         if (o.scope !== null && !isString(o.scope)) fail(where, 'scope must be a string or null')
         if (o.scope !== null) {
-            if (!Array.isArray(o.scopeWords) || !o.scopeWords.length) fail(where, 'a scope needs his scope words')
-            for (const w of o.scopeWords as string[]) if (!(o.words as string[]).some((x) => x.indexOf(w) >= 0)) fail(where, `scope words "${w}" are not in his words`)
-            if ('scopePaths' in o && (!isStringList(o.scopePaths) || !(o.scopePaths as string[]).length)) fail(where, 'scopePaths, when present, is a non-empty list of the values his scope words are said of')
+            if (!Array.isArray(o.scopeWords) || !o.scopeWords.length) fail(where, 'a scope needs Christian\'s scope words')
+            for (const w of o.scopeWords as string[]) if (!(o.words as string[]).some((x) => x.indexOf(w) >= 0)) fail(where, `scope words "${w}" are not in Christian's words`)
+            if ('scopePaths' in o && (!isStringList(o.scopePaths) || !(o.scopePaths as string[]).length)) fail(where, 'scopePaths, when present, is a non-empty list of the values Christian\'s scope words are said of')
         } else if ('scopeWords' in o || 'scopePaths' in o) fail(where, 'scope words or scopePaths without a scope')
         rulings.set(o.id as string, o as unknown as AssemblyRuling)
     })
@@ -458,8 +458,8 @@ export function validateExperiment(raw: unknown): Experiment {
             if ('rulingRef' in di) {
                 const r = rulingOk(dw, di.rulingRef)
                 provisional = r.provisional
-                if (r.kind !== 'RULING') fail(dw, `${r.id} holds his ${r.kind.toString()} words, not a ruling: it cannot decide a value`)
-                if (!(s === 'RULING' || (s === 'APPROVED' && r.establishesCanonicalKnowledge === true))) fail(dw, 'a ruling of his decides with standing RULING (APPROVED only where his words made the item canonical knowledge)')
+                if (r.kind !== 'RULING') fail(dw, `${r.id} holds Christian's ${r.kind.toString()} words, not a ruling: it cannot decide a value`)
+                if (!(s === 'RULING' || (s === 'APPROVED' && r.establishesCanonicalKnowledge === true))) fail(dw, 'a ruling of Christian\'s decides with standing RULING (APPROVED only where Christian\'s words made the item canonical knowledge)')
             }
             if ('knowledgeRef' in di) knowledgeRefOk(`${dw}.knowledgeRef`, di.knowledgeRef)
             if ('ref' in di) {
@@ -469,7 +469,7 @@ export function validateExperiment(raw: unknown): Experiment {
             }
             if (s === 'RULING' || s === 'APPROVED') {
                 if (!isString(di.valueEvidence)) fail(dw, 'a decisive RULING or APPROVED item needs valueEvidence, the exact substring that states the value')
-                if ('rulingRef' in di && !(rulings.get(di.rulingRef as string) as AssemblyRuling).words.some((w) => w.indexOf(di.valueEvidence as string) >= 0)) fail(dw, 'valueEvidence is not in his words')
+                if ('rulingRef' in di && !(rulings.get(di.rulingRef as string) as AssemblyRuling).words.some((w) => w.indexOf(di.valueEvidence as string) >= 0)) fail(dw, 'valueEvidence is not in Christian\'s words')
             } else if ('valueEvidence' in di && !isString(di.valueEvidence)) fail(dw, 'valueEvidence must be a string')
             return { standing: s, provisional }
         })
@@ -484,7 +484,7 @@ export function validateExperiment(raw: unknown): Experiment {
             if (!isString(ci.note)) fail(cw, 'note must be a string')
         })
         ;(o.statusSetBy as unknown[]).forEach((x, j) => rulingOk(`${at}.statusSetBy[${j}]`, onlyKeys(`${at}.statusSetBy[${j}]`, x, ['rulingRef'], ['rulingRef']).rulingRef))
-        // His words in a non-decisive role: each quote exact in his words; a permission naming the value must contain it.
+        // Christian's words in a non-decisive role: each quote exact in Christian's words; a permission naming the value must contain it.
         for (const role of ROLES) {
             if (!(role in o)) continue
             if (!Array.isArray(o[role]) || !(o[role] as unknown[]).length) fail(at, `${role} must be a non-empty list when present`)
@@ -492,12 +492,12 @@ export function validateExperiment(raw: unknown): Experiment {
                 const rw = `${at}.${role}[${j}]`
                 const ri = onlyKeys(rw, x, role === 'permittedBy' ? ['rulingRef', 'quote', 'namesValue'] : ['rulingRef', 'quote'], ['rulingRef', 'quote'])
                 const r = rulingOk(rw, ri.rulingRef)
-                if (!isString(ri.quote) || !r.words.some((w) => w.indexOf(ri.quote as string) >= 0)) fail(rw, 'the quote is not in his words')
-                if ('namesValue' in ri && (ri.namesValue !== true || (ri.quote as string).indexOf(String(v)) < 0)) fail(rw, 'namesValue: his quoted words must contain the value')
+                if (!isString(ri.quote) || !r.words.some((w) => w.indexOf(ri.quote as string) >= 0)) fail(rw, 'the quote is not in Christian\'s words')
+                if ('namesValue' in ri && (ri.namesValue !== true || (ri.quote as string).indexOf(String(v)) < 0)) fail(rw, 'namesValue: Christian\'s quoted words must contain the value')
             })
         }
 
-        // The declared status is never stronger than what decided the value (compared by standing; his provisional flag only weakens).
+        // The declared status is never stronger than what decided the value (compared by standing; Christian's provisional flag only weakens).
         for (const d of decisive) {
             const dc = CLASS_OF_STANDING[d.standing] as SixClass
             const cc = CLASS_OF_STANDING[declared] as SixClass
@@ -522,8 +522,8 @@ export function validateExperiment(raw: unknown): Experiment {
         }
         if (how === 'ENTERED_ILLUSTRATIVE' && declared !== 'ILLUSTRATIVE') fail(at, 'an illustrative value is declared ILLUSTRATIVE')
         if (how === 'ENTERED_OUR_INFERENCE' && declared !== 'OURS') fail(at, 'our inference is declared OURS')
-        // A value his words do not state is decided by us, never by his words: an illustrative value by our choice (his permission printed
-        // beside it), our inference by our reading (the words read printed beside it). His words never "state" either.
+        // A value Christian's words do not state is decided by us, never by Christian's words: an illustrative value by our choice (Christian's permission printed
+        // beside it), our inference by our reading (the words read printed beside it). Christian's words never "state" either.
         const onlyBare = (ref: 'ILLUSTRATIVE' | 'OURS') => (o.decidedBy as DecisiveItem[]).length === 1 && (o.decidedBy as DecisiveItem[])[0].ref === ref
         if (how === 'ENTERED_ILLUSTRATIVE' && (!onlyBare('ILLUSTRATIVE') || !('permittedBy' in o))) fail(at, 'an illustrative value is decided by { ref: ILLUSTRATIVE } alone, with the words that permit it under permittedBy')
         if (how === 'ENTERED_OUR_INFERENCE' && (!onlyBare('OURS') || !('readingOf' in o))) fail(at, 'our inference is decided by { ref: OURS } alone, with the words it reads under readingOf')
@@ -539,11 +539,11 @@ export function validateExperiment(raw: unknown): Experiment {
         if ('valueIsEvidence' in o) {
             if (o.valueIsEvidence !== true || v !== (o.decidedBy as DecisiveItem[])[0]?.valueEvidence) fail(at, 'valueIsEvidence: the value must equal its first decisive item\'s evidence')
         }
-        // A number his words state is bound to the word his evidence uses for it, so a changed number is refused, never printed as his.
-        if (how === 'ENTERED_EVIDENCED' && typeof v === 'number' && !('evidenceStates' in o)) fail(at, 'a number evidenced in his words names, under evidenceStates, the word his evidence uses for it')
+        // A number Christian's words state is bound to the word Christian's evidence uses for it, so a changed number is refused, never printed as Christian's.
+        if (how === 'ENTERED_EVIDENCED' && typeof v === 'number' && !('evidenceStates' in o)) fail(at, 'a number evidenced in Christian\'s words names, under evidenceStates, the word Christian\'s evidence uses for it')
         if ('evidenceStates' in o) {
             const word = o.evidenceStates
-            if (!isString(word) || how !== 'ENTERED_EVIDENCED' || typeof v !== 'number') fail(at, 'evidenceStates belongs only to a number evidenced in his words')
+            if (!isString(word) || how !== 'ENTERED_EVIDENCED' || typeof v !== 'number') fail(at, 'evidenceStates belongs only to a number evidenced in Christian\'s words')
             if (!(o.decidedBy as DecisiveItem[]).some((d) => (d.standing === 'RULING' || d.standing === 'APPROVED') && isString(d.valueEvidence) && d.valueEvidence.indexOf(word as string) >= 0)) fail(at, `evidenceStates "${String(word)}" is not in the evidence that states the value`)
             if (statedNumber(word as string) !== v) fail(at, `evidenceStates "${String(word)}" states ${String(statedNumber(word as string))}, not the value ${String(v)}`)
         }
@@ -573,12 +573,12 @@ export function validateExperiment(raw: unknown): Experiment {
         if (['AREA_PER_PLAYER_TOTAL', 'AREA_PER_PLAYER_OUTSIDE_TARGET_ZONES'].indexOf(o.formula as string) < 0) fail(`derived[${i}]`, 'unknown formula')
         if (paths.has(o.id as string)) fail(`derived[${i}]`, 'a derived value is not a choice')
     })
-    // Every choice path is in one of his nine parts, each part his words verbatim; exemptions and the design block name choices only.
+    // Every choice path is in one of Christian's nine parts, each part Christian's words verbatim; exemptions and the design block name choices only.
     const partsRuling = rulingOk('requiredPartsRulingRef', top.requiredPartsRulingRef)
     const inParts = new Set<string>()
     ;(top.requiredParts as unknown[]).forEach((p, i) => {
         const o = onlyKeys(`requiredParts[${i}]`, p, ['id', 'part', 'paths', 'generatedFromTrace'], ['id', 'part', 'paths'])
-        if (!partsRuling.words.some((w) => w === o.part)) fail(`requiredParts[${i}]`, 'the part must be his words verbatim')
+        if (!partsRuling.words.some((w) => w === o.part)) fail(`requiredParts[${i}]`, 'the part must be Christian\'s words verbatim')
         for (const x of o.paths as unknown[]) {
             pathOk(`requiredParts[${i}]`, x)
             inParts.add(x as string)
@@ -613,20 +613,20 @@ export function validateExperiment(raw: unknown): Experiment {
         const o = onlyKeys(`contractDeclarationsReported[${i}]`, d, ['row', 'declaration', 'what', 'how'], ['row', 'declaration', 'what', 'how'])
         for (const key of ['row', 'declaration', 'what', 'how']) if (!isString(o[key])) fail(`contractDeclarationsReported[${i}]`, `${key} must be a string`)
     })
-    // The requirement account: his four categories and three standards, verbatim from his ruling.
+    // The requirement account: Christian's four categories and three standards, verbatim from Christian's ruling.
     const accounting = rulingOk('requirementAccountRulingRef', top.requirementAccountRulingRef)
-    if (!Array.isArray(top.accountCategories) || top.accountCategories.length !== 4) fail('accountCategories', 'his four categories')
-    for (const c of top.accountCategories as string[]) if (!accounting.words.some((w) => w === c)) fail('accountCategories', `"${c}" is not his wording`)
-    for (const s of top.accountStandards as string[]) if (!accounting.words.some((w) => w.indexOf(`${s}:`) === 0)) fail('accountStandards', `"${s}" is not his wording`)
-    if (!isString(top.accountOutsideCategories) || (top.accountCategories as string[]).indexOf(top.accountOutsideCategories as string) >= 0) fail('accountOutsideCategories', 'a marker of ours, never one of his four categories')
+    if (!Array.isArray(top.accountCategories) || top.accountCategories.length !== 4) fail('accountCategories', 'Christian\'s four categories')
+    for (const c of top.accountCategories as string[]) if (!accounting.words.some((w) => w === c)) fail('accountCategories', `"${c}" is not Christian's wording`)
+    for (const s of top.accountStandards as string[]) if (!accounting.words.some((w) => w.indexOf(`${s}:`) === 0)) fail('accountStandards', `"${s}" is not Christian's wording`)
+    if (!isString(top.accountOutsideCategories) || (top.accountCategories as string[]).indexOf(top.accountOutsideCategories as string) >= 0) fail('accountOutsideCategories', 'a marker of ours, never one of Christian\'s four categories')
     ;(top.requirementAccount as unknown[]).forEach((a, i) => {
         const o = onlyKeys(`requirementAccount[${i}]`, a, ['id', 'requirementRef', 'clause', 'reading', 'category', 'standard', 'paths', 'observableConditions', 'inCoachGuidance', 'note'], ['id', 'requirementRef', 'clause', 'reading', 'category', 'standard', 'paths', 'observableConditions', 'note'])
         const req = onlyKeys(`requirementAccount[${i}].requirementRef`, o.requirementRef, ['table', 'row'], ['table', 'row'])
         if (!isString(req.table) || !isString(req.row)) fail(`requirementAccount[${i}].requirementRef`, 'table and row must be strings')
         const outside = o.category === top.accountOutsideCategories
-        if ((top.accountCategories as string[]).indexOf(o.category as string) < 0 && !outside) fail(`requirementAccount[${i}]`, 'category not one of his four (nor the record\'s not-a-requirement marker)')
+        if ((top.accountCategories as string[]).indexOf(o.category as string) < 0 && !outside) fail(`requirementAccount[${i}]`, 'category not one of Christian\'s four (nor the record\'s not-a-requirement marker)')
         if (outside && o.reading !== 'FOR_EXAMPLE') fail(`requirementAccount[${i}]`, 'only the "for example" reading makes a clause no requirement')
-        if ((top.accountStandards as string[]).indexOf(o.standard as string) < 0) fail(`requirementAccount[${i}]`, 'standard not one of his three')
+        if ((top.accountStandards as string[]).indexOf(o.standard as string) < 0) fail(`requirementAccount[${i}]`, 'standard not one of Christian\'s three')
         for (const x of o.paths as unknown[]) pathOk(`requirementAccount[${i}]`, x)
         const cat3 = o.category === (top.accountCategories as string[])[2]
         if (cat3 && !isString(o.observableConditions)) fail(`requirementAccount[${i}]`, 'category 3 names the observable conditions')
@@ -651,7 +651,7 @@ export function validateExperiment(raw: unknown): Experiment {
     const addNothing = onlyKeys('suitability.addNothing', suit.addNothing, ['status', 'statement', 'rulingRef', 'quote'], ['status', 'statement', 'rulingRef', 'quote'])
     const quoteOk = (where: string, rulingRef: unknown, quote: unknown) => {
         const r = rulingOk(where, rulingRef)
-        if (!isString(quote) || !r.words.some((w) => w.indexOf(quote) >= 0)) fail(where, 'the quote is not in his words')
+        if (!isString(quote) || !r.words.some((w) => w.indexOf(quote) >= 0)) fail(where, 'the quote is not in Christian\'s words')
     }
     quoteOk('suitability.addNothing', addNothing.rulingRef, addNothing.quote)
     const tension = onlyKeys('suitability.scopeTension', suit.scopeTension, ['statement', 'rulingRefs'], ['statement', 'rulingRefs'])
@@ -680,7 +680,7 @@ export function validateExperiment(raw: unknown): Experiment {
     if (!isString(widthCheck.note)) fail('scenarios.widthCheck', 'note must be a string')
     ;(sc.items as unknown[]).forEach((s, i) => {
         const o = onlyKeys(`scenarios.items[${i}]`, s, ['id', 'words', 'configuredActivity', 'expected'], ['id', 'words', 'configuredActivity', 'expected'])
-        if (!scRuling.words.some((w) => w === o.words)) fail(`scenarios.items[${i}]`, 'his scenario sentence must be verbatim')
+        if (!scRuling.words.some((w) => w === o.words)) fail(`scenarios.items[${i}]`, 'Christian\'s scenario sentence must be verbatim')
         const expected = onlyKeys(`scenarios.items[${i}].expected`, o.expected, ['mismatchReported', 'uncertaintyReported', 'scopeEstablished'], ['mismatchReported', 'uncertaintyReported', 'scopeEstablished'])
         if (!Object.values(expected).every((b) => typeof b === 'boolean')) fail(`scenarios.items[${i}].expected`, 'each expectation is true or false')
         const ca = o.configuredActivity as Record<string, { value: unknown; label: string }>
@@ -700,9 +700,9 @@ export function validateExperiment(raw: unknown): Experiment {
         if ('quote' in o) quoteOk(`reportRefs.${key}`, o.rulingRef, o.quote)
         else rulingOk(`reportRefs.${key}`, o.rulingRef)
     }
-    // His six classes, as this file prints them, are his words verbatim, filed in the registry entry the report cites for them.
+    // Christian's six classes, as this file prints them, are Christian's words verbatim, filed in the registry entry the report cites for them.
     const classes = rulingOk('reportRefs.sixClasses', (refs.sixClasses as { rulingRef: unknown }).rulingRef)
-    for (const c of SIX_CLASSES) if (!classes.words.some((w) => w === c)) fail('reportRefs.sixClasses', `his class "${c}" is not a word of ${classes.id}`)
+    for (const c of SIX_CLASSES) if (!classes.words.some((w) => w === c)) fail('reportRefs.sixClasses', `Christian's class "${c}" is not a word of ${classes.id}`)
     ;(top.reconciliations as unknown[]).forEach((r, i) => {
         const o = onlyKeys(`reconciliations[${i}]`, r, ['id', 'title', 'rulingRefs', 'showPaths', 'items', 'smallest'], ['id', 'title', 'rulingRefs', 'items'])
         ;(o.rulingRefs as unknown[]).forEach((x) => rulingOk(`reconciliations[${i}]`, x))
@@ -821,13 +821,13 @@ export interface AssembledChoice {
     decidedBy: TraceItem[]
     consulted: TraceItem[]
     statusSetBy: TraceItem[]
-    /** His words in the non-decisive roles: permitting an illustrative value, read by our inference, setting a computed value's scope. */
+    /** Christian's words in the non-decisive roles: permitting an illustrative value, read by our inference, setting a computed value's scope. */
     permittedBy: TraceItem[]
     readingOf: TraceItem[]
     scopeSetBy: TraceItem[]
     traceLabel: string
     sixClass: SixClass
-    /** True when every decisive ruling of a value declared RULING is one he called provisional (so its class is 3). */
+    /** True when every decisive ruling of a value declared RULING is one Christian called provisional (so its class is 3). */
     allDecisiveRulingsProvisional: boolean
     note: string
 }
@@ -858,7 +858,7 @@ function rulingItem(r: AssemblyRuling, role: string, standing: Standing = 'RULIN
 const refText = (k: KnowledgeRef): string => `${k.source} ${k.table} ${k.row}${k.column ? ` ${k.column}` : ''}`
 
 /**
- * A ruling's scope as printed beside the value it decides: his scope words, or that he stated none. Where the entry's scope words are said
+ * A ruling's scope as printed beside the value it decides: Christian's scope words, or that Christian stated none. Where the entry's scope words are said
  * of other values only (scopePaths), the value printed has no scope stated, and the scope words are shown as said of those values.
  */
 export const scopeText = (r: AssemblyRuling, path: string | null = null): string => {
@@ -870,21 +870,21 @@ export const scopeText = (r: AssemblyRuling, path: string | null = null): string
 }
 
 /**
- * How his words read when they decide a value: provisional, canonical, or a ruling; always with the received date and the words. For a
- * value the code reads from a knowledge cell, his words select what the code reads and the cell states the value; otherwise his words
+ * How Christian's words read when they decide a value: provisional, canonical, or a ruling; always with the received date and the words. For a
+ * value the code reads from a knowledge cell, Christian's words select what the code reads and the cell states the value; otherwise Christian's words
  * state the value (each such word pinned against the value in the unit test).
  */
 export function decidingWords(r: AssemblyRuling, evidence: string, standing: Standing, c: { path: string; howReached: HowReached }): string {
-    const who = standing === 'APPROVED' && r.establishesCanonicalKnowledge ? 'his ruling making it owner-authored canonical knowledge' : r.provisional ? 'his provisional ruling' : 'his ruling'
+    const who = standing === 'APPROVED' && r.establishesCanonicalKnowledge ? 'Christian\'s ruling making it owner-authored canonical knowledge' : r.provisional ? 'Christian\'s provisional ruling' : 'Christian\'s ruling'
     const role = c.howReached === 'READ_BY_CODE' ? 'selects what the code reads; the cell states the value' : 'states the value'
     return `${who}, received ${longDate(r.received)}: "${evidence}" (${role}; ${scopeText(r, c.path)})`
 }
 
-/** How his words read in a non-decisive role. */
+/** How Christian's words read in a non-decisive role. */
 export function roleWords(role: Role, r: AssemblyRuling, x: RoleItem): string {
     const when = `received ${longDate(r.received)}`
     if (role === 'permittedBy') return `permits an illustrative value, ${when}: "${x.quote}" (${x.namesValue ? 'a permission that names this value; the choice to use it is ours' : 'a permission; it does not state the value'})`
-    if (role === 'readingOf') return `our reading (OURS) of his words, ${when}: "${x.quote}" (his words do not state the value)`
+    if (role === 'readingOf') return `our reading (OURS) of Christian's words, ${when}: "${x.quote}" (Christian's words do not state the value)`
     return `sets the scope for this experiment, ${when}: "${x.quote}" (decides nothing)`
 }
 
@@ -951,7 +951,7 @@ export function scoringEventMembership(k: DesignKnowledge, rpcId: string, routin
 
 /**
  * Assemble the activity from the computed Steps 1 and 2, the validated record and the display texts. Fails closed: Step 1 must be
- * RESOLVED; the illustrative form must be among the compatible forms; the resolution's Game Problem ids must equal the ids his words name;
+ * RESOLVED; the illustrative form must be among the compatible forms; the resolution's Game Problem ids must equal the ids Christian's words name;
  * the scoring event must be one of the routed context's ACTIVE scoring events; every display cell a value needs must be supplied.
  */
 export function assembleActivity(k: DesignKnowledge, resolution: DesignResolution, forms: GameFormSelection, experiment: Experiment, display: DisplayTexts): AssembledActivity {
@@ -962,7 +962,7 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
     const choiceAt = (p: string) => experiment.choices.find((c) => c.path === p) as Choice
     const scope = experiment.gameProblemScope
     if (JSON.stringify(resolution.gameProblems.primary) !== JSON.stringify(scope.primaryGameProblemIds) || JSON.stringify(resolution.gameProblems.secondary) !== JSON.stringify(scope.secondaryGameProblemIds)) {
-        throw new Error(`the resolution's Game Problems (${resolution.gameProblems.primary.join(', ')}; ${resolution.gameProblems.secondary.join(', ')}) are not the ones his words name (${scope.primaryGameProblemIds.join(', ')}; ${scope.secondaryGameProblemIds.join(', ')})`)
+        throw new Error(`the resolution's Game Problems (${resolution.gameProblems.primary.join(', ')}; ${resolution.gameProblems.secondary.join(', ')}) are not the ones Christian's words name (${scope.primaryGameProblemIds.join(', ')}; ${scope.secondaryGameProblemIds.join(', ')})`)
     }
     const formChoice = choiceAt(experiment.bindings.illustrativeForm)
     if (forms.compatible.indexOf(String(formChoice.value)) < 0) throw new Error(`the illustrative form ${String(formChoice.value)} is not among the compatible forms (${forms.compatible.join(', ') || 'none'})`)
@@ -1165,13 +1165,13 @@ export function composeCoachActivity(wording: Wording, activity: AssembledActivi
 
 /** How the review pathway resolved the Game Problems, in words (never "computed" for a ruling's designation). */
 const BASIS_WORDS: Record<string, string> = {
-    SCOPED_RULING: "resolved by the review pathway from his scoped ruling for this goal (the planning model's translation for it is unpopulated)",
+    SCOPED_RULING: "resolved by the review pathway from Christian's scoped ruling for this goal (the planning model's translation for it is unpopulated)",
     APPROVED_TRANSLATION: "read by the review pathway from the planning model's approved translation",
 }
 export const basisWords = (basis: string | null): string => (basis && BASIS_WORDS[basis]) || `resolved by the review pathway (basis ${String(basis)})`
-/** The same, short, for a list of what the code computed (so a designation read from his ruling is never listed as computed knowledge). */
+/** The same, short, for a list of what the code computed (so a designation read from Christian's ruling is never listed as computed knowledge). */
 const BASIS_SHORT: Record<string, string> = {
-    SCOPED_RULING: "read from his scoped ruling by the resolution code, because the planning model's translation is unpopulated",
+    SCOPED_RULING: "read from Christian's scoped ruling by the resolution code, because the planning model's translation is unpopulated",
     APPROVED_TRANSLATION: "read from the planning model's approved translation by the resolution code",
 }
 export const basisShort = (basis: string | null): string => (basis && BASIS_SHORT[basis]) || `read by the resolution code (basis ${String(basis)})`
@@ -1182,7 +1182,7 @@ export function designBlock(experiment: Experiment, activity: AssembledActivity,
     const scopeRulings = experiment.gameProblemScope.rulingRefs.map((id) => experiment.rulings.find((r) => r.id === id) as AssemblyRuling)
     const scopeWords = scopeRulings.flatMap((r) => (r.scopeWords ?? []).map((w) => `"${w}" (received ${longDate(r.received)})`))
     const lines: Array<{ text: string; expresses: string[]; marker?: string }> = []
-    lines.push({ text: `Learning Goal: ${display.goalName.text}.`, expresses: [], marker: '[the Learning Goal he authorized; its name read from the planning model by code]' })
+    lines.push({ text: `Learning Goal: ${display.goalName.text}.`, expresses: [], marker: '[the Learning Goal Christian authorized; its name read from the planning model by code]' })
     // Each block path is found by how it is read, never by its name.
     const readAs = (readBy: ReadBy): string | undefined => experiment.designBlockPaths.find((p) => experiment.choices.find((c) => c.path === p)?.readBy === readBy)
     const primary = readAs('RESOLUTION_PRIMARY')
@@ -1192,7 +1192,7 @@ export function designBlock(experiment: Experiment, activity: AssembledActivity,
     const alternatives = readAs('COMPATIBLE_ALTERNATIVES')
     const form = experiment.bindings.illustrativeForm
     if (!alternatives || experiment.designBlockPaths.indexOf(form) < 0) throw new Error('the design block shows the illustrative form and its compatible alternatives')
-    if (primary && secondary) lines.push({ text: `Game Problems: ${at(primary).rendered} is the primary problem and ${at(secondary).rendered} a secondary consideration, ${basisWords(basis)}; the scope for this experiment is set by his words: ${scopeWords.join('; ')}.`, expresses: [primary, secondary] })
+    if (primary && secondary) lines.push({ text: `Game Problems: ${at(primary).rendered} is the primary problem and ${at(secondary).rendered} a secondary consideration, ${basisWords(basis)}; the scope for this experiment is set by Christian's words: ${scopeWords.join('; ')}.`, expresses: [primary, secondary] })
     if (finding) lines.push({ text: `Secondary finding: ${at(finding).rendered}.`, expresses: [finding] })
     if (candidate) lines.push({ text: `Candidate only: ${at(candidate).rendered} is shown as a candidate relationship and is not used.`, expresses: [candidate] })
     const others = forms.compatible.length - 1
@@ -1201,7 +1201,7 @@ export function designBlock(experiment: Experiment, activity: AssembledActivity,
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
-// The requirement account (his 29 October ruling): applicable requirements in his four categories; category 3 never satisfied
+// The requirement account (Christian's 29 October ruling): applicable requirements in Christian's four categories; category 3 never satisfied
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
 export interface AccountLine extends AccountEntry {

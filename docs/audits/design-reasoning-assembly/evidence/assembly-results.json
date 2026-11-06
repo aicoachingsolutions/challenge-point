@@ -1,6 +1,6 @@
 {
   "stage": "DESIGN_REASONING_ASSEMBLY_EXPERIMENT",
-  "standing": "OURS: a labelled decision record for the bounded, offline, review-only A05 assembly experiment Christian authorized in his second reply of 5 November 2026. It is not a knowledge file, not a configuration step (the architecture has none: Steps 3-5 are held), not served, and not an authorization. Every value states how it reached the activity and which of his six classes it falls in; values his words do not state are ILLUSTRATIVE, OURS or UNRESOLVED. Nothing on the live route or the checked pathway reads this file.",
+  "standing": "OURS: a labelled decision record for the bounded, offline, review-only A05 assembly experiment Christian authorized in Christian's second reply of 5 November 2026. It is not a knowledge file, not a configuration step (the architecture has none: Steps 3-5 are held), not served, and not an authorization. Every value states how it reached the activity and which of Christian's six classes it falls in; values Christian's words do not state are ILLUSTRATIVE, OURS or UNRESOLVED. Nothing on the live route or the checked pathway reads this file.",
   "wordingStanding": "OURS: DRAFT coach wording for the review experiment; NEWLY PROPOSED language (RC3 6.1) unless a template records another status; not approved wording; never passed to the checked pathway's approved-wording parameter.",
   "learningGoalId": "A05",
   "resolution": {
@@ -63,7 +63,7 @@
           {
             "ref": "stage1-rulings.json RUL-E1-A05",
             "standing": "RULING",
-            "role": "his scoped ruling names the Game Problems and their roles",
+            "role": "Christian's scoped ruling names the Game Problems and their roles",
             "cite": {
               "file": "back/src/system/design-reasoning/stage1-rulings.json",
               "table": "rulings",
@@ -73,7 +73,7 @@
           {
             "ref": "stage2-rulings.json D1-4NOV",
             "standing": "RULING",
-            "role": "his later ruling retains the designation for this demonstration",
+            "role": "Christian's later ruling retains the designation for this demonstration",
             "cite": {
               "file": "back/src/system/design-reasoning/stage2-rulings.json",
               "table": "rulings",
@@ -387,7 +387,7 @@
         {
           "ref": "stage1-rulings.json RUL-E1-A05",
           "standing": "RULING",
-          "role": "names the primary Game Problem the gate tests: his scoped ruling names the Game Problems and their roles",
+          "role": "names the primary Game Problem the gate tests: Christian's scoped ruling names the Game Problems and their roles",
           "cite": {
             "file": "back/src/system/design-reasoning/stage1-rulings.json",
             "table": "rulings",
@@ -397,7 +397,7 @@
         {
           "ref": "stage2-rulings.json D1-4NOV",
           "standing": "RULING",
-          "role": "names the primary Game Problem the gate tests: his later ruling retains the designation for this demonstration",
+          "role": "names the primary Game Problem the gate tests: Christian's later ruling retains the designation for this demonstration",
           "cite": {
             "file": "back/src/system/design-reasoning/stage2-rulings.json",
             "table": "rulings",
@@ -407,7 +407,7 @@
         {
           "ref": "stage2-rulings.json D3-4NOV",
           "standing": "RULING",
-          "role": "his D3: compatibility only; the declaration gate kept",
+          "role": "Christian's D3: compatibility only; the declaration gate kept",
           "cite": {
             "file": "back/src/system/design-reasoning/stage2-rulings.json",
             "table": "rulings",
@@ -465,7 +465,7 @@
           {
             "ref": "ASM-21OCT-PURPOSE (received 21 October 2026)",
             "standing": "RULING",
-            "role": "his ruling, received 21 October 2026: \"My preference is to use the Learning Goal's coach-facing definition as the primary source.\" (selects what the code reads; the cell states the value; general, no scope stated)",
+            "role": "Christian's ruling, received 21 October 2026: \"My preference is to use the Learning Goal's coach-facing definition as the primary source.\" (selects what the code reads; the cell states the value; general, no scope stated)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -486,7 +486,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 2,
         "allDecisiveRulingsProvisional": false,
-        "note": "The cell is APPROVED on our reading of the Session Planning Model's status (the row's Status reads Active); his 21 October ruling selects it as the source."
+        "note": "The cell is APPROVED on our reading of the Session Planning Model's status (the row's Status reads Active); Christian's 21 October ruling selects it as the source."
       },
       {
         "path": "gameProblems.primary",
@@ -501,7 +501,7 @@
           {
             "ref": "stage1-rulings.json RUL-E1-A05",
             "standing": "RULING",
-            "role": "his scoped ruling names the Game Problems and their roles",
+            "role": "Christian's scoped ruling names the Game Problems and their roles",
             "cite": {
               "file": "back/src/system/design-reasoning/stage1-rulings.json",
               "table": "rulings",
@@ -511,7 +511,7 @@
           {
             "ref": "stage2-rulings.json D1-4NOV",
             "standing": "RULING",
-            "role": "his later ruling retains the designation for this demonstration",
+            "role": "Christian's later ruling retains the designation for this demonstration",
             "cite": {
               "file": "back/src/system/design-reasoning/stage2-rulings.json",
               "table": "rulings",
@@ -558,7 +558,7 @@
         "traceLabel": "computed by the Stage 1/2 code: its own influence trace, unchanged",
         "sixClass": 2,
         "allDecisiveRulingsProvisional": false,
-        "note": "Computed by the Stage 1/2 resolution, its influence trace unchanged: his scoped ruling RUL-E1-A05 (filed for the Stage 1 demonstration), continued by D1-4NOV, read because the Engine Translation row is unpopulated. His 5 November words set the scope this experiment uses; they decide nothing."
+        "note": "Computed by the Stage 1/2 resolution, its influence trace unchanged: Christian's scoped ruling RUL-E1-A05 (filed for the Stage 1 demonstration), continued by D1-4NOV, read because the Engine Translation row is unpopulated. Christian's 5 November words set the scope this experiment uses; they decide nothing."
       },
       {
         "path": "gameProblems.secondary",
@@ -573,7 +573,7 @@
           {
             "ref": "stage1-rulings.json RUL-E1-A05",
             "standing": "RULING",
-            "role": "his scoped ruling names the Game Problems and their roles",
+            "role": "Christian's scoped ruling names the Game Problems and their roles",
             "cite": {
               "file": "back/src/system/design-reasoning/stage1-rulings.json",
               "table": "rulings",
@@ -583,7 +583,7 @@
           {
             "ref": "stage2-rulings.json D1-4NOV",
             "standing": "RULING",
-            "role": "his later ruling retains the designation for this demonstration",
+            "role": "Christian's later ruling retains the designation for this demonstration",
             "cite": {
               "file": "back/src/system/design-reasoning/stage2-rulings.json",
               "table": "rulings",
@@ -665,7 +665,7 @@
           {
             "ref": "stage2-rulings.json D1-4NOV",
             "standing": "RULING",
-            "role": "his D1: primary-led profile; a stronger secondary rating is kept as a finding, not promoted",
+            "role": "Christian's D1: primary-led profile; a stronger secondary rating is kept as a finding, not promoted",
             "cite": {
               "file": "back/src/system/design-reasoning/stage2-rulings.json",
               "table": "rulings",
@@ -675,7 +675,7 @@
           {
             "ref": "stage1-rulings.json RUL-E1-A05",
             "standing": "RULING",
-            "role": "sets which Game Problems are merged, and their roles: his scoped ruling names the Game Problems and their roles",
+            "role": "sets which Game Problems are merged, and their roles: Christian's scoped ruling names the Game Problems and their roles",
             "cite": {
               "file": "back/src/system/design-reasoning/stage1-rulings.json",
               "table": "rulings",
@@ -685,7 +685,7 @@
           {
             "ref": "stage2-rulings.json D1-4NOV",
             "standing": "RULING",
-            "role": "sets which Game Problems are merged, and their roles: his later ruling retains the designation for this demonstration",
+            "role": "sets which Game Problems are merged, and their roles: Christian's later ruling retains the designation for this demonstration",
             "cite": {
               "file": "back/src/system/design-reasoning/stage2-rulings.json",
               "table": "rulings",
@@ -722,7 +722,7 @@
         "traceLabel": "computed by the Stage 1/2 code: its own influence trace, unchanged",
         "sixClass": 2,
         "allDecisiveRulingsProvisional": false,
-        "note": "Computed by the Stage 1/2 composite profile (his D1): the secondary's stronger rating is kept as a finding at INSUFFICIENT_EVIDENCE."
+        "note": "Computed by the Stage 1/2 composite profile (Christian's D1): the secondary's stronger rating is kept as a finding at INSUFFICIENT_EVIDENCE."
       },
       {
         "path": "gameProblems.candidate",
@@ -757,7 +757,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 3,
         "allDecisiveRulingsProvisional": false,
-        "note": "Shown, not used. The row is ACTIVE in the context library (SECONDARY COMPATIBLE); its id resolution was mechanical (OURS); his words keep the relationship a candidate."
+        "note": "Shown, not used. The row is ACTIVE in the context library (SECONDARY COMPATIBLE); its id resolution was mechanical (OURS); Christian's words keep the relationship a candidate."
       },
       {
         "path": "gameForm.illustrativeChoice",
@@ -803,7 +803,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 5,
         "allDecisiveRulingsProvisional": false,
-        "note": "His words name GF2 as a permitted illustrative configuration; using it is our choice. Checked by code to be among the compatible Game Forms the Stage 2 selection returns; no preference among them."
+        "note": "Christian's words name GF2 as a permitted illustrative configuration; using it is our choice. Checked by code to be among the compatible Game Forms the Stage 2 selection returns; no preference among them."
       },
       {
         "path": "gameForm.alternatives",
@@ -909,7 +909,7 @@
           {
             "ref": "stage1-rulings.json RUL-E1-A05",
             "standing": "RULING",
-            "role": "names the primary Game Problem the gate tests: his scoped ruling names the Game Problems and their roles",
+            "role": "names the primary Game Problem the gate tests: Christian's scoped ruling names the Game Problems and their roles",
             "cite": {
               "file": "back/src/system/design-reasoning/stage1-rulings.json",
               "table": "rulings",
@@ -919,7 +919,7 @@
           {
             "ref": "stage2-rulings.json D1-4NOV",
             "standing": "RULING",
-            "role": "names the primary Game Problem the gate tests: his later ruling retains the designation for this demonstration",
+            "role": "names the primary Game Problem the gate tests: Christian's later ruling retains the designation for this demonstration",
             "cite": {
               "file": "back/src/system/design-reasoning/stage2-rulings.json",
               "table": "rulings",
@@ -929,7 +929,7 @@
           {
             "ref": "stage2-rulings.json D3-4NOV",
             "standing": "RULING",
-            "role": "his D3: compatibility only; the declaration gate kept",
+            "role": "Christian's D3: compatibility only; the declaration gate kept",
             "cite": {
               "file": "back/src/system/design-reasoning/stage2-rulings.json",
               "table": "rulings",
@@ -999,7 +999,7 @@
           {
             "ref": "ASM-9OCT-TEAMS (received 9 October 2026)",
             "standing": "RULING",
-            "role": "his ruling, received 9 October 2026: \"Two opposing teams each have a designated target at the opposite end of the playing area.\" (states the value; general, no scope stated)",
+            "role": "Christian's ruling, received 9 October 2026: \"Two opposing teams each have a designated target at the opposite end of the playing area.\" (states the value; general, no scope stated)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1021,7 +1021,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 2,
         "allDecisiveRulingsProvisional": false,
-        "note": "His 9 October words, said of Directional Possession's opposing-target structure."
+        "note": "Christian's 9 October words, said of Directional Possession's opposing-target structure."
       },
       {
         "path": "teams.equalOutfield",
@@ -1034,7 +1034,7 @@
           {
             "ref": "ASM-1OCT-EQUAL (received 1 October 2026)",
             "standing": "APPROVED",
-            "role": "his ruling making it owner-authored canonical knowledge, received 1 October 2026: \"Promote GF2-14.b, equal outfield counts, from ASSUMED to owner-authored canonical knowledge.\" (states the value; scope GF2_ITEM: \"Promote GF2-14.b, equal outfield counts\"; \"Equal team numbers should not become an engine-level universal assumption.\")",
+            "role": "Christian's ruling making it owner-authored canonical knowledge, received 1 October 2026: \"Promote GF2-14.b, equal outfield counts, from ASSUMED to owner-authored canonical knowledge.\" (states the value; scope GF2_ITEM: \"Promote GF2-14.b, equal outfield counts\"; \"Equal team numbers should not become an engine-level universal assumption.\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1046,7 +1046,7 @@
           {
             "ref": "contracts.json GF2-14.b",
             "standing": "CANDIDATE",
-            "role": "still reads basis ASSUMED: our stale projection of his 1 October promotion (our error, to be fixed outside this experiment; not edited here; corpus-restatements.json carries the promotion)."
+            "role": "still reads basis ASSUMED: our stale projection of Christian's 1 October promotion (our error, to be fixed outside this experiment; not edited here; corpus-restatements.json carries the promotion)."
           }
         ],
         "statusSetBy": [],
@@ -1056,7 +1056,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 1,
         "allDecisiveRulingsProvisional": false,
-        "note": "His 1 October ruling made equal outfield counts owner-authored canonical knowledge for GF2 (his scope: GF2-14.b, not an engine-level universal assumption), so the value is class 1."
+        "note": "Christian's 1 October ruling made equal outfield counts owner-authored canonical knowledge for GF2 (Christian's scope: GF2-14.b, not an engine-level universal assumption), so the value is class 1."
       },
       {
         "path": "players.perTeam",
@@ -1132,7 +1132,7 @@
           {
             "ref": "ASM-28OCT-PROVISIONAL (received 28 October 2026; provisional)",
             "standing": "RULING",
-            "role": "no goals in this realization because the scoring target is an end zone (his provisional ruling); no goalkeepers is our illustrative consequence.",
+            "role": "no goals in this realization because the scoring target is an end zone (Christian's provisional ruling); no goalkeepers is our illustrative consequence.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1142,7 +1142,7 @@
           {
             "ref": "ASM-1OCT-SESSION-FACT (received 1 October 2026)",
             "standing": "RULING",
-            "role": "his 1 October words: no goalkeepers was a session fact for that run, not a default; here too it is a choice for this example only.",
+            "role": "Christian's 1 October words: no goalkeepers was a session fact for that run, not a default; here too it is a choice for this example only.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1280,7 +1280,7 @@
           {
             "ref": "ASM-AUTH-D4 (received 5 November 2026)",
             "standing": "RULING",
-            "role": "his Decision 4 requires the statement (whether end zones are included); the value follows our illustrative layout.",
+            "role": "Christian's Decision 4 requires the statement (whether end zones are included); the value follows our illustrative layout.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1326,7 +1326,7 @@
           {
             "ref": "ASM-AUTH-D4 (received 5 November 2026)",
             "standing": "RULING",
-            "role": "his Decision 4 requires the statement (whether goalkeepers are counted); there are none to count.",
+            "role": "Christian's Decision 4 requires the statement (whether goalkeepers are counted); there are none to count.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1372,7 +1372,7 @@
           {
             "ref": "sport-profile-soccer.json LAW-8",
             "standing": "OURS",
-            "role": "the Laws kick-off needs a centre mark and a halfway line (the profile lists the centre mark as unrepresented); marking them is our illustrative consequence of his kickoff ruling."
+            "role": "the Laws kick-off needs a centre mark and a halfway line (the profile lists the centre mark as unrepresented); marking them is our illustrative consequence of Christian's kickoff ruling."
           }
         ],
         "statusSetBy": [],
@@ -1454,7 +1454,7 @@
           {
             "ref": "ASM-30OCT-WALKTHROUGH (received 30 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his words scope the 5 m depth to \"the walk-through\"; carried over to this experiment as an ILLUSTRATIVE value (applied to this experiment: OURS).",
+            "role": "Christian's words scope the 5 m depth to \"the walk-through\"; carried over to this experiment as an ILLUSTRATIVE value (applied to this experiment: OURS).",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1566,7 +1566,7 @@
           {
             "ref": "ASM-28OCT-PROVISIONAL (received 28 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his words ask for an \"appropriately positioned advanced end zone\"; what makes a position appropriate is not defined anywhere in the knowledge.",
+            "role": "Christian's words ask for an \"appropriately positioned advanced end zone\"; what makes a position appropriate is not defined anywhere in the knowledge.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1601,7 +1601,7 @@
           {
             "ref": "ASM-15OCT-WAITING (received 15 October 2026)",
             "standing": "RULING",
-            "role": "his observation, said of the build-out activity (attackers waiting in the target area); applying it here is ours (OURS: CAUSAL HYPOTHESIS), listed in Part 3 as a known risk to review and among the open decisions; kept out of the coach text; no restriction is invented.",
+            "role": "Christian's observation, said of the build-out activity (attackers waiting in the target area); applying it here is ours (OURS: CAUSAL HYPOTHESIS), listed in Part 3 as a known risk to review and among the open decisions; kept out of the coach text; no restriction is invented.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1615,7 +1615,7 @@
           {
             "ref": "ASM-23OCT-LAWS (received 23 October 2026)",
             "standing": "RULING",
-            "role": "our reading (OURS) of his words, received 23 October 2026: \"The normal Laws of the Game should apply by default wherever they are applicable\" (his words do not state the value)",
+            "role": "our reading (OURS) of Christian's words, received 23 October 2026: \"The normal Laws of the Game should apply by default wherever they are applicable\" (Christian's words do not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1650,7 +1650,7 @@
           {
             "ref": "ASM-DEC-CONTINUOUS (received 4 November 2026)",
             "standing": "RULING",
-            "role": "our reading (OURS) of his words, received 4 November 2026: \"separate from specific Interaction Regulations\" (his words do not state the value)",
+            "role": "our reading (OURS) of Christian's words, received 4 November 2026: \"separate from specific Interaction Regulations\" (Christian's words do not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1660,7 +1660,7 @@
           {
             "ref": "ASM-REV1-NO-FIXED-POSITIONS (received 5 November 2026)",
             "standing": "RULING",
-            "role": "our reading (OURS) of his words, received 5 November 2026: \"I would also avoid requiring fixed positions, waiting periods, or predetermined movement sequences simply to guarantee a defensive organization.\" (his words do not state the value)",
+            "role": "our reading (OURS) of Christian's words, received 5 November 2026: \"I would also avoid requiring fixed positions, waiting periods, or predetermined movement sequences simply to guarantee a defensive organization.\" (Christian's words do not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1672,7 +1672,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 6,
         "allDecisiveRulingsProvisional": false,
-        "note": "Our decision to add no Interaction Regulation: none is authorized for this context, and his words keep continuous play apart from them and avoid fixed positions, waiting periods or movement sequences; which relationship to adjust first is open (K3)."
+        "note": "Our decision to add no Interaction Regulation: none is authorized for this context, and Christian's words keep continuous play apart from them and avoid fixed positions, waiting periods or movement sequences; which relationship to adjust first is open (K3)."
       },
       {
         "path": "directions",
@@ -1685,7 +1685,7 @@
           {
             "ref": "ASM-15SEP-DIRECTION (received 15 September 2026)",
             "standing": "RULING",
-            "role": "his ruling, received 15 September 2026: \"In the normal opposed invasion realization, each team attacks one direction and defends the opposite direction.\" (states the value; scope NORMAL_OPPOSED_INVASION_REALIZATION: \"In the normal opposed invasion realization\")",
+            "role": "Christian's ruling, received 15 September 2026: \"In the normal opposed invasion realization, each team attacks one direction and defends the opposite direction.\" (states the value; scope NORMAL_OPPOSED_INVASION_REALIZATION: \"In the normal opposed invasion realization\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1695,7 +1695,7 @@
           {
             "ref": "ASM-9OCT-TEAMS (received 9 October 2026)",
             "standing": "RULING",
-            "role": "his ruling, received 9 October 2026: \"Each team's target assignment remains fixed throughout the activity.\" (states the value; general, no scope stated)",
+            "role": "Christian's ruling, received 9 October 2026: \"Each team's target assignment remains fixed throughout the activity.\" (states the value; general, no scope stated)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1707,7 +1707,7 @@
           {
             "ref": "soccer-module.rc1-v3.json game_forms GF2 setup_guidance",
             "standing": "CANDIDATE",
-            "role": "the module's setup text says the teams attack in the same direction; it conflicts with his 15 September correction and is not used (contracts.json GF2-12.a and GF2-12.b, not used)."
+            "role": "the module's setup text says the teams attack in the same direction; it conflicts with Christian's 15 September correction and is not used (contracts.json GF2-12.a and GF2-12.b, not used)."
           }
         ],
         "statusSetBy": [],
@@ -1730,7 +1730,7 @@
           {
             "ref": "ASM-28OCT-PROVISIONAL (received 28 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional ruling, received 28 October 2026: \"Scoring target: Controlled arrival in an appropriately positioned advanced end zone.\" (states the value; no scope stated for this decision (the entry's scope words, \"for this initial small-sided realization\", are said of rules.offside; OURS: the scope words cover the offside decision))",
+            "role": "Christian's provisional ruling, received 28 October 2026: \"Scoring target: Controlled arrival in an appropriately positioned advanced end zone.\" (states the value; no scope stated for this decision (the entry's scope words, \"for this initial small-sided realization\", are said of rules.offside; OURS: the scope words cover the offside decision))",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1740,7 +1740,7 @@
           {
             "ref": "ASM-28OCT-ENDZONE (received 28 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional ruling, received 28 October 2026: \"For scoring, I favor controlled arrival in an advanced end zone over crossing the far end line.\" (states the value; general, no scope stated)",
+            "role": "Christian's provisional ruling, received 28 October 2026: \"For scoring, I favor controlled arrival in an advanced end zone over crossing the far end line.\" (states the value; general, no scope stated)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1757,7 +1757,7 @@
           {
             "ref": "ASM-30OCT-EVE-EVENT (received 30 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his later restatement that the controlled arrival stays provisional.",
+            "role": "Christian's later restatement that the controlled arrival stays provisional.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1772,7 +1772,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 3,
         "allDecisiveRulingsProvisional": true,
-        "note": "His provisional ruling, placed in class 3."
+        "note": "Christian's provisional ruling, placed in class 3."
       },
       {
         "path": "scoring.means",
@@ -1790,7 +1790,7 @@
           {
             "ref": "ASM-29OCT-PROVISIONAL (received 29 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional ruling, received 29 October 2026: \"Scoring: Controlled arrival in an appropriately positioned advanced end zone.\" (selects what the code reads; the cell states the value; no scope stated for this decision (the entry's scope words, \"for this initial small-sided realization\", are said of rules.offside; OURS: the scope words cover the offside decision))",
+            "role": "Christian's provisional ruling, received 29 October 2026: \"Scoring: Controlled arrival in an appropriately positioned advanced end zone.\" (selects what the code reads; the cell states the value; no scope stated for this decision (the entry's scope words, \"for this initial small-sided realization\", are said of rules.offside; OURS: the scope words cover the offside decision))",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1837,7 +1837,7 @@
           {
             "ref": "ASM-REV1-SOURCE-FIDELITY (received 5 November 2026)",
             "standing": "RULING",
-            "role": "the row is APPROVED, but its wording differs from his 13 September text (a colon where his text has \"for example\"); the wording is therefore CANDIDATE until he rules.",
+            "role": "the row is APPROVED, but its wording differs from Christian's 13 September text (a colon where Christian's text has \"for example\"); the wording is therefore CANDIDATE until Christian rules.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1876,7 +1876,7 @@
           {
             "ref": "ASM-13SEP-SCORING (received 13 September 2026)",
             "standing": "RULING",
-            "role": "his ruling, received 13 September 2026: \"The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.\" (states the value; general, no scope stated)",
+            "role": "Christian's ruling, received 13 September 2026: \"The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.\" (states the value; general, no scope stated)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1933,7 +1933,7 @@
           {
             "ref": "ASM-30OCT-OPTION5 (received 30 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional option (5), flagged as unverified learning-design relevance; the interpretation and its provenance are recorded here for review.",
+            "role": "Christian's provisional option (5), flagged as unverified learning-design relevance; the interpretation and its provenance are recorded here for review.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1992,7 +1992,7 @@
           {
             "ref": "ASM-30OCT-REGAIN (received 30 October 2026)",
             "standing": "RULING",
-            "role": "his ruling, received 30 October 2026: \"I believe the interception near the end zone followed by an immediate controlled arrival should count.\" (states the value; scope SCENARIO_1A: \"Should Scenario 1A score?\"; OURS: his words answer one walk-through scenario; applying them to every regain is our generalization, supported by ASM-30OCT-EVE-ELIGIBLE)",
+            "role": "Christian's ruling, received 30 October 2026: \"I believe the interception near the end zone followed by an immediate controlled arrival should count.\" (states the value; scope SCENARIO_1A: \"Should Scenario 1A score?\"; OURS: Christian's words answer one walk-through scenario; applying them to every regain is our generalization, supported by ASM-30OCT-EVE-ELIGIBLE)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2002,7 +2002,7 @@
           {
             "ref": "ASM-30OCT-EVE-ELIGIBLE (received 30 October 2026)",
             "standing": "RULING",
-            "role": "his ruling, received 30 October 2026: \"Legitimate immediate attacking opportunities remain eligible to score.\" (states the value; general, no scope stated)",
+            "role": "Christian's ruling, received 30 October 2026: \"Legitimate immediate attacking opportunities remain eligible to score.\" (states the value; general, no scope stated)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2029,7 +2029,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 2,
         "allDecisiveRulingsProvisional": false,
-        "note": "No eligibility restriction after a live turnover. His 30 October words answer one scenario (Scenario 1A); applying them to every regain is our generalization, which his 30 October evening words support."
+        "note": "No eligibility restriction after a live turnover. Christian's 30 October words answer one scenario (Scenario 1A); applying them to every regain is our generalization, which Christian's 30 October evening words support."
       },
       {
         "path": "scoring.mirrored",
@@ -2052,7 +2052,7 @@
           {
             "ref": "ASM-28OCT-PROVISIONAL (received 28 October 2026; provisional)",
             "standing": "RULING",
-            "role": "our reading (OURS) of his words, received 28 October 2026: \"Opposition: Reciprocal, meaningful objectives with continuous live opposition.\" (his words do not state the value)",
+            "role": "our reading (OURS) of Christian's words, received 28 October 2026: \"Opposition: Reciprocal, meaningful objectives with continuous live opposition.\" (Christian's words do not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2062,7 +2062,7 @@
           {
             "ref": "ASM-9OCT-TEAMS (received 9 October 2026)",
             "standing": "RULING",
-            "role": "our reading (OURS) of his words, received 9 October 2026: \"Two opposing teams each have a designated target at the opposite end of the playing area.\" (his words do not state the value)",
+            "role": "our reading (OURS) of Christian's words, received 9 October 2026: \"Two opposing teams each have a designated target at the opposite end of the playing area.\" (Christian's words do not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2074,7 +2074,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 6,
         "allDecisiveRulingsProvisional": false,
-        "note": "Our reading of his reciprocal objectives, and of each team having its own target, as the same scoring event for both teams; his words do not state mirroring. Listed among our readings for him to correct."
+        "note": "Our reading of Christian's reciprocal objectives, and of each team having its own target, as the same scoring event for both teams; Christian's words do not state mirroring. Listed among our readings for Christian to correct."
       },
       {
         "path": "opposition.reciprocal",
@@ -2087,7 +2087,7 @@
           {
             "ref": "ASM-29OCT-PROVISIONAL (received 29 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional ruling, received 29 October 2026: \"Opposition: Reciprocal objectives, meaningful defensive pressure, and continuous play through turnovers.\" (states the value; no scope stated for this decision (the entry's scope words, \"for this initial small-sided realization\", are said of rules.offside; OURS: the scope words cover the offside decision))",
+            "role": "Christian's provisional ruling, received 29 October 2026: \"Opposition: Reciprocal objectives, meaningful defensive pressure, and continuous play through turnovers.\" (states the value; no scope stated for this decision (the entry's scope words, \"for this initial small-sided realization\", are said of rules.offside; OURS: the scope words cover the offside decision))",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2099,7 +2099,7 @@
           {
             "ref": "ASM-29OCT-EVE-PROVISIONAL (received 29 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his restatement the same evening: reciprocal objectives and continuous live opposition (consistent).",
+            "role": "Christian's restatement the same evening: reciprocal objectives and continuous live opposition (consistent).",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2114,7 +2114,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 3,
         "allDecisiveRulingsProvisional": true,
-        "note": "Both teams attack and defend; his provisional ruling, placed in class 3."
+        "note": "Both teams attack and defend; Christian's provisional ruling, placed in class 3."
       },
       {
         "path": "play.continuous",
@@ -2127,7 +2127,7 @@
           {
             "ref": "ASM-REV1-CONTINUOUS (received 5 November 2026)",
             "standing": "RULING",
-            "role": "his ruling, received 5 November 2026: \"I favor preserving continuous play through turnovers whenever doing so supports the intended representative problem.\" (states the value; scope WHERE_IT_SUPPORTS_THE_PROBLEM: \"whenever doing so supports the intended representative problem\")",
+            "role": "Christian's ruling, received 5 November 2026: \"I favor preserving continuous play through turnovers whenever doing so supports the intended representative problem.\" (states the value; scope WHERE_IT_SUPPORTS_THE_PROBLEM: \"whenever doing so supports the intended representative problem\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2137,7 +2137,7 @@
           {
             "ref": "ASM-DEC-CONTINUOUS (received 4 November 2026)",
             "standing": "RULING",
-            "role": "his ruling, received 4 November 2026: \"I also support retaining continuous play as a baseline representative condition where applicable, separate from specific Interaction Regulations.\" (states the value; scope WHERE_APPLICABLE: \"where applicable\")",
+            "role": "Christian's ruling, received 4 November 2026: \"I also support retaining continuous play as a baseline representative condition where applicable, separate from specific Interaction Regulations.\" (states the value; scope WHERE_APPLICABLE: \"where applicable\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2166,7 +2166,7 @@
           {
             "ref": "ASM-REV1-KICKOFF (received 5 November 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional ruling, received 5 November 2026: \"Please retain the ordinary kickoff as an acceptable provisional option for the current prototype\" (states the value; scope CURRENT_PROTOTYPE: \"for the current prototype\")",
+            "role": "Christian's provisional ruling, received 5 November 2026: \"Please retain the ordinary kickoff as an acceptable provisional option for the current prototype\" (states the value; scope CURRENT_PROTOTYPE: \"for the current prototype\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2188,7 +2188,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 3,
         "allDecisiveRulingsProvisional": true,
-        "note": "His caveat: \"do not promote it as a demonstrated method of restoring organized defensive relationships.\" Nothing in this experiment says it does."
+        "note": "Christian's caveat: \"do not promote it as a demonstrated method of restoring organized defensive relationships.\" Nothing in this experiment says it does."
       },
       {
         "path": "start.kickoffDetails",
@@ -2208,7 +2208,7 @@
           {
             "ref": "ASM-29OCT-ADAPTED-KICKOFF (received 29 October 2026)",
             "standing": "RULING",
-            "role": "his earlier words permit an adapted kick-off after a score for testing, on his proviso; whether to relax the Laws' kick-off here is a non-blocking question to him.",
+            "role": "Christian's earlier words permit an adapted kick-off after a score for testing, on Christian's proviso; whether to relax the Laws' kick-off here is a non-blocking question to Christian.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2227,7 +2227,7 @@
           {
             "ref": "ASM-REV1-KICKOFF (received 5 November 2026; provisional)",
             "standing": "RULING",
-            "role": "our reading (OURS) of his words, received 5 November 2026: \"the ordinary kickoff\" (his words do not state the value)",
+            "role": "our reading (OURS) of Christian's words, received 5 November 2026: \"the ordinary kickoff\" (Christian's words do not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2237,7 +2237,7 @@
           {
             "ref": "ASM-23OCT-LAWS (received 23 October 2026)",
             "standing": "RULING",
-            "role": "our reading (OURS) of his words, received 23 October 2026: \"The normal Laws of the Game should apply by default wherever they are applicable\" (his words do not state the value)",
+            "role": "our reading (OURS) of Christian's words, received 23 October 2026: \"The normal Laws of the Game should apply by default wherever they are applicable\" (Christian's words do not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2274,7 +2274,7 @@
           {
             "ref": "ASM-29OCT-ADAPTED-KICKOFF (received 29 October 2026)",
             "standing": "RULING",
-            "role": "whether this distance may be relaxed is a non-blocking question to him.",
+            "role": "whether this distance may be relaxed is a non-blocking question to Christian.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2288,7 +2288,7 @@
           {
             "ref": "ASM-REV1-KICKOFF (received 5 November 2026; provisional)",
             "standing": "RULING",
-            "role": "our reading (OURS) of his words, received 5 November 2026: \"the ordinary kickoff\" (his words do not state the value)",
+            "role": "our reading (OURS) of Christian's words, received 5 November 2026: \"the ordinary kickoff\" (Christian's words do not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2298,7 +2298,7 @@
           {
             "ref": "ASM-23OCT-LAWS (received 23 October 2026)",
             "standing": "RULING",
-            "role": "our reading (OURS) of his words, received 23 October 2026: \"The normal Laws of the Game should apply by default wherever they are applicable\" (his words do not state the value)",
+            "role": "our reading (OURS) of Christian's words, received 23 October 2026: \"The normal Laws of the Game should apply by default wherever they are applicable\" (Christian's words do not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2310,7 +2310,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 6,
         "allDecisiveRulingsProvisional": false,
-        "note": "The Laws' kick-off distance, entered as its own value so the coach text states the number it restates; our reading of \"ordinary\", not his words."
+        "note": "The Laws' kick-off distance, entered as its own value so the coach text states the number it restates; our reading of \"ordinary\", not Christian's words."
       },
       {
         "path": "restart.afterPoint.method",
@@ -2323,7 +2323,7 @@
           {
             "ref": "ASM-REV1-KICKOFF (received 5 November 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional ruling, received 5 November 2026: \"Please retain the ordinary kickoff as an acceptable provisional option for the current prototype\" (states the value; scope CURRENT_PROTOTYPE: \"for the current prototype\")",
+            "role": "Christian's provisional ruling, received 5 November 2026: \"Please retain the ordinary kickoff as an acceptable provisional option for the current prototype\" (states the value; scope CURRENT_PROTOTYPE: \"for the current prototype\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2340,7 +2340,7 @@
           {
             "ref": "ASM-30OCT-RESTART (received 30 October 2026)",
             "standing": "RULING",
-            "role": "his 30 October words: a conventional kick-off is not the automatic rule for every Attack Development activity, and restarting play is not returning every player to fixed positions; here the kick-off is his 5 November provisional option for this prototype only.",
+            "role": "Christian's 30 October words: a conventional kick-off is not the automatic rule for every Attack Development activity, and restarting play is not returning every player to fixed positions; here the kick-off is Christian's 5 November provisional option for this prototype only.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2355,7 +2355,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 3,
         "allDecisiveRulingsProvisional": true,
-        "note": "His provisional option for the restart after a score; never presented as restoring organized defence."
+        "note": "Christian's provisional option for the restart after a score; never presented as restoring organized defence."
       },
       {
         "path": "restart.afterPoint.who",
@@ -2375,7 +2375,7 @@
           {
             "ref": "ASM-30OCT-RESTART (received 30 October 2026)",
             "standing": "RULING",
-            "role": "his words on the restart after scoring (consulted; they do not say who restarts).",
+            "role": "Christian's words on the restart after scoring (consulted; they do not say who restarts).",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2389,7 +2389,7 @@
           {
             "ref": "ASM-23OCT-LAWS (received 23 October 2026)",
             "standing": "RULING",
-            "role": "our reading (OURS) of his words, received 23 October 2026: \"The normal Laws of the Game should apply by default wherever they are applicable\" (his words do not state the value)",
+            "role": "our reading (OURS) of Christian's words, received 23 October 2026: \"The normal Laws of the Game should apply by default wherever they are applicable\" (Christian's words do not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2414,7 +2414,7 @@
           {
             "ref": "ASM-29OCT-PROVISIONAL (received 29 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional ruling, received 29 October 2026: \"Offside: None for this initial small-sided realization, explicitly communicated.\" (states the value; scope INITIAL_SMALL_SIDED_REALIZATION: \"for this initial small-sided realization\"; OURS: the scope words cover the offside decision)",
+            "role": "Christian's provisional ruling, received 29 October 2026: \"Offside: None for this initial small-sided realization, explicitly communicated.\" (states the value; scope INITIAL_SMALL_SIDED_REALIZATION: \"for this initial small-sided realization\"; OURS: the scope words cover the offside decision)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2424,7 +2424,7 @@
           {
             "ref": "ASM-28OCT-PROVISIONAL (received 28 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional ruling, received 28 October 2026: \"Offside: No offside for this initial small-sided realization, explicitly communicated.\" (states the value; scope INITIAL_SMALL_SIDED_REALIZATION: \"for this initial small-sided realization\"; OURS: the scope words cover the offside decision)",
+            "role": "Christian's provisional ruling, received 28 October 2026: \"Offside: No offside for this initial small-sided realization, explicitly communicated.\" (states the value; scope INITIAL_SMALL_SIDED_REALIZATION: \"for this initial small-sided realization\"; OURS: the scope words cover the offside decision)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2436,7 +2436,7 @@
           {
             "ref": "ASM-29OCT-EVE-PROVISIONAL (received 29 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his restatement the same evening, with different scope words (for this initial realization, without small-sided).",
+            "role": "Christian's restatement the same evening, with different scope words (for this initial realization, without small-sided).",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2451,7 +2451,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 3,
         "allDecisiveRulingsProvisional": true,
-        "note": "A departure from the Laws (Law 11), explicitly communicated; his provisional ruling, placed in class 3."
+        "note": "A departure from the Laws (Law 11), explicitly communicated; Christian's provisional ruling, placed in class 3."
       },
       {
         "path": "restart.touchline",
@@ -2464,7 +2464,7 @@
           {
             "ref": "ASM-23OCT-LAWS (received 23 October 2026)",
             "standing": "RULING",
-            "role": "his ruling, received 23 October 2026: \"The normal Laws of the Game should apply by default wherever they are applicable\" (states the value; scope WHEREVER_APPLICABLE: \"wherever they are applicable\")",
+            "role": "Christian's ruling, received 23 October 2026: \"The normal Laws of the Game should apply by default wherever they are applicable\" (states the value; scope WHEREVER_APPLICABLE: \"wherever they are applicable\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2504,7 +2504,7 @@
           {
             "ref": "ASM-23OCT-LAWS (received 23 October 2026)",
             "standing": "RULING",
-            "role": "his ruling, received 23 October 2026: \"For example, normal rules should govern goalkeeper handling, fouls, and own goals unless the activity deliberately changes them.\" (states the value; scope WHEREVER_APPLICABLE: \"wherever they are applicable\")",
+            "role": "Christian's ruling, received 23 October 2026: \"For example, normal rules should govern goalkeeper handling, fouls, and own goals unless the activity deliberately changes them.\" (states the value; scope WHEREVER_APPLICABLE: \"wherever they are applicable\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2539,7 +2539,7 @@
           {
             "ref": "ASM-23OCT-LAWS (received 23 October 2026)",
             "standing": "RULING",
-            "role": "his ruling, received 23 October 2026: \"The normal Laws of the Game should apply by default wherever they are applicable\" (states the value; scope WHEREVER_APPLICABLE: \"wherever they are applicable\")",
+            "role": "Christian's ruling, received 23 October 2026: \"The normal Laws of the Game should apply by default wherever they are applicable\" (states the value; scope WHEREVER_APPLICABLE: \"wherever they are applicable\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2574,7 +2574,7 @@
           {
             "ref": "ASM-23OCT-LAWS (received 23 October 2026)",
             "standing": "RULING",
-            "role": "his ruling, received 23 October 2026: \"The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.\" (states the value; scope WHEREVER_APPLICABLE: \"wherever they are applicable\")",
+            "role": "Christian's ruling, received 23 October 2026: \"The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.\" (states the value; scope WHEREVER_APPLICABLE: \"wherever they are applicable\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2619,7 +2619,7 @@
           {
             "ref": "ASM-23OCT-LAWS (received 23 October 2026)",
             "standing": "RULING",
-            "role": "our reading (OURS) of his words, received 23 October 2026: \"the system should identify the relevant adaptation rather than silently assume conventional conditions exist\" (his words do not state the value)",
+            "role": "our reading (OURS) of Christian's words, received 23 October 2026: \"the system should identify the relevant adaptation rather than silently assume conventional conditions exist\" (Christian's words do not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2696,7 +2696,7 @@
           {
             "ref": "ASM-23OCT-LAWS (received 23 October 2026)",
             "standing": "RULING",
-            "role": "a departure from the Laws needs an explicit, knowledge-authorized modification; we ask him to confirm that an illustrative value may stand in here.",
+            "role": "a departure from the Laws needs an explicit, knowledge-authorized modification; we ask Christian to confirm that an illustrative value may stand in here.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2706,7 +2706,7 @@
           {
             "ref": "ASM-REV1-COACH-SERVED-BALL (received 5 November 2026)",
             "standing": "RULING",
-            "role": "his alternative when the ball leaves play (a coach-served ball, not a live turnover); offered to him as an option in the end-line question, not used here.",
+            "role": "Christian's alternative when the ball leaves play (a coach-served ball, not a live turnover); offered to Christian as an option in the end-line question, not used here.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2732,7 +2732,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 5,
         "allDecisiveRulingsProvisional": false,
-        "note": "Illustrative only, pending his confirmation. The team defending the target zone at that end restarts, so no restart is taken on the edge of the zone the restarting team attacks; no opponent distance or retreat rule is added, so an opponent standing in that zone who intercepts the restart and controls the ball there scores at once (a known risk, Part 3)."
+        "note": "Illustrative only, pending Christian's confirmation. The team defending the target zone at that end restarts, so no restart is taken on the edge of the zone the restarting team attacks; no opponent distance or retreat rule is added, so an opponent standing in that zone who intercepts the restart and controls the ball there scores at once (a known risk, Part 3)."
       },
       {
         "path": "duration.blocks",
@@ -3004,8 +3004,8 @@
       },
       {
         "path": "observation.categories",
-        "value": "HIS_THREE_CATEGORIES",
-        "rendered": "HIS_THREE_CATEGORIES",
+        "value": "CHRISTIANS_THREE_CATEGORIES",
+        "rendered": "CHRISTIANS_THREE_CATEGORIES",
         "howReached": "ENTERED_EVIDENCED",
         "declaredStatus": "RULING",
         "computed": false,
@@ -3013,7 +3013,7 @@
           {
             "ref": "ASM-30OCT-EVE-OBSERVATION (received 30 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional ruling, received 30 October 2026: \"Observation criteria — Provisionally approved\" (states the value; general, no scope stated)",
+            "role": "Christian's provisional ruling, received 30 October 2026: \"Observation criteria — Provisionally approved\" (states the value; general, no scope stated)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -3023,7 +3023,7 @@
           {
             "ref": "ASM-REV1-OBSERVATION (received 5 November 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional ruling, received 5 November 2026: \"Our provisional A05 observation categories—Against Organized Opposition, During Transition, and Uncertain\" (states the value; scope REVIEW_PROTOTYPE: \"in the review prototype\")",
+            "role": "Christian's provisional ruling, received 5 November 2026: \"Our provisional A05 observation categories—Against Organized Opposition, During Transition, and Uncertain\" (states the value; scope REVIEW_PROTOTYPE: \"in the review prototype\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -3039,7 +3039,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 3,
         "allDecisiveRulingsProvisional": true,
-        "note": "For evaluating this prototype only: no threshold, not a selection criterion, not evidence of learning. His provisional ruling, placed in class 3."
+        "note": "For evaluating this prototype only: no threshold, not a selection criterion, not evidence of learning. Christian's provisional ruling, placed in class 3."
       },
       {
         "path": "adjustments",
@@ -3073,7 +3073,7 @@
           {
             "ref": "ASM-AUTH-SCENARIO-RULES (received 5 November 2026)",
             "standing": "RULING",
-            "role": "our reading (OURS) of his words, received 5 November 2026: \"It should not automatically change the primary Game Problem or recommend width changes on unsupported assumptions.\" (his words do not state the value)",
+            "role": "our reading (OURS) of Christian's words, received 5 November 2026: \"It should not automatically change the primary Game Problem or recommend width changes on unsupported assumptions.\" (Christian's words do not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -3108,7 +3108,7 @@
           {
             "ref": "ASM-AUTH-COACH-QUESTION (received 5 November 2026)",
             "standing": "RULING",
-            "role": "our reading (OURS) of his words, received 5 November 2026: \"This is a future feedback direction, not a request to implement learning analytics now.\" (his words do not state the value)",
+            "role": "our reading (OURS) of Christian's words, received 5 November 2026: \"This is a future feedback direction, not a request to implement learning analytics now.\" (Christian's words do not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -3120,7 +3120,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 6,
         "allDecisiveRulingsProvisional": false,
-        "note": "Our reading: preserved for a future feedback experience, so kept out of this activity's coach guidance; listed among our readings for him to correct."
+        "note": "Our reading: preserved for a future feedback experience, so kept out of this activity's coach guidance; listed among our readings for Christian to correct."
       }
     ],
     "derived": [
@@ -3163,7 +3163,7 @@
             {
               "ref": "stage1-rulings.json RUL-E1-A05",
               "standing": "RULING",
-              "role": "his scoped ruling names the Game Problems and their roles",
+              "role": "Christian's scoped ruling names the Game Problems and their roles",
               "cite": {
                 "file": "back/src/system/design-reasoning/stage1-rulings.json",
                 "table": "rulings",
@@ -3173,7 +3173,7 @@
             {
               "ref": "stage2-rulings.json D1-4NOV",
               "standing": "RULING",
-              "role": "his later ruling retains the designation for this demonstration",
+              "role": "Christian's later ruling retains the designation for this demonstration",
               "cite": {
                 "file": "back/src/system/design-reasoning/stage2-rulings.json",
                 "table": "rulings",
@@ -3234,7 +3234,7 @@
             {
               "ref": "stage2-rulings.json D1-4NOV",
               "standing": "RULING",
-              "role": "his D1: primary-led profile; a stronger secondary rating is kept as a finding, not promoted",
+              "role": "Christian's D1: primary-led profile; a stronger secondary rating is kept as a finding, not promoted",
               "cite": {
                 "file": "back/src/system/design-reasoning/stage2-rulings.json",
                 "table": "rulings",
@@ -3244,7 +3244,7 @@
             {
               "ref": "stage1-rulings.json RUL-E1-A05",
               "standing": "RULING",
-              "role": "sets which Game Problems are merged, and their roles: his scoped ruling names the Game Problems and their roles",
+              "role": "sets which Game Problems are merged, and their roles: Christian's scoped ruling names the Game Problems and their roles",
               "cite": {
                 "file": "back/src/system/design-reasoning/stage1-rulings.json",
                 "table": "rulings",
@@ -3254,7 +3254,7 @@
             {
               "ref": "stage2-rulings.json D1-4NOV",
               "standing": "RULING",
-              "role": "sets which Game Problems are merged, and their roles: his later ruling retains the designation for this demonstration",
+              "role": "sets which Game Problems are merged, and their roles: Christian's later ruling retains the designation for this demonstration",
               "cite": {
                 "file": "back/src/system/design-reasoning/stage2-rulings.json",
                 "table": "rulings",
@@ -3282,12 +3282,12 @@
             {
               "ref": "Composite Game Problem Runtime Specification RC1 v1.0, section 7, in full",
               "standing": "REFERENCE ONLY",
-              "role": "cited with its own status (Implementation Specification); decides nothing; a possible tension with D1 is noted for his reconciliation"
+              "role": "cited with its own status (Implementation Specification); decides nothing; a possible tension with D1 is noted for Christian's reconciliation"
             },
             {
               "ref": "Composite Game Problem Runtime Specification RC1 v1.0, section 9 (Priority Resolution), in full",
               "standing": "REFERENCE ONLY",
-              "role": "cited with its own status (Implementation Specification); decides nothing; a possible tension with D1 is noted for his reconciliation"
+              "role": "cited with its own status (Implementation Specification); decides nothing; a possible tension with D1 is noted for Christian's reconciliation"
             }
           ]
         }
@@ -3391,7 +3391,7 @@
             {
               "ref": "stage1-rulings.json RUL-E1-A05",
               "standing": "RULING",
-              "role": "names the primary Game Problem the gate tests: his scoped ruling names the Game Problems and their roles",
+              "role": "names the primary Game Problem the gate tests: Christian's scoped ruling names the Game Problems and their roles",
               "cite": {
                 "file": "back/src/system/design-reasoning/stage1-rulings.json",
                 "table": "rulings",
@@ -3401,7 +3401,7 @@
             {
               "ref": "stage2-rulings.json D1-4NOV",
               "standing": "RULING",
-              "role": "names the primary Game Problem the gate tests: his later ruling retains the designation for this demonstration",
+              "role": "names the primary Game Problem the gate tests: Christian's later ruling retains the designation for this demonstration",
               "cite": {
                 "file": "back/src/system/design-reasoning/stage2-rulings.json",
                 "table": "rulings",
@@ -3411,7 +3411,7 @@
             {
               "ref": "stage2-rulings.json D3-4NOV",
               "standing": "RULING",
-              "role": "his D3: compatibility only; the declaration gate kept",
+              "role": "Christian's D3: compatibility only; the declaration gate kept",
               "cite": {
                 "file": "back/src/system/design-reasoning/stage2-rulings.json",
                 "table": "rulings",
@@ -4330,10 +4330,10 @@
     {
       "text": "Learning Goal: Progress the Attack.",
       "expresses": [],
-      "marker": "[the Learning Goal he authorized; its name read from the planning model by code]"
+      "marker": "[the Learning Goal Christian authorized; its name read from the planning model by code]"
     },
     {
-      "text": "Game Problems: Create Space is the primary problem and Exploit Space a secondary consideration, resolved by the review pathway from his scoped ruling for this goal (the planning model's translation for it is unpopulated); the scope for this experiment is set by his words: \"within the scoped circumstance of progressing against organized opposition\" (received 5 November 2026); \"This remains a scoped review interpretation\" (received 5 November 2026); \"specifically within the circumstance of progressing against organized opposition\" (received 5 November 2026).",
+      "text": "Game Problems: Create Space is the primary problem and Exploit Space a secondary consideration, resolved by the review pathway from Christian's scoped ruling for this goal (the planning model's translation for it is unpopulated); the scope for this experiment is set by Christian's words: \"within the scoped circumstance of progressing against organized opposition\" (received 5 November 2026); \"This remains a scoped review interpretation\" (received 5 November 2026); \"specifically within the circumstance of progressing against organized opposition\" (received 5 November 2026).",
       "expresses": [
         "gameProblems.primary",
         "gameProblems.secondary"
@@ -4379,9 +4379,9 @@
           "play.continuous",
           "scoring.afterRegain"
         ],
-        "observableConditions": "Whether attacks develop from settled, organized possession against an organized defence (his three observation categories describe the defence's organization when a team scores); no threshold.",
+        "observableConditions": "Whether attacks develop from settled, organized possession against an organized defence (Christian's three observation categories describe the defence's organization when a team scores); no threshold.",
         "inCoachGuidance": false,
-        "note": "His 29 October decision 4(b): organized attacking possession characterizes the dominant opportunities rather than being a required state for every counted score. His categories are in the coach guidance; whether attacks develop from settled possession is not. Not counted as satisfied.",
+        "note": "Christian's 29 October decision 4(b): organized attacking possession characterizes the dominant opportunities rather than being a required state for every counted score. Christian's categories are in the coach guidance; whether attacks develop from settled possession is not. Not counted as satisfied.",
         "requirementStatus": "ACTIVE",
         "requirementRole": "REQUIRED",
         "satisfied": false,
@@ -4666,7 +4666,7 @@
           "scoring.afterRegain"
         ],
         "observableConditions": null,
-        "note": "A required component under this reading only. Control at the moment of arrival is represented; whether possession must be maintained from the attack's starting condition is not, and points straight after a regain count. Whether maintaining possession is a requirement at all is his open question (5 November assessment).",
+        "note": "A required component under this reading only. Control at the moment of arrival is represented; whether possession must be maintained from the attack's starting condition is not, and points straight after a regain count. Whether maintaining possession is a requirement at all is Christian's open question (5 November assessment).",
         "requirementStatus": "ACTIVE",
         "requirementRole": "PRIMARY_SCORING_CONDITION",
         "satisfied": false,
@@ -4705,7 +4705,7 @@
         "area.centreMark",
         "area.halfwayLine"
       ],
-      "reason": "The ordinary kickoff at the start and after a point (his provisional option); the centre mark and halfway line it needs are marked (illustrative)."
+      "reason": "The ordinary kickoff at the start and after a point (Christian's provisional option); the centre mark and halfway line it needs are marked (illustrative)."
     },
     {
       "lawId": "LAW-8-DB",
@@ -4721,7 +4721,7 @@
       "paths": [
         "rules.offside"
       ],
-      "reason": "No offside: his provisional ruling, explicitly communicated."
+      "reason": "No offside: Christian's provisional ruling, explicitly communicated."
     },
     {
       "lawId": "LAW-12-GK",
@@ -4764,7 +4764,7 @@
         "restart.endLine.status",
         "restart.endLine.illustrativeValue"
       ],
-      "reason": "The goal kick restarts a ball over the end line but assumes a goal and its goal area; there is no goal here, so an adaptation is owed. The ILLUSTRATIVE end-line value stands in (the team defending the target zone at that end restarts from that end line), pending his confirmation. Review point (OURS): the Laws keep opponents outside the penalty area until a goal kick is in play; nothing here does, and that end line is the back edge of the target zone the opponents attack, so an opponent standing in that zone who intercepts the restart and controls the ball there scores at once; no rule is invented (listed in Part 3 as a known risk)."
+      "reason": "The goal kick restarts a ball over the end line but assumes a goal and its goal area; there is no goal here, so an adaptation is owed. The ILLUSTRATIVE end-line value stands in (the team defending the target zone at that end restarts from that end line), pending Christian's confirmation. Review point (OURS): the Laws keep opponents outside the penalty area until a goal kick is in play; nothing here does, and that end line is the back edge of the target zone the opponents attack, so an opponent standing in that zone who intercepts the restart and controls the ball there scores at once; no rule is invented (listed in Part 3 as a known risk)."
     },
     {
       "lawId": "LAW-17",
@@ -4774,7 +4774,7 @@
         "restart.endLine.status",
         "restart.endLine.illustrativeValue"
       ],
-      "reason": "The corner kick restarts a ball over the end line but assumes a goal with a corner area beside it; there is no goal here, so an adaptation is owed. A corner kick would also be taken inside a target zone, where a pass to a teammate could give an immediate point (review point, OURS). The same ILLUSTRATIVE end-line value stands in, pending his confirmation."
+      "reason": "The corner kick restarts a ball over the end line but assumes a goal with a corner area beside it; there is no goal here, so an adaptation is owed. A corner kick would also be taken inside a target zone, where a pass to a teammate could give an immediate point (review point, OURS). The same ILLUSTRATIVE end-line value stands in, pending Christian's confirmation."
     },
     {
       "lawId": "LAW-4-GK",
@@ -4893,12 +4893,12 @@
     {
       "itemId": "GF2-12.a",
       "mappedTo": [],
-      "notUsed": "One shared target attacked by both teams (ASSUMED): superseded by his 15 September and 9 October rulings (each team its own target)."
+      "notUsed": "One shared target attacked by both teams (ASSUMED): superseded by Christian's 15 September and 9 October rulings (each team its own target)."
     },
     {
       "itemId": "GF2-12.b",
       "mappedTo": [],
-      "notUsed": "Both teams attacking in the same sense (from the module's CANDIDATE setup text): his 15 September correction; each team attacks one direction and defends the other."
+      "notUsed": "Both teams attacking in the same sense (from the module's CANDIDATE setup text): Christian's 15 September correction; each team attacks one direction and defends the other."
     },
     {
       "itemId": "GF2-13",
@@ -4993,7 +4993,7 @@
     }
   ],
   "suitability": {
-    "standing": "OURS: LOGICAL INFERENCE. Each entry cites the configuration paths and the knowledge rows it rests on; code only joins and prints. No verdict. A structural presence is not evidence that an affordance emerges (his D6), and nothing here is field evidence.",
+    "standing": "OURS: LOGICAL INFERENCE. Each entry cites the configuration paths and the knowledge rows it rests on; code only joins and prints. No verdict. A structural presence is not evidence that an affordance emerges (Christian's D6), and nothing here is field evidence.",
     "structural": [
       {
         "learningGoalId": "A05",
@@ -5024,7 +5024,7 @@
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -5071,7 +5071,7 @@
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -5125,7 +5125,7 @@
               {
                 "ref": "stage2-rulings.json D5-4NOV",
                 "standing": "RULING",
-                "role": "his D5: continuous play as a baseline representative condition",
+                "role": "Christian's D5: continuous play as a baseline representative condition",
                 "cite": {
                   "file": "back/src/system/design-reasoning/stage2-rulings.json",
                   "table": "rulings",
@@ -5159,9 +5159,9 @@
           }
         },
         "integrity": {
-          "standing": "The class of each condition (REQUIRED CONDITION or BREACH DESCRIPTION) is his D6, subject to confirming the original wording. The structuralSignal values are not his: see structuralSignalStanding. The workbook is unchanged.",
-          "wordingConfirmation": "OURS, for him to check; his acknowledgement is pending. We confirmed the wording against the archetype workbook (rows GAK-0103 to GAK-0110, Knowledge_Role CONDITION for all eight; 01-05 are worded as states that preserve the archetype, 06-08 as breaches) and against the Game Archetype Canonical Reference v1.1, whose Invasion examples under Organizational Transformation and Organizational Collapse match 06-08.",
-          "structuralSignalStanding": "OURS (INFERRED), not his D6: the structuralSignal values are our mapping, from our build spec. OPPOSITION_PRESENT on 03 and 07, and CONTINUOUS_PLAY_BASELINE on 05, are links of ours; his D5 supports continuous play as a baseline but does not link it to condition 05. A conclusion that rests on a signal carries evidence status INFERRED.",
+          "standing": "The class of each condition (REQUIRED CONDITION or BREACH DESCRIPTION) is Christian's D6, subject to confirming the original wording. The structuralSignal values are not Christian's: see structuralSignalStanding. The workbook is unchanged.",
+          "wordingConfirmation": "OURS, for Christian to check; Christian's acknowledgement is pending. We confirmed the wording against the archetype workbook (rows GAK-0103 to GAK-0110, Knowledge_Role CONDITION for all eight; 01-05 are worded as states that preserve the archetype, 06-08 as breaches) and against the Game Archetype Canonical Reference v1.1, whose Invasion examples under Organizational Transformation and Organizational Collapse match 06-08.",
+          "structuralSignalStanding": "OURS (INFERRED), not Christian's D6: the structuralSignal values are our mapping, from our build spec. OPPOSITION_PRESENT on 03 and 07, and CONTINUOUS_PLAY_BASELINE on 05, are links of ours; Christian's D5 supports continuous play as a baseline but does not link it to condition 05. A conclusion that rests on a signal carries evidence status INFERRED.",
           "noVerdict": "Consequently, Organizational Integrity should be understood as a continuum describing ecological fidelity rather than a pass-or-fail judgement.",
           "noVerdictSource": "Game Archetype Canonical Reference v1.1, section 7, Interpreting Organizational Integrity",
           "conditions": [
@@ -5196,12 +5196,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-01",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -5250,12 +5250,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-02",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -5304,12 +5304,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-03",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -5319,7 +5319,7 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-03 structuralSignal",
                     "standing": "OURS",
-                    "role": "our mapping (INFERRED), not his D6: OPPOSITION_PRESENT"
+                    "role": "our mapping (INFERRED), not Christian's D6: OPPOSITION_PRESENT"
                   },
                   {
                     "ref": "assembly-experiment.review.json players.perTeam playersPerTeam 6 v 6",
@@ -5368,12 +5368,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-04",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -5398,7 +5398,7 @@
               "class": "REQUIRED CONDITION",
               "structuralSignal": "CONTINUOUS_PLAY_BASELINE",
               "status": "STRUCTURAL_SIGNAL_PRESENT",
-              "detail": "A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: not evaluable from the assembled configuration; only in play.",
+              "detail": "A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not Christian's: Christian's D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: not evaluable from the assembled configuration; only in play.",
               "cite": {
                 "file": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json",
                 "table": "knowledge",
@@ -5422,12 +5422,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-05",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -5437,7 +5437,7 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-05 structuralSignal",
                     "standing": "OURS",
-                    "role": "our mapping (INFERRED), not his D6: CONTINUOUS_PLAY_BASELINE"
+                    "role": "our mapping (INFERRED), not Christian's D6: CONTINUOUS_PLAY_BASELINE"
                   },
                   {
                     "ref": "conditions-of-use.stage2.json C-BASE",
@@ -5486,12 +5486,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-06",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                    "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -5540,12 +5540,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-07",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                    "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -5555,7 +5555,7 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-07 structuralSignal",
                     "standing": "OURS",
-                    "role": "our mapping (INFERRED), not his D6: OPPOSITION_PRESENT"
+                    "role": "our mapping (INFERRED), not Christian's D6: OPPOSITION_PRESENT"
                   },
                   {
                     "ref": "assembly-experiment.review.json players.perTeam playersPerTeam 6 v 6",
@@ -5604,12 +5604,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-08",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                    "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -5641,7 +5641,7 @@
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -5684,7 +5684,7 @@
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -5737,7 +5737,7 @@
                 {
                   "ref": "stage2-rulings.json D5-4NOV",
                   "standing": "RULING",
-                  "role": "his D5: continuous play as a baseline representative condition",
+                  "role": "Christian's D5: continuous play as a baseline representative condition",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -5791,12 +5791,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-01",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -5835,12 +5835,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-02",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -5879,12 +5879,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-03",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -5894,7 +5894,7 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-03 structuralSignal",
                   "standing": "OURS",
-                  "role": "our mapping (INFERRED), not his D6: OPPOSITION_PRESENT"
+                  "role": "our mapping (INFERRED), not Christian's D6: OPPOSITION_PRESENT"
                 },
                 {
                   "ref": "assembly-experiment.review.json players.perTeam playersPerTeam 6 v 6",
@@ -5933,12 +5933,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-04",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -5959,7 +5959,7 @@
           {
             "id": "GF2 GA-001-OIC-05",
             "step": "structural conditions of GF2",
-            "statement": "GA-001-OIC-05 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: not evaluable from the assembled configuration; only in play.",
+            "statement": "GA-001-OIC-05 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not Christian's: Christian's D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: not evaluable from the assembled configuration; only in play.",
             "establishedBy": "LOGICAL INFERENCE",
             "testOnly": false,
             "trace": {
@@ -5977,12 +5977,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-05",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -5992,7 +5992,7 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-05 structuralSignal",
                   "standing": "OURS",
-                  "role": "our mapping (INFERRED), not his D6: CONTINUOUS_PLAY_BASELINE"
+                  "role": "our mapping (INFERRED), not Christian's D6: CONTINUOUS_PLAY_BASELINE"
                 },
                 {
                   "ref": "conditions-of-use.stage2.json C-BASE",
@@ -6031,12 +6031,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-06",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                  "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -6075,12 +6075,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-07",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                  "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -6090,7 +6090,7 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-07 structuralSignal",
                   "standing": "OURS",
-                  "role": "our mapping (INFERRED), not his D6: OPPOSITION_PRESENT"
+                  "role": "our mapping (INFERRED), not Christian's D6: OPPOSITION_PRESENT"
                 },
                 {
                   "ref": "assembly-experiment.review.json players.perTeam playersPerTeam 6 v 6",
@@ -6129,12 +6129,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-08",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                  "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -6184,7 +6184,7 @@
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -6231,7 +6231,7 @@
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -6285,7 +6285,7 @@
               {
                 "ref": "stage2-rulings.json D5-4NOV",
                 "standing": "RULING",
-                "role": "his D5: continuous play as a baseline representative condition",
+                "role": "Christian's D5: continuous play as a baseline representative condition",
                 "cite": {
                   "file": "back/src/system/design-reasoning/stage2-rulings.json",
                   "table": "rulings",
@@ -6319,9 +6319,9 @@
           }
         },
         "integrity": {
-          "standing": "The class of each condition (REQUIRED CONDITION or BREACH DESCRIPTION) is his D6, subject to confirming the original wording. The structuralSignal values are not his: see structuralSignalStanding. The workbook is unchanged.",
-          "wordingConfirmation": "OURS, for him to check; his acknowledgement is pending. We confirmed the wording against the archetype workbook (rows GAK-0103 to GAK-0110, Knowledge_Role CONDITION for all eight; 01-05 are worded as states that preserve the archetype, 06-08 as breaches) and against the Game Archetype Canonical Reference v1.1, whose Invasion examples under Organizational Transformation and Organizational Collapse match 06-08.",
-          "structuralSignalStanding": "OURS (INFERRED), not his D6: the structuralSignal values are our mapping, from our build spec. OPPOSITION_PRESENT on 03 and 07, and CONTINUOUS_PLAY_BASELINE on 05, are links of ours; his D5 supports continuous play as a baseline but does not link it to condition 05. A conclusion that rests on a signal carries evidence status INFERRED.",
+          "standing": "The class of each condition (REQUIRED CONDITION or BREACH DESCRIPTION) is Christian's D6, subject to confirming the original wording. The structuralSignal values are not Christian's: see structuralSignalStanding. The workbook is unchanged.",
+          "wordingConfirmation": "OURS, for Christian to check; Christian's acknowledgement is pending. We confirmed the wording against the archetype workbook (rows GAK-0103 to GAK-0110, Knowledge_Role CONDITION for all eight; 01-05 are worded as states that preserve the archetype, 06-08 as breaches) and against the Game Archetype Canonical Reference v1.1, whose Invasion examples under Organizational Transformation and Organizational Collapse match 06-08.",
+          "structuralSignalStanding": "OURS (INFERRED), not Christian's D6: the structuralSignal values are our mapping, from our build spec. OPPOSITION_PRESENT on 03 and 07, and CONTINUOUS_PLAY_BASELINE on 05, are links of ours; Christian's D5 supports continuous play as a baseline but does not link it to condition 05. A conclusion that rests on a signal carries evidence status INFERRED.",
           "noVerdict": "Consequently, Organizational Integrity should be understood as a continuum describing ecological fidelity rather than a pass-or-fail judgement.",
           "noVerdictSource": "Game Archetype Canonical Reference v1.1, section 7, Interpreting Organizational Integrity",
           "conditions": [
@@ -6356,12 +6356,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-01",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -6410,12 +6410,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-02",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -6464,12 +6464,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-03",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -6479,7 +6479,7 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-03 structuralSignal",
                     "standing": "OURS",
-                    "role": "our mapping (INFERRED), not his D6: OPPOSITION_PRESENT"
+                    "role": "our mapping (INFERRED), not Christian's D6: OPPOSITION_PRESENT"
                   },
                   {
                     "ref": "assembly-experiment.review.json players.perTeam (the GF2 illustrative team sizes, applied hypothetically; this form is not assembled) playersPerTeam 6 v 6",
@@ -6528,12 +6528,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-04",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -6558,7 +6558,7 @@
               "class": "REQUIRED CONDITION",
               "structuralSignal": "CONTINUOUS_PLAY_BASELINE",
               "status": "STRUCTURAL_SIGNAL_PRESENT",
-              "detail": "A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: only in play (this form is not assembled).",
+              "detail": "A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not Christian's: Christian's D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: only in play (this form is not assembled).",
               "cite": {
                 "file": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json",
                 "table": "knowledge",
@@ -6582,12 +6582,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-05",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -6597,7 +6597,7 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-05 structuralSignal",
                     "standing": "OURS",
-                    "role": "our mapping (INFERRED), not his D6: CONTINUOUS_PLAY_BASELINE"
+                    "role": "our mapping (INFERRED), not Christian's D6: CONTINUOUS_PLAY_BASELINE"
                   },
                   {
                     "ref": "conditions-of-use.stage2.json C-BASE",
@@ -6646,12 +6646,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-06",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                    "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -6700,12 +6700,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-07",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                    "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -6715,7 +6715,7 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-07 structuralSignal",
                     "standing": "OURS",
-                    "role": "our mapping (INFERRED), not his D6: OPPOSITION_PRESENT"
+                    "role": "our mapping (INFERRED), not Christian's D6: OPPOSITION_PRESENT"
                   },
                   {
                     "ref": "assembly-experiment.review.json players.perTeam (the GF2 illustrative team sizes, applied hypothetically; this form is not assembled) playersPerTeam 6 v 6",
@@ -6764,12 +6764,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-08",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                    "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -6801,7 +6801,7 @@
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -6844,7 +6844,7 @@
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -6897,7 +6897,7 @@
                 {
                   "ref": "stage2-rulings.json D5-4NOV",
                   "standing": "RULING",
-                  "role": "his D5: continuous play as a baseline representative condition",
+                  "role": "Christian's D5: continuous play as a baseline representative condition",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -6951,12 +6951,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-01",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -6995,12 +6995,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-02",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -7039,12 +7039,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-03",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -7054,7 +7054,7 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-03 structuralSignal",
                   "standing": "OURS",
-                  "role": "our mapping (INFERRED), not his D6: OPPOSITION_PRESENT"
+                  "role": "our mapping (INFERRED), not Christian's D6: OPPOSITION_PRESENT"
                 },
                 {
                   "ref": "assembly-experiment.review.json players.perTeam (the GF2 illustrative team sizes, applied hypothetically; this form is not assembled) playersPerTeam 6 v 6",
@@ -7093,12 +7093,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-04",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -7119,7 +7119,7 @@
           {
             "id": "GF3 GA-001-OIC-05",
             "step": "structural conditions of GF3",
-            "statement": "GA-001-OIC-05 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: only in play (this form is not assembled).",
+            "statement": "GA-001-OIC-05 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not Christian's: Christian's D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: only in play (this form is not assembled).",
             "establishedBy": "LOGICAL INFERENCE",
             "testOnly": false,
             "trace": {
@@ -7137,12 +7137,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-05",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -7152,7 +7152,7 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-05 structuralSignal",
                   "standing": "OURS",
-                  "role": "our mapping (INFERRED), not his D6: CONTINUOUS_PLAY_BASELINE"
+                  "role": "our mapping (INFERRED), not Christian's D6: CONTINUOUS_PLAY_BASELINE"
                 },
                 {
                   "ref": "conditions-of-use.stage2.json C-BASE",
@@ -7191,12 +7191,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-06",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                  "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -7235,12 +7235,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-07",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                  "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -7250,7 +7250,7 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-07 structuralSignal",
                   "standing": "OURS",
-                  "role": "our mapping (INFERRED), not his D6: OPPOSITION_PRESENT"
+                  "role": "our mapping (INFERRED), not Christian's D6: OPPOSITION_PRESENT"
                 },
                 {
                   "ref": "assembly-experiment.review.json players.perTeam (the GF2 illustrative team sizes, applied hypothetically; this form is not assembled) playersPerTeam 6 v 6",
@@ -7289,12 +7289,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-08",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                  "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -7344,7 +7344,7 @@
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -7391,7 +7391,7 @@
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -7445,7 +7445,7 @@
               {
                 "ref": "stage2-rulings.json D5-4NOV",
                 "standing": "RULING",
-                "role": "his D5: continuous play as a baseline representative condition",
+                "role": "Christian's D5: continuous play as a baseline representative condition",
                 "cite": {
                   "file": "back/src/system/design-reasoning/stage2-rulings.json",
                   "table": "rulings",
@@ -7479,9 +7479,9 @@
           }
         },
         "integrity": {
-          "standing": "The class of each condition (REQUIRED CONDITION or BREACH DESCRIPTION) is his D6, subject to confirming the original wording. The structuralSignal values are not his: see structuralSignalStanding. The workbook is unchanged.",
-          "wordingConfirmation": "OURS, for him to check; his acknowledgement is pending. We confirmed the wording against the archetype workbook (rows GAK-0103 to GAK-0110, Knowledge_Role CONDITION for all eight; 01-05 are worded as states that preserve the archetype, 06-08 as breaches) and against the Game Archetype Canonical Reference v1.1, whose Invasion examples under Organizational Transformation and Organizational Collapse match 06-08.",
-          "structuralSignalStanding": "OURS (INFERRED), not his D6: the structuralSignal values are our mapping, from our build spec. OPPOSITION_PRESENT on 03 and 07, and CONTINUOUS_PLAY_BASELINE on 05, are links of ours; his D5 supports continuous play as a baseline but does not link it to condition 05. A conclusion that rests on a signal carries evidence status INFERRED.",
+          "standing": "The class of each condition (REQUIRED CONDITION or BREACH DESCRIPTION) is Christian's D6, subject to confirming the original wording. The structuralSignal values are not Christian's: see structuralSignalStanding. The workbook is unchanged.",
+          "wordingConfirmation": "OURS, for Christian to check; Christian's acknowledgement is pending. We confirmed the wording against the archetype workbook (rows GAK-0103 to GAK-0110, Knowledge_Role CONDITION for all eight; 01-05 are worded as states that preserve the archetype, 06-08 as breaches) and against the Game Archetype Canonical Reference v1.1, whose Invasion examples under Organizational Transformation and Organizational Collapse match 06-08.",
+          "structuralSignalStanding": "OURS (INFERRED), not Christian's D6: the structuralSignal values are our mapping, from our build spec. OPPOSITION_PRESENT on 03 and 07, and CONTINUOUS_PLAY_BASELINE on 05, are links of ours; Christian's D5 supports continuous play as a baseline but does not link it to condition 05. A conclusion that rests on a signal carries evidence status INFERRED.",
           "noVerdict": "Consequently, Organizational Integrity should be understood as a continuum describing ecological fidelity rather than a pass-or-fail judgement.",
           "noVerdictSource": "Game Archetype Canonical Reference v1.1, section 7, Interpreting Organizational Integrity",
           "conditions": [
@@ -7516,12 +7516,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-01",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -7570,12 +7570,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-02",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -7624,12 +7624,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-03",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -7639,7 +7639,7 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-03 structuralSignal",
                     "standing": "OURS",
-                    "role": "our mapping (INFERRED), not his D6: OPPOSITION_PRESENT"
+                    "role": "our mapping (INFERRED), not Christian's D6: OPPOSITION_PRESENT"
                   },
                   {
                     "ref": "assembly-experiment.review.json players.perTeam (the GF2 illustrative team sizes, applied hypothetically; this form is not assembled) playersPerTeam 6 v 6",
@@ -7688,12 +7688,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-04",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -7718,7 +7718,7 @@
               "class": "REQUIRED CONDITION",
               "structuralSignal": "CONTINUOUS_PLAY_BASELINE",
               "status": "STRUCTURAL_SIGNAL_PRESENT",
-              "detail": "A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: only in play (this form is not assembled).",
+              "detail": "A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not Christian's: Christian's D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: only in play (this form is not assembled).",
               "cite": {
                 "file": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json",
                 "table": "knowledge",
@@ -7742,12 +7742,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-05",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                    "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -7757,7 +7757,7 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-05 structuralSignal",
                     "standing": "OURS",
-                    "role": "our mapping (INFERRED), not his D6: CONTINUOUS_PLAY_BASELINE"
+                    "role": "our mapping (INFERRED), not Christian's D6: CONTINUOUS_PLAY_BASELINE"
                   },
                   {
                     "ref": "conditions-of-use.stage2.json C-BASE",
@@ -7806,12 +7806,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-06",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                    "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -7860,12 +7860,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-07",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                    "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -7875,7 +7875,7 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-07 structuralSignal",
                     "standing": "OURS",
-                    "role": "our mapping (INFERRED), not his D6: OPPOSITION_PRESENT"
+                    "role": "our mapping (INFERRED), not Christian's D6: OPPOSITION_PRESENT"
                   },
                   {
                     "ref": "assembly-experiment.review.json players.perTeam (the GF2 illustrative team sizes, applied hypothetically; this form is not assembled) playersPerTeam 6 v 6",
@@ -7924,12 +7924,12 @@
                   {
                     "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-08",
                     "standing": "RULING",
-                    "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                    "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                   },
                   {
                     "ref": "stage2-rulings.json D6-4NOV",
                     "standing": "RULING",
-                    "role": "his D6",
+                    "role": "Christian's D6",
                     "cite": {
                       "file": "back/src/system/design-reasoning/stage2-rulings.json",
                       "table": "rulings",
@@ -7961,7 +7961,7 @@
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -8004,7 +8004,7 @@
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -8057,7 +8057,7 @@
                 {
                   "ref": "stage2-rulings.json D5-4NOV",
                   "standing": "RULING",
-                  "role": "his D5: continuous play as a baseline representative condition",
+                  "role": "Christian's D5: continuous play as a baseline representative condition",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -8111,12 +8111,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-01",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -8155,12 +8155,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-02",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -8199,12 +8199,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-03",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -8214,7 +8214,7 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-03 structuralSignal",
                   "standing": "OURS",
-                  "role": "our mapping (INFERRED), not his D6: OPPOSITION_PRESENT"
+                  "role": "our mapping (INFERRED), not Christian's D6: OPPOSITION_PRESENT"
                 },
                 {
                   "ref": "assembly-experiment.review.json players.perTeam (the GF2 illustrative team sizes, applied hypothetically; this form is not assembled) playersPerTeam 6 v 6",
@@ -8253,12 +8253,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-04",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -8279,7 +8279,7 @@
           {
             "id": "GF7 GA-001-OIC-05",
             "step": "structural conditions of GF7",
-            "statement": "GA-001-OIC-05 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: only in play (this form is not assembled).",
+            "statement": "GA-001-OIC-05 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not Christian's: Christian's D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: only in play (this form is not assembled).",
             "establishedBy": "LOGICAL INFERENCE",
             "testOnly": false,
             "trace": {
@@ -8297,12 +8297,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-05",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): REQUIRED CONDITION"
+                  "role": "Christian's D6 classification (the class only): REQUIRED CONDITION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -8312,7 +8312,7 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-05 structuralSignal",
                   "standing": "OURS",
-                  "role": "our mapping (INFERRED), not his D6: CONTINUOUS_PLAY_BASELINE"
+                  "role": "our mapping (INFERRED), not Christian's D6: CONTINUOUS_PLAY_BASELINE"
                 },
                 {
                   "ref": "conditions-of-use.stage2.json C-BASE",
@@ -8351,12 +8351,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-06",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                  "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -8395,12 +8395,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-07",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                  "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -8410,7 +8410,7 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-07 structuralSignal",
                   "standing": "OURS",
-                  "role": "our mapping (INFERRED), not his D6: OPPOSITION_PRESENT"
+                  "role": "our mapping (INFERRED), not Christian's D6: OPPOSITION_PRESENT"
                 },
                 {
                   "ref": "assembly-experiment.review.json players.perTeam (the GF2 illustrative team sizes, applied hypothetically; this form is not assembled) playersPerTeam 6 v 6",
@@ -8449,12 +8449,12 @@
                 {
                   "ref": "stage2-rulings.json relevance.integrityConditions GA-001-OIC-08",
                   "standing": "RULING",
-                  "role": "his D6 classification (the class only): BREACH DESCRIPTION"
+                  "role": "Christian's D6 classification (the class only): BREACH DESCRIPTION"
                 },
                 {
                   "ref": "stage2-rulings.json D6-4NOV",
                   "standing": "RULING",
-                  "role": "his D6",
+                  "role": "Christian's D6",
                   "cite": {
                     "file": "back/src/system/design-reasoning/stage2-rulings.json",
                     "table": "rulings",
@@ -8509,7 +8509,7 @@
         "functional": {
           "status": "ONLY_VERIFIABLE_IN_PLAY"
         },
-        "note": "Two opposing teams with reciprocal objectives and continuous play are present by configuration; whether defenders can functionally influence attacking opportunities (his 5 November wording) can be seen only in play."
+        "note": "Two opposing teams with reciprocal objectives and continuous play are present by configuration; whether defenders can functionally influence attacking opportunities (Christian's 5 November wording) can be seen only in play."
       },
       {
         "property": "direction",
@@ -8643,7 +8643,7 @@
       "missingRows": []
     },
     "scopeTension": {
-      "statement": "Whether the activity's main opportunities arise against organized opposition, the circumstance the scope of his Game Problem designation names, cannot be established from the configuration: every controlled arrival counts, including straight after a regain (his 29 October decision 4(b); RPC-ID-011).",
+      "statement": "Whether the activity's main opportunities arise against organized opposition, the circumstance the scope of Christian's Game Problem designation names, cannot be established from the configuration: every controlled arrival counts, including straight after a regain (Christian's 29 October decision 4(b); RPC-ID-011).",
       "rulingRefs": [
         "ASM-AUTH-GP-SCOPE",
         "ASM-29OCT-4B"
@@ -8658,7 +8658,7 @@
     "reviewPoints": [
       {
         "id": "RISK-WAITING",
-        "statement": "Attackers may wait inside the target zone for a pass: a risk he has seen in similar games (said of the build-out activity, 15 October). Applying it here is ours (OURS: CAUSAL HYPOTHESIS). No mechanism is imposed, as his words ask; it bears on meaningful opposition and on multiple functional solutions, and is visible only in play.",
+        "statement": "Attackers may wait inside the target zone for a pass: a risk Christian has seen in similar games (said of the build-out activity, 15 October). Applying it here is ours (OURS: CAUSAL HYPOTHESIS). No mechanism is imposed, as Christian's words ask; it bears on meaningful opposition and on multiple functional solutions, and is visible only in play.",
         "rulingRefs": [
           "ASM-15OCT-WAITING"
         ]
@@ -8681,7 +8681,7 @@
           "key": "organizedOppositionRestrictsUsableSpace",
           "label": "organized opposition restricts usable attacking space in the configured activity",
           "value": true,
-          "valueLabel": "OURS: LOGICAL INFERENCE (read off his sentence)"
+          "valueLabel": "OURS: LOGICAL INFERENCE (read off Christian's sentence)"
         },
         {
           "key": "usefulSpaceAlreadyAvailable",
@@ -8693,7 +8693,7 @@
           "key": "informationSufficient",
           "label": "information about defensive organization and available opportunities is sufficient",
           "value": "NOT_SUPPLIED",
-          "valueLabel": "not stated by his sentence"
+          "valueLabel": "not stated by Christian's sentence"
         }
       ],
       "known": [
@@ -8760,19 +8760,19 @@
           "key": "organizedOppositionRestrictsUsableSpace",
           "label": "organized opposition restricts usable attacking space in the configured activity",
           "value": "NOT_SUPPLIED",
-          "valueLabel": "not stated by his sentence"
+          "valueLabel": "not stated by Christian's sentence"
         },
         {
           "key": "usefulSpaceAlreadyAvailable",
           "label": "useful space is already available in the configured activity",
           "value": true,
-          "valueLabel": "OURS: LOGICAL INFERENCE (read off his sentence)"
+          "valueLabel": "OURS: LOGICAL INFERENCE (read off Christian's sentence)"
         },
         {
           "key": "informationSufficient",
           "label": "information about defensive organization and available opportunities is sufficient",
           "value": "NOT_SUPPLIED",
-          "valueLabel": "not stated by his sentence"
+          "valueLabel": "not stated by Christian's sentence"
         }
       ],
       "known": [
@@ -8795,7 +8795,7 @@
       "scope": {
         "key": "organizedOppositionRestrictsUsableSpace",
         "established": false,
-        "line": "the scoped circumstance of his designation (progressing against organized opposition) is not established, so the designation's scope is uncertain; the primary is unchanged and nothing switches"
+        "line": "the scoped circumstance of Christian's designation (progressing against organized opposition) is not established, so the designation's scope is uncertain; the primary is unchanged and nothing switches"
       },
       "mismatch": {
         "reported": true,
@@ -8840,19 +8840,19 @@
           "key": "organizedOppositionRestrictsUsableSpace",
           "label": "organized opposition restricts usable attacking space in the configured activity",
           "value": "NOT_SUPPLIED",
-          "valueLabel": "not stated by his sentence"
+          "valueLabel": "not stated by Christian's sentence"
         },
         {
           "key": "usefulSpaceAlreadyAvailable",
           "label": "useful space is already available in the configured activity",
           "value": "NOT_SUPPLIED",
-          "valueLabel": "not stated by his sentence"
+          "valueLabel": "not stated by Christian's sentence"
         },
         {
           "key": "informationSufficient",
           "label": "information about defensive organization and available opportunities is sufficient",
           "value": false,
-          "valueLabel": "OURS: LOGICAL INFERENCE (read off his sentence)"
+          "valueLabel": "OURS: LOGICAL INFERENCE (read off Christian's sentence)"
         }
       ],
       "known": [
@@ -8875,7 +8875,7 @@
       "scope": {
         "key": "organizedOppositionRestrictsUsableSpace",
         "established": false,
-        "line": "the scoped circumstance of his designation (progressing against organized opposition) is not established, so the designation's scope is uncertain; the primary is unchanged and nothing switches"
+        "line": "the scoped circumstance of Christian's designation (progressing against organized opposition) is not established, so the designation's scope is uncertain; the primary is unchanged and nothing switches"
       },
       "mismatch": {
         "reported": false,
@@ -8923,12 +8923,12 @@
         "ASM-REV1-GP-SCOPE"
       ],
       "items": [
-        "Candidate (a), for his decision: a scoped ruling recorded in review-pathway data only: Create Space primary, Exploit Space secondary within progressing against organized opposition; where useful space already exists, a possible mismatch is reported for review, with no switch.",
-        "Candidate (b), for his decision: anchor that scope to the context's own approved begin conditions (RPC-PROP-034, RPC-ID-011) together with his 31 October working definition of an organized defence (ASM-31OCT-ORGANIZED).",
+        "Candidate (a), for Christian's decision: a scoped ruling recorded in review-pathway data only: Create Space primary, Exploit Space secondary within progressing against organized opposition; where useful space already exists, a possible mismatch is reported for review, with no switch.",
+        "Candidate (b), for Christian's decision: anchor that scope to the context's own approved begin conditions (RPC-PROP-034, RPC-ID-011) together with Christian's 31 October working definition of an organized defence (ASM-31OCT-ORGANIZED).",
         "Not a knowledge decision but a production step (c): the Session Planning Model's Engine Translation for A05 stays TBD until production, because populating it would change A05's live candidates.",
         "None of these is decided here (OURS: our proposals)."
       ],
-      "smallest": "Smallest, in our view (OURS): (a), a scoped ruling recorded in review-pathway data only. (b) is larger: it adds an anchor to the context's approved begin conditions and his 31 October working definition. (c) is a production step, not a knowledge decision."
+      "smallest": "Smallest, in our view (OURS): (a), a scoped ruling recorded in review-pathway data only. (b) is larger: it adds an anchor to the context's approved begin conditions and Christian's 31 October working definition. (c) is a production step, not a knowledge decision."
     },
     {
       "id": "8.2",
@@ -8945,10 +8945,10 @@
         "scoring.startingCondition"
       ],
       "items": [
-        "The two texts are printed side by side below: his 13 September text (our copy as pasted by Joe; original not yet checked) has \"for example\" before its final clause; the workbook entry has a colon.",
-        "Smallest correction (proposed in our 5 November A05 assessment; not applied): restore his \"—for example,\" in place of the colon.",
-        "Precondition for any amendment: verify the 13 September original (Joe's mailbox, or his sent copy); our copy is Joe's paste.",
-        "Attachment chain (OURS: LOGICAL INFERENCE, not verification): the draft workbook he reviewed on 13 September (zip time 15:31) holds no qualifying-condition sentence; the sentence first appears in his reply; the workbook carrying the colon was written later that day (zip time 23:07; the zip clock's time zone is not recorded). This is consistent with the colon entering in our transcription; it does not replace checking the original email.",
+        "The two texts are printed side by side below: Christian's 13 September text (our copy as pasted by Joe; original not yet checked) has \"for example\" before its final clause; the workbook entry has a colon.",
+        "Smallest correction (proposed in our 5 November A05 assessment; not applied): restore Christian's \"—for example,\" in place of the colon.",
+        "Precondition for any amendment: verify the 13 September original (Joe's mailbox, or Christian's sent copy); our copy is Joe's paste.",
+        "Attachment chain (OURS: LOGICAL INFERENCE, not verification): the draft workbook Christian reviewed on 13 September (zip time 15:31) holds no qualifying-condition sentence; the sentence first appears in Christian's reply; the workbook carrying the colon was written later that day (zip time 23:07; the zip clock's time zone is not recorded). This is consistent with the colon entering in our transcription; it does not replace checking the original email.",
         "The starting-condition clause stays UNRESOLVED in the scoring section and the trace, never in the observation guidance.",
         "Disclosure: our own earlier draft Attack Development requirement list (the RPC-003 draft contract and draft requirement bindings, test-only, OURS) reads the clause after the colon as a definition with required components; it is not used by this experiment."
       ]
@@ -9122,7 +9122,7 @@
     {
       "id": "DEP-4",
       "what": "A role-less target-zone set-up sentence in the renderer (unverified on this head)",
-      "options": "the line target (conflicts with his end-zone ruling), a renderer change (live), or this experiment's text."
+      "options": "the line target (conflicts with Christian's end-zone ruling), a renderer change (live), or this experiment's text."
     },
     {
       "id": "DEP-5",
@@ -9132,12 +9132,12 @@
     {
       "id": "DEP-6",
       "what": "The RC3 diagram is drawn only from a realized game in the checked pathway",
-      "options": "(a) no diagram in this experiment, the dependency reported (as now); (b) a renderer change (live); (c) a DRAFT diagram drawn from the decision record outside the renderer and checked against the configuration paths, as DEP-1's third option does for text (not built here). Until one is chosen, the Coach Overview is incomplete against RC3 4.5 and his 21 October list."
+      "options": "(a) no diagram in this experiment, the dependency reported (as now); (b) a renderer change (live); (c) a DRAFT diagram drawn from the decision record outside the renderer and checked against the configuration paths, as DEP-1's third option does for text (not built here). Until one is chosen, the Coach Overview is incomplete against RC3 4.5 and Christian's 21 October list."
     },
     {
       "id": "DEP-7",
       "what": "The missing configuration step itself (Steps 3-5 held)",
-      "options": "a labelled decision record, as here; or his authorization of a configuration step."
+      "options": "a labelled decision record, as here; or Christian's authorization of a configuration step."
     }
   ],
   "regressionRecord": {
@@ -9232,7 +9232,7 @@
         "howReached": "ENTERED_ILLUSTRATIVE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "STRUCTURAL",
-        "reason": "namesValue: his quoted words must contain the value"
+        "reason": "namesValue: Christian's quoted words must contain the value"
       },
       {
         "path": "gameForm.alternatives",
@@ -9561,7 +9561,7 @@
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ob-intro: whenValue observation.categories = \"HIS_THREE_CATEGORIES\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template ob-intro: whenValue observation.categories = \"CHRISTIANS_THREE_CATEGORIES\", but the assembled value is \"SENTINEL_MUTATION\""
       },
       {
         "path": "adjustments",

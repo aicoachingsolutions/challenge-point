@@ -1,7 +1,7 @@
 /**
  * **Display texts for the assembly experiment, read from knowledge cells after the decisions** — presentation only (Christian's second reply
  * of 5 November 2026, the bounded assembly experiment). This is the one stage file that reads narrative cells, and it reads only the cells
- * on its allowlist: a Learning Goal's coach-facing definition (the learning purpose: his 21 October ruling names it the primary source) and
+ * on its allowlist: a Learning Goal's coach-facing definition (the learning purpose: Christian's 21 October ruling names it the primary source) and
  * display name, a Game Problem's name, a Game Form's name, the context library's controlled-vocabulary description of a scoring event, a
  * context property's text, and a context identity rule's statement (the last two printed beside the requirement-account lines that cite
  * them). Each text is returned with its citation, verbatim, for the coach text and the report; the assembly receives them

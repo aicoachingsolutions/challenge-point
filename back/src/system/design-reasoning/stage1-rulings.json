@@ -1,5 +1,5 @@
 {
-    "standing": "Christian's rulings in his reply to the development proposal (received 3 November 2026, forwarded by Joe), filed here verbatim for the Stage 1 design-reasoning demonstration only. This file does not change the Session Planning Model's Engine Translation, the context library or any record the live route or A01's checked pathway reads. Only the review-only design-reasoning stage reads it.",
+    "standing": "Christian's rulings in Christian's reply to the development proposal (received 3 November 2026, forwarded by Joe), filed here verbatim for the Stage 1 design-reasoning demonstration only. This file does not change the Session Planning Model's Engine Translation, the context library or any record the live route or A01's checked pathway reads. Only the review-only design-reasoning stage reads it.",
     "source": "Christian Gompert, reply to the Challenge Point Development Proposal, received 3 November 2026. The full text is held in the private challenge-point-sources repository.",
     "scopedTranslations": [
         {
@@ -20,7 +20,7 @@
                 "words": [
                     "For A05, this means retaining Create Space as the primary problem, while preserving Exploit Space's stronger Functional Object Interaction requirement as an unresolved secondary consideration."
                 ],
-                "note": "Added for Stage 2: his D1 (reply received 4 November 2026) retains this designation for the bounded demonstration on the review pathway. The scope label above is kept as filed."
+                "note": "Added for Stage 2: Christian's D1 (reply received 4 November 2026) retains this designation for the bounded demonstration on the review pathway. The scope label above is kept as filed."
             }
         }
     ],
@@ -51,7 +51,7 @@
             "supersededBy": {
                 "ruling": "D1-4NOV",
                 "file": "back/src/system/design-reasoning/stage2-rulings.json",
-                "note": "Superseded by his D1 (reply received 4 November 2026): primary-led effective profile, the strongest-necessity merge kept as a union view, a stronger secondary rating kept as an explicit finding. 'Primary wins conflicts' was our paraphrase, not his specification. The stage no longer attaches this open decision."
+                "note": "Superseded by Christian's D1 (reply received 4 November 2026): primary-led effective profile, the strongest-necessity merge kept as a union view, a stronger secondary rating kept as an explicit finding. 'Primary wins conflicts' was our paraphrase, not Christian's specification. The stage no longer attaches this open decision."
             }
         },
         {
@@ -69,7 +69,7 @@
             "supersededBy": {
                 "ruling": "D2-4NOV",
                 "file": "back/src/system/design-reasoning/stage2-rulings.json",
-                "note": "Superseded by his D2 (reply received 4 November 2026): Possession Stabilization continues as a proposed ninth context, its identity, transitions and scoring not yet approved, TA02 routing on hold. The stage now carries OPEN-D2-POSSESSION-STABILIZATION instead."
+                "note": "Superseded by Christian's D2 (reply received 4 November 2026): Possession Stabilization continues as a proposed ninth context, its identity, transitions and scoring not yet approved, TA02 routing on hold. The stage now carries OPEN-D2-POSSESSION-STABILIZATION instead."
             }
         }
     ]

@@ -86,7 +86,7 @@ function stepsReport(r: Stage2Result, detail: boolean, k: DesignKnowledge): stri
         lines.push(`  Preference: ${f.preference.status}. ${f.preference.statement}`)
         if (detail) {
             for (const w of f.preference.whatCouldDistinguish) lines.push(`    ${w.id} ${w.what}: ${w.present ? 'PRESENT' : 'absent'} (${w.how}; ${w.limitation})`)
-            if (f.preference.conditionalPreferenceWords) lines.push(`    His words (D3): "${f.preference.conditionalPreferenceWords}"`)
+            if (f.preference.conditionalPreferenceWords) lines.push(`    Christian's words (D3): "${f.preference.conditionalPreferenceWords}"`)
         }
     }
     if (f.knowledgePopulationFinding) lines.push(`  KNOWLEDGE-POPULATION FINDING (${f.knowledgePopulationFinding.ruling}): "${f.knowledgePopulationFinding.words}" (${f.knowledgePopulationFinding.standing})`)
@@ -99,7 +99,7 @@ function stepsReport(r: Stage2Result, detail: boolean, k: DesignKnowledge): stri
 function fixtureReport(r: Stage2Result, k: DesignKnowledge): string[] {
     const lines: string[] = []
     if (r.structural.length) {
-        lines.push('', 'Structural conditions of each compatible Game Form (his D6; the continuous-play baseline under D5)')
+        lines.push('', 'Structural conditions of each compatible Game Form (Christian\'s D6; the continuous-play baseline under D5)')
         const first = r.structural[0].integrity
         lines.push(`  Integrity classification: ${first.standing}`)
         lines.push(`  Wording confirmation: ${first.wordingConfirmation}`)
@@ -113,7 +113,7 @@ function fixtureReport(r: Stage2Result, k: DesignKnowledge): string[] {
         }
     }
     if (r.widthComparison.length) {
-        lines.push('', 'Paired width comparison (his D5): test-only; deciding circumstances are TEST ASSUMPTIONS; width runs across the direction of play')
+        lines.push('', 'Paired width comparison (Christian\'s D5): test-only; deciding circumstances are TEST ASSUMPTIONS; width runs across the direction of play')
         for (const w of r.widthComparison) {
             const dc = Object.entries(w.inputs.decidingCircumstances).map(([key, v]) => `${key}=${String(v.value)}`).join('; ')
             const described = [...new Set(Object.values(w.inputs.decidingCircumstances).map((v) => v.appliesTo ?? 'not stated'))].join('; ')
@@ -190,7 +190,7 @@ function main(): void {
         lines.push('', `--- ${r.learningGoalId} ${displayName(r.learningGoalId)} ---`)
         lines.push(...stepsReport(r, false, knowledge))
     }
-    lines.push('', '=== PART C. What approved knowledge establishes, what rests on his rulings, candidate data or our inference, what is shown only on test inputs or under test-only hypotheses, and where the evidence is insufficient ===')
+    lines.push('', '=== PART C. What approved knowledge establishes, what rests on Christian\'s rulings, candidate data or our inference, what is shown only on test inputs or under test-only hypotheses, and where the evidence is insufficient ===')
     lines.push('Each conclusion is grouped by how it is established and by the weakest standing among what decided it.')
     lines.push(...groupsReport(results))
     lines.push('', '=== PART D. Conditions-of-use entries ===')

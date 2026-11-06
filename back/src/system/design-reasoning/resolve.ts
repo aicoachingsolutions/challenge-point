@@ -1,12 +1,12 @@
 /**
  * **Step 1: knowledge-grounded resolution, with the primary-led composite profile** — review pathway only. Stage 1 (Christian's reply to
  * the development proposal, received 3 November 2026, item 8: *"Use approved Game Problem relationships, performance context and the CAR
- * merge process to establish the Affordance Requirement Profile."*), amended for Stage 2 by his reply to the Stage 2 decision package,
+ * merge process to establish the Affordance Requirement Profile."*), amended for Stage 2 by Christian's reply to the Stage 2 decision package,
  * received 4 November 2026, D1: *"I support your proposed primary-led interpretation for the review pathway."*
  *
  * The input is a Learning Goal's canonical id. Everything after it is read from relationship rows by id:
- *   1. the Game Problems: the Session Planning Model's approved Engine Translation; where that row is unpopulated, a scoped ruling of his in
- *      `stage1-rulings.json` (today only E1, which his D1 continues); otherwise UNRESOLVED, with the row's state named. A ruling never
+ *   1. the Game Problems: the Session Planning Model's approved Engine Translation; where that row is unpopulated, a scoped ruling of Christian's in
+ *      `stage1-rulings.json` (today only E1, which Christian's D1 continues); otherwise UNRESOLVED, with the row's state named. A ruling never
  *      overrides a populated translation: that is reported as a conflict and nothing is resolved. So the unpopulated row is among what
  *      decided a ruling's Game Problems, and the trace records it there; the role itself is set by the ruling (`roleSetBy`), which the
  *      unpopulated row permits (`permittedBy`).
@@ -27,7 +27,7 @@
  *      Stage 1's "primary wins" profile and its open merge-rule question are gone: 'Primary wins conflicts' was our paraphrase. D1 is
  *      scoped to the isolated review pathway and is not an amendment of the canonical Composite specification, which is cited, not
  *      amended. The CAR Matrix is unchanged.
- *   4. the requirements and open decisions his rulings record, attached where their stated conditions hold (by ids, never by wording). A
+ *   4. the requirements and open decisions Christian's rulings record, attached where their stated conditions hold (by ids, never by wording). A
  *      decision a later ruling supersedes is no longer attached.
  *
  * Every decision carries its influence trace (`./trace.ts`). No goal id appears in this file. Nothing here reads a goal's name,
@@ -74,7 +74,7 @@ export interface CompositeRow {
     validationStatus: string
     confidence: string
     evidenceType: string
-    /** The CAR row; what set the role (a translation row, or his ruling and its continuation); what permitted that (an unpopulated row). */
+    /** The CAR row; what set the role (a translation row, or Christian's ruling and its continuation); what permitted that (an unpopulated row). */
     provenance: { carRow: Cite; roleSetBy: Cite[]; permittedBy: Cite[] }
 }
 
@@ -140,7 +140,7 @@ export interface DesignResolution {
         primary: string[]
         secondary: string[]
         cites: Cite[]
-        /** What set the roles: the approved translation row, or his ruling (and the later ruling that continues it). */
+        /** What set the roles: the approved translation row, or Christian's ruling (and the later ruling that continues it). */
         roleSetBy: Cite[]
         /** What permitted a ruling to set them: the Engine Translation row, unpopulated. Empty for an approved translation. */
         permittedBy: Cite[]
@@ -261,10 +261,10 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
     } else if (rulings.length === 1) {
         const scoped = rulings[0]
         const rowCite: Cite = { file: SOURCE.planning, table: 'engine_translation', row: learningGoalId }
-        const influencedBy = [rulingItem(scoped.id, 'his scoped ruling names the Game Problems and their roles')]
+        const influencedBy = [rulingItem(scoped.id, 'Christian\'s scoped ruling names the Game Problems and their roles')]
         const roleSetBy = [RULINGS(scoped.id)]
         if (scoped.continuedBy) {
-            influencedBy.push(item(`stage2-rulings.json ${scoped.continuedBy.ruling}`, sourceStanding(k, 'stage2Rulings'), 'his later ruling retains the designation for this demonstration', STAGE2(scoped.continuedBy.ruling)))
+            influencedBy.push(item(`stage2-rulings.json ${scoped.continuedBy.ruling}`, sourceStanding(k, 'stage2Rulings'), 'Christian\'s later ruling retains the designation for this demonstration', STAGE2(scoped.continuedBy.ruling)))
             roleSetBy.push(STAGE2(scoped.continuedBy.ruling))
         }
         // The unpopulated row decides too: populated, it would block the ruling (a ruling never overrides an approved translation).
@@ -286,14 +286,14 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
     } else {
         const rowCite: Cite = { file: SOURCE.planning, table: 'engine_translation', row: learningGoalId }
         result.gameProblems.trace = {
-            influencedBy: [item(citeRef(rowCite), planningStanding, translationRowExists(k, learningGoalId) ? 'the Engine Translation row holds no Game Problem, and no ruling of his supplies one' : 'the Session Planning Model has no Engine Translation row for this goal', rowCite)],
+            influencedBy: [item(citeRef(rowCite), planningStanding, translationRowExists(k, learningGoalId) ? 'the Engine Translation row holds no Game Problem, and no ruling of Christian\'s supplies one' : 'the Session Planning Model has no Engine Translation row for this goal', rowCite)],
             consulted: [],
             citedOnly: [],
         }
         missing.push({
             kind: translationRowExists(k, learningGoalId) ? 'TRANSLATION_UNPOPULATED' : 'TRANSLATION_ROW_MISSING',
             detail: translationRowExists(k, learningGoalId)
-                ? 'The Engine Translation row holds no Game Problem, and no ruling of his supplies one.'
+                ? 'The Engine Translation row holds no Game Problem, and no ruling of Christian\'s supplies one.'
                 : 'The Session Planning Model has no Engine Translation row for this goal.',
             cites: [{ file: SOURCE.planning, table: 'engine_translation', row: learningGoalId }],
         })
@@ -407,13 +407,13 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
             const secondaryRow = rows.find((r) => r.role === 'SECONDARY')
             const rowItem = (r: CompositeRow, role: string) => item(citeRef(r.provenance.carRow), carStanding, role, r.provenance.carRow)
             const precedenceItem = item(citeRef(precedence.cite), carStanding, `merge_precedence ${precedence.asWritten}`, precedence.cite)
-            const d1Item = item(`stage2-rulings.json ${d1Ruling.id}`, sourceStanding(k, 'stage2Rulings'), `his ${d1Ruling.decision}: primary-led profile; a stronger secondary rating is kept as a finding, not promoted`, STAGE2(d1Ruling.id))
-            const citedOnly = d1.citedOnly.map((c) => item(c.ref, c.standing, `cited with its own status (${c.documentStatus}); decides nothing${c.tension ? '; a possible tension with D1 is noted for his reconciliation' : ''}`))
-            // Which Game Problems are merged, and in which role, is decided in part 1: by an approved translation, or by his ruling.
+            const d1Item = item(`stage2-rulings.json ${d1Ruling.id}`, sourceStanding(k, 'stage2Rulings'), `Christian's ${d1Ruling.decision}: primary-led profile; a stronger secondary rating is kept as a finding, not promoted`, STAGE2(d1Ruling.id))
+            const citedOnly = d1.citedOnly.map((c) => item(c.ref, c.standing, `cited with its own status (${c.documentStatus}); decides nothing${c.tension ? '; a possible tension with D1 is noted for Christian\'s reconciliation' : ''}`))
+            // Which Game Problems are merged, and in which role, is decided in part 1: by an approved translation, or by Christian's ruling.
             const basisItems = result.gameProblems.trace.influencedBy.map((i) => ({ ...i, role: `sets which Game Problems are merged, and their roles: ${i.role}` }))
             const rank = (code: string) => precedence.order.indexOf(code)
             if (d1.reconciliationRelationships.length) {
-                // No reconciliation relationship exists in his knowledge, and the shape of one is not his yet: fail closed rather than guess.
+                // No reconciliation relationship exists in Christian's knowledge, and the shape of one is not Christian's yet: fail closed rather than guess.
                 throw new Error('stage2-rulings.json lists reconciliation relationships, which the stage does not yet know how to apply')
             }
             result.profile = {
@@ -435,7 +435,7 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
                     label: d1.effectiveProfileWording,
                     rule: d1.effectiveProfileRule,
                     ratings: { ...primaryRow.ratings },
-                    scope: d1Ruling.scope ?? 'NOT STATED IN HIS WORDS',
+                    scope: d1Ruling.scope ?? 'NOT STATED IN CHRISTIAN\'S WORDS',
                     canonicalAmendment: d1Ruling.canonicalAmendment,
                     establishedBy: 'RULING',
                     trace: {
@@ -469,7 +469,7 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
         result.gameProblemRelationships = gameProblemRelationshipsAmong(k, [...primary, ...secondary])
     }
 
-    // 4. Requirements and open decisions his rulings record, attached by their stated conditions (ids only); superseded ones are not.
+    // 4. Requirements and open decisions Christian's rulings record, attached by their stated conditions (ids only); superseded ones are not.
     const resolvedIds = [...primary, ...secondary]
     for (const requirement of k.rulings.requirements) {
         if (requirement.appliesWhenGameProblemsInclude.length && requirement.appliesWhenGameProblemsInclude.every((id) => resolvedIds.includes(id))) {
