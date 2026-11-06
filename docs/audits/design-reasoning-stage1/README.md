@@ -2,9 +2,9 @@
 
 **Standing.** This is review evidence, for Christian's review. It is not served to coaches and does not authorize anything.
 
-- **What it is.** Christian authorized Steps 1 and 2 and the fixed-response test in his reply to the development proposal, received 3 November 2026. This folder records what was built and what it shows.
+- **What it is.** Christian authorized Steps 1 and 2 and the fixed-response test in Christian's reply to the development proposal, received 3 November 2026. This folder records what was built and what it shows.
 - **What it changes.** The stage lives in `back/src/system/design-reasoning/` and is reached only from its own tests and the offline runner. Nothing on the live route or A01's checked pathway imports it, and a static test pins that. The regression snapshot of every live-route and review case is unchanged; see "A01 and the live route" below.
-- **What is held.** Steps 3 to 5 are held pending his review. The documents he asked for are beside this README, as DRAFTs:
+- **What is held.** Steps 3 to 5 are held pending Christian's review. The documents Christian asked for are beside this README, as DRAFTs:
   - `E3-affordance-vocabulary-mapping.DRAFT.md`
   - `E4-conditions-of-use-sample.DRAFT.md`
   - `E7-relevance-rules.DRAFT.md`
@@ -20,9 +20,9 @@
 | Piece | File | What it does |
 | --- | --- | --- |
 | Knowledge, as one value | `knowledge.ts` | Gathers the committed workbooks into one value, so a test can change a copy. Readers take ids, relationship rows, ratings and statuses only. A test requires them to agree with the existing loaders. |
-| His rulings, as data | `stage1-rulings.json` | E1's scoped translation for A05, the recorded requirement for context-sensitive resolution, and two open decisions: the merge rule (E1) and TA02's context fit (E2). All carry his words verbatim. |
-| Our orderings, as data | `selection-basis.json` | The orderings and the one dominance rule Step 2 uses, each with its basis. They are OURS, for his review. |
-| Step 1 | `resolve.ts` | Game Problems from the approved Engine Translation, or his scoped ruling where the row is unpopulated (never overriding a populated row). Then the routed context, checked against the context library's own row. Then the Affordance Requirement Profile: each Game Problem's CAR row with its role, the merge by the CAR metadata's `merge_precedence`, the profile under "primary wins" beside it, and every divergence. |
+| Christian's rulings, as data | `stage1-rulings.json` | E1's scoped translation for A05, the recorded requirement for context-sensitive resolution, and two open decisions: the merge rule (E1) and TA02's context fit (E2). All carry Christian's words verbatim. |
+| Our orderings, as data | `selection-basis.json` | The orderings and the one dominance rule Step 2 uses, each with its basis. They are OURS, for Christian's review. |
+| Step 1 | `resolve.ts` | Game Problems from the approved Engine Translation, or Christian's scoped ruling where the row is unpopulated (never overriding a populated row). Then the routed context, checked against the context library's own row. Then the Affordance Requirement Profile: each Game Problem's CAR row with its role, the merge by the CAR metadata's `merge_precedence`, the profile under "primary wins" beside it, and every divergence. |
 | Step 2 | `forms.ts` | Candidates are the context's ACTIVE GAME_FORM rows. A gate applies: archetype, form status, archetype-to-Game Problem relationship, and whether the form declares the primary Game Problem. Then Pareto dominance over the context row's type and strength and the form's declared relationship to each resolved Game Problem. More than one undominated form gives INSUFFICIENT_EVIDENCE, with the missing basis. |
 | One process | `stage1.ts` | The same two calls for every goal. No goal id appears in the code. |
 | Runner | `run-stage1-demo.ts` | Prints the results. It is the only file that reads a goal's display name, and only after the decisions are made. |
@@ -35,7 +35,7 @@ Full output is in `evidence/stage1-report.txt`; every citation is in `evidence/s
 ### A05 Progress the Attack
 
 1. **Game Problem and context.**
-   - Game Problems: GP-001 Create Space (primary) and GP-002 Exploit Space (secondary), by his scoped ruling RUL-E1-A05. Its scope is STAGE1_DEVELOPMENT_DEMONSTRATION, qualified "specifically in the context of progressing against organized opposition".
+   - Game Problems: GP-001 Create Space (primary) and GP-002 Exploit Space (secondary), by Christian's scoped ruling RUL-E1-A05. Its scope is STAGE1_DEVELOPMENT_DEMONSTRATION, qualified "specifically in the context of progressing against organized opposition".
    - Why a ruling: the Engine Translation row for A05 still reads TBD.
    - Context: RPC-003 Attack Development, by the routing row, which matches library row RPC-REL-062 (COMPATIBLE PRIMARY).
    - Both Game Problems are PRIMARY in RPC-003 (RPC-REL-023 and RPC-REL-024).
@@ -45,7 +45,7 @@ Full output is in `evidence/stage1-report.txt`; every citation is in `evidence/s
    - GP-002's CAR row: FOI E, OP E, SA S, CIO E.
    - Merged by `merge_precedence E>S>NR`: FOI E, OP E, SA S, CIO E, which is identical to GP-002 alone.
    - Under "primary wins": FOI S.
-   - The divergence is on **FOI only**. It is reported, together with the open merge-rule question and his requirement REQ-E1-CONTEXT-SENSITIVE-RESOLUTION (recorded, not implemented).
+   - The divergence is on **FOI only**. It is reported, together with the open merge-rule question and Christian's requirement REQ-E1-CONTEXT-SENSITIVE-RESOLUTION (recorded, not implemented).
 3. **Compatible Game Forms.** RPC-003 relates three forms, and all three pass the gate:
    - GF2 (RPC-REL-028, PRIMARY), which declares GP-001 as primary;
    - GF3 (RPC-REL-027, PRIMARY), which declares GP-001 as primary;
@@ -60,7 +60,7 @@ Full output is in `evidence/stage1-report.txt`; every citation is in `evidence/s
 1. **Game Problem and context.**
    - Game Problem: GP-015 Maintain Possession, by the approved Engine Translation.
    - Context: RPC-003, by the routing row, which matches library row RPC-REL-068. That row is **SECONDARY**, and so is GP-015's own row in RPC-003 (RPC-REL-026).
-   - Open decision **OPEN-E2-CONTEXT-FIT** is carried with his words. The goal is not routed to RPC-006.
+   - Open decision **OPEN-E2-CONTEXT-FIT** is carried with Christian's words. The goal is not routed to RPC-006.
 2. **Affordance requirements.** All four are Essential, with SA "flagged for field validation". There is no secondary, so nothing is merged.
 3. **Compatible Game Forms.** **GF2 is SELECTED**, the only form of RPC-003 that declares GP-015. GF3 and GF7 are excluded, each with its declaration quoted. The archetype workbook relates GA-001 to GP-015 only as COMPATIBLE ("weakly diagnostic or usually subordinate").
 4. **Unresolved.** No tie. The context decision (E2) is open, and a ruling could change the context, and with it the forms.
@@ -81,7 +81,7 @@ The results are also unchanged when A05's and TA02's wordings are swapped (`test
 
 | Goal | Step 1 | Step 2 | Why |
 | --- | --- | --- | --- |
-| A01 | RESOLVED (GP-005, RPC-001) | INSUFFICIENT_EVIDENCE: GF2, GF3 | Both are PRIMARY in RPC-001 and declare GP-005 as secondary. GF7 is dominated on context strength. A01's checked pathway uses GF2 by his authorization record, which this stage does not read or change. |
+| A01 | RESOLVED (GP-005, RPC-001) | INSUFFICIENT_EVIDENCE: GF2, GF3 | Both are PRIMARY in RPC-001 and declare GP-005 as secondary. GF7 is dominated on context strength. A01's checked pathway uses GF2 by Christian's authorization record, which this stage does not read or change. |
 | A02 | RESOLVED (GP-015, RPC-002) | SELECTED GF2 | The only form declaring GP-015. |
 | A03 | RESOLVED (GP-006, RPC-004) | NO_COMPATIBLE_FORM | No Game Form declares GP-006. |
 | A04 | UNRESOLVED | not evaluated | Engine Translation unpopulated (intentional runtime gap). |
@@ -104,7 +104,7 @@ The results are also unchanged when A05's and TA02's wordings are swapped (`test
 
 | # | Check | Result |
 | --- | --- | --- |
-| 1 | Approved knowledge and appropriate contexts | Pass. Each resolution cites the translation row or his ruling, the routing row and the library's row. No keyword inference is used. |
+| 1 | Approved knowledge and appropriate contexts | Pass. Each resolution cites the translation row or Christian's ruling, the routing row and the library's row. No keyword inference is used. |
 | 2 | Relationships, not word matching | Pass. (a) The import closure holds no parser, token scorer or keyword map, and no narrative column is read. (b) The wording rewrites change nothing. |
 | 3 | Explained by the knowledge that governed it | Pass for Steps 1 and 2. Every decision carries the rows it read. Steps 3 to 5 are held. |
 | 4 | Context changes reconsider the design | Not yet testable. Stage 1 receives no coaching context; the conditions of use (E4) come first. |
@@ -114,6 +114,8 @@ The results are also unchanged when A05's and TA02's wordings are swapped (`test
 | 8 | Knowledge actually governs | Pass. One CAR rating, one context strength, one form declaration and one ruling were each changed in a test copy, and exactly the dependent decisions moved. A PREFERRED relationship row is honoured as a governed preference. |
 | 9 | A01 untouched | Pass. The regression snapshot of every live-route and review case is unchanged: 391 keys, 0 changed leaves. |
 | 10 | Determinism | Pass. Two separate runs are byte-identical (`stage1-results.json`, sha-256 470e8f6c…), and reversing every list in the knowledge changes nothing. |
+
+Note of 6 November 2026 (wording only). Every gendered pronoun in this README, the three DRAFT documents and the committed Stage 1 evidence was replaced by 'Christian' or 'Christian's' (whole words, outside every quotation; proved substitution-only line by line; no quotation of Christian's words holds one). Nothing else in the evidence changed, and Stage 1 is not re-run: `stage1-results.json` is now sha-256 e11ceecd… (before the substitutions 470e8f6c…, as above) and `stage1-report.txt` is 836223ac….
 
 ## The fixed-response test of the AI-written pathway
 
@@ -148,11 +150,11 @@ No production file is changed. The changes are:
 - The two files are byte-identical (sha-256 `a8420db0…`; `evidence/regression-snapshot-comparison.txt`).
 - The full suite, `npm test`, passed: 148 files, 0 failed, plus the fixed-response test run on its own after it was registered.
 
-## What we need from him
+## What we need from Christian
 
 1. **E1 merge rule.** Which rule governs the merged profile when the primary and secondary diverge: strongest necessity (the CAR metadata) or "primary wins" (the documentation)?
 2. **E2 context decision.** Option (a), a new canonical context, or option (b), transition episodes.
-3. **E6 basis for A05.** Is there approved knowledge that should separate GF2 from GF3, or weigh a context's relationship strength against a form's secondary Game Problem? Otherwise A05 stays at insufficient evidence, which he has said is acceptable.
+3. **E6 basis for A05.** Is there approved knowledge that should separate GF2 from GF3, or weigh a context's relationship strength against a form's secondary Game Problem? Otherwise A05 stays at insufficient evidence, which Christian has said is acceptable.
 4. **Defending goals.** Should GF8 and GF11 (and the other four unrelated forms) be related to contexts, or should RPC-007 and RPC-008 gain rows to the Game Problems their routed goals translate to?
 5. **The orderings and the dominance rule** in `selection-basis.json`.
 6. **E3, E4, E7.** The questions at the end of each document.

@@ -16,7 +16,7 @@
  * drawing with a banner saying so. It draws no goal, no centre circle, no player, no position, no starting area, no restart spot and no
  * region the record does not hold; what it does not draw is listed below the field with the reason, and every ambiguity is flagged.
  */
-import { AssembledActivity, AssembledChoice, AssembledValue, BindingKey, classAndLabel, Experiment, HowReached, SixClass, Wording } from './assembly'
+import { AssembledActivity, AssembledChoice, AssembledValue, BindingKey, classAndLabel, Experiment, HowReached, SixClass, VALUE_LABELS, Wording } from './assembly'
 
 /** One value the diagram reads, as the assembly computed it. */
 export interface DiagramValue {
@@ -66,7 +66,8 @@ export interface DiagramKeyLine {
     element: string
     valueText: string
     classAndLabel: string
-    route: 'read by code' | 'entered'
+    /** How the value reached the record: read by code, entered, or (a value with no authorized value) the words saying nothing was entered. */
+    route: string
 }
 
 export interface DiagramModel {
@@ -146,10 +147,16 @@ export function assemblyDiagramOf(activity: AssembledActivity, experiment: Exper
         // A value the assembly already rendered as a display name (read by code, or an id it named) is printed as rendered.
         if (c.howReached === 'READ_BY_CODE' || (typeof c.value === 'string' && c.rendered !== c.value)) return c.rendered
         if (c.value === null) return words.noValue
+        // A binding with value words says each value in words, numbers included (a number is never printed against a unit that is a word
+        // about one value only); a value with no words is refused.
+        const vw = words.valueWords[key]
+        if (vw) {
+            const t = vw[String(c.value)]
+            if (!t) return fail(`no diagram words for the value ${String(c.value)}`, c.path)
+            return t
+        }
         if (typeof c.value === 'number') return `${c.value}${words.units[key] ?? ''}`
-        const w = (words.valueWords[key] ?? {})[String(c.value)]
-        if (!w) return fail(`no diagram words for the value ${String(c.value)}`, c.path)
-        return w
+        return fail(`no diagram words for the value ${String(c.value)}`, c.path)
     }
     const rendered = (key: BindingKey): string => (typeof at(key).value === 'number' ? String(at(key).value) : valueWords(key))
 
@@ -162,12 +169,15 @@ export function assemblyDiagramOf(activity: AssembledActivity, experiment: Exper
     if (!geometry) return fail(`the placement ${placement} has no placement geometry`, b.targetZonePlacement)
     if (geometry.zones.length !== experiment.placementZoneCount[placement]) fail(`the placement geometry for ${placement} draws ${geometry.zones.length} zones, the zone count is ${String(experiment.placementZoneCount[placement])}`, b.targetZonePlacement)
     if (at('includesEndZones').value !== true) fail('the zones are drawn inside the length only when the record says so', b.includesEndZones)
+    if (new Set(geometry.zones.map((z) => z.along)).size !== geometry.zones.length) fail(`the placement geometry for ${placement} puts two zones on one end`, b.targetZonePlacement)
     const zones = geometry.zones.map((z) => ({
         alongFromM: z.along === 'FROM_START' ? 0 : lengthM - depthM,
         alongToM: z.along === 'FROM_START' ? depthM : lengthM,
         acrossFromM: 0,
         acrossToM: geometry.across === 'FULL_WIDTH' ? widthM : fail(`unknown extent ${geometry.across}`),
     }))
+    // Zones at both ends must leave space between them (overlapping or touching zones would be drawn silently otherwise).
+    if (zones.length > 1 && zones.length * depthM >= lengthM) fail('the target zones overlap or meet', b.targetZoneDepth)
     const halfwayAlongM = lengthM / 2
     const centre = { alongM: lengthM / 2, acrossM: widthM / 2 }
     const teams = num('teamCount')
@@ -183,25 +193,32 @@ export function assemblyDiagramOf(activity: AssembledActivity, experiment: Exper
     })
     const key: DiagramKeyLine[] = words.elements.map((e) => {
         const c = at(e.binding)
-        return { path: c.path, element: e.name, valueText: valueWords(e.binding), classAndLabel: classAndLabel(c), route: c.howReached === 'READ_BY_CODE' ? 'read by code' : 'entered' }
+        const route = c.howReached === 'READ_BY_CODE' ? 'read by code' : c.howReached === 'UNRESOLVED' ? words.noValueRoute : 'entered'
+        return { path: c.path, element: e.name, valueText: valueWords(e.binding), classAndLabel: classAndLabel(c), route }
     })
+    // Which way each team's arrow points, keyed by the recorded directions value (presentation, flagged); another value is refused.
+    const arrows = words.arrowsFor[String(at('attackDirections').value)]
+    if (!arrows) fail(`no arrows for the directions value ${String(at('attackDirections').value)}`, b.attackDirections)
 
     // Layout (pixels; OURS presentation). The length runs left to right; Team A's words and arrow sit above the outline, Team B's below.
     const texts: DiagramText[] = []
     const shapes: DiagramShape[] = []
     const lineH = Math.round(FONT * 1.45)
+    const fx = MARGIN + 60
+    const fw = lengthM * PX
+    const fh = widthM * PX
+    const widthLabel = `${widthM}${words.units.areaWidth ?? ''}`
+    // The page grows with the area (a long area is never clipped by the page or the view box).
+    const pageW = Math.max(PAGE_W, Math.ceil(fx + fw + 28 + widthLabel.length * FONT * CHAR + MARGIN))
     let y = MARGIN
     const textBlock = (id: string, text: string, size: number, colour: string, readsPaths: string[], extra: Partial<DiagramText> = {}) => {
-        for (const [i, line] of wrap(text, Math.floor((PAGE_W - 2 * MARGIN) / (size * CHAR))).entries()) {
+        for (const [i, line] of wrap(text, Math.floor((pageW - 2 * MARGIN) / (size * CHAR))).entries()) {
             texts.push({ id: `${id}${i ? `-${i}` : ''}`, text: line, x: MARGIN, y: y + size, w: line.length * size * CHAR, h: size * 1.3, size, anchor: 'start', inside: false, readsPaths, colour, ...extra })
             y += Math.round(size * 1.45)
         }
     }
     textBlock('banner', fill(words.banner.split('{goal}').join(experiment.learningGoalId), rendered, keys), 13, COLOURS.flag, [], { weight: 'bold' })
     y += 10
-    const fx = MARGIN + 60
-    const fw = lengthM * PX
-    const fh = widthM * PX
     // The length's dimension, above everything else that touches the field.
     const dimY = y + 18
     shapes.push({ id: 'dimension-length', kind: 'dimension', x: fx, y: dimY, x2: fx + fw, y2: dimY, colour: COLOURS.marking, readsPaths: [b.areaLength] })
@@ -209,12 +226,16 @@ export function assemblyDiagramOf(activity: AssembledActivity, experiment: Exper
     texts.push({ id: 'label-length', text: lengthLabel, x: fx + fw / 2, y: dimY - 5, w: lengthLabel.length * FONT * CHAR, h: FONT * 1.3, size: FONT, anchor: 'middle', inside: false, readsPaths: [b.areaLength], colour: COLOURS.text })
     // Team A's row (above the outline): words and count, then one arrow along the length toward the zone it attacks.
     const teamRow = (i: number, rowY: number) => {
-        const towardEnd = words.teamAttacks[i] === 'TOWARD_END'
+        const towardEnd = arrows[i] === 'TOWARD_END'
         const label = `${words.teamLabels[i]}: ${fill(words.teamCount, (k) => (k === 'playersPerTeam' ? String(perTeam) : rendered(k)), keys)}`
-        texts.push({ id: `team-${i + 1}`, text: label, x: fx, y: rowY + 4, w: label.length * 12 * CHAR, h: 12 * 1.3, size: 12, anchor: 'start', inside: false, readsPaths: [b.teamCount, b.playersPerTeam, b.equalNumbers], colour: COLOURS.teams[i], weight: 'bold' })
-        const a0 = fx + 170
-        const a1 = fx + fw - 40
-        shapes.push({ id: `arrow-${i + 1}`, kind: 'arrow', x: towardEnd ? a0 : a1, y: rowY, x2: towardEnd ? a1 : a0, y2: rowY, colour: COLOURS.teams[i], readsPaths: [b.attackDirections] })
+        const labelW = label.length * 12 * CHAR
+        texts.push({ id: `team-${i + 1}`, text: label, x: fx, y: rowY + 4, w: labelW, h: 12 * 1.3, size: 12, anchor: 'start', inside: false, readsPaths: [b.teamCount, b.playersPerTeam, b.equalNumbers], colour: COLOURS.teams[i], weight: 'bold' })
+        // The arrow runs from past the team's words to near the far end of the field, from the field's own extent; an area too short to
+        // hold an arrow beside the words is refused, never drawn reversed.
+        const a0 = fx + Math.max(labelW + 16, fw * 0.3)
+        const a1 = fx + fw - Math.max(16, fw * 0.07)
+        if (a1 - a0 < 30) fail('the area is too short to draw an attacking arrow', b.areaLength)
+        shapes.push({ id: `arrow-${i + 1}`, kind: 'arrow', x: towardEnd ? a0 : a1, y: rowY, x2: towardEnd ? a1 : a0, y2: rowY, colour: COLOURS.teams[i], readsPaths: [b.attackDirections, b.areaLength, b.playersPerTeam, ...(i > 0 ? [b.areaWidth] : [])] })
     }
     const fy = dimY + 46
     teamRow(0, fy - 20)
@@ -224,11 +245,15 @@ export function assemblyDiagramOf(activity: AssembledActivity, experiment: Exper
         const depthLabel = `${depthM}${words.units.targetZoneDepth ?? ''}`
         texts.push({ id: `label-depth-${i + 1}`, text: depthLabel, x: fx + ((z.alongFromM + z.alongToM) / 2) * PX, y: fy + 18, w: depthLabel.length * FONT * CHAR, h: FONT * 1.3, size: FONT, anchor: 'middle', inside: true, readsPaths: [b.targetZoneDepth], colour: COLOURS.text })
     }
-    if (at('halfwayLine').value === 'MARKED') shapes.push({ id: 'halfway-line', kind: 'line', x: fx + halfwayAlongM * PX, y: fy, x2: fx + halfwayAlongM * PX, y2: fy + fh, colour: COLOURS.marking, readsPaths: [b.halfwayLine, b.areaLength], computed: words.computed.halfway })
+    if (at('halfwayLine').value === 'MARKED') shapes.push({ id: 'halfway-line', kind: 'line', x: fx + halfwayAlongM * PX, y: fy, x2: fx + halfwayAlongM * PX, y2: fy + fh, colour: COLOURS.marking, readsPaths: [b.halfwayLine, b.areaLength, b.areaWidth], computed: words.computed.halfway })
     if (at('centreMark').value === 'MARKED') shapes.push({ id: 'centre-mark', kind: 'mark', x: fx + centre.alongM * PX, y: fy + centre.acrossM * PX, r: 3, colour: COLOURS.marking, readsPaths: [b.centreMark, b.areaLength, b.areaWidth], computed: words.computed.centre })
     // The one flag on the field: the target zones' position is not decided (UNRESOLVED); drawn where the illustrative placement puts them.
     if (at('targetZonePositioning').value !== null) fail("the zones' position has a value; the placeholder would misstate it", b.targetZonePositioning)
-    const inner = zones.length ? { from: Math.min(...zones.map((z) => (z.alongFromM === 0 ? z.alongToM : lengthM))), to: Math.max(...zones.map((z) => (z.alongFromM === 0 ? 0 : z.alongFromM))) } : { from: 0, to: lengthM }
+    // The free space between the zones: from the inner edge of a zone at the start (or the start) to the inner edge of a zone at the end
+    // (or the end), so a single zone at either end leaves the rest of the length free.
+    const along = (side: 'FROM_START' | 'FROM_END') => zones.filter((_, i) => geometry.zones[i].along === side)
+    const inner = { from: Math.max(0, ...along('FROM_START').map((z) => z.alongToM)), to: Math.min(lengthM, ...along('FROM_END').map((z) => z.alongFromM)) }
+    if (inner.to <= inner.from) fail('the target zones leave no space between them for the placeholder', b.targetZoneDepth)
     const innerChars = Math.floor(((inner.to - inner.from) * PX - 20) / (FONT * CHAR))
     // Two clauses fit on two lines when each fits; otherwise the words are wrapped to the width between the zones.
     const clauses = words.zonePlaceholder.split('; ')
@@ -237,13 +262,16 @@ export function assemblyDiagramOf(activity: AssembledActivity, experiment: Exper
         texts.push({ id: `placeholder-${i}`, text: line, x: fx + ((inner.from + inner.to) / 2) * PX, y: fy + 46 + i * lineH, w: line.length * FONT * CHAR, h: FONT * 1.3, size: FONT, anchor: 'middle', inside: true, readsPaths: [b.targetZonePositioning, b.targetZonePlacement], colour: COLOURS.flag, italic: true })
     }
     // The width's dimension, to the right of the outline.
-    shapes.push({ id: 'dimension-width', kind: 'dimension', x: fx + fw + 20, y: fy, x2: fx + fw + 20, y2: fy + fh, colour: COLOURS.marking, readsPaths: [b.areaWidth] })
-    const widthLabel = `${widthM}${words.units.areaWidth ?? ''}`
+    shapes.push({ id: 'dimension-width', kind: 'dimension', x: fx + fw + 20, y: fy, x2: fx + fw + 20, y2: fy + fh, colour: COLOURS.marking, readsPaths: [b.areaWidth, b.areaLength] })
     texts.push({ id: 'label-width', text: widthLabel, x: fx + fw + 28, y: fy + fh / 2 + 4, w: widthLabel.length * FONT * CHAR, h: FONT * 1.3, size: FONT, anchor: 'start', inside: false, readsPaths: [b.areaWidth], colour: COLOURS.text })
     teamRow(1, fy + fh + 24)
     // Below the field: the caption, the flags, what is not drawn and why, the key, and the measured context.
     y = fy + fh + 56
     textBlock('caption', fill(words.caption, rendered, keys), FONT + 1, COLOURS.text, [b.startMethod, b.startDistance, b.centreMark])
+    // Under the caption: which drawn values are illustrative, read from the key's labels (so a dimension on the field is never read as
+    // authorized without the key).
+    const illustrative = key.filter((k) => k.classAndLabel.endsWith(VALUE_LABELS.ILLUSTRATIVE))
+    if (illustrative.length) textBlock('caption-illustrative', `${words.illustrativeLead} ${illustrative.map((k) => k.element).join('; ')}.`, FONT, COLOURS.flag, illustrative.map((k) => k.path))
     y += 8
     textBlock('flags-title', words.flagsTitle, FONT, COLOURS.flag, [], { weight: 'bold' })
     const flags = words.flags.map((f) => fill(f, rendered, keys))
@@ -268,7 +296,7 @@ export function assemblyDiagramOf(activity: AssembledActivity, experiment: Exper
         key,
         notDrawn,
         flags,
-        width: PAGE_W,
+        width: pageW,
         height: y + MARGIN,
         outline: { x: fx, y: fy, w: fw, h: fh },
         colours: { zone: COLOURS.zone, teams: [...COLOURS.teams], marking: COLOURS.marking, outline: COLOURS.outline },

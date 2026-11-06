@@ -46,9 +46,12 @@ import {
     Experiment,
     longDate,
     markerOf,
+    premisesOf,
+    receivedOf,
     placeholdersOf,
     requirementAccountOf,
     scoringEventMembership,
+    sectionsOf,
     sentenceMarker,
     SIX_CLASSES,
     SixClass,
@@ -56,6 +59,7 @@ import {
     statedNumber,
     validateExperiment,
     validateWording,
+    valueLabel,
     Wording,
 } from './assembly'
 import { AssemblyRun, buildAssemblyReport, MUTATION_OUTCOMES, mutationLoop, RegressionRecord, runAssembly, scenarioReview, suitabilityReview, validateRegressionRecord } from './assembly-review'
@@ -204,7 +208,7 @@ function testC_everyValueMutationIsClassified(): void {
     // The front and Part 5 print exactly these counts.
     assert.ok(REPORT_TEXT.includes(`Of the ${x.choices.length} recorded values, changed one at a time in a copy of the record: 6 are substituted into the coach text`))
     assert.ok(REPORT_TEXT.includes(`    substituted into the coach text, 6: ${EXPECTED_SUBSTITUTED.join(', ')};`))
-    assert.ok(REPORT_TEXT.includes('    refused by a sentence written for the recorded value (whenValue), 35: '))
+    assert.ok(REPORT_TEXT.includes('    refused by a sentence written for the recorded value only, 35: '))
     assert.ok(REPORT_TEXT.includes('    refused for structural reasons, 18: 8 read by code'))
     assert.ok(REPORT_TEXT.includes(`    exempt from the coach text and printed in the report only, 1: ${EXPECTED_EXEMPT_PRINTED_ONLY.join(', ')}.`))
     // Bite: a refusal that does not name the changed value (here a crash in the display callback) fails the loop instead of counting.
@@ -323,8 +327,7 @@ const KEYWORDS: Array<[string, string[]]> = [
     ['block', ['duration.blocks', 'duration.blockMinutes', 'duration.breaks', 'win.condition']],
     ['minute', ['duration.blocks', 'duration.blockMinutes']],
     ['bib', ['equipment.bibs']],
-    // A sentence on how a point is classified expresses the categories (amended openly, 6 November: the served-ball review note).
-    ['point', ['scoring.event', 'scoring.means', 'scoring.mirrored', 'win.condition', 'restart.afterPoint.method', 'restart.afterPoint.who', 'observation.categories']],
+    ['point', ['scoring.event', 'scoring.means', 'scoring.mirrored', 'win.condition', 'restart.afterPoint.method', 'restart.afterPoint.who']],
     ['goalkeeper', ['players.goalkeepers', 'area.goalkeepersCounted']],
     ['end line', ['restart.endLine.method', 'restart.endLine.toWhom', 'restart.endLine.timing', 'restart.endLine.noReset', 'restart.endLine.contest', 'restart.endLine.location', 'restart.endLine.receivingDistance']],
     ['touchline', ['restart.touchline']],
@@ -333,12 +336,20 @@ const KEYWORDS: Array<[string, string[]]> = [
     ['goal kick', ['laws.goalEnd']],
     ['continu', ['play.continuous']],
 ]
+/**
+ * Keyword exemptions, pinned by template id (the stage 6 review, C2-12): the served-ball review note speaks of how a point soon after a
+ * served ball is classified, not of scoring, so 'point' there binds no scoring value. It must stay a review-only note (asserted in (d)).
+ */
+const KEYWORD_EXEMPT: Record<string, string[]> = { 'rs-served-presentation': ['point'] }
 const keywordViolations = (list: Array<{ id: string; text: string; expresses: string[] }>) =>
-    list.flatMap((s) => KEYWORDS.filter(([word, paths]) => unquoted(s.text).toLowerCase().includes(word) && !paths.some((p) => s.expresses.includes(p))).map(([word]) => `${s.id}: "${word}"`))
+    list.flatMap((s) => KEYWORDS.filter(([word, paths]) => !(KEYWORD_EXEMPT[s.id] ?? []).includes(word) && unquoted(s.text).toLowerCase().includes(word) && !paths.some((p) => s.expresses.includes(p))).map(([word]) => `${s.id}: "${word}"`))
 
 /** (d) A sentence containing a keyword expresses the value the keyword concerns. */
 function testD_keywordsImplyTheirValues(): void {
     assert.deepEqual(keywordViolations(sentences()), [])
+    // Each exempt template exists and is a review-only note (never coach text); the exemption is for that template only.
+    for (const id of Object.keys(KEYWORD_EXEMPT)) assert.equal(sentences().find((s) => s.id === id)?.reviewOnly, true, `${id}: an exempt template is review-only`)
+    assert.deepEqual(keywordViolations([{ id: 'planted', text: 'A point soon after a served ball is classed by the coach.', expresses: ['observation.categories'] }]), ['planted: "point"'], 'bite: the exemption is by template id')
     assert.deepEqual(keywordViolations([{ id: 'planted', text: 'Offside applies near the halfway line.', expresses: ['area.lengthM'] }]), ['planted: "offside"', 'planted: "halfway"'])
     // Bite: a target-zone sentence that expresses only the direction (not the scoring event) is refused.
     assert.deepEqual(keywordViolations([{ id: 'planted', text: 'Each team attacks one target zone.', expresses: ['directions'] }]), ['planted: "target zone"'])
@@ -661,7 +672,9 @@ function testI_rationaleMakesNoEffectClaim(): void {
     assert.equal(lines.length, paths.length)
     for (const l of lines) {
         assert.ok(paths.some((p) => l.trim().startsWith(`${p}:`)), l)
-        assert.ok(!EFFECT_WORDS.test(unquoted(l)), l)
+        // Our values now print in single quotation marks (C1-07: not Christian's words), so each line is scanned as the report scan below
+        // scans it: names and the approved purpose lifted, and the pinned negations.
+        assert.deepEqual(effectViolations(l, displayLifted()), [], l)
     }
     assert.ok(EFFECT_WORDS.test(unquoted('The target zones encourage players to create space.')), 'bite')
     // Every report line, outside double quotation marks (Christian's words and approved text), is scanned (C3-12).
@@ -917,7 +930,10 @@ function testL2_labelsAndPremises(): void {
     }
     // The weakest determining premise(s) named, the rest tallied (Christian's reply of 6 November, section 7).
     assert.ok(part2Block('scoring.means').includes('weakest determining premise: ASM-29OCT-PROVISIONAL (received 29 October 2026; provisional) [RULING, provisional]; the rest: 1 APPROVED'))
-    assert.ok(part2Block('restart.endLine.method').includes('weakest determining premise: ASM-06NOV-RESTART (received 6 November 2026; provisional) [RULING, provisional]; the rest: 1 RULING'))
+    assert.ok(part2Block('restart.endLine.method').includes('weakest determining premises: ASM-06NOV-RESTART (received 6 November 2026; provisional) [RULING, provisional]; ASM-REV1-COACH-SERVED-BALL (received 5 November 2026, first reply; provisional for this decision) [RULING, provisional]; the rest: none'))
+    // The first reply's words are not relabelled: the registry still files them as Christian wrote them (not provisional in Christian's words).
+    assert.equal(BASE.experiment.rulings.find((r) => r.id === 'ASM-REV1-COACH-SERVED-BALL')?.provisional, false)
+    assert.ok(part2Block('restart.endLine.method').includes('(states the value; general, no scope stated; provisional for this decision: used here only within the provisional offline arrangement of the reply of 6 November, section 6 (said of this review prototype; not a general restart rule) (ASM-06NOV-RESTART))'))
     // A reading of ours prints the class of what it reads; a status-setting ruling says it decides no value.
     assert.ok(part2Block('restart.endLine.toWhom').includes('it reads a ruling of class 3: Candidate or provisional knowledge'))
     assert.ok(part2Block('scoring.startingCondition').includes("[RULING] sets this premise's standing, and so the class; decides no value"))
@@ -927,9 +943,33 @@ function testL2_labelsAndPremises(): void {
         for (const i of c.decidedBy) {
             const id = i.ref.split(' ')[0]
             const r = BASE.experiment.rulings.find((y) => y.id === id)
-            assert.equal(i.provisional, Boolean(r?.provisional), `${c.path} ${i.ref}`)
+            const here = choiceOf(BASE.experiment, c.path).decidedBy.find((d) => d.rulingRef === id)?.provisionalBy
+            assert.equal(i.provisional, Boolean(r?.provisional) || Boolean(here), `${c.path} ${i.ref}`)
         }
     }
+    // The stage 6 review (C2-05): values of one class with different labels are listed by value; the same class and label is one marker.
+    assert.equal(sentenceMarker([{ path: 'a', sixClass: 6, label: L_UNRESOLVED }, { path: 'b', sixClass: 6, label: L_OURS }]), `[class 6: ${SIX_CLASSES[5].slice(0, -1)}; by value: a class 6 (${L_UNRESOLVED}), b class 6 (${L_OURS})]`)
+    assert.equal(sentenceMarker([{ path: 'a', sixClass: 3, label: L_PROVISIONAL }, { path: 'b', sixClass: 3, label: L_PROVISIONAL }]), `[class 3: ${SIX_CLASSES[2].slice(0, -1)}; ${L_PROVISIONAL}]`)
+    // C2-07: every branch of the label function, the premise standings of Christian's three kinds mapped to the same labels as values.
+    const prem = (standing: Standing, provisional = false) => premisesOf([{ ref: 'x', standing, provisional }])
+    assert.equal(valueLabel('READ_BY_CODE', prem('OURS'), 6, 'RULING'), L_OURS)
+    assert.equal(valueLabel('READ_BY_CODE', prem('ILLUSTRATIVE'), 5, 'RULING'), L_ILLUSTRATIVE)
+    assert.equal(valueLabel('READ_BY_CODE', prem('APPROVED'), 3, 'CANDIDATE'), 'declared CANDIDATE')
+    assert.equal(valueLabel('READ_BY_CODE', premisesOf([]), 6, 'RULING'), 'LOGICAL INFERENCE (computed by the Stage 1/2 code)')
+    assert.equal(valueLabel('ENTERED_EVIDENCED', prem('RULING', true), 3, 'RULING'), L_PROVISIONAL)
+    // C2-14: an answered decision is never listed among the open ones; Part 7 counts open and answered apart.
+    const front = REPORT_TEXT.split('=== PART 0.')[0]
+    const openBlocks = front.split('- Answered, no longer open')[0]
+    const answered = BASE.experiment.openDecisions.filter((d) => d.answeredBy)
+    for (const d of answered) {
+        assert.ok(!openBlocks.includes(`    ${d.id}: `) && !openBlocks.includes(` ${d.id}: ${d.question}`), `${d.id}: an answered decision listed as open`)
+        assert.ok(REPORT_TEXT.includes(`    ${d.id} (${d.blocks}): ${d.answeredBy?.statement}`), `${d.id}: printed as answered`)
+    }
+    assert.equal(answered.length, 3)
+    assert.ok(REPORT_TEXT.includes('18 open decisions (and 3 answered, kept by id)'))
+    assert.ok(front.includes('- Recorded, nothing asked now (kept open by id):\n    AOD-OPTION-B: '), 'option (b) is recorded, not asked')
+    // A derived value prints each source's class and label.
+    assert.ok(REPORT_TEXT.split('\n').some((l) => l.startsWith('  area.betweenTargetZonesM2 = ') && l.includes('endZones.placement (class 5: ') && l.includes(', the weakest of its sources')))
     // The front splits class 6 by label and keeps our readings apart from missing values.
     assert.ok(REPORT_TEXT.includes(`- What class 6 holds: 13 values, split by label: 3 ${L_UNRESOLVED}; 10 ${L_OURS}. Our readings are kept distinct within class 6 by label`))
     assert.ok(!REPORT_TEXT.includes('no separate place for our readings'))
@@ -958,8 +998,8 @@ function testL_sixClasses(): void {
     const classesEntry = BASE.experiment.rulings.find((r) => r.id === BASE.experiment.reportRefs.sixClasses.rulingRef)
     assert.deepEqual(classesEntry?.words.slice(1), [...SIX_CLASSES], 'Christian\'s six classes are filed verbatim, in Christian\'s order')
     assert.equal(classesEntry?.received, '2026-11-05')
-    assert.ok(REPORT_TEXT.includes(`Christian's six classes, in Christian's order (Christian's words, ${classesEntry?.id}, received 5 November 2026): ${SIX_CLASSES.map((c, i) => `${i + 1} "${c}"`).join(' / ')}`))
-    assert.ok(REPORT_TEXT.includes(`- Christian's six classes (Christian's words, ${classesEntry?.id}, received 5 November 2026; printed in full in Part 2) over the `))
+    assert.ok(REPORT_TEXT.includes(`Christian's six classes, in Christian's order (Christian's words, ${classesEntry?.id}, received 5 November 2026, second reply): ${SIX_CLASSES.map((c, i) => `${i + 1} "${c}"`).join(' / ')}`))
+    assert.ok(REPORT_TEXT.includes(`- Christian's six classes (Christian's words, ${classesEntry?.id}, received 5 November 2026, second reply; printed in full in Part 2) over the `))
     const at = (p: string) => BASE.activity.choices.find((c) => c.path === p)
     for (const c of BASE.activity.choices.filter((x) => x.howReached === 'UNRESOLVED')) assert.equal(c.sixClass, 6, c.path)
     assert.equal(at('gameProblems.candidate')?.sixClass, 3, 'Gain Access')
@@ -971,7 +1011,7 @@ function testL_sixClasses(): void {
         assert.ok(provisional.length > 0, p)
         for (const d of provisional) {
             const r = BASE.experiment.rulings.find((y) => y.id === d.rulingRef) as Raw
-            assert.ok(part2Block(p).includes(`Christian's provisional ruling, received ${longDate(r.received)}: "${d.valueEvidence}"`), `${p} ${d.rulingRef}`)
+            assert.ok(part2Block(p).includes(`Christian's provisional ruling, received ${receivedOf(r as { received: string; replyOfDay?: string })}: "${d.valueEvidence}"`), `${p} ${d.rulingRef}`)
         }
     }
     // Every value's class, pinned here from the lead's design (section 4) as corrected in the README and by the adjudication (D11: equal
@@ -1005,6 +1045,49 @@ function testL_sixClasses(): void {
     // "Status of this example" lists exactly the values not in class 1.
     const status = REPORT_TEXT.split('Status of this example')[1].split('\n\n')[0]
     for (const c of BASE.activity.choices) assert.equal(status.includes(`\n  ${c.path}: `), c.sixClass !== 1, c.path)
+}
+
+/**
+ * The change log against the record (the stage 6 review, C2-06): an entry for a value starts its 'after' with the value as assembled and
+ * names the value's class; an entry for an open decision names a decision that exists, and 'answered by X' is that decision's answering
+ * ruling; any other path is one of the pinned non-value entries; a retired path is no longer a value; every section cited is one of the
+ * reply's thirteen numbered sections (pinned: Christian's reply of 6 November numbers its sections 1 to 13).
+ */
+const CHANGE_LOG_OTHER_PATHS = ['restart.endLine.illustrativeValue', 'restart.endLine.status', 'LAW-16, LAW-17', 'contract item GF2-16.a', 'new open decisions']
+const changeLogViolations = (r: AssemblyRun): string[] => {
+    const out: string[] = []
+    for (const e of r.experiment.changeLog) {
+        const c = r.activity.choices.find((y) => y.path === e.path)
+        const d = r.experiment.openDecisions.find((y) => y.id === e.path)
+        if (c) {
+            const shown = c.howReached === 'READ_BY_CODE' ? c.rendered : c.value === null ? 'no value' : String(c.value)
+            if (!e.after.startsWith(shown) && !e.after.startsWith('scope set') && !e.after.startsWith('status set')) out.push(`${e.path}: after does not start with the value (${shown})`)
+            const cls = /class (\d)\)?[^a-z]*$/.exec(e.after) ?? /class (\d)/.exec(e.after)
+            if (!cls || Number(cls[1]) !== c.sixClass) out.push(`${e.path}: after names class ${cls ? cls[1] : 'none'}, the value is class ${c.sixClass}`)
+        } else if (d) {
+            const answered = /^answered by ([A-Z0-9-]+)/.exec(e.after)
+            if (answered && d.answeredBy?.rulingRef !== answered[1]) out.push(`${e.path}: answered by ${answered[1]}, the record says ${d.answeredBy?.rulingRef ?? 'not answered'}`)
+            if (!answered && d.answeredBy) out.push(`${e.path}: answered in the record, not in the change log`)
+        } else if (!CHANGE_LOG_OTHER_PATHS.includes(e.path)) out.push(`${e.path}: neither a value, an open decision nor a pinned entry`)
+        if (e.after.startsWith('retired') && c) out.push(`${e.path}: retired, but still a value`)
+        if (sectionsOf(e.replySections).some((n) => n < 1 || n > 13)) out.push(`${e.path}: ${e.replySections} is not a section of the reply`)
+    }
+    return out
+}
+function testChangeLogMatchesRecord(): void {
+    assert.deepEqual(changeLogViolations(BASE), [])
+    assert.equal(BASE.experiment.changeLog.length, 32)
+    for (const id of ['AOD-PROP-134-MEANING', 'AOD-VERIFY-SEP13', 'AOD-RESTART-AT-A-ZONE', 'scoring.startingCondition', 'gameProblems.primary', 'gameProblems.secondary', 'gameProblems.candidate', 'interactionRegulations', 'adjustments']) assert.ok(BASE.experiment.changeLog.some((e) => e.path === id), `${id}: logged`)
+    // Bites: a stale after (the retired value), a mistyped path, a section the reply does not have, a wrong answering ruling.
+    const bite = (change: (x: Raw) => void, expected: RegExp) => {
+        const x = rawX()
+        change(x)
+        assert.ok(changeLogViolations(run(committedKnowledge(), x)).some((v) => expected.test(v)), expected.source)
+    }
+    bite((x) => (x.changeLog.find((e: Raw) => e.path === 'restart.endLine.method').after = 'DEFENDING_TEAM_FROM_ITS_END_LINE (ILLUSTRATIVE; class 5)'), /restart\.endLine\.method: after does not start with the value/)
+    bite((x) => (x.changeLog.find((e: Raw) => e.path === 'restart.endLine.method').path = 'restart.endLine.methd'), /restart\.endLine\.methd: neither a value/)
+    bite((x) => (x.changeLog[0].replySections = 'section 14'), /section 14 is not a section of the reply/)
+    bite((x) => (x.changeLog.find((e: Raw) => e.path === 'AOD-T3-END-LINE').after = 'answered by ASM-06NOV-KICKOFF'), /AOD-T3-END-LINE: answered by ASM-06NOV-KICKOFF/)
 }
 
 /** (m) The validator's bite tests: each planted defect throws. */
@@ -1107,7 +1190,29 @@ function testM_validatorBites(): void {
     plantW((w) => (w.templates.find((t: Raw) => t.id === 'rs-r5-location').quotesWithin.rulingRef = 'ASM-NOT-FILED'), 'quotesWithin: a ruling not in the registry')
     plantW((w) => delete w.templates.find((t: Raw) => t.id === 'rs-r5-location').quotesWithin, 'a quotation mark in a template that quotes nothing')
     // The change log, the answered decisions, the restart examination and our readings inside a premise (6 November).
-    plant((x) => (x.changeLog[0].n6Lines = 'line 59'), 'changeLog: n6Lines not naming the reply\'s lines')
+    plant((x) => (x.changeLog[0].replySections = 'line 59'), 'changeLog: replySections not naming the reply\'s sections')
+    plant((x) => (x.changeLog[0].replySections = 'N6 l.59-60'), 'changeLog: our scratch label instead of the reply\'s section')
+    plant((x) => (x.changeLog[0].replySections = 'section 0'), 'changeLog: a section numbered 0')
+    // The stage 6 review: an empty quoted span quotes nothing (C2-11); a list that is not a list names its field (C2-15).
+    plantW((w) => (w.templates.find((t: Raw) => t.id === 'rs-r5-location').text = 'Our illustrative exclusion: leave it to the coach\'s judgment of "a suitable location" or ""?'), 'quotesWithin: an empty quoted span')
+    assert.throws(() => validateExperiment(Object.assign(rawX(), { restartExamination: { ...rawX().restartExamination, rulingRefs: 'ASM-06NOV-RESTART' } })), /rulingRefs must be a list/)
+    for (const key of ['notDrawn', 'elements']) {
+        const w = rawW()
+        w.diagram[key] = {}
+        assert.throws(() => validateWording(w, BASE.experiment), /notDrawn and elements must be lists/, key)
+    }
+    // A ruling made provisional for one decision only (provisionalBy): it names another provisional ruling that decides the same value.
+    const method = (x: Raw) => x.choices.find((c: Raw) => c.path === 'restart.endLine.method').decidedBy.find((d: Raw) => d.rulingRef === 'ASM-REV1-COACH-SERVED-BALL')
+    plant((x) => (method(x).provisionalBy.rulingRef = 'ASM-23OCT-LAWS'), 'provisionalBy: a ruling that is not provisional')
+    plant((x) => (method(x).provisionalBy.rulingRef = 'ASM-29OCT-PROVISIONAL'), 'provisionalBy: a provisional ruling that does not decide this value')
+    plant((x) => (method(x).provisionalBy.extraKey = 1), 'provisionalBy: an unknown key')
+    plant((x) => (x.choices.find((c: Raw) => c.path === 'restart.endLine.toWhom').decidedBy[0].provisionalBy = { rulingRef: 'ASM-06NOV-RESTART', why: 'x' }), 'provisionalBy on an item that is no ruling')
+    // Two replies of one day are told apart (C1-01): each file of the day carries its own replyOfDay.
+    plant((x) => delete x.rulings.find((r: Raw) => r.id === 'ASM-REV1-COACH-SERVED-BALL').replyOfDay, 'replyOfDay: one entry of a day without it')
+    plant((x) => (x.rulings.find((r: Raw) => r.id === 'ASM-REV1-COACH-SERVED-BALL').replyOfDay = 'second reply'), 'replyOfDay: two files of one day with the same label')
+    for (const r of BASE.experiment.rulings.filter((y) => y.received === '2026-11-05')) {
+        assert.equal(r.replyOfDay, r.file.startsWith('sources/2026-11-05-a05-review/') ? 'first reply' : r.file.startsWith('sources/2026-11-05-assembly-authorization/') ? 'second reply' : 'UNKNOWN FILE', `${r.id}: which reply of 5 November`)
+    }
     plant((x) => (x.changeLog[0].date = '2026-11-31'), 'changeLog: a date that does not exist')
     plant((x) => (x.changeLog[0].after = x.changeLog[0].before), 'changeLog: before equals after')
     plant((x) => (x.changeLog[0].extraKey = 1), 'changeLog: an unknown key')
@@ -1260,7 +1365,7 @@ function testN_valueEvidence(): void {
     for (const c of x.choices.filter((y) => y.howReached === 'ENTERED_EVIDENCED')) assert.ok(part2Block(c.path).includes('(states the value'), c.path)
     // A value declared RULING whose every decisive ruling Christian called provisional is printed so (C3-19): never a bare "declared RULING".
     for (const c of BASE.activity.choices.filter((y) => y.allDecisiveRulingsProvisional)) assert.ok(part2Block(c.path).includes('declared RULING (Christian\'s provisional ruling: class 3)'), c.path)
-    // Each provisional ruling that decides a value is printed in Christian's order of words: "Christian's provisional ruling, received <date>: "<words>"".
+    // Each provisional ruling that decides a value is printed in Christian's order of words: 'Christian's provisional ruling, received <date>: "<words>"'.
     for (const c of BASE.experiment.choices) {
         for (const d of c.decidedBy.filter((y) => y.rulingRef && BASE.experiment.rulings.find((r) => r.id === y.rulingRef)?.provisional)) {
             const r = BASE.experiment.rulings.find((y) => y.id === d.rulingRef) as Raw
@@ -1269,7 +1374,7 @@ function testN_valueEvidence(): void {
         }
     }
     for (const c of BASE.activity.choices.filter((y) => y.declaredStatus === 'RULING' && !y.allDecisiveRulingsProvisional)) assert.ok(!part2Block(c.path).includes('(Christian\'s provisional ruling: class 3)'), c.path)
-    assert.deepEqual(BASE.activity.choices.filter((y) => y.allDecisiveRulingsProvisional).map((y) => y.path), ['scoring.event', 'scoring.means', 'opposition.reciprocal', 'start.method', 'restart.afterPoint.method', 'rules.offside', 'restart.endLine.timing', 'observation.categories'])
+    assert.deepEqual(BASE.activity.choices.filter((y) => y.allDecisiveRulingsProvisional).map((y) => y.path), ['scoring.event', 'scoring.means', 'opposition.reciprocal', 'start.method', 'restart.afterPoint.method', 'rules.offside', 'restart.endLine.method', 'restart.endLine.timing', 'observation.categories'])
 }
 
 /** (o) What the code computes moves, or the assembly refuses, when the knowledge it reads changes. */
@@ -1318,6 +1423,17 @@ function testO_flipTests(): void {
     // The placement geometry (6 November, for the DRAFT diagram) must draw as many zones as the count says, so it moves with it.
     x11.placementGeometry.ONE_AT_EACH_END_FULL_WIDTH.zones = [{ along: 'FROM_START' }]
     assert.equal(run(committedKnowledge(), x11).activity.derived.find((d) => d.id === 'area.betweenTargetZonesM2')?.value, 87.5, 'one zone: (40 - 5) x 30 / 12')
+    for (const along of ['FROM_START', 'FROM_END']) {
+        x11.placementGeometry.ONE_AT_EACH_END_FULL_WIDTH.zones = [{ along }]
+        const d = run(committedKnowledge(), x11).diagram
+        const zone = d.shapes.find((s) => s.id === 'zone-1') as DiagramModel['shapes'][number]
+        for (const p of d.texts.filter((y) => y.id.startsWith('placeholder'))) {
+            const bx = { x: p.x - p.w / 2, w: p.w }
+            assert.ok(bx.x >= d.outline.x && bx.x + bx.w <= d.outline.x + d.outline.w, `${along}: ${p.id} inside the outline`)
+            assert.ok(bx.x + bx.w <= zone.x || bx.x >= zone.x + (zone.w as number), `${along}: ${p.id} clear of the zone`)
+        }
+        assert.ok(d.texts.filter((y) => y.id.startsWith('placeholder')).length <= 2, `${along}: the placeholder is not wrapped word by word`)
+    }
     const x11b = rawX()
     x11b.placementZoneCount = { ONE_AT_EACH_END_FULL_WIDTH: 1 }
     throwsWith(() => validateExperiment(x11b), 'bite: a zone count the placement geometry does not draw')
@@ -1512,11 +1628,12 @@ function testT_lawsAccount(): void {
     assert.deepEqual(BASE.experiment.laws.filter((l) => l.status === 'DEPARTED').map((l) => l.lawId), ['LAW-11', 'LAW-16', 'LAW-17'])
     for (const id of ['LAW-16', 'LAW-17']) {
         const l = BASE.experiment.laws.find((y) => y.lawId === id) as Experiment['laws'][number]
-        assert.ok(l.reason.startsWith('NOT APPLICABLE as our DRAFT Sport Profile encoding gives it (no goal stands).') && l.reason.includes('authorized provisionally for this offline prototype by Christian\'s reply of 6 November, section 6'), id)
+        // The stage 6 review (C4-16): our reading first, then what our DRAFT encoding would say, so the status is never followed by another.
+        assert.ok(l.reason.startsWith('On our reading (27 October, OURS) the Laws\' award by last touch still applies') && l.reason.includes('authorized provisionally for this offline prototype by Christian\'s reply of 6 November, section 6') && l.reason.includes('Under our DRAFT Sport Profile encoding the law would be NOT APPLICABLE (no goal stands).'), id)
         assert.ok(!l.reason.includes('assume a goal'), `${id}: the award by last touch needs no goal`)
     }
-    assert.ok((BASE.experiment.laws.find((l) => l.lawId === 'LAW-16') as Experiment['laws'][number]).reason.includes('Open representation question (OURS; recorded in this account only, not put to Christian now)'))
-    assert.ok((BASE.experiment.laws.find((l) => l.lawId === 'LAW-8') as Experiment['laws'][number]).reason.includes('the Sport Profile marks the centre mark UNREPRESENTED'))
+    assert.ok((BASE.experiment.laws.find((l) => l.lawId === 'LAW-16') as Experiment['laws'][number]).reason.includes('Open representation question (OURS; recorded here; no answer is asked now)'))
+    assert.ok((BASE.experiment.laws.find((l) => l.lawId === 'LAW-8') as Experiment['laws'][number]).reason.includes('Note: the Sport Profile marks the centre mark UNREPRESENTED'))
     assert.equal(BASE.experiment.laws.find((l) => l.lawId === 'LAW-11')?.status, 'DEPARTED')
     // Each law's status, and the values its entry rests on, pinned here (C3-14).
     assert.deepEqual(lawViolations(BASE.experiment), [])
@@ -1677,6 +1794,8 @@ const svgTexts = (svg: string): string[] => [...svg.matchAll(/<text[^>]*>([^<]*)
 /** A text box's rectangle (top-left, width, height), as the model places it. */
 const boxOf = (t: DiagramModel['texts'][number]) => ({ x: t.anchor === 'middle' ? t.x - t.w / 2 : t.x, y: t.y - t.size, w: t.w, h: t.h })
 const overlaps = (a: ReturnType<typeof boxOf>, b: ReturnType<typeof boxOf>) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
+/** The drawing labels that show each numeric value (the stage 6 review, C2-01): a changed value must change exactly these texts. */
+const LABEL_OF: Record<string, string[]> = { 'area.lengthM': ['label-length'], 'area.widthM': ['label-width'], 'endZones.depthM': ['label-depth-1', 'label-depth-2'], 'players.perTeam': ['team-1', 'team-2'] }
 /** Independent geometry for the committed record (U4 T7), written here: zones 0-5 and 35-40 m along, 0-30 m across; halfway 20; centre 20, 15. */
 const EXPECTED_GEOMETRY = { lengthM: 40, widthM: 30, depthM: 5, zones: [{ alongFromM: 0, alongToM: 5, acrossFromM: 0, acrossToM: 30 }, { alongFromM: 35, alongToM: 40, acrossFromM: 0, acrossToM: 30 }], halfwayAlongM: 20, centre: { alongM: 20, acrossM: 15 } }
 
@@ -1687,9 +1806,24 @@ function testDiagram(): void {
     // T1 Trace: every element names the record paths it reads; every number the drawing prints is a value it reads or a class number.
     for (const s of [...m.shapes, ...m.texts]) for (const p of s.readsPaths) assert.ok(paths.has(p), `${s.id}: ${p} is not a value of the record`)
     const numbersRead = new Set(m.values.filter((v) => typeof v.value === 'number').map((v) => String(v.value)))
-    for (const t of svgTexts(svg)) for (const n of numbersIn(t)) assert.ok(numbersRead.has(String(n)) || [1, 2, 3, 4, 5, 6].includes(n), `a number the record does not hold: ${n} in "${t}"`)
+    // Christian's class numbers ('class 5: ...') and the closing note's 'blocking decision 1' (the proposal's numbering) are lifted by
+    // pattern; every other number must be a value the drawing reads (the stage 6 review, C2-01: no blanket allowance).
+    const lifted = (s: string) => s.split(/\bclass [1-6]: /).join(' ').split(/\bblocking decision \d+ of the technical proposal\b/).join(' ')
+    for (const t of svgTexts(svg)) for (const n of numbersIn(lifted(t))) assert.ok(numbersRead.has(String(n)), `a number the record does not hold: ${n} in '${t}'`)
+    assert.deepEqual(numbersIn(lifted('- Area width: 30 m; class 5: An illustrative configuration choice')), [30], 'the class number is lifted, the value kept')
     // T7 Independent expectations: the geometry in metres for the committed record.
     assert.deepEqual(m.metres, EXPECTED_GEOMETRY)
+    const textOf = (model: DiagramModel, id: string) => model.texts.find((y) => y.id === id)?.text
+    assert.equal(textOf(m, 'label-length'), `${EXPECTED_GEOMETRY.lengthM} m`)
+    assert.equal(textOf(m, 'label-width'), `${EXPECTED_GEOMETRY.widthM} m`)
+    for (const id of ['label-depth-1', 'label-depth-2']) assert.equal(textOf(m, id), `${EXPECTED_GEOMETRY.depthM} m`, id)
+    const perTeam = BASE.activity.choices.find((y) => y.path === 'players.perTeam')?.value
+    assert.equal(perTeam, 6)
+    for (const id of ['team-1', 'team-2']) assert.ok(textOf(m, id)?.includes(`${perTeam} players`), id)
+    // C4-20: under the caption, the drawn values that are ILLUSTRATIVE, read from the key's labels.
+    const illustrativeNames = m.key.filter((k) => EXPECTED_LABEL[k.path] === L_ILLUSTRATIVE).map((k) => k.element)
+    assert.ok(illustrativeNames.includes('Area length (end line to end line, target zones included)') && illustrativeNames.includes('Players per team'))
+    assert.equal(m.texts.filter((y) => y.id.startsWith('caption-illustrative')).map((y) => y.text).join(' '), `ILLUSTRATIVE on this drawing (for this offline test only; see the key): ${illustrativeNames.join('; ')}.`)
     // T2 Coverage: every value of the parts for the Game Form and players and for the dimensions and layout, the directions and the
     // markings, is drawn or keyed; nothing is skipped silently.
     const parts = BASE.experiment.requiredParts.filter((p) => p.id === 'P2' || p.id === 'P3').flatMap((p) => p.paths)
@@ -1699,7 +1833,7 @@ function testDiagram(): void {
         const c = BASE.activity.choices.find((y) => y.path === k.path) as AssembledActivity['choices'][number]
         assert.equal(k.classAndLabel, `class ${c.sixClass}: ${SIX_CLASSES[c.sixClass - 1].slice(0, -1)}; ${EXPECTED_LABEL[k.path]}`, `${k.path}: the key's class and label are the report's`)
         assert.ok(part2Block(k.path).includes(`; ${k.classAndLabel}`), `${k.path}: the same class and label in Part 2`)
-        assert.equal(k.route, c.howReached === 'READ_BY_CODE' ? 'read by code' : 'entered', k.path)
+        assert.equal(k.route, c.howReached === 'READ_BY_CODE' ? 'read by code' : c.howReached === 'UNRESOLVED' ? 'no value entered (UNRESOLVED)' : 'entered', k.path)
     }
     assert.deepEqual([...new Set(m.key.map((k) => k.classAndLabel.split('; ').slice(1).join('; ')))].filter((l) => [L_UNRESOLVED, L_OURS, L_ILLUSTRATIVE].includes(l)).sort(), [L_ILLUSTRATIVE, L_UNRESOLVED].sort(), 'the key shows ILLUSTRATIVE and UNRESOLVED values apart (no OURS value is drawn)')
     // The unresolved position appears on the field only as the placeholder, never as a shape of its own.
@@ -1724,8 +1858,8 @@ function testDiagram(): void {
     for (let i = 0; i < m.texts.length; i++) for (let j = i + 1; j < m.texts.length; j++) assert.ok(!overlaps(boxOf(m.texts[i]), boxOf(m.texts[j])), `${m.texts[i].id} overlaps ${m.texts[j].id}`)
     // T6 Words: no path, data key or record id on the drawing; the marking words are carried by Set up sentences expressing the same values.
     for (const t of svgTexts(svg)) {
-        assert.ok(![...paths].some((p) => p.includes('.') && t.includes(p)) && !/\b[A-Z]{2,}_[A-Z_]+\b/.test(t), `a path or data key on the drawing: "${t}"`)
-        assert.ok(!/\bASM-|\bAOD-|\bRPC-/.test(t), `an id on the drawing: "${t}"`)
+        assert.ok(![...paths].some((p) => p.includes('.') && t.includes(p)) && !/\b[A-Z]{2,}_[A-Z_]+\b/.test(t), `a path or data key on the drawing: '${t}'`)
+        assert.ok(!/\bASM-|\bAOD-|\bRPC-/.test(t), `an id on the drawing: '${t}'`)
     }
     const carried: Array<[string, string]> = [['halfway line', 'area.halfwayLine'], ['centre mark', 'area.centreMark'], ['target zone', 'endZones.depthM']]
     for (const [word, p] of carried) assert.ok(sentences().some((s) => s.section === 'CD-SETUP' && s.expresses.includes(p) && s.text.includes(word)), `${word}: carried by a Set up sentence expressing ${p}`)
@@ -1747,7 +1881,11 @@ function testDiagram(): void {
             continue
         }
         assert.notEqual(changed, svg, `${p}: read by the diagram, but a changed value leaves the drawing unchanged`)
+        const mutated = run(committedKnowledge(), x).diagram
+        for (const id of LABEL_OF[p] ?? []) assert.ok(textOf(mutated, id)?.includes(String(c.value)), `${p}: ${id} does not show the changed value ${String(c.value)}`)
+        for (const s of m.shapes.filter((y) => !y.readsPaths.includes(p))) assert.deepEqual(mutated.shapes.find((y) => y.id === s.id), s, `${p}: ${s.id} moved, but does not read it`)
     }
+    assert.ok(Object.keys(LABEL_OF).every((p) => m.readsPaths.includes(p)), 'every labelled path is read by the diagram')
     // Fail closed: an unmapped placement, a value with no diagram words, and a position with a value each refuse, naming what.
     const unmapped = rawX()
     unmapped.placementGeometry = { SOME_OTHER_PLACEMENT: unmapped.placementGeometry.ONE_AT_EACH_END_FULL_WIDTH }
@@ -1757,6 +1895,30 @@ function testDiagram(): void {
     assert.throws(() => run(committedKnowledge(), rawX(), noWords), /assembly-diagram \(equipment\.markers\): no diagram words for the value AREA_HALFWAY_CENTRE_TARGET_ZONES/)
     const r = run()
     assert.throws(() => assemblyDiagramOf({ ...r.activity, choices: r.activity.choices.map((y) => (y.path === 'endZones.positioning' ? { ...y, value: 'DECIDED' } : y)) }, r.experiment, r.wording), /the zones' position has a value/)
+    const withValue = (p: string, v: unknown) => ({ ...r.activity, choices: r.activity.choices.map((y) => (y.path === p ? { ...y, value: v as ChoiceValue } : y)) })
+    assert.throws(() => assemblyDiagramOf(withValue('area.includesEndZones', false), r.experiment, r.wording), /drawn inside the length only when the record says so/)
+    assert.throws(() => assemblyDiagramOf(withValue('teams.equalOutfield', 'UNEQUAL'), r.experiment, r.wording), /drawn equal only when the record says so/)
+    assert.throws(() => assemblyDiagramOf(withValue('teams.count', 3), r.experiment, r.wording), /3 teams, 2 drawing labels/)
+    const oneZone = JSON.parse(JSON.stringify(r.experiment)) as Experiment
+    oneZone.placementGeometry.ONE_AT_EACH_END_FULL_WIDTH.zones = [{ along: 'FROM_START' }]
+    assert.throws(() => assemblyDiagramOf(r.activity, oneZone, r.wording), /draws 1 zones, the zone count is 2/)
+    // A goalkeeper count other than the one with words is refused (it is never printed against a unit that is a word about 0).
+    assert.throws(() => assemblyDiagramOf(withValue('players.goalkeepers', 1), r.experiment, r.wording), /no diagram words for the value 1/)
+    // An area too short for an arrow beside the team's words is refused, never drawn reversed; a long area widens the page.
+    assert.throws(() => assemblyDiagramOf(withValue('area.lengthM', 12), r.experiment, r.wording), /too short to draw an attacking arrow/)
+    const long = assemblyDiagramOf(withValue('area.lengthM', 90), r.experiment, r.wording)
+    const widthText = long.texts.find((y) => y.id === 'label-width') as DiagramModel['texts'][number]
+    assert.ok(long.width >= widthText.x + widthText.w && long.width >= long.outline.x + long.outline.w, 'a long area stays inside the page')
+    for (const s of m.shapes.filter((y) => y.kind === 'arrow')) assert.equal((s.x2 as number) > s.x, s.id === 'arrow-1', `${s.id}: points the way its words say`)
+    // The arrows are keyed by the recorded directions value: another value, even one with key words, has no arrows and is refused.
+    const otherWay = JSON.parse(JSON.stringify(r.wording)) as Wording
+    ;(otherWay.diagram.valueWords as Raw).attackDirections.SWITCH_ENDS_AT_HALF = 'the teams switch ends at half time'
+    assert.throws(() => assemblyDiagramOf(withValue('directions', 'SWITCH_ENDS_AT_HALF'), r.experiment, otherWay), /no arrows for the directions value SWITCH_ENDS_AT_HALF/)
+    // Two zones on one end, or zones that overlap, are refused.
+    const sameEnd = rawX()
+    sameEnd.placementGeometry.ONE_AT_EACH_END_FULL_WIDTH.zones = [{ along: 'FROM_START' }, { along: 'FROM_START' }]
+    assert.throws(() => validateExperiment(sameEnd), /each zone on its own end/)
+    assert.throws(() => assemblyDiagramOf(withValue('endZones.depthM', 25), r.experiment, r.wording), /the target zones overlap or meet/)
     const quoted = rawW()
     quoted.diagram.flags[0] = 'A flag quoting "words of no one".'
     throwsWith(() => validateWording(quoted, BASE.experiment), 'a quotation mark in a diagram word')
@@ -1786,6 +1948,13 @@ function testV_determinism(): void {
     x.choices[0].note = `${x.choices[0].note} (changed)`
     assert.notEqual(buildAssemblyReport(run(committedKnowledge(), x), REGRESSION, MUTATION).report, fs.readFileSync(path.join(EVIDENCE, 'assembly-report.txt'), 'utf8'), 'bite: a changed note')
     assert.notEqual(buildAssemblyReport(BASE, { ...REGRESSION, standing: `${REGRESSION.standing} (changed)` }, MUTATION).report, fs.readFileSync(path.join(EVIDENCE, 'assembly-report.txt'), 'utf8'), 'bite: a changed regression record')
+    // No gendered pronoun anywhere in the evidence (the binding rule; the stage 6 review, C1-02, C3-01, C4-01): report, results, diagram.
+    const PRONOUN = /\b(he|his|him|himself|she|her|hers|herself)\b/i
+    for (const f of ['assembly-report.txt', 'assembly-results.json', 'assembly-diagram.svg', 'regression-record.json']) {
+        const hit = fs.readFileSync(path.join(EVIDENCE, f), 'utf8').split('\n').findIndex((l) => PRONOUN.test(l))
+        assert.equal(hit, -1, `${f}: a gendered pronoun at line ${hit + 1}`)
+    }
+    assert.ok(PRONOUN.test('as quoted in his reply') && !PRONOUN.test('whether the heron'), 'bite')
 }
 
 /** (w) Stage 2 is unchanged: its results in process, and its report re-generated to a scratch folder, equal the committed evidence. */
@@ -1969,6 +2138,7 @@ testK2_noDecisionReadsADisplayText()
 testL_sixClasses()
 testL2_labelsAndPremises()
 testM_validatorBites()
+testChangeLogMatchesRecord()
 testN_valueEvidence()
 testRulingWordsPinned()
 testO_flipTests()

@@ -7,7 +7,8 @@
  * network, no database, no route: it reads the committed knowledge and nothing else.
  *
  * Since Stage 2 the two steps run as Christian's D1 and D3 direct (reply received 4 November 2026), so this runner prints their current output.
- * Stage 1's evidence files (`docs/audits/design-reasoning-stage1/evidence/`) are the record of Stage 1 as delivered and are not rewritten.
+ * Stage 1's evidence files (`docs/audits/design-reasoning-stage1/evidence/`) are the record of Stage 1 as delivered and are not regenerated
+ * (their wording alone was swept of gendered pronouns on 6 November, noted in the Stage 1 README).
  * The Stage 2 demonstration is `run-stage2-demo.ts`.
  *
  * This runner is the only file of the stage that prints a goal's display name, and it does so after the results are computed, for the

@@ -62,7 +62,7 @@
    Context: RPC-004 (routing row A04; library row RPC-REL-061 COMPATIBLE SECONDARY)
 3. Game Form: NOT_EVALUATED
 4. Unresolved ties, open decisions, missing knowledge
-   missing (TRANSLATION_UNPOPULATED): The Engine Translation row holds no Game Problem, and no ruling of his supplies one.
+   missing (TRANSLATION_UNPOPULATED): The Engine Translation row holds no Game Problem, and no ruling of Christian's supplies one.
    missing (RESOLUTION_UNRESOLVED): Step 1 did not resolve a Game Problem and context, so no Game Form is evaluated.
 
 === A05 Progress the Attack ===
@@ -101,7 +101,7 @@
    Context: RPC-005 (routing row A06; library row RPC-REL-063 COMPATIBLE PRIMARY)
 3. Game Form: NOT_EVALUATED
 4. Unresolved ties, open decisions, missing knowledge
-   missing (TRANSLATION_UNPOPULATED): The Engine Translation row holds no Game Problem, and no ruling of his supplies one.
+   missing (TRANSLATION_UNPOPULATED): The Engine Translation row holds no Game Problem, and no ruling of Christian's supplies one.
    missing (RESOLUTION_UNRESOLVED): Step 1 did not resolve a Game Problem and context, so no Game Form is evaluated.
 
 === D01 Stay Organized ===

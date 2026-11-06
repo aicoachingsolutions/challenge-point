@@ -520,7 +520,7 @@
             "PREFERRED",
             "COMPATIBLE"
           ],
-          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if he authors one, is honoured as a governed preference.",
+          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if Christian authors one, is honoured as a governed preference.",
           "cites": [
             {
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
@@ -602,15 +602,15 @@
         "GF2 and GF3 are related identically on every dimension; no approved knowledge distinguishes them."
       ],
       "notUsed": [
-        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for his review.",
+        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for Christian's review.",
         "Player ranges: minimum_players and maximum_players are declared on no Game Form, and Stage 1 receives no coaching context.",
         "Narrative fields (objective, role_structure, representative_requirements, setup_guidance, notes): carried for people, never parsed.",
         "The sport module's Coverage rows: derived from the keyword pools, not from approved relationships."
       ],
       "rules": {
         "compatibilityGate": "A Game Form is a candidate only if the routed context relates it (ACTIVE, not CONTRADICTORY), the form's status is ACTIVE, its archetype is one the context relates to, the archetype workbook does not mark the primary Game Problem CONTRADICTORY for that archetype, and the form declares the resolved primary Game Problem (in either column). OUR RULE.",
-        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying his E6 ruling.",
-        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is his ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
+        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying Christian's E6 ruling.",
+        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is Christian's ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
         "cite": {
           "file": "back/src/system/design-reasoning/selection-basis.json",
           "table": "selection-basis",
@@ -1143,7 +1143,7 @@
             "PREFERRED",
             "COMPATIBLE"
           ],
-          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if he authors one, is honoured as a governed preference.",
+          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if Christian authors one, is honoured as a governed preference.",
           "cites": [
             {
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
@@ -1193,15 +1193,15 @@
       ],
       "missingBasis": [],
       "notUsed": [
-        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for his review.",
+        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for Christian's review.",
         "Player ranges: minimum_players and maximum_players are declared on no Game Form, and Stage 1 receives no coaching context.",
         "Narrative fields (objective, role_structure, representative_requirements, setup_guidance, notes): carried for people, never parsed.",
         "The sport module's Coverage rows: derived from the keyword pools, not from approved relationships."
       ],
       "rules": {
         "compatibilityGate": "A Game Form is a candidate only if the routed context relates it (ACTIVE, not CONTRADICTORY), the form's status is ACTIVE, its archetype is one the context relates to, the archetype workbook does not mark the primary Game Problem CONTRADICTORY for that archetype, and the form declares the resolved primary Game Problem (in either column). OUR RULE.",
-        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying his E6 ruling.",
-        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is his ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
+        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying Christian's E6 ruling.",
+        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is Christian's ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
         "cite": {
           "file": "back/src/system/design-reasoning/selection-basis.json",
           "table": "selection-basis",
@@ -1734,7 +1734,7 @@
             "PREFERRED",
             "COMPATIBLE"
           ],
-          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if he authors one, is honoured as a governed preference.",
+          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if Christian authors one, is honoured as a governed preference.",
           "cites": [
             {
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
@@ -1782,15 +1782,15 @@
       "undominated": [],
       "missingBasis": [],
       "notUsed": [
-        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for his review.",
+        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for Christian's review.",
         "Player ranges: minimum_players and maximum_players are declared on no Game Form, and Stage 1 receives no coaching context.",
         "Narrative fields (objective, role_structure, representative_requirements, setup_guidance, notes): carried for people, never parsed.",
         "The sport module's Coverage rows: derived from the keyword pools, not from approved relationships."
       ],
       "rules": {
         "compatibilityGate": "A Game Form is a candidate only if the routed context relates it (ACTIVE, not CONTRADICTORY), the form's status is ACTIVE, its archetype is one the context relates to, the archetype workbook does not mark the primary Game Problem CONTRADICTORY for that archetype, and the form declares the resolved primary Game Problem (in either column). OUR RULE.",
-        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying his E6 ruling.",
-        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is his ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
+        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying Christian's E6 ruling.",
+        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is Christian's ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
         "cite": {
           "file": "back/src/system/design-reasoning/selection-basis.json",
           "table": "selection-basis",
@@ -1869,7 +1869,7 @@
       "missing": [
         {
           "kind": "TRANSLATION_UNPOPULATED",
-          "detail": "The Engine Translation row holds no Game Problem, and no ruling of his supplies one.",
+          "detail": "The Engine Translation row holds no Game Problem, and no ruling of Christian's supplies one.",
           "cites": [
             {
               "file": "back/src/system/session-planning/session-planning-model.rc1.json",
@@ -1892,15 +1892,15 @@
       "undominated": [],
       "missingBasis": [],
       "notUsed": [
-        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for his review.",
+        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for Christian's review.",
         "Player ranges: minimum_players and maximum_players are declared on no Game Form, and Stage 1 receives no coaching context.",
         "Narrative fields (objective, role_structure, representative_requirements, setup_guidance, notes): carried for people, never parsed.",
         "The sport module's Coverage rows: derived from the keyword pools, not from approved relationships."
       ],
       "rules": {
         "compatibilityGate": "A Game Form is a candidate only if the routed context relates it (ACTIVE, not CONTRADICTORY), the form's status is ACTIVE, its archetype is one the context relates to, the archetype workbook does not mark the primary Game Problem CONTRADICTORY for that archetype, and the form declares the resolved primary Game Problem (in either column). OUR RULE.",
-        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying his E6 ruling.",
-        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is his ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
+        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying Christian's E6 ruling.",
+        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is Christian's ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
         "cite": {
           "file": "back/src/system/design-reasoning/selection-basis.json",
           "table": "selection-basis",
@@ -2561,7 +2561,7 @@
             "PREFERRED",
             "COMPATIBLE"
           ],
-          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if he authors one, is honoured as a governed preference.",
+          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if Christian authors one, is honoured as a governed preference.",
           "cites": [
             {
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
@@ -2667,15 +2667,15 @@
         "GF3 is stronger on CONTEXT_RELATIONSHIP_STRENGTH; GF7 is stronger on FORM_DECLARES_SECONDARY GP-002. No approved knowledge says which of these relationships should weigh more."
       ],
       "notUsed": [
-        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for his review.",
+        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for Christian's review.",
         "Player ranges: minimum_players and maximum_players are declared on no Game Form, and Stage 1 receives no coaching context.",
         "Narrative fields (objective, role_structure, representative_requirements, setup_guidance, notes): carried for people, never parsed.",
         "The sport module's Coverage rows: derived from the keyword pools, not from approved relationships."
       ],
       "rules": {
         "compatibilityGate": "A Game Form is a candidate only if the routed context relates it (ACTIVE, not CONTRADICTORY), the form's status is ACTIVE, its archetype is one the context relates to, the archetype workbook does not mark the primary Game Problem CONTRADICTORY for that archetype, and the form declares the resolved primary Game Problem (in either column). OUR RULE.",
-        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying his E6 ruling.",
-        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is his ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
+        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying Christian's E6 ruling.",
+        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is Christian's ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
         "cite": {
           "file": "back/src/system/design-reasoning/selection-basis.json",
           "table": "selection-basis",
@@ -2732,7 +2732,7 @@
       "missing": [
         {
           "kind": "TRANSLATION_UNPOPULATED",
-          "detail": "The Engine Translation row holds no Game Problem, and no ruling of his supplies one.",
+          "detail": "The Engine Translation row holds no Game Problem, and no ruling of Christian's supplies one.",
           "cites": [
             {
               "file": "back/src/system/session-planning/session-planning-model.rc1.json",
@@ -2755,15 +2755,15 @@
       "undominated": [],
       "missingBasis": [],
       "notUsed": [
-        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for his review.",
+        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for Christian's review.",
         "Player ranges: minimum_players and maximum_players are declared on no Game Form, and Stage 1 receives no coaching context.",
         "Narrative fields (objective, role_structure, representative_requirements, setup_guidance, notes): carried for people, never parsed.",
         "The sport module's Coverage rows: derived from the keyword pools, not from approved relationships."
       ],
       "rules": {
         "compatibilityGate": "A Game Form is a candidate only if the routed context relates it (ACTIVE, not CONTRADICTORY), the form's status is ACTIVE, its archetype is one the context relates to, the archetype workbook does not mark the primary Game Problem CONTRADICTORY for that archetype, and the form declares the resolved primary Game Problem (in either column). OUR RULE.",
-        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying his E6 ruling.",
-        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is his ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
+        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying Christian's E6 ruling.",
+        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is Christian's ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
         "cite": {
           "file": "back/src/system/design-reasoning/selection-basis.json",
           "table": "selection-basis",
@@ -3302,7 +3302,7 @@
             "PREFERRED",
             "COMPATIBLE"
           ],
-          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if he authors one, is honoured as a governed preference.",
+          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if Christian authors one, is honoured as a governed preference.",
           "cites": [
             {
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
@@ -3350,15 +3350,15 @@
       "undominated": [],
       "missingBasis": [],
       "notUsed": [
-        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for his review.",
+        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for Christian's review.",
         "Player ranges: minimum_players and maximum_players are declared on no Game Form, and Stage 1 receives no coaching context.",
         "Narrative fields (objective, role_structure, representative_requirements, setup_guidance, notes): carried for people, never parsed.",
         "The sport module's Coverage rows: derived from the keyword pools, not from approved relationships."
       ],
       "rules": {
         "compatibilityGate": "A Game Form is a candidate only if the routed context relates it (ACTIVE, not CONTRADICTORY), the form's status is ACTIVE, its archetype is one the context relates to, the archetype workbook does not mark the primary Game Problem CONTRADICTORY for that archetype, and the form declares the resolved primary Game Problem (in either column). OUR RULE.",
-        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying his E6 ruling.",
-        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is his ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
+        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying Christian's E6 ruling.",
+        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is Christian's ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
         "cite": {
           "file": "back/src/system/design-reasoning/selection-basis.json",
           "table": "selection-basis",
@@ -3783,7 +3783,7 @@
             "PREFERRED",
             "COMPATIBLE"
           ],
-          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if he authors one, is honoured as a governed preference.",
+          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if Christian authors one, is honoured as a governed preference.",
           "cites": [
             {
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
@@ -3833,15 +3833,15 @@
       ],
       "missingBasis": [],
       "notUsed": [
-        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for his review.",
+        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for Christian's review.",
         "Player ranges: minimum_players and maximum_players are declared on no Game Form, and Stage 1 receives no coaching context.",
         "Narrative fields (objective, role_structure, representative_requirements, setup_guidance, notes): carried for people, never parsed.",
         "The sport module's Coverage rows: derived from the keyword pools, not from approved relationships."
       ],
       "rules": {
         "compatibilityGate": "A Game Form is a candidate only if the routed context relates it (ACTIVE, not CONTRADICTORY), the form's status is ACTIVE, its archetype is one the context relates to, the archetype workbook does not mark the primary Game Problem CONTRADICTORY for that archetype, and the form declares the resolved primary Game Problem (in either column). OUR RULE.",
-        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying his E6 ruling.",
-        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is his ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
+        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying Christian's E6 ruling.",
+        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is Christian's ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
         "cite": {
           "file": "back/src/system/design-reasoning/selection-basis.json",
           "table": "selection-basis",
@@ -4374,7 +4374,7 @@
             "PREFERRED",
             "COMPATIBLE"
           ],
-          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if he authors one, is honoured as a governed preference.",
+          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if Christian authors one, is honoured as a governed preference.",
           "cites": [
             {
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
@@ -4422,15 +4422,15 @@
       "undominated": [],
       "missingBasis": [],
       "notUsed": [
-        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for his review.",
+        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for Christian's review.",
         "Player ranges: minimum_players and maximum_players are declared on no Game Form, and Stage 1 receives no coaching context.",
         "Narrative fields (objective, role_structure, representative_requirements, setup_guidance, notes): carried for people, never parsed.",
         "The sport module's Coverage rows: derived from the keyword pools, not from approved relationships."
       ],
       "rules": {
         "compatibilityGate": "A Game Form is a candidate only if the routed context relates it (ACTIVE, not CONTRADICTORY), the form's status is ACTIVE, its archetype is one the context relates to, the archetype workbook does not mark the primary Game Problem CONTRADICTORY for that archetype, and the form declares the resolved primary Game Problem (in either column). OUR RULE.",
-        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying his E6 ruling.",
-        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is his ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
+        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying Christian's E6 ruling.",
+        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is Christian's ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
         "cite": {
           "file": "back/src/system/design-reasoning/selection-basis.json",
           "table": "selection-basis",
@@ -4855,7 +4855,7 @@
             "PREFERRED",
             "COMPATIBLE"
           ],
-          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if he authors one, is honoured as a governed preference.",
+          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if Christian authors one, is honoured as a governed preference.",
           "cites": [
             {
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
@@ -4905,15 +4905,15 @@
       ],
       "missingBasis": [],
       "notUsed": [
-        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for his review.",
+        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for Christian's review.",
         "Player ranges: minimum_players and maximum_players are declared on no Game Form, and Stage 1 receives no coaching context.",
         "Narrative fields (objective, role_structure, representative_requirements, setup_guidance, notes): carried for people, never parsed.",
         "The sport module's Coverage rows: derived from the keyword pools, not from approved relationships."
       ],
       "rules": {
         "compatibilityGate": "A Game Form is a candidate only if the routed context relates it (ACTIVE, not CONTRADICTORY), the form's status is ACTIVE, its archetype is one the context relates to, the archetype workbook does not mark the primary Game Problem CONTRADICTORY for that archetype, and the form declares the resolved primary Game Problem (in either column). OUR RULE.",
-        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying his E6 ruling.",
-        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is his ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
+        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying Christian's E6 ruling.",
+        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is Christian's ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
         "cite": {
           "file": "back/src/system/design-reasoning/selection-basis.json",
           "table": "selection-basis",
@@ -5462,7 +5462,7 @@
             "PREFERRED",
             "COMPATIBLE"
           ],
-          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if he authors one, is honoured as a governed preference.",
+          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if Christian authors one, is honoured as a governed preference.",
           "cites": [
             {
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
@@ -5512,15 +5512,15 @@
       ],
       "missingBasis": [],
       "notUsed": [
-        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for his review.",
+        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for Christian's review.",
         "Player ranges: minimum_players and maximum_players are declared on no Game Form, and Stage 1 receives no coaching context.",
         "Narrative fields (objective, role_structure, representative_requirements, setup_guidance, notes): carried for people, never parsed.",
         "The sport module's Coverage rows: derived from the keyword pools, not from approved relationships."
       ],
       "rules": {
         "compatibilityGate": "A Game Form is a candidate only if the routed context relates it (ACTIVE, not CONTRADICTORY), the form's status is ACTIVE, its archetype is one the context relates to, the archetype workbook does not mark the primary Game Problem CONTRADICTORY for that archetype, and the form declares the resolved primary Game Problem (in either column). OUR RULE.",
-        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying his E6 ruling.",
-        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is his ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
+        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying Christian's E6 ruling.",
+        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is Christian's ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
         "cite": {
           "file": "back/src/system/design-reasoning/selection-basis.json",
           "table": "selection-basis",
@@ -5923,7 +5923,7 @@
             "PREFERRED",
             "COMPATIBLE"
           ],
-          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if he authors one, is honoured as a governed preference.",
+          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if Christian authors one, is honoured as a governed preference.",
           "cites": [
             {
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
@@ -5971,15 +5971,15 @@
       "undominated": [],
       "missingBasis": [],
       "notUsed": [
-        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for his review.",
+        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for Christian's review.",
         "Player ranges: minimum_players and maximum_players are declared on no Game Form, and Stage 1 receives no coaching context.",
         "Narrative fields (objective, role_structure, representative_requirements, setup_guidance, notes): carried for people, never parsed.",
         "The sport module's Coverage rows: derived from the keyword pools, not from approved relationships."
       ],
       "rules": {
         "compatibilityGate": "A Game Form is a candidate only if the routed context relates it (ACTIVE, not CONTRADICTORY), the form's status is ACTIVE, its archetype is one the context relates to, the archetype workbook does not mark the primary Game Problem CONTRADICTORY for that archetype, and the form declares the resolved primary Game Problem (in either column). OUR RULE.",
-        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying his E6 ruling.",
-        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is his ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
+        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying Christian's E6 ruling.",
+        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is Christian's ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
         "cite": {
           "file": "back/src/system/design-reasoning/selection-basis.json",
           "table": "selection-basis",
@@ -6399,7 +6399,7 @@
             "PREFERRED",
             "COMPATIBLE"
           ],
-          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if he authors one, is honoured as a governed preference.",
+          "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if Christian authors one, is honoured as a governed preference.",
           "cites": [
             {
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
@@ -6447,15 +6447,15 @@
       "undominated": [],
       "missingBasis": [],
       "notUsed": [
-        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for his review.",
+        "The Affordance Requirement Profile: forms declare the sport module's affordance labels, and how those relate to the four CAR requirements is E3, held for Christian's review.",
         "Player ranges: minimum_players and maximum_players are declared on no Game Form, and Stage 1 receives no coaching context.",
         "Narrative fields (objective, role_structure, representative_requirements, setup_guidance, notes): carried for people, never parsed.",
         "The sport module's Coverage rows: derived from the keyword pools, not from approved relationships."
       ],
       "rules": {
         "compatibilityGate": "A Game Form is a candidate only if the routed context relates it (ACTIVE, not CONTRADICTORY), the form's status is ACTIVE, its archetype is one the context relates to, the archetype workbook does not mark the primary Game Problem CONTRADICTORY for that archetype, and the form declares the resolved primary Game Problem (in either column). OUR RULE.",
-        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying his E6 ruling.",
-        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is his ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
+        "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying Christian's E6 ruling.",
+        "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is Christian's ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
         "cite": {
           "file": "back/src/system/design-reasoning/selection-basis.json",
           "table": "selection-basis",

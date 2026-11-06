@@ -1,6 +1,6 @@
 {
   "stage": "DESIGN_REASONING_ASSEMBLY_EXPERIMENT",
-  "standing": "OURS: a labelled decision record for the bounded, offline, review-only A05 assembly experiment Christian authorized in Christian's second reply of 5 November 2026. It is not a knowledge file, not a configuration step (the architecture has none: Steps 3-5 are held), not served, and not an authorization. Every value states how it reached the activity and which of Christian's six classes it falls in; values Christian's words do not state are ILLUSTRATIVE, OURS or UNRESOLVED. Nothing on the live route or the checked pathway reads this file.",
+  "standing": "OURS: a labelled decision record for the bounded, offline, review-only A05 assembly experiment authorized in Christian's second reply of 5 November 2026. It is not a knowledge file, not a configuration step (the architecture has none: Steps 3-5 are held), not served, and not an authorization. Every value states how it reached the activity and which of Christian's six classes it falls in; values Christian's words do not state are ILLUSTRATIVE, OURS or UNRESOLVED. Nothing on the live route or the checked pathway reads this file.",
   "wordingStanding": "OURS: DRAFT coach wording for the review experiment; NEWLY PROPOSED language (RC3 6.1) unless a template records another status; not approved wording; never passed to the checked pathway's approved-wording parameter.",
   "learningGoalId": "A05",
   "resolution": {
@@ -574,9 +574,9 @@
         "readingOf": [],
         "scopeSetBy": [
           {
-            "ref": "ASM-AUTH-GP-SCOPE (received 5 November 2026)",
+            "ref": "ASM-AUTH-GP-SCOPE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "sets the scope for this experiment, received 5 November 2026: \"within the scoped circumstance of progressing against organized opposition\" (decides nothing)",
+            "role": "sets the scope for this experiment, received 5 November 2026, second reply: \"within the scoped circumstance of progressing against organized opposition\" (decides nothing)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -584,9 +584,9 @@
             }
           },
           {
-            "ref": "ASM-REV1-GP-SCOPE (received 5 November 2026)",
+            "ref": "ASM-REV1-GP-SCOPE (received 5 November 2026, first reply)",
             "standing": "RULING",
-            "role": "sets the scope for this experiment, received 5 November 2026: \"This remains a scoped review interpretation rather than an unconditional mapping for every Progress the Attack situation.\" (decides nothing)",
+            "role": "sets the scope for this experiment, received 5 November 2026, first reply: \"This remains a scoped review interpretation rather than an unconditional mapping for every Progress the Attack situation.\" (decides nothing)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -597,6 +597,16 @@
             "ref": "ASM-06NOV-OPTION-A (received 6 November 2026)",
             "standing": "RULING",
             "role": "sets the scope for this experiment, received 6 November 2026: \"I approve option (a) for the isolated review pathway only.\" (decides nothing)",
+            "cite": {
+              "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
+              "table": "rulings",
+              "row": "ASM-06NOV-OPTION-A"
+            }
+          },
+          {
+            "ref": "ASM-06NOV-OPTION-A (received 6 November 2026)",
+            "standing": "RULING",
+            "role": "sets the scope for this experiment, received 6 November 2026: \"Create Space remains the primary Game Problem and Exploit Space the secondary consideration within the scoped circumstance of progressing against organized opposition that meaningfully restricts usable attacking space.\" (decides nothing)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -679,9 +689,9 @@
         "readingOf": [],
         "scopeSetBy": [
           {
-            "ref": "ASM-AUTH-GP-SCOPE (received 5 November 2026)",
+            "ref": "ASM-AUTH-GP-SCOPE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "sets the scope for this experiment, received 5 November 2026: \"Create Space remains the primary Game Problem and Exploit Space a secondary consideration within the scoped circumstance of progressing against organized opposition.\" (decides nothing)",
+            "role": "sets the scope for this experiment, received 5 November 2026, second reply: \"Create Space remains the primary Game Problem and Exploit Space a secondary consideration within the scoped circumstance of progressing against organized opposition.\" (decides nothing)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -820,7 +830,7 @@
         "label": "RULING",
         "consulted": [
           {
-            "ref": "ASM-AUTH-COMPOSITE (received 5 November 2026)",
+            "ref": "ASM-AUTH-COMPOSITE (received 5 November 2026, second reply)",
             "standing": "RULING",
             "role": "a stronger secondary requirement is neither promoted nor discarded; the finding is shown, not promoted.",
             "cite": {
@@ -869,13 +879,13 @@
         "consulted": [
           {
             "ref": "contexts relationships RPC-REL-026 related_id",
-            "standing": "CANDIDATE",
-            "role": "GP-015 (Maintain Possession): related by the context, SECONDARY, ACTIVE, like Gain Access; no ruling of Christian's names it for A05 (searched); not used."
+            "standing": "APPROVED",
+            "role": "GP-015 (Maintain Possession): related by the context, SECONDARY, ACTIVE, like Gain Access; its id resolution was mechanical (OURS); no ruling of Christian's names it for A05 (searched); not used."
           }
         ],
         "statusSetBy": [
           {
-            "ref": "ASM-AUTH-GAIN-ACCESS (received 5 November 2026)",
+            "ref": "ASM-AUTH-GAIN-ACCESS (received 5 November 2026, second reply)",
             "standing": "RULING",
             "role": "sets this premise's standing, and so the class; decides no value",
             "cite": {
@@ -932,7 +942,7 @@
         "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
         "consulted": [
           {
-            "ref": "ASM-REV1-GF2 (received 5 November 2026)",
+            "ref": "ASM-REV1-GF2 (received 5 November 2026, first reply)",
             "standing": "RULING",
             "role": "an illustrative choice, not a justified selection over the other forms.",
             "cite": {
@@ -945,9 +955,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-GF (received 5 November 2026)",
+            "ref": "ASM-AUTH-GF (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"GF2 may be used as an illustrative configuration for this experiment.\" (a permission that names this value; the choice to use it is ours)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"GF2 may be used as an illustrative configuration for this experiment.\" (a permission that names this value; the choice to use it is ours)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1165,7 +1175,7 @@
             }
           },
           {
-            "ref": "ASM-AUTH-GF (received 5 November 2026)",
+            "ref": "ASM-AUTH-GF (received 5 November 2026, second reply)",
             "standing": "RULING",
             "role": "GF3 and GF7 visible as compatible alternatives, without an invented ranking.",
             "cite": {
@@ -1309,7 +1319,7 @@
         "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
         "consulted": [
           {
-            "ref": "ASM-REV1-DIMENSIONS (received 5 November 2026; provisional)",
+            "ref": "ASM-REV1-DIMENSIONS (received 5 November 2026, first reply; provisional)",
             "standing": "RULING",
             "role": "no approved basis for treating 6v6, 40 x 30 m as particularly appropriate for A05.",
             "cite": {
@@ -1319,7 +1329,7 @@
             }
           },
           {
-            "ref": "ASM-AUTH-SCALE (received 5 November 2026)",
+            "ref": "ASM-AUTH-SCALE (received 5 November 2026, second reply)",
             "standing": "RULING",
             "role": "no automatic preference for small-sided games: 6 v 6 is not preferred over larger formats.",
             "cite": {
@@ -1332,9 +1342,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1401,9 +1411,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1447,7 +1457,7 @@
         "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
         "consulted": [
           {
-            "ref": "ASM-REV1-DIMENSIONS (received 5 November 2026; provisional)",
+            "ref": "ASM-REV1-DIMENSIONS (received 5 November 2026, first reply; provisional)",
             "standing": "RULING",
             "role": "A05's dimensions remain provisional; width and length are not interchangeable.",
             "cite": {
@@ -1465,9 +1475,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1519,9 +1529,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1565,7 +1575,7 @@
         "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
         "consulted": [
           {
-            "ref": "ASM-AUTH-D4 (received 5 November 2026)",
+            "ref": "ASM-AUTH-D4 (received 5 November 2026, second reply)",
             "standing": "RULING",
             "role": "Christian's Decision 4 requires the statement (whether end zones are included); the value follows our illustrative layout.",
             "cite": {
@@ -1578,9 +1588,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1624,7 +1634,7 @@
         "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
         "consulted": [
           {
-            "ref": "ASM-AUTH-D4 (received 5 November 2026)",
+            "ref": "ASM-AUTH-D4 (received 5 November 2026, second reply)",
             "standing": "RULING",
             "role": "Christian's Decision 4 requires the statement (whether goalkeepers are counted); there are none to count.",
             "cite": {
@@ -1637,9 +1647,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1691,9 +1701,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1745,9 +1755,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1801,7 +1811,7 @@
             }
           },
           {
-            "ref": "ASM-REV1-DIMENSIONS (received 5 November 2026; provisional)",
+            "ref": "ASM-REV1-DIMENSIONS (received 5 November 2026, first reply; provisional)",
             "standing": "RULING",
             "role": "A05's dimensions remain provisional.",
             "cite": {
@@ -1819,9 +1829,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1883,9 +1893,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2070,9 +2080,9 @@
             }
           },
           {
-            "ref": "ASM-REV1-NO-FIXED-POSITIONS (received 5 November 2026)",
+            "ref": "ASM-REV1-NO-FIXED-POSITIONS (received 5 November 2026, first reply)",
             "standing": "RULING",
-            "role": "our reading (OURS) of Christian's words, received 5 November 2026: \"I would also avoid requiring fixed positions, waiting periods, or predetermined movement sequences simply to guarantee a defensive organization.\" (Christian's words do not state the value; it reads a ruling of class 2: An explicit scoped ruling)",
+            "role": "our reading (OURS) of Christian's words, received 5 November 2026, first reply: \"I would also avoid requiring fixed positions, waiting periods, or predetermined movement sequences simply to guarantee a defensive organization.\" (Christian's words do not state the value; it reads a ruling of class 2: An explicit scoped ruling)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2317,7 +2327,7 @@
         "consulted": [],
         "statusSetBy": [
           {
-            "ref": "ASM-AUTH-STARTING-CONDITION (received 5 November 2026)",
+            "ref": "ASM-AUTH-STARTING-CONDITION (received 5 November 2026, second reply)",
             "standing": "RULING",
             "role": "sets this premise's standing, and so the class; decides no value",
             "cite": {
@@ -2327,7 +2337,7 @@
             }
           },
           {
-            "ref": "ASM-REV1-SOURCE-FIDELITY (received 5 November 2026)",
+            "ref": "ASM-REV1-SOURCE-FIDELITY (received 5 November 2026, first reply)",
             "standing": "RULING",
             "role": "sets this premise's standing, and so the class; decides no value",
             "cite": {
@@ -2390,7 +2400,7 @@
         "consulted": [],
         "statusSetBy": [
           {
-            "ref": "ASM-AUTH-STARTING-CONDITION (received 5 November 2026)",
+            "ref": "ASM-AUTH-STARTING-CONDITION (received 5 November 2026, second reply)",
             "standing": "RULING",
             "role": "sets this premise's standing, and so the class; decides no value",
             "cite": {
@@ -2459,7 +2469,7 @@
         ],
         "statusSetBy": [
           {
-            "ref": "ASM-AUTH-STARTING-CONDITION (received 5 November 2026)",
+            "ref": "ASM-AUTH-STARTING-CONDITION (received 5 November 2026, second reply)",
             "standing": "RULING",
             "role": "sets this premise's standing, and so the class; decides no value",
             "cite": {
@@ -2479,7 +2489,7 @@
             }
           },
           {
-            "ref": "ASM-REV1-SOURCE-FIDELITY (received 5 November 2026)",
+            "ref": "ASM-REV1-SOURCE-FIDELITY (received 5 November 2026, first reply)",
             "standing": "RULING",
             "role": "sets this premise's standing, and so the class; decides no value",
             "cite": {
@@ -2518,7 +2528,7 @@
           {
             "ref": "ASM-06NOV-STARTING (received 6 November 2026)",
             "standing": "RULING",
-            "role": "Christian's ruling, received 6 November 2026: \"A legitimate attack, including one immediately following a regain, should not automatically be denied a score because it occurred during transition rather than against organized opposition.\" (states the value; general, no scope stated)",
+            "role": "Christian's ruling, received 6 November 2026: \"A legitimate attack, including one immediately following a regain, should not automatically be denied a score because it occurred during transition rather than against organized opposition.\" (states that such an attack is not automatically denied a score for occurring in transition; general, no scope stated)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2592,7 +2602,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 2,
         "allDecisiveRulingsProvisional": false,
-        "note": "No eligibility restriction after a live turnover. Christian's 30 October words answer one scenario (Scenario 1A); the rule is stated generally in Christian's reply of 6 November, section 1; Christian's word \"automatically\" printed: such an attack is not automatically denied a score."
+        "note": "No eligibility restriction after a live turnover. Christian's 30 October words answer one scenario (Scenario 1A); Christian's reply of 6 November, section 1, states generally that such an attack \"should not automatically be denied a score\" for occurring in transition. Whether the starting condition's role can still affect a point after a regain stays open (AOD-STARTING-CONDITION: on the where-it-began reading, a possession that begins inside the zone it attacks)."
       },
       {
         "path": "scoring.mirrored",
@@ -2714,9 +2724,9 @@
         "computed": false,
         "decidedBy": [
           {
-            "ref": "ASM-REV1-CONTINUOUS (received 5 November 2026)",
+            "ref": "ASM-REV1-CONTINUOUS (received 5 November 2026, first reply)",
             "standing": "RULING",
-            "role": "Christian's ruling, received 5 November 2026: \"I favor preserving continuous play through turnovers whenever doing so supports the intended representative problem.\" (states the value; scope WHERE_IT_SUPPORTS_THE_PROBLEM: \"whenever doing so supports the intended representative problem\")",
+            "role": "Christian's ruling, received 5 November 2026, first reply: \"I favor preserving continuous play through turnovers whenever doing so supports the intended representative problem.\" (states the value; scope WHERE_IT_SUPPORTS_THE_PROBLEM: \"whenever doing so supports the intended representative problem\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2739,7 +2749,7 @@
         "premises": {
           "weakest": [
             {
-              "ref": "ASM-REV1-CONTINUOUS (received 5 November 2026)",
+              "ref": "ASM-REV1-CONTINUOUS (received 5 November 2026, first reply)",
               "standing": "RULING",
               "provisional": false,
               "sixClass": 2
@@ -2773,9 +2783,9 @@
         "computed": false,
         "decidedBy": [
           {
-            "ref": "ASM-REV1-KICKOFF (received 5 November 2026; provisional)",
+            "ref": "ASM-REV1-KICKOFF (received 5 November 2026, first reply; provisional)",
             "standing": "RULING",
-            "role": "Christian's provisional ruling, received 5 November 2026: \"Please retain the ordinary kickoff as an acceptable provisional option for the current prototype\" (states the value; scope CURRENT_PROTOTYPE: \"for the current prototype\")",
+            "role": "Christian's provisional ruling, received 5 November 2026, first reply: \"Please retain the ordinary kickoff as an acceptable provisional option for the current prototype\" (states the value; scope CURRENT_PROTOTYPE: \"for the current prototype\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2787,7 +2797,7 @@
         "premises": {
           "weakest": [
             {
-              "ref": "ASM-REV1-KICKOFF (received 5 November 2026; provisional)",
+              "ref": "ASM-REV1-KICKOFF (received 5 November 2026, first reply; provisional)",
               "standing": "RULING",
               "provisional": true,
               "sixClass": 3
@@ -2870,9 +2880,9 @@
         "permittedBy": [],
         "readingOf": [
           {
-            "ref": "ASM-REV1-KICKOFF (received 5 November 2026; provisional)",
+            "ref": "ASM-REV1-KICKOFF (received 5 November 2026, first reply; provisional)",
             "standing": "RULING",
-            "role": "our reading (OURS) of Christian's words, received 5 November 2026: \"the ordinary kickoff\" (Christian's words do not state the value; it reads a ruling of class 3: Candidate or provisional knowledge)",
+            "role": "our reading (OURS) of Christian's words, received 5 November 2026, first reply: \"the ordinary kickoff\" (Christian's words do not state the value; it reads a ruling of class 3: Candidate or provisional knowledge)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2963,9 +2973,9 @@
         "computed": false,
         "decidedBy": [
           {
-            "ref": "ASM-REV1-KICKOFF (received 5 November 2026; provisional)",
+            "ref": "ASM-REV1-KICKOFF (received 5 November 2026, first reply; provisional)",
             "standing": "RULING",
-            "role": "Christian's provisional ruling, received 5 November 2026: \"Please retain the ordinary kickoff as an acceptable provisional option for the current prototype\" (states the value; scope CURRENT_PROTOTYPE: \"for the current prototype\")",
+            "role": "Christian's provisional ruling, received 5 November 2026, first reply: \"Please retain the ordinary kickoff as an acceptable provisional option for the current prototype\" (states the value; scope CURRENT_PROTOTYPE: \"for the current prototype\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2977,7 +2987,7 @@
         "premises": {
           "weakest": [
             {
-              "ref": "ASM-REV1-KICKOFF (received 5 November 2026; provisional)",
+              "ref": "ASM-REV1-KICKOFF (received 5 November 2026, first reply; provisional)",
               "standing": "RULING",
               "provisional": true,
               "sixClass": 3
@@ -3406,15 +3416,15 @@
             "provisional": true
           },
           {
-            "ref": "ASM-REV1-COACH-SERVED-BALL (received 5 November 2026)",
+            "ref": "ASM-REV1-COACH-SERVED-BALL (received 5 November 2026, first reply; provisional for this decision)",
             "standing": "RULING",
-            "role": "Christian's ruling, received 5 November 2026: \"a coach quickly serving a new ball\" (states the value; general, no scope stated)",
+            "role": "Christian's ruling, received 5 November 2026, first reply: \"a coach quickly serving a new ball\" (states the value; general, no scope stated; provisional for this decision: used here only within the provisional offline arrangement of the reply of 6 November, section 6 (said of this review prototype; not a general restart rule) (ASM-06NOV-RESTART))",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
               "row": "ASM-REV1-COACH-SERVED-BALL"
             },
-            "provisional": false
+            "provisional": true
           }
         ],
         "premises": {
@@ -3424,11 +3434,15 @@
               "standing": "RULING",
               "provisional": true,
               "sixClass": 3
+            },
+            {
+              "ref": "ASM-REV1-COACH-SERVED-BALL (received 5 November 2026, first reply; provisional for this decision)",
+              "standing": "RULING",
+              "provisional": true,
+              "sixClass": 3
             }
           ],
-          "rest": {
-            "RULING": 1
-          }
+          "rest": {}
         },
         "label": "RULING, provisional",
         "consulted": [
@@ -3454,8 +3468,8 @@
         "scopeSetBy": [],
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 3,
-        "allDecisiveRulingsProvisional": false,
-        "note": "Christian's provisional ruling of 6 November (section 6), for this review prototype, offline; with the first reply of 5 November's coach-served ball. Class 3: its weakest determining premise is the provisional ruling."
+        "allDecisiveRulingsProvisional": true,
+        "note": "Christian's provisional ruling of 6 November (section 6), for this review prototype, offline. The first reply of 5 November describes a coach-served ball as a possibility (\"can be an effective way\"), its words opening with their own condition (\"When the ball leaves play\"); here it decides only within the provisional arrangement of 6 November, never as a general restart rule (\"not a canonical restart rule for other activities\"). Class 3: both determining premises are provisional for this decision."
       },
       {
         "path": "restart.endLine.toWhom",
@@ -3610,9 +3624,9 @@
             }
           },
           {
-            "ref": "ASM-REV1-NO-FIXED-POSITIONS (received 5 November 2026)",
+            "ref": "ASM-REV1-NO-FIXED-POSITIONS (received 5 November 2026, first reply)",
             "standing": "RULING",
-            "role": "our reading (OURS) of Christian's words, received 5 November 2026: \"I would also avoid requiring fixed positions, waiting periods, or predetermined movement sequences simply to guarantee a defensive organization.\" (Christian's words do not state the value; it reads a ruling of class 2: An explicit scoped ruling)",
+            "role": "our reading (OURS) of Christian's words, received 5 November 2026, first reply: \"I would also avoid requiring fixed positions, waiting periods, or predetermined movement sequences simply to guarantee a defensive organization.\" (Christian's words do not state the value; it reads a ruling of class 2: An explicit scoped ruling)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -3726,9 +3740,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -3838,9 +3852,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -3886,9 +3900,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -3934,9 +3948,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -3993,9 +4007,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -4047,9 +4061,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -4106,9 +4120,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -4154,9 +4168,9 @@
         "statusSetBy": [],
         "permittedBy": [
           {
-            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026)",
+            "ref": "ASM-AUTH-ILLUSTRATIVE (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "permits an illustrative value, received 5 November 2026: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
+            "role": "permits an illustrative value, received 5 November 2026, second reply: \"Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled\" (a permission; it does not state the value)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -4191,9 +4205,9 @@
             "provisional": true
           },
           {
-            "ref": "ASM-REV1-OBSERVATION (received 5 November 2026; provisional)",
+            "ref": "ASM-REV1-OBSERVATION (received 5 November 2026, first reply; provisional)",
             "standing": "RULING",
-            "role": "Christian's provisional ruling, received 5 November 2026: \"Our provisional A05 observation categories—Against Organized Opposition, During Transition, and Uncertain\" (states the value; scope REVIEW_PROTOTYPE: \"in the review prototype\")",
+            "role": "Christian's provisional ruling, received 5 November 2026, first reply: \"Our provisional A05 observation categories—Against Organized Opposition, During Transition, and Uncertain\" (states the value; scope REVIEW_PROTOTYPE: \"in the review prototype\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -4211,7 +4225,7 @@
               "sixClass": 3
             },
             {
-              "ref": "ASM-REV1-OBSERVATION (received 5 November 2026; provisional)",
+              "ref": "ASM-REV1-OBSERVATION (received 5 November 2026, first reply; provisional)",
               "standing": "RULING",
               "provisional": true,
               "sixClass": 3
@@ -4270,7 +4284,7 @@
         "label": "OURS: LOGICAL INFERENCE (our reading, not canonical; needs Christian's confirmation)",
         "consulted": [
           {
-            "ref": "ASM-REV1-DIMENSIONS (received 5 November 2026; provisional)",
+            "ref": "ASM-REV1-DIMENSIONS (received 5 November 2026, first reply; provisional)",
             "standing": "RULING",
             "role": "W-H1/W-H2 remain test-only hypotheses, so no width adjustment is offered; a length adjustment would be our causal hypothesis (K3 open).",
             "cite": {
@@ -4314,9 +4328,9 @@
             }
           },
           {
-            "ref": "ASM-AUTH-SCENARIO-RULES (received 5 November 2026)",
+            "ref": "ASM-AUTH-SCENARIO-RULES (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "our reading (OURS) of Christian's words, received 5 November 2026: \"It should not automatically change the primary Game Problem or recommend width changes on unsupported assumptions.\" (Christian's words do not state the value; it reads a ruling of class 2: An explicit scoped ruling)",
+            "role": "our reading (OURS) of Christian's words, received 5 November 2026, second reply: \"It should not automatically change the primary Game Problem or recommend width changes on unsupported assumptions.\" (Christian's words do not state the value; it reads a ruling of class 2: An explicit scoped ruling)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -4362,9 +4376,9 @@
         "permittedBy": [],
         "readingOf": [
           {
-            "ref": "ASM-AUTH-COACH-QUESTION (received 5 November 2026)",
+            "ref": "ASM-AUTH-COACH-QUESTION (received 5 November 2026, second reply)",
             "standing": "RULING",
-            "role": "our reading (OURS) of Christian's words, received 5 November 2026: \"This is a future feedback direction, not a request to implement learning analytics now.\" (Christian's words do not state the value; it reads a ruling of class 2: An explicit scoped ruling)",
+            "role": "our reading (OURS) of Christian's words, received 5 November 2026, second reply: \"This is a future feedback direction, not a request to implement learning analytics now.\" (Christian's words do not state the value; it reads a ruling of class 2: An explicit scoped ruling)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -5184,16 +5198,17 @@
           {
             "id": "sc-restart-point",
             "section": "CD-SCORING",
-            "text": "Whether a point counts when it comes straight from a throw-in, from a ball the coach serves, or from free kicks taken beside a target zone, is not yet decided; this example adds no rule about it.",
+            "text": "Whether a point counts when it comes straight from a throw-in, from a ball the coach serves, or from free kicks taken beside a target zone, is not yet decided; this example adds no rule about whether such a point counts (the illustrative serve location keeps the serve itself out of both target zones and not across either).",
             "expresses": [
               "restart.touchline",
               "rules.fouls",
               "restart.endLine.method",
+              "restart.endLine.location",
               "scoring.event"
             ],
             "status": "NEWLY PROPOSED",
-            "sixClass": 3,
-            "marker": "[class 3: Candidate or provisional knowledge; by value: restart.touchline class 2 (RULING), rules.fouls class 2 (RULING), restart.endLine.method class 3 (RULING, provisional), scoring.event class 3 (RULING, provisional)] (review only: dropped from a coach copy)",
+            "sixClass": 5,
+            "marker": "[class 5: An illustrative configuration choice; by value: restart.touchline class 2 (RULING), rules.fouls class 2 (RULING), restart.endLine.method class 3 (RULING, provisional), restart.endLine.location class 5 (ILLUSTRATIVE (for this offline test only; to be replaced before any production use)), scoring.event class 3 (RULING, provisional)] (review only: dropped from a coach copy)",
             "quoted": false,
             "reviewOnly": true,
             "scope": null
@@ -5440,7 +5455,7 @@
           {
             "id": "rs-served-presentation",
             "section": "CD-RESTARTS",
-            "text": "A served ball restarts play; it is not a change of possession in play and is not treated as a live turnover or as organized opposition. A point soon after a served ball is not counted as a During transition point by default; the coach classifies what is seen under the provisional categories, Uncertain included.",
+            "text": "Our reading (OURS): a served ball restarts play; it is not a change of possession in play and is not treated as a live turnover or as organized opposition. A point soon after a served ball is not classed as a During transition point by default; the coach classifies what is seen under the provisional categories, Uncertain included.",
             "expresses": [
               "restart.endLine.method",
               "observation.categories"
@@ -5455,7 +5470,7 @@
           {
             "id": "rs-served-untouched",
             "section": "CD-RESTARTS",
-            "text": "A served ball that goes over an end line untouched is covered by no value (listed, not resolved).",
+            "text": "A gap (no value): a served ball that goes over an end line untouched is covered by no value (listed, not resolved).",
             "expresses": [
               "restart.endLine.method"
             ],
@@ -5693,7 +5708,7 @@
       "marker": "[the Learning Goal Christian authorized; its name read from the planning model by code]"
     },
     {
-      "text": "Game Problems: Create Space is the primary problem and Exploit Space a secondary consideration, resolved by the review pathway from Christian's scoped ruling for this goal (the planning model's translation for it is unpopulated); the scope for this experiment is set by Christian's words: \"within the scoped circumstance of progressing against organized opposition\" (received 5 November 2026); \"This remains a scoped review interpretation\" (received 5 November 2026); \"specifically within the circumstance of progressing against organized opposition\" (received 5 November 2026); \"for the isolated review pathway only\" (received 6 November 2026); \"within the scoped circumstance of progressing against organized opposition that meaningfully restricts usable attacking space\" (received 6 November 2026).",
+      "text": "Game Problems: Create Space is the primary problem and Exploit Space a secondary consideration, resolved by the review pathway from Christian's scoped ruling for this goal (the planning model's translation for it is unpopulated); the scope for this experiment is set by Christian's words: \"within the scoped circumstance of progressing against organized opposition\" (received 5 November 2026, second reply); \"This remains a scoped review interpretation\" (received 5 November 2026, first reply); \"specifically within the circumstance of progressing against organized opposition\" (received 5 November 2026, first reply); \"for the isolated review pathway only\" (received 6 November 2026); \"within the scoped circumstance of progressing against organized opposition that meaningfully restricts usable attacking space\" (received 6 November 2026).",
       "expresses": [
         "gameProblems.primary",
         "gameProblems.secondary"
@@ -6065,7 +6080,7 @@
         "area.centreMark",
         "area.halfwayLine"
       ],
-      "reason": "The ordinary kickoff at the start and after a point (Christian's provisional option); the centre mark and halfway line it needs are marked (illustrative). Beside APPLIES: the Sport Profile marks the centre mark UNREPRESENTED, so the existing check would report the adaptation owed (OURS reading of the profile)."
+      "reason": "The ordinary kickoff at the start and after a point (Christian's provisional option); the centre mark and halfway line it needs are marked (illustrative). Note: the Sport Profile marks the centre mark UNREPRESENTED, so the existing check would report the adaptation owed (OURS reading of the profile)."
     },
     {
       "lawId": "LAW-8-DB",
@@ -6125,7 +6140,7 @@
         "restart.endLine.toWhom",
         "restart.endLine.location"
       ],
-      "reason": "NOT APPLICABLE as our DRAFT Sport Profile encoding gives it (no goal stands). On our reading (27 October, OURS) the Laws' award by last touch still applies, so the coach-served ball departs from the method and location of the goal kick and corner kick; that departure is authorized provisionally for this offline prototype by Christian's reply of 6 November, section 6. Open representation question (OURS; recorded in this account only, not put to Christian now): should Laws 16 and 17 apply at an end line where no goal stands? The serve's own risks (an immediate point at the zone's edge; an interception) are examined in Part 6."
+      "reason": "On our reading (27 October, OURS) the Laws' award by last touch still applies, so the coach-served ball departs from the method and location of the goal kick and corner kick; that departure is authorized provisionally for this offline prototype by Christian's reply of 6 November, section 6. Under our DRAFT Sport Profile encoding the law would be NOT APPLICABLE (no goal stands). Open representation question (OURS; recorded here; no answer is asked now): should Laws 16 and 17 apply at an end line where no goal stands? The serve's own risks (an immediate point at the zone's edge; an interception) are examined in Part 6."
     },
     {
       "lawId": "LAW-17",
@@ -6136,7 +6151,7 @@
         "restart.endLine.toWhom",
         "restart.endLine.location"
       ],
-      "reason": "NOT APPLICABLE as our DRAFT Sport Profile encoding gives it (no goal stands). On our reading (27 October, OURS) the Laws' award by last touch still applies, so the coach-served ball departs from the method and location of the goal kick and corner kick; that departure is authorized provisionally for this offline prototype by Christian's reply of 6 November, section 6. A corner kick would also be taken inside a target zone, where a pass to a teammate could give an immediate point (review point, OURS); the serve is never played into or across a target zone (ILLUSTRATIVE)."
+      "reason": "On our reading (27 October, OURS) the Laws' award by last touch still applies, so the coach-served ball departs from the method and location of the goal kick and corner kick; that departure is authorized provisionally for this offline prototype by Christian's reply of 6 November, section 6. Under our DRAFT Sport Profile encoding the law would be NOT APPLICABLE (no goal stands). A corner kick would also be taken inside a target zone, where a pass to a teammate could give an immediate point (review point, OURS); the serve is never played into or across a target zone (ILLUSTRATIVE)."
     },
     {
       "lawId": "LAW-4-GK",
@@ -9997,7 +10012,7 @@
       }
     ],
     "identityPoint": {
-      "statement": "With nothing added, the same build on the same Game Form and context would serve Secure Possession (TA02), which routes to the same context: the activity's identity rests on the Game Problem translation and the coach's purpose, not on the environment.",
+      "statement": "With no manipulation added, the same build on the same Game Form and context would also be produced for Secure Possession (TA02), which routes to the same context: the activity's identity rests on the Game Problem translation and the coach's purpose, not on the environment.",
       "rows": [
         "RPC-VAL-011",
         "RPC-VAL-013"
@@ -10013,7 +10028,7 @@
     },
     "addNothing": {
       "status": "UNVERIFIED",
-      "statement": "No additional manipulation has an authorized basis, so the basic Game Form is retained as a review candidate (K2, DRAFT wording awaiting Christian's review); retaining it does not demonstrate that it is sufficient for the intended learning problem, so suitability remains unverified (AOD-K2-SUFFICIENCY).",
+      "statement": "No constraint, incentive or environmental manipulation has an authorized basis for Create Space, so the basic Game Form is retained as a review candidate, as Christian's reply of 6 November, section 4, permits (K2's exact wording is DRAFT, awaiting Christian's review). The two Laws departures (no offside; the coach-served end-line restart) rest on Christian's provisional rulings; whether they count as additional manipulations under K2 is the K2 review note's question. Retaining the form does not demonstrate that it is sufficient for the intended learning problem, so suitability remains unverified (AOD-K2-SUFFICIENCY).",
       "rulingRef": "ASM-REV1-ADD-NOTHING",
       "quote": "Where the knowledge doesn't support that conclusion, the system should report that suitability remains unverified."
     },
@@ -10316,8 +10331,8 @@
         "Attachment chain (OURS: LOGICAL INFERENCE, not verification): the draft workbook Christian reviewed on 13 September (zip time 15:31) holds no qualifying-condition sentence; the sentence first appears in Christian's reply; the workbook carrying the colon was written later that day (zip time 23:07; the zip clock's time zone is not recorded). This is consistent with the colon entering in our transcription; it does not replace checking the original email.",
         "The starting-condition clause stays UNRESOLVED in the scoring section and the trace, never in the observation guidance.",
         "Disclosure: our own earlier draft Attack Development requirement list (the RPC-003 draft contract and draft requirement bindings, test-only, OURS) reads the clause after the colon as a definition with required components; it is not used by this experiment.",
-        "Christian's reply of 6 November, section 2: once the exact wording is verified against the original approved source, the smallest correction is authorized, provided no other scoring semantics change. Prepared, not applied: the library row RPC-PROP-134 with ':' replaced by '—for example,' (13 characters, nothing else), its before and after text and its provenance (the 13 September email; the reply of 6 November, section 2; verification by Joe, date blank until done). The review record and the knowledge library are unchanged on this point until verification.",
-        "Verification owed: our only copies are Joe's two September pastes; the attachment sent on 6 November went unverified. The request to Joe is repeated (the last 13 September email, opening \"Thanks. The generated-activity evidence makes the scoring issue much clearer.\").",
+        "Christian's reply of 6 November, section 2: once the exact wording is verified against the original approved source, the smallest correction is authorized, provided no other scoring semantics change. Described here and to be filed in the sources repository (the stage 6 change record), not applied: the library row RPC-PROP-134 with ':' replaced by '—for example,' (13 characters, nothing else). Before: the row as the library holds it (scoring.qualifyingCondition.workbookText, printed below). After (prepared, not applied): 'Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.' Provenance: the 13 September email; the reply of 6 November, section 2; verification by Joe, date blank until done. The review record and the knowledge library are unchanged on this point until verification.",
+        "Verification owed: our only copies are Joe's two September pastes; our report of 6 November printed that copy, marked not yet checked against the original, so the reply's \"as quoted in your report\" is not a verification. The request to Joe is repeated (the last 13 September email, opening \"Thanks. The generated-activity evidence makes the scoring issue much clearer.\").",
         "Identified separately, as section 2 asks: A05's Active coach definition \"Improve attacking conditions while maintaining purposeful possession.\" (Session Planning Model) and Christian's 28 and 30 October restatements are a learning purpose, not a scoring requirement (OURS reading); no other source makes maintaining possession a scoring requirement (searched)."
       ]
     },
@@ -10401,14 +10416,14 @@
           "E1 (the team defending that zone receives): opponents near the zone they attack can press the serve, and an interception there can be carried in at once; the risk also turns on whether opponents may challenge the serve (R1).",
           "E1: a weak incentive to put the ball over the end line one attacks and press the serve (CAUSAL HYPOTHESIS, visible only in play). Served further back these chances fall, but the defending team gains relief for clearing over its own end line.",
           "No reset: nobody has to reposition, and the ball stays near where it left; not a live turnover (Christian's reply of 6 November, section 6).",
-          "E2: the attacking team receives near the zone it attacks with defenders in place; whether this presents Create Space against organized opposition, or an exploit or chance-creation moment, shows only in play (CAUSAL HYPOTHESIS). No location removes both chances without a receiving distance (R2)."
+          "E2: the attacking team receives near the zone it attacks with defenders in place; whether this presents Create Space against organized opposition, or an exploit or chance-creation moment, shows only in play (CAUSAL HYPOTHESIS). Every location trades the immediate chance at the zone's edge against relief for a clearance over the end line; where to strike the balance is the receiving distance (R2)."
         ]
       }
     ],
-    "verdict": "The method, the possession consequence by last touch and promptness follow Christian's words. On this geometry no location avoids both an immediate scoring chance at the zone's edge and relief for a team clearing over its own end line without a further requirement (a receiving distance, R2), and the interception risk depends on whether opponents may challenge the serve (R1). Both are identified, not resolved. For this offline test the location carries our illustrative exclusion (R5), put to Christian for review.",
+    "verdict": "The method, the possession consequence by last touch and promptness follow Christian's words. On this geometry every location trades one risk against the other: at the zone's edge the receiving team can score at once; further back, a team clearing over its own end line gains relief. Striking that balance needs a further requirement (a receiving distance, R2), which no ruling gives; the interception risk depends on whether opponents may challenge the serve (R1). Both are identified, not resolved. For this offline test the location carries our illustrative exclusion (R5), put to Christian for review.",
     "stillFlagged": "Unchanged and still flagged: throw-ins and free kicks beside a target zone.",
     "reviewNotes": [
-      "R3: Whether a point counts when it comes straight from a throw-in, from a ball the coach serves, or from free kicks taken beside a target zone, is not yet decided; this example adds no rule about it.",
+      "R3: Whether a point counts when it comes straight from a throw-in, from a ball the coach serves, or from free kicks taken beside a target zone, is not yet decided; this example adds no rule about whether such a point counts (the illustrative serve location, R5, keeps the serve itself out of both target zones and not across either).",
       "R4: Where the coach stands decides whether the serve can avoid crossing a zone and how promptly it can be made; it is in no value and is not drawn."
     ]
   },
@@ -10441,161 +10456,224 @@
       "path": "restart.endLine.illustrativeValue",
       "before": "DEFENDING_TEAM_FROM_ITS_END_LINE (ILLUSTRATIVE, class 5): the team defending the target zone at that end restarts from that end line",
       "after": "retired; replaced by the coach-served end-line restart (restart.endLine.method and the six values beside it)",
-      "n6Lines": "N6 l.59-60",
+      "replySections": "section 6",
       "date": "2026-11-06"
     },
     {
       "path": "restart.endLine.status",
       "before": "no value (UNRESOLVED, class 6): an adaptation owed",
       "after": "retired; the restart is set by restart.endLine.method; what stays unresolved is restart.endLine.receivingDistance",
-      "n6Lines": "N6 l.61-66",
+      "replySections": "section 6",
       "date": "2026-11-06"
     },
     {
       "path": "restart.endLine.method",
       "before": "none",
-      "after": "COACH_SERVES_NEW_BALL (Christian's provisional ruling; class 3)",
-      "n6Lines": "N6 l.61",
+      "after": "COACH_SERVES_NEW_BALL (Christian's provisional ruling; the first reply of 5 November provisional for this decision; class 3)",
+      "replySections": "section 6",
       "date": "2026-11-06"
     },
     {
       "path": "restart.endLine.toWhom",
       "before": "none",
       "after": "TEAM_THAT_DID_NOT_TOUCH_IT_LAST (OURS: LOGICAL INFERENCE; class 6)",
-      "n6Lines": "N6 l.61",
+      "replySections": "section 6",
       "date": "2026-11-06"
     },
     {
       "path": "restart.endLine.timing",
       "before": "none",
       "after": "PROMPTLY (Christian's provisional ruling; class 3)",
-      "n6Lines": "N6 l.62",
+      "replySections": "section 6",
       "date": "2026-11-06"
     },
     {
       "path": "restart.endLine.noReset",
       "before": "none",
       "after": "NO_REPOSITIONING_REQUIRED (OURS: LOGICAL INFERENCE; class 6)",
-      "n6Lines": "N6 l.62",
+      "replySections": "section 6",
       "date": "2026-11-06"
     },
     {
       "path": "restart.endLine.contest",
       "before": "none",
       "after": "LIVE_WHEN_PLAYED_NO_OPPONENT_DISTANCE (OURS: LOGICAL INFERENCE; class 6); R1 asked",
-      "n6Lines": "N6 l.61, 66",
+      "replySections": "section 6",
       "date": "2026-11-06"
     },
     {
       "path": "restart.endLine.location",
       "before": "none",
       "after": "IN_THE_HALF_WHERE_IT_WENT_OUT_OUTSIDE_BOTH_TARGET_ZONES_NOT_ACROSS_EITHER_COACH_CHOOSES_PLAYER (ILLUSTRATIVE; class 5); R5 asked",
-      "n6Lines": "N6 l.62-63",
+      "replySections": "sections 6 and 11",
       "date": "2026-11-06"
     },
     {
       "path": "restart.endLine.receivingDistance",
       "before": "none",
       "after": "no value (UNRESOLVED; class 6); R2 asked",
-      "n6Lines": "N6 l.63, 66",
+      "replySections": "section 6",
       "date": "2026-11-06"
     },
     {
       "path": "start.kickoffDistanceM",
       "before": "9.15, our reading of \"ordinary\" (OURS; class 6)",
       "after": "9.15, decided by Christian's ruling for the current prototype (class 2)",
-      "n6Lines": "N6 l.80",
+      "replySections": "section 8",
       "date": "2026-11-06"
     },
     {
       "path": "scoring.afterRegain",
       "before": "COUNTS, decided by the 30 October rulings; applying them to every regain was our generalization (class 2)",
-      "after": "COUNTS, decided also by the reply of 6 November, section 1, which states it generally (class 2)",
-      "n6Lines": "N6 l.17",
+      "after": "COUNTS, decided also by the reply of 6 November, section 1, which states generally that such an attack is not automatically denied a score (class 2); the starting condition's role stays open",
+      "replySections": "section 1",
+      "date": "2026-11-06"
+    },
+    {
+      "path": "scoring.startingCondition",
+      "before": "no value; status set by ASM-AUTH-STARTING-CONDITION, ASM-30OCT-EVE-UNRESOLVED and ASM-REV1-SOURCE-FIDELITY (class 6)",
+      "after": "no value; status set also by ASM-06NOV-STARTING, which keeps its role unresolved; the meaning question is AOD-STARTING-CONDITION (class 6)",
+      "replySections": "section 1",
       "date": "2026-11-06"
     },
     {
       "path": "scoring.qualifyingCondition.workbookText",
       "before": "status set by ASM-AUTH-STARTING-CONDITION; ASM-REV1-SOURCE-FIDELITY consulted (class 3)",
-      "after": "status set by ASM-AUTH-STARTING-CONDITION, ASM-REV1-SOURCE-FIDELITY and ASM-06NOV-SOURCE (class 3); the correction prepared, not applied",
-      "n6Lines": "N6 l.23-29",
+      "after": "status set by ASM-AUTH-STARTING-CONDITION, ASM-REV1-SOURCE-FIDELITY and ASM-06NOV-SOURCE (class 3); the correction described in the review record, to be filed in the sources repository; not applied",
+      "replySections": "section 2",
+      "date": "2026-11-06"
+    },
+    {
+      "path": "gameProblems.primary",
+      "before": "scope set by ASM-AUTH-GP-SCOPE and ASM-REV1-GP-SCOPE (class 2)",
+      "after": "scope set also by ASM-06NOV-OPTION-A: option (a) for the isolated review pathway only, within the circumstance of progressing against organized opposition that meaningfully restricts usable attacking space (class 2)",
+      "replySections": "section 3",
+      "date": "2026-11-06"
+    },
+    {
+      "path": "gameProblems.secondary",
+      "before": "scope set by ASM-AUTH-GP-SCOPE (class 2)",
+      "after": "scope set also by ASM-06NOV-OPTION-A, with the same narrowed circumstance (class 2)",
+      "replySections": "section 3",
+      "date": "2026-11-06"
+    },
+    {
+      "path": "gameProblems.candidate",
+      "before": "status set by ASM-AUTH-GAIN-ACCESS (class 3)",
+      "after": "status set also by ASM-06NOV-OPTION-A, which keeps Gain Access a candidate relationship; GP-015 disclosed as consulted, not used (class 3)",
+      "replySections": "section 3",
+      "date": "2026-11-06"
+    },
+    {
+      "path": "interactionRegulations",
+      "before": "NONE_ADDED, our reading of ASM-DEC-CONTINUOUS and ASM-REV1-NO-FIXED-POSITIONS (class 6)",
+      "after": "NONE_ADDED, our reading also of ASM-15OCT-NOT-MANDATORY (none has an authorized basis, so none is added); ASM-06NOV-K2 consulted (class 6)",
+      "replySections": "section 4",
+      "date": "2026-11-06"
+    },
+    {
+      "path": "adjustments",
+      "before": "NONE_OFFERED, our reading of ASM-AUTH-SCENARIO-RULES (class 6)",
+      "after": "NONE_OFFERED, our reading also of ASM-15OCT-NOT-MANDATORY (none has an authorized basis); ASM-06NOV-K2 and ASM-06NOV-CREATE-SPACE consulted; K3 open (class 6)",
+      "replySections": "sections 4 and 5",
       "date": "2026-11-06"
     },
     {
       "path": "LAW-16, LAW-17",
       "before": "ADAPTATION OWED: the illustrative end-line value stands in",
       "after": "DEPARTED: the coach-served ball departs from the method and location of the goal kick and corner kick, authorized provisionally; both readings printed",
-      "n6Lines": "N6 l.61, 65",
+      "replySections": "section 6",
       "date": "2026-11-06"
     },
     {
       "path": "contract item GF2-16.a",
       "before": "mapped to restart.touchline and restart.endLine.illustrativeValue",
       "after": "mapped to restart.touchline and restart.endLine.toWhom",
-      "n6Lines": "N6 l.61",
+      "replySections": "section 6",
       "date": "2026-11-06"
     },
     {
       "path": "AOD-T3-END-LINE",
       "before": "open (NON_BLOCKING)",
       "after": "answered by ASM-06NOV-RESTART",
-      "n6Lines": "N6 l.59-66",
+      "replySections": "section 6",
       "date": "2026-11-06"
     },
     {
       "path": "AOD-KICKOFF-DISTANCE",
       "before": "open (NON_BLOCKING)",
       "after": "answered by ASM-06NOV-KICKOFF",
-      "n6Lines": "N6 l.80-81",
+      "replySections": "section 8",
       "date": "2026-11-06"
     },
     {
       "path": "AOD-REQ-E1-REUSE",
       "before": "our reading (OUR_READING)",
       "after": "answered by ASM-06NOV-OPTION-A, for the isolated review pathway",
-      "n6Lines": "N6 l.31-33",
+      "replySections": "section 3",
       "date": "2026-11-06"
     },
     {
       "path": "AOD-STARTING-CONDITION",
       "before": "What role should the starting condition play in scoring or configuration?",
-      "after": "one meaning question, with its two readings (C1, C3); neither labelled smallest or preferred",
-      "n6Lines": "N6 l.11-21",
+      "after": "one meaning question, with its two readings (where the possession began; the attack's state when it began); neither labelled smallest or preferred",
+      "replySections": "section 1",
+      "date": "2026-11-06"
+    },
+    {
+      "path": "AOD-PROP-134-MEANING",
+      "before": "What does the approved qualifying condition mean (the \"for example\" reading or the colon reading), and is maintaining possession a requirement? (both texts shown; both readings accounted for)",
+      "after": "answered in principle by the reply of 6 November, section 2 (the \"for example\" reading; maintaining attacking possession not an independently approved universal requirement); blocking only until the 13 September wording is verified",
+      "replySections": "section 2",
+      "date": "2026-11-06"
+    },
+    {
+      "path": "AOD-VERIFY-SEP13",
+      "before": "our copy printed with its provenance; no amendment proposed or applied",
+      "after": "verification owed and the request to Joe repeated; the correction described in the review record, to be filed in the sources repository, not applied",
+      "replySections": "section 2",
       "date": "2026-11-06"
     },
     {
       "path": "AOD-K2-SUFFICIENCY",
       "before": "On what knowledge basis could adding nothing to the Game Form be shown sufficient (K2)?",
       "after": "the sufficiency-basis question; K2 does not answer it",
-      "n6Lines": "N6 l.40-49",
+      "replySections": "section 4",
       "date": "2026-11-06"
     },
     {
       "path": "AOD-CREATE-SPACE-RELATIONSHIP",
       "before": "Which approved environmental relationship would support Create Space in Attack Development?",
       "after": "possible against productive, recurring encounters with restricted attacking space",
-      "n6Lines": "N6 l.54-56",
+      "replySections": "section 5",
       "date": "2026-11-06"
     },
     {
       "path": "AOD-PROVISIONAL-CLASS",
       "before": "asked (NON_BLOCKING)",
       "after": "our convention, not re-asked (OUR_READING)",
-      "n6Lines": "N6 l.68",
+      "replySections": "section 7",
       "date": "2026-11-06"
     },
     {
       "path": "AOD-TRANSLATION-SCOPE",
       "before": "the smallest decision was (a), in our view",
       "after": "(a) approved for the isolated review pathway only; no production translation",
-      "n6Lines": "N6 l.31-34",
+      "replySections": "section 3",
+      "date": "2026-11-06"
+    },
+    {
+      "path": "AOD-RESTART-AT-A-ZONE",
+      "before": "the end-line value had the team defending a target zone restart from its own end line, where an intercepting opponent could score at once",
+      "after": "no rule invented for throw-ins and free kicks beside a target zone (still flagged); at an end line the coach serves a new ball, its risks examined in Part 6 (R1, R2, R5)",
+      "replySections": "section 6",
       "date": "2026-11-06"
     },
     {
       "path": "new open decisions",
       "before": "none",
-      "after": "AOD-K2-REVIEW-CANDIDATE, AOD-OPTION-B, AOD-ENDLINE-CONTEST, AOD-ENDLINE-DISTANCE, AOD-ENDLINE-LOCATION, AOD-SCORING-ROW-LIVE",
-      "n6Lines": "N6 l.27, 36, 49, 61-66",
+      "after": "AOD-K2-REVIEW-CANDIDATE, AOD-OPTION-B (recorded, nothing asked), AOD-ENDLINE-CONTEST, AOD-ENDLINE-DISTANCE, AOD-ENDLINE-LOCATION, AOD-SCORING-ROW-LIVE, AOD-DIAGRAM-OWN-HALF",
+      "replySections": "sections 2, 3, 4, 6 and 9",
       "date": "2026-11-06"
     }
   ],
@@ -10603,7 +10681,7 @@
     {
       "id": "AOD-STARTING-CONDITION",
       "blocks": "SCORING_FIDELITY_OR_PRODUCTION",
-      "question": "In your 13 September condition, does \"the attack’s starting condition\" mean where the possession began, or the attack's state when it began (organized attacking possession established)? Either answer leaves the canonical scoring row unchanged. If where it began (C1): it can be a condition on each scoring event: a point needs an arrival more advanced than where that possession began. That departs from your provisional option (5), which favoured not \"establishing a restriction on every individual scoring event\" (30 October). On the illustrative end-zone placement it changes which points count only for a possession that begins inside the zone it attacks: if that possession may not score without leaving the zone, a team regaining there must carry the ball out and back in, which your 30 October reply declined for a qualifying line; if it may, C1 adds no condition on this geometry, and your 29 October example (a regain beside the zone, then a point) still scores, met only at the evidence question. Its effect also depends on where the zones are placed, which is not decided. It needs no new knowledge only on this reading of the phrase. If the state (C3): the phrase is Attack Development's begin condition (RPC-PROP-034, RPC-PROP-035, identity rule RPC-ID-011; all ACTIVE; no new text), close to your option (5)'s emphasis and to how your other approved conditions begin (for example High Press Escape). It leaves every legitimate point scoring. It avoids moving the condition into coach observation only if the configuration is required to present that begin condition, which needs knowledge not yet approved (a Create Space relationship); otherwise recognizing it rests on observation, the relocation you warned against.",
+      "question": "In your 13 September condition, does \"the attack’s starting condition\" mean where the possession began, or the attack's state when it began (organized attacking possession established)? Either answer leaves the canonical scoring row unchanged. If where it began: it can be a condition on each scoring event: a point needs an arrival more advanced than where that possession began. That departs from your provisional option (5), which favoured not \"establishing a restriction on every individual scoring event\" (30 October). On the illustrative end-zone placement it changes which points count only for a possession that begins inside the zone it attacks: if that possession may not score without leaving the zone, a team regaining there must carry the ball out and back in, which your 30 October reply declined for a qualifying line; if it may, that reading adds no condition on this geometry, and your 29 October example (a regain beside the zone, then a point) still scores; the distinction then bears only on your second question (what demonstrates that players addressed the Learning Goal), not on whether the point counts. Its effect also depends on where the zones are placed, which is not decided. It needs no new knowledge only on this reading of the phrase. If the state: the phrase is Attack Development's begin condition (RPC-PROP-034, RPC-PROP-035, identity rule RPC-ID-011; all ACTIVE; no new text), close to your option (5)'s emphasis and to how your other approved conditions begin (for example High Press Escape). It leaves every legitimate point scoring. It avoids moving the condition into coach observation only if the configuration is required to present that begin condition, which needs knowledge not yet approved (a Create Space relationship); otherwise recognizing it rests on observation, the relocation you warned against.",
       "rulingRefs": [
         "ASM-AUTH-STARTING-CONDITION",
         "ASM-30OCT-EVE-UNRESOLVED",
@@ -10611,18 +10689,18 @@
         "ASM-30OCT-OPTION5",
         "ASM-06NOV-STARTING"
       ],
-      "handling": "Shown as UNRESOLVED in Scoring and the trace; no value changes and scoring is unchanged. Neither meaning is labelled smallest or preferred, and nothing is computed for either."
+      "handling": "Our answer to the request in section 1 of Christian's reply of 6 November for the smallest interpretation or knowledge decision: this one meaning question (neither reading is labelled smallest or preferred). Shown as UNRESOLVED in Scoring and the trace; no value changes and scoring is unchanged; nothing is computed for either reading."
     },
     {
       "id": "AOD-PROP-134-MEANING",
       "blocks": "SCORING_FIDELITY_OR_PRODUCTION",
-      "question": "What does the approved qualifying condition mean (the \"for example\" reading or the colon reading), and is maintaining possession a requirement?",
+      "question": "Answered in principle by Christian's reply of 6 November, section 2: the \"for example\" reading, and \"maintaining attacking possession\" is not an independently approved universal requirement; it stays blocking only until the 13 September wording is verified (AOD-VERIFY-SEP13). Nothing further is asked.",
       "rulingRefs": [
         "ASM-REV1-SOURCE-FIDELITY",
         "ASM-13SEP-SCORING",
         "ASM-06NOV-SOURCE"
       ],
-      "handling": "Both texts shown; both readings accounted for; no canonical amendment. Christian's reply of 6 November, section 2, supports the \"for example\" reading once the wording is verified, and does not treat maintaining attacking possession as an independently approved universal requirement."
+      "handling": "Both texts shown; both readings accounted for until the wording is verified; no canonical amendment."
     },
     {
       "id": "AOD-VERIFY-SEP13",
@@ -10633,7 +10711,7 @@
         "ASM-13SEP-SCORING",
         "ASM-06NOV-SOURCE"
       ],
-      "handling": "Verification owed: our only copies are Joe's two September pastes, and the attachment sent on 6 November went unverified; the request to Joe is repeated. Our copy is printed with its provenance; the correction is prepared in a change record, not applied."
+      "handling": "Verification owed: our only copies are Joe's two September pastes; our report of 6 November printed that copy, marked not yet checked against the original, so the reply's \"as quoted in your report\" is not a verification; the request to Joe is repeated. Our copy is printed with its provenance; the correction is described in the review record and to be filed in the sources repository, not applied."
     },
     {
       "id": "AOD-SCORING-ROW-LIVE",
@@ -10643,12 +10721,12 @@
         "ASM-06NOV-SOURCE",
         "ASM-AUTH-BOUNDS"
       ],
-      "handling": "A change record is prepared (before, after, provenance); nothing is applied to the knowledge library."
+      "handling": "The change record (before, after, provenance) is described in Part 6 and to be filed in the sources repository; nothing is applied to the knowledge library."
     },
     {
       "id": "AOD-TRANSLATION-SCOPE",
       "blocks": "SCORING_FIDELITY_OR_PRODUCTION",
-      "question": "What is the production scope of the A05 Game Problem translation (section 8.1)?",
+      "question": "What is the production scope of the A05 Game Problem translation (section 8.1 of the second reply of 5 November)?",
       "rulingRefs": [
         "ASM-AUTH-GP-SCOPE",
         "ASM-06NOV-OPTION-A"
@@ -10657,7 +10735,7 @@
     },
     {
       "id": "AOD-OPTION-B",
-      "blocks": "NON_BLOCKING",
+      "blocks": "RECORDED",
       "question": "Option (b) is not pursued; it stays available for later consideration (reply of 6 November, section 3).",
       "rulingRefs": [
         "ASM-06NOV-OPTION-A"
@@ -10740,9 +10818,19 @@
       "handling": "restart.endLine.location is ILLUSTRATIVE, labelled; put to Christian for review."
     },
     {
+      "id": "AOD-DIAGRAM-OWN-HALF",
+      "blocks": "NON_BLOCKING",
+      "question": "May each team's own half be drawn on our reading of 'own half' (the half containing the target zone it defends), labelled OURS?",
+      "rulingRefs": [
+        "ASM-06NOV-DIAGRAM",
+        "ASM-06NOV-KICKOFF"
+      ],
+      "handling": "Not drawn; flagged on the DRAFT diagram."
+    },
+    {
       "id": "AOD-PROVISIONAL-CLASS",
       "blocks": "OUR_READING",
-      "question": "Section 7 endorsed the weakest-of rule only; placing provisional rulings in class 3 and unscoped rulings in class 2 stays our convention (OURS).",
+      "question": "Section 7 of Christian's reply of 6 November endorsed the weakest-of rule only; placing provisional rulings in class 3 and unscoped rulings in class 2 stays our convention (OURS).",
       "rulingRefs": [
         "ASM-AUTH-CLASSES",
         "ASM-06NOV-PROVENANCE"
@@ -10836,7 +10924,7 @@
     },
     {
       "id": "DEP-4",
-      "what": "A role-less target-zone set-up sentence in the renderer (unverified on this head)",
+      "what": "A role-less target-zone set-up sentence in the renderer (unverified on this build)",
       "options": "the line target (conflicts with Christian's end-zone ruling), a renderer change (live), or this experiment's text."
     },
     {
@@ -10856,47 +10944,10 @@
     }
   ],
   "regressionRecord": {
-    "standing": "Recorded by the lead on 6 November 2026 from an independent run on the committed tree of build fcc25df (the experiment's code and data as reviewed). This record and the evidence re-generated from it are committed on top of that build with no change to any code or data file. assembly.unit.ts test (v) requires the committed report and results to equal the runner's output with this record. Passing engineering tests is not evidence of representative learning effectiveness.",
-    "status": "RECORDED",
-    "build": "fcc25df (branch claude/a05-assembly-experiment, on top of the Stage 2 review branch at 38c61e2; main at f534a62)",
-    "results": [
-      {
-        "check": "Type check (tsc --noEmit)",
-        "result": "passed (exit 0)"
-      },
-      {
-        "check": "Full unit suite (npm test)",
-        "result": "151 test files, 0 failed"
-      },
-      {
-        "check": "Behaviour snapshot against main at f534a62",
-        "result": "391 entries, 0 changed, 0 added, 0 removed (sha-256 a8420db066c34341366254b9e8063aa9c66688fd777a350ce9aa1d0a2c4da246 on both sides); A01's 44 entries are among the unchanged"
-      },
-      {
-        "check": "Live backend bundle built from src/index.ts",
-        "result": "byte-identical to main at f534a62 (sha-256 6bd210238f7d620c9b968f17edac63cd4984b472320aadf58731e8b4b0a0deed, 3,228,588 bytes, 192 inputs); 0 inputs from the design-reasoning folder"
-      },
-      {
-        "check": "Stage 2 evidence re-generated to a scratch folder",
-        "result": "report and results byte-identical to the committed files"
-      },
-      {
-        "check": "Assembly evidence re-generated to a scratch folder",
-        "result": "report and results byte-identical to the committed files (before this record was filled)"
-      },
-      {
-        "check": "External quote check of every quoted string of his in the two data files",
-        "result": "231 passed, 0 failed; 208 of 208 received-date citations correct"
-      },
-      {
-        "check": "Files changed outside the design-reasoning folder and this evidence folder since 38c61e2",
-        "result": "two housekeeping entries only: one unit-file registration and one runner script"
-      },
-      {
-        "check": "GitHub checks",
-        "result": "none run: a push of a review branch triggers no workflow, and nothing deploys; this branch is not pushed"
-      }
-    ]
+    "standing": "NOT YET RECORDED for this build: the regression run on this build's committed tree is recorded in the commit on top of it, with no change to any code or data file. When recorded, it is engineering evidence only: the live application and A01 are unchanged; it does not establish ecological suitability (Christian's reply of 6 November).",
+    "status": "PLACEHOLDER",
+    "build": null,
+    "results": []
   },
   "mutationLoop": {
     "values": 60,
@@ -11248,7 +11299,7 @@
         "howReached": "ENTERED_ILLUSTRATIVE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template rs-end-line: whenValue restart.endLine.location = \"IN_THE_HALF_WHERE_IT_WENT_OUT_OUTSIDE_BOTH_TARGET_ZONES_NOT_ACROSS_EITHER_COACH_CHOOSES_PLAYER\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template sc-restart-point: whenValue restart.endLine.location = \"IN_THE_HALF_WHERE_IT_WENT_OUT_OUTSIDE_BOTH_TARGET_ZONES_NOT_ACROSS_EITHER_COACH_CHOOSES_PLAYER\", but the assembled value is \"SENTINEL_MUTATION\""
       },
       {
         "path": "restart.endLine.receivingDistance",
@@ -11546,13 +11597,15 @@
       {
         "id": "arrow-1",
         "kind": "arrow",
-        "x": 270,
+        "x": 268,
         "y": 113,
-        "x2": 620,
+        "x2": 620.8,
         "y2": 113,
         "colour": "#1f5fbf",
         "readsPaths": [
-          "directions"
+          "directions",
+          "area.lengthM",
+          "players.perTeam"
         ]
       },
       {
@@ -11612,7 +11665,8 @@
         "colour": "#8a8a8a",
         "readsPaths": [
           "area.halfwayLine",
-          "area.lengthM"
+          "area.lengthM",
+          "area.widthM"
         ],
         "computed": "position computed: halfway along the length (OURS)"
       },
@@ -11639,19 +11693,23 @@
         "y2": 553,
         "colour": "#8a8a8a",
         "readsPaths": [
-          "area.widthM"
+          "area.widthM",
+          "area.lengthM"
         ]
       },
       {
         "id": "arrow-2",
         "kind": "arrow",
-        "x": 620,
+        "x": 620.8,
         "y": 577,
-        "x2": 270,
+        "x2": 268,
         "y2": 577,
         "colour": "#b5470f",
         "readsPaths": [
-          "directions"
+          "directions",
+          "area.lengthM",
+          "players.perTeam",
+          "area.widthM"
         ]
       }
     ],
@@ -11818,10 +11876,64 @@
         "colour": "#222222"
       },
       {
+        "id": "caption-illustrative",
+        "text": "ILLUSTRATIVE on this drawing (for this offline test only; see the key): Area length (end line to end line, target zones included); Area width; Target zones inside the length;",
+        "x": 40,
+        "y": 637,
+        "w": 1148.3999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "area.lengthM",
+          "area.widthM",
+          "area.includesEndZones",
+          "endZones.depthM",
+          "endZones.placement",
+          "area.halfwayLine",
+          "area.centreMark",
+          "equipment.markers",
+          "players.perTeam",
+          "players.goalkeepers",
+          "area.goalkeepersCounted",
+          "equipment.bibs",
+          "gameForm.illustrativeChoice"
+        ],
+        "colour": "#7a4a00"
+      },
+      {
+        "id": "caption-illustrative-1",
+        "text": "Target-zone depth (each zone); Target-zone placement; Halfway line; Centre mark; Markings; Players per team; Goalkeepers; Goalkeepers counted; Team colours; Game Form.",
+        "x": 40,
+        "y": 653,
+        "w": 1102.2,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "area.lengthM",
+          "area.widthM",
+          "area.includesEndZones",
+          "endZones.depthM",
+          "endZones.placement",
+          "area.halfwayLine",
+          "area.centreMark",
+          "equipment.markers",
+          "players.perTeam",
+          "players.goalkeepers",
+          "area.goalkeepersCounted",
+          "equipment.bibs",
+          "gameForm.illustrativeChoice"
+        ],
+        "colour": "#7a4a00"
+      },
+      {
         "id": "flags-title",
         "text": "Flags (what prevents a fully accurate drawing):",
         "x": 40,
-        "y": 645,
+        "y": 677,
         "w": 310.2,
         "h": 14.3,
         "size": 11,
@@ -11835,7 +11947,7 @@
         "id": "flag-1",
         "text": "- Target-zone position: UNRESOLVED; the zones are drawn where the illustrative placement puts them, at the ends.",
         "x": 40,
-        "y": 661,
+        "y": 693,
         "w": 739.1999999999999,
         "h": 14.3,
         "size": 11,
@@ -11848,7 +11960,7 @@
         "id": "flag-2",
         "text": "- Which team attacks which end, and the teams' names, are not in the record: 'Team A' and 'Team B' are drawing labels only, and which arrow points which way is presentation.",
         "x": 40,
-        "y": 677,
+        "y": 709,
         "w": 1141.8,
         "h": 14.3,
         "size": 11,
@@ -11861,7 +11973,7 @@
         "id": "flag-3",
         "text": "- Bib colours are not named in the record: the two team colours are presentation colours, never green.",
         "x": 40,
-        "y": 693,
+        "y": 725,
         "w": 673.1999999999999,
         "h": 14.3,
         "size": 11,
@@ -11874,7 +11986,7 @@
         "id": "flag-4",
         "text": "- Starting relationships are not drawn: the record holds an ordinary kick-off and our reading of 'own half' (OURS). Question: may each team's own half be drawn on that",
         "x": 40,
-        "y": 709,
+        "y": 741,
         "w": 1102.2,
         "h": 14.3,
         "size": 11,
@@ -11887,7 +11999,7 @@
         "id": "flag-4-1",
         "text": "reading, labelled OURS?",
         "x": 40,
-        "y": 725,
+        "y": 757,
         "w": 151.79999999999998,
         "h": 14.3,
         "size": 11,
@@ -11900,7 +12012,7 @@
         "id": "flag-5",
         "text": "- The end-line restart's location is not drawn: it depends on where the ball went out; the exclusion is our illustrative choice, and the receiving distance is unresolved (R2).",
         "x": 40,
-        "y": 741,
+        "y": 773,
         "w": 1155,
         "h": 14.3,
         "size": 11,
@@ -11913,7 +12025,7 @@
         "id": "not-drawn-title",
         "text": "Not drawn, and why:",
         "x": 40,
-        "y": 765,
+        "y": 797,
         "w": 125.39999999999999,
         "h": 14.3,
         "size": 11,
@@ -11927,7 +12039,7 @@
         "id": "not-drawn-1",
         "text": "- Goals: none in the record (no goal stands at either end)",
         "x": 40,
-        "y": 781,
+        "y": 813,
         "w": 382.8,
         "h": 14.3,
         "size": 11,
@@ -11940,7 +12052,7 @@
         "id": "not-drawn-2",
         "text": "- A centre circle: not among the markings; the coach judges 9.15 m unaided (a gap reported, not filled)",
         "x": 40,
-        "y": 797,
+        "y": 829,
         "w": 679.8,
         "h": 14.3,
         "size": 11,
@@ -11953,7 +12065,7 @@
         "id": "not-drawn-3",
         "text": "- Players or positions: no value holds them; the team counts are given in words",
         "x": 40,
-        "y": 813,
+        "y": 845,
         "w": 521.4,
         "h": 14.3,
         "size": 11,
@@ -11966,7 +12078,7 @@
         "id": "not-drawn-4",
         "text": "- Starting relationships: the coach communication standard asks for them, but the record holds only an ordinary kick-off and our reading of 'own half'; see the question above",
         "x": 40,
-        "y": 829,
+        "y": 861,
         "w": 1148.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -11979,7 +12091,7 @@
         "id": "not-drawn-5",
         "text": "- The end-line restart location: it depends on where the ball went out; our illustrative exclusion (never into or across a target zone) and an unresolved receiving distance",
         "x": 40,
-        "y": 845,
+        "y": 877,
         "w": 1135.2,
         "h": 14.3,
         "size": 11,
@@ -11992,7 +12104,7 @@
         "id": "not-drawn-5-1",
         "text": "(R2)",
         "x": 40,
-        "y": 861,
+        "y": 893,
         "w": 26.4,
         "h": 14.3,
         "size": 11,
@@ -12005,7 +12117,7 @@
         "id": "not-drawn-6",
         "text": "- The coach's position: in no value (R4)",
         "x": 40,
-        "y": 877,
+        "y": 909,
         "w": 264,
         "h": 14.3,
         "size": 11,
@@ -12018,7 +12130,7 @@
         "id": "not-drawn-7",
         "text": "- Spare balls: equipment, not a marking",
         "x": 40,
-        "y": 893,
+        "y": 925,
         "w": 257.4,
         "h": 14.3,
         "size": 11,
@@ -12031,7 +12143,7 @@
         "id": "not-drawn-8",
         "text": "- A principal-interaction region: which region holds the principal interactions is not established (OURS)",
         "x": 40,
-        "y": 909,
+        "y": 941,
         "w": 693,
         "h": 14.3,
         "size": 11,
@@ -12042,10 +12154,10 @@
       },
       {
         "id": "key-title",
-        "text": "Key (one line per value drawn: the value; Christian's class and the label; how it reached the record):",
+        "text": "Key (one line per value the drawing reads or states: the value; Christian's class and the label; how it reached the record):",
         "x": 40,
-        "y": 933,
-        "w": 673.1999999999999,
+        "y": 965,
+        "w": 818.4,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12058,7 +12170,7 @@
         "id": "key-1",
         "text": "- Area length (end line to end line, target zones included): 40 m; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
         "x": 40,
-        "y": 949,
+        "y": 981,
         "w": 1122,
         "h": 14.3,
         "size": 11,
@@ -12073,7 +12185,7 @@
         "id": "key-1-1",
         "text": "before any production use); entered",
         "x": 40,
-        "y": 965,
+        "y": 997,
         "w": 231,
         "h": 14.3,
         "size": 11,
@@ -12088,7 +12200,7 @@
         "id": "key-2",
         "text": "- Area width: 30 m; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); entered",
         "x": 40,
-        "y": 981,
+        "y": 1013,
         "w": 1049.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -12103,7 +12215,7 @@
         "id": "key-3",
         "text": "- Target zones inside the length: yes, both inside the length; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before",
         "x": 40,
-        "y": 997,
+        "y": 1029,
         "w": 1141.8,
         "h": 14.3,
         "size": 11,
@@ -12118,7 +12230,7 @@
         "id": "key-3-1",
         "text": "any production use); entered",
         "x": 40,
-        "y": 1013,
+        "y": 1045,
         "w": 184.79999999999998,
         "h": 14.3,
         "size": 11,
@@ -12133,7 +12245,7 @@
         "id": "key-4",
         "text": "- Target-zone depth (each zone): 5 m; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
         "x": 40,
-        "y": 1029,
+        "y": 1061,
         "w": 1115.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -12148,7 +12260,7 @@
         "id": "key-4-1",
         "text": "entered",
         "x": 40,
-        "y": 1045,
+        "y": 1077,
         "w": 46.199999999999996,
         "h": 14.3,
         "size": 11,
@@ -12163,7 +12275,7 @@
         "id": "key-5",
         "text": "- Target-zone placement: one at each end, across the full width; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before",
         "x": 40,
-        "y": 1061,
+        "y": 1093,
         "w": 1155,
         "h": 14.3,
         "size": 11,
@@ -12178,7 +12290,7 @@
         "id": "key-5-1",
         "text": "any production use); entered",
         "x": 40,
-        "y": 1077,
+        "y": 1109,
         "w": 184.79999999999998,
         "h": 14.3,
         "size": 11,
@@ -12191,10 +12303,25 @@
       },
       {
         "id": "key-6",
-        "text": "- Target-zone position: no value; class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision; entered",
+        "text": "- Target-zone position: no value; class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision; no value entered",
         "x": 40,
-        "y": 1093,
-        "w": 1016.4,
+        "y": 1125,
+        "w": 1075.8,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "endZones.positioning"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-6-1",
+        "text": "(UNRESOLVED)",
+        "x": 40,
+        "y": 1141,
+        "w": 79.2,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12208,7 +12335,7 @@
         "id": "key-7",
         "text": "- Target zones (one green): the scoring target: a controlled arrival in the target zone a team attacks; class 3: Candidate or provisional knowledge; RULING, provisional;",
         "x": 40,
-        "y": 1109,
+        "y": 1157,
         "w": 1115.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -12223,7 +12350,7 @@
         "id": "key-7-1",
         "text": "entered",
         "x": 40,
-        "y": 1125,
+        "y": 1173,
         "w": 46.199999999999996,
         "h": 14.3,
         "size": 11,
@@ -12238,7 +12365,7 @@
         "id": "key-8",
         "text": "- Halfway line: marked; position computed: halfway along the length; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
         "x": 40,
-        "y": 1141,
+        "y": 1189,
         "w": 1135.2,
         "h": 14.3,
         "size": 11,
@@ -12253,7 +12380,7 @@
         "id": "key-8-1",
         "text": "before any production use); entered",
         "x": 40,
-        "y": 1157,
+        "y": 1205,
         "w": 231,
         "h": 14.3,
         "size": 11,
@@ -12268,7 +12395,7 @@
         "id": "key-9",
         "text": "- Centre mark: marked; position computed: the centre of the area; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
         "x": 40,
-        "y": 1173,
+        "y": 1221,
         "w": 1115.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -12283,7 +12410,7 @@
         "id": "key-9-1",
         "text": "before any production use); entered",
         "x": 40,
-        "y": 1189,
+        "y": 1237,
         "w": 231,
         "h": 14.3,
         "size": 11,
@@ -12298,7 +12425,7 @@
         "id": "key-10",
         "text": "- Markings: the area, the halfway line, the centre mark and both target zones; nothing else; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test",
         "x": 40,
-        "y": 1205,
+        "y": 1253,
         "w": 1155,
         "h": 14.3,
         "size": 11,
@@ -12313,7 +12440,7 @@
         "id": "key-10-1",
         "text": "only; to be replaced before any production use); entered",
         "x": 40,
-        "y": 1221,
+        "y": 1269,
         "w": 369.59999999999997,
         "h": 14.3,
         "size": 11,
@@ -12328,7 +12455,7 @@
         "id": "key-11",
         "text": "- Teams: 2; class 2: An explicit scoped ruling; RULING; entered",
         "x": 40,
-        "y": 1237,
+        "y": 1285,
         "w": 415.8,
         "h": 14.3,
         "size": 11,
@@ -12343,7 +12470,7 @@
         "id": "key-12",
         "text": "- Players per team: 6; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); entered",
         "x": 40,
-        "y": 1253,
+        "y": 1301,
         "w": 1069.2,
         "h": 14.3,
         "size": 11,
@@ -12358,7 +12485,7 @@
         "id": "key-13",
         "text": "- Team numbers: equal; class 1: Approved canonical knowledge; APPROVED; entered",
         "x": 40,
-        "y": 1269,
+        "y": 1317,
         "w": 521.4,
         "h": 14.3,
         "size": 11,
@@ -12373,7 +12500,7 @@
         "id": "key-14",
         "text": "- Goalkeepers: 0 (no goalkeepers); class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); entered",
         "x": 40,
-        "y": 1285,
+        "y": 1333,
         "w": 1148.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -12388,7 +12515,7 @@
         "id": "key-15",
         "text": "- Goalkeepers counted: none to count; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
         "x": 40,
-        "y": 1301,
+        "y": 1349,
         "w": 1115.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -12403,7 +12530,7 @@
         "id": "key-15-1",
         "text": "entered",
         "x": 40,
-        "y": 1317,
+        "y": 1365,
         "w": 46.199999999999996,
         "h": 14.3,
         "size": 11,
@@ -12418,7 +12545,7 @@
         "id": "key-16",
         "text": "- Attacking directions (one arrow per team): each team attacks one target zone and defends the other, all game; class 2: An explicit scoped ruling; RULING; entered",
         "x": 40,
-        "y": 1333,
+        "y": 1381,
         "w": 1075.8,
         "h": 14.3,
         "size": 11,
@@ -12433,7 +12560,7 @@
         "id": "key-17",
         "text": "- Team colours: one colour per team, kept all session; no colour named; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
         "x": 40,
-        "y": 1349,
+        "y": 1397,
         "w": 1155,
         "h": 14.3,
         "size": 11,
@@ -12448,7 +12575,7 @@
         "id": "key-17-1",
         "text": "before any production use); entered",
         "x": 40,
-        "y": 1365,
+        "y": 1413,
         "w": 231,
         "h": 14.3,
         "size": 11,
@@ -12463,7 +12590,7 @@
         "id": "key-18",
         "text": "- Start: an ordinary kick-off from the centre mark; class 3: Candidate or provisional knowledge; RULING, provisional; entered",
         "x": 40,
-        "y": 1381,
+        "y": 1429,
         "w": 825,
         "h": 14.3,
         "size": 11,
@@ -12478,7 +12605,7 @@
         "id": "key-19",
         "text": "- Opponents' distance at the start: 9.15 m; class 2: An explicit scoped ruling; RULING; entered",
         "x": 40,
-        "y": 1397,
+        "y": 1445,
         "w": 627,
         "h": 14.3,
         "size": 11,
@@ -12493,7 +12620,7 @@
         "id": "key-20",
         "text": "- Game Form: Directional Possession Games; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
         "x": 40,
-        "y": 1413,
+        "y": 1461,
         "w": 1148.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -12508,7 +12635,7 @@
         "id": "key-20-1",
         "text": "entered",
         "x": 40,
-        "y": 1429,
+        "y": 1477,
         "w": 46.199999999999996,
         "h": 14.3,
         "size": 11,
@@ -12523,7 +12650,7 @@
         "id": "key-21",
         "text": "- Compatible alternatives (unranked): Positional Play Games and Channel Games; class 3: Candidate or provisional knowledge; CANDIDATE; read by code",
         "x": 40,
-        "y": 1445,
+        "y": 1493,
         "w": 970.1999999999999,
         "h": 14.3,
         "size": 11,
@@ -12536,10 +12663,10 @@
       },
       {
         "id": "context",
-        "text": "Measured context: A01's diagram path draws a chain-built GF2 line game and withholds end zones for want of a Set up sentence, so this review drawing is the only picture of end",
+        "text": "Context (measured): the checked pathway's diagram generation, the one A01 uses, draws GF2 here only as a game scored on a line and withholds end zones, because its renderer",
         "x": 40,
-        "y": 1469,
-        "w": 1155,
+        "y": 1517,
+        "w": 1135.2,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12549,10 +12676,10 @@
       },
       {
         "id": "context-1",
-        "text": "zones until the first blocking decision of the technical proposal is answered.",
+        "text": "has no set-up sentence for them; until blocking decision 1 of the technical proposal is answered, this review drawing is the only picture of end zones.",
         "x": 40,
-        "y": 1485,
-        "w": 514.8,
+        "y": 1533,
+        "w": 996.5999999999999,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12602,7 +12729,7 @@
         "element": "Target-zone position",
         "valueText": "no value",
         "classAndLabel": "class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision",
-        "route": "entered"
+        "route": "no value entered (UNRESOLVED)"
       },
       {
         "path": "scoring.event",
@@ -12752,7 +12879,7 @@
       "The end-line restart's location is not drawn: it depends on where the ball went out; the exclusion is our illustrative choice, and the receiving distance is unresolved (R2)."
     ],
     "width": 1240,
-    "height": 1530,
+    "height": 1578,
     "outline": {
       "x": 100,
       "y": 133,

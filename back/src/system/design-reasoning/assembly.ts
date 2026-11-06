@@ -71,6 +71,14 @@ export interface DecisiveItem {
     ref?: 'UNRESOLVED' | 'ILLUSTRATIVE' | 'OURS'
     standing: Standing
     valueEvidence?: string
+    /**
+     * A ruling whose own words are not provisional, used for this decision only within a provisional arrangement another ruling makes
+     * (named here; that ruling must be provisional and decide the same value): the item counts as provisional for this decision, and says
+     * why. Christian's own words are never relabelled: the registry still prints the ruling as Christian filed it.
+     */
+    provisionalBy?: { rulingRef: string; why: string }
+    /** What the ruling's words state, where they state the value with a qualifier (printed in place of 'the value'). */
+    statesAs?: string
 }
 
 /** The bare decisive items, each with the only standing it may carry. */
@@ -133,6 +141,8 @@ export interface AssemblyRuling extends Ruling {
     establishesCanonicalKnowledge?: true
     /** The values Christian's scope words are said of, where the entry decides several and the scope words qualify only some (our reading). */
     scopePaths?: string[]
+    /** Which of the replies received that day holds the words ('first reply', 'second reply'), where several arrived on one day. */
+    replyOfDay?: string
 }
 
 export interface AccountEntry {
@@ -150,8 +160,9 @@ export interface AccountEntry {
     note: string
 }
 
-export type OpenDecisionClass = 'ASSEMBLY' | 'SCORING_FIDELITY_OR_PRODUCTION' | 'SUITABILITY' | 'NON_BLOCKING' | 'OUR_READING' | 'KNOWN_RISK'
-export const OPEN_DECISION_CLASSES: OpenDecisionClass[] = ['ASSEMBLY', 'SCORING_FIDELITY_OR_PRODUCTION', 'SUITABILITY', 'NON_BLOCKING', 'OUR_READING', 'KNOWN_RISK']
+/** RECORDED: kept open by id, but nothing is asked now (an option Christian keeps available for later, recorded as such). */
+export type OpenDecisionClass = 'ASSEMBLY' | 'SCORING_FIDELITY_OR_PRODUCTION' | 'SUITABILITY' | 'NON_BLOCKING' | 'OUR_READING' | 'KNOWN_RISK' | 'RECORDED'
+export const OPEN_DECISION_CLASSES: OpenDecisionClass[] = ['ASSEMBLY', 'SCORING_FIDELITY_OR_PRODUCTION', 'SUITABILITY', 'NON_BLOCKING', 'OUR_READING', 'KNOWN_RISK', 'RECORDED']
 
 export type ReportRefKey = 'experimentPurpose' | 'acceptance' | 'limits' | 'caveat' | 'futureFeedbackQuestion' | 'lawsPrinciple' | 'diagram' | 'sixClasses' | 'diagnostic' | 'provenanceRuling' | 'diagramRuling'
 export const REPORT_REF_KEYS: ReportRefKey[] = ['experimentPurpose', 'acceptance', 'limits', 'caveat', 'futureFeedbackQuestion', 'lawsPrinciple', 'diagram', 'sixClasses', 'diagnostic', 'provenanceRuling', 'diagramRuling']
@@ -249,7 +260,7 @@ export interface Experiment {
     /** An answered decision keeps its id (traceability) and names the ruling that answered it; it is printed apart, never as open. */
     openDecisions: Array<{ id: string; blocks: OpenDecisionClass; question: string; rulingRefs: string[]; handling: string; answeredBy?: { rulingRef: string; statement: string } }>
     /** Every value, premise or open decision a reply of Christian's retired or changed: before, after, the reply's lines, the date. */
-    changeLog: Array<{ path: string; before: string; after: string; n6Lines: string; date: string }>
+    changeLog: Array<{ path: string; before: string; after: string; replySections: string; date: string }>
     /** An examination Christian asked for, printed in the review copy (ours: every cell a reading of the record's geometry). */
     restartExamination: { standing: string; rulingRefs: string[]; cases: string; columns: string[]; rows: Array<{ id: string; candidate: string; cells: string[] }>; verdict: string; stillFlagged: string; reviewNotes: string[] }
     /** Readings of ours that sit inside a ruling's or a cell's printed text, each with the values it bears on. */
@@ -288,11 +299,16 @@ export interface DiagramWords {
     banner: string
     /** Drawing labels only (the record names no team). */
     teamLabels: string[]
-    /** Which way each drawing label's arrow points: presentation (OURS), flagged; the record does not say which team attacks which end. */
-    teamAttacks: Array<'TOWARD_END' | 'TOWARD_START'>
+    /**
+     * Which way each drawing label's arrow points, keyed by the recorded directions value: presentation (OURS), flagged; the record does
+     * not say which team attacks which end. A directions value with no entry is refused.
+     */
+    arrowsFor: Record<string, Array<'TOWARD_END' | 'TOWARD_START'>>
     teamCount: string
     zonePlaceholder: string
     caption: string
+    /** The lead-in of the line under the caption listing the drawn values that are ILLUSTRATIVE (the list is read from the key). */
+    illustrativeLead: string
     flagsTitle: string
     flags: string[]
     notDrawnTitle: string
@@ -303,6 +319,8 @@ export interface DiagramWords {
     valueWords: Partial<Record<BindingKey, Record<string, string>>>
     units: Partial<Record<BindingKey, string>>
     noValue: string
+    /** The key's route for a value with no authorized value (nothing was entered). */
+    noValueRoute: string
     computed: { halfway: string; centre: string }
     measuredContext: string
 }
@@ -316,20 +334,24 @@ export interface Wording {
     diagram: DiagramWords
 }
 
-const DIAGRAM_WORD_KEYS = ['standing', 'banner', 'teamLabels', 'teamAttacks', 'teamCount', 'zonePlaceholder', 'caption', 'flagsTitle', 'flags', 'notDrawnTitle', 'notDrawn', 'keyTitle', 'elements', 'valueWords', 'units', 'noValue', 'computed', 'measuredContext']
+const DIAGRAM_WORD_KEYS = ['standing', 'banner', 'teamLabels', 'arrowsFor', 'teamCount', 'zonePlaceholder', 'caption', 'illustrativeLead', 'flagsTitle', 'flags', 'notDrawnTitle', 'notDrawn', 'keyTitle', 'elements', 'valueWords', 'units', 'noValue', 'noValueRoute', 'computed', 'measuredContext']
 
 /** The diagram words, validated by hand: known keys only, strings where strings belong, bindings that exist, no quotation mark. */
 function validateDiagramWords(where: string, raw: unknown): void {
     const d = onlyKeys(where, raw, DIAGRAM_WORD_KEYS, DIAGRAM_WORD_KEYS)
     const strings: string[] = []
-    for (const key of ['standing', 'banner', 'teamCount', 'zonePlaceholder', 'caption', 'flagsTitle', 'notDrawnTitle', 'keyTitle', 'noValue', 'measuredContext']) {
+    for (const key of ['standing', 'banner', 'teamCount', 'zonePlaceholder', 'caption', 'illustrativeLead', 'flagsTitle', 'notDrawnTitle', 'keyTitle', 'noValue', 'noValueRoute', 'measuredContext']) {
         if (!isString(d[key])) throw new Error(`${where}.${key}: must be a string`)
         strings.push(d[key] as string)
     }
     if (!isStringList(d.teamLabels) || (d.teamLabels as string[]).length < 2 || !isStringList(d.flags)) throw new Error(`${where}: teamLabels (two or more) and flags are lists of strings`)
     strings.push(...(d.teamLabels as string[]), ...(d.flags as string[]))
-    const attacks = d.teamAttacks as unknown[]
-    if (!Array.isArray(attacks) || attacks.length !== (d.teamLabels as string[]).length || !attacks.every((a) => a === 'TOWARD_END' || a === 'TOWARD_START') || new Set(attacks).size !== 2) throw new Error(`${where}.teamAttacks: one direction per team label, both directions used`)
+    // Which way each drawing label's arrow points, keyed by the recorded directions value (a value with no entry is refused by the drawing).
+    if (!isObject(d.arrowsFor) || !Object.keys(d.arrowsFor).length) throw new Error(`${where}.arrowsFor: arrows keyed by the recorded directions value`)
+    for (const [value, attacks] of Object.entries(d.arrowsFor as Record<string, unknown>)) {
+        if (!Array.isArray(attacks) || attacks.length !== (d.teamLabels as string[]).length || !attacks.every((a) => a === 'TOWARD_END' || a === 'TOWARD_START') || new Set(attacks).size !== 2) throw new Error(`${where}.arrowsFor.${value}: one direction per team label, both directions used`)
+    }
+    if (!Array.isArray(d.notDrawn) || !Array.isArray(d.elements)) throw new Error(`${where}: notDrawn and elements must be lists`)
     ;(d.notDrawn as unknown[]).forEach((n, i) => {
         const o = onlyKeys(`${where}.notDrawn[${i}]`, n, ['what', 'why'], ['what', 'why'])
         if (!isString(o.what) || !isString(o.why)) throw new Error(`${where}.notDrawn[${i}]: what and why are strings`)
@@ -473,7 +495,9 @@ export function valueLabel(howReached: HowReached, premises: Premises, sixClass:
     if (howReached === 'ENTERED_ILLUSTRATIVE') return VALUE_LABELS.ILLUSTRATIVE
     const weakest = premises.weakest
     if (!weakest.length || weakest[0].sixClass < sixClass) return sixClass === 6 ? 'LOGICAL INFERENCE (computed by the Stage 1/2 code)' : `declared ${standingLabel(declared)}`
-    return [...new Set(weakest.map(premiseStandingLabel))].join(' / ')
+    // A premise standing that is one of Christian's three kinds prints the same label as a value of that kind (one meaning, one wording).
+    const lab = (p: PremiseItem): string => (p.standing === 'OURS' ? VALUE_LABELS.OURS : p.standing === 'UNRESOLVED' ? VALUE_LABELS.UNRESOLVED : p.standing === 'ILLUSTRATIVE' ? VALUE_LABELS.ILLUSTRATIVE : premiseStandingLabel(p))
+    return [...new Set(weakest.map(lab))].join(' / ')
 }
 
 /** A value's class with its label: Christian's words for the class, then the label. */
@@ -481,7 +505,9 @@ export const classAndLabel = (c: { sixClass: SixClass; label: string }): string 
 
 /** The weakest determining premise(s) named, and the rest tallied, in words. */
 export const premisesWords = (p: Premises): string => {
-    const weakest = p.weakest.map((x) => `${x.ref} [${premiseStandingLabel(x)}]`).join('; ')
+    // A premise that determines the value in more than one role (the same trace item twice) is named once, with its count.
+    const named = p.weakest.map((x) => `${x.ref} [${premiseStandingLabel(x)}]`)
+    const weakest = [...new Set(named)].map((w) => `${w}${named.filter((y) => y === w).length > 1 ? ` (${named.filter((y) => y === w).length} roles)` : ''}`).join('; ')
     const rest = Object.entries(p.rest).map(([s, n]) => `${n} ${s}`).join(', ')
     return `weakest determining premise${p.weakest.length === 1 ? '' : 's'}: ${weakest || 'none'}; the rest: ${rest || 'none'}`
 }
@@ -489,6 +515,13 @@ export const premisesWords = (p: Premises): string => {
 const DATE_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 /** A YYYY-MM-DD date as "5 November 2026". */
 export const longDate = (iso: string): string => `${Number(iso.slice(8, 10))} ${DATE_MONTHS[Number(iso.slice(5, 7)) - 1]} ${iso.slice(0, 4)}`
+/**
+ * A reply's received date as printed wherever Christian's words are cited: the date, then which reply where several arrived that day
+ * ('5 November 2026, second reply'), so two replies of one day are never cited alike. The date stays first (the quote check reads it).
+ */
+export const receivedOf = (r: { received: string; replyOfDay?: string }): string => `${longDate(r.received)}${r.replyOfDay ? `, ${r.replyOfDay}` : ''}`
+/** A reply named in a sentence: 'the second reply of 5 November' where several arrived that day, otherwise 'the reply of 6 November'. */
+export const replyName = (r: { received: string; replyOfDay?: string }): string => `the ${r.replyOfDay ?? 'reply'} of ${longDate(r.received).split(' ').slice(0, 2).join(' ')}`
 
 /** The marker a review-copy sentence carries: the weakest class among the values it expresses (class 1 unmarked). */
 export function markerOf(c: SixClass | null): string {
@@ -524,6 +557,8 @@ const isString = (v: unknown): v is string => typeof v === 'string' && v.length 
 /** A real calendar date written YYYY-MM-DD (a date that does not exist, such as 30 February, is refused rather than rolled over). */
 const isDate = (v: unknown): boolean => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(`${v}T12:00:00Z`)) && new Date(`${v}T12:00:00Z`).toISOString().slice(0, 10) === v
 const isStringList = (v: unknown): v is string[] => Array.isArray(v) && v.every(isString)
+/** The section numbers a change-log entry cites ('section 6' gives [6]; 'sections 2, 3 and 6' gives [2, 3, 6]). */
+export const sectionsOf = (s: string): number[] => (s.match(/\d+/g) ?? []).map(Number)
 
 /**
  * A numeric value Christian's words state, read from the word Christian's evidence uses for it ("Two", or digits). Words up to twenty, in lower case or
@@ -566,7 +601,7 @@ const TOP_KEYS = [
     // Section 9: the placement geometry the DRAFT diagram reads.
     'placementGeometry',
 ]
-const RULING_KEYS = ['id', 'decision', 'subject', 'scope', 'scopeWords', 'scopeCovers', 'scopePaths', 'kind', 'establishesCanonicalKnowledge', 'canonicalAmendment', 'words', 'supersedes', 'received', 'file', 'provisional']
+const RULING_KEYS = ['id', 'decision', 'subject', 'scope', 'scopeWords', 'scopeCovers', 'scopePaths', 'kind', 'establishesCanonicalKnowledge', 'canonicalAmendment', 'words', 'supersedes', 'received', 'replyOfDay', 'file', 'provisional']
 const CHOICE_KEYS = ['path', 'value', 'valueIsEvidence', 'evidenceStates', 'declaredStatus', 'howReached', 'readBy', 'knowledgeRef', 'decidedBy', 'consulted', 'statusSetBy', 'permittedBy', 'readingOf', 'scopeSetBy', 'note']
 
 /**
@@ -594,6 +629,7 @@ export function validateExperiment(raw: unknown): Experiment {
         if (!isString(o.file)) fail(where, 'file must be a repository-independent reference')
         if ((o.file as string).indexOf('AppData') >= 0 || (o.file as string).indexOf('scratchpad') >= 0) fail(where, 'file must never be a scratchpad path')
         if (!isDate(o.received)) fail(where, 'received must be a YYYY-MM-DD date (US Eastern)')
+        if ('replyOfDay' in o && !isString(o.replyOfDay)) fail(where, 'replyOfDay names which reply of that day holds the words')
         if (typeof o.provisional !== 'boolean') fail(where, 'provisional must be true or false')
         if ((RULING_KINDS as readonly string[]).indexOf(o.kind as string) < 0) fail(where, `unknown kind ${JSON.stringify(o.kind)}`)
         if ('establishesCanonicalKnowledge' in o && (o.establishesCanonicalKnowledge !== true || o.kind !== 'RULING')) fail(where, 'establishesCanonicalKnowledge is true, and only on a ruling')
@@ -606,6 +642,14 @@ export function validateExperiment(raw: unknown): Experiment {
         } else if ('scopeWords' in o || 'scopePaths' in o) fail(where, 'scope words or scopePaths without a scope')
         rulings.set(o.id as string, o as unknown as AssemblyRuling)
     })
+    // On a day where any entry says which reply holds it (replyOfDay), every entry of that day does: one label per file, a different
+    // label for each file, so two replies of one day are never cited alike.
+    for (const day of new Set([...rulings.values()].filter((r) => r.replyOfDay).map((r) => r.received))) {
+        const byFile = new Map<string, Set<string>>()
+        for (const r of [...rulings.values()].filter((x) => x.received === day)) byFile.set(r.file, (byFile.get(r.file) ?? new Set()).add(r.replyOfDay ?? ''))
+        const labels = [...byFile.values()].map((s) => [...s])
+        if (labels.some((l) => l.length !== 1 || !l[0]) || new Set(labels.map((l) => l[0])).size !== labels.length) fail(`rulings received ${day}`, 'each reply of that day carries its own replyOfDay, the same on every entry of its file')
+    }
     const rulingOk = (where: string, id: unknown): AssemblyRuling => {
         if (!isString(id) || !rulings.has(id)) return fail(where, `ruling reference ${JSON.stringify(id)} is not in the registry`)
         return rulings.get(id) as AssemblyRuling
@@ -630,15 +674,26 @@ export function validateExperiment(raw: unknown): Experiment {
         if (!Array.isArray(o.decidedBy) || !Array.isArray(o.consulted) || !Array.isArray(o.statusSetBy)) fail(at, 'decidedBy, consulted and statusSetBy must be lists')
         const decisive = (o.decidedBy as unknown[]).map((d, j) => {
             const dw = `${at}.decidedBy[${j}]`
-            const di = onlyKeys(dw, d, ['rulingRef', 'knowledgeRef', 'ref', 'standing', 'valueEvidence'], ['standing'])
+            const di = onlyKeys(dw, d, ['rulingRef', 'knowledgeRef', 'ref', 'standing', 'valueEvidence', 'provisionalBy', 'statesAs'], ['standing'])
             const kinds = ['rulingRef', 'knowledgeRef', 'ref'].filter((key) => key in di)
             if (kinds.length !== 1) fail(dw, 'exactly one of rulingRef, knowledgeRef or ref')
             const s = standingOk(`${dw}.standing`, di.standing)
             if (CLASS_OF_STANDING[s] === 'NEVER_DECISIVE') fail(dw, `${standingLabel(s)} can never decide a value`)
             let provisional = false
+            if (('provisionalBy' in di || 'statesAs' in di) && !('rulingRef' in di)) fail(dw, 'provisionalBy and statesAs belong only to a ruling')
+            if ('statesAs' in di && !isString(di.statesAs)) fail(dw, 'statesAs says, in words, what the ruling states where it states the value with a qualifier')
             if ('rulingRef' in di) {
                 const r = rulingOk(dw, di.rulingRef)
                 provisional = r.provisional
+                // A ruling used only within another ruling's provisional arrangement: that ruling is provisional and decides this value too.
+                if ('provisionalBy' in di) {
+                    const pb = onlyKeys(`${dw}.provisionalBy`, di.provisionalBy, ['rulingRef', 'why'], ['rulingRef', 'why'])
+                    const by = rulingOk(`${dw}.provisionalBy`, pb.rulingRef)
+                    if (!isString(pb.why)) fail(`${dw}.provisionalBy`, 'why must say why the item is provisional for this decision')
+                    if (r.provisional) fail(`${dw}.provisionalBy`, `${r.id} is already provisional in Christian's words`)
+                    if (!by.provisional || by.id === r.id || !(o.decidedBy as DecisiveItem[]).some((x) => x.rulingRef === by.id)) fail(`${dw}.provisionalBy`, 'names another provisional ruling that decides the same value')
+                    provisional = true
+                }
                 if (r.kind !== 'RULING') fail(dw, `${r.id} holds Christian's ${r.kind.toString()} words, not a ruling: it cannot decide a value`)
                 if (!(s === 'RULING' || (s === 'APPROVED' && r.establishesCanonicalKnowledge === true))) fail(dw, 'a ruling of Christian\'s decides with standing RULING (APPROVED only where Christian\'s words made the item canonical knowledge)')
             }
@@ -761,6 +816,7 @@ export function validateExperiment(raw: unknown): Experiment {
             const zz = onlyKeys(`placementGeometry.${placement}.zones[${i}]`, z, ['along'], ['along'])
             if (zz.along !== 'FROM_START' && zz.along !== 'FROM_END') fail(`placementGeometry.${placement}.zones[${i}]`, 'along is FROM_START or FROM_END')
         })
+        if (new Set((o.zones as Array<{ along: string }>).map((z) => z.along)).size !== (o.zones as unknown[]).length) fail(`placementGeometry.${placement}`, 'each zone on its own end')
     }
     ;(top.derived as unknown[]).forEach((d, i) => {
         const o = onlyKeys(`derived[${i}]`, d, ['id', 'formula', 'label', 'note'], ['id', 'formula', 'label', 'note'])
@@ -919,18 +975,21 @@ export function validateExperiment(raw: unknown): Experiment {
             if ((o.rulingRefs as string[]).indexOf(a.rulingRef as string) < 0) fail(`openDecisions[${i}].answeredBy`, 'the answering ruling is among the decision\'s rulings')
         }
     })
-    // The change log: every entry names what changed, before and after, the reply's lines that occasioned it, and the date.
+    // The change log: every entry names what changed, before and after, the reply's section(s) that occasioned it (as Christian numbered
+    // them: 'section 6', or 'sections 2, 3 and 6'), and the date.
     if (!Array.isArray(top.changeLog) || !top.changeLog.length) fail('changeLog', 'must be a non-empty list')
     ;(top.changeLog as unknown[]).forEach((c, i) => {
-        const o = onlyKeys(`changeLog[${i}]`, c, ['path', 'before', 'after', 'n6Lines', 'date'], ['path', 'before', 'after', 'n6Lines', 'date'])
-        for (const key of ['path', 'before', 'after', 'n6Lines']) if (!isString(o[key])) fail(`changeLog[${i}]`, `${key} must be a string`)
-        if (!/^N6 l\.\d+(-\d+)?(, \d+(-\d+)?)*$/.test(o.n6Lines as string)) fail(`changeLog[${i}]`, 'n6Lines names the reply\'s lines, as "N6 l.<n>[-<m>][, <n>...]"')
+        const o = onlyKeys(`changeLog[${i}]`, c, ['path', 'before', 'after', 'replySections', 'date'], ['path', 'before', 'after', 'replySections', 'date'])
+        for (const key of ['path', 'before', 'after', 'replySections']) if (!isString(o[key])) fail(`changeLog[${i}]`, `${key} must be a string`)
+        if (!/^(section \d{1,2}|sections \d{1,2}(, \d{1,2})* and \d{1,2})$/.test(o.replySections as string)) fail(`changeLog[${i}]`, 'replySections names the reply\'s numbered sections, as \'section <n>\' or \'sections <n>, <n> and <n>\'')
+        if (sectionsOf(o.replySections as string).some((n) => n < 1)) fail(`changeLog[${i}]`, 'sections are numbered from 1')
         if (!isDate(o.date)) fail(`changeLog[${i}]`, 'date must be a YYYY-MM-DD date')
         if (o.before === o.after) fail(`changeLog[${i}]`, 'before and after are the same')
     })
     // The restart examination: every row has one cell per column.
     const ex = onlyKeys('restartExamination', top.restartExamination, ['standing', 'rulingRefs', 'cases', 'columns', 'rows', 'verdict', 'stillFlagged', 'reviewNotes'], ['standing', 'rulingRefs', 'cases', 'columns', 'rows', 'verdict', 'stillFlagged', 'reviewNotes'])
     for (const key of ['standing', 'cases', 'verdict', 'stillFlagged']) if (!isString(ex[key])) fail('restartExamination', `${key} must be a string`)
+    if (!Array.isArray(ex.rulingRefs)) fail('restartExamination', 'rulingRefs must be a list')
     ;(ex.rulingRefs as unknown[]).forEach((r) => rulingOk('restartExamination.rulingRefs', r))
     if (!isStringList(ex.columns) || !(ex.columns as string[]).length || !isStringList(ex.reviewNotes)) fail('restartExamination', 'columns and reviewNotes are lists of strings')
     if (!Array.isArray(ex.rows) || !ex.rows.length) fail('restartExamination', 'rows must be a non-empty list')
@@ -1009,6 +1068,8 @@ export function validateWording(raw: unknown, experiment: Experiment): Wording {
             if (!r) throw new Error(`${at}: quotesWithin names no ruling of the registry`)
             const spans = [...(o.text as string).matchAll(/"([^"]*)"/g)].map((m) => m[1])
             if (!spans.length || (o.text as string).split('"').length % 2 !== 1) throw new Error(`${at}: quotesWithin needs whole double-quoted spans`)
+            // An empty span is in every ruling's words: it would pass as verbatim while quoting nothing.
+            if (spans.some((s) => !s.trim())) throw new Error(`${at}: an empty quoted span`)
             for (const s of spans) if (!r.words.some((w) => w.indexOf(s) >= 0)) throw new Error(`${at}: "${s}" is not in the words of ${r.id}`)
         }
         const placeholders = placeholdersOf(o.text as string)
@@ -1106,8 +1167,9 @@ const RECORD_LABEL = 'our record of what decided it (OURS), not a computed influ
 export const STATUS_SET_BY_ROLE = 'sets this premise\'s standing, and so the class; decides no value'
 const COMPUTED_LABEL = 'computed by the Stage 1/2 code: its own influence trace, unchanged'
 
-function rulingItem(r: AssemblyRuling, role: string, standing: Standing = 'RULING'): TraceItem {
-    return item(`${r.id} (received ${longDate(r.received)}${r.provisional ? '; provisional' : ''})`, standing, role, { file: SOURCE.assemblyExperiment, table: 'rulings', row: r.id })
+function rulingItem(r: AssemblyRuling, role: string, standing: Standing = 'RULING', provisionalHere = false): TraceItem {
+    const prov = r.provisional ? '; provisional' : provisionalHere ? '; provisional for this decision' : ''
+    return item(`${r.id} (received ${receivedOf(r)}${prov})`, standing, role, { file: SOURCE.assemblyExperiment, table: 'rulings', row: r.id })
 }
 const refText = (k: KnowledgeRef): string => `${k.source} ${k.table} ${k.row}${k.column ? ` ${k.column}` : ''}`
 
@@ -1128,10 +1190,11 @@ export const scopeText = (r: AssemblyRuling, path: string | null = null): string
  * value the code reads from a knowledge cell, Christian's words select what the code reads and the cell states the value; otherwise Christian's words
  * state the value (each such word pinned against the value in the unit test).
  */
-export function decidingWords(r: AssemblyRuling, evidence: string, standing: Standing, c: { path: string; howReached: HowReached }): string {
+export function decidingWords(r: AssemblyRuling, evidence: string, standing: Standing, c: { path: string; howReached: HowReached }, d: Pick<DecisiveItem, 'provisionalBy' | 'statesAs'> = {}): string {
     const who = standing === 'APPROVED' && r.establishesCanonicalKnowledge ? 'Christian\'s ruling making it owner-authored canonical knowledge' : r.provisional ? 'Christian\'s provisional ruling' : 'Christian\'s ruling'
-    const role = c.howReached === 'READ_BY_CODE' ? 'selects what the code reads; the cell states the value' : 'states the value'
-    return `${who}, received ${longDate(r.received)}: "${evidence}" (${role}; ${scopeText(r, c.path)})`
+    const role = c.howReached === 'READ_BY_CODE' ? 'selects what the code reads; the cell states the value' : d.statesAs ? `states ${d.statesAs}` : 'states the value'
+    const here = d.provisionalBy ? `; ${d.provisionalBy.why} (${d.provisionalBy.rulingRef})` : ''
+    return `${who}, received ${receivedOf(r)}: "${evidence}" (${role}; ${scopeText(r, c.path)}${here})`
 }
 
 /** The class of what a reading of ours reads: the class the ruling would give if it decided, or that the words are not a ruling. */
@@ -1140,7 +1203,7 @@ export const readsWhat = (r: AssemblyRuling): string =>
 
 /** How Christian's words read in a non-decisive role. */
 export function roleWords(role: Role, r: AssemblyRuling, x: RoleItem): string {
-    const when = `received ${longDate(r.received)}`
+    const when = `received ${receivedOf(r)}`
     if (role === 'permittedBy') return `permits an illustrative value, ${when}: "${x.quote}" (${x.namesValue ? 'a permission that names this value; the choice to use it is ours' : 'a permission; it does not state the value'})`
     if (role === 'readingOf') return `our reading (OURS) of Christian's words, ${when}: "${x.quote}" (Christian's words do not state the value; ${readsWhat(r)})`
     return `sets the scope for this experiment, ${when}: "${x.quote}" (decides nothing)`
@@ -1294,7 +1357,8 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
         const recorded = c.decidedBy.map((d) => {
             if (d.rulingRef) {
                 const r = byId.get(d.rulingRef) as AssemblyRuling
-                return { ...rulingItem(r, decidingWords(r, d.valueEvidence as string, d.standing, c), d.standing), provisional: r.provisional }
+                const provisional = r.provisional || Boolean(d.provisionalBy)
+                return { ...rulingItem(r, decidingWords(r, d.valueEvidence as string, d.standing, c, d), d.standing, provisional), provisional }
             }
             if (d.knowledgeRef) return { ...item(refText(d.knowledgeRef), d.standing, d.valueEvidence ? `the cell: "${d.valueEvidence}"` : 'the row'), provisional: false }
             if (d.ref === 'ILLUSTRATIVE') return { ...item('ILLUSTRATIVE', 'ILLUSTRATIVE', 'chosen by us: an illustrative value, which no authority gives'), provisional: false }
@@ -1306,7 +1370,7 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
         const decisiveRulings = c.decidedBy.filter((d) => d.rulingRef).map((d) => byId.get(d.rulingRef as string) as AssemblyRuling)
         const classInputs: ClassInput[] = [
             ...(computedTrace ? computedTrace.influencedBy.map((i) => ({ standing: i.standing })) : []),
-            ...c.decidedBy.map((d) => ({ standing: d.standing, provisional: d.rulingRef ? (byId.get(d.rulingRef) as AssemblyRuling).provisional : false })),
+            ...c.decidedBy.map((d) => ({ standing: d.standing, provisional: d.rulingRef ? (byId.get(d.rulingRef) as AssemblyRuling).provisional || Boolean(d.provisionalBy) : false })),
         ]
         const consulted = [
             ...(computedTrace ? computedTrace.consulted : []),
@@ -1335,7 +1399,7 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
             scopeSetBy: roleItems('scopeSetBy'),
             traceLabel: computedTrace ? COMPUTED_LABEL : RECORD_LABEL,
             sixClass,
-            allDecisiveRulingsProvisional: c.declaredStatus === 'RULING' && decisiveRulings.length > 0 && decisiveRulings.every((r) => r.provisional),
+            allDecisiveRulingsProvisional: c.declaredStatus === 'RULING' && decisiveRulings.length > 0 && c.decidedBy.filter((d) => d.rulingRef).every((d) => (byId.get(d.rulingRef as string) as AssemblyRuling).provisional || Boolean(d.provisionalBy)),
             note: c.note,
         }
     })
@@ -1447,7 +1511,7 @@ export const basisShort = (basis: string | null): string => (basis && BASIS_SHOR
 export function designBlock(experiment: Experiment, activity: AssembledActivity, display: DisplayTexts, forms: GameFormSelection, basis: string | null): Array<{ text: string; expresses: string[]; marker: string }> {
     const at = (p: string) => activity.choices.find((c) => c.path === p) as AssembledChoice
     const scopeRulings = experiment.gameProblemScope.rulingRefs.map((id) => experiment.rulings.find((r) => r.id === id) as AssemblyRuling)
-    const scopeWords = scopeRulings.flatMap((r) => (r.scopeWords ?? []).map((w) => `"${w}" (received ${longDate(r.received)})`))
+    const scopeWords = scopeRulings.flatMap((r) => (r.scopeWords ?? []).map((w) => `"${w}" (received ${receivedOf(r)})`))
     const lines: Array<{ text: string; expresses: string[]; marker?: string }> = []
     lines.push({ text: `Learning Goal: ${display.goalName.text}.`, expresses: [], marker: '[the Learning Goal Christian authorized; its name read from the planning model by code]' })
     // Each block path is found by how it is read, never by its name.
