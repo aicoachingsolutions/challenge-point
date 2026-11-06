@@ -1,6 +1,16 @@
 {
-    "standing": "No regression result is recorded for this build yet. The lead fills this record after the final regression run (type check, the full unit suite, the behaviour snapshot with A01's entries, the bundle, Stage 2 evidence, the quote check), then re-runs the runner so Part 5 prints it: assembly.unit.ts test (v) requires the committed report and results to equal the runner's output with this record, so the runner must be re-run whenever this record changes. The mutation loop's counts by outcome are computed by the runner itself and printed in Part 5 beside this record. Until this record is filled, nothing in it is a regression result.",
-    "status": "PLACEHOLDER",
-    "build": null,
-    "results": []
+    "standing": "Recorded by the lead on 6 November 2026 from an independent run on the committed tree of build fcc25df (the experiment's code and data as reviewed). This record and the evidence re-generated from it are committed on top of that build with no change to any code or data file. assembly.unit.ts test (v) requires the committed report and results to equal the runner's output with this record. Passing engineering tests is not evidence of representative learning effectiveness.",
+    "status": "RECORDED",
+    "build": "fcc25df (branch claude/a05-assembly-experiment, on top of the Stage 2 review branch at 38c61e2; main at f534a62)",
+    "results": [
+        { "check": "Type check (tsc --noEmit)", "result": "passed (exit 0)" },
+        { "check": "Full unit suite (npm test)", "result": "151 test files, 0 failed" },
+        { "check": "Behaviour snapshot against main at f534a62", "result": "391 entries, 0 changed, 0 added, 0 removed (sha-256 a8420db066c34341366254b9e8063aa9c66688fd777a350ce9aa1d0a2c4da246 on both sides); A01's 44 entries are among the unchanged" },
+        { "check": "Live backend bundle built from src/index.ts", "result": "byte-identical to main at f534a62 (sha-256 6bd210238f7d620c9b968f17edac63cd4984b472320aadf58731e8b4b0a0deed, 3,228,588 bytes, 192 inputs); 0 inputs from the design-reasoning folder" },
+        { "check": "Stage 2 evidence re-generated to a scratch folder", "result": "report and results byte-identical to the committed files" },
+        { "check": "Assembly evidence re-generated to a scratch folder", "result": "report and results byte-identical to the committed files (before this record was filled)" },
+        { "check": "External quote check of every quoted string of his in the two data files", "result": "231 passed, 0 failed; 208 of 208 received-date citations correct" },
+        { "check": "Files changed outside the design-reasoning folder and this evidence folder since 38c61e2", "result": "two housekeeping entries only: one unit-file registration and one runner script" },
+        { "check": "GitHub checks", "result": "none run: a push of a review branch triggers no workflow, and nothing deploys; this branch is not pushed" }
+    ]
 }
