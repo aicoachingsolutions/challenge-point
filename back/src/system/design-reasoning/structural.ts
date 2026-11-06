@@ -7,18 +7,20 @@
  * D5: *"I also support retaining continuous play as a baseline representative condition where applicable, separate from specific
  * Interaction Regulations."*).
  *
- * For one compatible Game Form and a configured activity's team sizes (a test input), this reports three things, each with its influence
- * trace and its `establishedBy`:
+ * For one compatible Game Form and a configured activity's team sizes (a test input; or, in the assembly experiment, the assembled team
+ * sizes with their own standing, either for the form assembled or applied hypothetically to a compatible form that is not assembled), this
+ * reports three things, each with its influence trace and its `establishedBy`:
  *   1. Structural preconditions (test-only, evidence status INFERRED: each rests on one identification of ours, held in
  *      `stage2-rulings.json`). Present for a form whose archetype the data lists, with two teams that each have players. Each is labelled
  *      as present, not as evidence of ecological relevance, and as not distinguishing one Game Problem from another.
  *   2. The continuous-play baseline (the conditions-of-use entry whose data lists the form's archetype): it applies as the baseline default
- *      wherever no authorized departure is recorded. No knowledge file this stage reads can record a departure and no activity is
- *      assembled, so it is reported as a default, never as a condition evaluated and found to hold. It is a baseline representative
- *      condition, not an Interaction Regulation.
+ *      wherever no authorized departure is recorded. No knowledge file this stage reads can record a departure and, in Stage 2, no activity
+ *      is assembled, so it is reported as a default, never as a condition evaluated and found to hold (in the assembly experiment, as not
+ *      evaluable from the assembled configuration). It is a baseline representative condition, not an Interaction Regulation.
  *   3. The archetype's organizational integrity conditions, read by id and role from the archetype workbook, each classified by his D6 as
  *      data (required condition or breach description). Integrity is a continuum, so no pass-or-fail verdict is printed. Before an activity
- *      is assembled (Step 3 is held), each required condition is to be expressed by the assembled activity and is not evaluable, except
+ *      is assembled (Step 3 is held), each required condition is to be expressed by the assembled activity and is not evaluable (in the
+ *      assembly experiment: not evaluable from the assembled configuration, for the form assembled or applied hypothetically), except
  *      where the data records a structural signal (opposition present; the continuous-play baseline default). The signals are OUR mapping
  *      (INFERRED), not his D6: a conclusion resting on one carries evidence status INFERRED and a trace item of standing OURS. Each breach
  *      description is a risk, not evaluable before activity assembly, except where the design makes it structurally certain (an opposing

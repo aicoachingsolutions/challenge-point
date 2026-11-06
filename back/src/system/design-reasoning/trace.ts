@@ -9,7 +9,8 @@
  *     one, within valid test inputs, in a test copy moves the outcome or that rule; a unit test pins this for the gate inputs);
  *   - `consulted`: read and shown, not decisive (for example compatibility information);
  *   - `citedOnly`: reference knowledge shown for context, which decides nothing (for example a document held outside the application).
- * Each item carries its standing (APPROVED, RULING, CANDIDATE, REFERENCE ONLY, OURS, TEST ASSUMPTION, TEST INPUT).
+ * Each item carries its standing, one of the ten in `STANDINGS` (APPROVED, RULING, PROVISIONAL, CANDIDATE, OURS, REFERENCE ONLY, TEST
+ * ASSUMPTION, TEST INPUT, and, for the assembly experiment only, ILLUSTRATIVE and UNRESOLVED, on which the Stage 2 grouping throws).
  *
  * Every conclusion carries `establishedBy`. The report groups conclusions by `establishedBy` and by the WEAKEST standing among the items
  * that decided them, so approved knowledge is never shown beside a ruling of his, candidate data, an inference of ours or a test input:

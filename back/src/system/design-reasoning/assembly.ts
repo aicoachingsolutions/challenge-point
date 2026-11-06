@@ -12,8 +12,10 @@
  * illustrative value (permittedBy), his words an OURS value is OUR READING of (readingOf), and his words that SET THE SCOPE a computed
  * value is used in (scopeSetBy). Some values are read from knowledge by code (the Game Problems and compatible Game Forms the Stage 1/2
  * code computes, and a few knowledge cells). This file:
- *   - validates the record by hand (unknown keys, unknown standings, missing words, file or received date, missing value evidence, his
- *     example words or reference-only material among what decided a value, a declared status stronger than what decided it: each throws);
+ *   - validates the record by hand (unknown keys and wrong types at every level, unknown standings, missing words, file or a received date
+ *     that is not a real date, missing value evidence, a number his words state that is not the number his evidence's word gives, his
+ *     example words or reference-only material among what decided a value, a declared status stronger than what decided it, a malformed
+ *     placeholder, a quotation mark in a template that quotes nothing: each throws);
  *   - assembles the activity, failing closed where the record disagrees with what the code computes (Step 1 unresolved; the illustrative
  *     form not among the compatible ones; Game Problem ids that differ from the ones his words name; a scoring event the routed context
  *     does not hold);
@@ -29,7 +31,7 @@
  */
 import experimentData from './assembly-experiment.review.json'
 import wordingData from './assembly-wording.draft.json'
-import { activeContextRelationships, cell, Cite, contextIdentityRules, contextProperty, DesignKnowledge, isStanding, OpenDecision, Ruling, SOURCE, sourceStanding, Standing } from './knowledge'
+import { activeContextRelationships, cell, Cite, contextIdentityRules, contextProperty, DesignKnowledge, isStanding, OpenDecision, RelationshipRow, Ruling, SOURCE, sourceStanding, Standing } from './knowledge'
 import { GameFormSelection } from './forms'
 import { DesignResolution } from './resolve'
 import { citeRef, EstablishedBy, InfluenceTrace, item, TraceItem } from './trace'
@@ -104,6 +106,8 @@ export interface Choice {
     path: string
     value: ChoiceValue
     valueIsEvidence?: true
+    /** A number his words state: the word his evidence uses for it ("Two"); the validator requires it to give the value. */
+    evidenceStates?: string
     declaredStatus: Standing
     howReached: HowReached
     readBy?: ReadBy
@@ -147,8 +151,8 @@ export interface AccountEntry {
 export type OpenDecisionClass = 'ASSEMBLY' | 'SCORING_FIDELITY_OR_PRODUCTION' | 'SUITABILITY' | 'NON_BLOCKING' | 'OUR_READING' | 'KNOWN_RISK'
 export const OPEN_DECISION_CLASSES: OpenDecisionClass[] = ['ASSEMBLY', 'SCORING_FIDELITY_OR_PRODUCTION', 'SUITABILITY', 'NON_BLOCKING', 'OUR_READING', 'KNOWN_RISK']
 
-export type ReportRefKey = 'experimentPurpose' | 'acceptance' | 'limits' | 'kickoffCaveat' | 'futureFeedbackQuestion' | 'lawsPrinciple' | 'diagram'
-export const REPORT_REF_KEYS: ReportRefKey[] = ['experimentPurpose', 'acceptance', 'limits', 'kickoffCaveat', 'futureFeedbackQuestion', 'lawsPrinciple', 'diagram']
+export type ReportRefKey = 'experimentPurpose' | 'acceptance' | 'limits' | 'caveat' | 'futureFeedbackQuestion' | 'lawsPrinciple' | 'diagram'
+export const REPORT_REF_KEYS: ReportRefKey[] = ['experimentPurpose', 'acceptance', 'limits', 'caveat', 'futureFeedbackQuestion', 'lawsPrinciple', 'diagram']
 
 export type BindingKey = 'illustrativeForm' | 'scoringEvent' | 'scoringMeans' | 'teamCount' | 'playersPerTeam' | 'areaLength' | 'areaWidth' | 'targetZoneDepth' | 'targetZonePlacement'
 export const BINDING_KEYS: BindingKey[] = ['illustrativeForm', 'scoringEvent', 'scoringMeans', 'teamCount', 'playersPerTeam', 'areaLength', 'areaWidth', 'targetZoneDepth', 'targetZonePlacement']
@@ -165,7 +169,7 @@ export interface Experiment {
     bindings: Record<BindingKey, string>
     /** How many target zones each placement value means (read by code; an unmapped placement throws). */
     placementZoneCount: Record<string, number>
-    derived: Array<{ id: string; formula: 'AREA_PER_OUTFIELD_PLAYER_TOTAL' | 'AREA_PER_OUTFIELD_PLAYER_OUTSIDE_TARGET_ZONES'; label: string; note: string }>
+    derived: Array<{ id: string; formula: 'AREA_PER_PLAYER_TOTAL' | 'AREA_PER_PLAYER_OUTSIDE_TARGET_ZONES'; label: string; note: string }>
     rulings: AssemblyRuling[]
     requiredPartsRulingRef: string
     requiredParts: Array<{ id: string; part: string; paths: string[]; generatedFromTrace?: true }>
@@ -339,7 +343,20 @@ const fail = (where: string, why: string): never => {
 }
 const isObject = (v: unknown): v is Record<string, unknown> => v !== null && typeof v === 'object' && !Array.isArray(v)
 const isString = (v: unknown): v is string => typeof v === 'string' && v.length > 0
-const isDate = (v: unknown): boolean => typeof v === 'string' && v.length === 10 && v[4] === '-' && v[7] === '-' && !Number.isNaN(Date.parse(`${v}T12:00:00Z`))
+/** A real calendar date written YYYY-MM-DD (a date that does not exist, such as 30 February, is refused rather than rolled over). */
+const isDate = (v: unknown): boolean => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(`${v}T12:00:00Z`)) && new Date(`${v}T12:00:00Z`).toISOString().slice(0, 10) === v
+const isStringList = (v: unknown): v is string[] => Array.isArray(v) && v.every(isString)
+
+/**
+ * A numeric value his words state, read from the word his evidence uses for it ("Two", or digits). Words up to twenty, in lower case or
+ * with a capital first letter; anything else is not a number word and gives null.
+ */
+const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty']
+export function statedNumber(word: string): number | null {
+    if (/^\d+(\.\d+)?$/.test(word)) return Number(word)
+    const i = NUMBER_WORDS.findIndex((w) => w === word || `${w.charAt(0).toUpperCase()}${w.slice(1)}` === word)
+    return i >= 0 ? i : null
+}
 
 function onlyKeys(where: string, v: unknown, allowed: string[], required: string[]): Record<string, unknown> {
     if (!isObject(v)) return fail(where, 'not an object')
@@ -367,7 +384,7 @@ const TOP_KEYS = [
     'dependencies', 'secondGoalNeeds',
 ]
 const RULING_KEYS = ['id', 'decision', 'subject', 'scope', 'scopeWords', 'scopeCovers', 'kind', 'establishesCanonicalKnowledge', 'canonicalAmendment', 'words', 'supersedes', 'received', 'file', 'provisional']
-const CHOICE_KEYS = ['path', 'value', 'valueIsEvidence', 'declaredStatus', 'howReached', 'readBy', 'knowledgeRef', 'decidedBy', 'consulted', 'statusSetBy', 'permittedBy', 'readingOf', 'scopeSetBy', 'note']
+const CHOICE_KEYS = ['path', 'value', 'valueIsEvidence', 'evidenceStates', 'declaredStatus', 'howReached', 'readBy', 'knowledgeRef', 'decidedBy', 'consulted', 'statusSetBy', 'permittedBy', 'readingOf', 'scopeSetBy', 'note']
 
 /**
  * The record, validated. Throws on: an unknown key anywhere this checks; an unknown standing; a ruling without words, file or received
@@ -387,6 +404,9 @@ export function validateExperiment(raw: unknown): Experiment {
         const o = onlyKeys(where, r, RULING_KEYS, ['id', 'decision', 'subject', 'scope', 'canonicalAmendment', 'words', 'received', 'file', 'provisional'])
         if (!isString(o.id)) fail(where, 'id must be a string')
         if (rulings.has(o.id as string)) fail(where, `ruling ${String(o.id)} filed twice`)
+        if (!isString(o.decision) || !isString(o.subject)) fail(where, 'decision and subject must be strings')
+        if ('scopeCovers' in o && !isString(o.scopeCovers)) fail(where, 'scopeCovers must be a string')
+        if ('supersedes' in o && !isStringList(o.supersedes)) fail(where, 'supersedes must be a list of ids')
         if (!Array.isArray(o.words) || !o.words.length || !(o.words as unknown[]).every(isString)) fail(where, 'words must be a non-empty list of strings')
         if (!isString(o.file)) fail(where, 'file must be a repository-independent reference')
         if ((o.file as string).indexOf('AppData') >= 0 || (o.file as string).indexOf('scratchpad') >= 0) fail(where, 'file must never be a scratchpad path')
@@ -516,6 +536,14 @@ export function validateExperiment(raw: unknown): Experiment {
         if ('valueIsEvidence' in o) {
             if (o.valueIsEvidence !== true || v !== (o.decidedBy as DecisiveItem[])[0]?.valueEvidence) fail(at, 'valueIsEvidence: the value must equal its first decisive item\'s evidence')
         }
+        // A number his words state is bound to the word his evidence uses for it, so a changed number is refused, never printed as his.
+        if (how === 'ENTERED_EVIDENCED' && typeof v === 'number' && !('evidenceStates' in o)) fail(at, 'a number evidenced in his words names, under evidenceStates, the word his evidence uses for it')
+        if ('evidenceStates' in o) {
+            const word = o.evidenceStates
+            if (!isString(word) || how !== 'ENTERED_EVIDENCED' || typeof v !== 'number') fail(at, 'evidenceStates belongs only to a number evidenced in his words')
+            if (!(o.decidedBy as DecisiveItem[]).some((d) => (d.standing === 'RULING' || d.standing === 'APPROVED') && isString(d.valueEvidence) && d.valueEvidence.indexOf(word as string) >= 0)) fail(at, `evidenceStates "${String(word)}" is not in the evidence that states the value`)
+            if (statedNumber(word as string) !== v) fail(at, `evidenceStates "${String(word)}" states ${String(statedNumber(word as string))}, not the value ${String(v)}`)
+        }
     })
     const choicePaths = [...paths]
     const pathOk = (where: string, p: unknown) => {
@@ -528,8 +556,9 @@ export function validateExperiment(raw: unknown): Experiment {
     ;(gf.rulingRefs as unknown[]).forEach((r) => rulingOk('gameForm.rulingRefs', r))
     pathOk('gameForm.choicePath', gf.choicePath)
     const formChoice = (top.choices as Choice[]).find((c) => c.path === gf.choicePath) as Choice
-    if (formChoice.value !== gf.illustrativeChoice || formChoice.declaredStatus !== gf.standing) fail('gameForm', 'the illustrative choice and its standing must equal the choice at choicePath')
+    if (formChoice.value !== gf.illustrativeChoice || formChoice.declaredStatus !== gf.standing) fail(`gameForm (${String(gf.choicePath)})`, 'the illustrative choice and its standing must equal the choice at choicePath')
     const gp = onlyKeys('gameProblemScope', top.gameProblemScope, ['primaryGameProblemIds', 'secondaryGameProblemIds', 'rulingRefs', 'idResolution', 'note'], ['primaryGameProblemIds', 'secondaryGameProblemIds', 'rulingRefs', 'idResolution', 'note'])
+    if (!isStringList(gp.primaryGameProblemIds) || !isStringList(gp.secondaryGameProblemIds) || !isString(gp.idResolution) || !isString(gp.note)) fail('gameProblemScope', 'the id lists are lists of ids; idResolution and note are strings')
     ;(gp.rulingRefs as unknown[]).forEach((r) => rulingOk('gameProblemScope.rulingRefs', r))
     if (!isString(top.scoringEventVocabulary)) fail('scoringEventVocabulary', 'must name the vocabulary')
     const bindings = onlyKeys('bindings', top.bindings, BINDING_KEYS, BINDING_KEYS)
@@ -537,7 +566,7 @@ export function validateExperiment(raw: unknown): Experiment {
     if (!isObject(top.placementZoneCount) || !Object.values(top.placementZoneCount).every((n) => typeof n === 'number' && Number.isInteger(n) && n >= 0)) fail('placementZoneCount', 'maps each placement value to a whole number of target zones')
     ;(top.derived as unknown[]).forEach((d, i) => {
         const o = onlyKeys(`derived[${i}]`, d, ['id', 'formula', 'label', 'note'], ['id', 'formula', 'label', 'note'])
-        if (['AREA_PER_OUTFIELD_PLAYER_TOTAL', 'AREA_PER_OUTFIELD_PLAYER_OUTSIDE_TARGET_ZONES'].indexOf(o.formula as string) < 0) fail(`derived[${i}]`, 'unknown formula')
+        if (['AREA_PER_PLAYER_TOTAL', 'AREA_PER_PLAYER_OUTSIDE_TARGET_ZONES'].indexOf(o.formula as string) < 0) fail(`derived[${i}]`, 'unknown formula')
         if (paths.has(o.id as string)) fail(`derived[${i}]`, 'a derived value is not a choice')
     })
     // Every choice path is in one of his nine parts, each part his words verbatim; exemptions and the design block name choices only.
@@ -556,6 +585,7 @@ export function validateExperiment(raw: unknown): Experiment {
     ;(top.whyThisDesign as unknown[]).forEach((w, i) => {
         const o = onlyKeys(`whyThisDesign[${i}]`, w, ['text', 'paths'], ['text', 'paths'])
         if (!isString(o.text)) fail(`whyThisDesign[${i}]`, 'text must be a string')
+        placeholdersWellFormed(`assembly-experiment.review.json whyThisDesign[${i}]`, o.text as string)
         for (const x of [...(o.paths as unknown[]), ...placeholdersOf(o.text as string)]) pathOk(`whyThisDesign[${i}]`, x)
     })
     ;(top.exemptions as unknown[]).forEach((e, i) => {
@@ -566,6 +596,7 @@ export function validateExperiment(raw: unknown): Experiment {
     })
     ;(top.laws as unknown[]).forEach((l, i) => {
         const o = onlyKeys(`laws[${i}]`, l, ['lawId', 'situation', 'status', 'paths', 'reason'], ['lawId', 'status', 'paths', 'reason'])
+        if (!(o.lawId === null || isString(o.lawId)) || !isString(o.reason) || ('situation' in o && !isString(o.situation))) fail(`laws[${i}]`, 'lawId is a law id or null; reason (and situation) are strings')
         if (['APPLIES', 'DEPARTED', 'NOT APPLICABLE', 'ADAPTATION OWED'].indexOf(o.status as string) < 0) fail(`laws[${i}]`, 'unknown status')
         for (const x of o.paths as unknown[]) pathOk(`laws[${i}]`, x)
     })
@@ -573,6 +604,10 @@ export function validateExperiment(raw: unknown): Experiment {
         const o = onlyKeys(`contractItems[${i}]`, c, ['itemId', 'mappedTo', 'notUsed'], ['itemId', 'mappedTo'])
         for (const x of o.mappedTo as unknown[]) pathOk(`contractItems[${i}]`, x)
         if (!(o.mappedTo as unknown[]).length && !isString(o.notUsed)) fail(`contractItems[${i}]`, 'an item mapped to nothing needs its reason')
+    })
+    ;(top.contractDeclarationsReported as unknown[]).forEach((d, i) => {
+        const o = onlyKeys(`contractDeclarationsReported[${i}]`, d, ['row', 'declaration', 'what', 'how'], ['row', 'declaration', 'what', 'how'])
+        for (const key of ['row', 'declaration', 'what', 'how']) if (!isString(o[key])) fail(`contractDeclarationsReported[${i}]`, `${key} must be a string`)
     })
     // The requirement account: his four categories and three standards, verbatim from his ruling.
     const accounting = rulingOk('requirementAccountRulingRef', top.requirementAccountRulingRef)
@@ -582,6 +617,8 @@ export function validateExperiment(raw: unknown): Experiment {
     if (!isString(top.accountOutsideCategories) || (top.accountCategories as string[]).indexOf(top.accountOutsideCategories as string) >= 0) fail('accountOutsideCategories', 'a marker of ours, never one of his four categories')
     ;(top.requirementAccount as unknown[]).forEach((a, i) => {
         const o = onlyKeys(`requirementAccount[${i}]`, a, ['id', 'requirementRef', 'clause', 'reading', 'category', 'standard', 'paths', 'observableConditions', 'inCoachGuidance', 'note'], ['id', 'requirementRef', 'clause', 'reading', 'category', 'standard', 'paths', 'observableConditions', 'note'])
+        const req = onlyKeys(`requirementAccount[${i}].requirementRef`, o.requirementRef, ['table', 'row'], ['table', 'row'])
+        if (!isString(req.table) || !isString(req.row)) fail(`requirementAccount[${i}].requirementRef`, 'table and row must be strings')
         const outside = o.category === top.accountOutsideCategories
         if ((top.accountCategories as string[]).indexOf(o.category as string) < 0 && !outside) fail(`requirementAccount[${i}]`, 'category not one of his four (nor the record\'s not-a-requirement marker)')
         if (outside && o.reading !== 'FOR_EXAMPLE') fail(`requirementAccount[${i}]`, 'only the "for example" reading makes a clause no requirement')
@@ -599,6 +636,14 @@ export function validateExperiment(raw: unknown): Experiment {
         for (const x of s.paths as unknown[]) pathOk(`suitability.properties[${i}]`, x)
         if (onlyKeys(`suitability.properties[${i}].functional`, o.functional, ['status'], ['status']).status !== 'ONLY_VERIFIABLE_IN_PLAY') fail(`suitability.properties[${i}]`, 'functional meaningfulness is only verifiable in play')
     })
+    const scale = onlyKeys('suitability.scale', suit.scale, ['status', 'statement', 'openDecision'], ['status', 'statement', 'openDecision'])
+    for (const key of ['status', 'statement', 'openDecision']) if (!isString(scale[key])) fail('suitability.scale', `${key} must be a string`)
+    ;(suit.exposure as unknown[]).forEach((e, i) => {
+        const o = onlyKeys(`suitability.exposure[${i}]`, e, ['aspect', 'status'], ['aspect', 'status'])
+        if (!isString(o.aspect) || !isString(o.status)) fail(`suitability.exposure[${i}]`, 'aspect and status must be strings')
+    })
+    const identity = onlyKeys('suitability.identityPoint', suit.identityPoint, ['statement', 'rows'], ['statement', 'rows'])
+    if (!isString(identity.statement) || !isStringList(identity.rows)) fail('suitability.identityPoint', 'a statement and a list of row ids')
     const addNothing = onlyKeys('suitability.addNothing', suit.addNothing, ['status', 'statement', 'rulingRef', 'quote'], ['status', 'statement', 'rulingRef', 'quote'])
     const quoteOk = (where: string, rulingRef: unknown, quote: unknown) => {
         const r = rulingOk(where, rulingRef)
@@ -614,15 +659,26 @@ export function validateExperiment(raw: unknown): Experiment {
     const sc = onlyKeys('scenarios', top.scenarios, ['standing', 'rulingRef', 'rulesRef', 'circumstances', 'scopeCircumstance', 'insufficientWhen', 'requirementLink', 'uncertaintyReport', 'widthCheck', 'items'], ['standing', 'rulingRef', 'rulesRef', 'circumstances', 'scopeCircumstance', 'insufficientWhen', 'requirementLink', 'uncertaintyReport', 'widthCheck', 'items'])
     const scRuling = rulingOk('scenarios.rulingRef', sc.rulingRef)
     rulingOk('scenarios.rulesRef', sc.rulesRef)
-    const keys = (sc.circumstances as Array<{ key: string }>).map((c) => c.key)
+    if (!isString(sc.standing) || !isString(sc.uncertaintyReport)) fail('scenarios', 'standing and uncertaintyReport must be strings')
+    const keys = (sc.circumstances as unknown[]).map((c, i) => {
+        const o = onlyKeys(`scenarios.circumstances[${i}]`, c, ['key', 'label'], ['key', 'label'])
+        if (!isString(o.key) || !isString(o.label)) fail(`scenarios.circumstances[${i}]`, 'key and label must be strings')
+        return o.key as string
+    })
     const scope = onlyKeys('scenarios.scopeCircumstance', sc.scopeCircumstance, ['key', 'holdsWhen', 'rulingRefs', 'whenNotEstablished'], ['key', 'holdsWhen', 'rulingRefs', 'whenNotEstablished'])
     if (keys.indexOf(scope.key as string) < 0 || typeof scope.holdsWhen !== 'boolean') fail('scenarios.scopeCircumstance', 'a known circumstance key, and the value at which the scope holds')
     ;(scope.rulingRefs as unknown[]).forEach((r) => rulingOk('scenarios.scopeCircumstance', r))
-    onlyKeys('scenarios.widthCheck', sc.widthCheck, ['note'], ['note'])
+    ;(sc.insufficientWhen as unknown[]).forEach((w, i) => {
+        const o = onlyKeys(`scenarios.insufficientWhen[${i}]`, w, ['key', 'value'], ['key', 'value'])
+        if (keys.indexOf(o.key as string) < 0 || typeof o.value !== 'boolean') fail(`scenarios.insufficientWhen[${i}]`, 'a known circumstance key and a true or false value')
+    })
+    const widthCheck = onlyKeys('scenarios.widthCheck', sc.widthCheck, ['note'], ['note'])
+    if (!isString(widthCheck.note)) fail('scenarios.widthCheck', 'note must be a string')
     ;(sc.items as unknown[]).forEach((s, i) => {
         const o = onlyKeys(`scenarios.items[${i}]`, s, ['id', 'words', 'configuredActivity', 'expected'], ['id', 'words', 'configuredActivity', 'expected'])
         if (!scRuling.words.some((w) => w === o.words)) fail(`scenarios.items[${i}]`, 'his scenario sentence must be verbatim')
-        onlyKeys(`scenarios.items[${i}].expected`, o.expected, ['mismatchReported', 'uncertaintyReported', 'scopeEstablished'], ['mismatchReported', 'uncertaintyReported', 'scopeEstablished'])
+        const expected = onlyKeys(`scenarios.items[${i}].expected`, o.expected, ['mismatchReported', 'uncertaintyReported', 'scopeEstablished'], ['mismatchReported', 'uncertaintyReported', 'scopeEstablished'])
+        if (!Object.values(expected).every((b) => typeof b === 'boolean')) fail(`scenarios.items[${i}].expected`, 'each expectation is true or false')
         const ca = o.configuredActivity as Record<string, { value: unknown; label: string }>
         if (JSON.stringify(Object.keys(ca).sort()) !== JSON.stringify([...keys].sort())) fail(`scenarios.items[${i}]`, 'every circumstance, and only those, is stated')
         for (const [key, x] of Object.entries(ca)) {
@@ -630,9 +686,10 @@ export function validateExperiment(raw: unknown): Experiment {
             if (!(x.value === true || x.value === false || x.value === 'NOT_SUPPLIED')) fail(`scenarios.items[${i}].${key}`, 'true, false or NOT_SUPPLIED')
         }
     })
-    const link = sc.requirementLink as Record<string, unknown>
+    const link = onlyKeys('scenarios.requirementLink', sc.requirementLink, ['requirementId', 'circumstanceKey', 'engagesWhen', 'rulingRefs', 'report'], ['requirementId', 'circumstanceKey', 'engagesWhen', 'rulingRefs', 'report'])
     ;(link.rulingRefs as unknown[]).forEach((r) => rulingOk('scenarios.requirementLink', r))
     if (keys.indexOf(link.circumstanceKey as string) < 0) fail('scenarios.requirementLink', 'unknown circumstance key')
+    if (!isString(link.requirementId) || typeof link.engagesWhen !== 'boolean' || !isString(link.report)) fail('scenarios.requirementLink', 'a requirement id, a true or false engagesWhen and a report')
     const refs = onlyKeys('reportRefs', top.reportRefs, REPORT_REF_KEYS, REPORT_REF_KEYS)
     for (const [key, ref] of Object.entries(refs)) {
         const o = onlyKeys(`reportRefs.${key}`, ref, ['rulingRef', 'quote'], ['rulingRef'])
@@ -650,7 +707,22 @@ export function validateExperiment(raw: unknown): Experiment {
         if (OPEN_DECISION_CLASSES.indexOf(o.blocks as OpenDecisionClass) < 0) fail(`openDecisions[${i}]`, 'unknown blocking class')
         ;(o.rulingRefs as unknown[]).forEach((r) => rulingOk(`openDecisions[${i}]`, r))
     })
-    rulingOk('reconciliation.rulingRef', (top.reconciliation as Record<string, unknown>).rulingRef)
+    const reconciliation = onlyKeys('reconciliation', top.reconciliation, ['rulingRef', 'assessmentItems', 'reuse', 'stillOpen'], ['rulingRef', 'assessmentItems', 'reuse', 'stillOpen'])
+    rulingOk('reconciliation.rulingRef', reconciliation.rulingRef)
+    ;(reconciliation.assessmentItems as unknown[]).forEach((a, i) => {
+        const o = onlyKeys(`reconciliation.assessmentItems[${i}]`, a, ['item', 'carriedBy'], ['item', 'carriedBy'])
+        if (!isString(o.item) || !isString(o.carriedBy)) fail(`reconciliation.assessmentItems[${i}]`, 'item and carriedBy must be strings')
+    })
+    ;(reconciliation.reuse as unknown[]).forEach((r, i) => {
+        const o = onlyKeys(`reconciliation.reuse[${i}]`, r, ['work', 'status', 'why'], ['work', 'status', 'why'])
+        if (!isString(o.work) || !isString(o.status) || !isString(o.why)) fail(`reconciliation.reuse[${i}]`, 'work, status and why must be strings')
+    })
+    if (!isStringList(reconciliation.stillOpen)) fail('reconciliation.stillOpen', 'a list of strings')
+    ;(top.dependencies as unknown[]).forEach((d, i) => {
+        const o = onlyKeys(`dependencies[${i}]`, d, ['id', 'what', 'options'], ['id', 'what', 'options'])
+        if (!isString(o.id) || !isString(o.what) || !isString(o.options)) fail(`dependencies[${i}]`, 'id, what and options must be strings')
+    })
+    if (!isStringList(top.secondGoalNeeds)) fail('secondGoalNeeds', 'a list of strings')
     return top as unknown as Experiment
 }
 
@@ -658,7 +730,19 @@ export function validateExperiment(raw: unknown): Experiment {
 export function validateWording(raw: unknown, experiment: Experiment): Wording {
     const where = 'assembly-wording.draft.json'
     const top = onlyKeys(where, raw, ['standing', 'keyedFor', 'coachTerms', 'sections', 'templates'], ['standing', 'keyedFor', 'coachTerms', 'sections', 'templates'])
-    const sections = new Set((top.sections as Array<{ id: string }>).map((s) => s.id))
+    if (!isString(top.standing)) throw new Error(`${where}: standing must be a string`)
+    const keyedFor = onlyKeys(`${where} keyedFor`, top.keyedFor, ['gameForm', 'scoringEvent', 'note'], ['gameForm', 'scoringEvent', 'note'])
+    const coachTerms = onlyKeys(`${where} coachTerms`, top.coachTerms, ['targetZone', 'markedLine', 'source'], ['targetZone', 'markedLine', 'source'])
+    for (const v of [...Object.values(keyedFor), ...Object.values(coachTerms)]) if (!isString(v)) throw new Error(`${where}: keyedFor and coachTerms hold strings`)
+    if (!Array.isArray(top.sections) || !top.sections.length) throw new Error(`${where}: sections must be a non-empty list`)
+    const sections = new Set(
+        (top.sections as unknown[]).map((s, i) => {
+            const o = onlyKeys(`${where} sections[${i}]`, s, ['id', 'level', 'title', 'rc3'], ['id', 'level', 'title', 'rc3'])
+            if (!isString(o.id) || !isString(o.title) || !isString(o.rc3)) throw new Error(`${where} sections[${i}]: id, title and rc3 must be strings`)
+            if (o.level !== 'Coach Overview' && o.level !== 'Coach Details') throw new Error(`${where} sections[${i}]: level is "Coach Overview" or "Coach Details", not ${JSON.stringify(o.level)}`)
+            return o.id as string
+        })
+    )
     const paths = new Set(experiment.choices.map((c) => c.path))
     const ids = new Set<string>()
     for (const t of top.templates as unknown[]) {
@@ -670,6 +754,11 @@ export function validateWording(raw: unknown, experiment: Experiment): Wording {
         if ((WORDING_STATUSES as readonly string[]).indexOf(o.status as string) < 0) throw new Error(`${at}: unknown status`)
         if ('reviewOnly' in o && o.reviewOnly !== true) throw new Error(`${at}: reviewOnly is true when present`)
         if ('scope' in o && o.scope !== 'GOAL' && o.scope !== 'CONTEXT') throw new Error(`${at}: scope is GOAL or CONTEXT`)
+        if (!isString(o.text)) throw new Error(`${at}: text must be a string`)
+        placeholdersWellFormed(at, o.text as string)
+        // A double quotation mark presents words as quoted: only a quoted template (checked verbatim below) may carry one, or a placeholder
+        // whose value is printed in quotation marks; any other quoted span would escape the checks of quoted text.
+        if (o.quote === undefined && (o.text as string).split(/"\{[A-Za-z0-9.]+\}"/).join('').indexOf('"') >= 0) throw new Error(`${at}: a quotation mark in a template that quotes nothing`)
         const placeholders = placeholdersOf(o.text as string)
         const whenKeys = Object.keys((o.whenValue as Record<string, unknown>) ?? {})
         for (const p of [...placeholders, ...whenKeys]) if (!paths.has(p)) throw new Error(`${at}: unknown path ${p}`)
@@ -689,6 +778,12 @@ export function validateWording(raw: unknown, experiment: Experiment): Wording {
 /** The `{path}` placeholders of a template, in order. */
 export function placeholdersOf(text: string): string[] {
     return [...text.matchAll(/\{([A-Za-z0-9.]+)\}/g)].map((m) => m[1])
+}
+
+/** Every brace in a template belongs to a well-formed `{path}` placeholder; a malformed one would be neither checked nor filled, so it throws. */
+export function placeholdersWellFormed(at: string, text: string): void {
+    const rest = text.split(/\{[A-Za-z0-9.]+\}/).join('')
+    if (rest.indexOf('{') >= 0 || rest.indexOf('}') >= 0) throw new Error(`${at}: a malformed placeholder (a brace outside a {path} placeholder)`)
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -810,6 +905,27 @@ export function relationshipRelatedId(k: DesignKnowledge, rpcId: string, ref: Kn
 }
 
 /**
+ * The computed scoring-event membership: the routing row and the context's relationship row, each with its source's governed standing
+ * (read as Stage 1/2 read it, never typed), so a change to a source's standing moves the conclusion's weakest standing and its class.
+ * Established by approved knowledge as its basis, as Stage 1/2 record a context conclusion; its standing is the weakest of its items.
+ */
+export function scoringEventMembership(k: DesignKnowledge, rpcId: string, routing: Cite, eventRow: RelationshipRow, events: RelationshipRow[]): ComputedConclusion {
+    return {
+        id: 'scoring-event membership',
+        statement: `${eventRow.relatedId} is one of ${rpcId}'s ACTIVE scoring events (${events.map((r) => r.relatedId).join(', ')}); membership does not choose among them.`,
+        establishedBy: 'APPROVED KNOWLEDGE',
+        trace: {
+            influencedBy: [
+                item(citeRef(routing), sourceStanding(k, 'planning'), `the routing row names ${rpcId}`, routing),
+                item(citeRef(eventRow.cite), sourceStanding(k, 'contexts'), `${rpcId} relates ${eventRow.relatedId} (${eventRow.type} ${eventRow.strength})`, eventRow.cite),
+            ],
+            consulted: [],
+            citedOnly: [],
+        },
+    }
+}
+
+/**
  * Assemble the activity from the computed Steps 1 and 2, the validated record and the display texts. Fails closed: Step 1 must be
  * RESOLVED; the illustrative form must be among the compatible forms; the resolution's Game Problem ids must equal the ids his words name;
  * the scoring event must be one of the routed context's ACTIVE scoring events; every display cell a value needs must be supplied.
@@ -829,7 +945,7 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
     const eventChoice = choiceAt(experiment.bindings.scoringEvent)
     const events = activeContextRelationships(k, rpcId, 'SCORING_EVENT')
     const eventRow = events.find((r) => r.relatedId === eventChoice.value)
-    if (!eventRow) throw new Error(`the scoring event ${String(eventChoice.value)} is not one of ${rpcId}'s ACTIVE scoring events (${events.map((r) => r.relatedId).join(', ') || 'none'})`)
+    if (!eventRow) throw new Error(`the scoring event (${experiment.bindings.scoringEvent}) ${String(eventChoice.value)} is not one of ${rpcId}'s ACTIVE scoring events (${events.map((r) => r.relatedId).join(', ') || 'none'})`)
     // The cell that describes the scoring event must be the vocabulary row of that very event (never another event's description).
     const meansRef = choiceAt(experiment.bindings.scoringMeans).knowledgeRef
     if (!meansRef || meansRef.table !== 'controlled_vocabulary' || meansRef.row !== `${experiment.scoringEventVocabulary} ${String(eventChoice.value)}`) {
@@ -842,12 +958,7 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
         { id: 'game problems', statement: `Game Problems by ${resolution.gameProblems.basis}: primary ${resolution.gameProblems.primary.join(', ')}; secondary ${resolution.gameProblems.secondary.join(', ') || 'none'} (filed scope ${resolution.gameProblems.scope ?? 'none'}${resolution.gameProblems.continuedBy ? `, continued by ${resolution.gameProblems.continuedBy.ruling}` : ''}).`, establishedBy: resolution.gameProblems.establishedBy, trace: resolution.gameProblems.trace },
         ...(resolution.profile?.findings ?? []).map((f) => ({ id: `secondary finding ${f.requirement}`, statement: `${f.requirement} (${f.requirementName}): the secondary ${f.secondary.gameProblemId} rates it ${f.secondary.rating}, the primary ${f.primary.gameProblemId} ${f.primary.rating}; ${f.outcome}; not promoted.`, establishedBy: f.establishedBy, trace: f.trace })),
         { id: 'game forms', statement: `${forms.status}: ${forms.compatible.join(', ')}; preference ${forms.preference.status}.`, establishedBy: forms.establishedBy, trace: forms.trace },
-        {
-            id: 'scoring-event membership',
-            statement: `${String(eventChoice.value)} is one of ${rpcId}'s ACTIVE scoring events (${events.map((r) => r.relatedId).join(', ')}); membership does not choose among them.`,
-            establishedBy: 'APPROVED KNOWLEDGE',
-            trace: { influencedBy: [item(citeRef(resolution.context.routing), 'APPROVED', `the routing row names ${rpcId}`, resolution.context.routing), item(citeRef(eventRow.cite), 'APPROVED', `${rpcId} relates ${eventRow.relatedId} (${eventRow.type} ${eventRow.strength})`, eventRow.cite)], consulted: [], citedOnly: [] },
-        },
+        scoringEventMembership(k, rpcId, resolution.context.routing, eventRow, events),
     ]
     const computedOf = (readBy: ReadBy): ComputedConclusion | null =>
         readBy === 'RESOLUTION_PRIMARY' || readBy === 'RESOLUTION_SECONDARY' ? computed[0] : readBy === 'COMPATIBLE_ALTERNATIVES' ? (computed.find((c) => c.id === 'game forms') as ComputedConclusion) : null
@@ -941,19 +1052,19 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
     // Values derived in code from entered values: computed here, never typed. The number of target zones is read from the placement value.
     const num = (p: string) => {
         const v = choiceAt(p).value
-        if (typeof v !== 'number') throw new Error(`${p} must be a number to derive from`)
+        if (typeof v !== 'number') throw new Error(`the value (${p}) must be a number to derive from`)
         return v
     }
     const b = experiment.bindings
     const placement = String(choiceAt(b.targetZonePlacement).value)
     const zoneCount = experiment.placementZoneCount[placement]
-    if (typeof zoneCount !== 'number') throw new Error(`the placement ${placement} maps to no number of target zones (placementZoneCount)`)
+    if (typeof zoneCount !== 'number') throw new Error(`the placement (${b.targetZonePlacement}) ${placement} maps to no number of target zones (placementZoneCount)`)
     const players = num(b.teamCount) * num(b.playersPerTeam)
     const round1 = (n: number) => Math.round(n * 10) / 10
     const fromPaths = [b.areaLength, b.areaWidth, b.teamCount, b.playersPerTeam]
     const derived = experiment.derived.map((d) => {
-        const used = d.formula === 'AREA_PER_OUTFIELD_PLAYER_TOTAL' ? fromPaths : [...fromPaths, b.targetZoneDepth, b.targetZonePlacement]
-        const value = d.formula === 'AREA_PER_OUTFIELD_PLAYER_TOTAL' ? round1((num(b.areaLength) * num(b.areaWidth)) / players) : round1(((num(b.areaLength) - zoneCount * num(b.targetZoneDepth)) * num(b.areaWidth)) / players)
+        const used = d.formula === 'AREA_PER_PLAYER_TOTAL' ? fromPaths : [...fromPaths, b.targetZoneDepth, b.targetZonePlacement]
+        const value = d.formula === 'AREA_PER_PLAYER_TOTAL' ? round1((num(b.areaLength) * num(b.areaWidth)) / players) : round1(((num(b.areaLength) - zoneCount * num(b.targetZoneDepth)) * num(b.areaWidth)) / players)
         const cls = Math.max(...used.map((p) => (choices.find((c) => c.path === p) as AssembledChoice).sixClass)) as SixClass
         return { id: d.id, value, label: d.label, fromPaths: used, sixClass: cls, note: d.note }
     })
@@ -998,7 +1109,11 @@ export interface ComposedActivity {
  */
 export function composeCoachActivity(wording: Wording, activity: AssembledActivity): ComposedActivity {
     const byPath = new Map(activity.choices.map((c) => [c.path, c]))
+    const sectionIds = new Set(wording.sections.map((s) => s.id))
     const sentences: ComposedSentence[] = wording.templates.map((t) => {
+        // A sentence with no section would be dropped from the text while its values still counted as expressed: it throws instead.
+        if (!sectionIds.has(t.section)) throw new Error(`template ${t.id}: unknown section ${t.section}`)
+        placeholdersWellFormed(`template ${t.id}`, t.text)
         const placeholders = placeholdersOf(t.text)
         const when = t.whenValue ?? {}
         for (const p of [...placeholders, ...Object.keys(when)]) if (!byPath.has(p)) throw new Error(`template ${t.id}: unknown path ${p}`)
@@ -1014,10 +1129,13 @@ export function composeCoachActivity(wording: Wording, activity: AssembledActivi
         const reviewOnly = t.reviewOnly === true
         return { id: t.id, section: t.section, text, expresses: [...t.expresses], status: t.status, sixClass, marker: sentenceMarker(classes, reviewOnly), quoted: Boolean(t.quote), reviewOnly, scope: t.scope ?? null }
     })
+    const sections = wording.sections.map((s) => ({ id: s.id, level: s.level, title: s.title, rc3: s.rc3, sentences: sentences.filter((x) => x.section === s.id) }))
+    // What is expressed is read from the sentences placed in sections, never from the template list.
+    const placed = sections.flatMap((s) => s.sentences)
     return {
-        sections: wording.sections.map((s) => ({ id: s.id, level: s.level, title: s.title, rc3: s.rc3, sentences: sentences.filter((x) => x.section === s.id) })),
-        expressed: [...new Set(sentences.flatMap((x) => x.expresses))].sort(),
-        expressedInCoachCopy: [...new Set(sentences.filter((x) => !x.reviewOnly).flatMap((x) => x.expresses))].sort(),
+        sections,
+        expressed: [...new Set(placed.flatMap((x) => x.expresses))].sort(),
+        expressedInCoachCopy: [...new Set(placed.filter((x) => !x.reviewOnly).flatMap((x) => x.expresses))].sort(),
     }
 }
 

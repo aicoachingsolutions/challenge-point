@@ -19,7 +19,7 @@
         "experimentPurpose": { "rulingRef": "ASM-AUTH-PURPOSE", "quote": "The purpose is to determine whether the existing knowledge-grounded architecture can generate one complete, coherent, coach-readable activity while accurately preserving the authority and limitations of every design decision." },
         "acceptance": { "rulingRef": "ASM-28OCT-ACCEPTANCE", "quote": "Can Challenge Point construct a complete, representative Progress the Attack activity using reusable, authorized knowledge, without requiring a fully authored activity-specific version?" },
         "limits": { "rulingRef": "ASM-AUTH-LIMITS" },
-        "kickoffCaveat": { "rulingRef": "ASM-REV1-KICKOFF", "quote": "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype, but do not promote it as a demonstrated method of restoring organized defensive relationships." },
+        "caveat": { "rulingRef": "ASM-REV1-KICKOFF", "quote": "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype, but do not promote it as a demonstrated method of restoring organized defensive relationships." },
         "futureFeedbackQuestion": { "rulingRef": "ASM-AUTH-COACH-QUESTION", "quote": "Are players becoming more capable of finding functional solutions as the game changes?" },
         "lawsPrinciple": { "rulingRef": "ASM-23OCT-LAWS", "quote": "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification." },
         "diagram": { "rulingRef": "ASM-21OCT-PRESENTATION", "quote": "The immediate understanding of the activity: learning purpose, one-sentence game description, basic parameters, essential scoring objectives, and a simple diagram." }
@@ -39,13 +39,13 @@
     "derived": [
         {
             "id": "area.perOutfieldTotalM2",
-            "formula": "AREA_PER_OUTFIELD_PLAYER_TOTAL",
+            "formula": "AREA_PER_PLAYER_TOTAL",
             "label": "square metres per outfield player, total playable area including both target zones; no goalkeepers, so none counted",
             "note": "Computed in code from ILLUSTRATIVE values (area, players per team, team count); a region measure, not a recommendation."
         },
         {
             "id": "area.betweenTargetZonesM2",
-            "formula": "AREA_PER_OUTFIELD_PLAYER_OUTSIDE_TARGET_ZONES",
+            "formula": "AREA_PER_PLAYER_OUTSIDE_TARGET_ZONES",
             "label": "square metres per outfield player between the target zones (target zones excluded); no goalkeepers, so none counted",
             "note": "Computed in code from ILLUSTRATIVE values; which region holds the principal interactions is not established (OURS). The number of target zones is read from the ILLUSTRATIVE placement through placementZoneCount (one target zone at each end: 2), never typed here."
         }
@@ -1005,7 +1005,7 @@
         { "text": "Suitability: no approved relationship yet shows why this environment suits {gameProblems.primary}; adding nothing is not shown to be knowledge-supported (K2 open), so suitability is unverified.", "paths": [] }
     ],
     "exemptions": [
-        { "path": "scoring.qualifyingCondition.workbookText", "nonActivity": true, "reason": "OURS: printed whole in Part 6, side by side with the 13 September text, and in the trace; stating either text as a coach rule would choose between the 'for example' and colon readings, which his 5 November section 8 keeps open." },
+        { "path": "scoring.qualifyingCondition.workbookText", "nonActivity": true, "reason": "OURS: printed whole in Part 6, side by side with the 13 September text, and in the trace; stating either text as a coach rule would choose between the \"for example\" and colon readings, which his 5 November section 8 keeps open." },
         { "path": "scoring.qualifyingCondition.sep13Text", "nonActivity": true, "reason": "OURS: printed whole in Part 6, side by side with the workbook text, and in the trace, with its provenance (our copy as pasted by Joe; the original email not yet checked)." },
         { "path": "coachQuestion", "nonActivity": true, "reason": "OURS: a decision about what the coach text leaves out (his question is a future feedback direction); printed in Part 2 and Part 7, never in the coach activity." },
         { "path": "area.goalkeepersCounted", "reason": "OURS: his Decision 4 statement for dimensional references (whether goalkeepers are counted); it belongs with the area-per-player figures, printed in Part 2 with it, and does not help a coach run the activity (RC3 2.3); the coach text says there are no goalkeepers." }
@@ -1111,6 +1111,7 @@
         {
             "path": "teams.count",
             "value": 2,
+            "evidenceStates": "Two",
             "declaredStatus": "RULING",
             "howReached": "ENTERED_EVIDENCED",
             "decidedBy": [
@@ -1251,7 +1252,7 @@
             "decidedBy": [{ "ref": "ILLUSTRATIVE", "standing": "ILLUSTRATIVE" }],
             "permittedBy": [{ "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "quote": "Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled" }],
             "consulted": [
-                { "rulingRef": "ASM-30OCT-WALKTHROUGH", "standing": "RULING", "note": "his words scope the 5 m depth to 'the walk-through'; carried over to this experiment as an ILLUSTRATIVE value (applied to this experiment: OURS)." },
+                { "rulingRef": "ASM-30OCT-WALKTHROUGH", "standing": "RULING", "note": "his words scope the 5 m depth to \"the walk-through\"; carried over to this experiment as an ILLUSTRATIVE value (applied to this experiment: OURS)." },
                 { "rulingRef": "ASM-REV1-DIMENSIONS", "standing": "RULING", "note": "A05's dimensions remain provisional." },
                 { "ref": "contracts.json S5/O4 notAuthored", "standing": "CANDIDATE", "note": "GF2 does not author the depth of a target zone." }
             ],
@@ -1279,7 +1280,7 @@
             "howReached": "UNRESOLVED",
             "decidedBy": [{ "ref": "UNRESOLVED", "standing": "UNRESOLVED" }],
             "consulted": [
-                { "rulingRef": "ASM-28OCT-PROVISIONAL", "standing": "RULING", "note": "his words ask for an 'appropriately positioned advanced end zone'; what makes a position appropriate is not defined anywhere in the knowledge." }
+                { "rulingRef": "ASM-28OCT-PROVISIONAL", "standing": "RULING", "note": "his words ask for an \"appropriately positioned advanced end zone\"; what makes a position appropriate is not defined anywhere in the knowledge." }
             ],
             "statusSetBy": [],
             "note": "No authorized value; the illustrative placement stands in for this example only."
@@ -1354,7 +1355,7 @@
                 { "rulingRef": "ASM-29OCT-PROVISIONAL", "standing": "RULING", "valueEvidence": "Scoring: Controlled arrival in an appropriately positioned advanced end zone." }
             ],
             "consulted": [
-                { "rulingRef": "ASM-30OCT-REGAIN", "standing": "RULING", "note": "an interception followed by an immediate controlled arrival counts: consistent with the vocabulary's 'receives and controls the ball inside it'." }
+                { "rulingRef": "ASM-30OCT-REGAIN", "standing": "RULING", "note": "an interception followed by an immediate controlled arrival counts: consistent with the vocabulary's \"receives and controls the ball inside it\"." }
             ],
             "statusSetBy": [],
             "note": "The approved vocabulary's own description of the event, read by code; no narrowing to a received pass."
@@ -1370,7 +1371,7 @@
                 { "knowledgeRef": { "source": "contexts", "table": "properties", "row": "RPC-PROP-134", "column": "property_text" }, "standing": "CANDIDATE" }
             ],
             "consulted": [
-                { "rulingRef": "ASM-REV1-SOURCE-FIDELITY", "standing": "RULING", "note": "the row is APPROVED, but its wording differs from his 13 September text (a colon where his text has 'for example'); the wording is therefore CANDIDATE until he rules." }
+                { "rulingRef": "ASM-REV1-SOURCE-FIDELITY", "standing": "RULING", "note": "the row is APPROVED, but its wording differs from his 13 September text (a colon where his text has \"for example\"); the wording is therefore CANDIDATE until he rules." }
             ],
             "statusSetBy": [{ "rulingRef": "ASM-AUTH-STARTING-CONDITION" }],
             "note": "Printed byte-equal to the cell; never stated as a coach rule."
@@ -1399,7 +1400,7 @@
                 { "rulingRef": "ASM-30OCT-OPTION5", "standing": "RULING", "note": "his provisional option (5), flagged as unverified learning-design relevance; the interpretation and its provenance are recorded here for review." }
             ],
             "statusSetBy": [{ "rulingRef": "ASM-AUTH-STARTING-CONDITION" }, { "rulingRef": "ASM-30OCT-EVE-UNRESOLVED" }, { "rulingRef": "ASM-REV1-SOURCE-FIDELITY" }],
-            "note": "The role of 'from the attack's starting condition' in scoring or configuration has no authorized value. It plays no role in this example's game: every controlled arrival counts, including after a regain. Shown in Scoring as an open question, never moved into the observation guidance."
+            "note": "The role of \"from the attack’s starting condition\" in scoring or configuration has no authorized value. It plays no role in this example's game: every controlled arrival counts, including after a regain. Shown in Scoring as an open question, never moved into the observation guidance."
         },
         {
             "path": "scoring.afterRegain",
@@ -1469,7 +1470,7 @@
                 { "ref": "sport-profile-soccer.json LAW-8", "standing": "OURS", "note": "the kick-off at the start and after a score (Law 8)." }
             ],
             "statusSetBy": [],
-            "note": "His caveat: 'do not promote it as a demonstrated method of restoring organized defensive relationships.' Nothing in this experiment says it does."
+            "note": "His caveat: \"do not promote it as a demonstrated method of restoring organized defensive relationships.\" Nothing in this experiment says it does."
         },
         {
             "path": "start.kickoffDetails",
@@ -1482,11 +1483,11 @@
                 { "rulingRef": "ASM-23OCT-LAWS", "quote": "The normal Laws of the Game should apply by default wherever they are applicable" }
             ],
             "consulted": [
-                { "rulingRef": "ASM-29OCT-ADAPTED-KICKOFF", "standing": "RULING", "note": "his earlier words allow an adapted kick-off after a score for testing, on his proviso; whether to relax the Laws' kick-off here is a non-blocking question to him." },
+                { "rulingRef": "ASM-29OCT-ADAPTED-KICKOFF", "standing": "RULING", "note": "his earlier words permit an adapted kick-off after a score for testing, on his proviso; whether to relax the Laws' kick-off here is a non-blocking question to him." },
                 { "ref": "sport-profile-soccer.json LAW-8", "standing": "OURS", "note": "the Laws kick-off: every player in their own half; the opponents of the kicking team at least 9.15 m from the ball until it is in play." }
             ],
             "statusSetBy": [],
-            "note": "Our reading of 'ordinary': the Laws kick-off unchanged, every player in their own half and the opponents at least 9.15 m from the ball until it is kicked."
+            "note": "Our reading of \"ordinary\": the Laws kick-off unchanged, every player in their own half and the opponents at least 9.15 m from the ball until it is kicked."
         },
         {
             "path": "start.kickoffDistanceM",
@@ -1503,7 +1504,7 @@
                 { "rulingRef": "ASM-29OCT-ADAPTED-KICKOFF", "standing": "RULING", "note": "whether this distance may be relaxed is a non-blocking question to him." }
             ],
             "statusSetBy": [],
-            "note": "The Laws' kick-off distance, entered as its own value so the coach text states the number it restates; our reading of 'ordinary', not his words."
+            "note": "The Laws' kick-off distance, entered as its own value so the coach text states the number it restates; our reading of \"ordinary\", not his words."
         },
         {
             "path": "restart.afterPoint.method",
@@ -1635,7 +1636,7 @@
             "permittedBy": [{ "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "quote": "Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled" }],
             "consulted": [
                 { "ref": "sport-profile-soccer.json LAW-16, LAW-17", "standing": "OURS", "note": "the goal kick and corner kick restart a ball over the end line, but both assume a goal; with none here, this value stands in for both (an adaptation owed)." },
-                { "ref": "contracts.json GF2-16.a", "standing": "CANDIDATE", "note": "the module's preferred default (setup text, CANDIDATE): a ball out of play restarts from the team that did not touch it last; at the end line this value departs from it, so that no restart is taken on the edge of the zone the restarting team attacks." },
+                { "ref": "contracts.json GF2-16.a", "standing": "CANDIDATE", "note": "the module's preferred default (setup text, CANDIDATE): a ball out of play restarts from the team that did not touch it last; at the end line this value departs from it: no restart is taken on the edge of the zone the restarting team attacks." },
                 { "rulingRef": "ASM-23OCT-LAWS", "standing": "RULING", "note": "a departure from the Laws needs an explicit, knowledge-authorized modification; we ask him to confirm that an illustrative value may stand in here." },
                 { "rulingRef": "ASM-REV1-COACH-SERVED-BALL", "standing": "RULING", "note": "his alternative when the ball leaves play (a coach-served ball, not a live turnover); offered to him as an option in the end-line question, not used here." }
             ],
@@ -1685,7 +1686,7 @@
             "decidedBy": [{ "ref": "ILLUSTRATIVE", "standing": "ILLUSTRATIVE" }],
             "permittedBy": [{ "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "quote": "Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled" }],
             "consulted": [
-                { "rulingRef": "ASM-22OCT-COLOURS", "standing": "RULING", "note": "said for the diagram's team identity, hedged ('generally prefer', 'ordinarily remain'); consulted for 'each team keeps its colour', not decisive for bibs." }
+                { "rulingRef": "ASM-22OCT-COLOURS", "standing": "RULING", "note": "said for the diagram's team identity, hedged (\"generally prefer\", \"ordinarily remain\"); consulted for 'each team keeps its colour', not decisive for bibs." }
             ],
             "statusSetBy": [],
             "note": "Bibs are our illustrative equipment."
@@ -1807,7 +1808,7 @@
         { "itemId": "GF2-20", "mappedTo": ["scoring.event"] },
         { "itemId": "GF2-21", "mappedTo": ["scoring.event"] },
         { "itemId": "GF2-22", "mappedTo": ["laws.default", "adjustments"] },
-        { "itemId": "GF2-23", "mappedTo": [], "notUsed": "Meaningful events reorganize space, roles, access or threat: outside the configuration boundary (the contract marks it OUTSIDE_BOUNDARY); only in play." },
+        { "itemId": "GF2-23", "mappedTo": [], "notUsed": "The archetype workbook's condition \"Meaningful events continuously reorganize space, roles, access, or threat.\" (GAK-0107, as the contract quotes it) lies outside the configuration boundary (the contract marks it OUTSIDE_BOUNDARY); it can be seen only in play." },
         { "itemId": "GF2-24.a", "mappedTo": ["area.lengthM"] },
         { "itemId": "GF2-24.b", "mappedTo": ["area.widthM"] }
     ],
@@ -1898,7 +1899,7 @@
                 "words": "Organized opposition meaningfully restricts usable attacking space.",
                 "configuredActivity": {
                     "organizedOppositionRestrictsUsableSpace": { "value": true, "label": "OURS: LOGICAL INFERENCE (read off his sentence)" },
-                    "usefulSpaceAlreadyAvailable": { "value": false, "label": "OURS: LOGICAL INFERENCE ('meaningfully restricts usable attacking space' read as useful space not already available)" },
+                    "usefulSpaceAlreadyAvailable": { "value": false, "label": "OURS: LOGICAL INFERENCE (\"meaningfully restricts usable attacking space\" read as useful space not already available)" },
                     "informationSufficient": { "value": "NOT_SUPPLIED", "label": "not stated by his sentence" }
                 },
                 "expected": { "mismatchReported": false, "uncertaintyReported": true, "scopeEstablished": true }
@@ -1944,7 +1945,7 @@
             "rulingRefs": ["ASM-AUTH-STARTING-CONDITION", "ASM-REV1-SOURCE-FIDELITY", "ASM-REV1-SMALLEST-CORRECTION", "ASM-13SEP-SCORING"],
             "showPaths": ["scoring.qualifyingCondition.sep13Text", "scoring.qualifyingCondition.workbookText", "scoring.startingCondition"],
             "items": [
-                "The two texts are printed side by side below: his 13 September text (our copy as pasted by Joe; original not yet checked) has 'for example' before its final clause; the workbook entry has a colon.",
+                "The two texts are printed side by side below: his 13 September text (our copy as pasted by Joe; original not yet checked) has \"for example\" before its final clause; the workbook entry has a colon.",
                 "Smallest correction (proposed in our 5 November A05 assessment; not applied): restore his \"—for example,\" in place of the colon.",
                 "Precondition for any amendment: verify the 13 September original (Joe's mailbox, or his sent copy); our copy is Joe's paste.",
                 "Attachment chain (OURS: LOGICAL INFERENCE, not verification): the draft workbook he reviewed on 13 September (zip time 15:31) holds no qualifying-condition sentence; the sentence first appears in his reply; the workbook carrying the colon was written later that day (zip time 23:07; the zip clock's time zone is not recorded). This is consistent with the colon entering in our transcription; it does not replace checking the original email.",
@@ -1964,15 +1965,15 @@
         }
     ],
     "openDecisions": [
-        { "id": "AOD-STARTING-CONDITION", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "What role should 'from the attack's starting condition' play in scoring or configuration?", "rulingRefs": ["ASM-AUTH-STARTING-CONDITION", "ASM-30OCT-EVE-UNRESOLVED"], "handling": "Shown as UNRESOLVED in Scoring and the trace; it plays no role in the example's game." },
-        { "id": "AOD-PROP-134-MEANING", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "What does the approved qualifying condition mean (the 'for example' reading or the colon reading), and is maintaining possession a requirement?", "rulingRefs": ["ASM-REV1-SOURCE-FIDELITY", "ASM-13SEP-SCORING"], "handling": "Both texts shown; both readings accounted for; no canonical amendment." },
-        { "id": "AOD-VERIFY-SEP13", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "Does the original 13 September email carry 'for example' where our copy does? Verifying it (Joe's mailbox, or your sent copy) is a precondition for any amendment of the scoring row.", "rulingRefs": ["ASM-REV1-SOURCE-FIDELITY", "ASM-13SEP-SCORING"], "handling": "Our copy is printed with its provenance (Joe's paste); no amendment is proposed or applied here." },
+        { "id": "AOD-STARTING-CONDITION", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "What role should \"from the attack’s starting condition\" play in scoring or configuration?", "rulingRefs": ["ASM-AUTH-STARTING-CONDITION", "ASM-30OCT-EVE-UNRESOLVED", "ASM-13SEP-SCORING"], "handling": "Shown as UNRESOLVED in Scoring and the trace; it plays no role in the example's game." },
+        { "id": "AOD-PROP-134-MEANING", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "What does the approved qualifying condition mean (the \"for example\" reading or the colon reading), and is maintaining possession a requirement?", "rulingRefs": ["ASM-REV1-SOURCE-FIDELITY", "ASM-13SEP-SCORING"], "handling": "Both texts shown; both readings accounted for; no canonical amendment." },
+        { "id": "AOD-VERIFY-SEP13", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "Does the original 13 September email carry \"for example\" where our copy does? Verifying it (Joe's mailbox, or your sent copy) is a precondition for any amendment of the scoring row.", "rulingRefs": ["ASM-REV1-SOURCE-FIDELITY", "ASM-13SEP-SCORING"], "handling": "Our copy is printed with its provenance (Joe's paste); no amendment is proposed or applied here." },
         { "id": "AOD-TRANSLATION-SCOPE", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "What is the production scope of the A05 Game Problem translation (section 8.1)?", "rulingRefs": ["ASM-AUTH-GP-SCOPE"], "handling": "The experiment uses the scoped designation; the smallest decision we see is (a), with (b) and (c) set out in Part 6." },
         { "id": "AOD-K2-SUFFICIENCY", "blocks": "SUITABILITY", "question": "On what knowledge basis could adding nothing to the Game Form be shown sufficient (K2)?", "rulingRefs": ["ASM-REV1-ADD-NOTHING"], "handling": "Suitability is reported UNVERIFIED." },
         { "id": "AOD-CREATE-SPACE-RELATIONSHIP", "blocks": "SUITABILITY", "question": "Which approved environmental relationship would support Create Space in Attack Development?", "rulingRefs": ["ASM-REV1-ADD-NOTHING"], "handling": "None is approved; no element-to-affordance relationship is created." },
         { "id": "AOD-T3-END-LINE", "blocks": "NON_BLOCKING", "question": "May the illustrative end-line restart stand in this offline example? With it, when the ball goes over an end line, the team defending the target zone at that end restarts from that end line, so no restart is taken on the edge of the zone the restarting team attacks (a departure the Laws do not supply: their goal kick and corner kick assume a goal). Or would you prefer a coach-served ball there (\"a coach quickly serving a new ball can be an effective way to maintain game flow, energy, and the frequency of meaningful opportunities\"), not treated as a live turnover?", "rulingRefs": ["ASM-AUTH-ILLUSTRATIVE", "ASM-23OCT-LAWS", "ASM-REV1-COACH-SERVED-BALL"], "handling": "Labelled ILLUSTRATIVE, marked in the review copy; confirmation asked." },
         { "id": "AOD-PROVISIONAL-CLASS", "blocks": "NON_BLOCKING", "question": "We placed your provisional rulings in class 3 ('Candidate or provisional knowledge.'). Did you intend class 2?", "rulingRefs": [], "handling": "Class 3 printed, with your words and received date." },
-        { "id": "AOD-KICKOFF-DISTANCE", "blocks": "NON_BLOCKING", "question": "Optionally: should the kick-off keep the Laws' 9.15 m distance, or may it be relaxed? Your 29 October words: \"An adapted kick-off following a score seems reasonable for testing, provided it recreates useful playing relationships and doesn't unnecessarily interrupt the learning environment.\"", "rulingRefs": ["ASM-REV1-KICKOFF", "ASM-29OCT-ADAPTED-KICKOFF"], "handling": "Our reading of your 5 November 'ordinary kickoff': the Laws kick-off unchanged, 9.15 m included." },
+        { "id": "AOD-KICKOFF-DISTANCE", "blocks": "NON_BLOCKING", "question": "Optionally: should the kick-off keep the Laws' 9.15 m distance, or may it be relaxed? Your 29 October words: \"An adapted kick-off following a score seems reasonable for testing, provided it recreates useful playing relationships and doesn't unnecessarily interrupt the learning environment.\"", "rulingRefs": ["ASM-REV1-KICKOFF", "ASM-29OCT-ADAPTED-KICKOFF"], "handling": "Our reading of your 5 November \"ordinary kickoff\": the Laws kick-off unchanged, 9.15 m included." },
         { "id": "AOD-REQ-E1-REUSE", "blocks": "OUR_READING", "question": "The mismatch report stays a reusable reasoning requirement, applied only in this offline experiment; using it beyond that needs your authorization.", "rulingRefs": ["ASM-EVE-MISMATCH", "ASM-AUTH-BOUNDS"], "handling": "Read from your 4 November words (a reusable requirement) and your 5 November bounds (no broad Stage 2 implementation); dropped from the questions." },
         { "id": "AOD-COACH-QUESTION", "blocks": "OUR_READING", "question": "Your question for future coach feedback stays out of this activity's coach guidance, because you called it a future feedback direction.", "rulingRefs": ["ASM-AUTH-COACH-QUESTION"], "handling": "Kept out of the coach text; printed in Part 2 and Part 7; dropped from the questions." },
         { "id": "AOD-MIRRORED", "blocks": "OUR_READING", "question": "Both teams score in the same way: our reading of your reciprocal objectives and of each team having its own target; your words do not state it.", "rulingRefs": ["ASM-28OCT-PROVISIONAL", "ASM-9OCT-TEAMS"], "handling": "Printed in Scoring as its own sentence, class 6 (our reading)." },

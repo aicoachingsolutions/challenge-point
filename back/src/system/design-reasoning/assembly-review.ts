@@ -14,11 +14,14 @@
  *     where it is not established the designation's scope is reported uncertain (the primary never switches); the recorded requirement is
  *     engaged only where its circumstance is supplied as the value that engages it; the width comparison reads the assembled area and team
  *     sizes, with the configured area as the limit and its own circumstances not supplied, so it can propose nothing;
+ *   - runs the mutation loop (every recorded value changed in a copy of the record, the pipeline re-run, each outcome classified as
+ *     substituted, refused by a sentence written for the recorded value, refused for a structural reason, or exempt and printed in the
+ *     report only; it fails closed on any other outcome), whose counts the front and Part 5 print;
  *   - writes the report and the results, with no time stamp (two runs are byte-identical); Part 5 prints the committed regression record.
  * Nothing here decides a value the record or the Stage 1/2 code did not decide. No goal, Game Problem, context, Game Form or row id, no
  * configuration path and no sport term the coupling ratchet lists appears in this file.
  */
-import { committedKnowledge, DesignKnowledge, SOURCE } from './knowledge'
+import { committedKnowledge, contextIdentityRules, contextProperty, contextValidationRules, DesignKnowledge, SOURCE } from './knowledge'
 import { GameFormSelection, selectGameForm } from './forms'
 import { DesignResolution, resolveDesignContext } from './resolve'
 import { evaluateStructuralConditions, StructuralEvaluation } from './structural'
@@ -33,6 +36,7 @@ import {
     AssemblyRuling,
     basisWords,
     Choice,
+    ChoiceValue,
     classLabel,
     committedExperimentData,
     committedWordingData,
@@ -44,6 +48,7 @@ import {
     Experiment,
     HOW_REACHED,
     HOW_REACHED_LABEL,
+    HowReached,
     longDate,
     requirementAccountOf,
     sentenceMarker,
@@ -77,13 +82,15 @@ export interface SuitabilityReview {
     reviewPoints: Experiment['suitability']['reviewPoints']
 }
 
-/** Whether a row id exists in the knowledge the stage reads (validation, identity, property or archetype rows; ids only). */
-function rowExists(k: DesignKnowledge, id: string): boolean {
-    const c = k.contexts as unknown as Record<string, Array<Record<string, unknown>>>
+/**
+ * Whether a row id the suitability entries cite exists, read through the stage's readers (ids only): a validation rule, identity rule or
+ * property of the routed context (a row of another context does not count), or an archetype knowledge row.
+ */
+function rowExists(k: DesignKnowledge, rpcId: string, id: string): boolean {
     return (
-        (c.validation_rules ?? []).some((r) => r.validation_id === id) ||
-        (c.identity_rules ?? []).some((r) => r.identity_rule_id === id) ||
-        (c.properties ?? []).some((r) => r.property_id === id) ||
+        contextValidationRules(k, rpcId).some((r) => r.validationId === id) ||
+        contextIdentityRules(k, rpcId).some((r) => r.identityRuleId === id) ||
+        contextProperty(k, id)?.rpcId === rpcId ||
         k.archetypes.knowledge.some((r) => r.Target_ID === id)
     )
 }
@@ -121,7 +128,7 @@ export function suitabilityReview(k: DesignKnowledge, resolution: DesignResoluti
         otherForms: forms.compatible.filter((id) => id !== illustrative).map((id) => ({ gameFormId: id, configurationRows: 'MISSING' as const, reason: 'no contract and not assembled: the configuration rows belong to the illustrative assembly only' })),
         properties: s.properties.map((p) => {
             const missingPaths = p.structural.paths.filter((x) => !present(x))
-            const missingRows = p.structural.rows.filter((x) => !rowExists(k, x))
+            const missingRows = p.structural.rows.filter((x) => !rowExists(k, activity.rpcId, x))
             return {
                 property: p.property,
                 structural: { status: missingPaths.length ? 'NOT_SUPPLIED' : p.structural.status, paths: [...p.structural.paths], missingPaths, rows: [...p.structural.rows], missingRows },
@@ -131,7 +138,7 @@ export function suitabilityReview(k: DesignKnowledge, resolution: DesignResoluti
         }),
         scale: s.scale,
         exposure: s.exposure,
-        identityPoint: { ...s.identityPoint, missingRows: s.identityPoint.rows.filter((x) => !rowExists(k, x)) },
+        identityPoint: { ...s.identityPoint, missingRows: s.identityPoint.rows.filter((x) => !rowExists(k, activity.rpcId, x)) },
         scopeTension: s.scopeTension,
         addNothing: s.addNothing,
         reviewPoints: s.reviewPoints,
@@ -257,6 +264,93 @@ export function runAssembly(
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
+// The mutation loop (Part 5 and the front print its counts): every recorded value changed in a copy of the record, the pipeline re-run
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ * What became of one changed value: substituted into the coach text (the sentence that expresses it changes); refused because a sentence
+ * written for the recorded value (whenValue) accepts no other; refused for a structural reason (the validator or the assembly names the
+ * value); or, for a value exempt from the coach text, accepted and printed in the report only.
+ */
+export const MUTATION_OUTCOMES = ['SUBSTITUTED', 'WHEN_VALUE_PINNED', 'STRUCTURAL', 'EXEMPT_PRINTED_ONLY'] as const
+export type MutationOutcome = (typeof MUTATION_OUTCOMES)[number]
+
+export interface MutationResult {
+    path: string
+    howReached: HowReached
+    mutatedTo: ChoiceValue
+    outcome: MutationOutcome
+    reason: string
+}
+
+export interface MutationLoop {
+    values: number
+    counts: Record<MutationOutcome, number>
+    results: MutationResult[]
+}
+
+/** The changed value: a number plus one, a true or false flipped, anything else (null included) a sentinel no record holds. */
+export const mutatedValue = (v: ChoiceValue): ChoiceValue => (typeof v === 'number' ? v + 1 : typeof v === 'boolean' ? !v : 'SENTINEL_MUTATION')
+
+/**
+ * Change every recorded value, one at a time, in a copy of the record, and re-run the whole pipeline. Fails closed: a refusal whose message
+ * does not name the changed value (a crash, or a check firing for another reason), or a changed value accepted but shown in no sentence that
+ * expresses it (nor, for an exempt value, in the report), throws, so the counts can only describe outcomes the checks actually produced.
+ */
+export function mutationLoop(
+    displayFor: (k: DesignKnowledge, experiment: Experiment, resolution: DesignResolution, forms: GameFormSelection) => DisplayTexts,
+    knowledge: DesignKnowledge = committedKnowledge(),
+    experimentRaw: unknown = committedExperimentData(),
+    wordingRaw: unknown = committedWordingData()
+): MutationLoop {
+    const recorded = validateExperiment(JSON.parse(JSON.stringify(experimentRaw)))
+    const results = recorded.choices.map((c): MutationResult => {
+        const raw = JSON.parse(JSON.stringify(experimentRaw)) as { choices: Array<{ path: string; value: ChoiceValue }> }
+        const target = raw.choices.find((y) => y.path === c.path) as { value: ChoiceValue }
+        const next = mutatedValue(target.value)
+        target.value = next
+        const result = (outcome: MutationOutcome, reason: string): MutationResult => ({ path: c.path, howReached: c.howReached, mutatedTo: next, outcome, reason })
+        let changed: AssemblyRun
+        try {
+            changed = runAssembly(displayFor, knowledge, raw, wordingRaw)
+        } catch (e) {
+            const message = e instanceof Error ? e.message : String(e)
+            if (message.indexOf(`whenValue ${c.path} = `) >= 0) return result('WHEN_VALUE_PINNED', message.slice(message.indexOf('template ')))
+            if (message.indexOf(`(${c.path})`) >= 0) return result('STRUCTURAL', message.slice(message.indexOf(`(${c.path})`) + c.path.length + 2).replace(/^[^\s:]*:\s*/, '').trim())
+            throw new Error(`mutation loop: changing ${c.path} was refused for a reason that does not name it: ${message}`)
+        }
+        const exempt = changed.experiment.exemptions.some((e) => e.path === c.path)
+        const shown = changed.activity.choices.find((y) => y.path === c.path)?.rendered ?? ''
+        const texts = exempt
+            ? [buildAssemblyReport(changed).report]
+            : [...changed.composed.sections.flatMap((s) => s.sentences).filter((s) => s.expresses.indexOf(c.path) >= 0).map((s) => s.text), ...changed.design.filter((d) => d.expresses.indexOf(c.path) >= 0).map((d) => d.text)]
+        if (!texts.some((t) => t.indexOf(String(next)) >= 0 || (shown !== String(next) && t.indexOf(shown) >= 0))) throw new Error(`mutation loop: ${c.path} changed to ${String(next)} and accepted, but no sentence expressing it shows it`)
+        return exempt ? result('EXEMPT_PRINTED_ONLY', 'exempt from the coach text; the changed value is printed in the report only') : result('SUBSTITUTED', 'the changed value is printed in the sentence that expresses it')
+    })
+    const counts = Object.fromEntries(MUTATION_OUTCOMES.map((o) => [o, results.filter((r) => r.outcome === o).length])) as Record<MutationOutcome, number>
+    return { values: results.length, counts, results }
+}
+
+/** The mutation loop in plain words, for Part 5 (the front prints its first sentence). */
+function mutationWords(m: MutationLoop): { front: string; part5: string[] } {
+    const of = (o: MutationOutcome) => m.results.filter((r) => r.outcome === o)
+    const structural = of('STRUCTURAL')
+    const byCode = structural.filter((r) => r.howReached === 'READ_BY_CODE')
+    const unresolved = structural.filter((r) => r.howReached === 'UNRESOLVED')
+    const other = structural.filter((r) => r.howReached !== 'READ_BY_CODE' && r.howReached !== 'UNRESOLVED')
+    const c = m.counts
+    const front = `Of the ${m.values} recorded values, changed one at a time in a copy of the record: ${c.SUBSTITUTED} are substituted into the coach text (the sentence changes with the value); ${c.WHEN_VALUE_PINNED} are expressed by sentences written for the recorded value, which refuse any other (whenValue), so a changed value is refused, not re-worded; ${c.STRUCTURAL} are refused for structural reasons; ${c.EXEMPT_PRINTED_ONLY} are exempt from the coach text and appear only in the report.`
+    const part5 = [
+        `  Mutation loop (every one of the ${m.values} recorded values changed in a copy of the record, a number by one, a true or false value flipped, any other value to a sentinel, and the whole pipeline re-run; a refusal must name the changed value, and an accepted change must show in a sentence that expresses it, or the loop fails):`,
+        `    substituted into the coach text, ${c.SUBSTITUTED}: ${of('SUBSTITUTED').map((r) => r.path).join(', ') || 'none'};`,
+        `    refused by a sentence written for the recorded value (whenValue), ${c.WHEN_VALUE_PINNED}: the composer cannot re-word these sentences, and whether each sentence's wording matches its value is checked by the unit test's own phrase table (VALUE_PHRASES), not by substitution;`,
+        `    refused for structural reasons, ${c.STRUCTURAL}: ${byCode.length} read by code (they cannot be typed; the unit tests flip the knowledge they read instead: ${byCode.map((r) => r.path).join(', ')}); ${unresolved.length} unresolved (no value may be entered: ${unresolved.map((r) => r.path).join(', ')}); ${other.map((r) => `${r.path} (${r.reason})`).join('; ') || 'no other'};`,
+        `    exempt from the coach text and printed in the report only, ${c.EXEMPT_PRINTED_ONLY}: ${of('EXEMPT_PRINTED_ONLY').map((r) => r.path).join(', ') || 'none'}.`,
+    ]
+    return { front, part5 }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
 // The regression record (committed beside the evidence; filled after the final regression run)
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
@@ -328,7 +422,7 @@ export function rationaleLine(run: AssemblyRun, c: AssembledChoice): string {
     return `${c.path}: "${c.rendered}"${provenance} [${classLabel(c.sixClass)}]. ${parts.join('. ')}.${consulted.length ? ` Consulted only: ${consulted.join('; ')}.` : ''}`
 }
 
-function frontAndParts(run: AssemblyRun): string[] {
+function frontAndParts(run: AssemblyRun, mutation: MutationLoop | null): string[] {
     const { experiment: x, activity: a } = run
     const byId = rulingsById(x)
     const ref = (key: keyof Experiment['reportRefs']) => {
@@ -356,6 +450,7 @@ function frontAndParts(run: AssemblyRun): string[] {
     L.push(`- COMPUTED (Part 2 prints each with its own influence trace): ${a.computed.map((c) => c.id).join('; ')}; and, counted separately, the structural conditions of each compatible form (Part 3).`)
     L.push('- NOT COMPUTED: the architecture has no configuration step today (Steps 3-5 are held). The configuration is a labelled decision record we entered: each value is evidenced in his words, illustrative, our inference, or unresolved, and says so.')
     L.push('- The coach text is a DRAFT template fill keyed to configuration paths: not the production renderer, and not approved wording.')
+    L.push(`- How far the text follows the record: ${mutation ? `${mutationWords(mutation).front} (Part 5 lists each.)` : 'the mutation loop was not run for this report.'}`)
     L.push(`- How the ${n} activity values reached it: ${HOW_REACHED.map((key) => `${HOW_REACHED_LABEL[key]} ${h[key]}`).join('; ')}.`)
     L.push(`- His six classes over the ${n} activity values: ${Object.entries(a.counts.classes).map(([c, k]) => `${c} ${k}`).join('; ')}.`)
     const class1 = activityChoices.filter((c) => c.sixClass === 1)
@@ -395,9 +490,11 @@ function activityPart(run: AssemblyRun): string[] {
     const L: string[] = ['', '=== PART 1. The activity as assembled (review copy) ===']
     const limits = byId.get(x.reportRefs.limits.rulingRef) as AssemblyRuling
     for (const w of limits.words) L.push(`His limits: "${w}" (received ${longDate(limits.received)})`)
-    const caveat = x.reportRefs.kickoffCaveat
+    const caveat = x.reportRefs.caveat
     L.push(`His caveat on the start: "${caveat.quote}" (received ${longDate((byId.get(caveat.rulingRef) as AssemblyRuling).received)})`)
     L.push(`Wording: ${wording.standing}`)
+    L.push(`Wording keyed for: ${wording.keyedFor.gameForm} and the scoring event ${wording.keyedFor.scoringEvent}. ${wording.keyedFor.note}`)
+    L.push(`Coach terms: "${wording.coachTerms.targetZone}" and "${wording.coachTerms.markedLine}" (${wording.coachTerms.source})`)
     L.push('Markers: each sentence carries, in brackets, the weakest of his classes among the values it expresses (class 1 unmarked); where its values differ in class, each value\'s class is listed too. A sentence marked review only is a review disclosure, dropped from a coach copy. In a coach-facing copy every marker would be hidden from coaches (RC3 6.1); they are shown here for review. A sentence whose wording status is not newly proposed says so.')
     L.push('', 'LEARNING DESIGN (shown beside the RC3 activity; generated from the assembly, not from the wording file)')
     for (const d of run.design) L.push(`  ${d.text}${d.marker ? ` ${d.marker}` : ''}`)
@@ -499,7 +596,7 @@ function structuralRows(e: StructuralEvaluation): string[] {
     ]
 }
 
-function reviewParts(run: AssemblyRun, regression: RegressionRecord | null): string[] {
+function reviewParts(run: AssemblyRun, regression: RegressionRecord | null, mutation: MutationLoop | null): string[] {
     const { experiment: x, suitability: s, scenarios, forms } = run
     const byId = rulingsById(x)
     const L: string[] = ['', '=== PART 3. Game Form alternatives and representative suitability ===']
@@ -558,7 +655,9 @@ function reviewParts(run: AssemblyRun, regression: RegressionRecord | null): str
     L.push(`  The scope circumstance is read from his words: ${x.scenarios.scopeCircumstance.rulingRefs.join(', ')}.`)
 
     L.push('', '=== PART 5. Regression and output checks ===')
-    L.push('  The unit tests (assembly.unit.ts, in npm test) check, in plain words: every value reaches the coach text or the learning-design block, or is pinned as exempt with a reason; a sentence\'s numbers come only from its values; a template written for one value (whenValue) refuses any other value, so the wording of those sentences is not checked by substitution, and the keyword checks bind words to the values they concern; the scoring sentences name the target zone and never a line; the What to Watch block says nothing about the starting condition; no coach sentence carries a status word; the rationale makes no effect claim; no value his words do not state is printed as stated by him; his words are verbatim in the record; the classes follow his order; the Laws and contract items are all accounted for; the requirement account counts no unsupported, unresolved or observation-only component; Stage 2\'s evidence is byte-identical; two runs are byte-identical. That the Game Problems are unchanged across the three scenarios holds by construction (the resolution takes no circumstance input); it is not a tested outcome.')
+    L.push('  The unit tests (assembly.unit.ts, in npm test) check, in plain words: every value reaches the coach text or the learning-design block, or is pinned as exempt with a reason; each number sits beside the word it counts (pinned per value), and a sentence\'s numbers come only from its values; a template written for one value (whenValue) refuses any other value, so the wording of those sentences is not checked by substitution: an independent phrase table in the test requires and forbids phrases for each value such a sentence is written for, and the keyword checks bind words to the values they concern; the scoring, direction and win sentences name the target zone and never a line; no scoring sentence makes keeping possession a condition; the What to Watch block says nothing about the starting condition; no coach sentence carries a status word or an unquoted quotation; no report line outside quotation marks makes an effect claim; no value his words do not state is printed as stated by him, and each value his words do state, with its class, is pinned in the test independently of the record; his words are verbatim in the record (their hashes pinned after the external quote check); the classes follow his order; the Laws (status per law) and contract items (load-bearing mappings and ranges) are all accounted for; the requirement account counts no unsupported, unresolved or observation-only component; no decision moves when the display texts are rewritten; Stage 2\'s evidence is byte-identical; two runs, and the committed evidence, are byte-identical. That the Game Problems are unchanged across the three scenarios holds by construction (the resolution takes no circumstance input); it is not a tested outcome.')
+    if (mutation) L.push(...mutationWords(mutation).part5)
+    else L.push('  Mutation loop: not run for this report.')
     if (!regression) L.push('  Regression record: not supplied to this run.')
     else {
         L.push(`  Regression record (evidence/regression-record.json): ${regression.status}. ${regression.standing}`)
@@ -601,11 +700,11 @@ function reviewParts(run: AssemblyRun, regression: RegressionRecord | null): str
 }
 
 /** The report text and the results value; no time stamp, so two runs on the same inputs are byte-identical. */
-export function buildAssemblyReport(run: AssemblyRun, regression: RegressionRecord | null = null): { report: string; results: unknown } {
+export function buildAssemblyReport(run: AssemblyRun, regression: RegressionRecord | null = null, mutation: MutationLoop | null = null): { report: string; results: unknown } {
     const lines: string[] = []
     lines.push(`Bounded ${run.experiment.learningGoalId} activity-assembly experiment (${run.display.goalName.text}): review pathway only, offline`)
     lines.push(`Standing: ${run.experiment.standing}`)
-    lines.push(...frontAndParts(run), ...activityPart(run), ...tracePart(run), ...reviewParts(run, regression))
+    lines.push(...frontAndParts(run, mutation), ...activityPart(run), ...tracePart(run), ...reviewParts(run, regression, mutation))
     const results = {
         stage: ASSEMBLY_STAGE,
         standing: run.experiment.standing,
@@ -625,6 +724,7 @@ export function buildAssemblyReport(run: AssemblyRun, regression: RegressionReco
         openDecisions: run.experiment.openDecisions,
         dependencies: run.experiment.dependencies,
         regressionRecord: regression,
+        mutationLoop: mutation,
         sixClasses: SIX_CLASSES.map((c, i) => ({ class: (i + 1) as SixClass, words: c })),
     }
     return { report: `${lines.join('\n')}\n`, results }

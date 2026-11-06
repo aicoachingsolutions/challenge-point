@@ -20,6 +20,13 @@
  * coach definition, "choose this when" text, entry-language phrase, Practice Situation name, relationship note or statement text. The readers
  * below take ids, relationship rows, ratings, statuses and declared id columns only. A static test pins this.
  *
+ * ASSEMBLY EXPERIMENT (his second reply of 5 November 2026). One stage file, `assembly-display.ts`, reads six allowlisted display cells (a
+ * goal's coach definition and name, a Game Problem's name, a Game Form's name, a scoring event's controlled-vocabulary description and a
+ * context property's text) after the decisions, for the coach text and the report only; a static test pins the allowlist exactly and that
+ * only runners and unit tests import that file, and a unit test rewrites every allowlisted cell and finds every decision unchanged. The
+ * readers in this file still take no text: the two it adds for the experiment (a context's identity rules and validation rules) return
+ * ids, roles or domains, stages and statuses only.
+ *
  * Sport-neutral: the sport's module arrives through the sport layer (`../sport-module/design-knowledge-sources.ts`).
  */
 import atmWorkbook from '../knowledge-core/atm-workbook.rc1.2.json'

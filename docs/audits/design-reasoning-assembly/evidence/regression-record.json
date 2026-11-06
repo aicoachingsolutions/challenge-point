@@ -1,5 +1,5 @@
 {
-    "standing": "No regression result is recorded for this build yet. The lead fills this record after the final regression run (type check, the full unit suite, the behaviour snapshot with A01's entries, the bundle, Stage 2 evidence, the quote check, the mutation loop's counts by outcome), then re-runs the runner so Part 5 prints it. Until then nothing in Part 5 is a regression result.",
+    "standing": "No regression result is recorded for this build yet. The lead fills this record after the final regression run (type check, the full unit suite, the behaviour snapshot with A01's entries, the bundle, Stage 2 evidence, the quote check), then re-runs the runner so Part 5 prints it: assembly.unit.ts test (v) requires the committed report and results to equal the runner's output with this record, so the runner must be re-run whenever this record changes. The mutation loop's counts by outcome are computed by the runner itself and printed in Part 5 beside this record. Until this record is filled, nothing in it is a regression result.",
     "status": "PLACEHOLDER",
     "build": null,
     "results": []

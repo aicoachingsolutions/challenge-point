@@ -1454,7 +1454,7 @@
           {
             "ref": "ASM-30OCT-WALKTHROUGH (received 30 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his words scope the 5 m depth to 'the walk-through'; carried over to this experiment as an ILLUSTRATIVE value (applied to this experiment: OURS).",
+            "role": "his words scope the 5 m depth to \"the walk-through\"; carried over to this experiment as an ILLUSTRATIVE value (applied to this experiment: OURS).",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1566,7 +1566,7 @@
           {
             "ref": "ASM-28OCT-PROVISIONAL (received 28 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his words ask for an 'appropriately positioned advanced end zone'; what makes a position appropriate is not defined anywhere in the knowledge.",
+            "role": "his words ask for an \"appropriately positioned advanced end zone\"; what makes a position appropriate is not defined anywhere in the knowledge.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1802,7 +1802,7 @@
           {
             "ref": "ASM-30OCT-REGAIN (received 30 October 2026)",
             "standing": "RULING",
-            "role": "an interception followed by an immediate controlled arrival counts: consistent with the vocabulary's 'receives and controls the ball inside it'.",
+            "role": "an interception followed by an immediate controlled arrival counts: consistent with the vocabulary's \"receives and controls the ball inside it\".",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1837,7 +1837,7 @@
           {
             "ref": "ASM-REV1-SOURCE-FIDELITY (received 5 November 2026)",
             "standing": "RULING",
-            "role": "the row is APPROVED, but its wording differs from his 13 September text (a colon where his text has 'for example'); the wording is therefore CANDIDATE until he rules.",
+            "role": "the row is APPROVED, but its wording differs from his 13 September text (a colon where his text has \"for example\"); the wording is therefore CANDIDATE until he rules.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1979,7 +1979,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 6,
         "allDecisiveRulingsProvisional": false,
-        "note": "The role of 'from the attack's starting condition' in scoring or configuration has no authorized value. It plays no role in this example's game: every controlled arrival counts, including after a regain. Shown in Scoring as an open question, never moved into the observation guidance."
+        "note": "The role of \"from the attack’s starting condition\" in scoring or configuration has no authorized value. It plays no role in this example's game: every controlled arrival counts, including after a regain. Shown in Scoring as an open question, never moved into the observation guidance."
       },
       {
         "path": "scoring.afterRegain",
@@ -2188,7 +2188,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 3,
         "allDecisiveRulingsProvisional": true,
-        "note": "His caveat: 'do not promote it as a demonstrated method of restoring organized defensive relationships.' Nothing in this experiment says it does."
+        "note": "His caveat: \"do not promote it as a demonstrated method of restoring organized defensive relationships.\" Nothing in this experiment says it does."
       },
       {
         "path": "start.kickoffDetails",
@@ -2208,7 +2208,7 @@
           {
             "ref": "ASM-29OCT-ADAPTED-KICKOFF (received 29 October 2026)",
             "standing": "RULING",
-            "role": "his earlier words allow an adapted kick-off after a score for testing, on his proviso; whether to relax the Laws' kick-off here is a non-blocking question to him.",
+            "role": "his earlier words permit an adapted kick-off after a score for testing, on his proviso; whether to relax the Laws' kick-off here is a non-blocking question to him.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2249,7 +2249,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 6,
         "allDecisiveRulingsProvisional": false,
-        "note": "Our reading of 'ordinary': the Laws kick-off unchanged, every player in their own half and the opponents at least 9.15 m from the ball until it is kicked."
+        "note": "Our reading of \"ordinary\": the Laws kick-off unchanged, every player in their own half and the opponents at least 9.15 m from the ball until it is kicked."
       },
       {
         "path": "start.kickoffDistanceM",
@@ -2310,7 +2310,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 6,
         "allDecisiveRulingsProvisional": false,
-        "note": "The Laws' kick-off distance, entered as its own value so the coach text states the number it restates; our reading of 'ordinary', not his words."
+        "note": "The Laws' kick-off distance, entered as its own value so the coach text states the number it restates; our reading of \"ordinary\", not his words."
       },
       {
         "path": "restart.afterPoint.method",
@@ -2691,7 +2691,7 @@
           {
             "ref": "contracts.json GF2-16.a",
             "standing": "CANDIDATE",
-            "role": "the module's preferred default (setup text, CANDIDATE): a ball out of play restarts from the team that did not touch it last; at the end line this value departs from it, so that no restart is taken on the edge of the zone the restarting team attacks."
+            "role": "the module's preferred default (setup text, CANDIDATE): a ball out of play restarts from the team that did not touch it last; at the end line this value departs from it: no restart is taken on the edge of the zone the restarting team attacks."
           },
           {
             "ref": "ASM-23OCT-LAWS (received 23 October 2026)",
@@ -2863,7 +2863,7 @@
           {
             "ref": "ASM-22OCT-COLOURS (received 22 October 2026)",
             "standing": "RULING",
-            "role": "said for the diagram's team identity, hedged ('generally prefer', 'ordinarily remain'); consulted for 'each team keeps its colour', not decisive for bibs.",
+            "role": "said for the diagram's team identity, hedged (\"generally prefer\", \"ordinarily remain\"); consulted for 'each team keeps its colour', not decisive for bibs.",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -4961,7 +4961,7 @@
     {
       "itemId": "GF2-23",
       "mappedTo": [],
-      "notUsed": "Meaningful events reorganize space, roles, access or threat: outside the configuration boundary (the contract marks it OUTSIDE_BOUNDARY); only in play."
+      "notUsed": "The archetype workbook's condition \"Meaningful events continuously reorganize space, roles, access, or threat.\" (GAK-0107, as the contract quotes it) lies outside the configuration boundary (the contract marks it OUTSIDE_BOUNDARY); it can be seen only in play."
     },
     {
       "itemId": "GF2-24.a",
@@ -8671,7 +8671,7 @@
           "key": "usefulSpaceAlreadyAvailable",
           "label": "useful space is already available in the configured activity",
           "value": false,
-          "valueLabel": "OURS: LOGICAL INFERENCE ('meaningfully restricts usable attacking space' read as useful space not already available)"
+          "valueLabel": "OURS: LOGICAL INFERENCE (\"meaningfully restricts usable attacking space\" read as useful space not already available)"
         },
         {
           "key": "informationSufficient",
@@ -8929,7 +8929,7 @@
         "scoring.startingCondition"
       ],
       "items": [
-        "The two texts are printed side by side below: his 13 September text (our copy as pasted by Joe; original not yet checked) has 'for example' before its final clause; the workbook entry has a colon.",
+        "The two texts are printed side by side below: his 13 September text (our copy as pasted by Joe; original not yet checked) has \"for example\" before its final clause; the workbook entry has a colon.",
         "Smallest correction (proposed in our 5 November A05 assessment; not applied): restore his \"—for example,\" in place of the colon.",
         "Precondition for any amendment: verify the 13 September original (Joe's mailbox, or his sent copy); our copy is Joe's paste.",
         "Attachment chain (OURS: LOGICAL INFERENCE, not verification): the draft workbook he reviewed on 13 September (zip time 15:31) holds no qualifying-condition sentence; the sentence first appears in his reply; the workbook carrying the colon was written later that day (zip time 23:07; the zip clock's time zone is not recorded). This is consistent with the colon entering in our transcription; it does not replace checking the original email.",
@@ -8954,17 +8954,18 @@
     {
       "id": "AOD-STARTING-CONDITION",
       "blocks": "SCORING_FIDELITY_OR_PRODUCTION",
-      "question": "What role should 'from the attack's starting condition' play in scoring or configuration?",
+      "question": "What role should \"from the attack’s starting condition\" play in scoring or configuration?",
       "rulingRefs": [
         "ASM-AUTH-STARTING-CONDITION",
-        "ASM-30OCT-EVE-UNRESOLVED"
+        "ASM-30OCT-EVE-UNRESOLVED",
+        "ASM-13SEP-SCORING"
       ],
       "handling": "Shown as UNRESOLVED in Scoring and the trace; it plays no role in the example's game."
     },
     {
       "id": "AOD-PROP-134-MEANING",
       "blocks": "SCORING_FIDELITY_OR_PRODUCTION",
-      "question": "What does the approved qualifying condition mean (the 'for example' reading or the colon reading), and is maintaining possession a requirement?",
+      "question": "What does the approved qualifying condition mean (the \"for example\" reading or the colon reading), and is maintaining possession a requirement?",
       "rulingRefs": [
         "ASM-REV1-SOURCE-FIDELITY",
         "ASM-13SEP-SCORING"
@@ -8974,7 +8975,7 @@
     {
       "id": "AOD-VERIFY-SEP13",
       "blocks": "SCORING_FIDELITY_OR_PRODUCTION",
-      "question": "Does the original 13 September email carry 'for example' where our copy does? Verifying it (Joe's mailbox, or your sent copy) is a precondition for any amendment of the scoring row.",
+      "question": "Does the original 13 September email carry \"for example\" where our copy does? Verifying it (Joe's mailbox, or your sent copy) is a precondition for any amendment of the scoring row.",
       "rulingRefs": [
         "ASM-REV1-SOURCE-FIDELITY",
         "ASM-13SEP-SCORING"
@@ -9034,7 +9035,7 @@
         "ASM-REV1-KICKOFF",
         "ASM-29OCT-ADAPTED-KICKOFF"
       ],
-      "handling": "Our reading of your 5 November 'ordinary kickoff': the Laws kick-off unchanged, 9.15 m included."
+      "handling": "Our reading of your 5 November \"ordinary kickoff\": the Laws kick-off unchanged, 9.15 m included."
     },
     {
       "id": "AOD-REQ-E1-REUSE",
@@ -9122,10 +9123,406 @@
     }
   ],
   "regressionRecord": {
-    "standing": "No regression result is recorded for this build yet. The lead fills this record after the final regression run (type check, the full unit suite, the behaviour snapshot with A01's entries, the bundle, Stage 2 evidence, the quote check, the mutation loop's counts by outcome), then re-runs the runner so Part 5 prints it. Until then nothing in Part 5 is a regression result.",
+    "standing": "No regression result is recorded for this build yet. The lead fills this record after the final regression run (type check, the full unit suite, the behaviour snapshot with A01's entries, the bundle, Stage 2 evidence, the quote check), then re-runs the runner so Part 5 prints it: assembly.unit.ts test (v) requires the committed report and results to equal the runner's output with this record, so the runner must be re-run whenever this record changes. The mutation loop's counts by outcome are computed by the runner itself and printed in Part 5 beside this record. Until this record is filled, nothing in it is a regression result.",
     "status": "PLACEHOLDER",
     "build": null,
     "results": []
+  },
+  "mutationLoop": {
+    "values": 55,
+    "counts": {
+      "SUBSTITUTED": 7,
+      "WHEN_VALUE_PINNED": 30,
+      "STRUCTURAL": 16,
+      "EXEMPT_PRINTED_ONLY": 2
+    },
+    "results": [
+      {
+        "path": "purpose",
+        "howReached": "READ_BY_CODE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "a value read by code has no entered value"
+      },
+      {
+        "path": "gameProblems.primary",
+        "howReached": "READ_BY_CODE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "a value read by code has no entered value"
+      },
+      {
+        "path": "gameProblems.secondary",
+        "howReached": "READ_BY_CODE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "a value read by code has no entered value"
+      },
+      {
+        "path": "gameProblems.secondaryFinding",
+        "howReached": "READ_BY_CODE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "a value read by code has no entered value"
+      },
+      {
+        "path": "gameProblems.candidate",
+        "howReached": "READ_BY_CODE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "a value read by code has no entered value"
+      },
+      {
+        "path": "gameForm.illustrativeChoice",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "namesValue: his quoted words must contain the value"
+      },
+      {
+        "path": "gameForm.alternatives",
+        "howReached": "READ_BY_CODE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "a value read by code has no entered value"
+      },
+      {
+        "path": "teams.count",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": 3,
+        "outcome": "STRUCTURAL",
+        "reason": "evidenceStates \"Two\" states 2, not the value 3"
+      },
+      {
+        "path": "teams.equalOutfield",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ov-players: whenValue teams.equalOutfield = \"EQUAL\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "players.perTeam",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": 7,
+        "outcome": "SUBSTITUTED",
+        "reason": "the changed value is printed in the sentence that expresses it"
+      },
+      {
+        "path": "players.goalkeepers",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": 1,
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ov-players: whenValue players.goalkeepers = 0, but the assembled value is 1"
+      },
+      {
+        "path": "area.lengthM",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": 41,
+        "outcome": "SUBSTITUTED",
+        "reason": "the changed value is printed in the sentence that expresses it"
+      },
+      {
+        "path": "area.widthM",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": 31,
+        "outcome": "SUBSTITUTED",
+        "reason": "the changed value is printed in the sentence that expresses it"
+      },
+      {
+        "path": "area.includesEndZones",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": false,
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ov-area: whenValue area.includesEndZones = true, but the assembled value is false"
+      },
+      {
+        "path": "area.goalkeepersCounted",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "EXEMPT_PRINTED_ONLY",
+        "reason": "exempt from the coach text; the changed value is printed in the report only"
+      },
+      {
+        "path": "area.halfwayLine",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template st-area: whenValue area.halfwayLine = \"MARKED\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "area.centreMark",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template st-area: whenValue area.centreMark = \"MARKED\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "endZones.depthM",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": 6,
+        "outcome": "SUBSTITUTED",
+        "reason": "the changed value is printed in the sentence that expresses it"
+      },
+      {
+        "path": "endZones.placement",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "SENTINEL_MUTATION maps to no number of target zones (placementZoneCount)"
+      },
+      {
+        "path": "endZones.positioning",
+        "howReached": "UNRESOLVED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "an UNRESOLVED value has no value and exactly one decisive item { ref: UNRESOLVED, standing: UNRESOLVED }"
+      },
+      {
+        "path": "endZones.access",
+        "howReached": "ENTERED_OUR_INFERENCE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ru-access: whenValue endZones.access = \"ANY_PLAYER_ANY_TIME\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "interactionRegulations",
+        "howReached": "ENTERED_OUR_INFERENCE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ru-interaction: whenValue interactionRegulations = \"NONE_ADDED\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "directions",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ov-game: whenValue directions = \"EACH_ATTACKS_ONE_DEFENDS_THE_OTHER_ALL_GAME\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "scoring.event",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "SENTINEL_MUTATION is not one of RPC-003's ACTIVE scoring events (target_zone_entered, line_crossed, gate, target_player)"
+      },
+      {
+        "path": "scoring.means",
+        "howReached": "READ_BY_CODE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "a value read by code has no entered value"
+      },
+      {
+        "path": "scoring.qualifyingCondition.workbookText",
+        "howReached": "READ_BY_CODE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "a value read by code has no entered value"
+      },
+      {
+        "path": "scoring.qualifyingCondition.sep13Text",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "valueIsEvidence: the value must equal its first decisive item's evidence"
+      },
+      {
+        "path": "scoring.startingCondition",
+        "howReached": "UNRESOLVED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "an UNRESOLVED value has no value and exactly one decisive item { ref: UNRESOLVED, standing: UNRESOLVED }"
+      },
+      {
+        "path": "scoring.afterRegain",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template sc-regain: whenValue scoring.afterRegain = \"COUNTS\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "scoring.mirrored",
+        "howReached": "ENTERED_OUR_INFERENCE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template sc-mirrored: whenValue scoring.mirrored = \"SAME_FOR_BOTH\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "opposition.reciprocal",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ru-directions: whenValue opposition.reciprocal = \"RECIPROCAL\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "play.continuous",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ru-continuous: whenValue play.continuous = \"CONTINUOUS_THROUGH_TURNOVERS\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "start.method",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template rs-start: whenValue start.method = \"ORDINARY_KICKOFF\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "start.kickoffDetails",
+        "howReached": "ENTERED_OUR_INFERENCE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template rs-kickoff: whenValue start.kickoffDetails = \"LAWS_KICKOFF_UNCHANGED\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "start.kickoffDistanceM",
+        "howReached": "ENTERED_OUR_INFERENCE",
+        "mutatedTo": 10.15,
+        "outcome": "SUBSTITUTED",
+        "reason": "the changed value is printed in the sentence that expresses it"
+      },
+      {
+        "path": "restart.afterPoint.method",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template rs-after-point: whenValue restart.afterPoint.method = \"KICKOFF\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "restart.afterPoint.who",
+        "howReached": "ENTERED_OUR_INFERENCE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template rs-after-point: whenValue restart.afterPoint.who = \"CONCEDING_TEAM\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "rules.offside",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ov-scoring: whenValue rules.offside = \"NONE\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "restart.touchline",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template rs-touchline: whenValue restart.touchline = \"LAWS_THROW_IN\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "rules.fouls",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ru-fouls: whenValue rules.fouls = \"LAWS_FREE_KICKS\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "rules.handling",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ru-handling: whenValue rules.handling = \"LAWS_HANDLING_UNCHANGED\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "laws.default",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ru-laws: whenValue laws.default = \"APPLY\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "laws.goalEnd",
+        "howReached": "ENTERED_OUR_INFERENCE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template rs-goal-end: whenValue laws.goalEnd = \"REPLACED_BY_THE_END_LINE_RESTART\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "restart.endLine.status",
+        "howReached": "UNRESOLVED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "STRUCTURAL",
+        "reason": "an UNRESOLVED value has no value and exactly one decisive item { ref: UNRESOLVED, standing: UNRESOLVED }"
+      },
+      {
+        "path": "restart.endLine.illustrativeValue",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template rs-end-line: whenValue restart.endLine.illustrativeValue = \"DEFENDING_TEAM_FROM_ITS_END_LINE\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "duration.blocks",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": 4,
+        "outcome": "SUBSTITUTED",
+        "reason": "the changed value is printed in the sentence that expresses it"
+      },
+      {
+        "path": "duration.blockMinutes",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": 7,
+        "outcome": "SUBSTITUTED",
+        "reason": "the changed value is printed in the sentence that expresses it"
+      },
+      {
+        "path": "duration.breaks",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ov-duration: whenValue duration.breaks = \"SHORT_BREAK_BETWEEN_BLOCKS\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "equipment.bibs",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template st-teams: whenValue equipment.bibs = \"ONE_COLOUR_PER_TEAM_KEPT_ALL_SESSION\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "equipment.markers",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template st-equipment: whenValue equipment.markers = \"AREA_HALFWAY_CENTRE_TARGET_ZONES\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "equipment.balls",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template st-equipment: whenValue equipment.balls = \"SPARE_BALLS\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "win.condition",
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template wn-points: whenValue win.condition = \"MORE_POINTS_IN_A_BLOCK\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "observation.categories",
+        "howReached": "ENTERED_EVIDENCED",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ob-intro: whenValue observation.categories = \"HIS_THREE_CATEGORIES\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "adjustments",
+        "howReached": "ENTERED_OUR_INFERENCE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "WHEN_VALUE_PINNED",
+        "reason": "template ad-none: whenValue adjustments = \"NONE_OFFERED\", but the assembled value is \"SENTINEL_MUTATION\""
+      },
+      {
+        "path": "coachQuestion",
+        "howReached": "ENTERED_OUR_INFERENCE",
+        "mutatedTo": "SENTINEL_MUTATION",
+        "outcome": "EXEMPT_PRINTED_ONLY",
+        "reason": "exempt from the coach text; the changed value is printed in the report only"
+      }
+    ]
   },
   "sixClasses": [
     {

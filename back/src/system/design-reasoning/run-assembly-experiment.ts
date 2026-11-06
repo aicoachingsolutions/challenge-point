@@ -9,13 +9,14 @@
  *
  * This runner supplies the display texts (a goal's display name among them, read from its 'Learning Goal' cell), through the display
  * reader, after Steps 1 and 2 are computed; no decision reads them. It also reads the committed regression record
- * (`evidence/regression-record.json`, always from the evidence folder, whatever `--out` says), which Part 5 prints.
+ * (`evidence/regression-record.json`, always from the evidence folder, whatever `--out` says), which Part 5 prints, and runs the mutation
+ * loop, whose counts the front and Part 5 print. The unit tests require the committed evidence to equal this runner's output.
  */
 import fs from 'node:fs'
 import path from 'node:path'
 
 import { displayTextsFor } from './assembly-display'
-import { buildAssemblyReport, runAssembly, validateRegressionRecord } from './assembly-review'
+import { buildAssemblyReport, mutationLoop, runAssembly, validateRegressionRecord } from './assembly-review'
 
 const REPO = path.resolve(__dirname, '..', '..', '..', '..')
 const DEFAULT_OUT = path.join(REPO, 'docs', 'audits', 'design-reasoning-assembly', 'evidence')
@@ -26,9 +27,10 @@ function main(): void {
     const args = process.argv.slice(2)
     const outIndex = args.indexOf('--out')
     const outDir = outIndex >= 0 ? path.resolve(process.cwd(), args[outIndex + 1]) : DEFAULT_OUT
-    const run = runAssembly((k, experiment, resolution, forms) => displayTextsFor(k, experiment, resolution, forms, GOAL_NAME_COLUMN))
+    const displayFor: Parameters<typeof runAssembly>[0] = (k, experiment, resolution, forms) => displayTextsFor(k, experiment, resolution, forms, GOAL_NAME_COLUMN)
+    const run = runAssembly(displayFor)
     const regression = validateRegressionRecord(JSON.parse(fs.readFileSync(REGRESSION_RECORD, 'utf8')))
-    const { report, results } = buildAssemblyReport(run, regression)
+    const { report, results } = buildAssemblyReport(run, regression, mutationLoop(displayFor))
     fs.mkdirSync(outDir, { recursive: true })
     fs.writeFileSync(path.join(outDir, 'assembly-report.txt'), report)
     fs.writeFileSync(path.join(outDir, 'assembly-results.json'), `${JSON.stringify(results, null, 2)}\n`)

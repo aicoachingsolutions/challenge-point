@@ -46,6 +46,7 @@ import {
     gameFormDeclaration,
     routedContext,
 } from './knowledge'
+import { DISPLAY_ALLOWLIST } from './assembly-display'
 import { runStage1, runStage1ForEveryGoal, Stage1Result } from './stage1'
 
 const HERE = __dirname
@@ -244,7 +245,8 @@ function importClosure(files: string[]): string[] {
         seen.add(file)
         if (!file.endsWith('.ts')) continue
         const source = fs.readFileSync(file, 'utf8')
-        for (const match of source.matchAll(/from\s+'(\.[^']+)'/g)) {
+        // Static imports, require() and import(), in either quotation mark (a double-quoted or required module is followed too).
+        for (const match of source.matchAll(/(?:from\s+|require\(\s*|import\(\s*)['"](\.[^'"]+)['"]/g)) {
             const base = path.resolve(path.dirname(file), match[1])
             const candidate = [`${base}.ts`, base, path.join(base, 'index.ts')].find((p) => fs.existsSync(p) && fs.statSync(p).isFile())
             if (candidate) stack.push(candidate)
@@ -294,9 +296,12 @@ function testTheStageReachesNoKeywordParserOrTokenScorer(): void {
     }
 }
 
-/** No narrative column is read by the stage; only the demo runner reads a goal's display name, after the decisions are made. */
+/**
+ * No narrative column is read by any stage file except the assembly experiment's display reader, which reads only its pinned allowlist,
+ * after the decisions, for the coach text and the report; the runners name the goal-name column.
+ */
 function testTheStageReadsNoNarrativeColumn(): void {
-    const narrative = ['Learning Goal', 'Coach Definition', 'Choose This When...', 'Coach Phrase', 'Practice Situation', 'Notes', 'notes', 'provenance', 'RPC Name', 'rpc_name', 'statement_text', 'identity_statement', 'property_text', 'Knowledge_Statement', 'Rationale', 'Name', 'canonical_name', 'game_form_name', 'coach_vocabulary', 'objective', 'role_structure', 'representative_requirements', 'setup_guidance', 'known_limitations', 'typical_affordances']
+    const narrative = ['Learning Goal', 'Coach Definition', 'Choose This When...', 'Coach Phrase', 'Practice Situation', 'Notes', 'notes', 'provenance', 'RPC Name', 'rpc_name', 'statement_text', 'identity_statement', 'property_text', 'Knowledge_Statement', 'Rationale', 'Name', 'canonical_name', 'game_form_name', 'coach_vocabulary', 'objective', 'role_structure', 'representative_requirements', 'setup_guidance', 'known_limitations', 'typical_affordances', 'description']
     // ASSEMBLY EXPERIMENT AMENDMENT: the experiment's display reader is the one stage file that reads display cells, after the decisions,
     // for the coach text and the report. It is exempt from this ban only for its own allowlist, pinned exactly below, and only the runners
     // and the unit tests may import it, so no decision can read what it reads (the ban's intent).
@@ -306,9 +311,27 @@ function testTheStageReadsNoNarrativeColumn(): void {
         for (const column of narrative) assert.ok(!code.includes(`'${column}'`) && !code.includes(`"${column}"`), `${path.basename(f)} reads the narrative column ${column}`)
     }
     const readerCode = stripComments(fs.readFileSync(DISPLAY_READER, 'utf8'))
-    assert.deepEqual(narrative.filter((column) => readerCode.includes(`'${column}'`) || readerCode.includes(`"${column}"`)).sort(), ['Coach Definition', 'Learning Goal', 'Name', 'game_form_name', 'property_text'], 'the display reader reads exactly its allowlisted narrative columns')
-    const importers = fs.readdirSync(HERE).filter((f) => f.endsWith('.ts') && f !== 'assembly-display.ts' && /from\s+'\.\/assembly-display'/.test(fs.readFileSync(path.join(HERE, f), 'utf8')))
+    assert.deepEqual(narrative.filter((column) => readerCode.includes(`'${column}'`) || readerCode.includes(`"${column}"`)).sort(), ['Coach Definition', 'Learning Goal', 'Name', 'description', 'game_form_name', 'property_text'], 'the display reader reads exactly its allowlisted narrative columns')
+    // The allowlist itself, exactly (a new display column, narrative or not, changes this list and must be argued here).
+    assert.deepEqual(
+        DISPLAY_ALLOWLIST.map((a) => `${a.source} ${a.table} ${a.keyColumn} ${a.column}`),
+        [
+            'planning learning_goals ID Coach Definition',
+            'planning learning_goals ID Learning Goal',
+            'gameProblems gameProblems ID Name',
+            'sportModule game_forms game_form_id game_form_name',
+            'contexts controlled_vocabulary value description',
+            'contexts properties property_id property_text',
+        ],
+        'the display reader\'s allowlist, exactly'
+    )
+    // Who imports the display reader: a static import, require() or import(), in either quotation mark, with or without the extension.
+    const importsTheReader = (code: string) => /(?:from\s+|require\(\s*|import\(\s*)['"]\.\/assembly-display(?:\.ts)?['"]/.test(code)
+    assert.ok(importsTheReader(`import x from "./assembly-display"`) && importsTheReader(`const x = require('./assembly-display.ts')`) && importsTheReader(`await import( './assembly-display' )`), 'bite: every import form is seen')
+    const importers = fs.readdirSync(HERE).filter((f) => f.endsWith('.ts') && f !== 'assembly-display.ts' && importsTheReader(stripComments(fs.readFileSync(path.join(HERE, f), 'utf8'))))
     assert.ok(importers.length > 0 && importers.every((f) => f.startsWith('run-') || f.endsWith('.unit.ts')), `only runners and unit tests import the display reader: ${importers.join(', ')}`)
+    // And no other stage file names it at all, in any form (comments aside).
+    for (const f of STAGE_FILES.filter((x) => x !== DISPLAY_READER)) assert.ok(!/assembly-display/.test(stripComments(fs.readFileSync(f, 'utf8'))), `${path.basename(f)} names the display reader`)
     assert.ok(listTs(SRC).filter((f) => !f.startsWith(HERE + path.sep)).every((f) => !/assembly-display/.test(fs.readFileSync(f, 'utf8'))), 'nothing outside the folder names the display reader')
     for (const runner of RUNNERS) assert.ok(fs.readFileSync(runner, 'utf8').includes(`'Learning Goal'`), `${path.basename(runner)} is where the display name is read`)
     for (const f of STAGE_FILES) for (const runner of RUNNERS) assert.ok(!fs.readFileSync(f, 'utf8').includes(path.basename(runner, '.ts')), `${path.basename(f)} imports ${path.basename(runner)}`)
@@ -380,7 +403,7 @@ function testNoGoalOrKnowledgeIdAppearsInTheStageCode(): void {
         const source = fs.readFileSync(f, 'utf8')
         for (const id of ids) assert.ok(!new RegExp(`\\b${id}\\b`).test(source), `${path.basename(f)} names the goal ${id}`)
         // Nor any Game Problem, context, Game Form, archetype or row id: no special case for any of them, comments included.
-        assert.ok(!/\b(GP-\d{3}|RPC-\d{3}|RPC-REL-\d{3}|RPC-PROP-\d{3}|RPC-ID-\d{3}|RPC-TR-\d{3}|GF\d+|GA-\d{3}|GAK-\d{4}|OIC-\d{2})\b/.test(source), `${path.basename(f)} names a knowledge id`)
+        assert.ok(!/\b(GP-\d{3}|RPC-\d{3}|RPC-REL-\d{3}|RPC-PROP-\d{3}|RPC-ID-\d{3}|RPC-TR-\d{3}|RPC-VAL-\d{3}|LAW-\d+|GF\d+|GA-\d{3}|GAK-\d{4}|OIC-\d{2})\b/.test(source), `${path.basename(f)} names a knowledge id`)
         for (const id of dataIds) assert.ok(!new RegExp(`(^|[^A-Za-z0-9-])${escape(id)}($|[^A-Za-z0-9-])`).test(source), `${path.basename(f)} names the data id ${id}`)
     }
 }

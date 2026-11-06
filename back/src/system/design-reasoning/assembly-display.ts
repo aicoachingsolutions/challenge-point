@@ -15,7 +15,7 @@ import { DesignResolution } from './resolve'
 type Row = Record<string, unknown>
 
 /** The only cells this file reads: source, table, the key column a row is found by, and the display column. */
-export const DISPLAY_ALLOWLIST: ReadonlyArray<{ source: string; table: string; keyColumn: string; column: string; where?: { column: string; value: string } }> = [
+export const DISPLAY_ALLOWLIST: ReadonlyArray<{ source: string; table: string; keyColumn: string; column: string }> = [
     { source: 'planning', table: 'learning_goals', keyColumn: 'ID', column: 'Coach Definition' },
     { source: 'planning', table: 'learning_goals', keyColumn: 'ID', column: 'Learning Goal' },
     { source: 'gameProblems', table: 'gameProblems', keyColumn: 'ID', column: 'Name' },

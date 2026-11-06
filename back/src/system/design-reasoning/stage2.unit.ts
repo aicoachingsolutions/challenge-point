@@ -799,6 +799,15 @@ function testEntriesFollowTheApprovedStructure(): void {
     }
     // His D4 classifications are data only: no stage file reads them.
     for (const f of fs.readdirSync(HERE).filter((x) => x.endsWith('.ts') && !x.endsWith('.unit.ts'))) assert.ok(!fs.readFileSync(path.join(HERE, f), 'utf8').includes('classifications'), f)
+    // ASSEMBLY EXPERIMENT TIGHTENING (code review, 6 November): the ban above is on a word, which a reworded report string passes; the data
+    // access is banned too: no property or bracket access by that key, and no positional index into his Stage 2 rulings list (a D4 ruling
+    // reached by position would need neither the word nor its id).
+    for (const f of fs.readdirSync(HERE).filter((x) => x.endsWith('.ts') && !x.endsWith('.unit.ts'))) {
+        const code = fs.readFileSync(path.join(HERE, f), 'utf8')
+        assert.ok(!/\.\s*classifications\b|\[\s*['"`]classifications/i.test(code), `${f} reads the D4 classifications key`)
+        assert.ok(!/stage2Rulings\s*\.\s*rulings\s*\[/.test(code), `${f} indexes his Stage 2 rulings by position`)
+    }
+    assert.ok(/stage2Rulings\s*\.\s*rulings\s*\[/.test('k.stage2Rulings.rulings[3]') && /\[\s*['"`]classifications/i.test(`r["classifications"]`), 'bite: both access forms are seen')
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------
