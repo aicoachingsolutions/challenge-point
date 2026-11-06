@@ -10944,10 +10944,63 @@
     }
   ],
   "regressionRecord": {
-    "standing": "NOT YET RECORDED for this build: the regression run on this build's committed tree is recorded in the commit on top of it, with no change to any code or data file. When recorded, it is engineering evidence only: the live application and A01 are unchanged; it does not establish ecological suitability (Christian's reply of 6 November).",
-    "status": "PLACEHOLDER",
-    "build": null,
-    "results": []
+    "standing": "Recorded on 6 November 2026 from an independent run on the committed tree of build d4aa1fd (the fixes after the stage 6 recheck). This record and the evidence re-generated from it are committed on top of that build with no change to any code or data file; assembly.unit.ts test (v) requires the committed report, results and diagram to equal the runner's output with this record. Engineering evidence only: the live application and A01 are unchanged; it does not establish ecological suitability (Christian's reply of 6 November).",
+    "status": "RECORDED",
+    "build": "d4aa1fd (branch claude/a05-assembly-experiment, on top of the Stage 2 review branch at 38c61e2; main at f534a62)",
+    "results": [
+      {
+        "check": "Type check (tsc --noEmit)",
+        "result": "passed (exit 0)"
+      },
+      {
+        "check": "Full unit suite (npm test)",
+        "result": "151 test files, 0 failed"
+      },
+      {
+        "check": "Behaviour snapshot against main at f534a62",
+        "result": "391 entries, 0 changed, 0 added, 0 removed (sha-256 a8420db066c34341366254b9e8063aa9c66688fd777a350ce9aa1d0a2c4da246 on both sides); A01's 44 entries are among the unchanged"
+      },
+      {
+        "check": "Live backend bundle built from src/index.ts",
+        "result": "byte-identical to main at f534a62 (sha-256 6bd210238f7d620c9b968f17edac63cd4984b472320aadf58731e8b4b0a0deed, 3,228,588 bytes, 192 inputs); 0 inputs from the design-reasoning folder"
+      },
+      {
+        "check": "Stage 1 runner re-run to a scratch folder",
+        "result": "results byte-identical to the post-sweep baseline of 6 November (the committed Stage 1 evidence is not regenerated; its wording alone was swept, noted in the Stage 1 README)"
+      },
+      {
+        "check": "Stage 2 evidence re-generated to a scratch folder",
+        "result": "report and results byte-identical to the committed post-sweep files"
+      },
+      {
+        "check": "Assembly evidence re-generated to a scratch folder, twice",
+        "result": "report, results and DRAFT diagram byte-identical to the committed files each time (before this record was filled)"
+      },
+      {
+        "check": "External quote check of every quoted string of Christian's in the two data files",
+        "result": "316 quotes and 15 terms: 331 passed, 0 failed; 303 of 303 received-date citations correct"
+      },
+      {
+        "check": "Double-quoted spans in the results file",
+        "result": "82 quotes and 10 terms: 92 passed, 0 near, 0 not found, 0 failed (no value of ours in double quotation marks)"
+      },
+      {
+        "check": "The whole report through the quote checker",
+        "result": "684 quotes and 35 terms: 719 passed, 0 failed; no citation names a wrong received date"
+      },
+      {
+        "check": "Gendered pronouns in the assembly, Stage 1 and Stage 2 audit folders",
+        "result": "none"
+      },
+      {
+        "check": "Files changed outside the design-reasoning folder and its three audit folders since 063fc52",
+        "result": "none"
+      },
+      {
+        "check": "GitHub checks",
+        "result": "none run: the repository runs its checks only on pushes to main and to its integration branch, and on pull requests; this review branch has no pull request, and nothing deploys"
+      }
+    ]
   },
   "mutationLoop": {
     "values": 60,
