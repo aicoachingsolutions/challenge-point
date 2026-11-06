@@ -1,0 +1,1069 @@
+Bounded A05 activity-assembly experiment (Progress the Attack): review pathway only, offline
+Standing: OURS: a labelled decision record for the bounded, offline, review-only A05 assembly experiment Christian authorized in his second reply of 5 November 2026. It is not a knowledge file, not a configuration step (the architecture has none: Steps 3-5 are held), not served, and not an authorization. Every value states how it reached the activity and which of his six classes it falls in; values his words do not state are ILLUSTRATIVE, OURS or UNRESOLVED. Nothing on the live route or the checked pathway reads this file.
+
+=== FRONT. What was shown, what was not, and the honest answer ===
+His question: "The purpose is to determine whether the existing knowledge-grounded architecture can generate one complete, coherent, coach-readable activity while accurately preserving the authority and limitations of every design decision." (received 5 November 2026); and earlier: "Can Challenge Point construct a complete, representative Progress the Attack activity using reusable, authorized knowledge, without requiring a fully authored activity-specific version?" (received 28 October 2026)
+- COMPUTED by the existing architecture from knowledge (4 conclusions, each with its own influence trace): the Game Problems and context (Step 1); the compatible Game Forms (Step 2); the scoring event's membership in the routed context; and, in Part 3, the structural conditions of each compatible form. 8 of the 53 values in the record were read from knowledge by code (the record holds 53 values: 50 material to the coach activity, 3 kept out of it with pinned reasons).
+- NOT COMPUTED: the architecture has no configuration step today (Steps 3-5 are held). The configuration is a labelled decision record we entered: each value is evidenced in his words, illustrative, our inference, or unresolved, and says so.
+- The coach text is a DRAFT template fill keyed to configuration paths: not the production renderer, and not approved wording.
+- How the 53 values reached the activity: READ FROM KNOWLEDGE BY CODE 8; ENTERED, VALUE EVIDENCED IN HIS WORDS 16; ENTERED, ILLUSTRATIVE 19; ENTERED, OUR INFERENCE 7; UNRESOLVED 3.
+- His six classes over the 53 values: class 1: Approved canonical knowledge 0; class 2: An explicit scoped ruling 14; class 3: Candidate or provisional knowledge 10; class 4: A stated test assumption 0; class 5: An illustrative configuration choice 19; class 6: An unsupported or unresolved relationship 10.
+- So the answer, in counts: the architecture computed the problem, the context and the forms; it could not configure the activity. 45 values were entered by us, 16 of them with his words stating the value, 19 illustrative, 7 our inference, 3 unresolved. The activity is complete enough to run as a review example; it is not a generated activity, and nothing here is evidence of ecological effectiveness.
+- Blocks assembly: none.
+- Blocks a scoring-fidelity or production claim: What role should 'from the attack's starting condition' play in scoring or configuration? / What does the approved qualifying condition mean (the 'for example' reading or the colon reading), and is maintaining possession a requirement? / What is the production scope of the A05 Game Problem translation (section 8.1)?
+- Blocks a suitability claim: On what knowledge basis could adding nothing to the Game Form be shown sufficient (K2)? / Which approved environmental relationship would support Create Space in Attack Development?
+- Non-blocking calls for him:
+    AOD-T3-END-LINE: May the illustrative end-line restart stand in this offline example (a departure the Laws do not supply)? (Labelled ILLUSTRATIVE, marked in the coach text; confirmation asked.)
+    AOD-PROVISIONAL-CLASS: We placed your provisional rulings in class 3 ('Candidate or provisional knowledge.'). Did you intend class 2? (Class 3 printed, with your words and received date.)
+    AOD-COACH-QUESTION: May your question for future coach feedback appear in an activity's coach guidance? (Kept out of the coach text.)
+    AOD-REQ-E1-REUSE: Does implementing the context-sensitive resolution requirement as a reusable step, beyond this offline experiment, need separate authorization? (Reported here, data-driven, in the experiment only.)
+    AOD-KICKOFF-DISTANCE: Optionally: should the kick-off keep the Laws' 9.15 m distance, or may it be relaxed ('adapted', as your 29 October words allowed)? (Our reading: the Laws kick-off unchanged.)
+
+=== PART 0. Reconciliation with the 5 November Progress the Attack assessment, and reuse ===
+His request: "Please first reconcile this assignment with your separate A05 assessment and identify any existing work that can be reused. I don't want duplicated implementation." (received 5 November 2026)
+  1. Representative scale -> Part 3: scale UNVERIFIED for every scale; 6 v 6 not preferred; K1 open.
+  2. Exposure efficiency -> Part 3: exposure frequency, distribution and challenge MISSING_KNOWLEDGE.
+  3. Basic configuration -> Parts 1 and 2: every value with how it reached the activity and its class.
+  4. Environmental alternatives -> Part 3: GF2, GF3 and GF7 compatible, unranked; Part 1: no adjustments offered (K3 open).
+  5. Coach observations -> Part 1 (What to Watch) and Part 2: his three categories, evaluation only.
+  6. Knowledge gaps -> Front and the open decisions: K1, K2 and K3 still unanswered; K4 is the starting-condition question.
+  7. Implementation boundary -> Part 6: the architectural dependencies, none changed.
+  8. The Attack Development scoring row -> Part 6 (section 8.2, the two texts side by side) and Part 2 (the requirement account, both readings).
+  9. What we recorded -> Part 7.
+  Reuse:
+    Stage 1/2 code (resolution, Game Form step, structural conditions, width comparison, influence trace): REUSED. Called unchanged; the standing model gained two appended standings and fails closed on them; structural wording switches only for an assembled activity.
+    Our 5 November hand-written A05 activity (the proposal's sections 3-4): CONTENT MODEL ONLY, CORRECTED. Corrections applied before use: no unauthorized Laws departures (the end-line restart with opponents out of the end zone, free kicks moved to an end zone's edge, the kick-off without 9.15 m); teams named by identity, not 'the defending team'; the width adjustment (test-only) and the length adjustment (our causal hypothesis) removed; the starting-condition claim withdrawn.
+    Our 5 November A05 assessment, items 1-5 and 8: CARRIED. Mapped above to the parts that now carry them.
+    The 28 October A05 composition (checked pathway, test-only stand-ins): NOT REUSED. It scores on a line (he favours an end zone), removes the starting condition through a test-only origin stand-in, rests on our colon-reading draft contract and bindings, and reports the Game Problem as UNRESOLVED.
+    The DRAFT coach-wording store (keyed by register vocabulary): PATTERN REUSED, CONTENT NOT. Wording keyed by configuration path at the Game Form level, never by a goal; its A01 sentences are not reused.
+    The Stage 2 width fixture: NOT USED FOR THE ASSEMBLY. Its circumstances describe a proposed larger area and its first scenario offers a test-only proposal; the width comparison is called with the configured area as the limit and its circumstances not supplied.
+  Still open: K1 (what organized opposition requires); K2 (a reusable basis for a provisional starting point); K3 (which relationship to adjust first); whether maintaining possession is a requirement of the scoring row.
+
+=== PART 1. The activity as assembled (review copy) ===
+His limits: "However, coach-readability does not establish that the design is ecologically validated." (received 5 November 2026)
+His limits: "As before, passing engineering tests should not be presented as proof of representative learning effectiveness." (received 5 November 2026)
+His limits: "The agents must not invent missing knowledge or present their generated rationale as evidence of ecological effectiveness." (received 5 November 2026)
+His kickoff caveat: "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype, but do not promote it as a demonstrated method of restoring organized defensive relationships." (received 5 November 2026)
+Wording: OURS: DRAFT coach wording for the review experiment; NEWLY PROPOSED language (RC3 6.1); not approved wording; never passed to the checked pathway's approved-wording parameter.
+Markers: each sentence carries, in brackets, the weakest of his classes among the values it expresses (class 1 unmarked). In a coach-facing copy the markers would be hidden from coaches (RC3 6.1); they are shown here for review.
+
+LEARNING DESIGN (shown beside the RC3 activity; generated from the assembly, not from the wording file)
+  Game Problems: Create Space is the primary problem and Exploit Space a secondary consideration, as the review pathway's resolution computes them; his scope words: "within the scoped circumstance of progressing against organized opposition" (received 5 November 2026); "This remains a scoped review interpretation" (received 5 November 2026); "specifically within the circumstance of progressing against organized opposition" (received 5 November 2026). [class 2: An explicit scoped ruling]
+  Secondary finding: Functional Object Interaction is rated more strongly for Exploit Space (E) than for Create Space (S); not promoted (INSUFFICIENT_EVIDENCE). [class 2: An explicit scoped ruling]
+  Candidate only: Gain Access is shown as a candidate relationship and is not used. [class 3: Candidate or provisional knowledge]
+  Game Form: Directional Possession Games, used as an illustrative choice; Positional Play Games and Channel Games are compatible alternatives, with no ranking among the three. [class 5: An illustrative configuration choice]
+  Learning Goal: Progress the Attack. [no configuration value: OURS]
+
+COACH OVERVIEW
+  Learning Purpose (RC3 4.1)
+    Improve attacking conditions while maintaining purposeful possession. [class 2: An explicit scoped ruling]
+  The Game (RC3 4.2)
+    The game is played by 2 teams against each other: each team attacks the target zone at one end and defends the target zone at the other end. [class 2: An explicit scoped ruling]
+  Basic Parameters (RC3 4.3)
+    Area: 40 x 30 m, including both target zones; there are no goalkeepers, so none are counted. [class 5: An illustrative configuration choice]
+    Players: 6 v 6, equal numbers. [class 5: An illustrative configuration choice]
+    Duration: 3 blocks of 6 minutes, with a short break between blocks. [class 5: An illustrative configuration choice]
+  Essential Scoring (RC3 4.4)
+    Each team scores a point when one of its players gets the ball under control in the target zone it attacks; there is no offside. [class 6: An unsupported or unresolved relationship]
+  Diagram (RC3 4.5)
+    Diagram: not drawn here; in this review the diagram depends on the checked activity pathway, which draws a diagram from a realized game. [no configuration value: OURS]
+
+COACH DETAILS
+  Setup (RC3 5.2)
+    Mark out a 40 x 30 m area with a halfway line and a centre mark. [class 5: An illustrative configuration choice]
+    At each end, mark a target zone 5 m deep across the full width of the area; both target zones are inside the area. [class 5: An illustrative configuration choice]
+    The exact position of the target zones is not yet decided; this example puts them at the ends of the area. [class 6: An unsupported or unresolved relationship]
+    Divide the players into 2 teams of 6; give each team its own bib colour and keep it for the whole session. [class 5: An illustrative configuration choice]
+    Equipment: markers for the area, the halfway line, the centre mark and both target zones, and spare balls. [class 5: An illustrative configuration choice]
+  Rules (RC3 5.2)
+    Each team attacks one target zone and defends the other for the whole game. [class 2: An explicit scoped ruling]
+    Both teams attack and defend, and both score in the same way, in the target zone each attacks. [class 6: An unsupported or unresolved relationship]
+    Play continues when the ball changes teams; a change of possession does not stop play. [class 2: An explicit scoped ruling]
+    There is no offside. [class 3: Candidate or provisional knowledge]
+    Any player may enter either target zone at any time. [class 6: An unsupported or unresolved relationship]
+    Fouls are penalized with free kicks, as in the normal Laws. [class 2: An explicit scoped ruling]
+    No player may handle the ball: there are no goalkeepers. [class 5: An illustrative configuration choice]
+    The normal Laws of the game apply to everything not described here. [class 2: An explicit scoped ruling]
+  Scoring (RC3 5.2)
+    A team scores a point with a controlled arrival in the target zone it attacks, as the approved scoring event describes it: "A player dribbles into a marked zone, or receives and controls the ball inside it." [class 3: Candidate or provisional knowledge]
+    A controlled arrival in the target zone counts even straight after the team has won the ball. [class 2: An explicit scoped ruling]
+    The role of the attack's starting condition in scoring is not yet decided; in this example it does not change whether an arrival in the target zone counts. [class 6: An unsupported or unresolved relationship]
+  Win Condition (RC3 5.2)
+    The team with more points at the end of a block wins that block. [class 5: An illustrative configuration choice]
+  Role Exchange (RC3 5.2)
+    Nothing changes between blocks: each team keeps its bib colour, the target zone it attacks and its direction. [class 5: An illustrative configuration choice]
+  Restarts and Ball Out (RC3 5.2)
+    Start with an ordinary kick-off from the centre mark. [class 5: An illustrative configuration choice]
+    The kick-off follows the normal Laws. [class 6: An unsupported or unresolved relationship]
+    After a point, the team that conceded it restarts play with a kick-off. [class 6: An unsupported or unresolved relationship]
+    When the ball goes over a touchline, the team that did not touch it last restarts with a throw-in. [class 2: An explicit scoped ruling]
+    When the ball goes over an end line, the team that did not touch it last restarts play from the end line where it went out. [class 5: An illustrative configuration choice]
+    With no goals, the normal Laws give no restart for a ball over an end line, so the restart above is this example's own. [class 6: An unsupported or unresolved relationship]
+    There are no goals, so there are no penalty kicks, goal kicks or corner kicks. [class 6: An unsupported or unresolved relationship]
+  Adjustments (RC3 5.2)
+    No adjustments are offered in this example. [class 6: An unsupported or unresolved relationship]
+  What to Watch (RC3 2.1 (coaching observations))
+    These categories describe how a score came about, for reviewing this example; there is no target for any of them. [class 3: Candidate or provisional knowledge]
+    Against organized opposition: The team progresses and scores after confronting a defense that has established or recovered its organization. [class 3: Candidate or provisional knowledge]
+    During transition: The team scores before the opposition has recovered its organization. [class 3: Candidate or provisional knowledge]
+    Uncertain: The coach cannot confidently distinguish the situation. [class 3: Candidate or provisional knowledge]
+    Both scoring situations remain legitimate. [class 3: Candidate or provisional knowledge]
+    The categories do not decide whether an arrival in the target zone counts, and they do not settle the role of the attack's starting condition, which stays an open part of scoring. [class 6: An unsupported or unresolved relationship]
+
+DESIGN RATIONALE (generated from the decision trace: each line names the value, what decided it and its class, and what was only consulted; it is not evidence of ecological effectiveness)
+  purpose: "Improve attacking conditions while maintaining purposeful possession." [class 2: An explicit scoped ruling]. Decided by: ASM-21OCT-PURPOSE, his ruling, received 21 October 2026: "My preference is to use the Learning Goal's coach-facing definition as the primary source."; planning learning_goals A05 [APPROVED]: "Improve attacking conditions while maintaining purposeful possession.".
+  gameProblems.primary: "Create Space" [class 2: An explicit scoped ruling]. Decided by: the Stage 1/2 computation (3 trace items). Consulted only: ASM-AUTH-GP-SCOPE; ASM-REV1-GP-SCOPE.
+  gameProblems.secondary: "Exploit Space" [class 2: An explicit scoped ruling]. Decided by: the Stage 1/2 computation (3 trace items). Consulted only: ASM-AUTH-GP-SCOPE.
+  gameProblems.secondaryFinding: "Functional Object Interaction is rated more strongly for Exploit Space (E) than for Create Space (S); not promoted (INSUFFICIENT_EVIDENCE)" [class 2: An explicit scoped ruling]. Decided by: the Stage 1/2 computation (7 trace items). Consulted only: ASM-AUTH-COMPOSITE.
+  gameProblems.candidate: "Gain Access" [class 3: Candidate or provisional knowledge]. Decided by: contexts relationships RPC-REL-025 [CANDIDATE].
+  gameForm.illustrativeChoice: "Directional Possession Games" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-GF, his ruling, received 5 November 2026: "GF2 may be used as an illustrative configuration for this experiment.". Consulted only: ASM-REV1-GF2.
+  gameForm.alternatives: "Positional Play Games and Channel Games" [class 3: Candidate or provisional knowledge]. Decided by: the Stage 1/2 computation (12 trace items). Consulted only: ASM-AUTH-GF.
+  teams.count: "2" [class 2: An explicit scoped ruling]. Decided by: ASM-9OCT-TEAMS, his ruling, received 9 October 2026: "Two opposing teams each have a designated target at the opposite end of the playing area.". Consulted only: contracts.json GF2-14.a.
+  teams.equalOutfield: "EQUAL" [class 2: An explicit scoped ruling]. Decided by: ASM-1OCT-EQUAL, his ruling, received 1 October 2026: "Promote GF2-14.b, equal outfield counts, from ASSUMED to owner-authored canonical knowledge.". Consulted only: contracts.json GF2-14.b; ASM-1OCT-EQUAL.
+  players.perTeam: "6" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled". Consulted only: ASM-REV1-DIMENSIONS; ASM-AUTH-SCALE.
+  players.goalkeepers: "0" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled". Consulted only: ASM-28OCT-PROVISIONAL.
+  area.lengthM: "40" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled". Consulted only: ASM-REV1-DIMENSIONS; contracts.json GF2-24.a.
+  area.widthM: "30" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled". Consulted only: contracts.json GF2-24.b.
+  area.includesEndZones: "true" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled". Consulted only: ASM-AUTH-D4.
+  area.goalkeepersCounted: "NO_GOALKEEPERS" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled". Consulted only: ASM-AUTH-D4.
+  area.halfwayLine: "MARKED" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled". Consulted only: sport-profile-soccer.json LAW-8.
+  area.centreMark: "MARKED" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled". Consulted only: sport-profile-soccer.json LAW-8.
+  endZones.depthM: "5" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled". Consulted only: ASM-30OCT-WALKTHROUGH; ASM-REV1-DIMENSIONS; contracts.json S5/O4 notAuthored.
+  endZones.placement: "ONE_AT_EACH_END_FULL_WIDTH" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled". Consulted only: ASM-9OCT-TEAMS; contracts.json S6/O5 notAuthored.
+  endZones.positioning: "none (no authorized value)" [class 6: An unsupported or unresolved relationship]. Decided by: no authorized value (UNRESOLVED). Consulted only: ASM-28OCT-PROVISIONAL.
+  endZones.access: "ANY_PLAYER_ANY_TIME" [class 6: An unsupported or unresolved relationship]. Decided by: ASM-23OCT-LAWS, his ruling, received 23 October 2026: "The normal Laws of the Game should apply by default wherever they are applicable". Consulted only: ASM-15OCT-WAITING.
+  directions: "EACH_ATTACKS_ONE_DEFENDS_THE_OTHER_ALL_GAME" [class 2: An explicit scoped ruling]. Decided by: ASM-15SEP-DIRECTION, his ruling, received 15 September 2026: "In the normal opposed invasion realization, each team attacks one direction and defends the opposite direction."; ASM-9OCT-TEAMS, his ruling, received 9 October 2026: "Each team's target assignment remains fixed throughout the activity.". Consulted only: soccer-module.rc1-v3.json game_forms GF2 setup_guidance.
+  scoring.event: "target_zone_entered" [class 3: Candidate or provisional knowledge]. Decided by: ASM-28OCT-PROVISIONAL, his provisional ruling, received 28 October 2026: "Scoring target: Controlled arrival in an appropriately positioned advanced end zone."; ASM-28OCT-ENDZONE, his provisional ruling, received 28 October 2026: "For scoring, I favor controlled arrival in an advanced end zone over crossing the far end line.". Consulted only: relationships RPC-REL-079; ASM-30OCT-EVE-SCORING.
+  scoring.means: "A player dribbles into a marked zone, or receives and controls the ball inside it." [class 3: Candidate or provisional knowledge]. Decided by: contexts controlled_vocabulary scoring_event target_zone_entered [APPROVED]: "A player dribbles into a marked zone, or receives and controls the ball inside it."; ASM-29OCT-PROVISIONAL, his provisional ruling, received 29 October 2026: "Scoring: Controlled arrival in an appropriately positioned advanced end zone.". Consulted only: ASM-30OCT-REGAIN.
+  scoring.qualifyingCondition.workbookText: "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession." [class 3: Candidate or provisional knowledge]. Decided by: contexts properties RPC-PROP-134 [CANDIDATE]. Consulted only: ASM-REV1-SOURCE-FIDELITY.
+  scoring.qualifyingCondition.sep13Text: "The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession." [class 2: An explicit scoped ruling]. Decided by: ASM-13SEP-SCORING, his ruling, received 13 September 2026: "The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.".
+  scoring.startingCondition: "none (no authorized value)" [class 6: An unsupported or unresolved relationship]. Decided by: no authorized value (UNRESOLVED). Consulted only: ASM-29OCT-4B; ASM-30OCT-OPTION5.
+  scoring.afterRegain: "COUNTS" [class 2: An explicit scoped ruling]. Decided by: ASM-30OCT-REGAIN, his ruling, received 30 October 2026: "I believe the interception near the end zone followed by an immediate controlled arrival should count."; ASM-30OCT-EVE-SCORING, his ruling, received 30 October 2026: "Legitimate immediate attacking opportunities remain eligible to score.".
+  scoring.mirrored: "SAME_FOR_BOTH" [class 6: An unsupported or unresolved relationship]. Decided by: ASM-28OCT-PROVISIONAL, his provisional ruling, received 28 October 2026: "Opposition: Reciprocal, meaningful objectives with continuous live opposition.".
+  opposition.reciprocal: "RECIPROCAL" [class 3: Candidate or provisional knowledge]. Decided by: ASM-29OCT-PROVISIONAL, his provisional ruling, received 29 October 2026: "Opposition: Reciprocal objectives, meaningful defensive pressure, and continuous play through turnovers.".
+  play.continuous: "CONTINUOUS_THROUGH_TURNOVERS" [class 2: An explicit scoped ruling]. Decided by: ASM-REV1-CONTINUOUS, his ruling, received 5 November 2026: "I favor preserving continuous play through turnovers whenever doing so supports the intended representative problem."; ASM-DEC-CONTINUOUS, his ruling, received 4 November 2026: "I also support retaining continuous play as a baseline representative condition where applicable, separate from specific Interaction Regulations.".
+  start.method: "ORDINARY_KICKOFF" [class 3: Candidate or provisional knowledge]. Decided by: ASM-REV1-KICKOFF, his provisional ruling, received 5 November 2026: "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype". Consulted only: sport-profile-soccer.json LAW-8.
+  start.kickoffDetails: "LAWS_KICKOFF_UNCHANGED" [class 6: An unsupported or unresolved relationship]. Decided by: ASM-REV1-KICKOFF, his provisional ruling, received 5 November 2026: "the ordinary kickoff"; ASM-23OCT-LAWS, his ruling, received 23 October 2026: "The normal Laws of the Game should apply by default wherever they are applicable".
+  restart.afterPoint.method: "KICKOFF" [class 3: Candidate or provisional knowledge]. Decided by: ASM-REV1-KICKOFF, his provisional ruling, received 5 November 2026: "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype". Consulted only: contracts.json T2-T6 notAuthored.
+  restart.afterPoint.who: "CONCEDING_TEAM" [class 6: An unsupported or unresolved relationship]. Decided by: ASM-23OCT-LAWS, his ruling, received 23 October 2026: "The normal Laws of the Game should apply by default wherever they are applicable".
+  rules.offside: "NONE" [class 3: Candidate or provisional knowledge]. Decided by: ASM-29OCT-PROVISIONAL, his provisional ruling, received 29 October 2026: "Offside: None for this initial small-sided realization, explicitly communicated."; ASM-28OCT-PROVISIONAL, his provisional ruling, received 28 October 2026: "Offside: No offside for this initial small-sided realization, explicitly communicated.".
+  restart.touchline: "LAWS_THROW_IN" [class 2: An explicit scoped ruling]. Decided by: ASM-23OCT-LAWS, his ruling, received 23 October 2026: "The normal Laws of the Game should apply by default wherever they are applicable". Consulted only: sport-profile-soccer.json LAW-15; contracts.json GF2-16.a.
+  rules.fouls: "LAWS_FREE_KICKS" [class 2: An explicit scoped ruling]. Decided by: ASM-23OCT-LAWS, his ruling, received 23 October 2026: "For example, normal rules should govern goalkeeper handling, fouls, and own goals unless the activity deliberately changes them.". Consulted only: sport-profile-soccer.json LAW-13.
+  rules.handling: "LAWS_NO_PLAYER_HANDLES" [class 2: An explicit scoped ruling]. Decided by: ASM-23OCT-LAWS, his ruling, received 23 October 2026: "The normal Laws of the Game should apply by default wherever they are applicable". Consulted only: sport-profile-soccer.json LAW-12-GK.
+  laws.default: "APPLY" [class 2: An explicit scoped ruling]. Decided by: ASM-23OCT-LAWS, his ruling, received 23 October 2026: "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.".
+  laws.goalEnd: "NOT_APPLICABLE_NO_GOALS" [class 6: An unsupported or unresolved relationship]. Decided by: ASM-23OCT-LAWS, his ruling, received 23 October 2026: "the system should identify the relevant adaptation rather than silently assume conventional conditions exist". Consulted only: sport-profile-soccer.json LAW-14, LAW-16, LAW-17.
+  restart.endLine.status: "none (no authorized value)" [class 6: An unsupported or unresolved relationship]. Decided by: no authorized value (UNRESOLVED).
+  restart.endLine.illustrativeValue: "NOT_LAST_TOUCH_FROM_THE_END_LINE" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled". Consulted only: contracts.json GF2-16.a; ASM-23OCT-LAWS.
+  duration.blocks: "3" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled". Consulted only: contracts.json E4 notAuthored.
+  duration.blockMinutes: "6" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled".
+  duration.breaks: "SHORT_BREAK_BETWEEN_BLOCKS" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled".
+  equipment.bibs: "ONE_COLOUR_PER_TEAM_KEPT_ALL_SESSION" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled". Consulted only: ASM-22OCT-COLOURS.
+  equipment.markers: "AREA_HALFWAY_CENTRE_TARGET_ZONES" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled". Consulted only: contracts.json GF2-06.a.
+  equipment.balls: "SPARE_BALLS" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled".
+  win.condition: "MORE_POINTS_IN_A_BLOCK" [class 5: An illustrative configuration choice]. Decided by: ASM-AUTH-ILLUSTRATIVE, his ruling, received 5 November 2026: "an illustrative value may be used for this offline prototype if clearly labeled".
+  observation.categories: "HIS_THREE_CATEGORIES" [class 3: Candidate or provisional knowledge]. Decided by: ASM-30OCT-EVE-OBSERVATION, his provisional ruling, received 30 October 2026: "Observation criteria — Provisionally approved"; ASM-REV1-OBSERVATION, his provisional ruling, received 5 November 2026: "could help evaluate what actually occurs in the review prototype".
+  adjustments: "NONE_OFFERED" [class 6: An unsupported or unresolved relationship]. Decided by: ASM-AUTH-SCENARIOS, his ruling, received 5 November 2026: "It should not automatically change the primary Game Problem or recommend width changes on unsupported assumptions.". Consulted only: ASM-REV1-DIMENSIONS.
+  coachQuestion: "KEPT_OUT_OF_COACH_GUIDANCE" [class 6: An unsupported or unresolved relationship]. Decided by: ASM-AUTH-COACH-QUESTION, his ruling, received 5 November 2026: "This is a future feedback direction, not a request to implement learning analytics now.".
+
+=== PART 2. Decision trace ===
+His six classes, in his order: 1 Approved canonical knowledge. / 2 An explicit scoped ruling. / 3 Candidate or provisional knowledge. / 4 A stated test assumption. / 5 An illustrative configuration choice. / 6 An unsupported or unresolved relationship.
+A decision's class is the weakest, in his order, over everything that decided it and its declared status. His provisional rulings are placed in class 3 ("Candidate or provisional knowledge."), each printed with his words and received date; the code's own PROVISIONAL (his words given as an example) is printed HIS EXAMPLE WORDS and never decides anything.
+
+His rulings, each filed once (scope only where his words state one, quoted beside it):
+  ASM-AUTH-PURPOSE: Purpose of the authorized experiment (what the bounded experiment is to determine). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: none stated.
+    "The purpose is to determine whether the existing knowledge-grounded architecture can generate one complete, coherent, coach-readable activity while accurately preserving the authority and limitations of every design decision."
+  ASM-AUTH-RECONCILE: Reconcile with the A05 assessment and reuse first (reconciliation and reuse before implementation). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: none stated.
+    "Please first reconcile this assignment with your separate A05 assessment and identify any existing work that can be reused. I don't want duplicated implementation."
+  ASM-AUTH-ILLUSTRATIVE: Illustrative values permitted for the offline prototype (values no knowledge authorizes). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: OFFLINE_PROTOTYPE ("for this offline prototype").
+    "Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled and kept outside production selection authority."
+  ASM-AUTH-GF: Game Form alternatives (Deliverable C) (GF2 illustrative; GF3 and GF7 visible, unranked). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: THIS_EXPERIMENT ("for this experiment").
+    "GF2 may be used as an illustrative configuration for this experiment."
+    "GF3 and GF7 must remain visible as compatible alternatives without an invented ranking."
+    "The selected form should not be presented as demonstrably superior merely because it is the one assembled."
+  ASM-REV1-GF2: Game Form alternatives (first reply of 5 November) (GF2 as an illustrative choice; the scale assessment across all three forms). Received 5 November 2026. File: sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt. Scope: REVIEW_PROTOTYPE ("for a review prototype").
+    "For GF2, GF3, and GF7, the engine should continue preserving the compatible alternatives without manufacturing a preference."
+    "Using GF2 for a review prototype is acceptable when explicitly described as an illustrative choice, not a justified selection over the other forms."
+    "The proposed representative-scale assessment should apply to all three as knowledge permits, but it should not be used to invent a new ranking."
+  ASM-AUTH-GP-SCOPE: A05 Game Problem translation (section 8) (Create Space primary, Exploit Space secondary, within a scoped circumstance). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: SCOPED_CIRCUMSTANCE ("within the scoped circumstance of progressing against organized opposition").
+    "Create Space remains the primary Game Problem and Exploit Space a secondary consideration within the scoped circumstance of progressing against organized opposition."
+    "That is not yet an unconditional production translation for every A05 situation."
+    "Please identify the smallest authoritative knowledge decision required to establish the appropriate scope."
+  ASM-REV1-GP-SCOPE: A05 Game Problem translation (first reply of 5 November) (a scoped review interpretation; a possible mismatch to be flagged eventually; no switching). Received 5 November 2026. File: sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt. Scope: SCOPED_REVIEW_INTERPRETATION ("This remains a scoped review interpretation"; "specifically within the circumstance of progressing against organized opposition").
+    "I continue to support Create Space as A05's primary Game Problem, with Exploit Space as a secondary consideration, specifically within the circumstance of progressing against organized opposition."
+    "This remains a scoped review interpretation rather than an unconditional mapping for every Progress the Attack situation."
+    "If sufficient usable space already exists, the engine should eventually flag the possible mismatch between the described situation and the selected Game Problem."
+    "It should not automatically switch Game Problems yet."
+  ASM-AUTH-GAIN-ACCESS: Gain Access stays a candidate (the candidate Game Problem relationship). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: none stated.
+    "Gain Access remains a candidate relationship, not an approved addition."
+  ASM-AUTH-STARTING-CONDITION: Attack Development scoring source (section 8) (the 13 September wording beside the workbook entry; the starting condition kept unresolved). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: none stated.
+    "Please provide the original September 13 wording alongside the current workbook entry, specifically the clause introduced with "for example" in the original approval."
+    "We need to preserve the source's intended meaning rather than allowing transcription punctuation to turn an example into an exclusive definition."
+    "Also retain the unresolved question of how the attack's starting condition should influence scoring or configuration."
+    "Do not silently remove that condition by transferring it into the coach's observational emphasis."
+  ASM-AUTH-D4: Decision 4: area-per-player definitions (every dimensional reference states what it counts and includes). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: none stated.
+    "Every dimensional reference should explicitly identify whether goalkeepers are counted and whether end zones or other functional areas are included."
+    "Where relevant, distinguish total playable area from the regions in which the principal interactions occur."
+    "I am not authorizing canonical dimensional ranges or a production sizing algorithm."
+  ASM-AUTH-LIMITS: What the experiment can and cannot show (coach-readability, tests and generated rationale are not evidence of ecological effectiveness). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: none stated.
+    "However, coach-readability does not establish that the design is ecologically validated."
+    "As before, passing engineering tests should not be presented as proof of representative learning effectiveness."
+    "The agents must not invent missing knowledge or present their generated rationale as evidence of ecological effectiveness."
+  ASM-AUTH-SCENARIOS: Three contrasting hypothetical scenarios (Deliverable E) (the circumstances the activity is tested against, and what the system must not do). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: none stated.
+    "Organized opposition meaningfully restricts usable attacking space."
+    "Sufficient usable space already exists, making exploitation potentially more immediate than creation."
+    "Information about defensive organization and available opportunities is insufficient."
+    "The system should preserve the distinction between Create Space and Exploit Space and report uncertainty where the relevant circumstances are unknown."
+    "It should not automatically change the primary Game Problem or recommend width changes on unsupported assumptions."
+  ASM-AUTH-SUITABILITY: Representative-suitability assessment (Deliverable D) (the six properties, scale, and what remains unknown). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: none stated.
+    "Please assess whether the assembled activity retains meaningful opposition, direction, information, consequences, adaptive player roles, and multiple functional solutions."
+    "Also examine whether its game scale can reasonably represent the intended problem and what remains unknown about exposure frequency, distribution, and challenge."
+    "Do not require the activity to contain an additional constraint simply to differentiate it from a generic game."
+  ASM-AUTH-SCALE: Scale and the absence of added constraints (no automatic preference for small-sided games; a simple Game Form may suffice if justified). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: none stated.
+    "Challenge Point should not automatically prefer small-sided games."
+    "Likewise, the absence of additional constraints should not be considered a design failure."
+    "A simple Game Form may be the best configuration if there is sufficient knowledge to justify its suitability."
+  ASM-AUTH-COACH-QUESTION: A question preserved for future coach feedback (the question is preserved for a future feedback experience, not implemented now). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: FUTURE_FEEDBACK ("This is a future feedback direction").
+    "For our eventual lightweight coach-feedback experience, I'd like to preserve this question:"
+    "Are players becoming more capable of finding functional solutions as the game changes?"
+    "This is a future feedback direction, not a request to implement learning analytics now."
+  ASM-AUTH-COMPOSITE: Composite Runtime Specification (section 8) (the primary-led direction; draft wording kept; missing documents not reconstructed). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: none stated.
+    "The primary Game Problem should govern the learning intention, while secondary requirements and their provenance remain visible."
+    "A stronger secondary requirement must not be automatically promoted, nor silently discarded."
+    "Please retain the proposed section 7 and section 9 clarification as draft wording until the source specification and CAR Matrix are reconciled."
+    "The full Game Problem Canonical Register and Reasoning Engine Specification RC1 v2 also remain missing and should not be reconstructed as though authoritative."
+  ASM-AUTH-SHOW-UNRESOLVED: Unresolved items shown, not invented; dependencies named (how unresolved items and architectural dependencies are handled). Received 5 November 2026. File: sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt. Scope: none stated.
+    "These unresolved items should be shown explicitly in the experiment rather than treated as reasons to invent decisions or prevent all review-only assembly."
+    "If an architectural dependency genuinely prevents the bounded demonstration, please identify the precise dependency and smallest available options before implementing a change."
+  ASM-REV1-KICKOFF: The ordinary kickoff, a provisional option (the kickoff for the current prototype; not a method of restoring organized defence). Received 5 November 2026; provisional in his words. File: sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt. Scope: CURRENT_PROTOTYPE ("for the current prototype").
+    "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype, but do not promote it as a demonstrated method of restoring organized defensive relationships."
+  ASM-REV1-CONTINUOUS: Continuous play through turnovers (play continues through changes of possession). Received 5 November 2026. File: sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt. Scope: none stated.
+    "I favor preserving continuous play through turnovers whenever doing so supports the intended representative problem."
+  ASM-REV1-DIMENSIONS: A05 dimensions provisional (no approved basis for 6v6, 40 x 30 m; width and length not interchangeable). Received 5 November 2026; provisional in his words. File: sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt. Scope: none stated.
+    "Although those dimensions may be reasonable for a review prototype, we currently have no approved basis for treating them as particularly appropriate for A05."
+    "Likewise, width and length should not be treated as interchangeable simply because total area remains constant."
+    "For now, A05's dimensions remain provisional, and W-H1/W-H2 remain test-only hypotheses."
+  ASM-REV1-ADD-NOTHING: Adding nothing is valid only if knowledge-supported (suitability unverified where the knowledge does not support adding nothing). Received 5 November 2026. File: sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt. Scope: none stated.
+    "I would not require a feature that differentiates the design from a generic game."
+    "A knowledge-supported decision to add nothing should be considered a valid design decision."
+    "Where the knowledge doesn't support that conclusion, the system should report that suitability remains unverified."
+  ASM-REV1-OBSERVATION: Observation categories for the review prototype only (the categories evaluate what occurs; never selection criteria or evidence of learning). Received 5 November 2026; provisional in his words. File: sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt. Scope: REVIEW_PROTOTYPE ("in the review prototype").
+    "Our provisional A05 observation categories—Against Organized Opposition, During Transition, and Uncertain—could help evaluate what actually occurs in the review prototype."
+    "They should not become production selection criteria or be interpreted as evidence of learning simply because the intended situation appears."
+  ASM-REV1-SOURCE-FIDELITY: Attack Development scoring: source fidelity (the for-example clause; no canonical amendment before verification; the starting condition kept). Received 5 November 2026. File: sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt. Scope: none stated.
+    "If the original approval used "for example" before the final clause, then that clause should retain its status as an example rather than becoming an exclusive definition through transcription punctuation."
+    "I don't want to authorize a canonical amendment until we've verified the exact source text and its interpretation."
+    "Likewise, the condition concerning the attack's starting circumstances should not disappear into an observational emphasis if doing so removes a meaningful part of the approved context."
+    "Please retain that as an unresolved source-fidelity and learning-design issue until we establish its proper role."
+  ASM-EVE-MISMATCH: A mismatch to be reported for review (reusable) (inconsistency between described circumstances and the selected primary problem). Received 4 November 2026. File: sources/2026-11-04-stage2-review/originals/christian-reply-to-bounded-demonstration.txt. Scope: none stated.
+    "I don't want to authorize automatic switching between those Game Problems yet."
+    "However, the engine should eventually recognize when the described performance circumstances appear inconsistent with the selected primary problem and report that mismatch for review."
+    "This should remain a reusable reasoning requirement, not an A05-specific exception."
+  ASM-DEC-CONTINUOUS: Continuous play as a baseline condition (D5) (continuous play as a baseline representative condition, separate from Interaction Regulations). Received 4 November 2026. File: sources/2026-11-04-stage2-decisions/originals/christian-reply-to-decision-package.txt. Scope: none stated.
+    "I also support retaining continuous play as a baseline representative condition where applicable, separate from specific Interaction Regulations."
+  ASM-NOV3-REQ-E1: Context-sensitive resolution (the recorded requirement) (useful space already available). Received 3 November 2026. File: sources/2026-11-03-stage1-authorization/originals/christian-reply-to-development-proposal.txt. Scope: none stated.
+    "When useful space is already available, exploiting it may be the immediate problem."
+  ASM-1OCT-EQUAL: Equal outfield counts for GF2 (GF2-14.b promoted to owner-authored knowledge; not an engine-level universal). Received 1 October 2026. File: recovered reply received 1 October 2026, beginning "Good. Please proceed with the following owner decisions.". Scope: GF2_ITEM ("Promote GF2-14.b, equal outfield counts").
+    "Promote GF2-14.b, equal outfield counts, from ASSUMED to owner-authored canonical knowledge."
+    "Equal team numbers should not become an engine-level universal assumption."
+  ASM-9OCT-TEAMS: Opposing targets, fixed per team (two opposing teams, each with a fixed designated target). Received 9 October 2026. File: recovered reply received 9 October 2026, beginning "Thanks for catching the problem with the existence assertions". Scope: none stated.
+    "Two opposing teams each have a designated target at the opposite end of the playing area."
+    "Each team's target assignment remains fixed throughout the activity."
+    "When possession changes, attacking and defending roles change, but target assignments do not."
+  ASM-15SEP-DIRECTION: Direction in Directional Possession (each team attacks one direction and defends the opposite; the same-direction wording to be corrected). Received 15 September 2026. File: recovered reply received 15 September 2026, beginning "This is exactly the kind of structure I was hoping the audit would lead us toward.". Scope: none stated.
+    "Each team has a stable, perceivable direction of progression and at least one functional directional objective."
+    "In the normal opposed invasion realization, each team attacks one direction and defends the opposite direction."
+    "So please treat the current wording as something we need to correct rather than bind as a realization requirement."
+  ASM-28OCT-ENDZONE: Scoring target: end zone over line (provisional design direction) (controlled arrival in an advanced end zone rather than crossing the far end line). Received 28 October 2026; provisional in his words. File: recovered reply received 28 October 2026, beginning "Thank you for the Progress the Attack assessment.". Scope: none stated.
+    "Progress the Attack — provisional design direction"
+    "For scoring, I favor controlled arrival in an advanced end zone over crossing the far end line."
+    "However, I don't want either decision finalized simply to accommodate the current engine."
+  ASM-28OCT-PROVISIONAL: Progress the Attack provisional decisions (28 October) (scoring target, opposition, offside). Received 28 October 2026; provisional in his words. File: recovered reply received 28 October 2026, beginning "Thank you for the detailed feasibility assessment.". Scope: INITIAL_SMALL_SIDED_REALIZATION ("for this initial small-sided realization"); OURS: the scope words cover the offside decision.
+    "Scoring target: Controlled arrival in an appropriately positioned advanced end zone."
+    "Opposition: Reciprocal, meaningful objectives with continuous live opposition."
+    "Offside: No offside for this initial small-sided realization, explicitly communicated."
+    "These are provisional design decisions, not authorization of a complete activity."
+  ASM-29OCT-PROVISIONAL: Progress the Attack provisional choices (29 October) (scoring, opposition, offside). Received 29 October 2026; provisional in his words. File: recovered reply received 29 October 2026, beginning "Thank you for the latest comparison.". Scope: INITIAL_SMALL_SIDED_REALIZATION ("for this initial small-sided realization"); OURS: the scope words cover the offside decision.
+    "My provisional choices remain:"
+    "Scoring: Controlled arrival in an appropriately positioned advanced end zone."
+    "Opposition: Reciprocal objectives, meaningful defensive pressure, and continuous play through turnovers."
+    "Offside: None for this initial small-sided realization, explicitly communicated."
+  ASM-29OCT-ACCOUNTING: Requirement accounting (four categories and three standards for every generated activity). Received 29 October 2026. File: recovered reply received 29 October 2026, beginning "Thank you for the latest comparison.". Scope: none stated.
+    "Each generated activity should be evaluated against the applicable, approved context requirements, accounting for each component of a scoring condition rather than simply confirming that the condition exists."
+    "Explicitly represented in the finished activity."
+    "Supported through an authorized Game Form or other knowledge relationship."
+    "Dependent on coach observation or judgment, with the relevant observable conditions identified."
+    "Unsupported or missing."
+    "A requirement should not automatically count as satisfied merely because the coach could theoretically judge it."
+    "Structural validity: The required elements, conditions, and consequences are present."
+    "Learning-design relevance: The environment has a grounded relationship to the intended Game Problem and affordances."
+    "Field effectiveness: The activity actually provides the intended opportunities during play, requiring coach observation."
+    "Missing components of approved scoring conditions should not silently pass."
+  ASM-29OCT-4B: Starting condition and counted scores (decision 4(b)) (organized attacking possession characterizes the dominant opportunities, not every counted score). Received 29 October 2026. File: recovered reply received 29 October 2026, beginning "Thank you for the latest comparison.". Scope: none stated.
+    "I favor your decision 4(b): organized attacking possession should characterize the activity's dominant learning opportunities, rather than being a required state for every counted score."
+  ASM-30OCT-REGAIN: Scenario 1A scores (an interception followed by an immediate controlled arrival counts). Received 30 October 2026. File: recovered reply received 30 October 2026, beginning "Thank you for resending the starting-condition clarification". Scope: none stated.
+    "Should Scenario 1A score? — Yes"
+    "I believe the interception near the end zone followed by an immediate controlled arrival should count."
+  ASM-30OCT-OPTION5: Starting-condition interpretation: option (5), provisionally (the starting condition as contributing to the learning emphasis; flagged unverified). Received 30 October 2026; provisional in his words. File: recovered reply received 30 October 2026, beginning "Thank you for resending the starting-condition clarification". Scope: none stated.
+    "Starting-condition interpretation — Favor option (5), provisionally"
+    "I favor interpreting "from the attack's starting condition" as contributing to the activity's intended learning emphasis rather than establishing a restriction on every individual scoring event."
+    "This is not authorization to remove or disregard part of our approved scoring condition."
+    "Until we have grounded evidence supporting that relationship, it should remain flagged as unverified learning-design relevance rather than be classified as fully satisfied."
+  ASM-30OCT-WALKTHROUGH: 5 m end zones for the walk-through (the provisional end-zone depth). Received 30 October 2026; provisional in his words. File: recovered reply received 30 October 2026, beginning "Thank you for resending the starting-condition clarification". Scope: THE_WALK_THROUGH ("for the walk-through").
+    "The provisional 5 m end zones are fine for the walk-through, but shouldn't become a canonical standard without a justified relationship to the learning environment."
+  ASM-30OCT-EVE-SCORING: Starting-condition interpretation and validation (30 October, evening) (controlled arrival provisional; immediate attacks eligible). Received 30 October 2026. File: recovered reply received 30 October 2026, beginning "Thank you for the walk-through and for clearly identifying where the proposed activity is supported by our knowledge". Scope: none stated.
+    "Controlled arrival remains the provisional scoring event."
+    "Legitimate immediate attacking opportunities remain eligible to score."
+  ASM-30OCT-EVE-UNRESOLVED: The starting condition stays unresolved (neither satisfied nor moved into coach observation). Received 30 October 2026. File: recovered reply received 30 October 2026, beginning "Thank you for the walk-through and for clearly identifying where the proposed activity is supported by our knowledge". Scope: none stated.
+    "For now, please preserve the unresolved status rather than treating the starting-condition requirement as satisfied or simply moving it into coach observation."
+  ASM-30OCT-EVE-OBSERVATION: Observation criteria, provisionally approved (three categories; both situations legitimate; no threshold). Received 30 October 2026; provisional in his words. File: recovered reply received 30 October 2026, beginning "Thank you for the walk-through and for clearly identifying where the proposed activity is supported by our knowledge". Scope: none stated.
+    "Observation criteria — Provisionally approved"
+    "Against organized opposition: The team progresses and scores after confronting a defense that has established or recovered its organization."
+    "During transition: The team scores before the opposition has recovered its organization."
+    "Uncertain: The coach cannot confidently distinguish the situation."
+    "Both scoring situations remain legitimate."
+    "However, the observations should not substitute for the engine's responsibility to select an appropriate environment, nor should they automatically establish learning effectiveness."
+    "I would not set a required percentage or threshold before gathering field evidence."
+  ASM-23OCT-LAWS: Default soccer rules (a standing principle) (the normal Laws by default; only departures defined; adaptations identified). Received 23 October 2026. File: recovered reply received 23 October 2026, beginning "Thank you for narrowing the remaining questions and confirming that Directional Possession can support the proposed goal-based realization". Scope: none stated.
+    "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification."
+    "For example, normal rules should govern goalkeeper handling, fouls, and own goals unless the activity deliberately changes them."
+    "Where a normal law cannot apply directly because of the modified field, scoring structure, or game format, the system should identify the relevant adaptation rather than silently assume conventional conditions exist."
+    "The governing principle is to inherit established sport rules and explicitly define only the necessary departures."
+  ASM-21OCT-PURPOSE: Source of the learning purpose (the Learning Goal's coach-facing definition). Received 21 October 2026. File: recovered reply received 21 October 2026, beginning "Thank you for the thorough audit and independent review.". Scope: none stated.
+    "My preference is to use the Learning Goal's coach-facing definition as the primary source."
+    "The system should not independently invent a learning purpose."
+  ASM-21OCT-PRESENTATION: Coach Overview and Coach Details; no player script (the two presentation levels). Received 21 October 2026. File: recovered reply received 21 October 2026, beginning "Thank you for the thorough audit and independent review.". Scope: none stated.
+    "I do not want a separate player-facing explanation or script included in the activity presented to coaches."
+    "The immediate understanding of the activity: learning purpose, one-sentence game description, basic parameters, essential scoring objectives, and a simple diagram."
+    "There should be no separate Player Explanation section."
+  ASM-22OCT-COLOURS: Stable team colours (said for the diagram) (team identity kept apart from role). Received 22 October 2026. File: recovered reply received 22 October 2026, beginning "Thank you for the updated presentation and supporting documentation.". Scope: none stated.
+    "For colors, I would generally prefer stable team identities, with building and pressing roles identified separately."
+    "If Team A is blue in Block 1, it should ordinarily remain blue in Block 2, even though its responsibilities change."
+  ASM-15OCT-WAITING: Advanced positioning (said for the build-out activity) (attackers waiting inside the target area; no mechanism imposed automatically). Received 15 October 2026. File: recovered reply received 15 October 2026, beginning "Thanks for narrowing the outstanding questions and documenting the implementation decisions.". Scope: none stated.
+    "While experimenting with similar activities myself, I noticed that attacking players sometimes position themselves permanently inside the progression target area, waiting for a pass."
+    "This can undermine the intended build-out problem by allowing players to bypass the meaningful interaction with defensive pressure."
+    "However, after considering the issue further, I don't want to automatically impose that mechanism."
+  ASM-13SEP-SCORING: Attack Development primary scoring approval (the qualifying condition as he approved it on 13 September (our copy, as pasted by Joe)). Received 13 September 2026. File: recovered reply received 13 September 2026, beginning "Thanks. The generated-activity evidence makes the scoring issue much clearer." (Joe's paste, made twice, identical; our filed copy: none; the original email has not been checked). Scope: none stated.
+    "Attack Development — approved."
+    "The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession."
+  ASM-31OCT-ORGANIZED: Organized defence: working definition (a functional definition of an organized defence). Received 31 October 2026. File: recovered reply received 31 October 2026, beginning "Thank you for the detailed Create Space assessment.". Scope: none stated.
+    "A defense is functionally organized when its players have sufficiently coordinated relationships to challenge progression, provide mutual support, and adapt collectively to the attacking team's changing opportunities."
+  ASM-28OCT-ACCEPTANCE: The acceptance test for Progress the Attack (reusable, authorized knowledge, without a fully authored activity-specific version). Received 28 October 2026. File: recovered reply received 28 October 2026, beginning "Thank you for the latest Secure Possession findings.". Scope: none stated.
+    "Can Challenge Point construct a complete, representative Progress the Attack activity using reusable, authorized knowledge, without requiring a fully authored activity-specific version?"
+    "I'd prefer not to create another complete activity realization manually just to pass this test."
+
+Every material value (path; value; how it reached the activity; class; what decided it; what was only consulted; what set its status):
+  purpose = "Improve attacking conditions while maintaining purposeful possession." ("Improve attacking conditions while maintaining purposeful possession.")
+    how reached: READ FROM KNOWLEDGE BY CODE; declared RULING; class 2: An explicit scoped ruling
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-21OCT-PURPOSE (received 21 October 2026) [RULING] states the value: "My preference is to use the Learning Goal's coach-facing definition as the primary source."
+      decided by: planning learning_goals A05 Coach Definition [APPROVED] the cell: "Improve attacking conditions while maintaining purposeful possession."
+    note: The cell is APPROVED on our reading of the Session Planning Model's status (the row's Status reads Active); his 21 October ruling selects it as the source.
+  gameProblems.primary = ["GP-001"] ("Create Space")
+    how reached: READ FROM KNOWLEDGE BY CODE; declared RULING; class 2: An explicit scoped ruling
+    trace: computed by the Stage 1/2 code: its own influence trace, unchanged
+      decided by: stage1-rulings.json RUL-E1-A05 [RULING] his scoped ruling names the Game Problems and their roles
+      decided by: stage2-rulings.json D1-4NOV [RULING] his later ruling retains the designation for this demonstration
+      decided by: session-planning-model.rc1.json engine_translation A05 [APPROVED] the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling
+      consulted: ASM-AUTH-GP-SCOPE (received 5 November 2026) [RULING] extendsScopeTo: his 5 November words allow this experiment to use the designation, within the scoped circumstance; printed beside the computed trace, never decisive.
+      consulted: ASM-REV1-GP-SCOPE (received 5 November 2026) [RULING] extendsScopeTo: 'a scoped review interpretation'; printed beside the computed trace, never decisive.
+    note: Computed by the Stage 1/2 resolution, its influence trace unchanged (the scoped ruling RUL-E1-A05, continued by D1-4NOV, and the unpopulated Engine Translation row).
+    filed scope of the computed designation: STAGE1_DEVELOPMENT_DEMONSTRATION, continued by D1-4NOV; extendsScopeTo (his 5 November words, printed beside, never decisive): ASM-AUTH-GP-SCOPE, ASM-REV1-GP-SCOPE. OURS: his 5 November words name the Game Problems (Create Space, Exploit Space); the ids are the ones his 3 November words name beside the same names, and the ones the Stage 1/2 resolution returns. The assembly fails closed if the resolution's ids differ. His 5 November words extend the scope of the designation the Stage 1/2 resolution already carries (filed as RUL-E1-A05 with scope STAGE1_DEVELOPMENT_DEMONSTRATION, continued by D1-4NOV); they are printed beside that trace, which stays the decisive, computed record. They are not filed as a second scoped translation.
+  gameProblems.secondary = ["GP-002"] ("Exploit Space")
+    how reached: READ FROM KNOWLEDGE BY CODE; declared RULING; class 2: An explicit scoped ruling
+    trace: computed by the Stage 1/2 code: its own influence trace, unchanged
+      decided by: stage1-rulings.json RUL-E1-A05 [RULING] his scoped ruling names the Game Problems and their roles
+      decided by: stage2-rulings.json D1-4NOV [RULING] his later ruling retains the designation for this demonstration
+      decided by: session-planning-model.rc1.json engine_translation A05 [APPROVED] the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling
+      consulted: ASM-AUTH-GP-SCOPE (received 5 November 2026) [RULING] extendsScopeTo: Exploit Space 'a secondary consideration'; printed beside the computed trace.
+    note: Computed by the Stage 1/2 resolution, its influence trace unchanged.
+    filed scope of the computed designation: STAGE1_DEVELOPMENT_DEMONSTRATION, continued by D1-4NOV; extendsScopeTo (his 5 November words, printed beside, never decisive): ASM-AUTH-GP-SCOPE, ASM-REV1-GP-SCOPE. OURS: his 5 November words name the Game Problems (Create Space, Exploit Space); the ids are the ones his 3 November words name beside the same names, and the ones the Stage 1/2 resolution returns. The assembly fails closed if the resolution's ids differ. His 5 November words extend the scope of the designation the Stage 1/2 resolution already carries (filed as RUL-E1-A05 with scope STAGE1_DEVELOPMENT_DEMONSTRATION, continued by D1-4NOV); they are printed beside that trace, which stays the decisive, computed record. They are not filed as a second scoped translation.
+  gameProblems.secondaryFinding = ["FOI:GP-002>GP-001:INSUFFICIENT_EVIDENCE"] ("Functional Object Interaction is rated more strongly for Exploit Space (E) than for Create Space (S); not promoted (INSUFFICIENT_EVIDENCE)")
+    how reached: READ FROM KNOWLEDGE BY CODE; declared RULING; class 2: An explicit scoped ruling
+    trace: computed by the Stage 1/2 code: its own influence trace, unchanged
+      decided by: atm-workbook.rc1.2.json ratings GP-001 [APPROVED] primary rates FOI S
+      decided by: atm-workbook.rc1.2.json ratings GP-002 [APPROVED] secondary rates FOI E
+      decided by: atm-workbook.rc1.2.json metadata merge_precedence [APPROVED] merge_precedence E>S>NR
+      decided by: stage2-rulings.json D1-4NOV [RULING] his D1: primary-led profile; a stronger secondary rating is kept as a finding, not promoted
+      decided by: stage1-rulings.json RUL-E1-A05 [RULING] sets which Game Problems are merged, and their roles: his scoped ruling names the Game Problems and their roles
+      decided by: stage2-rulings.json D1-4NOV [RULING] sets which Game Problems are merged, and their roles: his later ruling retains the designation for this demonstration
+      decided by: session-planning-model.rc1.json engine_translation A05 [APPROVED] sets which Game Problems are merged, and their roles: the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling
+      consulted: ASM-AUTH-COMPOSITE (received 5 November 2026) [RULING] a stronger secondary requirement is neither promoted nor discarded; the finding is shown, not promoted.
+    note: Computed by the Stage 1/2 composite profile (his D1): the secondary's stronger rating is kept as a finding at INSUFFICIENT_EVIDENCE.
+  gameProblems.candidate = "GP-005" ("Gain Access")
+    how reached: READ FROM KNOWLEDGE BY CODE; declared CANDIDATE; class 3: Candidate or provisional knowledge
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: contexts relationships RPC-REL-025 related_id [CANDIDATE] the row
+      status set by: ASM-AUTH-GAIN-ACCESS (received 5 November 2026) [RULING] sets the status (printed, never decisive)
+    note: Shown, not used. The row is ACTIVE in the context library (SECONDARY COMPATIBLE); its id resolution was mechanical (OURS); his words keep the relationship a candidate.
+  gameForm.illustrativeChoice = "GF2" ("Directional Possession Games")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-GF (received 5 November 2026) [RULING] states the value: "GF2 may be used as an illustrative configuration for this experiment."
+      consulted: ASM-REV1-GF2 (received 5 November 2026) [RULING] an illustrative choice, not a justified selection over the other forms.
+    note: Checked by code to be among the compatible Game Forms the Stage 2 selection returns; no preference among them.
+  gameForm.alternatives = ["GF3","GF7"] ("Positional Play Games and Channel Games")
+    how reached: READ FROM KNOWLEDGE BY CODE; declared CANDIDATE; class 3: Candidate or provisional knowledge
+    trace: computed by the Stage 1/2 code: its own influence trace, unchanged
+      decided by: game-archetype-workbook.rc1.1.json knowledge GAK-0001 [APPROVED] GA-001 relates GP-001 CONSTITUTIVE; gate input: non-contradiction (compatibility) only; not support for the Game Form
+      decided by: rpc-library.rc1.json relationships RPC-REL-003 [APPROVED] RPC-003 relates GA-001 (COMPATIBLE); gate input: non-contradiction (compatibility) only; not support for the Game Form
+      decided by: rpc-library.rc1.json relationships RPC-REL-027 [APPROVED] RPC-003 relates GF3 (COMPATIBLE); the form is a candidate
+      decided by: rpc-library.rc1.json relationships RPC-REL-028 [APPROVED] RPC-003 relates GF2 (COMPATIBLE); the form is a candidate
+      decided by: rpc-library.rc1.json relationships RPC-REL-029 [APPROVED] RPC-003 relates GF7 (COMPATIBLE); the form is a candidate
+      decided by: session-planning-model.rc1.json engine_translation A05 [APPROVED] names the primary Game Problem the gate tests: the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling
+      decided by: soccer-module.rc1-v3.json game_forms GF2 [CANDIDATE] the form's declared Game Problems and status (declares the primary: PRIMARY)
+      decided by: soccer-module.rc1-v3.json game_forms GF3 [CANDIDATE] the form's declared Game Problems and status (declares the primary: PRIMARY)
+      decided by: soccer-module.rc1-v3.json game_forms GF7 [CANDIDATE] the form's declared Game Problems and status (declares the primary: PRIMARY)
+      decided by: stage1-rulings.json RUL-E1-A05 [RULING] names the primary Game Problem the gate tests: his scoped ruling names the Game Problems and their roles
+      decided by: stage2-rulings.json D1-4NOV [RULING] names the primary Game Problem the gate tests: his later ruling retains the designation for this demonstration
+      decided by: stage2-rulings.json D3-4NOV [RULING] his D3: compatibility only; the declaration gate kept
+      consulted: rpc-library.rc1.json relationships RPC-REL-027 [APPROVED] strength PRIMARY: compatibility information, not a preference
+      consulted: rpc-library.rc1.json relationships RPC-REL-028 [APPROVED] strength PRIMARY: compatibility information, not a preference
+      consulted: rpc-library.rc1.json relationships RPC-REL-029 [APPROVED] strength SECONDARY: compatibility information, not a preference
+      consulted: ASM-AUTH-GF (received 5 November 2026) [RULING] GF3 and GF7 visible as compatible alternatives, without an invented ranking.
+    note: Computed by the Stage 2 Game Form step: the context's form rows (APPROVED) and the sport module's form declarations (CANDIDATE, module DRAFT), compatibility only.
+  teams.count = 2 ("2")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 2: An explicit scoped ruling
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-9OCT-TEAMS (received 9 October 2026) [RULING] states the value: "Two opposing teams each have a designated target at the opposite end of the playing area."
+      consulted: contracts.json GF2-14.a [CANDIDATE] COUNT 2, AUTHORED from the sport module (CANDIDATE).
+    note: His 9 October words, said of Directional Possession's opposing-target structure.
+  teams.equalOutfield = "EQUAL" ("EQUAL")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 2: An explicit scoped ruling
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-1OCT-EQUAL (received 1 October 2026) [RULING] states the value: "Promote GF2-14.b, equal outfield counts, from ASSUMED to owner-authored canonical knowledge."
+      consulted: contracts.json GF2-14.b [CANDIDATE] still reads basis ASSUMED: a stale projection of his 1 October promotion (corpus-restatements.json carries the promotion).
+      consulted: ASM-1OCT-EQUAL (received 1 October 2026) [RULING] his limit: equal numbers are GF2-level, not an engine-level universal assumption.
+    note: He called it owner-authored canonical knowledge; we print class 2 (an explicit scoped ruling, GF2-level), because the canonical projection still reads ASSUMED. He can say if class 1 is intended.
+  players.perTeam = 6 ("6")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+      consulted: ASM-REV1-DIMENSIONS (received 5 November 2026; provisional) [RULING] no approved basis for treating 6v6, 40 x 30 m as particularly appropriate for A05.
+      consulted: ASM-AUTH-SCALE (received 5 November 2026) [RULING] no automatic preference for small-sided games: 6 v 6 is not preferred over larger formats.
+    note: The same number is a TEST INPUT in the Stage 2 width fixture; the two are deliberately independent (a unit test pins that they agree).
+  players.goalkeepers = 0 ("0")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+      consulted: ASM-28OCT-PROVISIONAL (received 28 October 2026; provisional) [RULING] no goals in this realization because the scoring target is an end zone (his provisional ruling); no goalkeepers is our illustrative consequence.
+    note: GF2 authors no goalkeeper (contracts.json P3, doesNotConstrain).
+  area.lengthM = 40 ("40")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+      consulted: ASM-REV1-DIMENSIONS (received 5 November 2026; provisional) [RULING] A05's dimensions remain provisional; width and length are not interchangeable.
+      consulted: contracts.json GF2-24.a [CANDIDATE] 40-60 m typical, inert (TYPICAL_EXAMPLE); consulted, not decisive.
+    note: The length runs along the direction of play, between the target zones.
+  area.widthM = 30 ("30")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+      consulted: contracts.json GF2-24.b [CANDIDATE] 25-40 m typical, inert (TYPICAL_EXAMPLE); consulted, not decisive.
+    note: No width change is proposed anywhere in this experiment.
+  area.includesEndZones = true ("true")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+      consulted: ASM-AUTH-D4 (received 5 November 2026) [RULING] his Decision 4 requires the statement (whether end zones are included); the value follows our illustrative layout.
+    note: The two target zones lie inside the 40 m length.
+  area.goalkeepersCounted = "NO_GOALKEEPERS" ("NO_GOALKEEPERS")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+      consulted: ASM-AUTH-D4 (received 5 November 2026) [RULING] his Decision 4 requires the statement (whether goalkeepers are counted); there are none to count.
+    note: Entailed by the illustrative choice of no goalkeepers.
+  area.halfwayLine = "MARKED" ("MARKED")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+      consulted: sport-profile-soccer.json LAW-8 [OURS] the Laws kick-off needs a centre mark and a halfway line (the profile lists the centre mark as unrepresented); marking them is our illustrative consequence of his kickoff ruling.
+    note: Needed for the ordinary kickoff; no other role.
+  area.centreMark = "MARKED" ("MARKED")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+      consulted: sport-profile-soccer.json LAW-8 [OURS] the kick-off is taken from the centre mark.
+    note: Needed for the ordinary kickoff; no other role.
+  endZones.depthM = 5 ("5")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+      consulted: ASM-30OCT-WALKTHROUGH (received 30 October 2026; provisional) [RULING] his words scope the 5 m depth to 'the walk-through'; carried over to this experiment as an ILLUSTRATIVE value (applied to this experiment: OURS).
+      consulted: ASM-REV1-DIMENSIONS (received 5 November 2026; provisional) [RULING] A05's dimensions remain provisional.
+      consulted: contracts.json S5/O4 notAuthored [CANDIDATE] GF2 does not author the depth of a target zone.
+    note: Not a canonical value.
+  endZones.placement = "ONE_AT_EACH_END_FULL_WIDTH" ("ONE_AT_EACH_END_FULL_WIDTH")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+      consulted: ASM-9OCT-TEAMS (received 9 October 2026) [RULING] each team's target at the opposite end of the playing area.
+      consulted: contracts.json S6/O5 notAuthored [CANDIDATE] GF2 does not author whether a target spans the full width.
+    note: Full width is our illustrative choice.
+  endZones.positioning = null ("none (no authorized value)")
+    how reached: UNRESOLVED; declared UNRESOLVED; class 6: An unsupported or unresolved relationship
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: UNRESOLVED [UNRESOLVED] no authorized value exists
+      consulted: ASM-28OCT-PROVISIONAL (received 28 October 2026; provisional) [RULING] his words ask for an 'appropriately positioned advanced end zone'; what makes a position appropriate is not defined anywhere in the knowledge.
+    note: No authorized value; the illustrative placement stands in for this example only.
+  endZones.access = "ANY_PLAYER_ANY_TIME" ("ANY_PLAYER_ANY_TIME")
+    how reached: ENTERED, OUR INFERENCE; declared OURS; class 6: An unsupported or unresolved relationship
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-23OCT-LAWS (received 23 October 2026) [RULING] states the value: "The normal Laws of the Game should apply by default wherever they are applicable"
+      consulted: ASM-15OCT-WAITING (received 15 October 2026) [RULING] a known risk he raised for the build-out activity (attackers waiting in the target area); an open observation point here; no restriction is invented.
+    note: Our reading of the Laws by default: no law restricts entry to a marked zone, so no restriction is added.
+  directions = "EACH_ATTACKS_ONE_DEFENDS_THE_OTHER_ALL_GAME" ("EACH_ATTACKS_ONE_DEFENDS_THE_OTHER_ALL_GAME")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 2: An explicit scoped ruling
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-15SEP-DIRECTION (received 15 September 2026) [RULING] states the value: "In the normal opposed invasion realization, each team attacks one direction and defends the opposite direction."
+      decided by: ASM-9OCT-TEAMS (received 9 October 2026) [RULING] states the value: "Each team's target assignment remains fixed throughout the activity."
+      consulted: soccer-module.rc1-v3.json game_forms GF2 setup_guidance [CANDIDATE] the module's setup text says the teams attack in the same direction; it conflicts with his 15 September correction and is not used (contracts.json GF2-12.a and GF2-12.b, not used).
+    note: Target assignments do not change with possession.
+  scoring.event = "target_zone_entered" ("target_zone_entered")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 3: Candidate or provisional knowledge
+    his provisional ruling, received 28 October 2026: "Scoring target: Controlled arrival in an appropriately positioned advanced end zone."
+    his provisional ruling, received 28 October 2026: "For scoring, I favor controlled arrival in an advanced end zone over crossing the far end line."
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-28OCT-PROVISIONAL (received 28 October 2026; provisional) [RULING] states the value: "Scoring target: Controlled arrival in an appropriately positioned advanced end zone."
+      decided by: ASM-28OCT-ENDZONE (received 28 October 2026; provisional) [RULING] states the value: "For scoring, I favor controlled arrival in an advanced end zone over crossing the far end line."
+      consulted: contexts relationships RPC-REL-079 [APPROVED] target_zone_entered is one of the context's four approved scoring events (with line_crossed, gate and target_player), so membership does not separate zone from line; checked by code, never decisive for the choice.
+      consulted: ASM-30OCT-EVE-SCORING (received 30 October 2026) [RULING] 'Controlled arrival remains the provisional scoring event.'
+    note: His provisional ruling, placed in class 3.
+  scoring.means = "A player dribbles into a marked zone, or receives and controls the ball inside it." ("A player dribbles into a marked zone, or receives and controls the ball inside it.")
+    how reached: READ FROM KNOWLEDGE BY CODE; declared RULING; class 3: Candidate or provisional knowledge
+    his provisional ruling, received 29 October 2026: "Scoring: Controlled arrival in an appropriately positioned advanced end zone."
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: contexts controlled_vocabulary scoring_event target_zone_entered description [APPROVED] the cell: "A player dribbles into a marked zone, or receives and controls the ball inside it."
+      decided by: ASM-29OCT-PROVISIONAL (received 29 October 2026; provisional) [RULING] states the value: "Scoring: Controlled arrival in an appropriately positioned advanced end zone."
+      consulted: ASM-30OCT-REGAIN (received 30 October 2026) [RULING] an interception followed by an immediate controlled arrival counts: consistent with the vocabulary's 'receives and controls the ball inside it'.
+    note: The approved vocabulary's own description of the event, read by code; no narrowing to a received pass.
+  scoring.qualifyingCondition.workbookText = "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession." ("Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.")
+    how reached: READ FROM KNOWLEDGE BY CODE; declared CANDIDATE; class 3: Candidate or provisional knowledge
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: contexts properties RPC-PROP-134 property_text [CANDIDATE] the row
+      consulted: ASM-REV1-SOURCE-FIDELITY (received 5 November 2026) [RULING] the row is APPROVED, but its wording differs from his 13 September text (a colon where his text has 'for example'); the wording is therefore CANDIDATE until he rules.
+      status set by: ASM-AUTH-STARTING-CONDITION (received 5 November 2026) [RULING] sets the status (printed, never decisive)
+    note: Printed byte-equal to the cell; never stated as a coach rule.
+  scoring.qualifyingCondition.sep13Text = "The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession." ("The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 2: An explicit scoped ruling
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-13SEP-SCORING (received 13 September 2026) [RULING] states the value: "The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession."
+      status set by: ASM-AUTH-STARTING-CONDITION (received 5 November 2026) [RULING] sets the status (printed, never decisive)
+    note: Our copy of your 13 September email as pasted by Joe (pasted twice, identical); original not yet checked.
+  scoring.startingCondition = null ("none (no authorized value)")
+    how reached: UNRESOLVED; declared UNRESOLVED; class 6: An unsupported or unresolved relationship
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: UNRESOLVED [UNRESOLVED] no authorized value exists
+      consulted: ASM-29OCT-4B (received 29 October 2026) [RULING] organized attacking possession characterizes the dominant opportunities, not every counted score.
+      consulted: ASM-30OCT-OPTION5 (received 30 October 2026; provisional) [RULING] his provisional option (5), flagged as unverified learning-design relevance; the interpretation and its provenance are recorded here for review.
+      status set by: ASM-AUTH-STARTING-CONDITION (received 5 November 2026) [RULING] sets the status (printed, never decisive)
+      status set by: ASM-30OCT-EVE-UNRESOLVED (received 30 October 2026) [RULING] sets the status (printed, never decisive)
+      status set by: ASM-REV1-SOURCE-FIDELITY (received 5 November 2026) [RULING] sets the status (printed, never decisive)
+    note: The role of 'from the attack's starting condition' in scoring or configuration has no authorized value. It plays no role in this example's game: every controlled arrival counts, including after a regain. Shown in Scoring as an open question, never moved into the observation guidance.
+  scoring.afterRegain = "COUNTS" ("COUNTS")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 2: An explicit scoped ruling
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-30OCT-REGAIN (received 30 October 2026) [RULING] states the value: "I believe the interception near the end zone followed by an immediate controlled arrival should count."
+      decided by: ASM-30OCT-EVE-SCORING (received 30 October 2026) [RULING] states the value: "Legitimate immediate attacking opportunities remain eligible to score."
+    note: No eligibility restriction after a live turnover.
+  scoring.mirrored = "SAME_FOR_BOTH" ("SAME_FOR_BOTH")
+    how reached: ENTERED, OUR INFERENCE; declared OURS; class 6: An unsupported or unresolved relationship
+    his provisional ruling, received 28 October 2026: "Opposition: Reciprocal, meaningful objectives with continuous live opposition."
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-28OCT-PROVISIONAL (received 28 October 2026; provisional) [RULING] states the value: "Opposition: Reciprocal, meaningful objectives with continuous live opposition."
+    note: Our reading of 'reciprocal' as the same scoring event for both teams; his words do not state mirroring.
+  opposition.reciprocal = "RECIPROCAL" ("RECIPROCAL")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 3: Candidate or provisional knowledge
+    his provisional ruling, received 29 October 2026: "Opposition: Reciprocal objectives, meaningful defensive pressure, and continuous play through turnovers."
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-29OCT-PROVISIONAL (received 29 October 2026; provisional) [RULING] states the value: "Opposition: Reciprocal objectives, meaningful defensive pressure, and continuous play through turnovers."
+    note: Both teams attack and defend; his provisional ruling, placed in class 3.
+  play.continuous = "CONTINUOUS_THROUGH_TURNOVERS" ("CONTINUOUS_THROUGH_TURNOVERS")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 2: An explicit scoped ruling
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-REV1-CONTINUOUS (received 5 November 2026) [RULING] states the value: "I favor preserving continuous play through turnovers whenever doing so supports the intended representative problem."
+      decided by: ASM-DEC-CONTINUOUS (received 4 November 2026) [RULING] states the value: "I also support retaining continuous play as a baseline representative condition where applicable, separate from specific Interaction Regulations."
+    note: A baseline representative condition, not an Interaction Regulation.
+  start.method = "ORDINARY_KICKOFF" ("ORDINARY_KICKOFF")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 3: Candidate or provisional knowledge
+    his provisional ruling, received 5 November 2026: "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype"
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-REV1-KICKOFF (received 5 November 2026; provisional) [RULING] states the value: "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype"
+      consulted: sport-profile-soccer.json LAW-8 [OURS] the kick-off at the start and after a score (Law 8).
+    note: His caveat: 'do not promote it as a demonstrated method of restoring organized defensive relationships.' Nothing in this experiment says it does.
+  start.kickoffDetails = "LAWS_KICKOFF_UNCHANGED" ("LAWS_KICKOFF_UNCHANGED")
+    how reached: ENTERED, OUR INFERENCE; declared OURS; class 6: An unsupported or unresolved relationship
+    his provisional ruling, received 5 November 2026: "the ordinary kickoff"
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-REV1-KICKOFF (received 5 November 2026; provisional) [RULING] states the value: "the ordinary kickoff"
+      decided by: ASM-23OCT-LAWS (received 23 October 2026) [RULING] states the value: "The normal Laws of the Game should apply by default wherever they are applicable"
+    note: Our reading of 'ordinary': the Laws kick-off unchanged, opponents 9.15 m away and in their own half included. Whether a relaxation (as his 29 October 'adapted kick-off' might allow) is wanted is an open question.
+  restart.afterPoint.method = "KICKOFF" ("KICKOFF")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 3: Candidate or provisional knowledge
+    his provisional ruling, received 5 November 2026: "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype"
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-REV1-KICKOFF (received 5 November 2026; provisional) [RULING] states the value: "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype"
+      consulted: contracts.json T2-T6 notAuthored [CANDIDATE] GF2 does not author a restart after a score.
+    note: His provisional option for the restart after a score; never presented as restoring organized defence.
+  restart.afterPoint.who = "CONCEDING_TEAM" ("CONCEDING_TEAM")
+    how reached: ENTERED, OUR INFERENCE; declared OURS; class 6: An unsupported or unresolved relationship
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-23OCT-LAWS (received 23 October 2026) [RULING] states the value: "The normal Laws of the Game should apply by default wherever they are applicable"
+    note: Our reading: in the Laws the team that conceded a goal kicks off; applying that to a point is our inference (a point is not a goal in the Laws).
+  rules.offside = "NONE" ("NONE")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 3: Candidate or provisional knowledge
+    his provisional ruling, received 29 October 2026: "Offside: None for this initial small-sided realization, explicitly communicated."
+    his provisional ruling, received 28 October 2026: "Offside: No offside for this initial small-sided realization, explicitly communicated."
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-29OCT-PROVISIONAL (received 29 October 2026; provisional) [RULING] states the value: "Offside: None for this initial small-sided realization, explicitly communicated."
+      decided by: ASM-28OCT-PROVISIONAL (received 28 October 2026; provisional) [RULING] states the value: "Offside: No offside for this initial small-sided realization, explicitly communicated."
+    note: A departure from the Laws (Law 11), explicitly communicated; his provisional ruling, placed in class 3.
+  restart.touchline = "LAWS_THROW_IN" ("LAWS_THROW_IN")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 2: An explicit scoped ruling
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-23OCT-LAWS (received 23 October 2026) [RULING] states the value: "The normal Laws of the Game should apply by default wherever they are applicable"
+      consulted: sport-profile-soccer.json LAW-15 [OURS] listed only so an activity can depart from it; nothing here departs.
+      consulted: contracts.json GF2-16.a [CANDIDATE] the module's setup text: a ball out of play restarts from the team that did not touch it last (consistent with the Laws throw-in).
+    note: The Laws apply unchanged.
+  rules.fouls = "LAWS_FREE_KICKS" ("LAWS_FREE_KICKS")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 2: An explicit scoped ruling
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-23OCT-LAWS (received 23 October 2026) [RULING] states the value: "For example, normal rules should govern goalkeeper handling, fouls, and own goals unless the activity deliberately changes them."
+      consulted: sport-profile-soccer.json LAW-13 [OURS] listed only so an activity can depart from it; nothing here departs.
+    note: The Laws apply unchanged; no free kick is moved or altered.
+  rules.handling = "LAWS_NO_PLAYER_HANDLES" ("LAWS_NO_PLAYER_HANDLES")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 2: An explicit scoped ruling
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-23OCT-LAWS (received 23 October 2026) [RULING] states the value: "The normal Laws of the Game should apply by default wherever they are applicable"
+      consulted: sport-profile-soccer.json LAW-12-GK [OURS] not applicable: there is no goalkeeper, so the handling law applies to every player.
+    note: With no goalkeepers, no player may handle the ball under the Laws.
+  laws.default = "APPLY" ("APPLY")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 2: An explicit scoped ruling
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-23OCT-LAWS (received 23 October 2026) [RULING] states the value: "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification."
+    note: The activity states only departures and adaptations; the Laws account in Part 2 lists every law the Sport Profile names.
+  laws.goalEnd = "NOT_APPLICABLE_NO_GOALS" ("NOT_APPLICABLE_NO_GOALS")
+    how reached: ENTERED, OUR INFERENCE; declared OURS; class 6: An unsupported or unresolved relationship
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-23OCT-LAWS (received 23 October 2026) [RULING] states the value: "the system should identify the relevant adaptation rather than silently assume conventional conditions exist"
+      consulted: sport-profile-soccer.json LAW-14, LAW-16, LAW-17 [OURS] each applies only where a goal stands at an end; none does here.
+    note: Our logical inference from the profile's applicability conditions: with no goals, the penalty kick, goal kick and corner kick do not apply.
+  restart.endLine.status = null ("none (no authorized value)")
+    how reached: UNRESOLVED; declared UNRESOLVED; class 6: An unsupported or unresolved relationship
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: UNRESOLVED [UNRESOLVED] no authorized value exists
+      status set by: ASM-23OCT-LAWS (received 23 October 2026) [RULING] sets the status (printed, never decisive)
+    note: With no goals, no law restarts a ball over an end line (Laws 16 and 17 need a goal): an adaptation is owed, and no authorized value exists.
+  restart.endLine.illustrativeValue = "NOT_LAST_TOUCH_FROM_THE_END_LINE" ("NOT_LAST_TOUCH_FROM_THE_END_LINE")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled"
+      consulted: contracts.json GF2-16.a [CANDIDATE] the module's setup text: a ball out of play restarts from the team that did not touch it last.
+      consulted: ASM-23OCT-LAWS (received 23 October 2026) [RULING] a departure from the Laws needs an explicit, knowledge-authorized modification; we ask him to confirm that an illustrative value may stand in here.
+    note: Illustrative only, pending his confirmation; no opponent distance or retreat rule is added.
+  duration.blocks = 3 ("3")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+      consulted: contracts.json E4 notAuthored [CANDIDATE] GF2 does not author a duration; the session supplies it.
+    note: Session context should come from the coach; this is an example.
+  duration.blockMinutes = 6 ("6")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+    note: An example.
+  duration.breaks = "SHORT_BREAK_BETWEEN_BLOCKS" ("SHORT_BREAK_BETWEEN_BLOCKS")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+    note: An example.
+  equipment.bibs = "ONE_COLOUR_PER_TEAM_KEPT_ALL_SESSION" ("ONE_COLOUR_PER_TEAM_KEPT_ALL_SESSION")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+      consulted: ASM-22OCT-COLOURS (received 22 October 2026) [RULING] said for the diagram's team identity, hedged ('generally prefer', 'ordinarily remain'); consulted for 'each team keeps its colour', not decisive for bibs.
+    note: Bibs are our illustrative equipment.
+  equipment.markers = "AREA_HALFWAY_CENTRE_TARGET_ZONES" ("AREA_HALFWAY_CENTRE_TARGET_ZONES")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+      consulted: contracts.json GF2-06.a [CANDIDATE] the target as a physically marked object (ASSUMED).
+    note: Markings are the same for the whole session, so they are marked once.
+  equipment.balls = "SPARE_BALLS" ("SPARE_BALLS")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+    note: Spare balls are not a coach-served restart: every restart follows the Laws or the illustrative end-line value.
+  win.condition = "MORE_POINTS_IN_A_BLOCK" ("MORE_POINTS_IN_A_BLOCK")
+    how reached: ENTERED, ILLUSTRATIVE; declared ILLUSTRATIVE; class 5: An illustrative configuration choice
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-ILLUSTRATIVE (received 5 November 2026) [RULING] states the value: "an illustrative value may be used for this offline prototype if clearly labeled"
+    note: An example.
+  observation.categories = "HIS_THREE_CATEGORIES" ("HIS_THREE_CATEGORIES")
+    how reached: ENTERED, VALUE EVIDENCED IN HIS WORDS; declared RULING; class 3: Candidate or provisional knowledge
+    his provisional ruling, received 30 October 2026: "Observation criteria — Provisionally approved"
+    his provisional ruling, received 5 November 2026: "could help evaluate what actually occurs in the review prototype"
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-30OCT-EVE-OBSERVATION (received 30 October 2026; provisional) [RULING] states the value: "Observation criteria — Provisionally approved"
+      decided by: ASM-REV1-OBSERVATION (received 5 November 2026; provisional) [RULING] states the value: "could help evaluate what actually occurs in the review prototype"
+    note: For evaluating this prototype only: no threshold, not a selection criterion, not evidence of learning. His provisional ruling, placed in class 3.
+  adjustments = "NONE_OFFERED" ("NONE_OFFERED")
+    how reached: ENTERED, OUR INFERENCE; declared OURS; class 6: An unsupported or unresolved relationship
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-SCENARIOS (received 5 November 2026) [RULING] states the value: "It should not automatically change the primary Game Problem or recommend width changes on unsupported assumptions."
+      consulted: ASM-REV1-DIMENSIONS (received 5 November 2026; provisional) [RULING] W-H1/W-H2 remain test-only hypotheses, so no width adjustment is offered; a length adjustment would be our causal hypothesis (K3 open).
+    note: Our decision to offer none until a first adjustment is authorized.
+  coachQuestion = "KEPT_OUT_OF_COACH_GUIDANCE" ("KEPT_OUT_OF_COACH_GUIDANCE")
+    how reached: ENTERED, OUR INFERENCE; declared OURS; class 6: An unsupported or unresolved relationship
+    trace: our record of what decided it (OURS), not a computed influence
+      decided by: ASM-AUTH-COACH-QUESTION (received 5 November 2026) [RULING] states the value: "This is a future feedback direction, not a request to implement learning analytics now."
+    note: Our reading: preserved for a future feedback experience, so kept out of this activity's coach guidance; we ask whether it may appear there.
+
+Values derived in code (never typed):
+  area.perOutfieldTotalM2 = 100 (square metres per outfield player, total playable area including both target zones; no goalkeepers, so none counted); from area.lengthM, area.widthM, teams.count, players.perTeam; class 5: An illustrative configuration choice. Computed in code from ILLUSTRATIVE values (area, players per team, team count); a region measure, not a recommendation.
+  area.betweenTargetZonesM2 = 75 (square metres per outfield player between the target zones (target zones excluded); no goalkeepers, so none counted); from area.lengthM, area.widthM, teams.count, players.perTeam, endZones.depthM; class 5: An illustrative configuration choice. Computed in code from ILLUSTRATIVE values; which region holds the principal interactions is not established (OURS). targetZoneCount 2 restates the ILLUSTRATIVE placement, one target zone at each end.
+
+Computed conclusions (the Stage 1/2 code, its traces unchanged):
+  game problems [RULING]: Game Problems by SCOPED_RULING: primary GP-001; secondary GP-002 (filed scope STAGE1_DEVELOPMENT_DEMONSTRATION, continued by D1-4NOV).
+    decided by: stage1-rulings.json RUL-E1-A05 [RULING] his scoped ruling names the Game Problems and their roles
+    decided by: stage2-rulings.json D1-4NOV [RULING] his later ruling retains the designation for this demonstration
+    decided by: session-planning-model.rc1.json engine_translation A05 [APPROVED] the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling
+  secondary finding FOI [INSUFFICIENT EVIDENCE]: FOI (Functional Object Interaction): the secondary GP-002 rates it E, the primary GP-001 S; INSUFFICIENT_EVIDENCE; not promoted.
+    decided by: atm-workbook.rc1.2.json ratings GP-001 [APPROVED] primary rates FOI S
+    decided by: atm-workbook.rc1.2.json ratings GP-002 [APPROVED] secondary rates FOI E
+    decided by: atm-workbook.rc1.2.json metadata merge_precedence [APPROVED] merge_precedence E>S>NR
+    decided by: stage2-rulings.json D1-4NOV [RULING] his D1: primary-led profile; a stronger secondary rating is kept as a finding, not promoted
+    decided by: stage1-rulings.json RUL-E1-A05 [RULING] sets which Game Problems are merged, and their roles: his scoped ruling names the Game Problems and their roles
+    decided by: stage2-rulings.json D1-4NOV [RULING] sets which Game Problems are merged, and their roles: his later ruling retains the designation for this demonstration
+    decided by: session-planning-model.rc1.json engine_translation A05 [APPROVED] sets which Game Problems are merged, and their roles: the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling
+    cited only: Composite Game Problem Runtime Specification RC1 v1.0, section 5 [REFERENCE ONLY] cited with its own status (Implementation Specification); decides nothing
+    cited only: Composite Game Problem Runtime Specification RC1 v1.0, section 7, in full [REFERENCE ONLY] cited with its own status (Implementation Specification); decides nothing; a possible tension with D1 is noted for his reconciliation
+    cited only: Composite Game Problem Runtime Specification RC1 v1.0, section 9 (Priority Resolution), in full [REFERENCE ONLY] cited with its own status (Implementation Specification); decides nothing; a possible tension with D1 is noted for his reconciliation
+  game forms [RULING]: COMPATIBLE_ALTERNATIVES: GF2, GF3, GF7; preference INSUFFICIENT_EVIDENCE.
+    decided by: game-archetype-workbook.rc1.1.json knowledge GAK-0001 [APPROVED] GA-001 relates GP-001 CONSTITUTIVE; gate input: non-contradiction (compatibility) only; not support for the Game Form
+    decided by: rpc-library.rc1.json relationships RPC-REL-003 [APPROVED] RPC-003 relates GA-001 (COMPATIBLE); gate input: non-contradiction (compatibility) only; not support for the Game Form
+    decided by: rpc-library.rc1.json relationships RPC-REL-027 [APPROVED] RPC-003 relates GF3 (COMPATIBLE); the form is a candidate
+    decided by: rpc-library.rc1.json relationships RPC-REL-028 [APPROVED] RPC-003 relates GF2 (COMPATIBLE); the form is a candidate
+    decided by: rpc-library.rc1.json relationships RPC-REL-029 [APPROVED] RPC-003 relates GF7 (COMPATIBLE); the form is a candidate
+    decided by: session-planning-model.rc1.json engine_translation A05 [APPROVED] names the primary Game Problem the gate tests: the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling
+    decided by: soccer-module.rc1-v3.json game_forms GF2 [CANDIDATE] the form's declared Game Problems and status (declares the primary: PRIMARY)
+    decided by: soccer-module.rc1-v3.json game_forms GF3 [CANDIDATE] the form's declared Game Problems and status (declares the primary: PRIMARY)
+    decided by: soccer-module.rc1-v3.json game_forms GF7 [CANDIDATE] the form's declared Game Problems and status (declares the primary: PRIMARY)
+    decided by: stage1-rulings.json RUL-E1-A05 [RULING] names the primary Game Problem the gate tests: his scoped ruling names the Game Problems and their roles
+    decided by: stage2-rulings.json D1-4NOV [RULING] names the primary Game Problem the gate tests: his later ruling retains the designation for this demonstration
+    decided by: stage2-rulings.json D3-4NOV [RULING] his D3: compatibility only; the declaration gate kept
+    consulted: rpc-library.rc1.json relationships RPC-REL-027 [APPROVED] strength PRIMARY: compatibility information, not a preference
+    consulted: rpc-library.rc1.json relationships RPC-REL-028 [APPROVED] strength PRIMARY: compatibility information, not a preference
+    consulted: rpc-library.rc1.json relationships RPC-REL-029 [APPROVED] strength SECONDARY: compatibility information, not a preference
+  scoring-event membership [APPROVED KNOWLEDGE]: target_zone_entered is one of RPC-003's ACTIVE scoring events (target_zone_entered, line_crossed, gate, target_player); membership does not choose among them.
+    decided by: session-planning-model.rc1.json rpc_routing A05 [APPROVED] the routing row names RPC-003
+    decided by: rpc-library.rc1.json relationships RPC-REL-079 [APPROVED] RPC-003 relates target_zone_entered (COMPATIBLE PRIMARY)
+
+Status of this example (every value not in class 1, with its class and how it reached the activity):
+  purpose: class 2: An explicit scoped ruling; READ FROM KNOWLEDGE BY CODE
+  gameProblems.primary: class 2: An explicit scoped ruling; READ FROM KNOWLEDGE BY CODE
+  gameProblems.secondary: class 2: An explicit scoped ruling; READ FROM KNOWLEDGE BY CODE
+  gameProblems.secondaryFinding: class 2: An explicit scoped ruling; READ FROM KNOWLEDGE BY CODE
+  gameProblems.candidate: class 3: Candidate or provisional knowledge; READ FROM KNOWLEDGE BY CODE
+  gameForm.illustrativeChoice: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  gameForm.alternatives: class 3: Candidate or provisional knowledge; READ FROM KNOWLEDGE BY CODE
+  teams.count: class 2: An explicit scoped ruling; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  teams.equalOutfield: class 2: An explicit scoped ruling; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  players.perTeam: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  players.goalkeepers: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  area.lengthM: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  area.widthM: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  area.includesEndZones: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  area.goalkeepersCounted: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  area.halfwayLine: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  area.centreMark: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  endZones.depthM: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  endZones.placement: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  endZones.positioning: class 6: An unsupported or unresolved relationship; UNRESOLVED
+  endZones.access: class 6: An unsupported or unresolved relationship; ENTERED, OUR INFERENCE
+  directions: class 2: An explicit scoped ruling; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  scoring.event: class 3: Candidate or provisional knowledge; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  scoring.means: class 3: Candidate or provisional knowledge; READ FROM KNOWLEDGE BY CODE
+  scoring.qualifyingCondition.workbookText: class 3: Candidate or provisional knowledge; READ FROM KNOWLEDGE BY CODE
+  scoring.qualifyingCondition.sep13Text: class 2: An explicit scoped ruling; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  scoring.startingCondition: class 6: An unsupported or unresolved relationship; UNRESOLVED
+  scoring.afterRegain: class 2: An explicit scoped ruling; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  scoring.mirrored: class 6: An unsupported or unresolved relationship; ENTERED, OUR INFERENCE
+  opposition.reciprocal: class 3: Candidate or provisional knowledge; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  play.continuous: class 2: An explicit scoped ruling; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  start.method: class 3: Candidate or provisional knowledge; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  start.kickoffDetails: class 6: An unsupported or unresolved relationship; ENTERED, OUR INFERENCE
+  restart.afterPoint.method: class 3: Candidate or provisional knowledge; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  restart.afterPoint.who: class 6: An unsupported or unresolved relationship; ENTERED, OUR INFERENCE
+  rules.offside: class 3: Candidate or provisional knowledge; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  restart.touchline: class 2: An explicit scoped ruling; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  rules.fouls: class 2: An explicit scoped ruling; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  rules.handling: class 2: An explicit scoped ruling; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  laws.default: class 2: An explicit scoped ruling; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  laws.goalEnd: class 6: An unsupported or unresolved relationship; ENTERED, OUR INFERENCE
+  restart.endLine.status: class 6: An unsupported or unresolved relationship; UNRESOLVED
+  restart.endLine.illustrativeValue: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  duration.blocks: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  duration.blockMinutes: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  duration.breaks: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  equipment.bibs: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  equipment.markers: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  equipment.balls: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  win.condition: class 5: An illustrative configuration choice; ENTERED, ILLUSTRATIVE
+  observation.categories: class 3: Candidate or provisional knowledge; ENTERED, VALUE EVIDENCED IN HIS WORDS
+  adjustments: class 6: An unsupported or unresolved relationship; ENTERED, OUR INFERENCE
+  coachQuestion: class 6: An unsupported or unresolved relationship; ENTERED, OUR INFERENCE
+
+Not expressed in the coach activity, with the reason (pinned):
+  scoring.qualifyingCondition.workbookText: OURS: printed whole in Part 6, side by side with the 13 September text, and in the trace; stating either text as a coach rule would choose between the 'for example' and colon readings, which his 5 November section 8 keeps open.
+  scoring.qualifyingCondition.sep13Text: OURS: printed whole in Part 6, side by side with the workbook text, and in the trace, with its provenance (our copy as pasted by Joe; the original email not yet checked).
+  coachQuestion: OURS: a decision about what the coach text leaves out (his question is a future feedback direction); printed in Part 2 and Part 7, never in the coach activity.
+
+Requirement account (his ruling of 29 October; each category placement is OURS; category 3 never counts as satisfied), under his three standards:
+  Structural validity:
+    RA-ID-012 identity_rules RPC-ID-012 (REQUIRED, ACTIVE): "Explicitly represented in the finished activity." (counts as satisfied)
+      values: purpose
+      note: Stated as the learning purpose (the coach definition). Whether the environment serves that purpose is a learning-design relevance question, unverified (K2 open).
+    RA-ID-013 identity_rules RPC-ID-013 (REQUIRED, ACTIVE): "Explicitly represented in the finished activity." (counts as satisfied)
+      values: scoring.event, scoring.means
+      note: A point needs a controlled arrival in the target zone; possession alone scores nothing.
+    RA-PROP-134-A-EXAMPLE properties RPC-PROP-134 (PRIMARY_SCORING_CONDITION, ACTIVE) clause "purposeful advancement rather than possession alone" under the "for example" reading: "Explicitly represented in the finished activity." (counts as satisfied)
+      values: scoring.event, scoring.means
+      note: Advancement to the advanced target zone is what scores; possession alone scores nothing. Whether the advancement is 'purposeful' is not checked by the configuration.
+    RA-PROP-134-C-EXAMPLE properties RPC-PROP-134 (PRIMARY_SCORING_CONDITION, ACTIVE) clause "reaching a more advanced representative area while maintaining attacking possession" under the "for example" reading: "Explicitly represented in the finished activity." (counts as satisfied)
+      values: scoring.event, scoring.means
+      note: Under this reading the clause is an example, not a requirement; the target zone and the controlled arrival are consistent with it.
+    RA-PROP-134-A-COLON properties RPC-PROP-134 (PRIMARY_SCORING_CONDITION, ACTIVE) clause "purposeful advancement rather than possession alone" under the colon reading: "Explicitly represented in the finished activity." (counts as satisfied)
+      values: scoring.event, scoring.means
+      note: As under the other reading.
+    RA-PROP-134-C-COLON properties RPC-PROP-134 (PRIMARY_SCORING_CONDITION, ACTIVE) clause "reaching a more advanced representative area" under the colon reading: "Explicitly represented in the finished activity." (counts as satisfied)
+      values: scoring.event, endZones.placement
+      note: A required component under this reading; the advanced target zone is what scores.
+    RA-PROP-134-D-COLON properties RPC-PROP-134 (PRIMARY_SCORING_CONDITION, ACTIVE) clause "while maintaining attacking possession" under the colon reading: "Unsupported or missing." (not counted as satisfied)
+      values: scoring.means, scoring.afterRegain
+      note: A required component under this reading only. Control at the moment of arrival is represented; whether possession must be maintained from the attack's starting condition is not, and points straight after a regain count. Whether maintaining possession is a requirement at all is his open question (5 November assessment).
+  Learning-design relevance:
+    RA-ID-011 identity_rules RPC-ID-011 (REQUIRED, ACTIVE): "Dependent on coach observation or judgment, with the relevant observable conditions identified." (not counted as satisfied)
+      values: play.continuous, scoring.afterRegain; observable conditions: Whether attacks develop from settled, organized possession against an organized defence (his three observation categories describe the defence's organization when a team scores); no threshold.
+      note: His 29 October decision 4(b): organized attacking possession characterizes the dominant opportunities rather than being a required state for every counted score. Not counted as satisfied.
+    RA-ID-015 identity_rules RPC-ID-015 (EXCLUSION, ACTIVE): "Dependent on coach observation or judgment, with the relevant observable conditions identified." (not counted as satisfied)
+      values: scoring.event; observable conditions: Whether play tips into an immediate genuine chance-creation window (an exclusion boundary toward the neighbouring context); the target zone has no goal.
+      note: An exclusion rule (boundary, RPC-VAL-013); not counted as satisfied.
+    RA-PROP-134-B-EXAMPLE properties RPC-PROP-134 (PRIMARY_SCORING_CONDITION, ACTIVE) clause "from the attack's starting condition" under the "for example" reading: "Unsupported or missing." (not counted as satisfied)
+      values: scoring.startingCondition
+      note: UNRESOLVED: its role in scoring or configuration has no authorized value; it plays no role in this example's game.
+    RA-PROP-134-B-COLON properties RPC-PROP-134 (PRIMARY_SCORING_CONDITION, ACTIVE) clause "from the attack's starting condition" under the colon reading: "Unsupported or missing." (not counted as satisfied)
+      values: scoring.startingCondition
+      note: UNRESOLVED, as under the other reading.
+  Field effectiveness:
+    RA-ID-014 identity_rules RPC-ID-014 (SUPPORTING_IDENTITY, ACTIVE): "Dependent on coach observation or judgment, with the relevant observable conditions identified." (not counted as satisfied)
+      values: laws.default, adjustments; observable conditions: Whether players have more than one way forward and more than one support option as play develops; no rule removes a passing option (GF2-22).
+      note: Not counted as satisfied.
+  Counts: "Explicitly represented in the finished activity." 6; "Supported through an authorized Game Form or other knowledge relationship." 0; "Dependent on coach observation or judgment, with the relevant observable conditions identified." 3; "Unsupported or missing." 3.
+
+Laws account (one entry per law the Sport Profile lists, and the adaptation owed):
+  LAW-8: APPLIES. The ordinary kickoff at the start and after a point (his provisional option); the centre mark and halfway line it needs are marked (illustrative). (values: start.method, start.kickoffDetails, restart.afterPoint.method, area.centreMark, area.halfwayLine)
+  LAW-8-DB: APPLIES. A stoppage the coach makes restarts with a dropped ball, as in the Laws; nothing departs from it. (values: laws.default)
+  LAW-11: DEPARTED. No offside: his provisional ruling, explicitly communicated. (values: rules.offside)
+  LAW-12-GK: NOT APPLICABLE. There is no goalkeeper, so no goalkeeper handling; no player may handle the ball. (values: players.goalkeepers, rules.handling)
+  LAW-14: NOT APPLICABLE. No goal stands at either end, so there is no penalty kick. (values: laws.goalEnd)
+  LAW-13: APPLIES. Free kicks as in the Laws; nothing departs from them. (values: rules.fouls)
+  LAW-15: APPLIES. Throw-ins as in the Laws; nothing departs from them. (values: restart.touchline)
+  LAW-16: NOT APPLICABLE. No goal stands at either end, so there is no goal kick; the ball over an end line is the adaptation listed below. (values: laws.goalEnd)
+  LAW-17: NOT APPLICABLE. No goal stands at either end, so there is no corner kick; the ball over an end line is the adaptation listed below. (values: laws.goalEnd)
+  LAW-4-GK: NOT APPLICABLE. There is no goalkeeper. (values: players.goalkeepers)
+  the ball over an end line, with no goal at that end: ADAPTATION OWED. No law restarts it here; an ILLUSTRATIVE value stands in (the team that did not touch it last restarts from the end line), pending his confirmation. (values: restart.endLine.status, restart.endLine.illustrativeValue)
+
+GF2 contract items (each mapped to a value, or not used with its reason):
+  GF2-01: area.lengthM, area.widthM
+  GF2-02: area.lengthM, endZones.access
+  GF2-03.a: endZones.placement
+  GF2-03.b: scoring.event
+  GF2-04: endZones.placement
+  GF2-05.a: area.lengthM
+  GF2-05.b: endZones.placement
+  GF2-06.a: equipment.markers
+  GF2-06.b: endZones.placement
+  GF2-07.a: play.continuous
+  GF2-07.b: play.continuous
+  GF2-08.a: scoring.event
+  GF2-08.b: scoring.event
+  GF2-09.a: directions
+  GF2-09.b: directions
+  GF2-10: directions
+  GF2-11: directions
+  GF2-12.a: not used: One shared target attacked by both teams (ASSUMED): superseded by his 15 September and 9 October rulings (each team its own target).
+  GF2-12.b: not used: Both teams attacking in the same sense (from the module's CANDIDATE setup text): his 15 September correction; each team attacks one direction and defends the other.
+  GF2-13: opposition.reciprocal
+  GF2-14.a: teams.count
+  GF2-14.b: teams.equalOutfield
+  GF2-15: opposition.reciprocal
+  GF2-16.a: restart.touchline, restart.endLine.illustrativeValue
+  GF2-16.b: restart.touchline
+  GF2-17: play.continuous
+  GF2-18: play.continuous
+  GF2-19: scoring.event
+  GF2-20: scoring.event
+  GF2-21: scoring.event
+  GF2-22: laws.default, adjustments
+  GF2-23: not used: Meaningful events reorganize space, roles, access or threat: outside the configuration boundary (the contract marks it OUTSIDE_BOUNDARY); only in play.
+  GF2-24.a: area.lengthM
+  GF2-24.b: area.widthM
+  Not authored by the Game Form, reported:
+    T2-T6 NOT_AUTHORED: restart after a score; here: restart.afterPoint.method (his provisional kickoff option) and restart.afterPoint.who (OURS)
+    T3-T5 NOT_AUTHORED: start procedure; here: start.method (his provisional kickoff option) and start.kickoffDetails (OURS)
+    S5/O4 NOT_AUTHORED: extent of the target feature (depth of a zone); here: endZones.depthM (ILLUSTRATIVE)
+    E4 NOT_AUTHORED: duration; here: duration.* (ILLUSTRATIVE)
+    V3-V6 NOT_AUTHORED: the qualifying condition of the primary scoring event; here: the context's qualifying condition (RPC-PROP-134) and his scoring rulings; its starting-condition clause UNRESOLVED
+
+=== PART 3. Game Form alternatives and representative suitability ===
+Game Forms: COMPATIBLE_ALTERNATIVES: GF2 Directional Possession Games; GF3 Positional Play Games; GF7 Channel Games. Preference: INSUFFICIENT_EVIDENCE. Insufficient evidence to prefer one of GF2, GF3, GF7: no approved knowledge establishes a preference, and none is authored to resolve the tie.
+  GF2 compatible: COMPATIBLE PRIMARY [compatibility information, not a preference]
+  GF3 compatible: COMPATIBLE PRIMARY [compatibility information, not a preference]
+  GF7 compatible: COMPATIBLE SECONDARY [compatibility information, not a preference]
+  GF2 is the illustrative choice; it is not presented as better than the others because it is the one assembled.
+
+Suitability (OURS: LOGICAL INFERENCE. Each entry cites the configuration paths and the knowledge rows it rests on; code only joins and prints. No verdict. A structural presence is not evidence that an affordance emerges (his D6), and nothing here is field evidence.)
+  Configuration rows belong to the illustrative assembly (GF2) only:
+    meaningful opposition: structural presence EXPRESSED_BY_CONFIGURATION (values: teams.count, opposition.reciprocal, play.continuous; rows: RPC-VAL-014, GA-001-OIC-03); functional meaningfulness ONLY_VERIFIABLE_IN_PLAY. Two opposing teams with reciprocal objectives and continuous play are present by configuration; whether defenders can functionally influence attacking opportunities (his 5 November wording) can be seen only in play.
+    direction: structural presence EXPRESSED_BY_CONFIGURATION (values: directions, endZones.placement; rows: RPC-VAL-014); functional meaningfulness ONLY_VERIFIABLE_IN_PLAY. Each team attacks a fixed target zone at one end.
+    information: structural presence EXPRESSED_BY_CONFIGURATION (values: teams.count, opposition.reciprocal, play.continuous, endZones.access; rows: RPC-PROP-038, RPC-PROP-039, RPC-PROP-040, RPC-PROP-041); functional meaningfulness ONLY_VERIFIABLE_IN_PLAY. Live opposition in one shared area keeps defensive organization, teammate positioning and emerging space as information; whether that information is representative can be seen only in play.
+    consequences: structural presence EXPRESSED_BY_CONFIGURATION (values: scoring.event, scoring.afterRegain, play.continuous, restart.afterPoint.method; rows: RPC-VAL-014); functional meaningfulness ONLY_VERIFIABLE_IN_PLAY. Points, turnovers that keep play live, and immediate attacks after a regain are consequences present by configuration.
+    adaptive player roles: structural presence EXPRESSED_BY_CONFIGURATION (values: play.continuous, directions; rows: GA-001-OIC-05); functional meaningfulness ONLY_VERIFIABLE_IN_PLAY. Attacking and defending roles change with possession while target assignments stay fixed; whether players adapt can be seen only in play.
+    multiple functional solutions: structural presence EXPRESSED_BY_CONFIGURATION (values: laws.default, endZones.access, scoring.means; rows: RPC-ID-014); functional meaningfulness ONLY_VERIFIABLE_IN_PLAY. No rule removes a legal option and the event can be reached by a dribble or by receiving and controlling the ball in the zone; whether several solutions are functional can be seen only in play.
+  GF3: configuration rows MISSING (no contract and not assembled: the configuration rows belong to the illustrative assembly only).
+  GF7: configuration rows MISSING (no contract and not assembled: the configuration rows belong to the illustrative assembly only).
+  Scale: UNVERIFIED. UNVERIFIED for every scale; 6 v 6 is not preferred over larger formats. (K1 open)
+  exposure frequency: MISSING_KNOWLEDGE
+  distribution: MISSING_KNOWLEDGE
+  challenge: MISSING_KNOWLEDGE
+  Identity: With nothing added, the same build on the same Game Form and context would serve Secure Possession (TA02), which routes to the same context: the activity's identity rests on the Game Problem translation and the coach's purpose, not on the environment. (rows: RPC-VAL-011, RPC-VAL-013)
+  Adding nothing: UNVERIFIED. Adding nothing is not shown to be knowledge-supported (K2 open), so suitability remains unverified. His words: "Where the knowledge doesn't support that conclusion, the system should report that suitability remains unverified." (received 5 November 2026)
+  No verdict and no ranking. Structural conditions of every compatible form, alike, in id order (team sizes from the illustrative assembly, with their own standing):
+    GF2 (archetype GA-001; assembled 6 v 6, ILLUSTRATIVE)
+      precondition 'the ball is the task object' (FOI): PRESENT; evidence status INFERRED. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
+      precondition 'an opposing team is a competitor' (CIO): PRESENT; evidence status INFERRED. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
+      continuous play (C-BASE): APPLIES_AS_BASELINE_DEFAULT. Continuous play applies as the baseline default: no knowledge file this stage reads can record a departure. An activity is assembled for review, but its configuration is a labelled decision record, not a knowledge file, so this remains a default, not a condition evaluated and found to hold. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
+      GA-001-OIC-01 [REQUIRED CONDITION]: NOT_EVALUABLE_FROM_THE_ASSEMBLED_CONFIGURATION. Not evaluable from the assembled configuration, a labelled review record (the configuration step itself is held); whether the condition is expressed can be seen only in play.
+      GA-001-OIC-02 [REQUIRED CONDITION]: NOT_EVALUABLE_FROM_THE_ASSEMBLED_CONFIGURATION. Not evaluable from the assembled configuration, a labelled review record (the configuration step itself is held); whether the condition is expressed can be seen only in play.
+      GA-001-OIC-03 [REQUIRED CONDITION]: STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): an opposing team with players is present. Whether the condition is expressed is emergent: not evaluable from the assembled configuration; only in play.
+      GA-001-OIC-04 [REQUIRED CONDITION]: NOT_EVALUABLE_FROM_THE_ASSEMBLED_CONFIGURATION. Not evaluable from the assembled configuration, a labelled review record (the configuration step itself is held); whether the condition is expressed can be seen only in play.
+      GA-001-OIC-05 [REQUIRED CONDITION]: STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: not evaluable from the assembled configuration; only in play.
+      GA-001-OIC-06 [BREACH DESCRIPTION]: RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable from the assembled configuration; only in play.
+      GA-001-OIC-07 [BREACH DESCRIPTION]: RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable from the assembled configuration: an opposing team with players is present, but whether the opposition can change progression can be seen only in play.
+      GA-001-OIC-08 [BREACH DESCRIPTION]: RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable from the assembled configuration; only in play.
+    GF3 (archetype GA-001; assembled 6 v 6, ILLUSTRATIVE)
+      precondition 'the ball is the task object' (FOI): PRESENT; evidence status INFERRED. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
+      precondition 'an opposing team is a competitor' (CIO): PRESENT; evidence status INFERRED. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
+      continuous play (C-BASE): APPLIES_AS_BASELINE_DEFAULT. Continuous play applies as the baseline default: no knowledge file this stage reads can record a departure. An activity is assembled for review, but its configuration is a labelled decision record, not a knowledge file, so this remains a default, not a condition evaluated and found to hold. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
+      GA-001-OIC-01 [REQUIRED CONDITION]: NOT_EVALUABLE_FROM_THE_ASSEMBLED_CONFIGURATION. Not evaluable from the assembled configuration, a labelled review record (the configuration step itself is held); whether the condition is expressed can be seen only in play.
+      GA-001-OIC-02 [REQUIRED CONDITION]: NOT_EVALUABLE_FROM_THE_ASSEMBLED_CONFIGURATION. Not evaluable from the assembled configuration, a labelled review record (the configuration step itself is held); whether the condition is expressed can be seen only in play.
+      GA-001-OIC-03 [REQUIRED CONDITION]: STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): an opposing team with players is present. Whether the condition is expressed is emergent: not evaluable from the assembled configuration; only in play.
+      GA-001-OIC-04 [REQUIRED CONDITION]: NOT_EVALUABLE_FROM_THE_ASSEMBLED_CONFIGURATION. Not evaluable from the assembled configuration, a labelled review record (the configuration step itself is held); whether the condition is expressed can be seen only in play.
+      GA-001-OIC-05 [REQUIRED CONDITION]: STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: not evaluable from the assembled configuration; only in play.
+      GA-001-OIC-06 [BREACH DESCRIPTION]: RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable from the assembled configuration; only in play.
+      GA-001-OIC-07 [BREACH DESCRIPTION]: RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable from the assembled configuration: an opposing team with players is present, but whether the opposition can change progression can be seen only in play.
+      GA-001-OIC-08 [BREACH DESCRIPTION]: RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable from the assembled configuration; only in play.
+    GF7 (archetype GA-001; assembled 6 v 6, ILLUSTRATIVE)
+      precondition 'the ball is the task object' (FOI): PRESENT; evidence status INFERRED. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
+      precondition 'an opposing team is a competitor' (CIO): PRESENT; evidence status INFERRED. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
+      continuous play (C-BASE): APPLIES_AS_BASELINE_DEFAULT. Continuous play applies as the baseline default: no knowledge file this stage reads can record a departure. An activity is assembled for review, but its configuration is a labelled decision record, not a knowledge file, so this remains a default, not a condition evaluated and found to hold. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
+      GA-001-OIC-01 [REQUIRED CONDITION]: NOT_EVALUABLE_FROM_THE_ASSEMBLED_CONFIGURATION. Not evaluable from the assembled configuration, a labelled review record (the configuration step itself is held); whether the condition is expressed can be seen only in play.
+      GA-001-OIC-02 [REQUIRED CONDITION]: NOT_EVALUABLE_FROM_THE_ASSEMBLED_CONFIGURATION. Not evaluable from the assembled configuration, a labelled review record (the configuration step itself is held); whether the condition is expressed can be seen only in play.
+      GA-001-OIC-03 [REQUIRED CONDITION]: STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): an opposing team with players is present. Whether the condition is expressed is emergent: not evaluable from the assembled configuration; only in play.
+      GA-001-OIC-04 [REQUIRED CONDITION]: NOT_EVALUABLE_FROM_THE_ASSEMBLED_CONFIGURATION. Not evaluable from the assembled configuration, a labelled review record (the configuration step itself is held); whether the condition is expressed can be seen only in play.
+      GA-001-OIC-05 [REQUIRED CONDITION]: STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: not evaluable from the assembled configuration; only in play.
+      GA-001-OIC-06 [BREACH DESCRIPTION]: RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable from the assembled configuration; only in play.
+      GA-001-OIC-07 [BREACH DESCRIPTION]: RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable from the assembled configuration: an opposing team with players is present, but whether the opposition can change progression can be seen only in play.
+      GA-001-OIC-08 [BREACH DESCRIPTION]: RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable from the assembled configuration; only in play.
+
+=== PART 4. Three hypothetical scenarios ===
+TEST ASSUMPTION: his three sentences, verbatim, as hypothetical circumstances about the CONFIGURED activity. Any field value read off his words is OURS: LOGICAL INFERENCE; fields his sentence does not state stay NOT_SUPPLIED. The scenarios test the reasoning, not the activity in play.
+  E1: "Organized opposition meaningfully restricts usable attacking space." (received 5 November 2026)
+    organizedOppositionRestrictsUsableSpace = true (OURS: LOGICAL INFERENCE (read off his sentence))
+    usefulSpaceAlreadyAvailable = false (OURS: LOGICAL INFERENCE ('meaningfully restricts usable attacking space' read as useful space not already available))
+    informationSufficient = NOT_SUPPLIED (not stated by his sentence)
+    Game Problems: primary GP-001; secondary GP-002; unchanged: yes (the resolution takes no circumstance input)
+    recorded requirement REQ-E1-CONTEXT-SENSITIVE-RESOLUTION (attached to the resolution): not engaged
+    uncertainty: none reported
+    width check (configured area = available space; its own circumstances not supplied): INSUFFICIENT_EVIDENCE [CIRCUMSTANCES_NOT_SUPPLIED]; proposal NONE_INSUFFICIENT_EVIDENCE. No proposal. The configured width (30 m) is kept.
+  E2: "Sufficient usable space already exists, making exploitation potentially more immediate than creation." (received 5 November 2026)
+    organizedOppositionRestrictsUsableSpace = NOT_SUPPLIED (not stated by his sentence)
+    usefulSpaceAlreadyAvailable = true (OURS: LOGICAL INFERENCE (read off his sentence))
+    informationSufficient = NOT_SUPPLIED (not stated by his sentence)
+    Game Problems: primary GP-001; secondary GP-002; unchanged: yes (the resolution takes no circumstance input)
+    recorded requirement REQ-E1-CONTEXT-SENSITIVE-RESOLUTION (attached to the resolution): possible mismatch reported for review; primary unchanged
+    uncertainty: none reported
+    width check (configured area = available space; its own circumstances not supplied): INSUFFICIENT_EVIDENCE [CIRCUMSTANCES_NOT_SUPPLIED]; proposal NONE_INSUFFICIENT_EVIDENCE. No proposal. The configured width (30 m) is kept.
+  E3: "Information about defensive organization and available opportunities is insufficient." (received 5 November 2026)
+    organizedOppositionRestrictsUsableSpace = NOT_SUPPLIED (not stated by his sentence)
+    usefulSpaceAlreadyAvailable = NOT_SUPPLIED (not stated by his sentence)
+    informationSufficient = false (OURS: LOGICAL INFERENCE (read off his sentence))
+    Game Problems: primary GP-001; secondary GP-002; unchanged: yes (the resolution takes no circumstance input)
+    recorded requirement REQ-E1-CONTEXT-SENSITIVE-RESOLUTION (attached to the resolution): not engaged
+    uncertainty: uncertainty reported: the relevant circumstances are unknown (usefulSpaceAlreadyAvailable: NOT_SUPPLIED; informationSufficient: false)
+    width check (configured area = available space; its own circumstances not supplied): INSUFFICIENT_EVIDENCE [CIRCUMSTANCES_NOT_SUPPLIED]; proposal NONE_INSUFFICIENT_EVIDENCE. No proposal. The configured width (30 m) is kept.
+  The recorded requirement rests on: ASM-NOV3-REQ-E1 "When useful space is already available, exploiting it may be the immediate problem." (received 3 November 2026); ASM-EVE-MISMATCH "I don't want to authorize automatic switching between those Game Problems yet. However, the engine should eventually recognize when the described performance circumstances appear inconsistent with the selected primary problem and report that mismatch for review. This should remain a reusable reasoning requirement, not an A05-specific exception." (received 4 November 2026); ASM-REV1-GP-SCOPE "I continue to support Create Space as A05's primary Game Problem, with Exploit Space as a secondary consideration, specifically within the circumstance of progressing against organized opposition. This remains a scoped review interpretation rather than an unconditional mapping for every Progress the Attack situation. If sufficient usable space already exists, the engine should eventually flag the possible mismatch between the described situation and the selected Game Problem. It should not automatically switch Game Problems yet." (received 5 November 2026)
+
+=== PART 5. Regression and output checks ===
+  The unit tests (assembly.unit.ts, in npm test) check, in plain words: every value reaches the coach text or the learning-design block, or is pinned as exempt with a reason; each sentence says only what its values hold, numbers included; a changed value changes or refuses the text; the scoring sentences name the target zone and never a line; the observation block keeps the starting condition out except one pointer; the rationale makes no effect claim; his words are verbatim in the record; the classes follow his order; the Laws and contract items are all accounted for; Stage 2's evidence is byte-identical; two runs are byte-identical.
+  The regression results (type check, the full unit suite, the behaviour snapshot, the bundle) are recorded in the evidence README. Passing engineering tests is not evidence of representative learning effectiveness.
+
+=== PART 6. His section 8 reconciliations, and the architectural dependencies ===
+  8.1 A05 Game Problem translation: the smallest authoritative decision
+    his words: "Create Space remains the primary Game Problem and Exploit Space a secondary consideration within the scoped circumstance of progressing against organized opposition." (received 5 November 2026)
+    his words: "That is not yet an unconditional production translation for every A05 situation." (received 5 November 2026)
+    his words: "Please identify the smallest authoritative knowledge decision required to establish the appropriate scope." (received 5 November 2026)
+    his words: "I continue to support Create Space as A05's primary Game Problem, with Exploit Space as a secondary consideration, specifically within the circumstance of progressing against organized opposition." (received 5 November 2026)
+    his words: "This remains a scoped review interpretation rather than an unconditional mapping for every Progress the Attack situation." (received 5 November 2026)
+    his words: "If sufficient usable space already exists, the engine should eventually flag the possible mismatch between the described situation and the selected Game Problem." (received 5 November 2026)
+    his words: "It should not automatically switch Game Problems yet." (received 5 November 2026)
+    - Candidate (a), for his decision: a scoped ruling recorded in review-pathway data only: Create Space primary, Exploit Space secondary within progressing against organized opposition; where useful space already exists, a possible mismatch is reported for review, with no switch.
+    - Candidate (b), for his decision: anchor that scope to the context's own approved begin conditions (RPC-PROP-034, RPC-ID-011) together with his 31 October working definition of an organized defence (ASM-31OCT-ORGANIZED).
+    - Candidate (c), for his decision: the Session Planning Model's Engine Translation for A05 stays TBD until production; populating it would change A05's live candidates.
+    - None of these is decided here (OURS: our proposals).
+  8.2 Attack Development scoring source
+    his words: "Please provide the original September 13 wording alongside the current workbook entry, specifically the clause introduced with "for example" in the original approval." (received 5 November 2026)
+    his words: "We need to preserve the source's intended meaning rather than allowing transcription punctuation to turn an example into an exclusive definition." (received 5 November 2026)
+    his words: "Also retain the unresolved question of how the attack's starting condition should influence scoring or configuration." (received 5 November 2026)
+    his words: "Do not silently remove that condition by transferring it into the coach's observational emphasis." (received 5 November 2026)
+    his words: "If the original approval used "for example" before the final clause, then that clause should retain its status as an example rather than becoming an exclusive definition through transcription punctuation." (received 5 November 2026)
+    his words: "I don't want to authorize a canonical amendment until we've verified the exact source text and its interpretation." (received 5 November 2026)
+    his words: "Likewise, the condition concerning the attack's starting circumstances should not disappear into an observational emphasis if doing so removes a meaningful part of the approved context." (received 5 November 2026)
+    his words: "Please retain that as an unresolved source-fidelity and learning-design issue until we establish its proper role." (received 5 November 2026)
+    his words: "Attack Development — approved." (received 13 September 2026)
+    his words: "The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession." (received 13 September 2026)
+    - The two texts are printed side by side below: his 13 September text (our copy as pasted by Joe; original not yet checked) has 'for example' before its final clause; the workbook entry has a colon.
+    - The starting-condition clause stays UNRESOLVED in the scoring section and the trace, never in the observation guidance.
+    - Disclosure: our own earlier draft Attack Development requirement list (the RPC-003 draft contract and draft requirement bindings, test-only, OURS) reads the clause after the colon as a definition with required components; it is not used by this experiment.
+    scoring.qualifyingCondition.sep13Text [class 2: An explicit scoped ruling; ENTERED, VALUE EVIDENCED IN HIS WORDS]: "The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession."
+      note: Our copy of your 13 September email as pasted by Joe (pasted twice, identical); original not yet checked.
+    scoring.qualifyingCondition.workbookText [class 3: Candidate or provisional knowledge; READ FROM KNOWLEDGE BY CODE]: "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession."
+      note: Printed byte-equal to the cell; never stated as a coach rule.
+    scoring.startingCondition [class 6: An unsupported or unresolved relationship; UNRESOLVED]: no authorized value
+      note: The role of 'from the attack's starting condition' in scoring or configuration has no authorized value. It plays no role in this example's game: every controlled arrival counts, including after a regain. Shown in Scoring as an open question, never moved into the observation guidance.
+  8.3 Composite Runtime Specification
+    his words: "The primary Game Problem should govern the learning intention, while secondary requirements and their provenance remain visible." (received 5 November 2026)
+    his words: "A stronger secondary requirement must not be automatically promoted, nor silently discarded." (received 5 November 2026)
+    his words: "Please retain the proposed section 7 and section 9 clarification as draft wording until the source specification and CAR Matrix are reconciled." (received 5 November 2026)
+    his words: "The full Game Problem Canonical Register and Reasoning Engine Specification RC1 v2 also remain missing and should not be reconstructed as though authoritative." (received 5 November 2026)
+    - The proposed section 7 and section 9 clarification stays draft wording, unchanged; the CAR Matrix is unchanged.
+    - The Game Problem Canonical Register and the Reasoning Engine Specification RC1 v2 are missing and are not reconstructed.
+    - The Stage 1/2 composite profile (primary-led effective profile; union view; the secondary's stronger rating kept as a finding) is what this experiment shows.
+  Architectural dependencies (named, none changed):
+    DEP-1 Approved-wording gate in the checked pathway. Options: stop at communication (admin review draft only); a DRAFT-graded wording channel (a live-module change); text produced outside the renderer (this experiment, with its own faithfulness test).
+    DEP-2 Game Problem authority type in the checked pathway (one Game Problem, APPROVED or UNRESOLVED). Options: the Game Problems come from the review pathway; the checked account stays UNRESOLVED.
+    DEP-3 Episode scope (only the build-out episode is evaluable). Options: the starting condition is shown UNRESOLVED; no phase build.
+    DEP-4 A role-less target-zone set-up sentence in the renderer (unverified on this head). Options: the line target (conflicts with his end-zone ruling), a renderer change (live), or this experiment's text.
+    DEP-5 No GF3 or GF7 contracts. Options: list them as alternatives only.
+    DEP-6 The RC3 diagram is drawn only from a realized game in the checked pathway. Options: no diagram in this experiment; the dependency is reported.
+    DEP-7 The missing configuration step itself (Steps 3-5 held). Options: a labelled decision record, as here; or his authorization of a configuration step.
+
+=== PART 7. What we recorded, and what a second Learning Goal would need ===
+  Recorded: 48 rulings of his (verbatim), 53 values, 11 Laws entries, 34 contract items, 12 requirement-account lines, 6 suitability entries, 3 scenarios, 10 open decisions.
+  His question for future coach feedback, preserved and kept out of the coach activity: "Are players becoming more capable of finding functional solutions as the game changes?" (received 5 November 2026)
+  A second Learning Goal would need authored (the per-goal cost, the honest measure of reuse):
+    - A labelled decision record like this one: every configuration value with its standing, how it reached the activity, and his words where they state it.
+    - A Game Problem basis the resolution can read (an approved translation, or a scoped ruling of his).
+    - His scoring rulings for the goal's context, or the values left ILLUSTRATIVE or UNRESOLVED.
+    - The requirement account for the goal's context, the suitability entries and any scenarios, as data.
+    - Coach wording only where its Game Form or scoring event differs from GF2 with target_zone_entered: the wording here is keyed by path at the Game Form level, so a second goal on GF2 with the same event reuses it unchanged.

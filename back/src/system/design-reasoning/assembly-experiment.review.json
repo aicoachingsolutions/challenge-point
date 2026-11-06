@@ -1,0 +1,1727 @@
+{
+    "standing": "OURS: a labelled decision record for the bounded, offline, review-only A05 assembly experiment Christian authorized in his second reply of 5 November 2026. It is not a knowledge file, not a configuration step (the architecture has none: Steps 3-5 are held), not served, and not an authorization. Every value states how it reached the activity and which of his six classes it falls in; values his words do not state are ILLUSTRATIVE, OURS or UNRESOLVED. Nothing on the live route or the checked pathway reads this file.",
+    "learningGoalId": "A05",
+    "gameForm": {
+        "illustrativeChoice": "GF2",
+        "standing": "ILLUSTRATIVE",
+        "rulingRefs": ["ASM-AUTH-GF", "ASM-REV1-GF2"],
+        "choicePath": "gameForm.illustrativeChoice"
+    },
+    "gameProblemScope": {
+        "primaryGameProblemIds": ["GP-001"],
+        "secondaryGameProblemIds": ["GP-002"],
+        "rulingRefs": ["ASM-AUTH-GP-SCOPE", "ASM-REV1-GP-SCOPE"],
+        "idResolution": "OURS: his 5 November words name the Game Problems (Create Space, Exploit Space); the ids are the ones his 3 November words name beside the same names, and the ones the Stage 1/2 resolution returns. The assembly fails closed if the resolution's ids differ.",
+        "note": "His 5 November words extend the scope of the designation the Stage 1/2 resolution already carries (filed as RUL-E1-A05 with scope STAGE1_DEVELOPMENT_DEMONSTRATION, continued by D1-4NOV); they are printed beside that trace, which stays the decisive, computed record. They are not filed as a second scoped translation."
+    },
+    "reportRefs": {
+        "experimentPurpose": "ASM-AUTH-PURPOSE",
+        "acceptance": "ASM-28OCT-ACCEPTANCE",
+        "limits": "ASM-AUTH-LIMITS",
+        "kickoffCaveat": "ASM-REV1-KICKOFF",
+        "futureFeedbackQuestion": "ASM-AUTH-COACH-QUESTION"
+    },
+    "bindings": {
+        "illustrativeForm": "gameForm.illustrativeChoice",
+        "scoringEvent": "scoring.event",
+        "teamCount": "teams.count",
+        "playersPerTeam": "players.perTeam",
+        "areaLength": "area.lengthM",
+        "areaWidth": "area.widthM",
+        "targetZoneDepth": "endZones.depthM"
+    },
+    "derived": [
+        {
+            "id": "area.perOutfieldTotalM2",
+            "formula": "AREA_PER_OUTFIELD_PLAYER_TOTAL",
+            "label": "square metres per outfield player, total playable area including both target zones; no goalkeepers, so none counted",
+            "targetZoneCount": 2,
+            "note": "Computed in code from ILLUSTRATIVE values (area, players per team, team count); a region measure, not a recommendation."
+        },
+        {
+            "id": "area.betweenTargetZonesM2",
+            "formula": "AREA_PER_OUTFIELD_PLAYER_OUTSIDE_TARGET_ZONES",
+            "label": "square metres per outfield player between the target zones (target zones excluded); no goalkeepers, so none counted",
+            "targetZoneCount": 2,
+            "note": "Computed in code from ILLUSTRATIVE values; which region holds the principal interactions is not established (OURS). targetZoneCount 2 restates the ILLUSTRATIVE placement, one target zone at each end."
+        }
+    ],
+    "rulings": [
+        {
+            "id": "ASM-AUTH-PURPOSE",
+            "decision": "Purpose of the authorized experiment",
+            "subject": "what the bounded experiment is to determine",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": ["The purpose is to determine whether the existing knowledge-grounded architecture can generate one complete, coherent, coach-readable activity while accurately preserving the authority and limitations of every design decision."],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-RECONCILE",
+            "decision": "Reconcile with the A05 assessment and reuse first",
+            "subject": "reconciliation and reuse before implementation",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": ["Please first reconcile this assignment with your separate A05 assessment and identify any existing work that can be reused. I don't want duplicated implementation."],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-ILLUSTRATIVE",
+            "decision": "Illustrative values permitted for the offline prototype",
+            "subject": "values no knowledge authorizes",
+            "scope": "OFFLINE_PROTOTYPE",
+            "scopeWords": ["for this offline prototype"],
+            "canonicalAmendment": false,
+            "words": ["Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled and kept outside production selection authority."],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-GF",
+            "decision": "Game Form alternatives (Deliverable C)",
+            "subject": "GF2 illustrative; GF3 and GF7 visible, unranked",
+            "scope": "THIS_EXPERIMENT",
+            "scopeWords": ["for this experiment"],
+            "canonicalAmendment": false,
+            "words": [
+                "GF2 may be used as an illustrative configuration for this experiment.",
+                "GF3 and GF7 must remain visible as compatible alternatives without an invented ranking.",
+                "The selected form should not be presented as demonstrably superior merely because it is the one assembled."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-REV1-GF2",
+            "decision": "Game Form alternatives (first reply of 5 November)",
+            "subject": "GF2 as an illustrative choice; the scale assessment across all three forms",
+            "scope": "REVIEW_PROTOTYPE",
+            "scopeWords": ["for a review prototype"],
+            "canonicalAmendment": false,
+            "words": [
+                "For GF2, GF3, and GF7, the engine should continue preserving the compatible alternatives without manufacturing a preference.",
+                "Using GF2 for a review prototype is acceptable when explicitly described as an illustrative choice, not a justified selection over the other forms.",
+                "The proposed representative-scale assessment should apply to all three as knowledge permits, but it should not be used to invent a new ranking."
+            ],
+            "file": "sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-GP-SCOPE",
+            "decision": "A05 Game Problem translation (section 8)",
+            "subject": "Create Space primary, Exploit Space secondary, within a scoped circumstance",
+            "scope": "SCOPED_CIRCUMSTANCE",
+            "scopeWords": ["within the scoped circumstance of progressing against organized opposition"],
+            "canonicalAmendment": false,
+            "words": [
+                "Create Space remains the primary Game Problem and Exploit Space a secondary consideration within the scoped circumstance of progressing against organized opposition.",
+                "That is not yet an unconditional production translation for every A05 situation.",
+                "Please identify the smallest authoritative knowledge decision required to establish the appropriate scope."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-REV1-GP-SCOPE",
+            "decision": "A05 Game Problem translation (first reply of 5 November)",
+            "subject": "a scoped review interpretation; a possible mismatch to be flagged eventually; no switching",
+            "scope": "SCOPED_REVIEW_INTERPRETATION",
+            "scopeWords": ["This remains a scoped review interpretation", "specifically within the circumstance of progressing against organized opposition"],
+            "canonicalAmendment": false,
+            "words": [
+                "I continue to support Create Space as A05's primary Game Problem, with Exploit Space as a secondary consideration, specifically within the circumstance of progressing against organized opposition.",
+                "This remains a scoped review interpretation rather than an unconditional mapping for every Progress the Attack situation.",
+                "If sufficient usable space already exists, the engine should eventually flag the possible mismatch between the described situation and the selected Game Problem.",
+                "It should not automatically switch Game Problems yet."
+            ],
+            "file": "sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-GAIN-ACCESS",
+            "decision": "Gain Access stays a candidate",
+            "subject": "the candidate Game Problem relationship",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": ["Gain Access remains a candidate relationship, not an approved addition."],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-STARTING-CONDITION",
+            "decision": "Attack Development scoring source (section 8)",
+            "subject": "the 13 September wording beside the workbook entry; the starting condition kept unresolved",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Please provide the original September 13 wording alongside the current workbook entry, specifically the clause introduced with \"for example\" in the original approval.",
+                "We need to preserve the source's intended meaning rather than allowing transcription punctuation to turn an example into an exclusive definition.",
+                "Also retain the unresolved question of how the attack's starting condition should influence scoring or configuration.",
+                "Do not silently remove that condition by transferring it into the coach's observational emphasis."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-D4",
+            "decision": "Decision 4: area-per-player definitions",
+            "subject": "every dimensional reference states what it counts and includes",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Every dimensional reference should explicitly identify whether goalkeepers are counted and whether end zones or other functional areas are included.",
+                "Where relevant, distinguish total playable area from the regions in which the principal interactions occur.",
+                "I am not authorizing canonical dimensional ranges or a production sizing algorithm."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-LIMITS",
+            "decision": "What the experiment can and cannot show",
+            "subject": "coach-readability, tests and generated rationale are not evidence of ecological effectiveness",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "However, coach-readability does not establish that the design is ecologically validated.",
+                "As before, passing engineering tests should not be presented as proof of representative learning effectiveness.",
+                "The agents must not invent missing knowledge or present their generated rationale as evidence of ecological effectiveness."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-SCENARIOS",
+            "decision": "Three contrasting hypothetical scenarios (Deliverable E)",
+            "subject": "the circumstances the activity is tested against, and what the system must not do",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Organized opposition meaningfully restricts usable attacking space.",
+                "Sufficient usable space already exists, making exploitation potentially more immediate than creation.",
+                "Information about defensive organization and available opportunities is insufficient.",
+                "The system should preserve the distinction between Create Space and Exploit Space and report uncertainty where the relevant circumstances are unknown.",
+                "It should not automatically change the primary Game Problem or recommend width changes on unsupported assumptions."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-SUITABILITY",
+            "decision": "Representative-suitability assessment (Deliverable D)",
+            "subject": "the six properties, scale, and what remains unknown",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Please assess whether the assembled activity retains meaningful opposition, direction, information, consequences, adaptive player roles, and multiple functional solutions.",
+                "Also examine whether its game scale can reasonably represent the intended problem and what remains unknown about exposure frequency, distribution, and challenge.",
+                "Do not require the activity to contain an additional constraint simply to differentiate it from a generic game."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-SCALE",
+            "decision": "Scale and the absence of added constraints",
+            "subject": "no automatic preference for small-sided games; a simple Game Form may suffice if justified",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Challenge Point should not automatically prefer small-sided games.",
+                "Likewise, the absence of additional constraints should not be considered a design failure.",
+                "A simple Game Form may be the best configuration if there is sufficient knowledge to justify its suitability."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-COACH-QUESTION",
+            "decision": "A question preserved for future coach feedback",
+            "subject": "the question is preserved for a future feedback experience, not implemented now",
+            "scope": "FUTURE_FEEDBACK",
+            "scopeWords": ["This is a future feedback direction"],
+            "canonicalAmendment": false,
+            "words": [
+                "For our eventual lightweight coach-feedback experience, I'd like to preserve this question:",
+                "Are players becoming more capable of finding functional solutions as the game changes?",
+                "This is a future feedback direction, not a request to implement learning analytics now."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-COMPOSITE",
+            "decision": "Composite Runtime Specification (section 8)",
+            "subject": "the primary-led direction; draft wording kept; missing documents not reconstructed",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "The primary Game Problem should govern the learning intention, while secondary requirements and their provenance remain visible.",
+                "A stronger secondary requirement must not be automatically promoted, nor silently discarded.",
+                "Please retain the proposed section 7 and section 9 clarification as draft wording until the source specification and CAR Matrix are reconciled.",
+                "The full Game Problem Canonical Register and Reasoning Engine Specification RC1 v2 also remain missing and should not be reconstructed as though authoritative."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-SHOW-UNRESOLVED",
+            "decision": "Unresolved items shown, not invented; dependencies named",
+            "subject": "how unresolved items and architectural dependencies are handled",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "These unresolved items should be shown explicitly in the experiment rather than treated as reasons to invent decisions or prevent all review-only assembly.",
+                "If an architectural dependency genuinely prevents the bounded demonstration, please identify the precise dependency and smallest available options before implementing a change."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-REV1-KICKOFF",
+            "decision": "The ordinary kickoff, a provisional option",
+            "subject": "the kickoff for the current prototype; not a method of restoring organized defence",
+            "scope": "CURRENT_PROTOTYPE",
+            "scopeWords": ["for the current prototype"],
+            "canonicalAmendment": false,
+            "words": ["Please retain the ordinary kickoff as an acceptable provisional option for the current prototype, but do not promote it as a demonstrated method of restoring organized defensive relationships."],
+            "file": "sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt",
+            "received": "2026-11-05",
+            "provisional": true
+        },
+        {
+            "id": "ASM-REV1-CONTINUOUS",
+            "decision": "Continuous play through turnovers",
+            "subject": "play continues through changes of possession",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": ["I favor preserving continuous play through turnovers whenever doing so supports the intended representative problem."],
+            "file": "sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-REV1-DIMENSIONS",
+            "decision": "A05 dimensions provisional",
+            "subject": "no approved basis for 6v6, 40 x 30 m; width and length not interchangeable",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Although those dimensions may be reasonable for a review prototype, we currently have no approved basis for treating them as particularly appropriate for A05.",
+                "Likewise, width and length should not be treated as interchangeable simply because total area remains constant.",
+                "For now, A05's dimensions remain provisional, and W-H1/W-H2 remain test-only hypotheses."
+            ],
+            "file": "sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt",
+            "received": "2026-11-05",
+            "provisional": true
+        },
+        {
+            "id": "ASM-REV1-ADD-NOTHING",
+            "decision": "Adding nothing is valid only if knowledge-supported",
+            "subject": "suitability unverified where the knowledge does not support adding nothing",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "I would not require a feature that differentiates the design from a generic game.",
+                "A knowledge-supported decision to add nothing should be considered a valid design decision.",
+                "Where the knowledge doesn't support that conclusion, the system should report that suitability remains unverified."
+            ],
+            "file": "sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-REV1-OBSERVATION",
+            "decision": "Observation categories for the review prototype only",
+            "subject": "the categories evaluate what occurs; never selection criteria or evidence of learning",
+            "scope": "REVIEW_PROTOTYPE",
+            "scopeWords": ["in the review prototype"],
+            "canonicalAmendment": false,
+            "words": [
+                "Our provisional A05 observation categories—Against Organized Opposition, During Transition, and Uncertain—could help evaluate what actually occurs in the review prototype.",
+                "They should not become production selection criteria or be interpreted as evidence of learning simply because the intended situation appears."
+            ],
+            "file": "sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt",
+            "received": "2026-11-05",
+            "provisional": true
+        },
+        {
+            "id": "ASM-REV1-SOURCE-FIDELITY",
+            "decision": "Attack Development scoring: source fidelity",
+            "subject": "the for-example clause; no canonical amendment before verification; the starting condition kept",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "If the original approval used \"for example\" before the final clause, then that clause should retain its status as an example rather than becoming an exclusive definition through transcription punctuation.",
+                "I don't want to authorize a canonical amendment until we've verified the exact source text and its interpretation.",
+                "Likewise, the condition concerning the attack's starting circumstances should not disappear into an observational emphasis if doing so removes a meaningful part of the approved context.",
+                "Please retain that as an unresolved source-fidelity and learning-design issue until we establish its proper role."
+            ],
+            "file": "sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-EVE-MISMATCH",
+            "decision": "A mismatch to be reported for review (reusable)",
+            "subject": "inconsistency between described circumstances and the selected primary problem",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "I don't want to authorize automatic switching between those Game Problems yet.",
+                "However, the engine should eventually recognize when the described performance circumstances appear inconsistent with the selected primary problem and report that mismatch for review.",
+                "This should remain a reusable reasoning requirement, not an A05-specific exception."
+            ],
+            "file": "sources/2026-11-04-stage2-review/originals/christian-reply-to-bounded-demonstration.txt",
+            "received": "2026-11-04",
+            "provisional": false
+        },
+        {
+            "id": "ASM-DEC-CONTINUOUS",
+            "decision": "Continuous play as a baseline condition (D5)",
+            "subject": "continuous play as a baseline representative condition, separate from Interaction Regulations",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": ["I also support retaining continuous play as a baseline representative condition where applicable, separate from specific Interaction Regulations."],
+            "file": "sources/2026-11-04-stage2-decisions/originals/christian-reply-to-decision-package.txt",
+            "received": "2026-11-04",
+            "provisional": false
+        },
+        {
+            "id": "ASM-NOV3-REQ-E1",
+            "decision": "Context-sensitive resolution (the recorded requirement)",
+            "subject": "useful space already available",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": ["When useful space is already available, exploiting it may be the immediate problem."],
+            "file": "sources/2026-11-03-stage1-authorization/originals/christian-reply-to-development-proposal.txt",
+            "received": "2026-11-03",
+            "provisional": false
+        },
+        {
+            "id": "ASM-1OCT-EQUAL",
+            "decision": "Equal outfield counts for GF2",
+            "subject": "GF2-14.b promoted to owner-authored knowledge; not an engine-level universal",
+            "scope": "GF2_ITEM",
+            "scopeWords": ["Promote GF2-14.b, equal outfield counts"],
+            "canonicalAmendment": false,
+            "words": [
+                "Promote GF2-14.b, equal outfield counts, from ASSUMED to owner-authored canonical knowledge.",
+                "Equal team numbers should not become an engine-level universal assumption."
+            ],
+            "file": "recovered reply received 1 October 2026, beginning \"Good. Please proceed with the following owner decisions.\"",
+            "received": "2026-10-01",
+            "provisional": false
+        },
+        {
+            "id": "ASM-9OCT-TEAMS",
+            "decision": "Opposing targets, fixed per team",
+            "subject": "two opposing teams, each with a fixed designated target",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Two opposing teams each have a designated target at the opposite end of the playing area.",
+                "Each team's target assignment remains fixed throughout the activity.",
+                "When possession changes, attacking and defending roles change, but target assignments do not."
+            ],
+            "file": "recovered reply received 9 October 2026, beginning \"Thanks for catching the problem with the existence assertions\"",
+            "received": "2026-10-09",
+            "provisional": false
+        },
+        {
+            "id": "ASM-15SEP-DIRECTION",
+            "decision": "Direction in Directional Possession",
+            "subject": "each team attacks one direction and defends the opposite; the same-direction wording to be corrected",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Each team has a stable, perceivable direction of progression and at least one functional directional objective.",
+                "In the normal opposed invasion realization, each team attacks one direction and defends the opposite direction.",
+                "So please treat the current wording as something we need to correct rather than bind as a realization requirement."
+            ],
+            "file": "recovered reply received 15 September 2026, beginning \"This is exactly the kind of structure I was hoping the audit would lead us toward.\"",
+            "received": "2026-09-15",
+            "provisional": false
+        },
+        {
+            "id": "ASM-28OCT-ENDZONE",
+            "decision": "Scoring target: end zone over line (provisional design direction)",
+            "subject": "controlled arrival in an advanced end zone rather than crossing the far end line",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Progress the Attack — provisional design direction",
+                "For scoring, I favor controlled arrival in an advanced end zone over crossing the far end line.",
+                "However, I don't want either decision finalized simply to accommodate the current engine."
+            ],
+            "file": "recovered reply received 28 October 2026, beginning \"Thank you for the Progress the Attack assessment.\"",
+            "received": "2026-10-28",
+            "provisional": true
+        },
+        {
+            "id": "ASM-28OCT-PROVISIONAL",
+            "decision": "Progress the Attack provisional decisions (28 October)",
+            "subject": "scoring target, opposition, offside",
+            "scope": "INITIAL_SMALL_SIDED_REALIZATION",
+            "scopeWords": ["for this initial small-sided realization"],
+            "scopeCovers": "OURS: the scope words cover the offside decision.",
+            "canonicalAmendment": false,
+            "words": [
+                "Scoring target: Controlled arrival in an appropriately positioned advanced end zone.",
+                "Opposition: Reciprocal, meaningful objectives with continuous live opposition.",
+                "Offside: No offside for this initial small-sided realization, explicitly communicated.",
+                "These are provisional design decisions, not authorization of a complete activity."
+            ],
+            "file": "recovered reply received 28 October 2026, beginning \"Thank you for the detailed feasibility assessment.\"",
+            "received": "2026-10-28",
+            "provisional": true
+        },
+        {
+            "id": "ASM-29OCT-PROVISIONAL",
+            "decision": "Progress the Attack provisional choices (29 October)",
+            "subject": "scoring, opposition, offside",
+            "scope": "INITIAL_SMALL_SIDED_REALIZATION",
+            "scopeWords": ["for this initial small-sided realization"],
+            "scopeCovers": "OURS: the scope words cover the offside decision.",
+            "canonicalAmendment": false,
+            "words": [
+                "My provisional choices remain:",
+                "Scoring: Controlled arrival in an appropriately positioned advanced end zone.",
+                "Opposition: Reciprocal objectives, meaningful defensive pressure, and continuous play through turnovers.",
+                "Offside: None for this initial small-sided realization, explicitly communicated."
+            ],
+            "file": "recovered reply received 29 October 2026, beginning \"Thank you for the latest comparison.\"",
+            "received": "2026-10-29",
+            "provisional": true
+        },
+        {
+            "id": "ASM-29OCT-ACCOUNTING",
+            "decision": "Requirement accounting",
+            "subject": "four categories and three standards for every generated activity",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Each generated activity should be evaluated against the applicable, approved context requirements, accounting for each component of a scoring condition rather than simply confirming that the condition exists.",
+                "Explicitly represented in the finished activity.",
+                "Supported through an authorized Game Form or other knowledge relationship.",
+                "Dependent on coach observation or judgment, with the relevant observable conditions identified.",
+                "Unsupported or missing.",
+                "A requirement should not automatically count as satisfied merely because the coach could theoretically judge it.",
+                "Structural validity: The required elements, conditions, and consequences are present.",
+                "Learning-design relevance: The environment has a grounded relationship to the intended Game Problem and affordances.",
+                "Field effectiveness: The activity actually provides the intended opportunities during play, requiring coach observation.",
+                "Missing components of approved scoring conditions should not silently pass."
+            ],
+            "file": "recovered reply received 29 October 2026, beginning \"Thank you for the latest comparison.\"",
+            "received": "2026-10-29",
+            "provisional": false
+        },
+        {
+            "id": "ASM-29OCT-4B",
+            "decision": "Starting condition and counted scores (decision 4(b))",
+            "subject": "organized attacking possession characterizes the dominant opportunities, not every counted score",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": ["I favor your decision 4(b): organized attacking possession should characterize the activity's dominant learning opportunities, rather than being a required state for every counted score."],
+            "file": "recovered reply received 29 October 2026, beginning \"Thank you for the latest comparison.\"",
+            "received": "2026-10-29",
+            "provisional": false
+        },
+        {
+            "id": "ASM-30OCT-REGAIN",
+            "decision": "Scenario 1A scores",
+            "subject": "an interception followed by an immediate controlled arrival counts",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Should Scenario 1A score? — Yes",
+                "I believe the interception near the end zone followed by an immediate controlled arrival should count."
+            ],
+            "file": "recovered reply received 30 October 2026, beginning \"Thank you for resending the starting-condition clarification\"",
+            "received": "2026-10-30",
+            "provisional": false
+        },
+        {
+            "id": "ASM-30OCT-OPTION5",
+            "decision": "Starting-condition interpretation: option (5), provisionally",
+            "subject": "the starting condition as contributing to the learning emphasis; flagged unverified",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Starting-condition interpretation — Favor option (5), provisionally",
+                "I favor interpreting \"from the attack's starting condition\" as contributing to the activity's intended learning emphasis rather than establishing a restriction on every individual scoring event.",
+                "This is not authorization to remove or disregard part of our approved scoring condition.",
+                "Until we have grounded evidence supporting that relationship, it should remain flagged as unverified learning-design relevance rather than be classified as fully satisfied."
+            ],
+            "file": "recovered reply received 30 October 2026, beginning \"Thank you for resending the starting-condition clarification\"",
+            "received": "2026-10-30",
+            "provisional": true
+        },
+        {
+            "id": "ASM-30OCT-WALKTHROUGH",
+            "decision": "5 m end zones for the walk-through",
+            "subject": "the provisional end-zone depth",
+            "scope": "THE_WALK_THROUGH",
+            "scopeWords": ["for the walk-through"],
+            "canonicalAmendment": false,
+            "words": ["The provisional 5 m end zones are fine for the walk-through, but shouldn't become a canonical standard without a justified relationship to the learning environment."],
+            "file": "recovered reply received 30 October 2026, beginning \"Thank you for resending the starting-condition clarification\"",
+            "received": "2026-10-30",
+            "provisional": true
+        },
+        {
+            "id": "ASM-30OCT-EVE-SCORING",
+            "decision": "Starting-condition interpretation and validation (30 October, evening)",
+            "subject": "controlled arrival provisional; immediate attacks eligible",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Controlled arrival remains the provisional scoring event.",
+                "Legitimate immediate attacking opportunities remain eligible to score."
+            ],
+            "file": "recovered reply received 30 October 2026, beginning \"Thank you for the walk-through and for clearly identifying where the proposed activity is supported by our knowledge\"",
+            "received": "2026-10-30",
+            "provisional": false
+        },
+        {
+            "id": "ASM-30OCT-EVE-UNRESOLVED",
+            "decision": "The starting condition stays unresolved",
+            "subject": "neither satisfied nor moved into coach observation",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": ["For now, please preserve the unresolved status rather than treating the starting-condition requirement as satisfied or simply moving it into coach observation."],
+            "file": "recovered reply received 30 October 2026, beginning \"Thank you for the walk-through and for clearly identifying where the proposed activity is supported by our knowledge\"",
+            "received": "2026-10-30",
+            "provisional": false
+        },
+        {
+            "id": "ASM-30OCT-EVE-OBSERVATION",
+            "decision": "Observation criteria, provisionally approved",
+            "subject": "three categories; both situations legitimate; no threshold",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Observation criteria — Provisionally approved",
+                "Against organized opposition: The team progresses and scores after confronting a defense that has established or recovered its organization.",
+                "During transition: The team scores before the opposition has recovered its organization.",
+                "Uncertain: The coach cannot confidently distinguish the situation.",
+                "Both scoring situations remain legitimate.",
+                "However, the observations should not substitute for the engine's responsibility to select an appropriate environment, nor should they automatically establish learning effectiveness.",
+                "I would not set a required percentage or threshold before gathering field evidence."
+            ],
+            "file": "recovered reply received 30 October 2026, beginning \"Thank you for the walk-through and for clearly identifying where the proposed activity is supported by our knowledge\"",
+            "received": "2026-10-30",
+            "provisional": true
+        },
+        {
+            "id": "ASM-23OCT-LAWS",
+            "decision": "Default soccer rules (a standing principle)",
+            "subject": "the normal Laws by default; only departures defined; adaptations identified",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.",
+                "For example, normal rules should govern goalkeeper handling, fouls, and own goals unless the activity deliberately changes them.",
+                "Where a normal law cannot apply directly because of the modified field, scoring structure, or game format, the system should identify the relevant adaptation rather than silently assume conventional conditions exist.",
+                "The governing principle is to inherit established sport rules and explicitly define only the necessary departures."
+            ],
+            "file": "recovered reply received 23 October 2026, beginning \"Thank you for narrowing the remaining questions and confirming that Directional Possession can support the proposed goal-based realization\"",
+            "received": "2026-10-23",
+            "provisional": false
+        },
+        {
+            "id": "ASM-21OCT-PURPOSE",
+            "decision": "Source of the learning purpose",
+            "subject": "the Learning Goal's coach-facing definition",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "My preference is to use the Learning Goal's coach-facing definition as the primary source.",
+                "The system should not independently invent a learning purpose."
+            ],
+            "file": "recovered reply received 21 October 2026, beginning \"Thank you for the thorough audit and independent review.\"",
+            "received": "2026-10-21",
+            "provisional": false
+        },
+        {
+            "id": "ASM-21OCT-PRESENTATION",
+            "decision": "Coach Overview and Coach Details; no player script",
+            "subject": "the two presentation levels",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "I do not want a separate player-facing explanation or script included in the activity presented to coaches.",
+                "The immediate understanding of the activity: learning purpose, one-sentence game description, basic parameters, essential scoring objectives, and a simple diagram.",
+                "There should be no separate Player Explanation section."
+            ],
+            "file": "recovered reply received 21 October 2026, beginning \"Thank you for the thorough audit and independent review.\"",
+            "received": "2026-10-21",
+            "provisional": false
+        },
+        {
+            "id": "ASM-22OCT-COLOURS",
+            "decision": "Stable team colours (said for the diagram)",
+            "subject": "team identity kept apart from role",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "For colors, I would generally prefer stable team identities, with building and pressing roles identified separately.",
+                "If Team A is blue in Block 1, it should ordinarily remain blue in Block 2, even though its responsibilities change."
+            ],
+            "file": "recovered reply received 22 October 2026, beginning \"Thank you for the updated presentation and supporting documentation.\"",
+            "received": "2026-10-22",
+            "provisional": false
+        },
+        {
+            "id": "ASM-15OCT-WAITING",
+            "decision": "Advanced positioning (said for the build-out activity)",
+            "subject": "attackers waiting inside the target area; no mechanism imposed automatically",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "While experimenting with similar activities myself, I noticed that attacking players sometimes position themselves permanently inside the progression target area, waiting for a pass.",
+                "This can undermine the intended build-out problem by allowing players to bypass the meaningful interaction with defensive pressure.",
+                "However, after considering the issue further, I don't want to automatically impose that mechanism."
+            ],
+            "file": "recovered reply received 15 October 2026, beginning \"Thanks for narrowing the outstanding questions and documenting the implementation decisions.\"",
+            "received": "2026-10-15",
+            "provisional": false
+        },
+        {
+            "id": "ASM-13SEP-SCORING",
+            "decision": "Attack Development primary scoring approval",
+            "subject": "the qualifying condition as he approved it on 13 September (our copy, as pasted by Joe)",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Attack Development — approved.",
+                "The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession."
+            ],
+            "file": "recovered reply received 13 September 2026, beginning \"Thanks. The generated-activity evidence makes the scoring issue much clearer.\" (Joe's paste, made twice, identical; our filed copy: none; the original email has not been checked)",
+            "received": "2026-09-13",
+            "provisional": false
+        },
+        {
+            "id": "ASM-31OCT-ORGANIZED",
+            "decision": "Organized defence: working definition",
+            "subject": "a functional definition of an organized defence",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": ["A defense is functionally organized when its players have sufficiently coordinated relationships to challenge progression, provide mutual support, and adapt collectively to the attacking team's changing opportunities."],
+            "file": "recovered reply received 31 October 2026, beginning \"Thank you for the detailed Create Space assessment.\"",
+            "received": "2026-10-31",
+            "provisional": false
+        },
+        {
+            "id": "ASM-28OCT-ACCEPTANCE",
+            "decision": "The acceptance test for Progress the Attack",
+            "subject": "reusable, authorized knowledge, without a fully authored activity-specific version",
+            "scope": null,
+            "canonicalAmendment": false,
+            "words": [
+                "Can Challenge Point construct a complete, representative Progress the Attack activity using reusable, authorized knowledge, without requiring a fully authored activity-specific version?",
+                "I'd prefer not to create another complete activity realization manually just to pass this test."
+            ],
+            "file": "recovered reply received 28 October 2026, beginning \"Thank you for the latest Secure Possession findings.\"",
+            "received": "2026-10-28",
+            "provisional": false
+        }
+    ],
+    "requiredParts": [
+        { "id": "P1", "part": "Learning purpose and relevant Game Problems.", "paths": ["purpose", "gameProblems.primary", "gameProblems.secondary", "gameProblems.secondaryFinding", "gameProblems.candidate"] },
+        { "id": "P2", "part": "Game Form and player configuration.", "paths": ["gameForm.illustrativeChoice", "gameForm.alternatives", "teams.count", "teams.equalOutfield", "players.perTeam", "players.goalkeepers"] },
+        { "id": "P3", "part": "Playing dimensions and layout.", "paths": ["area.lengthM", "area.widthM", "area.includesEndZones", "area.goalkeepersCounted", "area.halfwayLine", "area.centreMark", "endZones.depthM", "endZones.placement", "endZones.positioning"] },
+        { "id": "P4", "part": "Setup and starting conditions.", "paths": ["start.method", "start.kickoffDetails", "equipment.bibs", "equipment.markers", "equipment.balls", "duration.blocks", "duration.blockMinutes", "duration.breaks"] },
+        { "id": "P5", "part": "Rules and interaction regulations.", "paths": ["directions", "opposition.reciprocal", "endZones.access", "rules.offside", "rules.fouls", "rules.handling", "laws.default"] },
+        { "id": "P6", "part": "Scoring and consequences.", "paths": ["scoring.event", "scoring.means", "scoring.mirrored", "scoring.afterRegain", "scoring.startingCondition", "scoring.qualifyingCondition.workbookText", "scoring.qualifyingCondition.sep13Text", "win.condition"] },
+        { "id": "P7", "part": "Restarts and continuous-play behavior.", "paths": ["play.continuous", "restart.afterPoint.method", "restart.afterPoint.who", "restart.touchline", "restart.endLine.status", "restart.endLine.illustrativeValue", "laws.goalEnd"] },
+        { "id": "P8", "part": "Coach-facing instructions and appropriate observation guidance.", "paths": ["observation.categories", "adjustments", "coachQuestion"] },
+        { "id": "P9", "part": "A clear explanation of the design rationale.", "paths": [], "generatedFromTrace": true }
+    ],
+    "designBlockPaths": ["gameProblems.primary", "gameProblems.secondary", "gameProblems.secondaryFinding", "gameProblems.candidate", "gameForm.illustrativeChoice", "gameForm.alternatives"],
+    "exemptions": [
+        { "path": "scoring.qualifyingCondition.workbookText", "reason": "OURS: printed whole in Part 6, side by side with the 13 September text, and in the trace; stating either text as a coach rule would choose between the 'for example' and colon readings, which his 5 November section 8 keeps open." },
+        { "path": "scoring.qualifyingCondition.sep13Text", "reason": "OURS: printed whole in Part 6, side by side with the workbook text, and in the trace, with its provenance (our copy as pasted by Joe; the original email not yet checked)." },
+        { "path": "coachQuestion", "reason": "OURS: a decision about what the coach text leaves out (his question is a future feedback direction); printed in Part 2 and Part 7, never in the coach activity." }
+    ],
+    "choices": [
+        {
+            "path": "purpose",
+            "value": null,
+            "declaredStatus": "RULING",
+            "howReached": "READ_BY_CODE",
+            "readBy": "DISPLAY_CELL",
+            "knowledgeRef": { "source": "planning", "table": "learning_goals", "row": "A05", "column": "Coach Definition" },
+            "decidedBy": [
+                { "rulingRef": "ASM-21OCT-PURPOSE", "standing": "RULING", "valueEvidence": "My preference is to use the Learning Goal's coach-facing definition as the primary source." },
+                { "knowledgeRef": { "source": "planning", "table": "learning_goals", "row": "A05", "column": "Coach Definition" }, "standing": "APPROVED", "valueEvidence": "Improve attacking conditions while maintaining purposeful possession." }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "The cell is APPROVED on our reading of the Session Planning Model's status (the row's Status reads Active); his 21 October ruling selects it as the source."
+        },
+        {
+            "path": "gameProblems.primary",
+            "value": null,
+            "declaredStatus": "RULING",
+            "howReached": "READ_BY_CODE",
+            "readBy": "RESOLUTION_PRIMARY",
+            "decidedBy": [],
+            "consulted": [
+                { "rulingRef": "ASM-AUTH-GP-SCOPE", "standing": "RULING", "note": "extendsScopeTo: his 5 November words allow this experiment to use the designation, within the scoped circumstance; printed beside the computed trace, never decisive." },
+                { "rulingRef": "ASM-REV1-GP-SCOPE", "standing": "RULING", "note": "extendsScopeTo: 'a scoped review interpretation'; printed beside the computed trace, never decisive." }
+            ],
+            "statusSetBy": [],
+            "note": "Computed by the Stage 1/2 resolution, its influence trace unchanged (the scoped ruling RUL-E1-A05, continued by D1-4NOV, and the unpopulated Engine Translation row)."
+        },
+        {
+            "path": "gameProblems.secondary",
+            "value": null,
+            "declaredStatus": "RULING",
+            "howReached": "READ_BY_CODE",
+            "readBy": "RESOLUTION_SECONDARY",
+            "decidedBy": [],
+            "consulted": [
+                { "rulingRef": "ASM-AUTH-GP-SCOPE", "standing": "RULING", "note": "extendsScopeTo: Exploit Space 'a secondary consideration'; printed beside the computed trace." }
+            ],
+            "statusSetBy": [],
+            "note": "Computed by the Stage 1/2 resolution, its influence trace unchanged."
+        },
+        {
+            "path": "gameProblems.secondaryFinding",
+            "value": null,
+            "declaredStatus": "RULING",
+            "howReached": "READ_BY_CODE",
+            "readBy": "RESOLUTION_FINDINGS",
+            "decidedBy": [],
+            "consulted": [
+                { "rulingRef": "ASM-AUTH-COMPOSITE", "standing": "RULING", "note": "a stronger secondary requirement is neither promoted nor discarded; the finding is shown, not promoted." }
+            ],
+            "statusSetBy": [],
+            "note": "Computed by the Stage 1/2 composite profile (his D1): the secondary's stronger rating is kept as a finding at INSUFFICIENT_EVIDENCE."
+        },
+        {
+            "path": "gameProblems.candidate",
+            "value": null,
+            "declaredStatus": "CANDIDATE",
+            "howReached": "READ_BY_CODE",
+            "readBy": "CONTEXT_RELATIONSHIP_ROW",
+            "knowledgeRef": { "source": "contexts", "table": "relationships", "row": "RPC-REL-025", "column": "related_id" },
+            "decidedBy": [
+                { "knowledgeRef": { "source": "contexts", "table": "relationships", "row": "RPC-REL-025", "column": "related_id" }, "standing": "CANDIDATE" }
+            ],
+            "consulted": [],
+            "statusSetBy": [{ "rulingRef": "ASM-AUTH-GAIN-ACCESS" }],
+            "note": "Shown, not used. The row is ACTIVE in the context library (SECONDARY COMPATIBLE); its id resolution was mechanical (OURS); his words keep the relationship a candidate."
+        },
+        {
+            "path": "gameForm.illustrativeChoice",
+            "value": "GF2",
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-GF", "standing": "RULING", "valueEvidence": "GF2 may be used as an illustrative configuration for this experiment." }
+            ],
+            "consulted": [
+                { "rulingRef": "ASM-REV1-GF2", "standing": "RULING", "note": "an illustrative choice, not a justified selection over the other forms." }
+            ],
+            "statusSetBy": [],
+            "note": "Checked by code to be among the compatible Game Forms the Stage 2 selection returns; no preference among them."
+        },
+        {
+            "path": "gameForm.alternatives",
+            "value": null,
+            "declaredStatus": "CANDIDATE",
+            "howReached": "READ_BY_CODE",
+            "readBy": "COMPATIBLE_ALTERNATIVES",
+            "decidedBy": [],
+            "consulted": [
+                { "rulingRef": "ASM-AUTH-GF", "standing": "RULING", "note": "GF3 and GF7 visible as compatible alternatives, without an invented ranking." }
+            ],
+            "statusSetBy": [],
+            "note": "Computed by the Stage 2 Game Form step: the context's form rows (APPROVED) and the sport module's form declarations (CANDIDATE, module DRAFT), compatibility only."
+        },
+        {
+            "path": "teams.count",
+            "value": 2,
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-9OCT-TEAMS", "standing": "RULING", "valueEvidence": "Two opposing teams each have a designated target at the opposite end of the playing area." }
+            ],
+            "consulted": [
+                { "ref": "contracts.json GF2-14.a", "standing": "CANDIDATE", "note": "COUNT 2, AUTHORED from the sport module (CANDIDATE)." }
+            ],
+            "statusSetBy": [],
+            "note": "His 9 October words, said of Directional Possession's opposing-target structure."
+        },
+        {
+            "path": "teams.equalOutfield",
+            "value": "EQUAL",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-1OCT-EQUAL", "standing": "RULING", "valueEvidence": "Promote GF2-14.b, equal outfield counts, from ASSUMED to owner-authored canonical knowledge." }
+            ],
+            "consulted": [
+                { "ref": "contracts.json GF2-14.b", "standing": "CANDIDATE", "note": "still reads basis ASSUMED: a stale projection of his 1 October promotion (corpus-restatements.json carries the promotion)." },
+                { "rulingRef": "ASM-1OCT-EQUAL", "standing": "RULING", "note": "his limit: equal numbers are GF2-level, not an engine-level universal assumption." }
+            ],
+            "statusSetBy": [],
+            "note": "He called it owner-authored canonical knowledge; we print class 2 (an explicit scoped ruling, GF2-level), because the canonical projection still reads ASSUMED. He can say if class 1 is intended."
+        },
+        {
+            "path": "players.perTeam",
+            "value": 6,
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [
+                { "rulingRef": "ASM-REV1-DIMENSIONS", "standing": "RULING", "note": "no approved basis for treating 6v6, 40 x 30 m as particularly appropriate for A05." },
+                { "rulingRef": "ASM-AUTH-SCALE", "standing": "RULING", "note": "no automatic preference for small-sided games: 6 v 6 is not preferred over larger formats." }
+            ],
+            "statusSetBy": [],
+            "note": "The same number is a TEST INPUT in the Stage 2 width fixture; the two are deliberately independent (a unit test pins that they agree)."
+        },
+        {
+            "path": "players.goalkeepers",
+            "value": 0,
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [
+                { "rulingRef": "ASM-28OCT-PROVISIONAL", "standing": "RULING", "note": "no goals in this realization because the scoring target is an end zone (his provisional ruling); no goalkeepers is our illustrative consequence." }
+            ],
+            "statusSetBy": [],
+            "note": "GF2 authors no goalkeeper (contracts.json P3, doesNotConstrain)."
+        },
+        {
+            "path": "area.lengthM",
+            "value": 40,
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [
+                { "rulingRef": "ASM-REV1-DIMENSIONS", "standing": "RULING", "note": "A05's dimensions remain provisional; width and length are not interchangeable." },
+                { "ref": "contracts.json GF2-24.a", "standing": "CANDIDATE", "note": "40-60 m typical, inert (TYPICAL_EXAMPLE); consulted, not decisive." }
+            ],
+            "statusSetBy": [],
+            "note": "The length runs along the direction of play, between the target zones."
+        },
+        {
+            "path": "area.widthM",
+            "value": 30,
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [
+                { "ref": "contracts.json GF2-24.b", "standing": "CANDIDATE", "note": "25-40 m typical, inert (TYPICAL_EXAMPLE); consulted, not decisive." }
+            ],
+            "statusSetBy": [],
+            "note": "No width change is proposed anywhere in this experiment."
+        },
+        {
+            "path": "area.includesEndZones",
+            "value": true,
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [
+                { "rulingRef": "ASM-AUTH-D4", "standing": "RULING", "note": "his Decision 4 requires the statement (whether end zones are included); the value follows our illustrative layout." }
+            ],
+            "statusSetBy": [],
+            "note": "The two target zones lie inside the 40 m length."
+        },
+        {
+            "path": "area.goalkeepersCounted",
+            "value": "NO_GOALKEEPERS",
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [
+                { "rulingRef": "ASM-AUTH-D4", "standing": "RULING", "note": "his Decision 4 requires the statement (whether goalkeepers are counted); there are none to count." }
+            ],
+            "statusSetBy": [],
+            "note": "Entailed by the illustrative choice of no goalkeepers."
+        },
+        {
+            "path": "area.halfwayLine",
+            "value": "MARKED",
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [
+                { "ref": "sport-profile-soccer.json LAW-8", "standing": "OURS", "note": "the Laws kick-off needs a centre mark and a halfway line (the profile lists the centre mark as unrepresented); marking them is our illustrative consequence of his kickoff ruling." }
+            ],
+            "statusSetBy": [],
+            "note": "Needed for the ordinary kickoff; no other role."
+        },
+        {
+            "path": "area.centreMark",
+            "value": "MARKED",
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [
+                { "ref": "sport-profile-soccer.json LAW-8", "standing": "OURS", "note": "the kick-off is taken from the centre mark." }
+            ],
+            "statusSetBy": [],
+            "note": "Needed for the ordinary kickoff; no other role."
+        },
+        {
+            "path": "endZones.depthM",
+            "value": 5,
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [
+                { "rulingRef": "ASM-30OCT-WALKTHROUGH", "standing": "RULING", "note": "his words scope the 5 m depth to 'the walk-through'; carried over to this experiment as an ILLUSTRATIVE value (applied to this experiment: OURS)." },
+                { "rulingRef": "ASM-REV1-DIMENSIONS", "standing": "RULING", "note": "A05's dimensions remain provisional." },
+                { "ref": "contracts.json S5/O4 notAuthored", "standing": "CANDIDATE", "note": "GF2 does not author the depth of a target zone." }
+            ],
+            "statusSetBy": [],
+            "note": "Not a canonical value."
+        },
+        {
+            "path": "endZones.placement",
+            "value": "ONE_AT_EACH_END_FULL_WIDTH",
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [
+                { "rulingRef": "ASM-9OCT-TEAMS", "standing": "RULING", "note": "each team's target at the opposite end of the playing area." },
+                { "ref": "contracts.json S6/O5 notAuthored", "standing": "CANDIDATE", "note": "GF2 does not author whether a target spans the full width." }
+            ],
+            "statusSetBy": [],
+            "note": "Full width is our illustrative choice."
+        },
+        {
+            "path": "endZones.positioning",
+            "value": null,
+            "declaredStatus": "UNRESOLVED",
+            "howReached": "UNRESOLVED",
+            "decidedBy": [{ "ref": "UNRESOLVED", "standing": "UNRESOLVED" }],
+            "consulted": [
+                { "rulingRef": "ASM-28OCT-PROVISIONAL", "standing": "RULING", "note": "his words ask for an 'appropriately positioned advanced end zone'; what makes a position appropriate is not defined anywhere in the knowledge." }
+            ],
+            "statusSetBy": [],
+            "note": "No authorized value; the illustrative placement stands in for this example only."
+        },
+        {
+            "path": "endZones.access",
+            "value": "ANY_PLAYER_ANY_TIME",
+            "declaredStatus": "OURS",
+            "howReached": "ENTERED_OUR_INFERENCE",
+            "decidedBy": [
+                { "rulingRef": "ASM-23OCT-LAWS", "standing": "RULING", "valueEvidence": "The normal Laws of the Game should apply by default wherever they are applicable" }
+            ],
+            "consulted": [
+                { "rulingRef": "ASM-15OCT-WAITING", "standing": "RULING", "note": "a known risk he raised for the build-out activity (attackers waiting in the target area); an open observation point here; no restriction is invented." }
+            ],
+            "statusSetBy": [],
+            "note": "Our reading of the Laws by default: no law restricts entry to a marked zone, so no restriction is added."
+        },
+        {
+            "path": "directions",
+            "value": "EACH_ATTACKS_ONE_DEFENDS_THE_OTHER_ALL_GAME",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-15SEP-DIRECTION", "standing": "RULING", "valueEvidence": "In the normal opposed invasion realization, each team attacks one direction and defends the opposite direction." },
+                { "rulingRef": "ASM-9OCT-TEAMS", "standing": "RULING", "valueEvidence": "Each team's target assignment remains fixed throughout the activity." }
+            ],
+            "consulted": [
+                { "ref": "soccer-module.rc1-v3.json game_forms GF2 setup_guidance", "standing": "CANDIDATE", "note": "the module's setup text says the teams attack in the same direction; it conflicts with his 15 September correction and is not used (contracts.json GF2-12.a and GF2-12.b, not used)." }
+            ],
+            "statusSetBy": [],
+            "note": "Target assignments do not change with possession."
+        },
+        {
+            "path": "scoring.event",
+            "value": "target_zone_entered",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-28OCT-PROVISIONAL", "standing": "RULING", "valueEvidence": "Scoring target: Controlled arrival in an appropriately positioned advanced end zone." },
+                { "rulingRef": "ASM-28OCT-ENDZONE", "standing": "RULING", "valueEvidence": "For scoring, I favor controlled arrival in an advanced end zone over crossing the far end line." }
+            ],
+            "consulted": [
+                { "knowledgeRef": { "source": "contexts", "table": "relationships", "row": "RPC-REL-079" }, "standing": "APPROVED", "note": "target_zone_entered is one of the context's four approved scoring events (with line_crossed, gate and target_player), so membership does not separate zone from line; checked by code, never decisive for the choice." },
+                { "rulingRef": "ASM-30OCT-EVE-SCORING", "standing": "RULING", "note": "'Controlled arrival remains the provisional scoring event.'" }
+            ],
+            "statusSetBy": [],
+            "note": "His provisional ruling, placed in class 3."
+        },
+        {
+            "path": "scoring.means",
+            "value": null,
+            "declaredStatus": "RULING",
+            "howReached": "READ_BY_CODE",
+            "readBy": "DISPLAY_CELL",
+            "knowledgeRef": { "source": "contexts", "table": "controlled_vocabulary", "row": "scoring_event target_zone_entered", "column": "description" },
+            "decidedBy": [
+                { "knowledgeRef": { "source": "contexts", "table": "controlled_vocabulary", "row": "scoring_event target_zone_entered", "column": "description" }, "standing": "APPROVED", "valueEvidence": "A player dribbles into a marked zone, or receives and controls the ball inside it." },
+                { "rulingRef": "ASM-29OCT-PROVISIONAL", "standing": "RULING", "valueEvidence": "Scoring: Controlled arrival in an appropriately positioned advanced end zone." }
+            ],
+            "consulted": [
+                { "rulingRef": "ASM-30OCT-REGAIN", "standing": "RULING", "note": "an interception followed by an immediate controlled arrival counts: consistent with the vocabulary's 'receives and controls the ball inside it'." }
+            ],
+            "statusSetBy": [],
+            "note": "The approved vocabulary's own description of the event, read by code; no narrowing to a received pass."
+        },
+        {
+            "path": "scoring.qualifyingCondition.workbookText",
+            "value": null,
+            "declaredStatus": "CANDIDATE",
+            "howReached": "READ_BY_CODE",
+            "readBy": "DISPLAY_CELL",
+            "knowledgeRef": { "source": "contexts", "table": "properties", "row": "RPC-PROP-134", "column": "property_text" },
+            "decidedBy": [
+                { "knowledgeRef": { "source": "contexts", "table": "properties", "row": "RPC-PROP-134", "column": "property_text" }, "standing": "CANDIDATE" }
+            ],
+            "consulted": [
+                { "rulingRef": "ASM-REV1-SOURCE-FIDELITY", "standing": "RULING", "note": "the row is APPROVED, but its wording differs from his 13 September text (a colon where his text has 'for example'); the wording is therefore CANDIDATE until he rules." }
+            ],
+            "statusSetBy": [{ "rulingRef": "ASM-AUTH-STARTING-CONDITION" }],
+            "note": "Printed byte-equal to the cell; never stated as a coach rule."
+        },
+        {
+            "path": "scoring.qualifyingCondition.sep13Text",
+            "value": "The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.",
+            "valueIsEvidence": true,
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-13SEP-SCORING", "standing": "RULING", "valueEvidence": "The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession." }
+            ],
+            "consulted": [],
+            "statusSetBy": [{ "rulingRef": "ASM-AUTH-STARTING-CONDITION" }],
+            "note": "Our copy of your 13 September email as pasted by Joe (pasted twice, identical); original not yet checked."
+        },
+        {
+            "path": "scoring.startingCondition",
+            "value": null,
+            "declaredStatus": "UNRESOLVED",
+            "howReached": "UNRESOLVED",
+            "decidedBy": [{ "ref": "UNRESOLVED", "standing": "UNRESOLVED" }],
+            "consulted": [
+                { "rulingRef": "ASM-29OCT-4B", "standing": "RULING", "note": "organized attacking possession characterizes the dominant opportunities, not every counted score." },
+                { "rulingRef": "ASM-30OCT-OPTION5", "standing": "RULING", "note": "his provisional option (5), flagged as unverified learning-design relevance; the interpretation and its provenance are recorded here for review." }
+            ],
+            "statusSetBy": [{ "rulingRef": "ASM-AUTH-STARTING-CONDITION" }, { "rulingRef": "ASM-30OCT-EVE-UNRESOLVED" }, { "rulingRef": "ASM-REV1-SOURCE-FIDELITY" }],
+            "note": "The role of 'from the attack's starting condition' in scoring or configuration has no authorized value. It plays no role in this example's game: every controlled arrival counts, including after a regain. Shown in Scoring as an open question, never moved into the observation guidance."
+        },
+        {
+            "path": "scoring.afterRegain",
+            "value": "COUNTS",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-30OCT-REGAIN", "standing": "RULING", "valueEvidence": "I believe the interception near the end zone followed by an immediate controlled arrival should count." },
+                { "rulingRef": "ASM-30OCT-EVE-SCORING", "standing": "RULING", "valueEvidence": "Legitimate immediate attacking opportunities remain eligible to score." }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "No eligibility restriction after a live turnover."
+        },
+        {
+            "path": "scoring.mirrored",
+            "value": "SAME_FOR_BOTH",
+            "declaredStatus": "OURS",
+            "howReached": "ENTERED_OUR_INFERENCE",
+            "decidedBy": [
+                { "rulingRef": "ASM-28OCT-PROVISIONAL", "standing": "RULING", "valueEvidence": "Opposition: Reciprocal, meaningful objectives with continuous live opposition." }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "Our reading of 'reciprocal' as the same scoring event for both teams; his words do not state mirroring."
+        },
+        {
+            "path": "opposition.reciprocal",
+            "value": "RECIPROCAL",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-29OCT-PROVISIONAL", "standing": "RULING", "valueEvidence": "Opposition: Reciprocal objectives, meaningful defensive pressure, and continuous play through turnovers." }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "Both teams attack and defend; his provisional ruling, placed in class 3."
+        },
+        {
+            "path": "play.continuous",
+            "value": "CONTINUOUS_THROUGH_TURNOVERS",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-REV1-CONTINUOUS", "standing": "RULING", "valueEvidence": "I favor preserving continuous play through turnovers whenever doing so supports the intended representative problem." },
+                { "rulingRef": "ASM-DEC-CONTINUOUS", "standing": "RULING", "valueEvidence": "I also support retaining continuous play as a baseline representative condition where applicable, separate from specific Interaction Regulations." }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "A baseline representative condition, not an Interaction Regulation."
+        },
+        {
+            "path": "start.method",
+            "value": "ORDINARY_KICKOFF",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-REV1-KICKOFF", "standing": "RULING", "valueEvidence": "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype" }
+            ],
+            "consulted": [
+                { "ref": "sport-profile-soccer.json LAW-8", "standing": "OURS", "note": "the kick-off at the start and after a score (Law 8)." }
+            ],
+            "statusSetBy": [],
+            "note": "His caveat: 'do not promote it as a demonstrated method of restoring organized defensive relationships.' Nothing in this experiment says it does."
+        },
+        {
+            "path": "start.kickoffDetails",
+            "value": "LAWS_KICKOFF_UNCHANGED",
+            "declaredStatus": "OURS",
+            "howReached": "ENTERED_OUR_INFERENCE",
+            "decidedBy": [
+                { "rulingRef": "ASM-REV1-KICKOFF", "standing": "RULING", "valueEvidence": "the ordinary kickoff" },
+                { "rulingRef": "ASM-23OCT-LAWS", "standing": "RULING", "valueEvidence": "The normal Laws of the Game should apply by default wherever they are applicable" }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "Our reading of 'ordinary': the Laws kick-off unchanged, opponents 9.15 m away and in their own half included. Whether a relaxation (as his 29 October 'adapted kick-off' might allow) is wanted is an open question."
+        },
+        {
+            "path": "restart.afterPoint.method",
+            "value": "KICKOFF",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-REV1-KICKOFF", "standing": "RULING", "valueEvidence": "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype" }
+            ],
+            "consulted": [
+                { "ref": "contracts.json T2-T6 notAuthored", "standing": "CANDIDATE", "note": "GF2 does not author a restart after a score." }
+            ],
+            "statusSetBy": [],
+            "note": "His provisional option for the restart after a score; never presented as restoring organized defence."
+        },
+        {
+            "path": "restart.afterPoint.who",
+            "value": "CONCEDING_TEAM",
+            "declaredStatus": "OURS",
+            "howReached": "ENTERED_OUR_INFERENCE",
+            "decidedBy": [
+                { "rulingRef": "ASM-23OCT-LAWS", "standing": "RULING", "valueEvidence": "The normal Laws of the Game should apply by default wherever they are applicable" }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "Our reading: in the Laws the team that conceded a goal kicks off; applying that to a point is our inference (a point is not a goal in the Laws)."
+        },
+        {
+            "path": "rules.offside",
+            "value": "NONE",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-29OCT-PROVISIONAL", "standing": "RULING", "valueEvidence": "Offside: None for this initial small-sided realization, explicitly communicated." },
+                { "rulingRef": "ASM-28OCT-PROVISIONAL", "standing": "RULING", "valueEvidence": "Offside: No offside for this initial small-sided realization, explicitly communicated." }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "A departure from the Laws (Law 11), explicitly communicated; his provisional ruling, placed in class 3."
+        },
+        {
+            "path": "restart.touchline",
+            "value": "LAWS_THROW_IN",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-23OCT-LAWS", "standing": "RULING", "valueEvidence": "The normal Laws of the Game should apply by default wherever they are applicable" }
+            ],
+            "consulted": [
+                { "ref": "sport-profile-soccer.json LAW-15", "standing": "OURS", "note": "listed only so an activity can depart from it; nothing here departs." },
+                { "ref": "contracts.json GF2-16.a", "standing": "CANDIDATE", "note": "the module's setup text: a ball out of play restarts from the team that did not touch it last (consistent with the Laws throw-in)." }
+            ],
+            "statusSetBy": [],
+            "note": "The Laws apply unchanged."
+        },
+        {
+            "path": "rules.fouls",
+            "value": "LAWS_FREE_KICKS",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-23OCT-LAWS", "standing": "RULING", "valueEvidence": "For example, normal rules should govern goalkeeper handling, fouls, and own goals unless the activity deliberately changes them." }
+            ],
+            "consulted": [
+                { "ref": "sport-profile-soccer.json LAW-13", "standing": "OURS", "note": "listed only so an activity can depart from it; nothing here departs." }
+            ],
+            "statusSetBy": [],
+            "note": "The Laws apply unchanged; no free kick is moved or altered."
+        },
+        {
+            "path": "rules.handling",
+            "value": "LAWS_NO_PLAYER_HANDLES",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-23OCT-LAWS", "standing": "RULING", "valueEvidence": "The normal Laws of the Game should apply by default wherever they are applicable" }
+            ],
+            "consulted": [
+                { "ref": "sport-profile-soccer.json LAW-12-GK", "standing": "OURS", "note": "not applicable: there is no goalkeeper, so the handling law applies to every player." }
+            ],
+            "statusSetBy": [],
+            "note": "With no goalkeepers, no player may handle the ball under the Laws."
+        },
+        {
+            "path": "laws.default",
+            "value": "APPLY",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-23OCT-LAWS", "standing": "RULING", "valueEvidence": "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification." }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "The activity states only departures and adaptations; the Laws account in Part 2 lists every law the Sport Profile names."
+        },
+        {
+            "path": "laws.goalEnd",
+            "value": "NOT_APPLICABLE_NO_GOALS",
+            "declaredStatus": "OURS",
+            "howReached": "ENTERED_OUR_INFERENCE",
+            "decidedBy": [
+                { "rulingRef": "ASM-23OCT-LAWS", "standing": "RULING", "valueEvidence": "the system should identify the relevant adaptation rather than silently assume conventional conditions exist" }
+            ],
+            "consulted": [
+                { "ref": "sport-profile-soccer.json LAW-14, LAW-16, LAW-17", "standing": "OURS", "note": "each applies only where a goal stands at an end; none does here." }
+            ],
+            "statusSetBy": [],
+            "note": "Our logical inference from the profile's applicability conditions: with no goals, the penalty kick, goal kick and corner kick do not apply."
+        },
+        {
+            "path": "restart.endLine.status",
+            "value": null,
+            "declaredStatus": "UNRESOLVED",
+            "howReached": "UNRESOLVED",
+            "decidedBy": [{ "ref": "UNRESOLVED", "standing": "UNRESOLVED" }],
+            "consulted": [],
+            "statusSetBy": [{ "rulingRef": "ASM-23OCT-LAWS" }],
+            "note": "With no goals, no law restarts a ball over an end line (Laws 16 and 17 need a goal): an adaptation is owed, and no authorized value exists."
+        },
+        {
+            "path": "restart.endLine.illustrativeValue",
+            "value": "NOT_LAST_TOUCH_FROM_THE_END_LINE",
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [
+                { "ref": "contracts.json GF2-16.a", "standing": "CANDIDATE", "note": "the module's setup text: a ball out of play restarts from the team that did not touch it last." },
+                { "rulingRef": "ASM-23OCT-LAWS", "standing": "RULING", "note": "a departure from the Laws needs an explicit, knowledge-authorized modification; we ask him to confirm that an illustrative value may stand in here." }
+            ],
+            "statusSetBy": [],
+            "note": "Illustrative only, pending his confirmation; no opponent distance or retreat rule is added."
+        },
+        {
+            "path": "duration.blocks",
+            "value": 3,
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [
+                { "ref": "contracts.json E4 notAuthored", "standing": "CANDIDATE", "note": "GF2 does not author a duration; the session supplies it." }
+            ],
+            "statusSetBy": [],
+            "note": "Session context should come from the coach; this is an example."
+        },
+        {
+            "path": "duration.blockMinutes",
+            "value": 6,
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "An example."
+        },
+        {
+            "path": "duration.breaks",
+            "value": "SHORT_BREAK_BETWEEN_BLOCKS",
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "An example."
+        },
+        {
+            "path": "equipment.bibs",
+            "value": "ONE_COLOUR_PER_TEAM_KEPT_ALL_SESSION",
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [
+                { "rulingRef": "ASM-22OCT-COLOURS", "standing": "RULING", "note": "said for the diagram's team identity, hedged ('generally prefer', 'ordinarily remain'); consulted for 'each team keeps its colour', not decisive for bibs." }
+            ],
+            "statusSetBy": [],
+            "note": "Bibs are our illustrative equipment."
+        },
+        {
+            "path": "equipment.markers",
+            "value": "AREA_HALFWAY_CENTRE_TARGET_ZONES",
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [
+                { "ref": "contracts.json GF2-06.a", "standing": "CANDIDATE", "note": "the target as a physically marked object (ASSUMED)." }
+            ],
+            "statusSetBy": [],
+            "note": "Markings are the same for the whole session, so they are marked once."
+        },
+        {
+            "path": "equipment.balls",
+            "value": "SPARE_BALLS",
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "Spare balls are not a coach-served restart: every restart follows the Laws or the illustrative end-line value."
+        },
+        {
+            "path": "win.condition",
+            "value": "MORE_POINTS_IN_A_BLOCK",
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "standing": "RULING", "valueEvidence": "an illustrative value may be used for this offline prototype if clearly labeled" }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "An example."
+        },
+        {
+            "path": "observation.categories",
+            "value": "HIS_THREE_CATEGORIES",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-30OCT-EVE-OBSERVATION", "standing": "RULING", "valueEvidence": "Observation criteria — Provisionally approved" },
+                { "rulingRef": "ASM-REV1-OBSERVATION", "standing": "RULING", "valueEvidence": "could help evaluate what actually occurs in the review prototype" }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "For evaluating this prototype only: no threshold, not a selection criterion, not evidence of learning. His provisional ruling, placed in class 3."
+        },
+        {
+            "path": "adjustments",
+            "value": "NONE_OFFERED",
+            "declaredStatus": "OURS",
+            "howReached": "ENTERED_OUR_INFERENCE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-SCENARIOS", "standing": "RULING", "valueEvidence": "It should not automatically change the primary Game Problem or recommend width changes on unsupported assumptions." }
+            ],
+            "consulted": [
+                { "rulingRef": "ASM-REV1-DIMENSIONS", "standing": "RULING", "note": "W-H1/W-H2 remain test-only hypotheses, so no width adjustment is offered; a length adjustment would be our causal hypothesis (K3 open)." }
+            ],
+            "statusSetBy": [],
+            "note": "Our decision to offer none until a first adjustment is authorized."
+        },
+        {
+            "path": "coachQuestion",
+            "value": "KEPT_OUT_OF_COACH_GUIDANCE",
+            "declaredStatus": "OURS",
+            "howReached": "ENTERED_OUR_INFERENCE",
+            "decidedBy": [
+                { "rulingRef": "ASM-AUTH-COACH-QUESTION", "standing": "RULING", "valueEvidence": "This is a future feedback direction, not a request to implement learning analytics now." }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "Our reading: preserved for a future feedback experience, so kept out of this activity's coach guidance; we ask whether it may appear there."
+        }
+    ],
+    "laws": [
+        { "lawId": "LAW-8", "status": "APPLIES", "paths": ["start.method", "start.kickoffDetails", "restart.afterPoint.method", "area.centreMark", "area.halfwayLine"], "reason": "The ordinary kickoff at the start and after a point (his provisional option); the centre mark and halfway line it needs are marked (illustrative)." },
+        { "lawId": "LAW-8-DB", "status": "APPLIES", "paths": ["laws.default"], "reason": "A stoppage the coach makes restarts with a dropped ball, as in the Laws; nothing departs from it." },
+        { "lawId": "LAW-11", "status": "DEPARTED", "paths": ["rules.offside"], "reason": "No offside: his provisional ruling, explicitly communicated." },
+        { "lawId": "LAW-12-GK", "status": "NOT APPLICABLE", "paths": ["players.goalkeepers", "rules.handling"], "reason": "There is no goalkeeper, so no goalkeeper handling; no player may handle the ball." },
+        { "lawId": "LAW-14", "status": "NOT APPLICABLE", "paths": ["laws.goalEnd"], "reason": "No goal stands at either end, so there is no penalty kick." },
+        { "lawId": "LAW-13", "status": "APPLIES", "paths": ["rules.fouls"], "reason": "Free kicks as in the Laws; nothing departs from them." },
+        { "lawId": "LAW-15", "status": "APPLIES", "paths": ["restart.touchline"], "reason": "Throw-ins as in the Laws; nothing departs from them." },
+        { "lawId": "LAW-16", "status": "NOT APPLICABLE", "paths": ["laws.goalEnd"], "reason": "No goal stands at either end, so there is no goal kick; the ball over an end line is the adaptation listed below." },
+        { "lawId": "LAW-17", "status": "NOT APPLICABLE", "paths": ["laws.goalEnd"], "reason": "No goal stands at either end, so there is no corner kick; the ball over an end line is the adaptation listed below." },
+        { "lawId": "LAW-4-GK", "status": "NOT APPLICABLE", "paths": ["players.goalkeepers"], "reason": "There is no goalkeeper." },
+        { "lawId": null, "situation": "the ball over an end line, with no goal at that end", "status": "ADAPTATION OWED", "paths": ["restart.endLine.status", "restart.endLine.illustrativeValue"], "reason": "No law restarts it here; an ILLUSTRATIVE value stands in (the team that did not touch it last restarts from the end line), pending his confirmation." }
+    ],
+    "contractItems": [
+        { "itemId": "GF2-01", "mappedTo": ["area.lengthM", "area.widthM"] },
+        { "itemId": "GF2-02", "mappedTo": ["area.lengthM", "endZones.access"] },
+        { "itemId": "GF2-03.a", "mappedTo": ["endZones.placement"] },
+        { "itemId": "GF2-03.b", "mappedTo": ["scoring.event"] },
+        { "itemId": "GF2-04", "mappedTo": ["endZones.placement"] },
+        { "itemId": "GF2-05.a", "mappedTo": ["area.lengthM"] },
+        { "itemId": "GF2-05.b", "mappedTo": ["endZones.placement"] },
+        { "itemId": "GF2-06.a", "mappedTo": ["equipment.markers"] },
+        { "itemId": "GF2-06.b", "mappedTo": ["endZones.placement"] },
+        { "itemId": "GF2-07.a", "mappedTo": ["play.continuous"] },
+        { "itemId": "GF2-07.b", "mappedTo": ["play.continuous"] },
+        { "itemId": "GF2-08.a", "mappedTo": ["scoring.event"] },
+        { "itemId": "GF2-08.b", "mappedTo": ["scoring.event"] },
+        { "itemId": "GF2-09.a", "mappedTo": ["directions"] },
+        { "itemId": "GF2-09.b", "mappedTo": ["directions"] },
+        { "itemId": "GF2-10", "mappedTo": ["directions"] },
+        { "itemId": "GF2-11", "mappedTo": ["directions"] },
+        { "itemId": "GF2-12.a", "mappedTo": [], "notUsed": "One shared target attacked by both teams (ASSUMED): superseded by his 15 September and 9 October rulings (each team its own target)." },
+        { "itemId": "GF2-12.b", "mappedTo": [], "notUsed": "Both teams attacking in the same sense (from the module's CANDIDATE setup text): his 15 September correction; each team attacks one direction and defends the other." },
+        { "itemId": "GF2-13", "mappedTo": ["opposition.reciprocal"] },
+        { "itemId": "GF2-14.a", "mappedTo": ["teams.count"] },
+        { "itemId": "GF2-14.b", "mappedTo": ["teams.equalOutfield"] },
+        { "itemId": "GF2-15", "mappedTo": ["opposition.reciprocal"] },
+        { "itemId": "GF2-16.a", "mappedTo": ["restart.touchline", "restart.endLine.illustrativeValue"] },
+        { "itemId": "GF2-16.b", "mappedTo": ["restart.touchline"] },
+        { "itemId": "GF2-17", "mappedTo": ["play.continuous"] },
+        { "itemId": "GF2-18", "mappedTo": ["play.continuous"] },
+        { "itemId": "GF2-19", "mappedTo": ["scoring.event"] },
+        { "itemId": "GF2-20", "mappedTo": ["scoring.event"] },
+        { "itemId": "GF2-21", "mappedTo": ["scoring.event"] },
+        { "itemId": "GF2-22", "mappedTo": ["laws.default", "adjustments"] },
+        { "itemId": "GF2-23", "mappedTo": [], "notUsed": "Meaningful events reorganize space, roles, access or threat: outside the configuration boundary (the contract marks it OUTSIDE_BOUNDARY); only in play." },
+        { "itemId": "GF2-24.a", "mappedTo": ["area.lengthM"] },
+        { "itemId": "GF2-24.b", "mappedTo": ["area.widthM"] }
+    ],
+    "contractDeclarationsReported": [
+        { "row": "T2-T6", "declaration": "NOT_AUTHORED", "what": "restart after a score", "how": "restart.afterPoint.method (his provisional kickoff option) and restart.afterPoint.who (OURS)" },
+        { "row": "T3-T5", "declaration": "NOT_AUTHORED", "what": "start procedure", "how": "start.method (his provisional kickoff option) and start.kickoffDetails (OURS)" },
+        { "row": "S5/O4", "declaration": "NOT_AUTHORED", "what": "extent of the target feature (depth of a zone)", "how": "endZones.depthM (ILLUSTRATIVE)" },
+        { "row": "E4", "declaration": "NOT_AUTHORED", "what": "duration", "how": "duration.* (ILLUSTRATIVE)" },
+        { "row": "V3-V6", "declaration": "NOT_AUTHORED", "what": "the qualifying condition of the primary scoring event", "how": "the context's qualifying condition (RPC-PROP-134) and his scoring rulings; its starting-condition clause UNRESOLVED" }
+    ],
+    "requirementAccountRulingRef": "ASM-29OCT-ACCOUNTING",
+    "accountCategories": [
+        "Explicitly represented in the finished activity.",
+        "Supported through an authorized Game Form or other knowledge relationship.",
+        "Dependent on coach observation or judgment, with the relevant observable conditions identified.",
+        "Unsupported or missing."
+    ],
+    "accountStandards": ["Structural validity", "Learning-design relevance", "Field effectiveness"],
+    "requirementAccount": [
+        { "id": "RA-ID-011", "requirementRef": { "table": "identity_rules", "row": "RPC-ID-011" }, "clause": null, "reading": null, "category": "Dependent on coach observation or judgment, with the relevant observable conditions identified.", "standard": "Learning-design relevance", "paths": ["play.continuous", "scoring.afterRegain"], "observableConditions": "Whether attacks develop from settled, organized possession against an organized defence (his three observation categories describe the defence's organization when a team scores); no threshold.", "note": "His 29 October decision 4(b): organized attacking possession characterizes the dominant opportunities rather than being a required state for every counted score. Not counted as satisfied." },
+        { "id": "RA-ID-012", "requirementRef": { "table": "identity_rules", "row": "RPC-ID-012" }, "clause": null, "reading": null, "category": "Explicitly represented in the finished activity.", "standard": "Structural validity", "paths": ["purpose"], "observableConditions": null, "note": "Stated as the learning purpose (the coach definition). Whether the environment serves that purpose is a learning-design relevance question, unverified (K2 open)." },
+        { "id": "RA-ID-013", "requirementRef": { "table": "identity_rules", "row": "RPC-ID-013" }, "clause": null, "reading": null, "category": "Explicitly represented in the finished activity.", "standard": "Structural validity", "paths": ["scoring.event", "scoring.means"], "observableConditions": null, "note": "A point needs a controlled arrival in the target zone; possession alone scores nothing." },
+        { "id": "RA-ID-014", "requirementRef": { "table": "identity_rules", "row": "RPC-ID-014" }, "clause": null, "reading": null, "category": "Dependent on coach observation or judgment, with the relevant observable conditions identified.", "standard": "Field effectiveness", "paths": ["laws.default", "adjustments"], "observableConditions": "Whether players have more than one way forward and more than one support option as play develops; no rule removes a passing option (GF2-22).", "note": "Not counted as satisfied." },
+        { "id": "RA-ID-015", "requirementRef": { "table": "identity_rules", "row": "RPC-ID-015" }, "clause": null, "reading": null, "category": "Dependent on coach observation or judgment, with the relevant observable conditions identified.", "standard": "Learning-design relevance", "paths": ["scoring.event"], "observableConditions": "Whether play tips into an immediate genuine chance-creation window (an exclusion boundary toward the neighbouring context); the target zone has no goal.", "note": "An exclusion rule (boundary, RPC-VAL-013); not counted as satisfied." },
+        { "id": "RA-PROP-134-A-EXAMPLE", "requirementRef": { "table": "properties", "row": "RPC-PROP-134" }, "clause": "purposeful advancement rather than possession alone", "reading": "FOR_EXAMPLE", "category": "Explicitly represented in the finished activity.", "standard": "Structural validity", "paths": ["scoring.event", "scoring.means"], "observableConditions": null, "note": "Advancement to the advanced target zone is what scores; possession alone scores nothing. Whether the advancement is 'purposeful' is not checked by the configuration." },
+        { "id": "RA-PROP-134-B-EXAMPLE", "requirementRef": { "table": "properties", "row": "RPC-PROP-134" }, "clause": "from the attack's starting condition", "reading": "FOR_EXAMPLE", "category": "Unsupported or missing.", "standard": "Learning-design relevance", "paths": ["scoring.startingCondition"], "observableConditions": null, "note": "UNRESOLVED: its role in scoring or configuration has no authorized value; it plays no role in this example's game." },
+        { "id": "RA-PROP-134-C-EXAMPLE", "requirementRef": { "table": "properties", "row": "RPC-PROP-134" }, "clause": "reaching a more advanced representative area while maintaining attacking possession", "reading": "FOR_EXAMPLE", "category": "Explicitly represented in the finished activity.", "standard": "Structural validity", "paths": ["scoring.event", "scoring.means"], "observableConditions": null, "note": "Under this reading the clause is an example, not a requirement; the target zone and the controlled arrival are consistent with it." },
+        { "id": "RA-PROP-134-A-COLON", "requirementRef": { "table": "properties", "row": "RPC-PROP-134" }, "clause": "purposeful advancement rather than possession alone", "reading": "COLON", "category": "Explicitly represented in the finished activity.", "standard": "Structural validity", "paths": ["scoring.event", "scoring.means"], "observableConditions": null, "note": "As under the other reading." },
+        { "id": "RA-PROP-134-B-COLON", "requirementRef": { "table": "properties", "row": "RPC-PROP-134" }, "clause": "from the attack's starting condition", "reading": "COLON", "category": "Unsupported or missing.", "standard": "Learning-design relevance", "paths": ["scoring.startingCondition"], "observableConditions": null, "note": "UNRESOLVED, as under the other reading." },
+        { "id": "RA-PROP-134-C-COLON", "requirementRef": { "table": "properties", "row": "RPC-PROP-134" }, "clause": "reaching a more advanced representative area", "reading": "COLON", "category": "Explicitly represented in the finished activity.", "standard": "Structural validity", "paths": ["scoring.event", "endZones.placement"], "observableConditions": null, "note": "A required component under this reading; the advanced target zone is what scores." },
+        { "id": "RA-PROP-134-D-COLON", "requirementRef": { "table": "properties", "row": "RPC-PROP-134" }, "clause": "while maintaining attacking possession", "reading": "COLON", "category": "Unsupported or missing.", "standard": "Structural validity", "paths": ["scoring.means", "scoring.afterRegain"], "observableConditions": null, "note": "A required component under this reading only. Control at the moment of arrival is represented; whether possession must be maintained from the attack's starting condition is not, and points straight after a regain count. Whether maintaining possession is a requirement at all is his open question (5 November assessment)." }
+    ],
+    "suitability": {
+        "standing": "OURS: LOGICAL INFERENCE. Each entry cites the configuration paths and the knowledge rows it rests on; code only joins and prints. No verdict. A structural presence is not evidence that an affordance emerges (his D6), and nothing here is field evidence.",
+        "properties": [
+            { "property": "meaningful opposition", "structural": { "status": "EXPRESSED_BY_CONFIGURATION", "paths": ["teams.count", "opposition.reciprocal", "play.continuous"], "rows": ["RPC-VAL-014", "GA-001-OIC-03"] }, "functional": { "status": "ONLY_VERIFIABLE_IN_PLAY" }, "note": "Two opposing teams with reciprocal objectives and continuous play are present by configuration; whether defenders can functionally influence attacking opportunities (his 5 November wording) can be seen only in play." },
+            { "property": "direction", "structural": { "status": "EXPRESSED_BY_CONFIGURATION", "paths": ["directions", "endZones.placement"], "rows": ["RPC-VAL-014"] }, "functional": { "status": "ONLY_VERIFIABLE_IN_PLAY" }, "note": "Each team attacks a fixed target zone at one end." },
+            { "property": "information", "structural": { "status": "EXPRESSED_BY_CONFIGURATION", "paths": ["teams.count", "opposition.reciprocal", "play.continuous", "endZones.access"], "rows": ["RPC-PROP-038", "RPC-PROP-039", "RPC-PROP-040", "RPC-PROP-041"] }, "functional": { "status": "ONLY_VERIFIABLE_IN_PLAY" }, "note": "Live opposition in one shared area keeps defensive organization, teammate positioning and emerging space as information; whether that information is representative can be seen only in play." },
+            { "property": "consequences", "structural": { "status": "EXPRESSED_BY_CONFIGURATION", "paths": ["scoring.event", "scoring.afterRegain", "play.continuous", "restart.afterPoint.method"], "rows": ["RPC-VAL-014"] }, "functional": { "status": "ONLY_VERIFIABLE_IN_PLAY" }, "note": "Points, turnovers that keep play live, and immediate attacks after a regain are consequences present by configuration." },
+            { "property": "adaptive player roles", "structural": { "status": "EXPRESSED_BY_CONFIGURATION", "paths": ["play.continuous", "directions"], "rows": ["GA-001-OIC-05"] }, "functional": { "status": "ONLY_VERIFIABLE_IN_PLAY" }, "note": "Attacking and defending roles change with possession while target assignments stay fixed; whether players adapt can be seen only in play." },
+            { "property": "multiple functional solutions", "structural": { "status": "EXPRESSED_BY_CONFIGURATION", "paths": ["laws.default", "endZones.access", "scoring.means"], "rows": ["RPC-ID-014"] }, "functional": { "status": "ONLY_VERIFIABLE_IN_PLAY" }, "note": "No rule removes a legal option and the event can be reached by a dribble or by receiving and controlling the ball in the zone; whether several solutions are functional can be seen only in play." }
+        ],
+        "scale": { "status": "UNVERIFIED", "statement": "UNVERIFIED for every scale; 6 v 6 is not preferred over larger formats.", "openDecision": "K1" },
+        "exposure": [
+            { "aspect": "exposure frequency", "status": "MISSING_KNOWLEDGE" },
+            { "aspect": "distribution", "status": "MISSING_KNOWLEDGE" },
+            { "aspect": "challenge", "status": "MISSING_KNOWLEDGE" }
+        ],
+        "identityPoint": { "statement": "With nothing added, the same build on the same Game Form and context would serve Secure Possession (TA02), which routes to the same context: the activity's identity rests on the Game Problem translation and the coach's purpose, not on the environment.", "rows": ["RPC-VAL-011", "RPC-VAL-013"] },
+        "addNothing": { "status": "UNVERIFIED", "statement": "Adding nothing is not shown to be knowledge-supported (K2 open), so suitability remains unverified.", "rulingRef": "ASM-REV1-ADD-NOTHING" }
+    },
+    "scenarios": {
+        "standing": "TEST ASSUMPTION: his three sentences, verbatim, as hypothetical circumstances about the CONFIGURED activity. Any field value read off his words is OURS: LOGICAL INFERENCE; fields his sentence does not state stay NOT_SUPPLIED. The scenarios test the reasoning, not the activity in play.",
+        "rulingRef": "ASM-AUTH-SCENARIOS",
+        "circumstances": [
+            { "key": "organizedOppositionRestrictsUsableSpace", "label": "organized opposition restricts usable attacking space in the configured activity" },
+            { "key": "usefulSpaceAlreadyAvailable", "label": "useful space is already available in the configured activity" },
+            { "key": "informationSufficient", "label": "information about defensive organization and available opportunities is sufficient" }
+        ],
+        "decidingCircumstances": ["usefulSpaceAlreadyAvailable"],
+        "insufficientWhen": [{ "key": "informationSufficient", "value": false }],
+        "requirementLink": {
+            "requirementId": "REQ-E1-CONTEXT-SENSITIVE-RESOLUTION",
+            "circumstanceKey": "usefulSpaceAlreadyAvailable",
+            "engagesWhen": true,
+            "rulingRefs": ["ASM-NOV3-REQ-E1", "ASM-EVE-MISMATCH", "ASM-REV1-GP-SCOPE"],
+            "report": "possible mismatch reported for review; primary unchanged"
+        },
+        "uncertaintyReport": "uncertainty reported: the relevant circumstances are unknown",
+        "widthCheck": { "configuredArea": { "lengthM": 40, "widthM": 30 }, "availableSpace": { "lengthM": 40, "widthM": 30 }, "playersPerTeam": [6, 6], "standing": "TEST INPUT", "note": "The configured area equals the available space, the team sizes equal the illustrative assembly's, and the width comparison's own circumstances (about a proposed larger area) are not supplied, so no proposal can be made." },
+        "items": [
+            {
+                "id": "E1",
+                "words": "Organized opposition meaningfully restricts usable attacking space.",
+                "configuredActivity": {
+                    "organizedOppositionRestrictsUsableSpace": { "value": true, "label": "OURS: LOGICAL INFERENCE (read off his sentence)" },
+                    "usefulSpaceAlreadyAvailable": { "value": false, "label": "OURS: LOGICAL INFERENCE ('meaningfully restricts usable attacking space' read as useful space not already available)" },
+                    "informationSufficient": { "value": "NOT_SUPPLIED", "label": "not stated by his sentence" }
+                },
+                "expected": { "mismatchReported": false, "uncertaintyReported": false }
+            },
+            {
+                "id": "E2",
+                "words": "Sufficient usable space already exists, making exploitation potentially more immediate than creation.",
+                "configuredActivity": {
+                    "organizedOppositionRestrictsUsableSpace": { "value": "NOT_SUPPLIED", "label": "not stated by his sentence" },
+                    "usefulSpaceAlreadyAvailable": { "value": true, "label": "OURS: LOGICAL INFERENCE (read off his sentence)" },
+                    "informationSufficient": { "value": "NOT_SUPPLIED", "label": "not stated by his sentence" }
+                },
+                "expected": { "mismatchReported": true, "uncertaintyReported": false }
+            },
+            {
+                "id": "E3",
+                "words": "Information about defensive organization and available opportunities is insufficient.",
+                "configuredActivity": {
+                    "organizedOppositionRestrictsUsableSpace": { "value": "NOT_SUPPLIED", "label": "not stated by his sentence" },
+                    "usefulSpaceAlreadyAvailable": { "value": "NOT_SUPPLIED", "label": "not stated by his sentence" },
+                    "informationSufficient": { "value": false, "label": "OURS: LOGICAL INFERENCE (read off his sentence)" }
+                },
+                "expected": { "mismatchReported": false, "uncertaintyReported": true }
+            }
+        ]
+    },
+    "reconciliations": [
+        {
+            "id": "8.1",
+            "title": "A05 Game Problem translation: the smallest authoritative decision",
+            "rulingRefs": ["ASM-AUTH-GP-SCOPE", "ASM-REV1-GP-SCOPE"],
+            "items": [
+                "Candidate (a), for his decision: a scoped ruling recorded in review-pathway data only: Create Space primary, Exploit Space secondary within progressing against organized opposition; where useful space already exists, a possible mismatch is reported for review, with no switch.",
+                "Candidate (b), for his decision: anchor that scope to the context's own approved begin conditions (RPC-PROP-034, RPC-ID-011) together with his 31 October working definition of an organized defence (ASM-31OCT-ORGANIZED).",
+                "Candidate (c), for his decision: the Session Planning Model's Engine Translation for A05 stays TBD until production; populating it would change A05's live candidates.",
+                "None of these is decided here (OURS: our proposals)."
+            ]
+        },
+        {
+            "id": "8.2",
+            "title": "Attack Development scoring source",
+            "rulingRefs": ["ASM-AUTH-STARTING-CONDITION", "ASM-REV1-SOURCE-FIDELITY", "ASM-13SEP-SCORING"],
+            "showPaths": ["scoring.qualifyingCondition.sep13Text", "scoring.qualifyingCondition.workbookText", "scoring.startingCondition"],
+            "items": [
+                "The two texts are printed side by side below: his 13 September text (our copy as pasted by Joe; original not yet checked) has 'for example' before its final clause; the workbook entry has a colon.",
+                "The starting-condition clause stays UNRESOLVED in the scoring section and the trace, never in the observation guidance.",
+                "Disclosure: our own earlier draft Attack Development requirement list (the RPC-003 draft contract and draft requirement bindings, test-only, OURS) reads the clause after the colon as a definition with required components; it is not used by this experiment."
+            ]
+        },
+        {
+            "id": "8.3",
+            "title": "Composite Runtime Specification",
+            "rulingRefs": ["ASM-AUTH-COMPOSITE"],
+            "items": [
+                "The proposed section 7 and section 9 clarification stays draft wording, unchanged; the CAR Matrix is unchanged.",
+                "The Game Problem Canonical Register and the Reasoning Engine Specification RC1 v2 are missing and are not reconstructed.",
+                "The Stage 1/2 composite profile (primary-led effective profile; union view; the secondary's stronger rating kept as a finding) is what this experiment shows."
+            ]
+        }
+    ],
+    "openDecisions": [
+        { "id": "AOD-STARTING-CONDITION", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "What role should 'from the attack's starting condition' play in scoring or configuration?", "rulingRefs": ["ASM-AUTH-STARTING-CONDITION", "ASM-30OCT-EVE-UNRESOLVED"], "handling": "Shown as UNRESOLVED in Scoring and the trace; it plays no role in the example's game." },
+        { "id": "AOD-PROP-134-MEANING", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "What does the approved qualifying condition mean (the 'for example' reading or the colon reading), and is maintaining possession a requirement?", "rulingRefs": ["ASM-REV1-SOURCE-FIDELITY", "ASM-13SEP-SCORING"], "handling": "Both texts shown; both readings accounted for; no canonical amendment." },
+        { "id": "AOD-TRANSLATION-SCOPE", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "What is the production scope of the A05 Game Problem translation (section 8.1)?", "rulingRefs": ["ASM-AUTH-GP-SCOPE"], "handling": "The experiment uses the scoped designation; candidates (a)-(c) are offered." },
+        { "id": "AOD-K2-SUFFICIENCY", "blocks": "SUITABILITY", "question": "On what knowledge basis could adding nothing to the Game Form be shown sufficient (K2)?", "rulingRefs": ["ASM-REV1-ADD-NOTHING"], "handling": "Suitability is reported UNVERIFIED." },
+        { "id": "AOD-CREATE-SPACE-RELATIONSHIP", "blocks": "SUITABILITY", "question": "Which approved environmental relationship would support Create Space in Attack Development?", "rulingRefs": ["ASM-REV1-ADD-NOTHING"], "handling": "None is approved; no element-to-affordance relationship is created." },
+        { "id": "AOD-T3-END-LINE", "blocks": "NON_BLOCKING", "question": "May the illustrative end-line restart stand in this offline example (a departure the Laws do not supply)?", "rulingRefs": ["ASM-AUTH-ILLUSTRATIVE", "ASM-23OCT-LAWS"], "handling": "Labelled ILLUSTRATIVE, marked in the coach text; confirmation asked." },
+        { "id": "AOD-PROVISIONAL-CLASS", "blocks": "NON_BLOCKING", "question": "We placed your provisional rulings in class 3 ('Candidate or provisional knowledge.'). Did you intend class 2?", "rulingRefs": [], "handling": "Class 3 printed, with your words and received date." },
+        { "id": "AOD-COACH-QUESTION", "blocks": "NON_BLOCKING", "question": "May your question for future coach feedback appear in an activity's coach guidance?", "rulingRefs": ["ASM-AUTH-COACH-QUESTION"], "handling": "Kept out of the coach text." },
+        { "id": "AOD-REQ-E1-REUSE", "blocks": "NON_BLOCKING", "question": "Does implementing the context-sensitive resolution requirement as a reusable step, beyond this offline experiment, need separate authorization?", "rulingRefs": ["ASM-EVE-MISMATCH"], "handling": "Reported here, data-driven, in the experiment only." },
+        { "id": "AOD-KICKOFF-DISTANCE", "blocks": "NON_BLOCKING", "question": "Optionally: should the kick-off keep the Laws' 9.15 m distance, or may it be relaxed ('adapted', as your 29 October words allowed)?", "rulingRefs": ["ASM-REV1-KICKOFF"], "handling": "Our reading: the Laws kick-off unchanged." }
+    ],
+    "reconciliation": {
+        "rulingRef": "ASM-AUTH-RECONCILE",
+        "assessmentItems": [
+            { "item": "1. Representative scale", "carriedBy": "Part 3: scale UNVERIFIED for every scale; 6 v 6 not preferred; K1 open." },
+            { "item": "2. Exposure efficiency", "carriedBy": "Part 3: exposure frequency, distribution and challenge MISSING_KNOWLEDGE." },
+            { "item": "3. Basic configuration", "carriedBy": "Parts 1 and 2: every value with how it reached the activity and its class." },
+            { "item": "4. Environmental alternatives", "carriedBy": "Part 3: GF2, GF3 and GF7 compatible, unranked; Part 1: no adjustments offered (K3 open)." },
+            { "item": "5. Coach observations", "carriedBy": "Part 1 (What to Watch) and Part 2: his three categories, evaluation only." },
+            { "item": "6. Knowledge gaps", "carriedBy": "Front and the open decisions: K1, K2 and K3 still unanswered; K4 is the starting-condition question." },
+            { "item": "7. Implementation boundary", "carriedBy": "Part 6: the architectural dependencies, none changed." },
+            { "item": "8. The Attack Development scoring row", "carriedBy": "Part 6 (section 8.2, the two texts side by side) and Part 2 (the requirement account, both readings)." },
+            { "item": "9. What we recorded", "carriedBy": "Part 7." }
+        ],
+        "reuse": [
+            { "work": "Stage 1/2 code (resolution, Game Form step, structural conditions, width comparison, influence trace)", "status": "REUSED", "why": "Called unchanged; the standing model gained two appended standings and fails closed on them; structural wording switches only for an assembled activity." },
+            { "work": "Our 5 November hand-written A05 activity (the proposal's sections 3-4)", "status": "CONTENT MODEL ONLY, CORRECTED", "why": "Corrections applied before use: no unauthorized Laws departures (the end-line restart with opponents out of the end zone, free kicks moved to an end zone's edge, the kick-off without 9.15 m); teams named by identity, not 'the defending team'; the width adjustment (test-only) and the length adjustment (our causal hypothesis) removed; the starting-condition claim withdrawn." },
+            { "work": "Our 5 November A05 assessment, items 1-5 and 8", "status": "CARRIED", "why": "Mapped above to the parts that now carry them." },
+            { "work": "The 28 October A05 composition (checked pathway, test-only stand-ins)", "status": "NOT REUSED", "why": "It scores on a line (he favours an end zone), removes the starting condition through a test-only origin stand-in, rests on our colon-reading draft contract and bindings, and reports the Game Problem as UNRESOLVED." },
+            { "work": "The DRAFT coach-wording store (keyed by register vocabulary)", "status": "PATTERN REUSED, CONTENT NOT", "why": "Wording keyed by configuration path at the Game Form level, never by a goal; its A01 sentences are not reused." },
+            { "work": "The Stage 2 width fixture", "status": "NOT USED FOR THE ASSEMBLY", "why": "Its circumstances describe a proposed larger area and its first scenario offers a test-only proposal; the width comparison is called with the configured area as the limit and its circumstances not supplied." }
+        ],
+        "stillOpen": ["K1 (what organized opposition requires)", "K2 (a reusable basis for a provisional starting point)", "K3 (which relationship to adjust first)", "whether maintaining possession is a requirement of the scoring row"]
+    },
+    "dependencies": [
+        { "id": "DEP-1", "what": "Approved-wording gate in the checked pathway", "options": "stop at communication (admin review draft only); a DRAFT-graded wording channel (a live-module change); text produced outside the renderer (this experiment, with its own faithfulness test)." },
+        { "id": "DEP-2", "what": "Game Problem authority type in the checked pathway (one Game Problem, APPROVED or UNRESOLVED)", "options": "the Game Problems come from the review pathway; the checked account stays UNRESOLVED." },
+        { "id": "DEP-3", "what": "Episode scope (only the build-out episode is evaluable)", "options": "the starting condition is shown UNRESOLVED; no phase build." },
+        { "id": "DEP-4", "what": "A role-less target-zone set-up sentence in the renderer (unverified on this head)", "options": "the line target (conflicts with his end-zone ruling), a renderer change (live), or this experiment's text." },
+        { "id": "DEP-5", "what": "No GF3 or GF7 contracts", "options": "list them as alternatives only." },
+        { "id": "DEP-6", "what": "The RC3 diagram is drawn only from a realized game in the checked pathway", "options": "no diagram in this experiment; the dependency is reported." },
+        { "id": "DEP-7", "what": "The missing configuration step itself (Steps 3-5 held)", "options": "a labelled decision record, as here; or his authorization of a configuration step." }
+    ],
+    "secondGoalNeeds": [
+        "A labelled decision record like this one: every configuration value with its standing, how it reached the activity, and his words where they state it.",
+        "A Game Problem basis the resolution can read (an approved translation, or a scoped ruling of his).",
+        "His scoring rulings for the goal's context, or the values left ILLUSTRATIVE or UNRESOLVED.",
+        "The requirement account for the goal's context, the suitability entries and any scenarios, as data.",
+        "Coach wording only where its Game Form or scoring event differs from GF2 with target_zone_entered: the wording here is keyed by path at the Game Form level, so a second goal on GF2 with the same event reuses it unchanged."
+    ]
+}

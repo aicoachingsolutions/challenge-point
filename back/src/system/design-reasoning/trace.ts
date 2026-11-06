@@ -45,13 +45,34 @@ export interface Conclusion {
     trace: InfluenceTrace
 }
 
-/** Standings from strongest to weakest, as the report ranks what decided a conclusion. REFERENCE ONLY never decides anything. */
-const STANDING_ORDER: Standing[] = ['APPROVED', 'RULING', 'PROVISIONAL', 'CANDIDATE', 'OURS', 'REFERENCE ONLY', 'TEST ASSUMPTION', 'TEST INPUT']
+/**
+ * Standings from strongest to weakest, as the report ranks what decided a conclusion. REFERENCE ONLY never decides anything. The assembly
+ * experiment's two standings (ILLUSTRATIVE, UNRESOLVED) are appended after TEST INPUT, so every earlier standing keeps its rank and Stage 2's
+ * output is unchanged. His six classes are not this order: they live with the assembly experiment, which ranks them in his own order.
+ */
+export const STANDING_ORDER = ['APPROVED', 'RULING', 'PROVISIONAL', 'CANDIDATE', 'OURS', 'REFERENCE ONLY', 'TEST ASSUMPTION', 'TEST INPUT', 'ILLUSTRATIVE', 'UNRESOLVED'] as const
+
+/** Compile-time exhaustiveness: a standing missing from the order is a type error here, never a silent rank. */
+type UnrankedStanding = Exclude<Standing, (typeof STANDING_ORDER)[number]>
+const EVERY_STANDING_RANKED: [UnrankedStanding] extends [never] ? true : never = true
+
+/** Each standing's rank (0 strongest), built from the order; an exhaustive record over the type. */
+export const STANDING_RANK: Record<Standing, number> = EVERY_STANDING_RANKED && (Object.fromEntries(STANDING_ORDER.map((s, i) => [s, i])) as Record<Standing, number>)
+
+/** A standing's rank; a value outside the type (a typo read from a data file) throws rather than ranking as strongest or weakest. */
+export function standingRank(standing: string): number {
+    const rank = (STANDING_RANK as Record<string, number>)[standing]
+    if (typeof rank !== 'number') throw new Error(`unknown standing "${standing}"`)
+    return rank
+}
 
 /** The weakest standing among the items that decided a conclusion; null when nothing is recorded as deciding it. */
 export function weakestStanding(t: InfluenceTrace): Standing | null {
     let weakest: Standing | null = null
-    for (const i of t.influencedBy) if (weakest === null || STANDING_ORDER.indexOf(i.standing) > STANDING_ORDER.indexOf(weakest)) weakest = i.standing
+    for (const i of t.influencedBy) {
+        const rank = standingRank(i.standing)
+        if (weakest === null || rank > standingRank(weakest)) weakest = i.standing
+    }
     return weakest
 }
 
@@ -78,7 +99,15 @@ export const CONCLUSION_GROUP_NOTES: Record<ConclusionGroup, string> = {
     'INSUFFICIENT EVIDENCE': 'Where a condition cannot be evaluated, or nothing approved decides.',
 }
 
+/**
+ * The group a Stage 2 conclusion is printed under. Fail closed for the assembly experiment's standings: an ILLUSTRATIVE or UNRESOLVED item
+ * anywhere among what decided a conclusion throws (Stage 2 never meets one; the assembly prints his six classes instead), and the last group
+ * is reached only by a positive match on RULING or APPROVED, never by falling through.
+ */
 export function conclusionGroup(c: Conclusion): ConclusionGroup {
+    for (const i of c.trace.influencedBy) {
+        if (i.standing === 'ILLUSTRATIVE' || i.standing === 'UNRESOLVED') throw new Error(`conclusion "${c.id}" rests on a ${i.standing} item (${i.ref}); the Stage 2 groups do not hold it`)
+    }
     if (c.establishedBy === 'INSUFFICIENT EVIDENCE') return 'INSUFFICIENT EVIDENCE'
     if (c.establishedBy === 'TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS') return 'DEMONSTRATED ONLY UNDER TEST-ONLY HYPOTHESES'
     const weakest = weakestStanding(c.trace)
@@ -86,7 +115,8 @@ export function conclusionGroup(c: Conclusion): ConclusionGroup {
     if (weakest === null || weakest === 'OURS' || weakest === 'REFERENCE ONLY' || c.establishedBy === 'LOGICAL INFERENCE') return 'RESTS ON OUR INFERENCE (NO TEST INPUT)'
     if (weakest === 'CANDIDATE' || weakest === 'PROVISIONAL') return 'RESTS ON CANDIDATE DATA'
     if (c.establishedBy === 'APPROVED KNOWLEDGE' && weakest === 'APPROVED') return 'ESTABLISHED THROUGH APPROVED KNOWLEDGE'
-    return 'ESTABLISHED BY HIS RULINGS'
+    if (weakest === 'RULING' || weakest === 'APPROVED') return 'ESTABLISHED BY HIS RULINGS'
+    throw new Error(`conclusion "${c.id}": no group holds its weakest decisive standing ${weakest}`)
 }
 
 export const emptyTrace = (): InfluenceTrace => ({ influencedBy: [], consulted: [], citedOnly: [] })

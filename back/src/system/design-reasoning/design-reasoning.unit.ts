@@ -264,9 +264,14 @@ function testTheStageReachesNoKeywordParserOrTokenScorer(): void {
     ]
     for (const f of forbidden) assert.ok(!closure.includes(f), `the stage reaches ${f}`)
     // Everything it does reach is a knowledge file or a loader that reads only its own knowledge file.
+    // ASSEMBLY EXPERIMENT AMENDMENT (his second reply of 5 November 2026): the three new stage files join the closure; they import only
+    // files already in it (and their own two JSON files), so the closure still reaches no loader beyond the two listed below.
     assert.deepEqual(
         closure.filter((f) => f.endsWith('.ts')),
         [
+            'system/design-reasoning/assembly-display.ts',
+            'system/design-reasoning/assembly-review.ts',
+            'system/design-reasoning/assembly.ts',
             'system/design-reasoning/forms.ts',
             'system/design-reasoning/knowledge.ts',
             'system/design-reasoning/resolve.ts',
@@ -292,10 +297,19 @@ function testTheStageReachesNoKeywordParserOrTokenScorer(): void {
 /** No narrative column is read by the stage; only the demo runner reads a goal's display name, after the decisions are made. */
 function testTheStageReadsNoNarrativeColumn(): void {
     const narrative = ['Learning Goal', 'Coach Definition', 'Choose This When...', 'Coach Phrase', 'Practice Situation', 'Notes', 'notes', 'provenance', 'RPC Name', 'rpc_name', 'statement_text', 'identity_statement', 'property_text', 'Knowledge_Statement', 'Rationale', 'Name', 'canonical_name', 'game_form_name', 'coach_vocabulary', 'objective', 'role_structure', 'representative_requirements', 'setup_guidance', 'known_limitations', 'typical_affordances']
-    for (const f of STAGE_FILES) {
+    // ASSEMBLY EXPERIMENT AMENDMENT: the experiment's display reader is the one stage file that reads display cells, after the decisions,
+    // for the coach text and the report. It is exempt from this ban only for its own allowlist, pinned exactly below, and only the runners
+    // and the unit tests may import it, so no decision can read what it reads (the ban's intent).
+    const DISPLAY_READER = path.join(HERE, 'assembly-display.ts')
+    for (const f of STAGE_FILES.filter((x) => x !== DISPLAY_READER)) {
         const code = stripComments(fs.readFileSync(f, 'utf8'))
         for (const column of narrative) assert.ok(!code.includes(`'${column}'`) && !code.includes(`"${column}"`), `${path.basename(f)} reads the narrative column ${column}`)
     }
+    const readerCode = stripComments(fs.readFileSync(DISPLAY_READER, 'utf8'))
+    assert.deepEqual(narrative.filter((column) => readerCode.includes(`'${column}'`) || readerCode.includes(`"${column}"`)).sort(), ['Coach Definition', 'Learning Goal', 'Name', 'game_form_name', 'property_text'], 'the display reader reads exactly its allowlisted narrative columns')
+    const importers = fs.readdirSync(HERE).filter((f) => f.endsWith('.ts') && f !== 'assembly-display.ts' && /from\s+'\.\/assembly-display'/.test(fs.readFileSync(path.join(HERE, f), 'utf8')))
+    assert.ok(importers.length > 0 && importers.every((f) => f.startsWith('run-') || f.endsWith('.unit.ts')), `only runners and unit tests import the display reader: ${importers.join(', ')}`)
+    assert.ok(listTs(SRC).filter((f) => !f.startsWith(HERE + path.sep)).every((f) => !/assembly-display/.test(fs.readFileSync(f, 'utf8'))), 'nothing outside the folder names the display reader')
     for (const runner of RUNNERS) assert.ok(fs.readFileSync(runner, 'utf8').includes(`'Learning Goal'`), `${path.basename(runner)} is where the display name is read`)
     for (const f of STAGE_FILES) for (const runner of RUNNERS) assert.ok(!fs.readFileSync(f, 'utf8').includes(path.basename(runner, '.ts')), `${path.basename(f)} imports ${path.basename(runner)}`)
 }

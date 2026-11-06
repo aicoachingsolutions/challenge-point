@@ -53,6 +53,9 @@ export const SOURCE = {
     stage2Rulings: 'back/src/system/design-reasoning/stage2-rulings.json',
     conditionsOfUse: 'back/src/system/design-reasoning/conditions-of-use.stage2.json',
     fixture: 'back/src/system/design-reasoning/width-scenarios.test-fixture.json',
+    /** The bounded assembly experiment (his second reply of 5 November 2026): our labelled decision record, and our DRAFT coach wording. */
+    assemblyExperiment: 'back/src/system/design-reasoning/assembly-experiment.review.json',
+    assemblyWording: 'back/src/system/design-reasoning/assembly-wording.draft.json',
 } as const
 
 export interface ScopedTranslation {
@@ -103,8 +106,18 @@ export interface Stage1Rulings {
 /**
  * The standing a source carries. TEST ASSUMPTION and TEST INPUT mark the fixture's values. PROVISIONAL marks his words given as an
  * illustrative example, not as a ruling (it appears among an entry's sources, never in an influence trace).
+ *
+ * ASSEMBLY EXPERIMENT (his second reply of 5 November 2026, which allows "an illustrative value ... for this offline prototype if clearly
+ * labeled"). Two standings are appended at the end, so every earlier member keeps its place: ILLUSTRATIVE (a configuration value chosen for
+ * the offline prototype and labelled as such) and UNRESOLVED (no authorized value exists). The list is the single source of the type, so a
+ * standing read from a data file can be checked against it at run time; Stage 2 never meets the two new members, and the trace's grouping
+ * refuses them (fail closed).
  */
-export type Standing = 'APPROVED' | 'RULING' | 'PROVISIONAL' | 'CANDIDATE' | 'REFERENCE ONLY' | 'OURS' | 'TEST ASSUMPTION' | 'TEST INPUT'
+export const STANDINGS = ['APPROVED', 'RULING', 'PROVISIONAL', 'CANDIDATE', 'REFERENCE ONLY', 'OURS', 'TEST ASSUMPTION', 'TEST INPUT', 'ILLUSTRATIVE', 'UNRESOLVED'] as const
+export type Standing = (typeof STANDINGS)[number]
+
+/** Whether a value read from a data file is one of the standings (exact string; no trimming, no case-folding). */
+export const isStanding = (value: unknown): value is Standing => typeof value === 'string' && (STANDINGS as readonly string[]).indexOf(value) >= 0
 
 export interface Ruling {
     id: string
@@ -118,6 +131,12 @@ export interface Ruling {
     canonicalAmendment: boolean
     words: string[]
     supersedes?: string[]
+    /** Assembly experiment: the US Eastern date his reply was received (never one of our filing dates). */
+    received?: string
+    /** Assembly experiment: a repository-independent reference to the reply (the sources-repository path, or the received date and first words). */
+    file?: string
+    /** Assembly experiment: true where his own words call the decision provisional. */
+    provisional?: boolean
 }
 
 export interface ReferenceCitation {
@@ -284,7 +303,7 @@ export interface ConditionsOfUse {
 /** Every workbook the stage reads, whole. A test passes a changed deep copy; nothing else does. */
 export interface DesignKnowledge {
     planning: { learning_goals: Row[]; engine_translation: Row[]; rpc_routing: Row[] } & Row
-    contexts: { registry: Row[]; relationships: Row[]; controlled_vocabulary: Row[]; identity_rules: Row[]; properties: Row[] } & Row
+    contexts: { registry: Row[]; relationships: Row[]; controlled_vocabulary: Row[]; identity_rules: Row[]; properties: Row[]; validation_rules: Row[] } & Row
     car: { metadata: Row; ratings: Row[] } & Row
     gameProblems: { gameProblems: Row[]; relationships: Row[] } & Row
     archetypes: { knowledge: Row[] } & Row
@@ -546,6 +565,22 @@ export function contextProperty(
 /** Stage 2: whether a value is in one of the context library's controlled vocabularies (vocabulary and value columns only). */
 export function contextVocabularyHas(k: DesignKnowledge, vocabulary: string, value: string): boolean {
     return k.contexts.controlled_vocabulary.some((r) => cell(r, 'vocabulary') === vocabulary && cell(r, 'value') === value)
+}
+
+/** Assembly experiment: a context's identity rules, by id: their role and status (never their text). */
+export function contextIdentityRules(k: DesignKnowledge, rpcId: string): Array<{ identityRuleId: string; rpcId: string; role: string; status: string; cite: Cite }> {
+    return (k.contexts.identity_rules ?? [])
+        .filter((r) => cell(r, 'rpc_id') === rpcId)
+        .map((r) => ({ identityRuleId: cell(r, 'identity_rule_id'), rpcId, role: cell(r, 'identity_role'), status: cell(r, 'status'), cite: { file: SOURCE.contexts, table: 'identity_rules', row: cell(r, 'identity_rule_id') } }))
+        .sort((a, b) => a.identityRuleId.localeCompare(b.identityRuleId, 'en', { numeric: true }))
+}
+
+/** Assembly experiment: a context's validation rules, by id: their domain, runtime stage and status (never their text). */
+export function contextValidationRules(k: DesignKnowledge, rpcId: string): Array<{ validationId: string; rpcId: string; domain: string; stage: string; status: string; cite: Cite }> {
+    return (k.contexts.validation_rules ?? [])
+        .filter((r) => cell(r, 'rpc_id') === rpcId)
+        .map((r) => ({ validationId: cell(r, 'validation_id'), rpcId, domain: cell(r, 'validation_domain'), stage: cell(r, 'runtime_stage'), status: cell(r, 'status'), cite: { file: SOURCE.contexts, table: 'validation_rules', row: cell(r, 'validation_id') } }))
+        .sort((a, b) => a.validationId.localeCompare(b.validationId, 'en', { numeric: true }))
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------

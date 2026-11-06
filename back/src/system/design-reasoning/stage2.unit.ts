@@ -590,7 +590,8 @@ function testConclusionGroupsKeepStandingsApart(): void {
             assert.ok(standings.every((s) => s === 'APPROVED'), `${label}: ${standings.join(', ')}`)
         }
         if (established.includes(group)) {
-            assert.ok(!standings.some((s) => ['OURS', 'CANDIDATE', 'PROVISIONAL', 'REFERENCE ONLY', 'TEST ASSUMPTION', 'TEST INPUT'].includes(s)), `${label} in ${group}: ${standings.join(', ')}`)
+            // Every standing but APPROVED and RULING (the assembly experiment's two, appended to the type, included: the list stays exhaustive).
+            assert.ok(!standings.some((s) => ['OURS', 'CANDIDATE', 'PROVISIONAL', 'REFERENCE ONLY', 'TEST ASSUMPTION', 'TEST INPUT', 'ILLUSTRATIVE', 'UNRESOLVED'].includes(s)), `${label} in ${group}: ${standings.join(', ')}`)
             assert.notEqual(c.establishedBy, 'LOGICAL INFERENCE', label)
             assert.ok(!c.testOnly, label)
             assert.ok(!c.statement.includes('UNRESOLVED'), `${label}: an unresolved status is never established`)
