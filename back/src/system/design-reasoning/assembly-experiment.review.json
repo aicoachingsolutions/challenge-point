@@ -11,9 +11,9 @@
     "gameProblemScope": {
         "primaryGameProblemIds": ["GP-001"],
         "secondaryGameProblemIds": ["GP-002"],
-        "rulingRefs": ["ASM-AUTH-GP-SCOPE", "ASM-REV1-GP-SCOPE"],
-        "idResolution": "OURS: Christian's 5 November words name the Game Problems (Create Space, Exploit Space); the ids are the ones Christian's 3 November words name beside the same names, and the ones the Stage 1/2 resolution returns. The assembly fails closed if the resolution's ids differ, or if the names of the ids it returns are not in Christian's scope words.",
-        "note": "The Game Problems are decided by the Stage 1/2 computation, whose trace stays the decisive record: Christian's scoped ruling filed as RUL-E1-A05 for the Stage 1 demonstration (scope STAGE1_DEVELOPMENT_DEMONSTRATION), continued by D1-4NOV, read because the planning model's Engine Translation for this goal is unpopulated. Christian's 5 November words set the scope this experiment uses (printed as scope set by, never decisive); they are not filed as a second scoped translation."
+        "rulingRefs": ["ASM-AUTH-GP-SCOPE", "ASM-REV1-GP-SCOPE", "ASM-06NOV-OPTION-A"],
+        "idResolution": "OURS: Christian's words of 5 November (second reply) and 6 November name the Game Problems (Create Space, Exploit Space); the ids are the ones Christian's 3 November words name beside the same names, and the ones the Stage 1/2 resolution returns. The assembly fails closed if the resolution's ids differ, or if the names of the ids it returns are not in Christian's scope words.",
+        "note": "The Game Problems are decided by the Stage 1/2 computation, whose trace stays the decisive record: Christian's scoped ruling filed as RUL-E1-A05 for the Stage 1 demonstration (scope STAGE1_DEVELOPMENT_DEMONSTRATION), continued by D1-4NOV, read because the planning model's Engine Translation for this goal is unpopulated. Christian's words of 5 November (second reply) and Christian's approval of option (a) for the isolated review pathway only (reply of 6 November, section 3) set the scope this experiment uses (printed as scope set by, never decisive); they are not filed as a second scoped translation. stage1-rulings.json still carries the 3 November qualifier and the Stage 1 demonstration scope, deliberately unedited, so the Stage 1 and Stage 2 evidence and the Stage 2 hold stay as they are."
     },
     "reportRefs": {
         "experimentPurpose": { "rulingRef": "ASM-AUTH-PURPOSE", "quote": "The purpose is to determine whether the existing knowledge-grounded architecture can generate one complete, coherent, coach-readable activity while accurately preserving the authority and limitations of every design decision." },
@@ -23,7 +23,9 @@
         "futureFeedbackQuestion": { "rulingRef": "ASM-AUTH-COACH-QUESTION", "quote": "Are players becoming more capable of finding functional solutions as the game changes?" },
         "lawsPrinciple": { "rulingRef": "ASM-23OCT-LAWS", "quote": "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification." },
         "diagram": { "rulingRef": "ASM-21OCT-PRESENTATION", "quote": "The immediate understanding of the activity: learning purpose, one-sentence game description, basic parameters, essential scoring objectives, and a simple diagram." },
-        "sixClasses": { "rulingRef": "ASM-AUTH-CLASSES" }
+        "sixClasses": { "rulingRef": "ASM-AUTH-CLASSES" },
+        "diagnostic": { "rulingRef": "ASM-06NOV-DIAGNOSTIC" },
+        "provenanceRuling": { "rulingRef": "ASM-06NOV-PROVENANCE" }
     },
     "bindings": {
         "illustrativeForm": "gameForm.illustrativeChoice",
@@ -772,7 +774,7 @@
             "subject": "an interception followed by an immediate controlled arrival counts",
             "scope": "SCENARIO_1A",
             "scopeWords": ["Should Scenario 1A score?"],
-            "scopeCovers": "OURS: Christian's words answer one walk-through scenario; applying them to every regain is our generalization, supported by ASM-30OCT-EVE-ELIGIBLE.",
+            "scopeCovers": "OURS: Christian's words answer one walk-through scenario; the general statement is Christian's reply of 6 November, section 1 (ASM-06NOV-STARTING).",
             "kind": "RULING",
             "canonicalAmendment": false,
             "words": [
@@ -1005,6 +1007,257 @@
             "file": "recovered reply received 28 October 2026, beginning \"Thank you for the latest Secure Possession findings.\"; our filed copy christian-2026-10-31.txt, filed under the old filing date 31 October 2026 (received 28 October 2026, US Eastern)",
             "received": "2026-10-28",
             "provisional": false
+        },
+        {
+            "canonicalAmendment": false,
+            "id": "ASM-06NOV-DIAGNOSTIC",
+            "decision": "The assembly experiment accepted as a diagnostic exercise",
+            "subject": "a successful diagnostic exercise, not a successful demonstration of knowledge-authorized activity generation",
+            "scope": null,
+            "kind": "RULING",
+            "words": ["I accept the experiment as a successful diagnostic exercise, not as a successful demonstration of knowledge-authorized activity generation."],
+            "received": "2026-11-06",
+            "file": "christian-2026-11-06-assembly-review.txt (received 6 November 2026)",
+            "provisional": false
+        },
+        {
+            "canonicalAmendment": false,
+            "id": "ASM-06NOV-STARTING",
+            "decision": "Attack Development scoring: the starting condition (section 1)",
+            "subject": "the role of the starting condition kept unresolved; a legitimate scoring event kept apart from evidence that the problem was solved",
+            "scope": null,
+            "kind": "RULING",
+            "words": [
+                "Please retain the role of \"from the attack's starting condition\" as unresolved for now.",
+                "I want to preserve a distinction between two questions:",
+                "What constitutes a legitimate scoring event within the game?",
+                "What demonstrates that players have encountered and meaningfully addressed the intended Learning Goal or Game Problem?",
+                "A legitimate attack, including one immediately following a regain, should not automatically be denied a score because it occurred during transition rather than against organized opposition.",
+                "However, that score should not automatically count as evidence that players solved Create Space.",
+                "The approved Attack Development scoring condition still needs to be reconciled with these distinctions.",
+                "Please identify the smallest interpretation or knowledge decision required to resolve the condition without either restricting legitimate attacking opportunities unnecessarily or relocating an essential scoring requirement into coach observation.",
+                "I am not authorizing a change to the canonical scoring condition yet."
+            ],
+            "received": "2026-11-06",
+            "file": "christian-2026-11-06-assembly-review.txt (received 6 November 2026)",
+            "provisional": false
+        },
+        {
+            "canonicalAmendment": false,
+            "id": "ASM-06NOV-SOURCE",
+            "decision": "Scoring workbook: source fidelity (section 2)",
+            "subject": "the \"for example\" distinction to be brought back once the exact wording is verified; the possession clause not an independently approved requirement",
+            "scope": null,
+            "kind": "RULING",
+            "words": [
+                "The original September 13 approval, as quoted in your report, uses \"for example\" before the final scoring realization.",
+                "That indicates an illustrative example rather than an exclusive definition.",
+                "I support restoring that distinction.",
+                "However, please verify the exact wording against the original approved source before making the correction.",
+                "Once verified, I authorize the smallest correction needed to restore the original meaning, provided no other scoring semantics are changed.",
+                "Please retain the before-and-after text and provenance in the change record.",
+                "I would not treat \"maintaining attacking possession\" as an independently approved universal requirement solely because it appears within that example.",
+                "If another authoritative source establishes such a requirement, please identify it separately for review."
+            ],
+            "received": "2026-11-06",
+            "file": "christian-2026-11-06-assembly-review.txt (received 6 November 2026)",
+            "provisional": false
+        },
+        {
+            "canonicalAmendment": false,
+            "id": "ASM-06NOV-OPTION-A",
+            "decision": "A05 Game Problem translation: option (a), for the isolated review pathway only (section 3)",
+            "subject": "Create Space primary and Exploit Space secondary within the scoped circumstance; a potential mismatch reported; Gain Access a candidate; option (b) kept",
+            "scope": "REVIEW_PATHWAY",
+            "scopeWords": [
+                "for the isolated review pathway only",
+                "within the scoped circumstance of progressing against organized opposition that meaningfully restricts usable attacking space"
+            ],
+            "kind": "RULING",
+            "words": [
+                "I approve option (a) for the isolated review pathway only.",
+                "Create Space remains the primary Game Problem and Exploit Space the secondary consideration within the scoped circumstance of progressing against organized opposition that meaningfully restricts usable attacking space.",
+                "When the described circumstances indicate sufficient usable space already exists, the system should report a potential mismatch rather than automatically changing the primary Game Problem.",
+                "This does not authorize an unconditional A05 production translation or modification of the live Session Planning Model.",
+                "Please retain Gain Access as a candidate relationship.",
+                "Option (b), incorporating additional context conditions and our working definition of organized defending, can remain available for later consideration if we establish that those relationships are necessary for authoritative selection."
+            ],
+            "received": "2026-11-06",
+            "file": "christian-2026-11-06-assembly-review.txt (received 6 November 2026)",
+            "provisional": false
+        },
+        {
+            "canonicalAmendment": false,
+            "id": "ASM-06NOV-K2",
+            "decision": "K2: when no additional manipulation is needed (section 4)",
+            "subject": "a basic representative Game Form retained as a review candidate; not demonstrated sufficient; the exact wording to be reviewed",
+            "scope": null,
+            "kind": "RULING",
+            "words": [
+                "I support the principle that an unmodified Game Form may be an appropriate starting point.",
+                "Challenge Point should not require additional constraints, incentives, or environmental manipulations simply to make an activity appear customized.",
+                "However, I want to distinguish between:",
+                "A configuration for which no additional manipulation is currently justified.",
+                "A configuration that has been demonstrated sufficient for the intended learning problem.",
+                "Those are not equivalent.",
+                "The engine should be permitted to retain a basic representative Game Form as a review candidate when no additional manipulation has an authorized basis.",
+                "It should not claim that the basic form has been demonstrated ecologically sufficient merely because it satisfies structural compatibility requirements.",
+                "Please preserve that distinction in K2.",
+                "I approve this governing direction, but I would like to review your exact K2 wording before it is promoted into executable selection knowledge."
+            ],
+            "received": "2026-11-06",
+            "file": "christian-2026-11-06-assembly-review.txt (received 6 November 2026)",
+            "provisional": false
+        },
+        {
+            "canonicalAmendment": false,
+            "id": "ASM-06NOV-CREATE-SPACE",
+            "decision": "Create Space: environmental relationships (section 5)",
+            "subject": "no causal hypothesis approved as a configuration rule; possible against productive, recurring opportunities; the gap kept explicit; K1 and K3 open",
+            "scope": null,
+            "kind": "RULING",
+            "words": [
+                "I do not want to approve our current causal hypotheses as authoritative configuration rules simply to unblock development.",
+                "The width hypotheses, restart effects, and other proposed environmental relationships remain conditional and unverified.",
+                "They may inform review-only comparisons and future knowledge development, but should not become production selection rules without an established basis.",
+                "I also want to preserve the distinction between a Game Problem being possible in a configuration and the environment offering productive, recurring opportunities to encounter that problem.",
+                "For A05, the unresolved knowledge concerns not only whether Create Space can occur, but whether the chosen relationships support meaningful encounters with restricted attacking space while preserving functional opposition, multiple solutions, and representative consequences.",
+                "Please keep this knowledge gap explicit rather than solving it through an unsupported configuration choice.",
+                "K1, concerning the defensive organization required to represent the problem at different game scales, and K3, concerning adjustments when transition attacks dominate, may remain open.",
+                "Neither should be converted into a production rule now."
+            ],
+            "received": "2026-11-06",
+            "file": "christian-2026-11-06-assembly-review.txt (received 6 November 2026)",
+            "provisional": false
+        },
+        {
+            "canonicalAmendment": false,
+            "id": "ASM-06NOV-RESTART",
+            "decision": "End-line restarts: a coach-served restart, provisionally (section 6)",
+            "subject": "the illustrative end-line rule not retained; a simple coach-served restart with a possession consequence by last touch; the location and method to be examined",
+            "scope": "REVIEW_PROTOTYPE_OFFLINE",
+            "scopeWords": [
+                "For this review prototype",
+                "a provisional offline restart arrangement, not a canonical restart rule for other activities"
+            ],
+            "scopeCovers": "OURS: the A05 review prototype, offline, provisional; not a canonical restart rule for other activities.",
+            "kind": "RULING",
+            "words": [
+                "I would not retain the current illustrative end-line rule.",
+                "As you've identified, awarding possession to the team defending that end regardless of who last touched the ball creates a questionable consequence.",
+                "A defending team could benefit from deliberately putting the ball over its own end line.",
+                "For this review prototype, I favor testing a simple coach-served restart that preserves an appropriate possession consequence based on which team last touched the ball.",
+                "The coach could promptly introduce the ball from a suitable location, maintaining game flow while avoiding unnecessary waiting.",
+                "However, please examine whether the proposed location or method creates unintended immediate scoring opportunities or undermines the representative problem.",
+                "A coach-served ball should not be presented as equivalent to a live turnover.",
+                "This is authorization for a provisional offline restart arrangement, not a canonical restart rule for other activities.",
+                "If a coherent arrangement cannot be established without inventing further requirements, please identify the remaining issue rather than silently resolving it."
+            ],
+            "received": "2026-11-06",
+            "file": "christian-2026-11-06-assembly-review.txt (received 6 November 2026)",
+            "provisional": true
+        },
+        {
+            "canonicalAmendment": false,
+            "id": "ASM-06NOV-PROVENANCE",
+            "decision": "Provenance and classification (section 7)",
+            "subject": "the weakest-of rule supported; each premise kept visible; missing, inferred and illustrative values kept distinct; determined kept apart from consulted",
+            "scope": null,
+            "kind": "RULING",
+            "words": [
+                "I support the conservative approach in which a derived value retains the weakest authority of the premises that actually determined it.",
+                "However, please preserve the provenance of the individual premises rather than allowing the overall classification to obscure their sources.",
+                "I would also distinguish between:",
+                "A value that is genuinely missing or unresolved.",
+                "Your logical interpretation of existing knowledge.",
+                "An illustrative design choice made solely for testing.",
+                "These have different implications for future authorization.",
+                "An inference should not become canonical simply because it follows logically from a selected reading of approved text.",
+                "Nor should a clearly identified inference be indistinguishable from an entirely missing value.",
+                "The distinction between material that actually determined a result and material merely consulted should remain intact."
+            ],
+            "received": "2026-11-06",
+            "file": "christian-2026-11-06-assembly-review.txt (received 6 November 2026)",
+            "provisional": false
+        },
+        {
+            "canonicalAmendment": false,
+            "id": "ASM-06NOV-KICKOFF",
+            "decision": "Kick-off distance (section 8)",
+            "subject": "the ordinary Laws' 9.15 m requirement retained for the current prototype",
+            "scope": "CURRENT_PROTOTYPE",
+            "scopeWords": ["for the current prototype"],
+            "kind": "RULING",
+            "words": [
+                "Please retain the ordinary Laws' 9.15 m requirement for the current prototype.",
+                "We do not currently have an authorized reason to modify it.",
+                "As previously discussed, an ordinary kickoff should not be represented as proof that organized defensive relationships have been established."
+            ],
+            "received": "2026-11-06",
+            "file": "christian-2026-11-06-assembly-review.txt (received 6 November 2026)",
+            "provisional": false
+        },
+        {
+            "canonicalAmendment": false,
+            "id": "ASM-06NOV-DIAGRAM",
+            "decision": "A draft diagram from the offline record (section 9)",
+            "subject": "faithful to the record; no added design choice; ambiguity flagged; the live application and the checked diagram pathway unchanged",
+            "scope": null,
+            "kind": "RULING",
+            "words": [
+                "Yes.",
+                "Please produce a draft diagram from the offline configuration record, without changing the live application or A01's diagram-generation pathway.",
+                "The diagram should faithfully represent the configuration record, including dimensions, target zones, direction, and other relevant setup information.",
+                "It should not introduce additional design choices or imply that unresolved values have been authorized.",
+                "Please flag any remaining ambiguity that prevents accurate rendering."
+            ],
+            "received": "2026-11-06",
+            "file": "christian-2026-11-06-assembly-review.txt (received 6 November 2026)",
+            "provisional": false
+        },
+        {
+            "canonicalAmendment": false,
+            "id": "ASM-06NOV-ILLUSTRATIVE-OFFLINE",
+            "decision": "An explicitly labeled illustrative value, for offline review (section 11, Test B)",
+            "subject": "illustrative values remain acceptable offline when labeled",
+            "scope": "OFFLINE_REVIEW",
+            "scopeWords": ["For offline review"],
+            "kind": "RULING",
+            "words": ["For offline review, an explicitly labeled illustrative value may remain acceptable."],
+            "received": "2026-11-06",
+            "file": "christian-2026-11-06-assembly-review.txt (received 6 November 2026)",
+            "provisional": false
+        },
+        {
+            "canonicalAmendment": false,
+            "id": "ASM-15OCT-NOT-MANDATORY",
+            "decision": "A library constraint is not mandatory (a general principle)",
+            "subject": "a constraint is included only where the approved knowledge and the intended learning environment justify it",
+            "scope": null,
+            "kind": "RULING",
+            "words": [
+                "However, I want the underlying principle to apply generally:",
+                "A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment."
+            ],
+            "received": "2026-10-15",
+            "file": "recovered reply received 15 October 2026, beginning \"Thanks for identifying the remaining knowledge gaps and separating them from the work already underway.\"; filed under the old filing date 16 October 2026 (received 15 October 2026, US Eastern); transcript recovery only",
+            "provisional": false
+        },
+        {
+            "canonicalAmendment": false,
+            "id": "ASM-30OCT-EVE-SUFFICIENCY",
+            "decision": "A reusable basis for when the Game Form may already be sufficient (30 October, evening)",
+            "subject": "not every activity made dependent on constraints and incentives; a reusable basis wanted",
+            "scope": null,
+            "kind": "RULING",
+            "words": [
+                "Equally, I don't want to make every activity dependent on an increasingly elaborate collection of constraints and incentives.",
+                "Sometimes the underlying Game Form and its environmental relationships may already be sufficient.",
+                "What we need is a reusable basis for determining when that is the case."
+            ],
+            "received": "2026-10-30",
+            "file": "recovered reply received 30 October 2026, beginning \"Thank you for the walk-through and for clearly identifying where the proposed activity is supported by our knowledge\"; our filed copy christian-2026-11-07.txt, filed under the old filing date 7 November 2026 (received 30 October 2026, US Eastern)",
+            "provisional": false
         }
     ],
     "requiredPartsRulingRef": "ASM-AUTH-PARTS",
@@ -1015,18 +1268,18 @@
         { "id": "P4", "part": "Setup and starting conditions.", "paths": ["start.method", "start.kickoffDetails", "start.kickoffDistanceM", "equipment.bibs", "equipment.markers", "equipment.balls", "duration.blocks", "duration.blockMinutes", "duration.breaks"] },
         { "id": "P5", "part": "Rules and interaction regulations.", "paths": ["directions", "opposition.reciprocal", "endZones.access", "interactionRegulations", "rules.offside", "rules.fouls", "rules.handling", "laws.default"] },
         { "id": "P6", "part": "Scoring and consequences.", "paths": ["scoring.event", "scoring.means", "scoring.mirrored", "scoring.afterRegain", "scoring.startingCondition", "scoring.qualifyingCondition.workbookText", "scoring.qualifyingCondition.sep13Text", "win.condition"] },
-        { "id": "P7", "part": "Restarts and continuous-play behavior.", "paths": ["play.continuous", "restart.afterPoint.method", "restart.afterPoint.who", "restart.touchline", "restart.endLine.status", "restart.endLine.illustrativeValue", "laws.goalEnd"] },
+        { "id": "P7", "part": "Restarts and continuous-play behavior.", "paths": ["play.continuous", "restart.afterPoint.method", "restart.afterPoint.who", "restart.touchline", "restart.endLine.method", "restart.endLine.toWhom", "restart.endLine.timing", "restart.endLine.noReset", "restart.endLine.contest", "restart.endLine.location", "restart.endLine.receivingDistance", "laws.goalEnd"] },
         { "id": "P8", "part": "Coach-facing instructions and appropriate observation guidance.", "paths": ["observation.categories", "adjustments", "coachQuestion"] },
         { "id": "P9", "part": "A clear explanation of the design rationale.", "paths": [], "generatedFromTrace": true }
     ],
     "designBlockPaths": ["gameProblems.primary", "gameProblems.secondary", "gameProblems.secondaryFinding", "gameProblems.candidate", "gameForm.illustrativeChoice", "gameForm.alternatives"],
     "whyThisDesign": [
         { "text": "Purpose: the goal's coach-facing definition, read from the planning model by code, the source Christian's 21 October ruling names.", "paths": ["purpose"] },
-        { "text": "Game Problems: {gameProblems.primary} primary and {gameProblems.secondary} secondary, resolved from Christian's scoped ruling for this goal, within the scope Christian's 5 November words set (progressing against organized opposition).", "paths": ["gameProblems.primary", "gameProblems.secondary"] },
+        { "text": "Game Problems: {gameProblems.primary} primary and {gameProblems.secondary} secondary, resolved from Christian's scoped ruling for this goal, within the scope Christian's words of 5 November (second reply) and 6 November set (progressing against organized opposition that meaningfully restricts usable attacking space; the isolated review pathway only).", "paths": ["gameProblems.primary", "gameProblems.secondary"] },
         { "text": "Game Form: {gameForm.illustrativeChoice}, an illustrative choice Christian permitted; {gameForm.alternatives} remain compatible alternatives, unranked.", "paths": ["gameForm.illustrativeChoice", "gameForm.alternatives"] },
         { "text": "Scoring: a controlled arrival in the target zone a team attacks, Christian's provisional preference over crossing the far end line; every such arrival counts, including straight after a regain.", "paths": ["scoring.event", "scoring.afterRegain"] },
-        { "text": "Rules: the normal Laws apply by default (Christian's 23 October principle); the departures are no offside (Christian's provisional ruling) and the end-line restart (illustrative: an adaptation is owed because there are no goals).", "paths": ["laws.default", "rules.offside", "restart.endLine.illustrativeValue"] },
-        { "text": "Suitability: no approved relationship yet shows why this environment suits {gameProblems.primary}; adding nothing is not shown to be knowledge-supported (K2 open), so suitability is unverified.", "paths": [] }
+        { "text": "Rules: the normal Laws apply by default (Christian's 23 October principle); the departures are no offside (Christian's provisional ruling) and the coach-served end-line restart (Christian's provisional ruling of 6 November, for this offline prototype; its location illustrative, two questions open).", "paths": ["laws.default", "rules.offside", "restart.endLine.method", "restart.endLine.location"] },
+        { "text": "Suitability: no approved relationship yet shows why this environment suits {gameProblems.primary}; nothing is added because no manipulation has an authorized basis (K2, DRAFT wording under review), and the form is not demonstrated sufficient, so suitability is unverified.", "paths": [] }
     ],
     "exemptions": [
         { "path": "scoring.qualifyingCondition.workbookText", "nonActivity": true, "reason": "OURS: printed whole in Part 6, side by side with the 13 September text, and in the trace; stating either text as a coach rule would choose between the \"for example\" and colon readings, which Christian's 5 November section 8 keeps open." },
@@ -1060,10 +1313,11 @@
             "consulted": [],
             "scopeSetBy": [
                 { "rulingRef": "ASM-AUTH-GP-SCOPE", "quote": "within the scoped circumstance of progressing against organized opposition" },
-                { "rulingRef": "ASM-REV1-GP-SCOPE", "quote": "This remains a scoped review interpretation rather than an unconditional mapping for every Progress the Attack situation." }
+                { "rulingRef": "ASM-REV1-GP-SCOPE", "quote": "This remains a scoped review interpretation rather than an unconditional mapping for every Progress the Attack situation." },
+                { "rulingRef": "ASM-06NOV-OPTION-A", "quote": "I approve option (a) for the isolated review pathway only." }
             ],
             "statusSetBy": [],
-            "note": "Computed by the Stage 1/2 resolution, its influence trace unchanged: Christian's scoped ruling RUL-E1-A05 (filed for the Stage 1 demonstration), continued by D1-4NOV, read because the Engine Translation row is unpopulated. Christian's 5 November words set the scope this experiment uses; they decide nothing."
+            "note": "Computed by the Stage 1/2 resolution, its influence trace unchanged: Christian's scoped ruling RUL-E1-A05 (filed for the Stage 1 demonstration), continued by D1-4NOV, read because the Engine Translation row is unpopulated. Christian's words of 5 November (second reply), and Christian's approval of option (a) for the isolated review pathway only (6 November), set the scope this experiment uses; they decide nothing."
         },
         {
             "path": "gameProblems.secondary",
@@ -1074,7 +1328,8 @@
             "decidedBy": [],
             "consulted": [],
             "scopeSetBy": [
-                { "rulingRef": "ASM-AUTH-GP-SCOPE", "quote": "Create Space remains the primary Game Problem and Exploit Space a secondary consideration within the scoped circumstance of progressing against organized opposition." }
+                { "rulingRef": "ASM-AUTH-GP-SCOPE", "quote": "Create Space remains the primary Game Problem and Exploit Space a secondary consideration within the scoped circumstance of progressing against organized opposition." },
+                { "rulingRef": "ASM-06NOV-OPTION-A", "quote": "Create Space remains the primary Game Problem and Exploit Space the secondary consideration within the scoped circumstance of progressing against organized opposition that meaningfully restricts usable attacking space." }
             ],
             "statusSetBy": [],
             "note": "Computed by the Stage 1/2 resolution, its influence trace unchanged; the same scope as the primary."
@@ -1099,11 +1354,12 @@
             "howReached": "READ_BY_CODE",
             "readBy": "CONTEXT_RELATIONSHIP_ROW",
             "knowledgeRef": { "source": "contexts", "table": "relationships", "row": "RPC-REL-025", "column": "related_id" },
-            "decidedBy": [
-                { "knowledgeRef": { "source": "contexts", "table": "relationships", "row": "RPC-REL-025", "column": "related_id" }, "standing": "CANDIDATE" }
+            "decidedBy": [{ "knowledgeRef": { "source": "contexts", "table": "relationships", "row": "RPC-REL-025", "column": "related_id" }, "standing": "CANDIDATE" }],
+            "consulted": [{ "knowledgeRef": { "source": "contexts", "table": "relationships", "row": "RPC-REL-026", "column": "related_id" }, "standing": "CANDIDATE", "note": "GP-015 (Maintain Possession): related by the context, SECONDARY, ACTIVE, like Gain Access; no ruling of Christian's names it for A05 (searched); not used." }],
+            "statusSetBy": [
+                { "rulingRef": "ASM-AUTH-GAIN-ACCESS" },
+                { "rulingRef": "ASM-06NOV-OPTION-A" }
             ],
-            "consulted": [],
-            "statusSetBy": [{ "rulingRef": "ASM-AUTH-GAIN-ACCESS" }],
             "note": "Shown, not used. The row is ACTIVE in the context library (SECONDARY COMPATIBLE); its id resolution was mechanical (OURS); Christian's words keep the relationship a candidate."
         },
         {
@@ -1329,12 +1585,13 @@
             "howReached": "ENTERED_OUR_INFERENCE",
             "decidedBy": [{ "ref": "OURS", "standing": "OURS" }],
             "readingOf": [
+                { "rulingRef": "ASM-15OCT-NOT-MANDATORY", "quote": "A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment." },
                 { "rulingRef": "ASM-DEC-CONTINUOUS", "quote": "separate from specific Interaction Regulations" },
                 { "rulingRef": "ASM-REV1-NO-FIXED-POSITIONS", "quote": "I would also avoid requiring fixed positions, waiting periods, or predetermined movement sequences simply to guarantee a defensive organization." }
             ],
-            "consulted": [],
+            "consulted": [{ "rulingRef": "ASM-06NOV-K2", "standing": "RULING", "note": "the direction is approved and the exact K2 wording is under review (AOD-K2-REVIEW-CANDIDATE); it decides nothing here." }],
             "statusSetBy": [],
-            "note": "Our decision to add no Interaction Regulation: none is authorized for this context, and Christian's words keep continuous play apart from them and avoid fixed positions, waiting periods or movement sequences; which relationship to adjust first is open (K3)."
+            "note": "OURS: LOGICAL INFERENCE from the absence of an authorized basis: no Interaction Regulation has an authorized basis for this context, so none is added; Christian's words keep continuous play apart from them and avoid fixed positions, waiting periods or movement sequences; which relationship to adjust first is open (K3)."
         },
         {
             "path": "directions",
@@ -1391,14 +1648,14 @@
             "howReached": "READ_BY_CODE",
             "readBy": "DISPLAY_CELL",
             "knowledgeRef": { "source": "contexts", "table": "properties", "row": "RPC-PROP-134", "column": "property_text" },
-            "decidedBy": [
-                { "knowledgeRef": { "source": "contexts", "table": "properties", "row": "RPC-PROP-134", "column": "property_text" }, "standing": "CANDIDATE" }
+            "decidedBy": [{ "knowledgeRef": { "source": "contexts", "table": "properties", "row": "RPC-PROP-134", "column": "property_text" }, "standing": "CANDIDATE" }],
+            "consulted": [],
+            "statusSetBy": [
+                { "rulingRef": "ASM-AUTH-STARTING-CONDITION" },
+                { "rulingRef": "ASM-REV1-SOURCE-FIDELITY" },
+                { "rulingRef": "ASM-06NOV-SOURCE" }
             ],
-            "consulted": [
-                { "rulingRef": "ASM-REV1-SOURCE-FIDELITY", "standing": "RULING", "note": "the row is APPROVED, but its wording differs from Christian's 13 September text (a colon where Christian's text has \"for example\"); the wording is therefore CANDIDATE until Christian rules." }
-            ],
-            "statusSetBy": [{ "rulingRef": "ASM-AUTH-STARTING-CONDITION" }],
-            "note": "Printed byte-equal to the cell; never stated as a coach rule."
+            "note": "Printed byte-equal to the cell; never stated as a coach rule. The row is APPROVED, but its wording differs from Christian's 13 September text (a colon where Christian's text has \"for example\"); the wording stays CANDIDATE until the original is verified and the smallest correction Christian authorized on 6 November (section 2) is applied, which this review record does not do."
         },
         {
             "path": "scoring.qualifyingCondition.sep13Text",
@@ -1423,8 +1680,13 @@
                 { "rulingRef": "ASM-29OCT-4B", "standing": "RULING", "note": "organized attacking possession characterizes the dominant opportunities, not every counted score." },
                 { "rulingRef": "ASM-30OCT-OPTION5", "standing": "RULING", "note": "Christian's provisional option (5), flagged as unverified learning-design relevance; the interpretation and its provenance are recorded here for review." }
             ],
-            "statusSetBy": [{ "rulingRef": "ASM-AUTH-STARTING-CONDITION" }, { "rulingRef": "ASM-30OCT-EVE-UNRESOLVED" }, { "rulingRef": "ASM-REV1-SOURCE-FIDELITY" }],
-            "note": "The role of \"from the attack’s starting condition\" in scoring or configuration has no authorized value. It plays no role in this example's game: every controlled arrival counts, including after a regain. Shown in Scoring as an open question, never moved into the observation guidance."
+            "statusSetBy": [
+                { "rulingRef": "ASM-AUTH-STARTING-CONDITION" },
+                { "rulingRef": "ASM-30OCT-EVE-UNRESOLVED" },
+                { "rulingRef": "ASM-REV1-SOURCE-FIDELITY" },
+                { "rulingRef": "ASM-06NOV-STARTING" }
+            ],
+            "note": "The role of \"from the attack’s starting condition\" in scoring or configuration has no authorized value. It plays no role in this example's game: every controlled arrival counts, including after a regain. Shown in Scoring as an open question, never moved into the observation guidance. Christian's reply of 6 November, section 1, keeps its role unresolved; the meaning question is AOD-STARTING-CONDITION."
         },
         {
             "path": "scoring.afterRegain",
@@ -1432,14 +1694,13 @@
             "declaredStatus": "RULING",
             "howReached": "ENTERED_EVIDENCED",
             "decidedBy": [
+                { "rulingRef": "ASM-06NOV-STARTING", "standing": "RULING", "valueEvidence": "A legitimate attack, including one immediately following a regain, should not automatically be denied a score because it occurred during transition rather than against organized opposition." },
                 { "rulingRef": "ASM-30OCT-REGAIN", "standing": "RULING", "valueEvidence": "I believe the interception near the end zone followed by an immediate controlled arrival should count." },
                 { "rulingRef": "ASM-30OCT-EVE-ELIGIBLE", "standing": "RULING", "valueEvidence": "Legitimate immediate attacking opportunities remain eligible to score." }
             ],
-            "consulted": [
-                { "rulingRef": "ASM-9OCT-REGAIN", "standing": "RULING", "note": "the team regaining possession attacks its target at once, with no check-back or reset (consistent)." }
-            ],
+            "consulted": [{ "rulingRef": "ASM-9OCT-REGAIN", "standing": "RULING", "note": "the team regaining possession attacks its target at once, with no check-back or reset (consistent)." }],
             "statusSetBy": [],
-            "note": "No eligibility restriction after a live turnover. Christian's 30 October words answer one scenario (Scenario 1A); applying them to every regain is our generalization, which Christian's 30 October evening words support."
+            "note": "No eligibility restriction after a live turnover. Christian's 30 October words answer one scenario (Scenario 1A); the rule is stated generally in Christian's reply of 6 November, section 1; Christian's word \"automatically\" printed: such an attack is not automatically denied a score."
         },
         {
             "path": "scoring.mirrored",
@@ -1487,11 +1748,10 @@
             "value": "ORDINARY_KICKOFF",
             "declaredStatus": "RULING",
             "howReached": "ENTERED_EVIDENCED",
-            "decidedBy": [
-                { "rulingRef": "ASM-REV1-KICKOFF", "standing": "RULING", "valueEvidence": "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype" }
-            ],
+            "decidedBy": [{ "rulingRef": "ASM-REV1-KICKOFF", "standing": "RULING", "valueEvidence": "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype" }],
             "consulted": [
-                { "ref": "sport-profile-soccer.json LAW-8", "standing": "OURS", "note": "the kick-off at the start and after a score (Law 8)." }
+                { "ref": "sport-profile-soccer.json LAW-8", "standing": "OURS", "note": "the kick-off at the start and after a score (Law 8)." },
+                { "rulingRef": "ASM-06NOV-KICKOFF", "standing": "RULING", "note": "the caveat again, on 6 November: \"As previously discussed, an ordinary kickoff should not be represented as proof that organized defensive relationships have been established.\" (kept)" }
             ],
             "statusSetBy": [],
             "note": "Christian's caveat: \"do not promote it as a demonstrated method of restoring organized defensive relationships.\" Nothing in this experiment says it does."
@@ -1511,36 +1771,31 @@
                 { "ref": "sport-profile-soccer.json LAW-8", "standing": "OURS", "note": "the Laws kick-off: every player in their own half; the opponents of the kicking team at least 9.15 m from the ball until it is in play." }
             ],
             "statusSetBy": [],
-            "note": "Our reading of \"ordinary\": the Laws kick-off unchanged, every player in their own half and the opponents at least 9.15 m from the ball until it is kicked."
+            "note": "Our reading of \"ordinary\": the Laws kick-off unchanged, every player in their own half and the opponents at least 9.15 m from the ball until it is kicked. 'Own half' is our reading too: with no goals, a team's own half is taken as the half containing the target zone it defends (OURS); stated as a review note beside the kick-off sentence, and not drawn."
         },
         {
             "path": "start.kickoffDistanceM",
             "value": 9.15,
-            "declaredStatus": "OURS",
-            "howReached": "ENTERED_OUR_INFERENCE",
-            "decidedBy": [{ "ref": "OURS", "standing": "OURS" }],
-            "readingOf": [
-                { "rulingRef": "ASM-REV1-KICKOFF", "quote": "the ordinary kickoff" },
-                { "rulingRef": "ASM-23OCT-LAWS", "quote": "The normal Laws of the Game should apply by default wherever they are applicable" }
-            ],
+            "evidenceStates": "9.15",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [{ "rulingRef": "ASM-06NOV-KICKOFF", "standing": "RULING", "valueEvidence": "Please retain the ordinary Laws' 9.15 m requirement for the current prototype." }],
             "consulted": [
                 { "ref": "sport-profile-soccer.json LAW-8", "standing": "OURS", "note": "the distance the Laws kick-off keeps the opponents from the ball." },
-                { "rulingRef": "ASM-29OCT-ADAPTED-KICKOFF", "standing": "RULING", "note": "whether this distance may be relaxed is a non-blocking question to Christian." }
+                { "rulingRef": "ASM-29OCT-ADAPTED-KICKOFF", "standing": "RULING", "note": "Christian's earlier words permit an adapted kick-off after a score for testing; the reply of 6 November keeps 9.15 m for the current prototype (\"We do not currently have an authorized reason to modify it.\")." }
             ],
             "statusSetBy": [],
-            "note": "The Laws' kick-off distance, entered as its own value so the coach text states the number it restates; our reading of \"ordinary\", not Christian's words."
+            "note": "The Laws' kick-off distance, entered as its own value so the coach text states the number it restates; decided by Christian's reply of 6 November, section 8, for the current prototype (it was our reading of \"ordinary\" before)."
         },
         {
             "path": "restart.afterPoint.method",
             "value": "KICKOFF",
             "declaredStatus": "RULING",
             "howReached": "ENTERED_EVIDENCED",
-            "decidedBy": [
-                { "rulingRef": "ASM-REV1-KICKOFF", "standing": "RULING", "valueEvidence": "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype" }
-            ],
+            "decidedBy": [{ "rulingRef": "ASM-REV1-KICKOFF", "standing": "RULING", "valueEvidence": "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype" }],
             "consulted": [
                 { "ref": "contracts.json T2-T6 notAuthored", "standing": "CANDIDATE", "note": "GF2 does not author a restart after a score." },
-                { "rulingRef": "ASM-30OCT-RESTART", "standing": "RULING", "note": "Christian's 30 October words: a conventional kick-off is not the automatic rule for every Attack Development activity, and restarting play is not returning every player to fixed positions; here the kick-off is Christian's 5 November provisional option for this prototype only." }
+                { "rulingRef": "ASM-30OCT-RESTART", "standing": "RULING", "note": "Christian's 30 October words: a conventional kick-off is not the automatic rule for every Attack Development activity, and restarting play is not returning every player to fixed positions; here the kick-off is Christian's provisional option of 5 November (first reply), for this prototype only." }
             ],
             "statusSetBy": [],
             "note": "Christian's provisional option for the restart after a score; never presented as restoring organized defence."
@@ -1635,37 +1890,104 @@
             "howReached": "ENTERED_OUR_INFERENCE",
             "decidedBy": [{ "ref": "OURS", "standing": "OURS" }],
             "readingOf": [{ "rulingRef": "ASM-23OCT-LAWS", "quote": "the system should identify the relevant adaptation rather than silently assume conventional conditions exist" }],
-            "consulted": [
-                { "ref": "sport-profile-soccer.json LAW-14, LAW-16, LAW-17", "standing": "OURS", "note": "the penalty kick needs a goal and its penalty area; the goal kick and the corner kick restart a ball over the end line but assume a goal beside them." }
-            ],
+            "consulted": [{ "ref": "sport-profile-soccer.json LAW-14, LAW-16, LAW-17", "standing": "OURS", "note": "the penalty kick needs a goal and its penalty area; the goal kick and the corner kick restart a ball over the end line; our DRAFT Sport Profile encoding applies them only where a goal stands, while the award by last touch needs no goal (our 27 October reading, OURS)." }],
             "statusSetBy": [],
-            "note": "Our reading of the Laws account: with no goals there is no penalty kick, and the goal kick and corner kick are replaced by the ILLUSTRATIVE end-line restart (an adaptation owed, Laws 16 and 17)."
+            "note": "Our reading of the Laws account: with no goals there is no penalty kick, and the goal kick and corner kick are replaced, in method and location, by the provisional coach-served end-line restart (Christian's reply of 6 November, section 6); the possession consequence by last touch is kept (Laws 16 and 17)."
         },
         {
-            "path": "restart.endLine.status",
+            "path": "restart.endLine.method",
+            "value": "COACH_SERVES_NEW_BALL",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [
+                { "rulingRef": "ASM-06NOV-RESTART", "standing": "RULING", "valueEvidence": "a simple coach-served restart" },
+                { "rulingRef": "ASM-REV1-COACH-SERVED-BALL", "standing": "RULING", "valueEvidence": "a coach quickly serving a new ball" }
+            ],
+            "consulted": [
+                { "ref": "sport-profile-soccer.json LAW-16, LAW-17", "standing": "OURS", "note": "the method replaces the goal kick and the corner kick at an end line where no goal stands (a departure in method and location; the Laws account)." },
+                { "rulingRef": "ASM-23OCT-LAWS", "standing": "RULING", "note": "a departure from the Laws is defined explicitly; this one is authorized provisionally, for this offline prototype, by the reply of 6 November." }
+            ],
+            "statusSetBy": [],
+            "note": "Christian's provisional ruling of 6 November (section 6), for this review prototype, offline; with the first reply of 5 November's coach-served ball. Class 3: its weakest determining premise is the provisional ruling."
+        },
+        {
+            "path": "restart.endLine.toWhom",
+            "value": "TEAM_THAT_DID_NOT_TOUCH_IT_LAST",
+            "declaredStatus": "OURS",
+            "howReached": "ENTERED_OUR_INFERENCE",
+            "decidedBy": [{ "ref": "OURS", "standing": "OURS" }],
+            "readingOf": [
+                { "rulingRef": "ASM-06NOV-RESTART", "quote": "based on which team last touched the ball" },
+                { "rulingRef": "ASM-23OCT-LAWS", "quote": "The normal Laws of the Game should apply by default wherever they are applicable" }
+            ],
+            "consulted": [
+                { "ref": "gf2-restart-restatement-notes.md (27 October)", "standing": "OURS", "note": "our 27 October reading of Laws 16 and 17: the restart goes to the team that did not touch the ball last, at either end line; the award needs no goal (recorded as verified by us, not by Christian)." },
+                { "ref": "contracts.json GF2-16.a", "standing": "CANDIDATE", "note": "NOT_LAST_TOUCH, AUTHORED from the DRAFT module's setup text: a ball out of play restarts from the team that did not touch it last (SUPPORTING; consulted, not decisive)." }
+            ],
+            "statusSetBy": [],
+            "note": "OURS: LOGICAL INFERENCE: Christian's words ask for a possession consequence based on which team last touched the ball, and the Laws give it to the team that did not touch it last."
+        },
+        {
+            "path": "restart.endLine.timing",
+            "value": "PROMPTLY",
+            "declaredStatus": "RULING",
+            "howReached": "ENTERED_EVIDENCED",
+            "decidedBy": [{ "rulingRef": "ASM-06NOV-RESTART", "standing": "RULING", "valueEvidence": "promptly" }],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "Christian's provisional ruling of 6 November: the coach introduces the ball promptly. Class 3."
+        },
+        {
+            "path": "restart.endLine.noReset",
+            "value": "NO_REPOSITIONING_REQUIRED",
+            "declaredStatus": "OURS",
+            "howReached": "ENTERED_OUR_INFERENCE",
+            "decidedBy": [{ "ref": "OURS", "standing": "OURS" }],
+            "readingOf": [
+                { "rulingRef": "ASM-06NOV-RESTART", "quote": "avoiding unnecessary waiting" },
+                { "rulingRef": "ASM-REV1-NO-FIXED-POSITIONS", "quote": "I would also avoid requiring fixed positions, waiting periods, or predetermined movement sequences simply to guarantee a defensive organization." }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "OURS: LOGICAL INFERENCE: nobody has to take up a position before the serve. The first reply of 5 November says this of guaranteeing a defensive organization; applying it to the serve is our reading. No sentence about players' positions is added to the coach text."
+        },
+        {
+            "path": "restart.endLine.contest",
+            "value": "LIVE_WHEN_PLAYED_NO_OPPONENT_DISTANCE",
+            "declaredStatus": "OURS",
+            "howReached": "ENTERED_OUR_INFERENCE",
+            "decidedBy": [{ "ref": "OURS", "standing": "OURS" }],
+            "readingOf": [
+                { "rulingRef": "ASM-06NOV-RESTART", "quote": "a simple coach-served restart" },
+                { "rulingRef": "ASM-23OCT-LAWS", "quote": "The normal Laws of the Game should apply by default wherever they are applicable" }
+            ],
+            "consulted": [],
+            "statusSetBy": [],
+            "note": "OURS: LOGICAL INFERENCE: nothing authorized adds a protection, so none is added; the ball is live once played. Whether opponents should be kept away is asked (AOD-ENDLINE-CONTEST, R1)."
+        },
+        {
+            "path": "restart.endLine.location",
+            "value": "IN_THE_HALF_WHERE_IT_WENT_OUT_OUTSIDE_BOTH_TARGET_ZONES_NOT_ACROSS_EITHER_COACH_CHOOSES_PLAYER",
+            "declaredStatus": "ILLUSTRATIVE",
+            "howReached": "ENTERED_ILLUSTRATIVE",
+            "decidedBy": [{ "ref": "ILLUSTRATIVE", "standing": "ILLUSTRATIVE" }],
+            "permittedBy": [
+                { "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "quote": "Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled" },
+                { "rulingRef": "ASM-06NOV-ILLUSTRATIVE-OFFLINE", "quote": "For offline review, an explicitly labeled illustrative value may remain acceptable." }
+            ],
+            "consulted": [{ "rulingRef": "ASM-06NOV-RESTART", "standing": "RULING", "note": "Christian's words name a suitable location for introducing the ball; whether that is the coach's position, where the ball is received, or both is not stated (R4)." }],
+            "statusSetBy": [],
+            "note": "Our illustrative exclusion, chosen from the examination (Part 6): the serve is never played into or across a target zone, nor to a player inside one; the coach chooses the player. No ruling states it (AOD-ENDLINE-LOCATION, R5)."
+        },
+        {
+            "path": "restart.endLine.receivingDistance",
             "value": null,
             "declaredStatus": "UNRESOLVED",
             "howReached": "UNRESOLVED",
             "decidedBy": [{ "ref": "UNRESOLVED", "standing": "UNRESOLVED" }],
-            "consulted": [],
-            "statusSetBy": [{ "rulingRef": "ASM-23OCT-LAWS" }],
-            "note": "The Laws restart a ball over the end line with a goal kick or a corner kick (Laws 16 and 17), and both assume a goal; with no goal here an adaptation is owed, and no authorized value exists."
-        },
-        {
-            "path": "restart.endLine.illustrativeValue",
-            "value": "DEFENDING_TEAM_FROM_ITS_END_LINE",
-            "declaredStatus": "ILLUSTRATIVE",
-            "howReached": "ENTERED_ILLUSTRATIVE",
-            "decidedBy": [{ "ref": "ILLUSTRATIVE", "standing": "ILLUSTRATIVE" }],
-            "permittedBy": [{ "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "quote": "Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled" }],
-            "consulted": [
-                { "ref": "sport-profile-soccer.json LAW-16, LAW-17", "standing": "OURS", "note": "the goal kick and corner kick restart a ball over the end line, but both assume a goal; with none here, this value stands in for both (an adaptation owed)." },
-                { "ref": "contracts.json GF2-16.a", "standing": "CANDIDATE", "note": "the module's preferred default (setup text, CANDIDATE): a ball out of play restarts from the team that did not touch it last; at the end line this value departs from it: no restart is taken on the edge of the zone the restarting team attacks." },
-                { "rulingRef": "ASM-23OCT-LAWS", "standing": "RULING", "note": "a departure from the Laws needs an explicit, knowledge-authorized modification; we ask Christian to confirm that an illustrative value may stand in here." },
-                { "rulingRef": "ASM-REV1-COACH-SERVED-BALL", "standing": "RULING", "note": "Christian's alternative when the ball leaves play (a coach-served ball, not a live turnover); offered to Christian as an option in the end-line question, not used here." }
-            ],
+            "consulted": [{ "rulingRef": "ASM-06NOV-RESTART", "standing": "RULING", "note": "Christian's words ask that a remaining issue be identified rather than silently resolved; no ruling gives a distance (AOD-ENDLINE-DISTANCE, R2)." }],
             "statusSetBy": [],
-            "note": "Illustrative only, pending Christian's confirmation. The team defending the target zone at that end restarts, so no restart is taken on the edge of the zone the restarting team attacks; no opponent distance or retreat rule is added, so an opponent standing in that zone who intercepts the restart and controls the ball there scores at once (a known risk, Part 3)."
+            "note": "No authorized value: how far from the target zone it attacks the receiving team gets the ball. At the zone's front edge it can score with one touch; further back, the defending team gains relief for clearing over its own end line."
         },
         {
             "path": "duration.blocks",
@@ -1735,9 +2057,9 @@
             "howReached": "ENTERED_ILLUSTRATIVE",
             "decidedBy": [{ "ref": "ILLUSTRATIVE", "standing": "ILLUSTRATIVE" }],
             "permittedBy": [{ "rulingRef": "ASM-AUTH-ILLUSTRATIVE", "quote": "Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled" }],
-            "consulted": [],
+            "consulted": [{ "rulingRef": "ASM-06NOV-RESTART", "standing": "RULING", "note": "the provisional coach-served end-line restart uses a new ball (\"a simple coach-served restart\")." }],
             "statusSetBy": [],
-            "note": "Spare balls are not a coach-served restart: every restart follows the Laws or the illustrative end-line value."
+            "note": "Spare balls let the coach serve a new ball at once when the ball goes over an end line (the provisional coach-served restart); every other restart follows the Laws."
         },
         {
             "path": "win.condition",
@@ -1759,7 +2081,7 @@
                 { "rulingRef": "ASM-30OCT-EVE-OBSERVATION", "standing": "RULING", "valueEvidence": "Observation criteria — Provisionally approved" },
                 { "rulingRef": "ASM-REV1-OBSERVATION", "standing": "RULING", "valueEvidence": "Our provisional A05 observation categories—Against Organized Opposition, During Transition, and Uncertain" }
             ],
-            "consulted": [],
+            "consulted": [{ "rulingRef": "ASM-06NOV-STARTING", "standing": "RULING", "note": "for the What to Watch block: \"However, that score should not automatically count as evidence that players solved Create Space.\" A point counts as a point; the categories describe how it came about and are no evidence of learning." }],
             "statusSetBy": [],
             "note": "For evaluating this prototype only: no threshold, not a selection criterion, not evidence of learning. Christian's provisional ruling, placed in class 3."
         },
@@ -1769,12 +2091,17 @@
             "declaredStatus": "OURS",
             "howReached": "ENTERED_OUR_INFERENCE",
             "decidedBy": [{ "ref": "OURS", "standing": "OURS" }],
-            "readingOf": [{ "rulingRef": "ASM-AUTH-SCENARIO-RULES", "quote": "It should not automatically change the primary Game Problem or recommend width changes on unsupported assumptions." }],
+            "readingOf": [
+                { "rulingRef": "ASM-15OCT-NOT-MANDATORY", "quote": "A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment." },
+                { "rulingRef": "ASM-AUTH-SCENARIO-RULES", "quote": "It should not automatically change the primary Game Problem or recommend width changes on unsupported assumptions." }
+            ],
             "consulted": [
-                { "rulingRef": "ASM-REV1-DIMENSIONS", "standing": "RULING", "note": "W-H1/W-H2 remain test-only hypotheses, so no width adjustment is offered; a length adjustment would be our causal hypothesis (K3 open)." }
+                { "rulingRef": "ASM-REV1-DIMENSIONS", "standing": "RULING", "note": "W-H1/W-H2 remain test-only hypotheses, so no width adjustment is offered; a length adjustment would be our causal hypothesis (K3 open)." },
+                { "rulingRef": "ASM-06NOV-K2", "standing": "RULING", "note": "the direction is approved and the exact K2 wording is under review; it decides nothing here." },
+                { "rulingRef": "ASM-06NOV-CREATE-SPACE", "standing": "RULING", "note": "K3 (adjustments when transition attacks dominate) may remain open and is not made a rule now." }
             ],
             "statusSetBy": [],
-            "note": "Our decision to offer none until a first adjustment is authorized."
+            "note": "OURS: LOGICAL INFERENCE from the absence of an authorized basis: no adjustment has an authorized basis, so none is offered until a first adjustment is authorized (K3 open)."
         },
         {
             "path": "coachQuestion",
@@ -1789,15 +2116,15 @@
         }
     ],
     "laws": [
-        { "lawId": "LAW-8", "status": "APPLIES", "paths": ["start.method", "start.kickoffDetails", "restart.afterPoint.method", "area.centreMark", "area.halfwayLine"], "reason": "The ordinary kickoff at the start and after a point (Christian's provisional option); the centre mark and halfway line it needs are marked (illustrative)." },
+        { "lawId": "LAW-8", "status": "APPLIES", "paths": ["start.method", "start.kickoffDetails", "restart.afterPoint.method", "area.centreMark", "area.halfwayLine"], "reason": "The ordinary kickoff at the start and after a point (Christian's provisional option); the centre mark and halfway line it needs are marked (illustrative). Beside APPLIES: the Sport Profile marks the centre mark UNREPRESENTED, so the existing check would report the adaptation owed (OURS reading of the profile)." },
         { "lawId": "LAW-8-DB", "status": "APPLIES", "paths": ["laws.default"], "reason": "A stoppage the coach makes restarts with a dropped ball, as in the Laws; nothing departs from it." },
         { "lawId": "LAW-11", "status": "DEPARTED", "paths": ["rules.offside"], "reason": "No offside: Christian's provisional ruling, explicitly communicated." },
         { "lawId": "LAW-12-GK", "status": "NOT APPLICABLE", "paths": ["players.goalkeepers", "rules.handling"], "reason": "There is no goalkeeper, so no goalkeeper handling; no player may handle the ball." },
         { "lawId": "LAW-14", "status": "NOT APPLICABLE", "paths": ["laws.goalEnd"], "reason": "No goal stands at either end, so there is no penalty kick." },
         { "lawId": "LAW-13", "status": "APPLIES", "paths": ["rules.fouls"], "reason": "Free kicks as in the Laws; nothing departs from them. Review point (OURS): a free kick next to a target zone keeps the opponents 9.15 m from the ball, which can leave the zone empty for an immediate point; no rule is invented (listed in Part 3 as a known risk)." },
         { "lawId": "LAW-15", "status": "APPLIES", "paths": ["restart.touchline"], "reason": "Throw-ins as in the Laws; nothing departs from them. Review point (OURS): a throw-in beside a target zone, to a teammate standing in it, could give an immediate point, although the Laws allow no goal straight from a throw-in; no rule is invented (listed in Part 3 as a known risk)." },
-        { "lawId": "LAW-16", "status": "ADAPTATION OWED", "paths": ["laws.goalEnd", "restart.endLine.status", "restart.endLine.illustrativeValue"], "reason": "The goal kick restarts a ball over the end line but assumes a goal and its goal area; there is no goal here, so an adaptation is owed. The ILLUSTRATIVE end-line value stands in (the team defending the target zone at that end restarts from that end line), pending Christian's confirmation. Review point (OURS): the Laws keep opponents outside the penalty area until a goal kick is in play; nothing here does, and that end line is the back edge of the target zone the opponents attack, so an opponent standing in that zone who intercepts the restart and controls the ball there scores at once; no rule is invented (listed in Part 3 as a known risk)." },
-        { "lawId": "LAW-17", "status": "ADAPTATION OWED", "paths": ["laws.goalEnd", "restart.endLine.status", "restart.endLine.illustrativeValue"], "reason": "The corner kick restarts a ball over the end line but assumes a goal with a corner area beside it; there is no goal here, so an adaptation is owed. A corner kick would also be taken inside a target zone, where a pass to a teammate could give an immediate point (review point, OURS). The same ILLUSTRATIVE end-line value stands in, pending Christian's confirmation." },
+        { "lawId": "LAW-16", "status": "DEPARTED", "paths": ["laws.goalEnd", "restart.endLine.method", "restart.endLine.toWhom", "restart.endLine.location"], "reason": "NOT APPLICABLE as our DRAFT Sport Profile encoding gives it (no goal stands). On our reading (27 October, OURS) the Laws' award by last touch still applies, so the coach-served ball departs from the method and location of the goal kick and corner kick; that departure is authorized provisionally for this offline prototype by Christian's reply of 6 November, section 6. Open representation question (OURS; recorded in this account only, not put to Christian now): should Laws 16 and 17 apply at an end line where no goal stands? The serve's own risks (an immediate point at the zone's edge; an interception) are examined in Part 6." },
+        { "lawId": "LAW-17", "status": "DEPARTED", "paths": ["laws.goalEnd", "restart.endLine.method", "restart.endLine.toWhom", "restart.endLine.location"], "reason": "NOT APPLICABLE as our DRAFT Sport Profile encoding gives it (no goal stands). On our reading (27 October, OURS) the Laws' award by last touch still applies, so the coach-served ball departs from the method and location of the goal kick and corner kick; that departure is authorized provisionally for this offline prototype by Christian's reply of 6 November, section 6. A corner kick would also be taken inside a target zone, where a pass to a teammate could give an immediate point (review point, OURS); the serve is never played into or across a target zone (ILLUSTRATIVE)." },
         { "lawId": "LAW-4-GK", "status": "NOT APPLICABLE", "paths": ["players.goalkeepers"], "reason": "There is no goalkeeper." }
     ],
     "contractItems": [
@@ -1824,7 +2151,7 @@
         { "itemId": "GF2-14.a", "mappedTo": ["teams.count"] },
         { "itemId": "GF2-14.b", "mappedTo": ["teams.equalOutfield"] },
         { "itemId": "GF2-15", "mappedTo": ["opposition.reciprocal"] },
-        { "itemId": "GF2-16.a", "mappedTo": ["restart.touchline", "restart.endLine.illustrativeValue"] },
+        { "itemId": "GF2-16.a", "mappedTo": ["restart.touchline", "restart.endLine.toWhom"] },
         { "itemId": "GF2-16.b", "mappedTo": ["restart.touchline"] },
         { "itemId": "GF2-17", "mappedTo": ["play.continuous"] },
         { "itemId": "GF2-18", "mappedTo": ["play.continuous"] },
@@ -1854,7 +2181,7 @@
     "accountOutsideCategories": "Not a requirement under this reading (an example); not counted.",
     "requirementAccount": [
         { "id": "RA-ID-011", "requirementRef": { "table": "identity_rules", "row": "RPC-ID-011" }, "clause": null, "reading": null, "category": "Dependent on coach observation or judgment, with the relevant observable conditions identified.", "standard": "Learning-design relevance", "paths": ["play.continuous", "scoring.afterRegain"], "observableConditions": "Whether attacks develop from settled, organized possession against an organized defence (Christian's three observation categories describe the defence's organization when a team scores); no threshold.", "inCoachGuidance": false, "note": "Christian's 29 October decision 4(b): organized attacking possession characterizes the dominant opportunities rather than being a required state for every counted score. Christian's categories are in the coach guidance; whether attacks develop from settled possession is not. Not counted as satisfied." },
-        { "id": "RA-ID-012", "requirementRef": { "table": "identity_rules", "row": "RPC-ID-012" }, "clause": null, "reading": null, "category": "Dependent on coach observation or judgment, with the relevant observable conditions identified.", "standard": "Learning-design relevance", "paths": ["purpose"], "observableConditions": "Whether attacks improve their conditions (space, time, options or position) as play develops; no threshold.", "inCoachGuidance": false, "note": "The purpose is stated in the coach text (the coach definition); whether the environment serves it depends on observation and on knowledge not yet approved (K2 open). Not counted as satisfied." },
+        { "id": "RA-ID-012", "requirementRef": { "table": "identity_rules", "row": "RPC-ID-012" }, "clause": null, "reading": null, "category": "Dependent on coach observation or judgment, with the relevant observable conditions identified.", "standard": "Learning-design relevance", "paths": ["purpose"], "observableConditions": "Whether attacks improve their conditions (space, time, options or position) as play develops; no threshold.", "inCoachGuidance": false, "note": "The purpose is stated in the coach text (the coach definition); whether the environment serves it depends on observation and on knowledge not yet approved (the sufficiency basis is open: AOD-K2-SUFFICIENCY). Not counted as satisfied." },
         { "id": "RA-ID-013", "requirementRef": { "table": "identity_rules", "row": "RPC-ID-013" }, "clause": null, "reading": null, "category": "Explicitly represented in the finished activity.", "standard": "Structural validity", "paths": ["scoring.event", "scoring.means"], "observableConditions": null, "note": "A point needs a controlled arrival in the target zone; possession alone scores nothing." },
         { "id": "RA-ID-014", "requirementRef": { "table": "identity_rules", "row": "RPC-ID-014" }, "clause": null, "reading": null, "category": "Dependent on coach observation or judgment, with the relevant observable conditions identified.", "standard": "Field effectiveness", "paths": ["laws.default", "adjustments"], "observableConditions": "Whether players have more than one way forward and more than one support option as play develops; no rule removes a passing option (GF2-22).", "inCoachGuidance": false, "note": "Not counted as satisfied." },
         { "id": "RA-ID-015", "requirementRef": { "table": "identity_rules", "row": "RPC-ID-015" }, "clause": null, "reading": null, "category": "Dependent on coach observation or judgment, with the relevant observable conditions identified.", "standard": "Learning-design relevance", "paths": ["scoring.event"], "observableConditions": "Whether play tips into an immediate genuine chance-creation window (an exclusion boundary toward the neighbouring context); the target zone has no goal.", "inCoachGuidance": false, "note": "An exclusion rule (boundary, RPC-VAL-013); not counted as satisfied." },
@@ -1866,12 +2193,12 @@
         { "id": "RA-PROP-134-A2-COLON", "requirementRef": { "table": "properties", "row": "RPC-PROP-134" }, "clause": "purposeful", "reading": "COLON", "category": "Dependent on coach observation or judgment, with the relevant observable conditions identified.", "standard": "Field effectiveness", "paths": ["scoring.event"], "observableConditions": "Whether the advancement that leads to a point comes from the team's own attacking play rather than from chance (for example a loose ball running into the target zone); no threshold.", "inCoachGuidance": false, "note": "As under the other reading; not counted as satisfied." },
         { "id": "RA-PROP-134-B-COLON", "requirementRef": { "table": "properties", "row": "RPC-PROP-134" }, "clause": "from the attack's starting condition", "reading": "COLON", "category": "Unsupported or missing.", "standard": "Learning-design relevance", "paths": ["scoring.startingCondition"], "observableConditions": null, "note": "UNRESOLVED, as under the other reading." },
         { "id": "RA-PROP-134-C-COLON", "requirementRef": { "table": "properties", "row": "RPC-PROP-134" }, "clause": "reaching a more advanced representative area", "reading": "COLON", "category": "Explicitly represented in the finished activity.", "standard": "Structural validity", "paths": ["scoring.event", "endZones.placement"], "observableConditions": null, "note": "A required component under this reading; the advanced target zone is what scores." },
-        { "id": "RA-PROP-134-D-COLON", "requirementRef": { "table": "properties", "row": "RPC-PROP-134" }, "clause": "while maintaining attacking possession", "reading": "COLON", "category": "Unsupported or missing.", "standard": "Structural validity", "paths": ["scoring.means", "scoring.afterRegain"], "observableConditions": null, "note": "A required component under this reading only. Control at the moment of arrival is represented; whether possession must be maintained from the attack's starting condition is not, and points straight after a regain count. Whether maintaining possession is a requirement at all is Christian's open question (5 November assessment)." }
+        { "id": "RA-PROP-134-D-COLON", "requirementRef": { "table": "properties", "row": "RPC-PROP-134" }, "clause": "while maintaining attacking possession", "reading": "COLON", "category": "Unsupported or missing.", "standard": "Structural validity", "paths": ["scoring.means", "scoring.afterRegain"], "observableConditions": null, "note": "A required component under this reading only. Control at the moment of arrival is represented; whether possession must be maintained from the attack's starting condition is not, and points straight after a regain count. Christian's reply of 6 November, section 2, does not treat maintaining attacking possession as an independently approved universal requirement solely because it appears within the example (ASM-06NOV-SOURCE); the line stays listed, unsupported, under this reading until the correction is verified and applied." }
     ],
     "suitability": {
         "standing": "OURS: LOGICAL INFERENCE. Each entry cites the configuration paths and the knowledge rows it rests on; code only joins and prints. No verdict. A structural presence is not evidence that an affordance emerges (Christian's D6), and nothing here is field evidence.",
         "properties": [
-            { "property": "meaningful opposition", "structural": { "status": "EXPRESSED_BY_CONFIGURATION", "paths": ["teams.count", "opposition.reciprocal", "play.continuous"], "rows": ["RPC-VAL-014", "GA-001-OIC-03"] }, "functional": { "status": "ONLY_VERIFIABLE_IN_PLAY" }, "note": "Two opposing teams with reciprocal objectives and continuous play are present by configuration; whether defenders can functionally influence attacking opportunities (Christian's 5 November wording) can be seen only in play." },
+            { "property": "meaningful opposition", "structural": { "status": "EXPRESSED_BY_CONFIGURATION", "paths": ["teams.count", "opposition.reciprocal", "play.continuous"], "rows": ["RPC-VAL-014", "GA-001-OIC-03"] }, "functional": { "status": "ONLY_VERIFIABLE_IN_PLAY" }, "note": "Two opposing teams with reciprocal objectives and continuous play are present by configuration; whether defenders can functionally influence attacking opportunities (Christian's wording, second reply of 5 November) can be seen only in play." },
             { "property": "direction", "structural": { "status": "EXPRESSED_BY_CONFIGURATION", "paths": ["directions", "endZones.placement"], "rows": ["RPC-VAL-014"] }, "functional": { "status": "ONLY_VERIFIABLE_IN_PLAY" }, "note": "Each team attacks a fixed target zone at one end." },
             { "property": "information", "structural": { "status": "EXPRESSED_BY_CONFIGURATION", "paths": ["teams.count", "opposition.reciprocal", "play.continuous", "endZones.access"], "rows": ["RPC-PROP-038", "RPC-PROP-039", "RPC-PROP-040", "RPC-PROP-041"] }, "functional": { "status": "ONLY_VERIFIABLE_IN_PLAY" }, "note": "Live opposition in one shared area keeps defensive organization, teammate positioning and emerging space as information; whether that information is representative can be seen only in play." },
             { "property": "consequences", "structural": { "status": "EXPRESSED_BY_CONFIGURATION", "paths": ["scoring.event", "scoring.afterRegain", "play.continuous", "restart.afterPoint.method"], "rows": ["RPC-VAL-014"] }, "functional": { "status": "ONLY_VERIFIABLE_IN_PLAY" }, "note": "Points, turnovers that keep play live, and immediate attacks after a regain are consequences present by configuration." },
@@ -1886,10 +2213,10 @@
         ],
         "identityPoint": { "statement": "With nothing added, the same build on the same Game Form and context would serve Secure Possession (TA02), which routes to the same context: the activity's identity rests on the Game Problem translation and the coach's purpose, not on the environment.", "rows": ["RPC-VAL-011", "RPC-VAL-013"] },
         "scopeTension": { "statement": "Whether the activity's main opportunities arise against organized opposition, the circumstance the scope of Christian's Game Problem designation names, cannot be established from the configuration: every controlled arrival counts, including straight after a regain (Christian's 29 October decision 4(b); RPC-ID-011).", "rulingRefs": ["ASM-AUTH-GP-SCOPE", "ASM-29OCT-4B"] },
-        "addNothing": { "status": "UNVERIFIED", "statement": "Adding nothing is not shown to be knowledge-supported (K2 open), so suitability remains unverified.", "rulingRef": "ASM-REV1-ADD-NOTHING", "quote": "Where the knowledge doesn't support that conclusion, the system should report that suitability remains unverified." },
+        "addNothing": { "status": "UNVERIFIED", "statement": "No additional manipulation has an authorized basis, so the basic Game Form is retained as a review candidate (K2, DRAFT wording awaiting Christian's review); retaining it does not demonstrate that it is sufficient for the intended learning problem, so suitability remains unverified (AOD-K2-SUFFICIENCY).", "rulingRef": "ASM-REV1-ADD-NOTHING", "quote": "Where the knowledge doesn't support that conclusion, the system should report that suitability remains unverified." },
         "reviewPoints": [
             { "id": "RISK-WAITING", "statement": "Attackers may wait inside the target zone for a pass: a risk Christian has seen in similar games (said of the build-out activity, 15 October). Applying it here is ours (OURS: CAUSAL HYPOTHESIS). No mechanism is imposed, as Christian's words ask; it bears on meaningful opposition and on multiple functional solutions, and is visible only in play.", "rulingRefs": ["ASM-15OCT-WAITING"] },
-            { "id": "RISK-RESTART-AT-A-ZONE", "statement": "A restart taken beside or inside a target zone could give an immediate point: a throw-in to a teammate standing in the zone; a free kick next to it, which keeps the opponents 9.15 m from the ball; a corner kick, were one taken. The Laws apply unchanged and no rule is invented; the end-line value has the team defending a target zone restart from its own end line, on the back edge of the zone its opponents attack; with no opponent distance added, an opponent standing in that zone who intercepts the restart and controls the ball there scores at once. Visible only in play.", "rulingRefs": ["ASM-23OCT-LAWS"] }
+            { "id": "RISK-RESTART-AT-A-ZONE", "statement": "A restart taken beside or inside a target zone could give an immediate point: a throw-in to a teammate standing in the zone; a free kick next to it, which keeps the opponents 9.15 m from the ball; a corner kick, were one taken. The Laws apply unchanged and no rule is invented. At an end line the coach serves a new ball (Christian's provisional ruling of 6 November); the serve's own risks, an immediate point at the zone's edge and an interception near the zone the opponents attack, are examined in Part 6 and left open (R1, R2). Visible only in play.", "rulingRefs": ["ASM-23OCT-LAWS", "ASM-06NOV-RESTART"] }
         ]
     },
     "scenarios": {
@@ -1904,7 +2231,7 @@
         "scopeCircumstance": {
             "key": "organizedOppositionRestrictsUsableSpace",
             "holdsWhen": true,
-            "rulingRefs": ["ASM-AUTH-GP-SCOPE", "ASM-REV1-GP-SCOPE"],
+            "rulingRefs": ["ASM-AUTH-GP-SCOPE", "ASM-REV1-GP-SCOPE", "ASM-06NOV-OPTION-A"],
             "whenNotEstablished": "the scoped circumstance of Christian's designation (progressing against organized opposition) is not established, so the designation's scope is uncertain; the primary is unchanged and nothing switches"
         },
         "insufficientWhen": [{ "key": "informationSufficient", "value": false }],
@@ -1912,8 +2239,8 @@
             "requirementId": "REQ-E1-CONTEXT-SENSITIVE-RESOLUTION",
             "circumstanceKey": "usefulSpaceAlreadyAvailable",
             "engagesWhen": true,
-            "rulingRefs": ["ASM-NOV3-REQ-E1", "ASM-EVE-MISMATCH", "ASM-REV1-GP-SCOPE"],
-            "report": "possible mismatch reported for review; primary unchanged"
+            "rulingRefs": ["ASM-NOV3-REQ-E1", "ASM-EVE-MISMATCH", "ASM-REV1-GP-SCOPE", "ASM-06NOV-OPTION-A"],
+            "report": "possible mismatch reported for review; primary unchanged (Christian's ruling for the isolated review pathway: reply of 6 November, section 3)"
         },
         "uncertaintyReport": "uncertainty reported: the relevant circumstances are unknown",
         "widthCheck": { "note": "The configured area and the team sizes are read from the assembled values (no copy is typed here); the available space is set equal to the configured area, and the width comparison's own circumstances (about a proposed larger area) are not supplied, so no proposal can be made." },
@@ -1954,19 +2281,19 @@
         {
             "id": "8.1",
             "title": "A05 Game Problem translation: the smallest authoritative decision",
-            "rulingRefs": ["ASM-AUTH-GP-SCOPE", "ASM-REV1-GP-SCOPE"],
+            "rulingRefs": ["ASM-AUTH-GP-SCOPE", "ASM-REV1-GP-SCOPE", "ASM-06NOV-OPTION-A"],
             "items": [
                 "Candidate (a), for Christian's decision: a scoped ruling recorded in review-pathway data only: Create Space primary, Exploit Space secondary within progressing against organized opposition; where useful space already exists, a possible mismatch is reported for review, with no switch.",
                 "Candidate (b), for Christian's decision: anchor that scope to the context's own approved begin conditions (RPC-PROP-034, RPC-ID-011) together with Christian's 31 October working definition of an organized defence (ASM-31OCT-ORGANIZED).",
                 "Not a knowledge decision but a production step (c): the Session Planning Model's Engine Translation for A05 stays TBD until production, because populating it would change A05's live candidates.",
-                "None of these is decided here (OURS: our proposals)."
+                "These were our proposals (OURS). Christian's reply of 6 November, section 3, approves (a) for the isolated review pathway only, keeps (b) available for later consideration, and authorizes no production translation."
             ],
-            "smallest": "Smallest, in our view (OURS): (a), a scoped ruling recorded in review-pathway data only. (b) is larger: it adds an anchor to the context's approved begin conditions and Christian's 31 October working definition. (c) is a production step, not a knowledge decision."
+            "smallest": "Answered by Christian's reply of 6 November, section 3: (a), for the isolated review pathway only, is filed as ASM-06NOV-OPTION-A; (b) stays available for later consideration (AOD-OPTION-B); (c) is a production step and is not authorized."
         },
         {
             "id": "8.2",
             "title": "Attack Development scoring source",
-            "rulingRefs": ["ASM-AUTH-STARTING-CONDITION", "ASM-REV1-SOURCE-FIDELITY", "ASM-REV1-SMALLEST-CORRECTION", "ASM-13SEP-SCORING"],
+            "rulingRefs": ["ASM-AUTH-STARTING-CONDITION", "ASM-REV1-SOURCE-FIDELITY", "ASM-REV1-SMALLEST-CORRECTION", "ASM-13SEP-SCORING", "ASM-06NOV-SOURCE"],
             "showPaths": ["scoring.qualifyingCondition.sep13Text", "scoring.qualifyingCondition.workbookText", "scoring.startingCondition"],
             "items": [
                 "The two texts are printed side by side below: Christian's 13 September text (our copy as pasted by Joe; original not yet checked) has \"for example\" before its final clause; the workbook entry has a colon.",
@@ -1974,7 +2301,10 @@
                 "Precondition for any amendment: verify the 13 September original (Joe's mailbox, or Christian's sent copy); our copy is Joe's paste.",
                 "Attachment chain (OURS: LOGICAL INFERENCE, not verification): the draft workbook Christian reviewed on 13 September (zip time 15:31) holds no qualifying-condition sentence; the sentence first appears in Christian's reply; the workbook carrying the colon was written later that day (zip time 23:07; the zip clock's time zone is not recorded). This is consistent with the colon entering in our transcription; it does not replace checking the original email.",
                 "The starting-condition clause stays UNRESOLVED in the scoring section and the trace, never in the observation guidance.",
-                "Disclosure: our own earlier draft Attack Development requirement list (the RPC-003 draft contract and draft requirement bindings, test-only, OURS) reads the clause after the colon as a definition with required components; it is not used by this experiment."
+                "Disclosure: our own earlier draft Attack Development requirement list (the RPC-003 draft contract and draft requirement bindings, test-only, OURS) reads the clause after the colon as a definition with required components; it is not used by this experiment.",
+                "Christian's reply of 6 November, section 2: once the exact wording is verified against the original approved source, the smallest correction is authorized, provided no other scoring semantics change. Prepared, not applied: the library row RPC-PROP-134 with ':' replaced by '—for example,' (13 characters, nothing else), its before and after text and its provenance (the 13 September email; the reply of 6 November, section 2; verification by Joe, date blank until done). The review record and the knowledge library are unchanged on this point until verification.",
+                "Verification owed: our only copies are Joe's two September pastes; the attachment sent on 6 November went unverified. The request to Joe is repeated (the last 13 September email, opening \"Thanks. The generated-activity evidence makes the scoring issue much clearer.\").",
+                "Identified separately, as section 2 asks: A05's Active coach definition \"Improve attacking conditions while maintaining purposeful possession.\" (Session Planning Model) and Christian's 28 and 30 October restatements are a learning purpose, not a scoring requirement (OURS reading); no other source makes maintaining possession a scoring requirement (searched)."
             ]
         },
         {
@@ -1989,20 +2319,26 @@
         }
     ],
     "openDecisions": [
-        { "id": "AOD-STARTING-CONDITION", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "What role should \"from the attack’s starting condition\" play in scoring or configuration?", "rulingRefs": ["ASM-AUTH-STARTING-CONDITION", "ASM-30OCT-EVE-UNRESOLVED", "ASM-13SEP-SCORING"], "handling": "Shown as UNRESOLVED in Scoring and the trace; it plays no role in the example's game." },
-        { "id": "AOD-PROP-134-MEANING", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "What does the approved qualifying condition mean (the \"for example\" reading or the colon reading), and is maintaining possession a requirement?", "rulingRefs": ["ASM-REV1-SOURCE-FIDELITY", "ASM-13SEP-SCORING"], "handling": "Both texts shown; both readings accounted for; no canonical amendment." },
-        { "id": "AOD-VERIFY-SEP13", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "Does the original 13 September email carry \"for example\" where our copy does? Verifying it (Joe's mailbox, or your sent copy) is a precondition for any amendment of the scoring row.", "rulingRefs": ["ASM-REV1-SOURCE-FIDELITY", "ASM-13SEP-SCORING"], "handling": "Our copy is printed with its provenance (Joe's paste); no amendment is proposed or applied here." },
-        { "id": "AOD-TRANSLATION-SCOPE", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "What is the production scope of the A05 Game Problem translation (section 8.1)?", "rulingRefs": ["ASM-AUTH-GP-SCOPE"], "handling": "The experiment uses the scoped designation; the smallest decision we see is (a), with (b) and (c) set out in Part 6." },
-        { "id": "AOD-K2-SUFFICIENCY", "blocks": "SUITABILITY", "question": "On what knowledge basis could adding nothing to the Game Form be shown sufficient (K2)?", "rulingRefs": ["ASM-REV1-ADD-NOTHING"], "handling": "Suitability is reported UNVERIFIED." },
-        { "id": "AOD-CREATE-SPACE-RELATIONSHIP", "blocks": "SUITABILITY", "question": "Which approved environmental relationship would support Create Space in Attack Development?", "rulingRefs": ["ASM-REV1-ADD-NOTHING"], "handling": "None is approved; no element-to-affordance relationship is created." },
-        { "id": "AOD-T3-END-LINE", "blocks": "NON_BLOCKING", "question": "May the illustrative end-line restart stand in this offline example? With it, when the ball goes over an end line, the team defending the target zone at that end restarts from that end line, so no restart is taken on the edge of the zone the restarting team attacks (a departure the Laws do not supply: their goal kick and corner kick assume a goal). With it, opponents may wait inside the target zone at that end, whose back edge is that end line, and score by intercepting the restart. Is that acceptable, or would you prefer a coach-served ball there (\"a coach quickly serving a new ball can be an effective way to maintain game flow, energy, and the frequency of meaningful opportunities\"), not treated as a live turnover?", "rulingRefs": ["ASM-AUTH-ILLUSTRATIVE", "ASM-23OCT-LAWS", "ASM-REV1-COACH-SERVED-BALL"], "handling": "Labelled ILLUSTRATIVE, marked in the review copy; confirmation asked." },
-        { "id": "AOD-PROVISIONAL-CLASS", "blocks": "NON_BLOCKING", "question": "We placed your provisional rulings in class 3 (\"Candidate or provisional knowledge.\"). Did you intend class 2? We also placed your rulings that state no scope in class 2 (\"An explicit scoped ruling.\"), with your scoped ones.", "rulingRefs": ["ASM-AUTH-CLASSES"], "handling": "Class 3 printed, with your words and received date; each ruling in class 2 prints its scope words, or that it states none." },
-        { "id": "AOD-KICKOFF-DISTANCE", "blocks": "NON_BLOCKING", "question": "Optionally: should the kick-off keep the Laws' 9.15 m distance, or may it be relaxed? Your 29 October words: \"An adapted kick-off following a score seems reasonable for testing, provided it recreates useful playing relationships and doesn't unnecessarily interrupt the learning environment.\"", "rulingRefs": ["ASM-REV1-KICKOFF", "ASM-29OCT-ADAPTED-KICKOFF"], "handling": "Our reading of your 5 November \"ordinary kickoff\": the Laws kick-off unchanged, 9.15 m included." },
-        { "id": "AOD-REQ-E1-REUSE", "blocks": "OUR_READING", "question": "The mismatch report stays a reusable reasoning requirement, applied only in this offline experiment; using it beyond that needs your authorization.", "rulingRefs": ["ASM-EVE-MISMATCH", "ASM-AUTH-BOUNDS"], "handling": "Read from your 4 November words (a reusable requirement) and your 5 November bounds (no broad Stage 2 implementation); dropped from the questions." },
+        { "id": "AOD-STARTING-CONDITION", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "In your 13 September condition, does \"the attack’s starting condition\" mean where the possession began, or the attack's state when it began (organized attacking possession established)? Either answer leaves the canonical scoring row unchanged. If where it began (C1): it can be a condition on each scoring event: a point needs an arrival more advanced than where that possession began. That departs from your provisional option (5), which favoured not \"establishing a restriction on every individual scoring event\" (30 October). On the illustrative end-zone placement it changes which points count only for a possession that begins inside the zone it attacks: if that possession may not score without leaving the zone, a team regaining there must carry the ball out and back in, which your 30 October reply declined for a qualifying line; if it may, C1 adds no condition on this geometry, and your 29 October example (a regain beside the zone, then a point) still scores, met only at the evidence question. Its effect also depends on where the zones are placed, which is not decided. It needs no new knowledge only on this reading of the phrase. If the state (C3): the phrase is Attack Development's begin condition (RPC-PROP-034, RPC-PROP-035, identity rule RPC-ID-011; all ACTIVE; no new text), close to your option (5)'s emphasis and to how your other approved conditions begin (for example High Press Escape). It leaves every legitimate point scoring. It avoids moving the condition into coach observation only if the configuration is required to present that begin condition, which needs knowledge not yet approved (a Create Space relationship); otherwise recognizing it rests on observation, the relocation you warned against.", "rulingRefs": ["ASM-AUTH-STARTING-CONDITION", "ASM-30OCT-EVE-UNRESOLVED", "ASM-13SEP-SCORING", "ASM-30OCT-OPTION5", "ASM-06NOV-STARTING"], "handling": "Shown as UNRESOLVED in Scoring and the trace; no value changes and scoring is unchanged. Neither meaning is labelled smallest or preferred, and nothing is computed for either." },
+        { "id": "AOD-PROP-134-MEANING", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "What does the approved qualifying condition mean (the \"for example\" reading or the colon reading), and is maintaining possession a requirement?", "rulingRefs": ["ASM-REV1-SOURCE-FIDELITY", "ASM-13SEP-SCORING", "ASM-06NOV-SOURCE"], "handling": "Both texts shown; both readings accounted for; no canonical amendment. Christian's reply of 6 November, section 2, supports the \"for example\" reading once the wording is verified, and does not treat maintaining attacking possession as an independently approved universal requirement." },
+        { "id": "AOD-VERIFY-SEP13", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "Does the original 13 September email carry \"for example\" where our copy does? Verifying it (Joe's mailbox, or your sent copy) is a precondition for any amendment of the scoring row.", "rulingRefs": ["ASM-REV1-SOURCE-FIDELITY", "ASM-13SEP-SCORING", "ASM-06NOV-SOURCE"], "handling": "Verification owed: our only copies are Joe's two September pastes, and the attachment sent on 6 November went unverified; the request to Joe is repeated. Our copy is printed with its provenance; the correction is prepared in a change record, not applied." },
+        { "id": "AOD-SCORING-ROW-LIVE", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "Once verified, may the correction reach the live knowledge library (A01 unaffected; 32 review-page entries change), or should it stay in the review record until production work is authorized?", "rulingRefs": ["ASM-06NOV-SOURCE", "ASM-AUTH-BOUNDS"], "handling": "A change record is prepared (before, after, provenance); nothing is applied to the knowledge library." },
+        { "id": "AOD-TRANSLATION-SCOPE", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "What is the production scope of the A05 Game Problem translation (section 8.1)?", "rulingRefs": ["ASM-AUTH-GP-SCOPE", "ASM-06NOV-OPTION-A"], "handling": "Option (a) is approved for the isolated review pathway only (reply of 6 November, section 3); no unconditional production translation and no change to the live Session Planning Model is authorized." },
+        { "id": "AOD-OPTION-B", "blocks": "NON_BLOCKING", "question": "Option (b) is not pursued; it stays available for later consideration (reply of 6 November, section 3).", "rulingRefs": ["ASM-06NOV-OPTION-A"], "handling": "Recorded; nothing is built for it." },
+        { "id": "AOD-K2-SUFFICIENCY", "blocks": "SUITABILITY", "question": "On what knowledge basis could a Game Form with nothing added be shown sufficient for the intended learning problem? K2 does not answer this.", "rulingRefs": ["ASM-REV1-ADD-NOTHING", "ASM-30OCT-EVE-SUFFICIENCY", "ASM-06NOV-K2"], "handling": "Suitability is reported UNVERIFIED." },
+        { "id": "AOD-K2-REVIEW-CANDIDATE", "blocks": "NON_BLOCKING", "question": "K2 (DRAFT, for review; not executable selection knowledge). When no additional constraint, incentive or environmental manipulation currently has an authorized basis for the resolved context and Game Problems, the engine may retain a basic representative Game Form that is compatible with that context, with no necessary structural condition demonstrably eliminated, as a review candidate. Where several Game Forms are compatible, each may be retained on the same terms, and retaining one implies no preference among them. No constraint, incentive or environmental manipulation is added simply to make the activity appear customized. Retaining a form records only that no additional manipulation is currently justified; the retained form has not been demonstrated sufficient for the intended learning problem, and meeting the structural compatibility requirements does not demonstrate ecological sufficiency. The retained candidate is reported with: the missing basis for each constraint, incentive or environmental manipulation that the knowledge relates to the context or its Game Problems, or that has been proposed for this configuration; every requirement of a secondary Game Problem whose relationship to the form is not established, kept visible, and neither treated as satisfied, nor automatically promoted, nor discarded; and the relationships that exist only in play, named so the coach can observe them, which discloses them, moves no requirement into observation, and counts nothing as satisfied under K2. Whether the form provides productive, recurring opportunities to encounter the intended problem, rather than only making it possible, remains unverified, including how often, how meaningfully and among whom the problem is encountered and whether the challenge is appropriate. K2 moves no suitability status and is not a basis for determining when a Game Form is sufficient; any such claim needs its own basis and the knowledge owner's authorization. The condition is judged on the knowledge in force each time K2 is applied.", "rulingRefs": ["ASM-06NOV-K2", "ASM-15OCT-NOT-MANDATORY"], "handling": "DRAFT; not executable; awaiting Christian's review. Review note (ours): Question: does an adaptation of the Laws that the form's structure requires, such as the provisional coach-served end-line restart where no goal stands, count as an additional manipulation under K2? K2's wording does not decide it." },
+        { "id": "AOD-CREATE-SPACE-RELATIONSHIP", "blocks": "SUITABILITY", "question": "Which approved relationships would make Create Space not only possible in the configuration but offered as productive, recurring encounters with restricted attacking space, while preserving functional opposition, multiple solutions and representative consequences?", "rulingRefs": ["ASM-REV1-ADD-NOTHING", "ASM-06NOV-CREATE-SPACE"], "handling": "None is approved; no element-to-affordance relationship is created; the gap stays explicit (K1 and K3 stay open)." },
+        { "id": "AOD-T3-END-LINE", "blocks": "NON_BLOCKING", "question": "May the illustrative end-line restart stand in this offline example? With it, when the ball goes over an end line, the team defending the target zone at that end restarts from that end line, so no restart is taken on the edge of the zone the restarting team attacks (a departure the Laws do not supply: their goal kick and corner kick assume a goal). With it, opponents may wait inside the target zone at that end, whose back edge is that end line, and score by intercepting the restart. Is that acceptable, or would you prefer a coach-served ball there (\"a coach quickly serving a new ball can be an effective way to maintain game flow, energy, and the frequency of meaningful opportunities\"), not treated as a live turnover?", "rulingRefs": ["ASM-AUTH-ILLUSTRATIVE", "ASM-23OCT-LAWS", "ASM-REV1-COACH-SERVED-BALL", "ASM-06NOV-RESTART"], "handling": "Labelled ILLUSTRATIVE, marked in the review copy; confirmation asked.", "answeredBy": { "rulingRef": "ASM-06NOV-RESTART", "statement": "answered by the reply of 6 November, section 6: the illustrative end-line rule is not retained; a simple coach-served restart is tested provisionally, offline (the restart.endLine values)." } },
+        { "id": "AOD-ENDLINE-CONTEST", "blocks": "NON_BLOCKING", "question": "R1: Should opponents be kept a distance from the served ball, or the ball be uncontested until first touched? Today nothing is added.", "rulingRefs": ["ASM-06NOV-RESTART"], "handling": "restart.endLine.contest is our reading (OURS): live once played, no opponent distance; asked, not resolved." },
+        { "id": "AOD-ENDLINE-DISTANCE", "blocks": "NON_BLOCKING", "question": "R2: How far from the target zone it attacks does the receiving team get the ball? At the zone's front edge it can score with one touch; further back, the defending team gains relief for clearing over its own end line. No ruling gives a distance.", "rulingRefs": ["ASM-06NOV-RESTART"], "handling": "restart.endLine.receivingDistance is UNRESOLVED, with no value; asked, not resolved." },
+        { "id": "AOD-ENDLINE-LOCATION", "blocks": "NON_BLOCKING", "question": "R5: Our illustrative exclusion: the serve is never played into or across a target zone, nor to a player inside one. No ruling states it; we chose it from the examination you asked for. Would you set the location, or leave it to the coach's judgment of \"a suitable location\"?", "rulingRefs": ["ASM-06NOV-RESTART", "ASM-06NOV-ILLUSTRATIVE-OFFLINE"], "handling": "restart.endLine.location is ILLUSTRATIVE, labelled; put to Christian for review." },
+        { "id": "AOD-PROVISIONAL-CLASS", "blocks": "OUR_READING", "question": "Section 7 endorsed the weakest-of rule only; placing provisional rulings in class 3 and unscoped rulings in class 2 stays our convention (OURS).", "rulingRefs": ["ASM-AUTH-CLASSES", "ASM-06NOV-PROVENANCE"], "handling": "Not re-asked. Class 3 printed, with Christian's words and received date; each ruling in class 2 prints its scope words, or that it states none." },
+        { "id": "AOD-KICKOFF-DISTANCE", "blocks": "NON_BLOCKING", "question": "Optionally: should the kick-off keep the Laws' 9.15 m distance, or may it be relaxed? Your 29 October words: \"An adapted kick-off following a score seems reasonable for testing, provided it recreates useful playing relationships and doesn't unnecessarily interrupt the learning environment.\"", "rulingRefs": ["ASM-REV1-KICKOFF", "ASM-29OCT-ADAPTED-KICKOFF", "ASM-06NOV-KICKOFF"], "handling": "Our reading of \"ordinary kickoff\" (first reply of 5 November) until then: the Laws kick-off unchanged, 9.15 m included.", "answeredBy": { "rulingRef": "ASM-06NOV-KICKOFF", "statement": "answered by the reply of 6 November, section 8: the ordinary Laws' 9.15 m requirement is retained for the current prototype." } },
+        { "id": "AOD-REQ-E1-REUSE", "blocks": "OUR_READING", "question": "The mismatch report stays a reusable reasoning requirement, applied only in this offline experiment; using it beyond that needs your authorization.", "rulingRefs": ["ASM-EVE-MISMATCH", "ASM-AUTH-BOUNDS", "ASM-06NOV-OPTION-A"], "handling": "Read from the reply of 4 November (a reusable requirement) and the second reply of 5 November (no broad Stage 2 implementation); dropped from the questions.", "answeredBy": { "rulingRef": "ASM-06NOV-OPTION-A", "statement": "answered: reply of 6 November, section 3, for the isolated review pathway (the mismatch report is reported on the hypothetical scenarios only)." } },
         { "id": "AOD-COACH-QUESTION", "blocks": "OUR_READING", "question": "Your question for future coach feedback stays out of this activity's coach guidance, because you called it a future feedback direction.", "rulingRefs": ["ASM-AUTH-COACH-QUESTION"], "handling": "Kept out of the coach text; printed in Part 2 and Part 7; dropped from the questions." },
         { "id": "AOD-MIRRORED", "blocks": "OUR_READING", "question": "Both teams score in the same way: our reading of your reciprocal objectives and of each team having its own target; your words do not state it.", "rulingRefs": ["ASM-28OCT-PROVISIONAL", "ASM-9OCT-TEAMS"], "handling": "Printed in Scoring as its own sentence, class 6 (our reading)." },
         { "id": "AOD-WAITING-ATTACKERS", "blocks": "KNOWN_RISK", "question": "Attackers may wait inside the target zone for a pass, a risk you have seen in similar games (said of the build-out activity); applying it here is our causal hypothesis.", "rulingRefs": ["ASM-15OCT-WAITING"], "handling": "No mechanism is imposed, as your 15 October words ask; listed in Part 3 as a risk to review in play; kept out of the coach text." },
-        { "id": "AOD-RESTART-AT-A-ZONE", "blocks": "KNOWN_RISK", "question": "A restart taken beside or inside a target zone (a throw-in, a free kick, a corner kick were one taken) could give an immediate point.", "rulingRefs": ["ASM-23OCT-LAWS"], "handling": "The Laws apply unchanged and no rule is invented; the end-line value has the team defending a target zone restart from its own end line, on the back edge of the zone its opponents attack; with no opponent distance added, an opponent standing in that zone who intercepts the restart and controls the ball there scores at once; listed in Part 3 and the Laws account for review." }
+        { "id": "AOD-RESTART-AT-A-ZONE", "blocks": "KNOWN_RISK", "question": "A restart taken beside or inside a target zone (a throw-in, a free kick, a corner kick were one taken) could give an immediate point.", "rulingRefs": ["ASM-23OCT-LAWS", "ASM-06NOV-RESTART"], "handling": "The Laws apply unchanged and no rule is invented for throw-ins and free kicks beside a target zone (still flagged). At an end line the coach serves a new ball; its risks are examined in Part 6 (R1, R2, R5); listed in Part 3 and the Laws account for review." }
     ],
     "reconciliation": {
         "rulingRef": "ASM-AUTH-RECONCILE",
@@ -2025,7 +2361,67 @@
             { "work": "The DRAFT coach-wording store (keyed by register vocabulary)", "status": "PATTERN REUSED, CONTENT NOT", "why": "Wording keyed by configuration path; most templates are written at the Game Form level, but the What to Watch templates and two review notes are scoped to this goal or its context (counted in Part 7); its A01 sentences are not reused." },
             { "work": "The Stage 2 width fixture", "status": "NOT USED FOR THE ASSEMBLY", "why": "Its circumstances describe a proposed larger area and its first scenario offers a test-only proposal; the width comparison is called with the configured area as the limit and its circumstances not supplied." }
         ],
-        "stillOpen": ["K1 (what organized opposition requires)", "K2 (a reusable basis for a provisional starting point)", "K3 (which relationship to adjust first)", "whether maintaining possession is a requirement of the scoring row"]
+        "stillOpen": ["K1 (what organized opposition requires)", "K2 (the exact wording, DRAFT, awaiting Christian's review; the sufficiency basis stays open)", "K3 (which relationship to adjust first)", "the scoring row's correction (verification owed; nothing applied)"]
+    },
+    "changeLog": [
+        { "path": "restart.endLine.illustrativeValue", "before": "DEFENDING_TEAM_FROM_ITS_END_LINE (ILLUSTRATIVE, class 5): the team defending the target zone at that end restarts from that end line", "after": "retired; replaced by the coach-served end-line restart (restart.endLine.method and the six values beside it)", "n6Lines": "N6 l.59-60", "date": "2026-11-06" },
+        { "path": "restart.endLine.status", "before": "no value (UNRESOLVED, class 6): an adaptation owed", "after": "retired; the restart is set by restart.endLine.method; what stays unresolved is restart.endLine.receivingDistance", "n6Lines": "N6 l.61-66", "date": "2026-11-06" },
+        { "path": "restart.endLine.method", "before": "none", "after": "COACH_SERVES_NEW_BALL (Christian's provisional ruling; class 3)", "n6Lines": "N6 l.61", "date": "2026-11-06" },
+        { "path": "restart.endLine.toWhom", "before": "none", "after": "TEAM_THAT_DID_NOT_TOUCH_IT_LAST (OURS: LOGICAL INFERENCE; class 6)", "n6Lines": "N6 l.61", "date": "2026-11-06" },
+        { "path": "restart.endLine.timing", "before": "none", "after": "PROMPTLY (Christian's provisional ruling; class 3)", "n6Lines": "N6 l.62", "date": "2026-11-06" },
+        { "path": "restart.endLine.noReset", "before": "none", "after": "NO_REPOSITIONING_REQUIRED (OURS: LOGICAL INFERENCE; class 6)", "n6Lines": "N6 l.62", "date": "2026-11-06" },
+        { "path": "restart.endLine.contest", "before": "none", "after": "LIVE_WHEN_PLAYED_NO_OPPONENT_DISTANCE (OURS: LOGICAL INFERENCE; class 6); R1 asked", "n6Lines": "N6 l.61, 66", "date": "2026-11-06" },
+        { "path": "restart.endLine.location", "before": "none", "after": "IN_THE_HALF_WHERE_IT_WENT_OUT_OUTSIDE_BOTH_TARGET_ZONES_NOT_ACROSS_EITHER_COACH_CHOOSES_PLAYER (ILLUSTRATIVE; class 5); R5 asked", "n6Lines": "N6 l.62-63", "date": "2026-11-06" },
+        { "path": "restart.endLine.receivingDistance", "before": "none", "after": "no value (UNRESOLVED; class 6); R2 asked", "n6Lines": "N6 l.63, 66", "date": "2026-11-06" },
+        { "path": "start.kickoffDistanceM", "before": "9.15, our reading of \"ordinary\" (OURS; class 6)", "after": "9.15, decided by Christian's ruling for the current prototype (class 2)", "n6Lines": "N6 l.80", "date": "2026-11-06" },
+        { "path": "scoring.afterRegain", "before": "COUNTS, decided by the 30 October rulings; applying them to every regain was our generalization (class 2)", "after": "COUNTS, decided also by the reply of 6 November, section 1, which states it generally (class 2)", "n6Lines": "N6 l.17", "date": "2026-11-06" },
+        { "path": "scoring.qualifyingCondition.workbookText", "before": "status set by ASM-AUTH-STARTING-CONDITION; ASM-REV1-SOURCE-FIDELITY consulted (class 3)", "after": "status set by ASM-AUTH-STARTING-CONDITION, ASM-REV1-SOURCE-FIDELITY and ASM-06NOV-SOURCE (class 3); the correction prepared, not applied", "n6Lines": "N6 l.23-29", "date": "2026-11-06" },
+        { "path": "LAW-16, LAW-17", "before": "ADAPTATION OWED: the illustrative end-line value stands in", "after": "DEPARTED: the coach-served ball departs from the method and location of the goal kick and corner kick, authorized provisionally; both readings printed", "n6Lines": "N6 l.61, 65", "date": "2026-11-06" },
+        { "path": "contract item GF2-16.a", "before": "mapped to restart.touchline and restart.endLine.illustrativeValue", "after": "mapped to restart.touchline and restart.endLine.toWhom", "n6Lines": "N6 l.61", "date": "2026-11-06" },
+        { "path": "AOD-T3-END-LINE", "before": "open (NON_BLOCKING)", "after": "answered by ASM-06NOV-RESTART", "n6Lines": "N6 l.59-66", "date": "2026-11-06" },
+        { "path": "AOD-KICKOFF-DISTANCE", "before": "open (NON_BLOCKING)", "after": "answered by ASM-06NOV-KICKOFF", "n6Lines": "N6 l.80-81", "date": "2026-11-06" },
+        { "path": "AOD-REQ-E1-REUSE", "before": "our reading (OUR_READING)", "after": "answered by ASM-06NOV-OPTION-A, for the isolated review pathway", "n6Lines": "N6 l.31-33", "date": "2026-11-06" },
+        { "path": "AOD-STARTING-CONDITION", "before": "What role should the starting condition play in scoring or configuration?", "after": "one meaning question, with its two readings (C1, C3); neither labelled smallest or preferred", "n6Lines": "N6 l.11-21", "date": "2026-11-06" },
+        { "path": "AOD-K2-SUFFICIENCY", "before": "On what knowledge basis could adding nothing to the Game Form be shown sufficient (K2)?", "after": "the sufficiency-basis question; K2 does not answer it", "n6Lines": "N6 l.40-49", "date": "2026-11-06" },
+        { "path": "AOD-CREATE-SPACE-RELATIONSHIP", "before": "Which approved environmental relationship would support Create Space in Attack Development?", "after": "possible against productive, recurring encounters with restricted attacking space", "n6Lines": "N6 l.54-56", "date": "2026-11-06" },
+        { "path": "AOD-PROVISIONAL-CLASS", "before": "asked (NON_BLOCKING)", "after": "our convention, not re-asked (OUR_READING)", "n6Lines": "N6 l.68", "date": "2026-11-06" },
+        { "path": "AOD-TRANSLATION-SCOPE", "before": "the smallest decision was (a), in our view", "after": "(a) approved for the isolated review pathway only; no production translation", "n6Lines": "N6 l.31-34", "date": "2026-11-06" },
+        { "path": "new open decisions", "before": "none", "after": "AOD-K2-REVIEW-CANDIDATE, AOD-OPTION-B, AOD-ENDLINE-CONTEST, AOD-ENDLINE-DISTANCE, AOD-ENDLINE-LOCATION, AOD-SCORING-ROW-LIVE", "n6Lines": "N6 l.27, 36, 49, 61-66", "date": "2026-11-06" }
+    ],
+    "restartExamination": {
+        "standing": "OURS: LOGICAL INFERENCE from the record's geometry (an area 40 m long end line to end line by 30 m wide; a 5 m target zone across the full width at each end, so each end line is the back edge of a zone; no offside; any player may enter either zone; a controlled arrival scores, straight after a regain too). Frequencies are CAUSAL HYPOTHESIS, visible only in play. Printed for review; nothing here is a rule.",
+        "rulingRefs": [
+            "ASM-06NOV-RESTART",
+            "ASM-REV1-COACH-SERVED-BALL"
+        ],
+        "cases": "E1: the team attacking the zone at that end touched the ball last, so the team defending that zone receives the serve. E2: the team defending that zone touched it last, so the team attacking it receives.",
+        "columns": [
+            "Immediate point for the receiving team",
+            "Interception point for the opponents",
+            "Incentive to put the ball out deliberately",
+            "Reset or turnover-like",
+            "Effect on the representative problem"
+        ],
+        "rows": [
+            { "id": "C1", "candidate": "end-line serve: from the end line where the ball went out, to whoever is there", "cells": ["E2: yes, near-automatic: the ball is served into or onto the edge of the zone the receiving team attacks, and a player who controls it there scores.", "E1: yes, high: the serve lands on the back edge of the zone the opponents attack, with opponents nearby; an interception controlled inside it scores at once.", "E1: pressing the serve near that zone pays (CAUSAL HYPOTHESIS). E2: none for the defending team, but conceding an end-line ball comes close to conceding a point.", "No reset: the ball restarts where it left.", "Points come from the serve itself rather than from Create Space against organized opposition (CAUSAL HYPOTHESIS)."] },
+            { "id": "C2", "candidate": "halfway serve: from a touchline at halfway", "cells": ["E2: low: the defending team is mostly between the ball and its zone.", "E1: low.", "E2: yes, for the defending team: clearing over its own end line under pressure sends the attack back to halfway.", "The ball moves 15-20 m from where play left it, which changes who is goal-side; in E1 the receiving team can counter as after a live turnover, which Christian's reply of 6 November says a served ball is not.", "Moves the ball 15-20 m and resets who is goal-side, removing the preceding information (Christian's first reply of 5 November, section 3)."] },
+            { "id": "C3", "candidate": "own-half serve: to the receiving team in its own half, outside the zone it defends", "cells": ["No.", "Depends on the distance from the zone the opponents attack (CAUSAL HYPOTHESIS: real when served near it).", "E2: yes, strongly, for the defending team: a clearance over its own end line sends the attack back to its own half.", "The ball can move 20-35 m from where it left.", "As C2: the territorial consequence of the last touch is lost, and the preceding information with it."] },
+            { "id": "C4", "candidate": "nearest-player serve: to the receiving team's nearest player", "cells": ["E2: yes, if that player is inside the zone the team attacks (any player may be there).", "E1: high: the nearest player is usually in or beside the zone the opponents attack, among them.", "As C1 (CAUSAL HYPOTHESIS).", "No reset.", "As C1: points from the serve itself (CAUSAL HYPOTHESIS)."] },
+            { "id": "C5", "candidate": "chosen for this offline test (ILLUSTRATIVE): in the half where the ball went out, outside both target zones and not across either; the coach chooses the player", "cells": ["The serve is never played into or across a target zone, so no point comes from the serve alone. But at an end line the nearest place outside the zone is its front edge, 5 m from where the ball went out. E2 (the team attacking that zone receives): a ball received there can become a point with one touch into the zone or one pass to a teammate waiting inside it.", "E1 (the team defending that zone receives): opponents near the zone they attack can press the serve, and an interception there can be carried in at once; the risk also turns on whether opponents may challenge the serve (R1).", "E1: a weak incentive to put the ball over the end line one attacks and press the serve (CAUSAL HYPOTHESIS, visible only in play). Served further back these chances fall, but the defending team gains relief for clearing over its own end line.", "No reset: nobody has to reposition, and the ball stays near where it left; not a live turnover (Christian's reply of 6 November, section 6).", "E2: the attacking team receives near the zone it attacks with defenders in place; whether this presents Create Space against organized opposition, or an exploit or chance-creation moment, shows only in play (CAUSAL HYPOTHESIS). No location removes both chances without a receiving distance (R2)."] }
+        ],
+        "verdict": "The method, the possession consequence by last touch and promptness follow Christian's words. On this geometry no location avoids both an immediate scoring chance at the zone's edge and relief for a team clearing over its own end line without a further requirement (a receiving distance, R2), and the interception risk depends on whether opponents may challenge the serve (R1). Both are identified, not resolved. For this offline test the location carries our illustrative exclusion (R5), put to Christian for review.",
+        "stillFlagged": "Unchanged and still flagged: throw-ins and free kicks beside a target zone.",
+        "reviewNotes": [
+            "R3: Whether a point counts when it comes straight from a throw-in, from a ball the coach serves, or from free kicks taken beside a target zone, is not yet decided; this example adds no rule about it.",
+            "R4: Where the coach stands decides whether the serve can avoid crossing a zone and how promptly it can be made; it is in no value and is not drawn."
+        ]
+    },
+    "readingsInsidePremises": {
+        "question": "Question for Christian: does any of these readings of ours determine the value it bears on? If it does, it needs Christian's confirmation or correction before it can count as Christian's.",
+        "items": [
+            { "id": "RIP-OFFSIDE-SCOPE", "reading": "OURS: LOGICAL INFERENCE: the scope words \"for this initial small-sided realization\" cover the offside decision only, so the scoring event, its description and the reciprocal opposition decided by the same entries are printed with no scope stated.", "paths": ["rules.offside", "scoring.event", "scoring.means", "opposition.reciprocal"], "premise": "ASM-28OCT-PROVISIONAL, ASM-29OCT-PROVISIONAL, ASM-29OCT-EVE-PROVISIONAL (scopeCovers)" },
+            { "id": "RIP-PURPOSE-STATUS", "reading": "OURS: LOGICAL INFERENCE: the learning purpose's cell is APPROVED on our reading of the Session Planning Model's status (the row's Status reads Active).", "paths": ["purpose"], "premise": "planning learning_goals A05 Coach Definition (the decisive cell)" }
+        ]
     },
     "dependencies": [
         { "id": "DEP-1", "what": "Approved-wording gate in the checked pathway", "options": "stop at communication (admin review draft only); a DRAFT-graded wording channel (a live-module change); text produced outside the renderer (this experiment, with its own faithfulness test)." },

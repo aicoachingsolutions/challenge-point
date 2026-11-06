@@ -153,8 +153,8 @@ export interface AccountEntry {
 export type OpenDecisionClass = 'ASSEMBLY' | 'SCORING_FIDELITY_OR_PRODUCTION' | 'SUITABILITY' | 'NON_BLOCKING' | 'OUR_READING' | 'KNOWN_RISK'
 export const OPEN_DECISION_CLASSES: OpenDecisionClass[] = ['ASSEMBLY', 'SCORING_FIDELITY_OR_PRODUCTION', 'SUITABILITY', 'NON_BLOCKING', 'OUR_READING', 'KNOWN_RISK']
 
-export type ReportRefKey = 'experimentPurpose' | 'acceptance' | 'limits' | 'caveat' | 'futureFeedbackQuestion' | 'lawsPrinciple' | 'diagram' | 'sixClasses'
-export const REPORT_REF_KEYS: ReportRefKey[] = ['experimentPurpose', 'acceptance', 'limits', 'caveat', 'futureFeedbackQuestion', 'lawsPrinciple', 'diagram', 'sixClasses']
+export type ReportRefKey = 'experimentPurpose' | 'acceptance' | 'limits' | 'caveat' | 'futureFeedbackQuestion' | 'lawsPrinciple' | 'diagram' | 'sixClasses' | 'diagnostic' | 'provenanceRuling'
+export const REPORT_REF_KEYS: ReportRefKey[] = ['experimentPurpose', 'acceptance', 'limits', 'caveat', 'futureFeedbackQuestion', 'lawsPrinciple', 'diagram', 'sixClasses', 'diagnostic', 'provenanceRuling']
 
 export type BindingKey = 'illustrativeForm' | 'scoringEvent' | 'scoringMeans' | 'teamCount' | 'playersPerTeam' | 'areaLength' | 'areaWidth' | 'targetZoneDepth' | 'targetZonePlacement'
 export const BINDING_KEYS: BindingKey[] = ['illustrativeForm', 'scoringEvent', 'scoringMeans', 'teamCount', 'playersPerTeam', 'areaLength', 'areaWidth', 'targetZoneDepth', 'targetZonePlacement']
@@ -211,7 +211,14 @@ export interface Experiment {
         items: Array<{ id: string; words: string; configuredActivity: Record<string, { value: boolean | 'NOT_SUPPLIED'; label: string }>; expected: { mismatchReported: boolean; uncertaintyReported: boolean; scopeEstablished: boolean } }>
     }
     reconciliations: Array<{ id: string; title: string; rulingRefs: string[]; showPaths?: string[]; items: string[]; smallest?: string }>
-    openDecisions: Array<{ id: string; blocks: OpenDecisionClass; question: string; rulingRefs: string[]; handling: string }>
+    /** An answered decision keeps its id (traceability) and names the ruling that answered it; it is printed apart, never as open. */
+    openDecisions: Array<{ id: string; blocks: OpenDecisionClass; question: string; rulingRefs: string[]; handling: string; answeredBy?: { rulingRef: string; statement: string } }>
+    /** Every value, premise or open decision a reply of Christian's retired or changed: before, after, the reply's lines, the date. */
+    changeLog: Array<{ path: string; before: string; after: string; n6Lines: string; date: string }>
+    /** An examination Christian asked for, printed in the review copy (ours: every cell a reading of the record's geometry). */
+    restartExamination: { standing: string; rulingRefs: string[]; cases: string; columns: string[]; rows: Array<{ id: string; candidate: string; cells: string[] }>; verdict: string; stillFlagged: string; reviewNotes: string[] }
+    /** Readings of ours that sit inside a ruling's or a cell's printed text, each with the values it bears on. */
+    readingsInsidePremises: { question: string; items: Array<{ id: string; reading: string; paths: string[]; premise: string }> }
     reconciliation: { rulingRef: string; assessmentItems: Array<{ item: string; carriedBy: string }>; reuse: Array<{ work: string; status: string; why: string }>; stillOpen: string[] }
     dependencies: Array<{ id: string; what: string; options: string }>
     secondGoalNeeds: string[]
@@ -229,6 +236,8 @@ export interface WordingTemplate {
     whenValue?: Record<string, ChoiceValue>
     status: WordingStatus
     quote?: { rulingRef: string }
+    /** A sentence of ours that quotes words of Christian's inside it: each double-quoted span must be verbatim in that ruling's words. */
+    quotesWithin?: { rulingRef: string }
     /** A review disclosure: shown in the review copy, marked, and dropped from a coach copy. */
     reviewOnly?: true
     /** The template belongs to this goal (GOAL) or its context (CONTEXT), not to the Game Form level: a second goal rewrites it. */
@@ -312,6 +321,65 @@ export function sixClassOf(decisive: ClassInput[], declared: Standing | null = n
 /** Christian's class with Christian's words, without their closing full stop (so it reads inside a sentence). */
 export const classLabel = (c: SixClass): string => `class ${c}: ${SIX_CLASSES[c - 1].slice(0, -1)}`
 
+/**
+ * Christian's reply of 6 November, section 7: a missing value, our logical interpretation and an illustrative choice "have different
+ * implications for future authorization", so each is labelled apart (our labels, with what each implies), and a value a premise of
+ * authority determines is labelled by its weakest determining premise's standing.
+ */
+export const VALUE_LABELS = {
+    UNRESOLVED: 'UNRESOLVED: no authorized value; needs a knowledge decision',
+    OURS: 'OURS: LOGICAL INFERENCE (our reading, not canonical; needs Christian\'s confirmation)',
+    ILLUSTRATIVE: 'ILLUSTRATIVE (for this offline test only; to be replaced before any production use)',
+} as const
+
+/** One determining premise: what it is, its standing and whether its ruling is provisional (the flag the class computation used). */
+export interface PremiseItem {
+    ref: string
+    standing: Standing
+    provisional: boolean
+}
+/** A determining premise's standing as printed: its standing, with ', provisional' where its ruling is. */
+export const premiseStandingLabel = (p: { standing: Standing; provisional: boolean }): string => `${standingLabel(p.standing)}${p.provisional ? ', provisional' : ''}`
+
+export interface Premises {
+    /** The determining premise(s) of the weakest class among them, each with that class. */
+    weakest: Array<PremiseItem & { sixClass: SixClass }>
+    /** The other determining premises, counted by their printed standing. */
+    rest: Record<string, number>
+}
+
+/** The weakest determining premise(s) of a value, by class, and a tally of the rest by standing (the overall class never hides them). */
+export function premisesOf(decisive: PremiseItem[]): Premises {
+    const withClass = decisive.map((p) => ({ ...p, sixClass: sixClassOf([{ standing: p.standing, provisional: p.provisional }]) }))
+    const worst = withClass.length ? Math.max(...withClass.map((p) => p.sixClass)) : 0
+    const rest: Record<string, number> = {}
+    for (const p of withClass.filter((x) => x.sixClass !== worst)) rest[premiseStandingLabel(p)] = (rest[premiseStandingLabel(p)] ?? 0) + 1
+    return { weakest: withClass.filter((x) => x.sixClass === worst), rest }
+}
+
+/**
+ * A value's label, from how it reached the activity: UNRESOLVED, OURS or ILLUSTRATIVE by Christian's three kinds; otherwise the standing of
+ * its weakest determining premise (', provisional' where its ruling is). The one function every printed class uses.
+ */
+export function valueLabel(howReached: HowReached, premises: Premises, sixClass: SixClass, declared: Standing): string {
+    if (howReached === 'UNRESOLVED') return VALUE_LABELS.UNRESOLVED
+    if (howReached === 'ENTERED_OUR_INFERENCE') return VALUE_LABELS.OURS
+    if (howReached === 'ENTERED_ILLUSTRATIVE') return VALUE_LABELS.ILLUSTRATIVE
+    const weakest = premises.weakest
+    if (!weakest.length || weakest[0].sixClass < sixClass) return sixClass === 6 ? 'LOGICAL INFERENCE (computed by the Stage 1/2 code)' : `declared ${standingLabel(declared)}`
+    return [...new Set(weakest.map(premiseStandingLabel))].join(' / ')
+}
+
+/** A value's class with its label: Christian's words for the class, then the label. */
+export const classAndLabel = (c: { sixClass: SixClass; label: string }): string => `${classLabel(c.sixClass)}; ${c.label}`
+
+/** The weakest determining premise(s) named, and the rest tallied, in words. */
+export const premisesWords = (p: Premises): string => {
+    const weakest = p.weakest.map((x) => `${x.ref} [${premiseStandingLabel(x)}]`).join('; ')
+    const rest = Object.entries(p.rest).map(([s, n]) => `${n} ${s}`).join(', ')
+    return `weakest determining premise${p.weakest.length === 1 ? '' : 's'}: ${weakest || 'none'}; the rest: ${rest || 'none'}`
+}
+
 const DATE_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 /** A YYYY-MM-DD date as "5 November 2026". */
 export const longDate = (iso: string): string => `${Number(iso.slice(8, 10))} ${DATE_MONTHS[Number(iso.slice(5, 7)) - 1]} ${iso.slice(0, 4)}`
@@ -324,14 +392,16 @@ export function markerOf(c: SixClass | null): string {
 }
 
 /**
- * A sentence's marker from the classes of the values it expresses: the weakest class; where the values differ, each value's class too
- * (so a sentence is never read as wholly as weak, or as strong, as one of its values). A review-only sentence says so.
+ * A sentence's marker from the classes and labels of the values it expresses: the weakest class, with the label where every value has the
+ * same class and label; where they differ in either, each value's class and label too (so a sentence is never read as wholly as weak, or
+ * as strong, as one of its values, and an inference is never read as a missing value). A review-only sentence says so.
  */
-export function sentenceMarker(classes: Array<{ path: string; sixClass: SixClass }>, reviewOnly = false): string {
+export function sentenceMarker(classes: Array<{ path: string; sixClass: SixClass; label?: string }>, reviewOnly = false): string {
     const weakest = classes.length ? (Math.max(...classes.map((c) => c.sixClass)) as SixClass) : null
-    const distinct = new Set(classes.map((c) => c.sixClass))
+    const distinct = new Set(classes.map((c) => `${c.sixClass}|${c.label ?? ''}`))
     let marker = markerOf(weakest)
-    if (distinct.size > 1 && marker) marker = `${marker.slice(0, -1)}; by value: ${classes.map((c) => `${c.path} class ${c.sixClass}`).join(', ')}]`
+    if (distinct.size === 1 && marker && classes[0].label) marker = `${marker.slice(0, -1)}; ${classes[0].label}]`
+    if (distinct.size > 1 && marker) marker = `${marker.slice(0, -1)}; by value: ${classes.map((c) => `${c.path} class ${c.sixClass}${c.label ? ` (${c.label})` : ''}`).join(', ')}]`
     if (reviewOnly) marker = `${marker ? `${marker} ` : ''}(review only: dropped from a coach copy)`
     return marker
 }
@@ -384,6 +454,9 @@ const TOP_KEYS = [
     'requiredParts', 'designBlockPaths', 'whyThisDesign', 'exemptions', 'choices', 'laws', 'contractItems', 'contractDeclarationsReported', 'requirementAccountRulingRef',
     'accountCategories', 'accountStandards', 'accountOutsideCategories', 'requirementAccount', 'suitability', 'scenarios', 'reconciliations', 'openDecisions', 'reconciliation',
     'dependencies', 'secondGoalNeeds',
+    // Christian's reply of 6 November: the change log (before and after, for every value or decision it retired or changed), the end-line
+    // restart's examination (section 6) and our readings inside a premise (section 7).
+    'changeLog', 'restartExamination', 'readingsInsidePremises',
 ]
 const RULING_KEYS = ['id', 'decision', 'subject', 'scope', 'scopeWords', 'scopeCovers', 'scopePaths', 'kind', 'establishesCanonicalKnowledge', 'canonicalAmendment', 'words', 'supersedes', 'received', 'file', 'provisional']
 const CHOICE_KEYS = ['path', 'value', 'valueIsEvidence', 'evidenceStates', 'declaredStatus', 'howReached', 'readBy', 'knowledgeRef', 'decidedBy', 'consulted', 'statusSetBy', 'permittedBy', 'readingOf', 'scopeSetBy', 'note']
@@ -709,10 +782,50 @@ export function validateExperiment(raw: unknown): Experiment {
         for (const p of (o.showPaths as unknown[]) ?? []) pathOk(`reconciliations[${i}].showPaths`, p)
         if ('smallest' in o && !isString(o.smallest)) fail(`reconciliations[${i}]`, 'smallest must be a string')
     })
+    const decisionIds = new Set<string>()
     ;(top.openDecisions as unknown[]).forEach((d, i) => {
-        const o = onlyKeys(`openDecisions[${i}]`, d, ['id', 'blocks', 'question', 'rulingRefs', 'handling'], ['id', 'blocks', 'question', 'rulingRefs', 'handling'])
+        const o = onlyKeys(`openDecisions[${i}]`, d, ['id', 'blocks', 'question', 'rulingRefs', 'handling', 'answeredBy'], ['id', 'blocks', 'question', 'rulingRefs', 'handling'])
+        if (!isString(o.id) || decisionIds.has(o.id as string)) fail(`openDecisions[${i}]`, 'an id, listed once')
+        decisionIds.add(o.id as string)
         if (OPEN_DECISION_CLASSES.indexOf(o.blocks as OpenDecisionClass) < 0) fail(`openDecisions[${i}]`, 'unknown blocking class')
+        if (!isString(o.question) || !isString(o.handling)) fail(`openDecisions[${i}]`, 'question and handling must be strings')
         ;(o.rulingRefs as unknown[]).forEach((r) => rulingOk(`openDecisions[${i}]`, r))
+        // An answered decision names the ruling that answered it, which is among its rulings, and says how.
+        if ('answeredBy' in o) {
+            const a = onlyKeys(`openDecisions[${i}].answeredBy`, o.answeredBy, ['rulingRef', 'statement'], ['rulingRef', 'statement'])
+            rulingOk(`openDecisions[${i}].answeredBy`, a.rulingRef)
+            if (!isString(a.statement)) fail(`openDecisions[${i}].answeredBy`, 'statement must be a string')
+            if ((o.rulingRefs as string[]).indexOf(a.rulingRef as string) < 0) fail(`openDecisions[${i}].answeredBy`, 'the answering ruling is among the decision\'s rulings')
+        }
+    })
+    // The change log: every entry names what changed, before and after, the reply's lines that occasioned it, and the date.
+    if (!Array.isArray(top.changeLog) || !top.changeLog.length) fail('changeLog', 'must be a non-empty list')
+    ;(top.changeLog as unknown[]).forEach((c, i) => {
+        const o = onlyKeys(`changeLog[${i}]`, c, ['path', 'before', 'after', 'n6Lines', 'date'], ['path', 'before', 'after', 'n6Lines', 'date'])
+        for (const key of ['path', 'before', 'after', 'n6Lines']) if (!isString(o[key])) fail(`changeLog[${i}]`, `${key} must be a string`)
+        if (!/^N6 l\.\d+(-\d+)?(, \d+(-\d+)?)*$/.test(o.n6Lines as string)) fail(`changeLog[${i}]`, 'n6Lines names the reply\'s lines, as "N6 l.<n>[-<m>][, <n>...]"')
+        if (!isDate(o.date)) fail(`changeLog[${i}]`, 'date must be a YYYY-MM-DD date')
+        if (o.before === o.after) fail(`changeLog[${i}]`, 'before and after are the same')
+    })
+    // The restart examination: every row has one cell per column.
+    const ex = onlyKeys('restartExamination', top.restartExamination, ['standing', 'rulingRefs', 'cases', 'columns', 'rows', 'verdict', 'stillFlagged', 'reviewNotes'], ['standing', 'rulingRefs', 'cases', 'columns', 'rows', 'verdict', 'stillFlagged', 'reviewNotes'])
+    for (const key of ['standing', 'cases', 'verdict', 'stillFlagged']) if (!isString(ex[key])) fail('restartExamination', `${key} must be a string`)
+    ;(ex.rulingRefs as unknown[]).forEach((r) => rulingOk('restartExamination.rulingRefs', r))
+    if (!isStringList(ex.columns) || !(ex.columns as string[]).length || !isStringList(ex.reviewNotes)) fail('restartExamination', 'columns and reviewNotes are lists of strings')
+    if (!Array.isArray(ex.rows) || !ex.rows.length) fail('restartExamination', 'rows must be a non-empty list')
+    ;(ex.rows as unknown[]).forEach((r, i) => {
+        const o = onlyKeys(`restartExamination.rows[${i}]`, r, ['id', 'candidate', 'cells'], ['id', 'candidate', 'cells'])
+        if (!isString(o.id) || !isString(o.candidate) || !isStringList(o.cells)) fail(`restartExamination.rows[${i}]`, 'id, candidate and cells are strings')
+        if ((o.cells as string[]).length !== (ex.columns as string[]).length) fail(`restartExamination.rows[${i}]`, `${(o.cells as string[]).length} cells for ${(ex.columns as string[]).length} columns`)
+    })
+    // Our readings inside a premise: each names the values it bears on.
+    const rip = onlyKeys('readingsInsidePremises', top.readingsInsidePremises, ['question', 'items'], ['question', 'items'])
+    if (!isString(rip.question) || !Array.isArray(rip.items) || !rip.items.length) fail('readingsInsidePremises', 'a question and a non-empty list of items')
+    ;(rip.items as unknown[]).forEach((r, i) => {
+        const o = onlyKeys(`readingsInsidePremises.items[${i}]`, r, ['id', 'reading', 'paths', 'premise'], ['id', 'reading', 'paths', 'premise'])
+        if (!isString(o.id) || !isString(o.reading) || !isString(o.premise) || !isStringList(o.paths) || !(o.paths as string[]).length) fail(`readingsInsidePremises.items[${i}]`, 'id, reading, premise and a non-empty list of paths')
+        if ((o.reading as string).indexOf('OURS') !== 0) fail(`readingsInsidePremises.items[${i}]`, 'a reading of ours is labelled OURS')
+        for (const p of o.paths as string[]) pathOk(`readingsInsidePremises.items[${i}]`, p)
     })
     const reconciliation = onlyKeys('reconciliation', top.reconciliation, ['rulingRef', 'assessmentItems', 'reuse', 'stillOpen'], ['rulingRef', 'assessmentItems', 'reuse', 'stillOpen'])
     rulingOk('reconciliation.rulingRef', reconciliation.rulingRef)
@@ -753,7 +866,7 @@ export function validateWording(raw: unknown, experiment: Experiment): Wording {
     const paths = new Set(experiment.choices.map((c) => c.path))
     const ids = new Set<string>()
     for (const t of top.templates as unknown[]) {
-        const o = onlyKeys(`${where} template`, t, ['id', 'section', 'text', 'expresses', 'whenValue', 'status', 'quote', 'reviewOnly', 'scope'], ['id', 'section', 'text', 'expresses', 'status'])
+        const o = onlyKeys(`${where} template`, t, ['id', 'section', 'text', 'expresses', 'whenValue', 'status', 'quote', 'quotesWithin', 'reviewOnly', 'scope'], ['id', 'section', 'text', 'expresses', 'status'])
         const at = `${where} ${String(o.id)}`
         if (ids.has(o.id as string)) throw new Error(`${at}: template listed twice`)
         ids.add(o.id as string)
@@ -765,7 +878,17 @@ export function validateWording(raw: unknown, experiment: Experiment): Wording {
         placeholdersWellFormed(at, o.text as string)
         // A double quotation mark presents words as quoted: only a quoted template (checked verbatim below) may carry one, or a placeholder
         // whose value is printed in quotation marks; any other quoted span would escape the checks of quoted text.
-        if (o.quote === undefined && (o.text as string).split(/"\{[A-Za-z0-9.]+\}"/).join('').indexOf('"') >= 0) throw new Error(`${at}: a quotation mark in a template that quotes nothing`)
+        if (o.quote === undefined && o.quotesWithin === undefined && (o.text as string).split(/"\{[A-Za-z0-9.]+\}"/).join('').indexOf('"') >= 0) throw new Error(`${at}: a quotation mark in a template that quotes nothing`)
+        // A sentence of ours quoting Christian's words inside it: each double-quoted span verbatim in the ruling it cites, and at least one.
+        if (o.quotesWithin !== undefined) {
+            if (o.quote !== undefined) throw new Error(`${at}: quote and quotesWithin together`)
+            const q = onlyKeys(`${at}.quotesWithin`, o.quotesWithin, ['rulingRef'], ['rulingRef'])
+            const r = experiment.rulings.find((x) => x.id === q.rulingRef)
+            if (!r) throw new Error(`${at}: quotesWithin names no ruling of the registry`)
+            const spans = [...(o.text as string).matchAll(/"([^"]*)"/g)].map((m) => m[1])
+            if (!spans.length || (o.text as string).split('"').length % 2 !== 1) throw new Error(`${at}: quotesWithin needs whole double-quoted spans`)
+            for (const s of spans) if (!r.words.some((w) => w.indexOf(s) >= 0)) throw new Error(`${at}: "${s}" is not in the words of ${r.id}`)
+        }
         const placeholders = placeholdersOf(o.text as string)
         const whenKeys = Object.keys((o.whenValue as Record<string, unknown>) ?? {})
         for (const p of [...placeholders, ...whenKeys]) if (!paths.has(p)) throw new Error(`${at}: unknown path ${p}`)
@@ -817,8 +940,15 @@ export interface AssembledChoice {
     howReached: HowReached
     declaredStatus: Standing
     computed: boolean
-    /** What decided the value: Stage 1/2's own influence trace for a computed value; our record for an entered one. */
-    decidedBy: TraceItem[]
+    /**
+     * What decided the value: Stage 1/2's own influence trace for a computed value; our record for an entered one. Each item carries the
+     * provisional flag its class was computed with (a ruling of Christian's called provisional; false for every other item).
+     */
+    decidedBy: Array<TraceItem & { provisional: boolean }>
+    /** The weakest determining premise(s) and a tally of the rest (Christian's reply of 6 November, section 7: no source obscured). */
+    premises: Premises
+    /** The value's label (VALUE_LABELS, or the weakest determining premise's standing), printed after the class wherever it is printed. */
+    label: string
     consulted: TraceItem[]
     statusSetBy: TraceItem[]
     /** Christian's words in the non-decisive roles: permitting an illustrative value, read by our inference, setting a computed value's scope. */
@@ -850,6 +980,8 @@ export interface AssembledActivity {
 }
 
 const RECORD_LABEL = 'our record of what decided it (OURS), not a computed influence'
+/** How a ruling that sets a premise's status is printed (it sets the standing, and so the class; it decides no value). */
+export const STATUS_SET_BY_ROLE = 'sets this premise\'s standing, and so the class; decides no value'
 const COMPUTED_LABEL = 'computed by the Stage 1/2 code: its own influence trace, unchanged'
 
 function rulingItem(r: AssemblyRuling, role: string, standing: Standing = 'RULING'): TraceItem {
@@ -880,11 +1012,15 @@ export function decidingWords(r: AssemblyRuling, evidence: string, standing: Sta
     return `${who}, received ${longDate(r.received)}: "${evidence}" (${role}; ${scopeText(r, c.path)})`
 }
 
+/** The class of what a reading of ours reads: the class the ruling would give if it decided, or that the words are not a ruling. */
+export const readsWhat = (r: AssemblyRuling): string =>
+    r.kind === 'RULING' ? `it reads a ruling of ${classLabel(sixClassOf([{ standing: r.establishesCanonicalKnowledge ? 'APPROVED' : 'RULING', provisional: r.provisional }]))}` : `it reads Christian's ${r.kind} words, which decide nothing`
+
 /** How Christian's words read in a non-decisive role. */
 export function roleWords(role: Role, r: AssemblyRuling, x: RoleItem): string {
     const when = `received ${longDate(r.received)}`
     if (role === 'permittedBy') return `permits an illustrative value, ${when}: "${x.quote}" (${x.namesValue ? 'a permission that names this value; the choice to use it is ours' : 'a permission; it does not state the value'})`
-    if (role === 'readingOf') return `our reading (OURS) of Christian's words, ${when}: "${x.quote}" (Christian's words do not state the value)`
+    if (role === 'readingOf') return `our reading (OURS) of Christian's words, ${when}: "${x.quote}" (Christian's words do not state the value; ${readsWhat(r)})`
     return `sets the scope for this experiment, ${when}: "${x.quote}" (decides nothing)`
 }
 
@@ -1031,14 +1167,19 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
         } else if (typeof c.value === 'string' && display.names[c.value]) {
             rendered = display.names[c.value].text
         }
+        // Each decisive item carries the provisional flag its class is computed with: a ruling's own flag; false for every other item
+        // (the Stage 1/2 trace's items included, whose class is computed from their standing alone).
         const recorded = c.decidedBy.map((d) => {
-            if (d.rulingRef) return rulingItem(byId.get(d.rulingRef) as AssemblyRuling, decidingWords(byId.get(d.rulingRef) as AssemblyRuling, d.valueEvidence as string, d.standing, c), d.standing)
-            if (d.knowledgeRef) return item(refText(d.knowledgeRef), d.standing, d.valueEvidence ? `the cell: "${d.valueEvidence}"` : 'the row')
-            if (d.ref === 'ILLUSTRATIVE') return item('ILLUSTRATIVE', 'ILLUSTRATIVE', 'chosen by us: an illustrative value, which no authority gives')
-            if (d.ref === 'OURS') return item('OURS', 'OURS', 'our own reading, which no authority gives as the value')
-            return item('UNRESOLVED', 'UNRESOLVED', 'no authorized value exists')
+            if (d.rulingRef) {
+                const r = byId.get(d.rulingRef) as AssemblyRuling
+                return { ...rulingItem(r, decidingWords(r, d.valueEvidence as string, d.standing, c), d.standing), provisional: r.provisional }
+            }
+            if (d.knowledgeRef) return { ...item(refText(d.knowledgeRef), d.standing, d.valueEvidence ? `the cell: "${d.valueEvidence}"` : 'the row'), provisional: false }
+            if (d.ref === 'ILLUSTRATIVE') return { ...item('ILLUSTRATIVE', 'ILLUSTRATIVE', 'chosen by us: an illustrative value, which no authority gives'), provisional: false }
+            if (d.ref === 'OURS') return { ...item('OURS', 'OURS', 'our own reading, which no authority gives as the value'), provisional: false }
+            return { ...item('UNRESOLVED', 'UNRESOLVED', 'no authorized value exists'), provisional: false }
         })
-        const decidedBy = computedTrace ? [...computedTrace.influencedBy, ...recorded] : recorded
+        const decidedBy = computedTrace ? [...computedTrace.influencedBy.map((i) => ({ ...i, provisional: false })), ...recorded] : recorded
         const roleItems = (role: Role) => (c[role] ?? []).map((x) => rulingItem(byId.get(x.rulingRef) as AssemblyRuling, roleWords(role, byId.get(x.rulingRef) as AssemblyRuling, x)))
         const decisiveRulings = c.decidedBy.filter((d) => d.rulingRef).map((d) => byId.get(d.rulingRef as string) as AssemblyRuling)
         const classInputs: ClassInput[] = [
@@ -1053,6 +1194,8 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
                 return item(x.ref as string, x.standing, x.note)
             }),
         ]
+        const sixClass = sixClassOf(classInputs, c.declaredStatus, establishedBy === 'LOGICAL INFERENCE' ? establishedBy : null)
+        const premises = premisesOf(decidedBy.map((i) => ({ ref: i.ref, standing: i.standing, provisional: i.provisional })))
         return {
             path: c.path,
             value,
@@ -1061,13 +1204,15 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
             declaredStatus: c.declaredStatus,
             computed: computedTrace !== null,
             decidedBy,
+            premises,
+            label: valueLabel(c.howReached, premises, sixClass, c.declaredStatus),
             consulted,
-            statusSetBy: c.statusSetBy.map((s) => rulingItem(byId.get(s.rulingRef) as AssemblyRuling, 'sets the status (printed, never decisive)')),
+            statusSetBy: c.statusSetBy.map((s) => rulingItem(byId.get(s.rulingRef) as AssemblyRuling, STATUS_SET_BY_ROLE)),
             permittedBy: roleItems('permittedBy'),
             readingOf: roleItems('readingOf'),
             scopeSetBy: roleItems('scopeSetBy'),
             traceLabel: computedTrace ? COMPUTED_LABEL : RECORD_LABEL,
-            sixClass: sixClassOf(classInputs, c.declaredStatus, establishedBy === 'LOGICAL INFERENCE' ? establishedBy : null),
+            sixClass,
             allDecisiveRulingsProvisional: c.declaredStatus === 'RULING' && decisiveRulings.length > 0 && decisiveRulings.every((r) => r.provisional),
             note: c.note,
         }
@@ -1148,7 +1293,7 @@ export function composeCoachActivity(wording: Wording, activity: AssembledActivi
             if (actual !== expected) throw new Error(`template ${t.id}: whenValue ${p} = ${JSON.stringify(expected)}, but the assembled value is ${JSON.stringify(actual)}`)
         }
         const text = t.text.replace(/\{([A-Za-z0-9.]+)\}/g, (_, p: string) => (byPath.get(p) as AssembledChoice).rendered)
-        const classes = t.expresses.map((p) => ({ path: p, sixClass: (byPath.get(p) as AssembledChoice).sixClass }))
+        const classes = t.expresses.map((p) => ({ path: p, sixClass: (byPath.get(p) as AssembledChoice).sixClass, label: (byPath.get(p) as AssembledChoice).label }))
         const sixClass = classes.length ? (Math.max(...classes.map((c) => c.sixClass)) as SixClass) : null
         const reviewOnly = t.reviewOnly === true
         return { id: t.id, section: t.section, text, expresses: [...t.expresses], status: t.status, sixClass, marker: sentenceMarker(classes, reviewOnly), quoted: Boolean(t.quote), reviewOnly, scope: t.scope ?? null }
@@ -1197,7 +1342,7 @@ export function designBlock(experiment: Experiment, activity: AssembledActivity,
     if (candidate) lines.push({ text: `Candidate only: ${at(candidate).rendered} is shown as a candidate relationship and is not used.`, expresses: [candidate] })
     const others = forms.compatible.length - 1
     lines.push({ text: `Game Form: ${at(form).rendered}, used as an illustrative choice; ${others ? `${at(alternatives).rendered} ${others === 1 ? 'is a compatible alternative' : 'are compatible alternatives'}` : 'no other form is compatible'}, with no ranking among the ${forms.compatible.length} compatible forms.`, expresses: [form, alternatives] })
-    return lines.map((l) => ({ text: l.text, expresses: l.expresses, marker: l.marker ?? sentenceMarker(l.expresses.map((p) => ({ path: p, sixClass: at(p).sixClass }))) }))
+    return lines.map((l) => ({ text: l.text, expresses: l.expresses, marker: l.marker ?? sentenceMarker(l.expresses.map((p) => ({ path: p, sixClass: at(p).sixClass, label: at(p).label }))) }))
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------

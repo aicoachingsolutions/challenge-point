@@ -111,6 +111,12 @@ function unexpressedOf(r: AssemblyRun): string[] {
     return r.experiment.choices.map((c) => c.path).filter((p) => !r.experiment.exemptions.some((e) => e.path === p) && !expressed.has(p))
 }
 
+/** Each coach-text sentence (not a review note) that expresses an UNRESOLVED value, as "<id>: <path>". */
+const unresolvedInCoachText = (r: AssemblyRun): string[] =>
+    sentences(r)
+        .filter((s) => !s.reviewOnly)
+        .flatMap((s) => s.expresses.filter((p) => choiceOf(r.experiment, p).howReached === 'UNRESOLVED').map((p) => `${s.id}: ${p}`))
+
 /** (a) Every material value (every choice minus the pinned exemptions) is expressed; the nine parts are all covered. */
 function testA_everyMaterialValueIsExpressed(): void {
     assert.deepEqual(BASE.experiment.exemptions.map((e) => e.path), EXEMPT, 'the exemptions are pinned')
@@ -118,8 +124,13 @@ function testA_everyMaterialValueIsExpressed(): void {
     assert.deepEqual(unexpressedOf(BASE), [])
     // A value only a review-only sentence expresses is a review disclosure: only UNRESOLVED values may be in that position.
     const reviewOnlyPaths = BASE.composed.expressed.filter((p) => BASE.composed.expressedInCoachCopy.indexOf(p) < 0 && !BASE.design.some((d) => d.expresses.includes(p)))
-    assert.deepEqual(reviewOnlyPaths, ['endZones.positioning', 'restart.endLine.status', 'scoring.startingCondition'], 'only unresolved values are expressed by review notes alone')
+    assert.deepEqual(reviewOnlyPaths, ['endZones.positioning', 'restart.endLine.receivingDistance', 'scoring.startingCondition'], 'only unresolved values are expressed by review notes alone')
     for (const p of reviewOnlyPaths) assert.equal(choiceOf(BASE.experiment, p).howReached, 'UNRESOLVED', p)
+    // No coach-text sentence expresses an UNRESOLVED value: only a review note may (L5-02(3); Christian's reply of 6 November, section 7).
+    assert.deepEqual(unresolvedInCoachText(BASE), [])
+    const leaky = rawW()
+    delete leaky.templates.find((t: Raw) => t.id === 'rs-r2-distance').reviewOnly
+    assert.deepEqual(unresolvedInCoachText(run(committedKnowledge(), rawX(), leaky)), ['rs-r2-distance: restart.endLine.receivingDistance'], 'bite: a review note made coach text')
     assert.equal(BASE.experiment.requiredParts.length, 9)
     for (const p of BASE.experiment.requiredParts) assert.ok(p.paths.length > 0 || p.generatedFromTrace, p.part)
     // Bites: without the continuous-play sentence, or without the Game Problems in the learning-design block, a value goes unexpressed.
@@ -148,7 +159,9 @@ function testB_expressesEqualsWhatTheTemplateSays(): void {
  * placeholder); the exempt values printed in the report only; the values refused for a structural reason (every value read by code, every
  * unresolved value, and five named ones); every other value is refused by a sentence written for its recorded value (whenValue).
  */
-const EXPECTED_SUBSTITUTED = ['players.perTeam', 'area.lengthM', 'area.widthM', 'endZones.depthM', 'start.kickoffDistanceM', 'duration.blocks', 'duration.blockMinutes']
+// The kick-off distance left this list openly on 6 November: Christian's reply (section 8) now states it, so a changed number is refused by
+// the word its evidence uses ("9.15"), as every number Christian's words state is.
+const EXPECTED_SUBSTITUTED = ['players.perTeam', 'area.lengthM', 'area.widthM', 'endZones.depthM', 'duration.blocks', 'duration.blockMinutes']
 const EXPECTED_EXEMPT_PRINTED_ONLY = ['area.goalkeepersCounted', 'coachQuestion']
 /** Structural refusals beyond the values read by code and the unresolved ones, each with the check that refuses it. */
 const EXPECTED_STRUCTURAL_NAMED: Record<string, RegExp> = {
@@ -157,6 +170,7 @@ const EXPECTED_STRUCTURAL_NAMED: Record<string, RegExp> = {
     'endZones.placement': /maps to no number of target zones/,
     'scoring.event': /is not one of RPC-003's ACTIVE scoring events/,
     'scoring.qualifyingCondition.sep13Text': /valueIsEvidence: the value must equal its first decisive item's evidence/,
+    'start.kickoffDistanceM': /evidenceStates "9\.15" states 9\.15, not the value 10\.15/,
 }
 function testC_everyValueMutationIsClassified(): void {
     const x = BASE.experiment
@@ -177,14 +191,16 @@ function testC_everyValueMutationIsClassified(): void {
         assert.ok(r.reason.includes(`whenValue ${r.path} = `), r.path)
         assert.ok(BASE.wording.templates.some((t) => t.whenValue && r.path in t.whenValue), `${r.path}: pinned by a template's whenValue`)
     }
-    assert.deepEqual(MUTATION.counts, { SUBSTITUTED: 7, WHEN_VALUE_PINNED: 30, STRUCTURAL: 16, EXEMPT_PRINTED_ONLY: 2 })
+    // Pins moved openly on 6 November: the restart's seven values replace two (five more pinned by whenValue, one more unresolved), and the
+    // kick-off distance moves from substituted to structural.
+    assert.deepEqual(MUTATION.counts, { SUBSTITUTED: 6, WHEN_VALUE_PINNED: 35, STRUCTURAL: 17, EXEMPT_PRINTED_ONLY: 2 })
     // A value Christian's words state, or a value the code reads, is never accepted with a changed value (C4-01).
     for (const r of MUTATION.results.filter((y) => y.outcome === 'SUBSTITUTED' || y.outcome === 'EXEMPT_PRINTED_ONLY')) assert.ok(r.howReached !== 'ENTERED_EVIDENCED' && r.howReached !== 'READ_BY_CODE', `${r.path}: a value Christian's words or the knowledge state was changed and accepted`)
     // The front and Part 5 print exactly these counts.
-    assert.ok(REPORT_TEXT.includes(`Of the ${x.choices.length} recorded values, changed one at a time in a copy of the record: 7 are substituted into the coach text`))
-    assert.ok(REPORT_TEXT.includes(`    substituted into the coach text, 7: ${EXPECTED_SUBSTITUTED.join(', ')};`))
-    assert.ok(REPORT_TEXT.includes('    refused by a sentence written for the recorded value (whenValue), 30: '))
-    assert.ok(REPORT_TEXT.includes('    refused for structural reasons, 16: 8 read by code'))
+    assert.ok(REPORT_TEXT.includes(`Of the ${x.choices.length} recorded values, changed one at a time in a copy of the record: 6 are substituted into the coach text`))
+    assert.ok(REPORT_TEXT.includes(`    substituted into the coach text, 6: ${EXPECTED_SUBSTITUTED.join(', ')};`))
+    assert.ok(REPORT_TEXT.includes('    refused by a sentence written for the recorded value (whenValue), 35: '))
+    assert.ok(REPORT_TEXT.includes('    refused for structural reasons, 17: 8 read by code'))
     assert.ok(REPORT_TEXT.includes(`    exempt from the coach text and printed in the report only, 2: ${EXPECTED_EXEMPT_PRINTED_ONLY.join(', ')}.`))
     // Bite: a refusal that does not name the changed value (here a crash in the display callback) fails the loop instead of counting.
     const crashing: Parameters<typeof runAssembly>[0] = (k, xx, r, f) => {
@@ -229,14 +245,22 @@ const VALUE_PHRASES: Array<{ path: string; value: ChoiceValue; each: RegExp | nu
     { path: 'scoring.afterRegain', value: 'COUNTS', each: /\bcounts even straight after the team has won the ball\b/, forbid: /\b(does not|doesn't|never) count\b|\bdisallowed\b/i },
     { path: 'scoring.startingCondition', value: null, each: /\bnot yet decided\b/, forbid: /\bmust (start|begin)\b|\bcounts? only (if|when)\b/i },
     { path: 'win.condition', value: 'MORE_POINTS_IN_A_BLOCK', each: /\bthe team with more points at the end of a block wins that block\b/, forbid: /\bfirst to\b|\bsudden death\b|\bgolden (goal|point)\b/i },
-    { path: 'start.method', value: 'ORDINARY_KICKOFF', each: /\ban ordinary kick-off\b/, forbid: /\bthe coach serves\b|\bdropped ball to start\b/i },
-    { path: 'start.kickoffDetails', value: 'LAWS_KICKOFF_UNCHANGED', each: /\bevery player starts in their own half\b/, forbid: /\bstart anywhere\b|\bno restriction at (the )?kick-off\b/i },
+    // 6 November: a served ball now restarts play at an end line, so what is forbidden is a served ball (or a dropped ball) as the start.
+    { path: 'start.method', value: 'ORDINARY_KICKOFF', each: /\ban ordinary kick-off\b/, forbid: /\bstart\w* (with|by) (a ball the coach serves|the coach serving|a served ball)\b|\bthe coach serves to start\b|\bdropped ball to start\b/i },
+    { path: 'start.kickoffDetails', value: 'LAWS_KICKOFF_UNCHANGED', each: /\bown half\b/i, somewhere: [/\bevery player starts in their own half\b/], forbid: /\bstart anywhere\b|\bno restriction at (the )?kick-off\b/i },
     { path: 'restart.afterPoint.method', value: 'KICKOFF', each: /\brestarts play with a kick-off\b/, forbid: /\bafter a point[^.;]*\b(throw-in|goal kick|from the end line|coach serves)\b/i },
     { path: 'restart.afterPoint.who', value: 'CONCEDING_TEAM', each: /\bthe team that conceded it\b/, forbid: /\bthe team that scored (it )?restarts\b/i },
     { path: 'restart.touchline', value: 'LAWS_THROW_IN', each: /\bthrow-in\b/, forbid: /\bkick-in\b|\bdribble-in\b/i },
-    { path: 'restart.endLine.illustrativeValue', value: 'DEFENDING_TEAM_FROM_ITS_END_LINE', each: /\bthe team defending the target zone at that end restarts play from that end line\b|\bend-line restart above\b/, somewhere: [/\bthe team defending the target zone at that end restarts play from that end line\b/], forbid: /\bthe attacking team restarts\b|\bover an end line, the team that did not touch it last\b/i },
+    // The coach-served end-line restart (Christian's reply of 6 November, section 6), value by value; the old illustrative value and its
+    // status note are retired, and their phrases with them (the retired wording is forbidden now).
+    { path: 'restart.endLine.method', value: 'COACH_SERVES_NEW_BALL', each: /\bplays a new ball\b|\bend-line restart\b|\bserve[sd]?\b/, somewhere: [/\bthe coach straight away plays a new ball\b/], forbid: /\bthe team defending the target zone at that end restarts\b|\b(goal|corner) kicks? (are|is) taken\b/i },
+    { path: 'restart.endLine.toWhom', value: 'TEAM_THAT_DID_NOT_TOUCH_IT_LAST', each: /\ba player of the team that did not touch it last\b/, forbid: /\bover an end line, the team defending\b|\bthe team that touched it last (restarts|receives)\b/i },
+    { path: 'restart.endLine.timing', value: 'PROMPTLY', each: /\bstraight away\b|\bpromptly\b/, somewhere: [/\bstraight away\b/], forbid: /\bwait(s|ing)? for\b|\bafter (a|the) (pause|count)\b/i },
+    { path: 'restart.endLine.noReset', value: 'NO_REPOSITIONING_REQUIRED', each: /\bstraight away\b/, forbid: /\bnobody moves back\b|\b(players|everyone) (return|go back|retreat)\b|\bmust retreat\b/i },
+    { path: 'restart.endLine.contest', value: 'LIVE_WHEN_PLAYED_NO_OPPONENT_DISTANCE', each: /\bas soon as the ball is played\b|\bnothing is added\b/, somewhere: [/\bplay goes on as soon as the ball is played\b/], forbid: /\bopponents (stay|keep) (at least|back|away)\b[^.;]*\bserv/i },
+    { path: 'restart.endLine.location', value: 'IN_THE_HALF_WHERE_IT_WENT_OUT_OUTSIDE_BOTH_TARGET_ZONES_NOT_ACROSS_EITHER_COACH_CHOOSES_PLAYER', each: /\bacross\b|\bcrossing\b/, somewhere: [/\bin the half where it went out, outside both target zones and not across either\b/], forbid: /\bnear where it went out\b|\bfrom that end line\b/i },
+    { path: 'restart.endLine.receivingDistance', value: null, each: /\bNo ruling gives a distance\b/, forbid: /\b\d+(\.\d+)? m from the target zone\b/i },
     { path: 'laws.goalEnd', value: 'REPLACED_BY_THE_END_LINE_RESTART', each: /\bgoal kicks? and corner kicks?\b/, forbid: /\b(goal|corner) kicks? (are|is) taken\b/i },
-    { path: 'restart.endLine.status', value: null, each: /\ban adaptation still owed\b/, forbid: /\bthe end-line restart is (authorized|approved)\b/i },
     { path: 'adjustments', value: 'NONE_OFFERED', each: /\bNo adjustments are offered\b/, forbid: /\bto make it (harder|easier)\b/i },
     { path: 'observation.categories', value: 'CHRISTIANS_THREE_CATEGORIES', each: null, somewhere: [/^Against organized opposition: /, /^During transition: /, /^Uncertain: /, /^Both scoring situations remain legitimate\.$/], forbid: /\b(target|aim) (of|for) \d|\d+ ?%|\bshould (score|see) more\b/i },
 ]
@@ -294,9 +318,10 @@ const KEYWORDS: Array<[string, string[]]> = [
     ['block', ['duration.blocks', 'duration.blockMinutes', 'duration.breaks', 'win.condition']],
     ['minute', ['duration.blocks', 'duration.blockMinutes']],
     ['bib', ['equipment.bibs']],
-    ['point', ['scoring.event', 'scoring.means', 'scoring.mirrored', 'win.condition', 'restart.afterPoint.method', 'restart.afterPoint.who']],
+    // A sentence on how a point is classified expresses the categories (amended openly, 6 November: the served-ball review note).
+    ['point', ['scoring.event', 'scoring.means', 'scoring.mirrored', 'win.condition', 'restart.afterPoint.method', 'restart.afterPoint.who', 'observation.categories']],
     ['goalkeeper', ['players.goalkeepers', 'area.goalkeepersCounted']],
-    ['end line', ['restart.endLine.status', 'restart.endLine.illustrativeValue']],
+    ['end line', ['restart.endLine.method', 'restart.endLine.toWhom', 'restart.endLine.timing', 'restart.endLine.noReset', 'restart.endLine.contest', 'restart.endLine.location', 'restart.endLine.receivingDistance']],
     ['touchline', ['restart.touchline']],
     ['penalty', ['laws.goalEnd']],
     ['corner', ['laws.goalEnd']],
@@ -407,7 +432,10 @@ const obligationViolations = (list: Array<{ id: string; text: string; quoted?: b
         return [...hits, ...ordering].map((h) => `${s.id}: ${h}`)
     })
 
-/** Each double-quoted span in a composed sentence must be the printed value of a display-cell placeholder of that sentence's template. */
+/**
+ * Each double-quoted span in a composed sentence must be the printed value of a display-cell placeholder of that sentence's template, or,
+ * in a template that quotes Christian's words within it (quotesWithin), words of the ruling it cites.
+ */
 const quotedSpanViolations = (r: AssemblyRun): string[] =>
     r.composed.sections
         .flatMap((s) => s.sentences)
@@ -417,7 +445,8 @@ const quotedSpanViolations = (r: AssemblyRun): string[] =>
             const cells = placeholdersOf(t?.text ?? '')
                 .filter((p) => choiceOf(r.experiment, p).readBy === 'DISPLAY_CELL')
                 .map((p) => r.activity.choices.find((c) => c.path === p)?.rendered)
-            return [...s.text.matchAll(/"([^"]*)"/g)].filter((m) => !cells.includes(m[1])).map((m) => `${s.id}: "${m[1]}"`)
+            const cited = t?.quotesWithin ? r.experiment.rulings.find((x) => x.id === t.quotesWithin?.rulingRef) : undefined
+            return [...s.text.matchAll(/"([^"]*)"/g)].filter((m) => !cells.includes(m[1]) && !(cited && cited.words.some((w) => w.includes(m[1])))).map((m) => `${s.id}: "${m[1]}"`)
         })
 
 /** Coach terms RC3 7.4 does not use for this activity: an end zone (the coach term is target zone) and goals (there are none). */
@@ -425,8 +454,11 @@ const FORBIDDEN_COACH_TERMS: Array<[RegExp, string]> = [
     [/\bend ?zones?\b/i, 'end zone'],
     [/\bgoals?\b/i, 'goal'],
 ]
-/** Pinned: the two sentences that say the Laws' goal restarts do not apply because there are no goals. */
-const FORBIDDEN_TERM_EXEMPT: Record<string, string[]> = { 'rs-goal-end': ['goal'], 'rs-end-line-gap': ['goal'] }
+/**
+ * Pinned: the sentence that says the Laws' goal restarts are replaced because there are no goals, and the review note on our reading of
+ * 'own half' where no goal stands (6 November; the retired end-line gap note left this list with its value).
+ */
+const FORBIDDEN_TERM_EXEMPT: Record<string, string[]> = { 'rs-goal-end': ['goal'], 'rs-kickoff-half': ['goal'] }
 const forbiddenTermViolations = (list: Array<{ id: string; text: string; quoted?: boolean }>) =>
     list.filter((s) => !s.quoted).flatMap((s) => FORBIDDEN_COACH_TERMS.filter(([re, name]) => re.test(unquoted(s.text)) && !(FORBIDDEN_TERM_EXEMPT[s.id] ?? []).includes(name)).map(([, name]) => `${s.id}: ${name}`))
 
@@ -437,7 +469,15 @@ const statusWordViolations = (list: Array<{ id: string; text: string; reviewOnly
 /** (f) Fidelity's prescription lexicon over every unquoted coach sentence; no status word; quoted text verbatim against its source; bites. */
 function testF_noPrescriptionAndQuotesAreVerbatim(): void {
     // Pinned: the kick-off sentence restates the Laws' kick-off (the opponents stay away "until" the ball is kicked), not a prescription.
-    const PINNED_EXEMPTIONS: Array<{ id: string; word: string; path: string }> = [{ id: 'rs-kickoff', word: 'until', path: 'start.kickoffDetails' }]
+    // Pinned too (6 November): two review notes that ask Christian a question (R1, R5) and state no rule: R1 asks whether opponents
+    // "should" keep a distance or the ball be uncontested "until" first touched; R5 states our exclusion, the serve "never" played into a zone.
+    const PINNED_EXEMPTIONS: Array<{ id: string; word: string; path: string }> = [
+        { id: 'rs-kickoff', word: 'until', path: 'start.kickoffDetails' },
+        { id: 'rs-r1-contest', word: 'should', path: 'restart.endLine.contest' },
+        { id: 'rs-r1-contest', word: 'until', path: 'restart.endLine.contest' },
+        { id: 'rs-r5-location', word: 'never', path: 'restart.endLine.location' },
+    ]
+    for (const e of PINNED_EXEMPTIONS) assert.ok(sentences().find((s) => s.id === e.id && (e.id === 'rs-kickoff' || s.reviewOnly)), `${e.id}: an exemption beyond the kick-off sentence holds only for a review note`)
     assert.deepEqual(obligationViolations(sentences(), PINNED_EXEMPTIONS), [])
     assert.deepEqual(obligationViolations(BASE.design.map((d, i) => ({ id: `design-${i}`, text: d.text }))), [])
     assert.deepEqual(SPECIALIZED_ROLES, [], 'ROLE_ORDERING is recorded vacuous: the configuration names no specialized role')
@@ -500,7 +540,8 @@ function testF_noPrescriptionAndQuotesAreVerbatim(): void {
 const LINE_PHRASES: Array<{ id: string; phrase: string }> = [
     { id: 'st-equipment', phrase: 'the halfway line' },
     { id: 'rs-end-line', phrase: 'goes over an end line' },
-    { id: 'rs-end-line', phrase: 'from that end line' },
+    // 6 November: the retired restart's 'from that end line' left; the review note R2 names the end line a team clears over.
+    { id: 'rs-r2-distance', phrase: 'clearing over its own end line' },
 ]
 /** Sentences that say what a team attacks, defends or scores, or how it wins (C3-08): directions, scoring, the win condition, opposition. */
 const TARGET_PATHS = (p: string) => p === 'directions' || p === 'win.condition' || p.startsWith('scoring.') || p.startsWith('opposition.')
@@ -581,6 +622,8 @@ const EFFECT_WORDS =
 const EFFECT_EXEMPT: Array<[string, string]> = [
     ['not promoted', 'a negation: a finding kept, not promoted'],
     ['neither promoted nor discarded', 'a negation (Christian\'s Composite wording)'],
+    ['nor automatically promoted', 'a negation in the DRAFT K2 wording (Christian\'s Composite words: a stronger secondary requirement is not automatically promoted)'],
+    ['the knowledge in force', 'the knowledge valid at the time K2 is applied (DRAFT K2 wording), not an effect'],
     ['promoted to owner-authored canonical knowledge', 'Christian\'s own ruling\'s verb ("Promote GF2-14.b ... to owner-authored canonical knowledge"), a change of standing, not an effect'],
     ['not a method of restoring', 'a negation of Christian\'s caveat'],
     ['never presented as restoring', 'a negation of Christian\'s caveat'],
@@ -788,7 +831,8 @@ const EXPECTED_CLASS: Record<string, SixClass> = {
     'play.continuous': 2,
     'start.method': 3,
     'start.kickoffDetails': 6,
-    'start.kickoffDistanceM': 6,
+    // 6 November (section 8): Christian's scoped ruling for the current prototype, no longer our reading.
+    'start.kickoffDistanceM': 2,
     'restart.afterPoint.method': 3,
     'restart.afterPoint.who': 6,
     'rules.offside': 3,
@@ -797,8 +841,16 @@ const EXPECTED_CLASS: Record<string, SixClass> = {
     'rules.handling': 2,
     'laws.default': 2,
     'laws.goalEnd': 6,
-    'restart.endLine.status': 6,
-    'restart.endLine.illustrativeValue': 5,
+    // The coach-served end-line restart (DESIGN-6-v2 A3), as designed: the method and timing Christian's provisional ruling (class 3); to
+    // whom, no reset and the live serve our readings (class 6, OURS); the location our illustrative exclusion (class 5); the receiving
+    // distance unresolved (class 6, UNRESOLVED).
+    'restart.endLine.method': 3,
+    'restart.endLine.toWhom': 6,
+    'restart.endLine.timing': 3,
+    'restart.endLine.noReset': 6,
+    'restart.endLine.contest': 6,
+    'restart.endLine.location': 5,
+    'restart.endLine.receivingDistance': 6,
     'duration.blocks': 5,
     'duration.blockMinutes': 5,
     'duration.breaks': 5,
@@ -815,6 +867,68 @@ const classViolations = (choices: Array<{ path: string; sixClass: SixClass }>): 
     ...Object.keys(EXPECTED_CLASS).filter((p) => !choices.some((c) => c.path === p)).map((p) => `${p}: pinned but not a value`),
     ...choices.filter((c) => EXPECTED_CLASS[c.path] !== undefined && c.sixClass !== EXPECTED_CLASS[c.path]).map((c) => `${c.path}: class ${c.sixClass}, expected ${EXPECTED_CLASS[c.path]}`),
 ]
+
+/**
+ * Every value's label (Christian's reply of 6 November, section 7: a missing value, our reading and an illustrative choice kept apart; a
+ * value a premise of authority determines labelled by its weakest determining premise), written here apart from the code and the record.
+ */
+const L_UNRESOLVED = 'UNRESOLVED: no authorized value; needs a knowledge decision'
+const L_OURS = 'OURS: LOGICAL INFERENCE (our reading, not canonical; needs Christian\'s confirmation)'
+const L_ILLUSTRATIVE = 'ILLUSTRATIVE (for this offline test only; to be replaced before any production use)'
+const L_PROVISIONAL = 'RULING, provisional'
+const EXPECTED_LABEL: Record<string, string> = {
+    purpose: 'RULING', 'gameProblems.primary': 'RULING', 'gameProblems.secondary': 'RULING', 'gameProblems.secondaryFinding': 'RULING', 'gameProblems.candidate': 'CANDIDATE',
+    'gameForm.illustrativeChoice': L_ILLUSTRATIVE, 'gameForm.alternatives': 'CANDIDATE', 'teams.count': 'RULING', 'teams.equalOutfield': 'APPROVED',
+    'players.perTeam': L_ILLUSTRATIVE, 'players.goalkeepers': L_ILLUSTRATIVE, 'area.lengthM': L_ILLUSTRATIVE, 'area.widthM': L_ILLUSTRATIVE, 'area.includesEndZones': L_ILLUSTRATIVE,
+    'area.goalkeepersCounted': L_ILLUSTRATIVE, 'area.halfwayLine': L_ILLUSTRATIVE, 'area.centreMark': L_ILLUSTRATIVE, 'endZones.depthM': L_ILLUSTRATIVE, 'endZones.placement': L_ILLUSTRATIVE,
+    'endZones.positioning': L_UNRESOLVED, 'endZones.access': L_OURS, interactionRegulations: L_OURS, directions: 'RULING', 'scoring.event': L_PROVISIONAL, 'scoring.means': L_PROVISIONAL,
+    'scoring.qualifyingCondition.workbookText': 'CANDIDATE', 'scoring.qualifyingCondition.sep13Text': 'RULING', 'scoring.startingCondition': L_UNRESOLVED, 'scoring.afterRegain': 'RULING',
+    'scoring.mirrored': L_OURS, 'opposition.reciprocal': L_PROVISIONAL, 'play.continuous': 'RULING', 'start.method': L_PROVISIONAL, 'start.kickoffDetails': L_OURS, 'start.kickoffDistanceM': 'RULING',
+    'restart.afterPoint.method': L_PROVISIONAL, 'restart.afterPoint.who': L_OURS, 'rules.offside': L_PROVISIONAL, 'restart.touchline': 'RULING', 'rules.fouls': 'RULING', 'rules.handling': 'RULING',
+    'laws.default': 'RULING', 'laws.goalEnd': L_OURS, 'restart.endLine.method': L_PROVISIONAL, 'restart.endLine.toWhom': L_OURS, 'restart.endLine.timing': L_PROVISIONAL, 'restart.endLine.noReset': L_OURS,
+    'restart.endLine.contest': L_OURS, 'restart.endLine.location': L_ILLUSTRATIVE, 'restart.endLine.receivingDistance': L_UNRESOLVED, 'duration.blocks': L_ILLUSTRATIVE, 'duration.blockMinutes': L_ILLUSTRATIVE,
+    'duration.breaks': L_ILLUSTRATIVE, 'equipment.bibs': L_ILLUSTRATIVE, 'equipment.markers': L_ILLUSTRATIVE, 'equipment.balls': L_ILLUSTRATIVE, 'win.condition': L_ILLUSTRATIVE,
+    'observation.categories': L_PROVISIONAL, adjustments: L_OURS, coachQuestion: L_OURS,
+}
+const labelViolations = (choices: Array<{ path: string; label: string }>): string[] => [
+    ...choices.filter((c) => EXPECTED_LABEL[c.path] === undefined).map((c) => `${c.path}: no pinned label`),
+    ...Object.keys(EXPECTED_LABEL).filter((p) => !choices.some((c) => c.path === p)).map((p) => `${p}: pinned but not a value`),
+    ...choices.filter((c) => EXPECTED_LABEL[c.path] !== undefined && c.label !== EXPECTED_LABEL[c.path]).map((c) => `${c.path}: label "${c.label}", expected "${EXPECTED_LABEL[c.path]}"`),
+]
+
+/** (l2) Every value's label pinned; the report prints each class with its label; a relabelled value fails; results carry the provisional flag. */
+function testL2_labelsAndPremises(): void {
+    assert.deepEqual(labelViolations(BASE.activity.choices), [])
+    // Bite: our reading relabelled as an illustrative choice (decided by ILLUSTRATIVE, with a permission) fails the pin, though it validates.
+    const relabelled = rawX()
+    const contest = relabelled.choices.find((c: Raw) => c.path === 'restart.endLine.contest')
+    Object.assign(contest, { declaredStatus: 'ILLUSTRATIVE', howReached: 'ENTERED_ILLUSTRATIVE', decidedBy: [{ ref: 'ILLUSTRATIVE', standing: 'ILLUSTRATIVE' }], permittedBy: [{ rulingRef: 'ASM-AUTH-ILLUSTRATIVE', quote: 'an illustrative value may be used for this offline prototype' }] })
+    delete contest.readingOf
+    assert.deepEqual(labelViolations(run(committedKnowledge(), relabelled).activity.choices), [`restart.endLine.contest: label "${L_ILLUSTRATIVE}", expected "${L_OURS}"`], 'bite: a relabelled value')
+    // Every class printed for a value carries its label: Part 2, the rationale and the status list.
+    for (const c of BASE.activity.choices) {
+        assert.ok(part2Block(c.path).includes(`; class ${c.sixClass}: ${SIX_CLASSES[c.sixClass - 1].slice(0, -1)}; ${EXPECTED_LABEL[c.path]}`), `${c.path}: Part 2 class without its label`)
+        assert.ok(rationaleLines(REPORT_TEXT).some((l) => l.trim().startsWith(`${c.path}:`) && l.includes(`; ${EXPECTED_LABEL[c.path]}]`)), `${c.path}: rationale class without its label`)
+    }
+    // The weakest determining premise(s) named, the rest tallied (Christian's reply of 6 November, section 7).
+    assert.ok(part2Block('scoring.means').includes('weakest determining premise: ASM-29OCT-PROVISIONAL (received 29 October 2026; provisional) [RULING, provisional]; the rest: 1 APPROVED'))
+    assert.ok(part2Block('restart.endLine.method').includes('weakest determining premise: ASM-06NOV-RESTART (received 6 November 2026; provisional) [RULING, provisional]; the rest: 1 RULING'))
+    // A reading of ours prints the class of what it reads; a status-setting ruling says it decides no value.
+    assert.ok(part2Block('restart.endLine.toWhom').includes('it reads a ruling of class 3: Candidate or provisional knowledge'))
+    assert.ok(part2Block('scoring.startingCondition').includes("[RULING] sets this premise's standing, and so the class; decides no value"))
+    // The results carry each decisive item's provisional flag (critic G6): true exactly for the provisional rulings.
+    const results = REPORT.results as { activity: { choices: Array<{ path: string; decidedBy: Array<{ ref: string; provisional: boolean }> }> } }
+    for (const c of results.activity.choices) {
+        for (const i of c.decidedBy) {
+            const id = i.ref.split(' ')[0]
+            const r = BASE.experiment.rulings.find((y) => y.id === id)
+            assert.equal(i.provisional, Boolean(r?.provisional), `${c.path} ${i.ref}`)
+        }
+    }
+    // The front splits class 6 by label and keeps our readings apart from missing values.
+    assert.ok(REPORT_TEXT.includes(`- What class 6 holds: 13 values, split by label: 3 ${L_UNRESOLVED}; 10 ${L_OURS}. Our readings are kept distinct within class 6 by label`))
+    assert.ok(!REPORT_TEXT.includes('no separate place for our readings'))
+}
 
 /** (l) Christian's six classes, table-driven over every standing and the provisional flag, with the mixed cases. */
 function testL_sixClasses(): void {
@@ -845,7 +959,7 @@ function testL_sixClasses(): void {
     for (const c of BASE.activity.choices.filter((x) => x.howReached === 'UNRESOLVED')) assert.equal(c.sixClass, 6, c.path)
     assert.equal(at('gameProblems.candidate')?.sixClass, 3, 'Gain Access')
     // Each value Christian's provisional ruling decides is class 3, and its own Part 2 block prints that ruling's received date and words (C3-09).
-    for (const p of ['scoring.event', 'rules.offside', 'start.method', 'observation.categories', 'opposition.reciprocal']) {
+    for (const p of ['scoring.event', 'rules.offside', 'start.method', 'observation.categories', 'opposition.reciprocal', 'restart.endLine.method', 'restart.endLine.timing']) {
         assert.equal(at(p)?.sixClass, 3, `${p}: Christian's provisional ruling, class 3`)
         const choice = choiceOf(BASE.experiment, p)
         const provisional = choice.decidedBy.filter((d) => d.rulingRef && BASE.experiment.rulings.find((r) => r.id === d.rulingRef)?.provisional)
@@ -872,9 +986,12 @@ function testL_sixClasses(): void {
         const classes = s.expresses.map((p) => (at(p) as Raw).sixClass as number)
         const cls = classes.length ? (Math.max(...classes) as SixClass) : null
         assert.equal(s.sixClass, cls, s.id)
-        assert.equal(s.marker, sentenceMarker(s.expresses.map((p) => ({ path: p, sixClass: (at(p) as Raw).sixClass as SixClass })), s.reviewOnly), s.id)
+        assert.equal(s.marker, sentenceMarker(s.expresses.map((p) => ({ path: p, sixClass: (at(p) as Raw).sixClass as SixClass, label: EXPECTED_LABEL[p] })), s.reviewOnly), s.id)
         assert.ok(s.marker.startsWith(markerOf(cls).slice(0, -1)), s.id)
         if (new Set(classes).size > 1) assert.ok(s.marker.includes('; by value: '), `${s.id}: a mixed sentence lists each value's class`)
+        // Where the values share a class but differ in label (our reading beside a missing value), each value is listed too (6 November).
+        if (new Set(s.expresses.map((p) => `${(at(p) as Raw).sixClass}|${EXPECTED_LABEL[p]}`)).size > 1) assert.ok(s.marker.includes('; by value: '), `${s.id}: values that differ in label are listed`)
+        else if (cls !== null && cls > 1) assert.ok(s.marker.includes(`; ${EXPECTED_LABEL[s.expresses[0]]}]`), `${s.id}: the label beside the class`)
         if (s.reviewOnly) assert.ok(s.marker.endsWith('(review only: dropped from a coach copy)'), s.id)
     }
     // The Essential Scoring sentence's marker reflects the scoring event (mirrored scoring is its own sentence).
@@ -980,6 +1097,23 @@ function testM_validatorBites(): void {
     plantW((w) => (w.keyedFor.extraKey = 1), 'wording keyedFor.extraKey')
     plantW((w) => (w.coachTerms.extraKey = 1), 'wording coachTerms.extraKey')
     plantW((w) => (w.sections[0].level = 'Coach Overveiw'), 'wording sections[0].level misspelt')
+    // Christian's reply of 6 November: a sentence of ours quoting Christian within it (quotesWithin) holds only words of the ruling it cites.
+    plantW((w) => (w.templates.find((t: Raw) => t.id === 'rs-r5-location').text = 'Our illustrative exclusion: leave it to the coach\'s judgment of "a convenient spot"?'), 'quotesWithin: a quoted span not in the ruling')
+    plantW((w) => (w.templates.find((t: Raw) => t.id === 'rs-r5-location').quotesWithin.rulingRef = 'ASM-NOT-FILED'), 'quotesWithin: a ruling not in the registry')
+    plantW((w) => delete w.templates.find((t: Raw) => t.id === 'rs-r5-location').quotesWithin, 'a quotation mark in a template that quotes nothing')
+    // The change log, the answered decisions, the restart examination and our readings inside a premise (6 November).
+    plant((x) => (x.changeLog[0].n6Lines = 'line 59'), 'changeLog: n6Lines not naming the reply\'s lines')
+    plant((x) => (x.changeLog[0].date = '2026-11-31'), 'changeLog: a date that does not exist')
+    plant((x) => (x.changeLog[0].after = x.changeLog[0].before), 'changeLog: before equals after')
+    plant((x) => (x.changeLog[0].extraKey = 1), 'changeLog: an unknown key')
+    plant((x) => (x.changeLog = []), 'changeLog: empty')
+    plant((x) => (x.openDecisions.find((d: Raw) => d.answeredBy).answeredBy.rulingRef = 'ASM-AUTH-PURPOSE'), 'answeredBy: a ruling not among the decision\'s rulings')
+    plant((x) => (x.openDecisions.find((d: Raw) => d.answeredBy).answeredBy.extraKey = 1), 'answeredBy: an unknown key')
+    plant((x) => x.openDecisions.push({ ...x.openDecisions[0] }), 'an open decision listed twice')
+    plant((x) => x.restartExamination.rows[4].cells.pop(), 'restartExamination: a row one cell short')
+    plant((x) => (x.restartExamination.rulingRefs = ['ASM-NOT-FILED']), 'restartExamination: a ruling not in the registry')
+    plant((x) => (x.readingsInsidePremises.items[0].paths = ['rules.offsides']), 'readingsInsidePremises: a path that is no value')
+    plant((x) => (x.readingsInsidePremises.items[0].reading = 'Christian\'s scope words cover the offside decision.'), 'readingsInsidePremises: a reading of ours not labelled OURS')
     // The committed record validates.
     validateExperiment(rawX())
     // Christian's provisional flag follows Christian's words (C3-20): an entry whose words call something provisional is filed provisional, unless pinned
@@ -1015,6 +1149,10 @@ const EXPECTED_VALUE_EVIDENCE: Record<string, { value: ChoiceValue; term: string
     'opposition.reciprocal': { value: 'RECIPROCAL', term: 'Reciprocal objectives' },
     'play.continuous': { value: 'CONTINUOUS_THROUGH_TURNOVERS', term: 'continuous play through turnovers' },
     'start.method': { value: 'ORDINARY_KICKOFF', term: 'ordinary kickoff' },
+    // 6 November: the kick-off distance, the served end-line restart and its promptness, each stated in Christian's words.
+    'start.kickoffDistanceM': { value: 9.15, term: '9.15 m requirement', states: 9.15 },
+    'restart.endLine.method': { value: 'COACH_SERVES_NEW_BALL', term: 'coach-served restart' },
+    'restart.endLine.timing': { value: 'PROMPTLY', term: 'promptly' },
     'restart.afterPoint.method': { value: 'KICKOFF', term: 'ordinary kickoff' },
     'rules.offside': { value: 'NONE', term: 'None for this initial small-sided realization' },
     'restart.touchline': { value: 'LAWS_THROW_IN', term: 'normal Laws of the Game should apply by default' },
@@ -1098,7 +1236,8 @@ function testN_valueEvidence(): void {
     // inference by our reading, with the words it reads printed beside it. No ruling of Christian's is among what decided either.
     for (const c of x.choices.filter((y) => y.howReached === 'ENTERED_ILLUSTRATIVE')) {
         assert.deepEqual(c.decidedBy, [{ ref: 'ILLUSTRATIVE', standing: 'ILLUSTRATIVE' }], c.path)
-        assert.ok((c.permittedBy ?? []).length > 0 && (c.permittedBy ?? []).every((p) => /\bmay be used\b/.test(p.quote)), `${c.path}: Christian's permission sits under permittedBy`)
+        // Christian's two permissions: the second reply of 5 November ("may be used") and the reply of 6 November ("may remain acceptable").
+        assert.ok((c.permittedBy ?? []).length > 0 && (c.permittedBy ?? []).every((p) => /\bmay be used\b|\bmay remain acceptable\b/.test(p.quote)), `${c.path}: Christian's permission sits under permittedBy`)
     }
     for (const c of x.choices.filter((y) => y.howReached === 'ENTERED_OUR_INFERENCE')) {
         assert.deepEqual(c.decidedBy, [{ ref: 'OURS', standing: 'OURS' }], c.path)
@@ -1125,7 +1264,7 @@ function testN_valueEvidence(): void {
         }
     }
     for (const c of BASE.activity.choices.filter((y) => y.declaredStatus === 'RULING' && !y.allDecisiveRulingsProvisional)) assert.ok(!part2Block(c.path).includes('(Christian\'s provisional ruling: class 3)'), c.path)
-    assert.deepEqual(BASE.activity.choices.filter((y) => y.allDecisiveRulingsProvisional).map((y) => y.path), ['scoring.event', 'scoring.means', 'opposition.reciprocal', 'start.method', 'restart.afterPoint.method', 'rules.offside', 'observation.categories'])
+    assert.deepEqual(BASE.activity.choices.filter((y) => y.allDecisiveRulingsProvisional).map((y) => y.path), ['scoring.event', 'scoring.means', 'opposition.reciprocal', 'start.method', 'restart.afterPoint.method', 'rules.offside', 'restart.endLine.timing', 'observation.categories'])
 }
 
 /** (o) What the code computes moves, or the assembly refuses, when the knowledge it reads changes. */
@@ -1355,10 +1494,18 @@ function testT_lawsAccount(): void {
     const profile = JSON.parse(fs.readFileSync(path.join(REPO, 'docs', 'audits', 'conformance', 'stage-b', 'sport-profile-soccer.json'), 'utf8'))
     const ids = (profile.defaultLaws.laws as Raw[]).map((l) => l.id).sort()
     assert.deepEqual(BASE.experiment.laws.filter((l) => l.lawId).map((l) => l.lawId).sort(), ids)
-    // The goal kick and corner kick restart a ball over the end line but assume a goal: an adaptation is owed for each, never "not
-    // applicable" (Christian's 23 October words), and the illustrative end-line value stands in.
-    assert.deepEqual(BASE.experiment.laws.filter((l) => l.status === 'ADAPTATION OWED').map((l) => l.lawId), ['LAW-16', 'LAW-17'])
-    for (const l of BASE.experiment.laws.filter((y) => y.status === 'ADAPTATION OWED')) assert.ok(l.paths.includes('restart.endLine.illustrativeValue') && l.paths.includes('restart.endLine.status'), String(l.lawId))
+    // 6 November (DESIGN-6-v2 A3): the goal kick and the corner kick at a goal-less end line print both readings: NOT APPLICABLE as our DRAFT
+    // Sport Profile encoding gives it, and, on our reading of the award by last touch, a departure in method and location that Christian's
+    // reply authorizes provisionally for this offline prototype; so each is DEPARTED, beside no offside. No adaptation is left owed.
+    assert.deepEqual(BASE.experiment.laws.filter((l) => l.status === 'ADAPTATION OWED').map((l) => l.lawId), [])
+    assert.deepEqual(BASE.experiment.laws.filter((l) => l.status === 'DEPARTED').map((l) => l.lawId), ['LAW-11', 'LAW-16', 'LAW-17'])
+    for (const id of ['LAW-16', 'LAW-17']) {
+        const l = BASE.experiment.laws.find((y) => y.lawId === id) as Experiment['laws'][number]
+        assert.ok(l.reason.startsWith('NOT APPLICABLE as our DRAFT Sport Profile encoding gives it (no goal stands).') && l.reason.includes('authorized provisionally for this offline prototype by Christian\'s reply of 6 November, section 6'), id)
+        assert.ok(!l.reason.includes('assume a goal'), `${id}: the award by last touch needs no goal`)
+    }
+    assert.ok((BASE.experiment.laws.find((l) => l.lawId === 'LAW-16') as Experiment['laws'][number]).reason.includes('Open representation question (OURS; recorded in this account only, not put to Christian now)'))
+    assert.ok((BASE.experiment.laws.find((l) => l.lawId === 'LAW-8') as Experiment['laws'][number]).reason.includes('the Sport Profile marks the centre mark UNREPRESENTED'))
     assert.equal(BASE.experiment.laws.find((l) => l.lawId === 'LAW-11')?.status, 'DEPARTED')
     // Each law's status, and the values its entry rests on, pinned here (C3-14).
     assert.deepEqual(lawViolations(BASE.experiment), [])
@@ -1379,8 +1526,8 @@ const EXPECTED_LAW_STATUS: Record<string, { status: string; needs: Record<string
     'LAW-13': { status: 'APPLIES', needs: { 'rules.fouls': 'LAWS_FREE_KICKS' } },
     'LAW-14': { status: 'NOT APPLICABLE', needs: { 'laws.goalEnd': 'REPLACED_BY_THE_END_LINE_RESTART' } },
     'LAW-15': { status: 'APPLIES', needs: { 'restart.touchline': 'LAWS_THROW_IN' } },
-    'LAW-16': { status: 'ADAPTATION OWED', needs: { 'restart.endLine.status': null, 'restart.endLine.illustrativeValue': 'DEFENDING_TEAM_FROM_ITS_END_LINE' } },
-    'LAW-17': { status: 'ADAPTATION OWED', needs: { 'restart.endLine.status': null, 'restart.endLine.illustrativeValue': 'DEFENDING_TEAM_FROM_ITS_END_LINE' } },
+    'LAW-16': { status: 'DEPARTED', needs: { 'laws.goalEnd': 'REPLACED_BY_THE_END_LINE_RESTART', 'restart.endLine.method': 'COACH_SERVES_NEW_BALL', 'restart.endLine.toWhom': 'TEAM_THAT_DID_NOT_TOUCH_IT_LAST', 'restart.endLine.location': 'IN_THE_HALF_WHERE_IT_WENT_OUT_OUTSIDE_BOTH_TARGET_ZONES_NOT_ACROSS_EITHER_COACH_CHOOSES_PLAYER' } },
+    'LAW-17': { status: 'DEPARTED', needs: { 'laws.goalEnd': 'REPLACED_BY_THE_END_LINE_RESTART', 'restart.endLine.method': 'COACH_SERVES_NEW_BALL', 'restart.endLine.toWhom': 'TEAM_THAT_DID_NOT_TOUCH_IT_LAST', 'restart.endLine.location': 'IN_THE_HALF_WHERE_IT_WENT_OUT_OUTSIDE_BOTH_TARGET_ZONES_NOT_ACROSS_EITHER_COACH_CHOOSES_PLAYER' } },
     'LAW-4-GK': { status: 'NOT APPLICABLE', needs: { 'players.goalkeepers': 0 } },
 }
 const lawViolations = (x: Experiment): string[] => {
@@ -1610,6 +1757,21 @@ const RULING_WORD_HASHES: Record<string, string> = {
     'ASM-13SEP-SCORING': 'e832471b19ed0ba5ceebf2eff2e1d374cc4c37b4ca2329114eac07465355bf3c',
     'ASM-31OCT-ORGANIZED': '40f38041a9299355b752a62edce1faa350f600ff6d4319a2dd6d648b4078af36',
     'ASM-28OCT-ACCEPTANCE': '53d7412db559d5d5e08f9da7c86079b200a5d511abeb2cd234d06d7155b85e3b',
+    // Christian's reply of 6 November and two earlier entries it occasioned, pinned 6 November 2026 after dump-quotes3.js and
+    // check-quotes.js --no-ban: 310 quotes and 16 terms PASS, 0 FAIL, 298 of 298 citations OK; no earlier entry's words changed.
+    'ASM-06NOV-DIAGNOSTIC': '7e2cc2a4ccb212eab4b171faf8042eeaba0135ab2e8ac1d97283ff446112602f',
+    'ASM-06NOV-STARTING': '491e4d5eb977881e6283147847c7823f154a753c35a20610bd3c6fa4b7fb4725',
+    'ASM-06NOV-SOURCE': '18b14d8942dffd4723af8a80866620d091aadc54d2f12685795ed83d4327869a',
+    'ASM-06NOV-OPTION-A': '0b631f24cc924bdc81215ba8ab79cd3510e48d74aa668502371fd42ee2995364',
+    'ASM-06NOV-K2': '03be0a245957000a24081afe3fdd66ba73c31c495490beac9010259601eff453',
+    'ASM-06NOV-CREATE-SPACE': '3816990cf2a2c5fb6f3f028f6ee83489563b5675d483ceecd61c2dd0390d4993',
+    'ASM-06NOV-RESTART': '82cd0a5472188c385818e5c5e78457bba9dc231e21773322d3b4f421836fe3ad',
+    'ASM-06NOV-PROVENANCE': '77274f5adf9b445db741b898c44782a98cd2455263e798582c43fec74b29e25b',
+    'ASM-06NOV-KICKOFF': '7d67a01d2ab5ee7362109c47379fb370adf295f887b06ae0aa428dee48aba3f0',
+    'ASM-06NOV-DIAGRAM': '8e47f76c79a437007c0123eb6776e951a7262499a68de9c441ff3670d95db2de',
+    'ASM-06NOV-ILLUSTRATIVE-OFFLINE': '7c48f1862fe8465de3551cffc856c541ca248d93fb7fcf4f8f717249a2f326aa',
+    'ASM-15OCT-NOT-MANDATORY': '0f72b178b805df4dc161344dfc6761f8c86d6abc9c725f92ec972239cdb644a0',
+    'ASM-30OCT-EVE-SUFFICIENCY': 'c7d333ed1eb4385cacceff34ac6addcc98a81f0612deec7b8e8b7bafef3eab27',
 }
 function testRulingWordsPinned(): void {
     const actual = Object.fromEntries(BASE.experiment.rulings.map((r) => [r.id, crypto.createHash('sha256').update(JSON.stringify(r.words)).digest('hex')]))
@@ -1688,6 +1850,7 @@ testJ_workbookTextAndThePossessionClause()
 testK_displayTextsEqualTheirCells()
 testK2_noDecisionReadsADisplayText()
 testL_sixClasses()
+testL2_labelsAndPremises()
 testM_validatorBites()
 testN_valueEvidence()
 testRulingWordsPinned()
