@@ -1,0 +1,6 @@
+{
+    "standing": "No regression result is recorded for this build yet. The lead fills this record after the final regression run (type check, the full unit suite, the behaviour snapshot with A01's entries, the bundle, Stage 2 evidence, the quote check, the mutation loop's counts by outcome), then re-runs the runner so Part 5 prints it. Until then nothing in Part 5 is a regression result.",
+    "status": "PLACEHOLDER",
+    "build": null,
+    "results": []
+}

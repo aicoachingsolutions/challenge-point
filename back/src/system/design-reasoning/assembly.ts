@@ -7,8 +7,11 @@
  *
  * WHAT IT IS. The architecture has no configuration step (Steps 3-5 are held). So the configuration is a labelled decision record we
  * entered (`assembly-experiment.review.json`): each value carries a declared standing, the items that decided it (his words with the exact
- * substring that states the value, or a knowledge cell) and what was only consulted. Some values are read from knowledge by code (the
- * Game Problems and compatible Game Forms the Stage 1/2 code computes, and a few knowledge cells). This file:
+ * substring that states the value, a knowledge cell, or, for a value his words do not state, our own illustrative choice or our own
+ * reading) and what was only consulted. Three roles are never decisive and are printed as what they are: his words that PERMIT an
+ * illustrative value (permittedBy), his words an OURS value is OUR READING of (readingOf), and his words that SET THE SCOPE a computed
+ * value is used in (scopeSetBy). Some values are read from knowledge by code (the Game Problems and compatible Game Forms the Stage 1/2
+ * code computes, and a few knowledge cells). This file:
  *   - validates the record by hand (unknown keys, unknown standings, missing words, file or received date, missing value evidence, his
  *     example words or reference-only material among what decided a value, a declared status stronger than what decided it: each throws);
  *   - assembles the activity, failing closed where the record disagrees with what the code computes (Step 1 unresolved; the illustrative
@@ -26,7 +29,7 @@
  */
 import experimentData from './assembly-experiment.review.json'
 import wordingData from './assembly-wording.draft.json'
-import { activeContextRelationships, cell, Cite, contextIdentityRules, contextProperty, DesignKnowledge, isStanding, OpenDecision, Ruling, SOURCE, Standing } from './knowledge'
+import { activeContextRelationships, cell, Cite, contextIdentityRules, contextProperty, DesignKnowledge, isStanding, OpenDecision, Ruling, SOURCE, sourceStanding, Standing } from './knowledge'
 import { GameFormSelection } from './forms'
 import { DesignResolution } from './resolve'
 import { citeRef, EstablishedBy, InfluenceTrace, item, TraceItem } from './trace'
@@ -56,13 +59,36 @@ export interface KnowledgeRef {
     column?: string
 }
 
+/**
+ * What decided a value: one of his rulings or a knowledge cell (each with the exact words that state the value), or one of three bare
+ * items that state where no authority decided it: our illustrative choice, our own reading, or no authorized value at all.
+ */
 export interface DecisiveItem {
     rulingRef?: string
     knowledgeRef?: KnowledgeRef
-    ref?: 'UNRESOLVED'
+    ref?: 'UNRESOLVED' | 'ILLUSTRATIVE' | 'OURS'
     standing: Standing
     valueEvidence?: string
 }
+
+/** The bare decisive items, each with the only standing it may carry. */
+export const BARE_DECISIVE: Record<NonNullable<DecisiveItem['ref']>, Standing> = { UNRESOLVED: 'UNRESOLVED', ILLUSTRATIVE: 'ILLUSTRATIVE', OURS: 'OURS' }
+
+/** His words in a non-decisive role (permittedBy, readingOf, scopeSetBy): the ruling and the exact words quoted. */
+export interface RoleItem {
+    rulingRef: string
+    quote: string
+    /** permittedBy only: his permission names this very value (it is still our choice to use it). */
+    namesValue?: true
+}
+
+/** The three non-decisive roles his words can play beside a value, as the report prints them. */
+export const ROLES = ['permittedBy', 'readingOf', 'scopeSetBy'] as const
+export type Role = (typeof ROLES)[number]
+
+/** What kind of words a registry entry holds (his words are not all rulings). */
+export const RULING_KINDS = ['RULING', 'QUESTION', 'OBSERVATION', 'HYPOTHETICAL', 'DEFINITION'] as const
+export type RulingKind = (typeof RULING_KINDS)[number]
 
 export interface ConsultedItem {
     rulingRef?: string
@@ -85,6 +111,12 @@ export interface Choice {
     decidedBy: DecisiveItem[]
     consulted: ConsultedItem[]
     statusSetBy: Array<{ rulingRef: string }>
+    /** His words permitting an ILLUSTRATIVE value (never decisive: the value is our choice). */
+    permittedBy?: RoleItem[]
+    /** His words an OURS value is our reading of (never decisive: the reading is ours). */
+    readingOf?: RoleItem[]
+    /** His words setting the scope a computed value is used in, in this experiment (never decisive). */
+    scopeSetBy?: RoleItem[]
     note: string
 }
 
@@ -92,6 +124,9 @@ export interface AssemblyRuling extends Ruling {
     received: string
     file: string
     provisional: boolean
+    kind: RulingKind
+    /** His words made the item owner-authored canonical knowledge: a decisive item citing it may carry APPROVED. */
+    establishesCanonicalKnowledge?: true
 }
 
 export interface AccountEntry {
@@ -99,26 +134,45 @@ export interface AccountEntry {
     requirementRef: { table: string; row: string }
     clause: string | null
     reading: string | null
+    /** One of his four categories, or the record's marker for a clause that is no requirement under its reading. */
     category: string
     standard: string
     paths: string[]
     observableConditions: string | null
+    /** Category 3 only: whether the observable conditions are in the coach guidance. */
+    inCoachGuidance?: boolean
     note: string
 }
+
+export type OpenDecisionClass = 'ASSEMBLY' | 'SCORING_FIDELITY_OR_PRODUCTION' | 'SUITABILITY' | 'NON_BLOCKING' | 'OUR_READING' | 'KNOWN_RISK'
+export const OPEN_DECISION_CLASSES: OpenDecisionClass[] = ['ASSEMBLY', 'SCORING_FIDELITY_OR_PRODUCTION', 'SUITABILITY', 'NON_BLOCKING', 'OUR_READING', 'KNOWN_RISK']
+
+export type ReportRefKey = 'experimentPurpose' | 'acceptance' | 'limits' | 'kickoffCaveat' | 'futureFeedbackQuestion' | 'lawsPrinciple' | 'diagram'
+export const REPORT_REF_KEYS: ReportRefKey[] = ['experimentPurpose', 'acceptance', 'limits', 'kickoffCaveat', 'futureFeedbackQuestion', 'lawsPrinciple', 'diagram']
+
+export type BindingKey = 'illustrativeForm' | 'scoringEvent' | 'scoringMeans' | 'teamCount' | 'playersPerTeam' | 'areaLength' | 'areaWidth' | 'targetZoneDepth' | 'targetZonePlacement'
+export const BINDING_KEYS: BindingKey[] = ['illustrativeForm', 'scoringEvent', 'scoringMeans', 'teamCount', 'playersPerTeam', 'areaLength', 'areaWidth', 'targetZoneDepth', 'targetZonePlacement']
 
 export interface Experiment {
     standing: string
     learningGoalId: string
+    /** The controlled vocabulary the scoring event's description is read from (a name in the data, never a literal in code). */
+    scoringEventVocabulary: string
     gameForm: { illustrativeChoice: string; standing: Standing; rulingRefs: string[]; choicePath: string }
     gameProblemScope: { primaryGameProblemIds: string[]; secondaryGameProblemIds: string[]; rulingRefs: string[]; idResolution: string; note: string }
-    /** The rulings the report quotes in fixed places (his question, his acceptance test, his limits, the kickoff caveat, the coach question). */
-    reportRefs: Record<'experimentPurpose' | 'acceptance' | 'limits' | 'kickoffCaveat' | 'futureFeedbackQuestion', string>
-    bindings:Record<'illustrativeForm' | 'scoringEvent' | 'teamCount' | 'playersPerTeam' | 'areaLength' | 'areaWidth' | 'targetZoneDepth', string>
-    derived: Array<{ id: string; formula: 'AREA_PER_OUTFIELD_PLAYER_TOTAL' | 'AREA_PER_OUTFIELD_PLAYER_OUTSIDE_TARGET_ZONES'; label: string; targetZoneCount: number; note: string }>
+    /** The words the report quotes in fixed places, each with the exact quote (limits prints every sentence of its ruling). */
+    reportRefs: Record<ReportRefKey, { rulingRef: string; quote?: string }>
+    bindings: Record<BindingKey, string>
+    /** How many target zones each placement value means (read by code; an unmapped placement throws). */
+    placementZoneCount: Record<string, number>
+    derived: Array<{ id: string; formula: 'AREA_PER_OUTFIELD_PLAYER_TOTAL' | 'AREA_PER_OUTFIELD_PLAYER_OUTSIDE_TARGET_ZONES'; label: string; note: string }>
     rulings: AssemblyRuling[]
+    requiredPartsRulingRef: string
     requiredParts: Array<{ id: string; part: string; paths: string[]; generatedFromTrace?: true }>
     designBlockPaths: string[]
-    exemptions: Array<{ path: string; reason: string }>
+    /** Our short summary of why this design, each sentence naming the values it rests on (their weakest class is its marker). */
+    whyThisDesign: Array<{ text: string; paths: string[] }>
+    exemptions: Array<{ path: string; reason: string; nonActivity?: true }>
     choices: Choice[]
     laws: Array<{ lawId: string | null; situation?: string; status: 'APPLIES' | 'DEPARTED' | 'NOT APPLICABLE' | 'ADAPTATION OWED'; paths: string[]; reason: string }>
     contractItems: Array<{ itemId: string; mappedTo: string[]; notUsed?: string }>
@@ -126,6 +180,7 @@ export interface Experiment {
     requirementAccountRulingRef: string
     accountCategories: string[]
     accountStandards: string[]
+    accountOutsideCategories: string
     requirementAccount: AccountEntry[]
     suitability: {
         standing: string
@@ -133,25 +188,32 @@ export interface Experiment {
         scale: { status: string; statement: string; openDecision: string }
         exposure: Array<{ aspect: string; status: string }>
         identityPoint: { statement: string; rows: string[] }
-        addNothing: { status: string; statement: string; rulingRef: string }
+        scopeTension: { statement: string; rulingRefs: string[] }
+        addNothing: { status: string; statement: string; rulingRef: string; quote: string }
+        reviewPoints: Array<{ id: string; statement: string; rulingRefs: string[] }>
     }
     scenarios: {
         standing: string
         rulingRef: string
+        rulesRef: string
         circumstances: Array<{ key: string; label: string }>
-        decidingCircumstances: string[]
+        scopeCircumstance: { key: string; holdsWhen: boolean; rulingRefs: string[]; whenNotEstablished: string }
         insufficientWhen: Array<{ key: string; value: boolean }>
         requirementLink: { requirementId: string; circumstanceKey: string; engagesWhen: boolean; rulingRefs: string[]; report: string }
         uncertaintyReport: string
-        widthCheck: { configuredArea: { lengthM: number; widthM: number }; availableSpace: { lengthM: number; widthM: number }; playersPerTeam: number[]; standing: string; note: string }
-        items: Array<{ id: string; words: string; configuredActivity: Record<string, { value: boolean | 'NOT_SUPPLIED'; label: string }>; expected: { mismatchReported: boolean; uncertaintyReported: boolean } }>
+        widthCheck: { note: string }
+        items: Array<{ id: string; words: string; configuredActivity: Record<string, { value: boolean | 'NOT_SUPPLIED'; label: string }>; expected: { mismatchReported: boolean; uncertaintyReported: boolean; scopeEstablished: boolean } }>
     }
-    reconciliations: Array<{ id: string; title: string; rulingRefs: string[]; showPaths?: string[]; items: string[] }>
-    openDecisions: Array<{ id: string; blocks: 'ASSEMBLY' | 'SCORING_FIDELITY_OR_PRODUCTION' | 'SUITABILITY' | 'NON_BLOCKING'; question: string; rulingRefs: string[]; handling: string }>
+    reconciliations: Array<{ id: string; title: string; rulingRefs: string[]; showPaths?: string[]; items: string[]; smallest?: string }>
+    openDecisions: Array<{ id: string; blocks: OpenDecisionClass; question: string; rulingRefs: string[]; handling: string }>
     reconciliation: { rulingRef: string; assessmentItems: Array<{ item: string; carriedBy: string }>; reuse: Array<{ work: string; status: string; why: string }>; stillOpen: string[] }
     dependencies: Array<{ id: string; what: string; options: string }>
     secondGoalNeeds: string[]
 }
+
+/** A template's wording status (RC3 6.1): approved word for word, an abbreviated presentation derived from approved wording, or newly proposed. */
+export const WORDING_STATUSES = ['APPROVED CANONICAL', 'ABBREVIATED FROM APPROVED WORDING', 'NEWLY PROPOSED'] as const
+export type WordingStatus = (typeof WORDING_STATUSES)[number]
 
 export interface WordingTemplate {
     id: string
@@ -159,8 +221,12 @@ export interface WordingTemplate {
     text: string
     expresses: string[]
     whenValue?: Record<string, ChoiceValue>
-    status: 'APPROVED CANONICAL' | 'NEWLY PROPOSED'
+    status: WordingStatus
     quote?: { rulingRef: string }
+    /** A review disclosure: shown in the review copy, marked, and dropped from a coach copy. */
+    reviewOnly?: true
+    /** The template belongs to this goal (GOAL) or its context (CONTEXT), not to the Game Form level: a second goal rewrites it. */
+    scope?: 'GOAL' | 'CONTEXT'
 }
 
 export interface Wording {
@@ -246,9 +312,22 @@ export const longDate = (iso: string): string => `${Number(iso.slice(8, 10))} ${
 
 /** The marker a review-copy sentence carries: the weakest class among the values it expresses (class 1 unmarked). */
 export function markerOf(c: SixClass | null): string {
-    if (c === null) return '[no configuration value: OURS]'
+    if (c === null) return '[review note]'
     if (c === 1) return ''
     return `[${classLabel(c)}]`
+}
+
+/**
+ * A sentence's marker from the classes of the values it expresses: the weakest class; where the values differ, each value's class too
+ * (so a sentence is never read as wholly as weak, or as strong, as one of its values). A review-only sentence says so.
+ */
+export function sentenceMarker(classes: Array<{ path: string; sixClass: SixClass }>, reviewOnly = false): string {
+    const weakest = classes.length ? (Math.max(...classes.map((c) => c.sixClass)) as SixClass) : null
+    const distinct = new Set(classes.map((c) => c.sixClass))
+    let marker = markerOf(weakest)
+    if (distinct.size > 1 && marker) marker = `${marker.slice(0, -1)}; by value: ${classes.map((c) => `${c.path} class ${c.sixClass}`).join(', ')}]`
+    if (reviewOnly) marker = `${marker ? `${marker} ` : ''}(review only: dropped from a coach copy)`
+    return marker
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -282,12 +361,13 @@ function standingOk(where: string, v: unknown): Standing {
 }
 
 const TOP_KEYS = [
-    'standing', 'learningGoalId', 'gameForm', 'gameProblemScope', 'reportRefs', 'bindings', 'derived', 'rulings', 'requiredParts', 'designBlockPaths', 'exemptions', 'choices', 'laws',
-    'contractItems', 'contractDeclarationsReported', 'requirementAccountRulingRef', 'accountCategories', 'accountStandards', 'requirementAccount', 'suitability', 'scenarios',
-    'reconciliations', 'openDecisions', 'reconciliation', 'dependencies', 'secondGoalNeeds',
+    'standing', 'learningGoalId', 'scoringEventVocabulary', 'gameForm', 'gameProblemScope', 'reportRefs', 'bindings', 'placementZoneCount', 'derived', 'rulings', 'requiredPartsRulingRef',
+    'requiredParts', 'designBlockPaths', 'whyThisDesign', 'exemptions', 'choices', 'laws', 'contractItems', 'contractDeclarationsReported', 'requirementAccountRulingRef',
+    'accountCategories', 'accountStandards', 'accountOutsideCategories', 'requirementAccount', 'suitability', 'scenarios', 'reconciliations', 'openDecisions', 'reconciliation',
+    'dependencies', 'secondGoalNeeds',
 ]
-const RULING_KEYS = ['id', 'decision', 'subject', 'scope', 'scopeWords', 'scopeCovers', 'canonicalAmendment', 'words', 'supersedes', 'received', 'file', 'provisional']
-const CHOICE_KEYS = ['path', 'value', 'valueIsEvidence', 'declaredStatus', 'howReached', 'readBy', 'knowledgeRef', 'decidedBy', 'consulted', 'statusSetBy', 'note']
+const RULING_KEYS = ['id', 'decision', 'subject', 'scope', 'scopeWords', 'scopeCovers', 'kind', 'establishesCanonicalKnowledge', 'canonicalAmendment', 'words', 'supersedes', 'received', 'file', 'provisional']
+const CHOICE_KEYS = ['path', 'value', 'valueIsEvidence', 'declaredStatus', 'howReached', 'readBy', 'knowledgeRef', 'decidedBy', 'consulted', 'statusSetBy', 'permittedBy', 'readingOf', 'scopeSetBy', 'note']
 
 /**
  * The record, validated. Throws on: an unknown key anywhere this checks; an unknown standing; a ruling without words, file or received
@@ -312,6 +392,8 @@ export function validateExperiment(raw: unknown): Experiment {
         if ((o.file as string).indexOf('AppData') >= 0 || (o.file as string).indexOf('scratchpad') >= 0) fail(where, 'file must never be a scratchpad path')
         if (!isDate(o.received)) fail(where, 'received must be a YYYY-MM-DD date (US Eastern)')
         if (typeof o.provisional !== 'boolean') fail(where, 'provisional must be true or false')
+        if ((RULING_KINDS as readonly string[]).indexOf(o.kind as string) < 0) fail(where, `unknown kind ${JSON.stringify(o.kind)}`)
+        if ('establishesCanonicalKnowledge' in o && (o.establishesCanonicalKnowledge !== true || o.kind !== 'RULING')) fail(where, 'establishesCanonicalKnowledge is true, and only on a ruling')
         if (o.canonicalAmendment !== false) fail(where, 'no ruling filed here is a canonical amendment')
         if (o.scope !== null && !isString(o.scope)) fail(where, 'scope must be a string or null')
         if (o.scope !== null) {
@@ -353,10 +435,15 @@ export function validateExperiment(raw: unknown): Experiment {
             if ('rulingRef' in di) {
                 const r = rulingOk(dw, di.rulingRef)
                 provisional = r.provisional
-                if (s !== 'RULING') fail(dw, 'a ruling of his decides with standing RULING')
+                if (r.kind !== 'RULING') fail(dw, `${r.id} holds his ${r.kind.toString()} words, not a ruling: it cannot decide a value`)
+                if (!(s === 'RULING' || (s === 'APPROVED' && r.establishesCanonicalKnowledge === true))) fail(dw, 'a ruling of his decides with standing RULING (APPROVED only where his words made the item canonical knowledge)')
             }
             if ('knowledgeRef' in di) knowledgeRefOk(`${dw}.knowledgeRef`, di.knowledgeRef)
-            if ('ref' in di && (di.ref !== 'UNRESOLVED' || s !== 'UNRESOLVED')) fail(dw, 'a bare ref is allowed only as { ref: UNRESOLVED, standing: UNRESOLVED }')
+            if ('ref' in di) {
+                const bare = BARE_DECISIVE[di.ref as NonNullable<DecisiveItem['ref']>]
+                if (!bare || bare !== s) fail(dw, 'a bare ref is allowed only as { ref: UNRESOLVED | ILLUSTRATIVE | OURS } with the same standing')
+                if ('valueEvidence' in di) fail(dw, 'a bare ref quotes no evidence: no authority states the value')
+            }
             if (s === 'RULING' || s === 'APPROVED') {
                 if (!isString(di.valueEvidence)) fail(dw, 'a decisive RULING or APPROVED item needs valueEvidence, the exact substring that states the value')
                 if ('rulingRef' in di && !(rulings.get(di.rulingRef as string) as AssemblyRuling).words.some((w) => w.indexOf(di.valueEvidence as string) >= 0)) fail(dw, 'valueEvidence is not in his words')
@@ -374,6 +461,18 @@ export function validateExperiment(raw: unknown): Experiment {
             if (!isString(ci.note)) fail(cw, 'note must be a string')
         })
         ;(o.statusSetBy as unknown[]).forEach((x, j) => rulingOk(`${at}.statusSetBy[${j}]`, onlyKeys(`${at}.statusSetBy[${j}]`, x, ['rulingRef'], ['rulingRef']).rulingRef))
+        // His words in a non-decisive role: each quote exact in his words; a permission naming the value must contain it.
+        for (const role of ROLES) {
+            if (!(role in o)) continue
+            if (!Array.isArray(o[role]) || !(o[role] as unknown[]).length) fail(at, `${role} must be a non-empty list when present`)
+            ;(o[role] as unknown[]).forEach((x, j) => {
+                const rw = `${at}.${role}[${j}]`
+                const ri = onlyKeys(rw, x, role === 'permittedBy' ? ['rulingRef', 'quote', 'namesValue'] : ['rulingRef', 'quote'], ['rulingRef', 'quote'])
+                const r = rulingOk(rw, ri.rulingRef)
+                if (!isString(ri.quote) || !r.words.some((w) => w.indexOf(ri.quote as string) >= 0)) fail(rw, 'the quote is not in his words')
+                if ('namesValue' in ri && (ri.namesValue !== true || (ri.quote as string).indexOf(String(v)) < 0)) fail(rw, 'namesValue: his quoted words must contain the value')
+            })
+        }
 
         // The declared status is never stronger than what decided the value (compared by standing; his provisional flag only weakens).
         for (const d of decisive) {
@@ -400,6 +499,16 @@ export function validateExperiment(raw: unknown): Experiment {
         }
         if (how === 'ENTERED_ILLUSTRATIVE' && declared !== 'ILLUSTRATIVE') fail(at, 'an illustrative value is declared ILLUSTRATIVE')
         if (how === 'ENTERED_OUR_INFERENCE' && declared !== 'OURS') fail(at, 'our inference is declared OURS')
+        // A value his words do not state is decided by us, never by his words: an illustrative value by our choice (his permission printed
+        // beside it), our inference by our reading (the words read printed beside it). His words never "state" either.
+        const onlyBare = (ref: 'ILLUSTRATIVE' | 'OURS') => (o.decidedBy as DecisiveItem[]).length === 1 && (o.decidedBy as DecisiveItem[])[0].ref === ref
+        if (how === 'ENTERED_ILLUSTRATIVE' && (!onlyBare('ILLUSTRATIVE') || !('permittedBy' in o))) fail(at, 'an illustrative value is decided by { ref: ILLUSTRATIVE } alone, with the words that permit it under permittedBy')
+        if (how === 'ENTERED_OUR_INFERENCE' && (!onlyBare('OURS') || !('readingOf' in o))) fail(at, 'our inference is decided by { ref: OURS } alone, with the words it reads under readingOf')
+        if ('permittedBy' in o && how !== 'ENTERED_ILLUSTRATIVE') fail(at, 'permittedBy belongs only to an illustrative value')
+        if ('readingOf' in o && how !== 'ENTERED_OUR_INFERENCE') fail(at, 'readingOf belongs only to our inference')
+        if ('scopeSetBy' in o && how !== 'READ_BY_CODE') fail(at, 'scopeSetBy belongs only to a value the code computes')
+        if (decisive.some((d) => d.standing === 'ILLUSTRATIVE') && how !== 'ENTERED_ILLUSTRATIVE') fail(at, 'an ILLUSTRATIVE decisive item belongs only to an illustrative value')
+        if (decisive.some((d) => d.standing === 'OURS') && (o.decidedBy as DecisiveItem[]).some((d) => d.ref === 'OURS') && how !== 'ENTERED_OUR_INFERENCE') fail(at, 'an OURS decisive item belongs only to our inference')
         if (how === 'ENTERED_EVIDENCED') {
             if (['APPROVED', 'RULING', 'CANDIDATE'].indexOf(declared) < 0) fail(at, 'an evidenced value is declared APPROVED, RULING or CANDIDATE')
             if (!(o.decidedBy as DecisiveItem[]).some((d) => (d.standing === 'RULING' || d.standing === 'APPROVED') && isString(d.valueEvidence))) fail(at, 'an evidenced value needs a decisive item with value evidence')
@@ -422,17 +531,21 @@ export function validateExperiment(raw: unknown): Experiment {
     if (formChoice.value !== gf.illustrativeChoice || formChoice.declaredStatus !== gf.standing) fail('gameForm', 'the illustrative choice and its standing must equal the choice at choicePath')
     const gp = onlyKeys('gameProblemScope', top.gameProblemScope, ['primaryGameProblemIds', 'secondaryGameProblemIds', 'rulingRefs', 'idResolution', 'note'], ['primaryGameProblemIds', 'secondaryGameProblemIds', 'rulingRefs', 'idResolution', 'note'])
     ;(gp.rulingRefs as unknown[]).forEach((r) => rulingOk('gameProblemScope.rulingRefs', r))
-    const bindings = onlyKeys('bindings', top.bindings, ['illustrativeForm', 'scoringEvent', 'teamCount', 'playersPerTeam', 'areaLength', 'areaWidth', 'targetZoneDepth'], ['illustrativeForm', 'scoringEvent', 'teamCount', 'playersPerTeam', 'areaLength', 'areaWidth', 'targetZoneDepth'])
+    if (!isString(top.scoringEventVocabulary)) fail('scoringEventVocabulary', 'must name the vocabulary')
+    const bindings = onlyKeys('bindings', top.bindings, BINDING_KEYS, BINDING_KEYS)
     for (const [key, p] of Object.entries(bindings)) pathOk(`bindings.${key}`, p)
+    if (!isObject(top.placementZoneCount) || !Object.values(top.placementZoneCount).every((n) => typeof n === 'number' && Number.isInteger(n) && n >= 0)) fail('placementZoneCount', 'maps each placement value to a whole number of target zones')
     ;(top.derived as unknown[]).forEach((d, i) => {
-        const o = onlyKeys(`derived[${i}]`, d, ['id', 'formula', 'label', 'targetZoneCount', 'note'], ['id', 'formula', 'label', 'targetZoneCount', 'note'])
+        const o = onlyKeys(`derived[${i}]`, d, ['id', 'formula', 'label', 'note'], ['id', 'formula', 'label', 'note'])
         if (['AREA_PER_OUTFIELD_PLAYER_TOTAL', 'AREA_PER_OUTFIELD_PLAYER_OUTSIDE_TARGET_ZONES'].indexOf(o.formula as string) < 0) fail(`derived[${i}]`, 'unknown formula')
         if (paths.has(o.id as string)) fail(`derived[${i}]`, 'a derived value is not a choice')
     })
-    // Every choice path is in one of his nine parts; exemptions and the design block name choices only.
+    // Every choice path is in one of his nine parts, each part his words verbatim; exemptions and the design block name choices only.
+    const partsRuling = rulingOk('requiredPartsRulingRef', top.requiredPartsRulingRef)
     const inParts = new Set<string>()
     ;(top.requiredParts as unknown[]).forEach((p, i) => {
         const o = onlyKeys(`requiredParts[${i}]`, p, ['id', 'part', 'paths', 'generatedFromTrace'], ['id', 'part', 'paths'])
+        if (!partsRuling.words.some((w) => w === o.part)) fail(`requiredParts[${i}]`, 'the part must be his words verbatim')
         for (const x of o.paths as unknown[]) {
             pathOk(`requiredParts[${i}]`, x)
             inParts.add(x as string)
@@ -440,10 +553,16 @@ export function validateExperiment(raw: unknown): Experiment {
     })
     for (const p of choicePaths) if (!inParts.has(p)) fail('requiredParts', `${p} is in none of the nine parts`)
     for (const p of top.designBlockPaths as unknown[]) pathOk('designBlockPaths', p)
+    ;(top.whyThisDesign as unknown[]).forEach((w, i) => {
+        const o = onlyKeys(`whyThisDesign[${i}]`, w, ['text', 'paths'], ['text', 'paths'])
+        if (!isString(o.text)) fail(`whyThisDesign[${i}]`, 'text must be a string')
+        for (const x of [...(o.paths as unknown[]), ...placeholdersOf(o.text as string)]) pathOk(`whyThisDesign[${i}]`, x)
+    })
     ;(top.exemptions as unknown[]).forEach((e, i) => {
-        const o = onlyKeys(`exemptions[${i}]`, e, ['path', 'reason'], ['path', 'reason'])
+        const o = onlyKeys(`exemptions[${i}]`, e, ['path', 'reason', 'nonActivity'], ['path', 'reason'])
         pathOk(`exemptions[${i}]`, o.path)
         if (!isString(o.reason)) fail(`exemptions[${i}]`, 'an exemption needs a reason')
+        if ('nonActivity' in o && o.nonActivity !== true) fail(`exemptions[${i}]`, 'nonActivity is true when present')
     })
     ;(top.laws as unknown[]).forEach((l, i) => {
         const o = onlyKeys(`laws[${i}]`, l, ['lawId', 'situation', 'status', 'paths', 'reason'], ['lawId', 'status', 'paths', 'reason'])
@@ -460,14 +579,19 @@ export function validateExperiment(raw: unknown): Experiment {
     if (!Array.isArray(top.accountCategories) || top.accountCategories.length !== 4) fail('accountCategories', 'his four categories')
     for (const c of top.accountCategories as string[]) if (!accounting.words.some((w) => w === c)) fail('accountCategories', `"${c}" is not his wording`)
     for (const s of top.accountStandards as string[]) if (!accounting.words.some((w) => w.indexOf(`${s}:`) === 0)) fail('accountStandards', `"${s}" is not his wording`)
+    if (!isString(top.accountOutsideCategories) || (top.accountCategories as string[]).indexOf(top.accountOutsideCategories as string) >= 0) fail('accountOutsideCategories', 'a marker of ours, never one of his four categories')
     ;(top.requirementAccount as unknown[]).forEach((a, i) => {
-        const o = onlyKeys(`requirementAccount[${i}]`, a, ['id', 'requirementRef', 'clause', 'reading', 'category', 'standard', 'paths', 'observableConditions', 'note'], ['id', 'requirementRef', 'clause', 'reading', 'category', 'standard', 'paths', 'observableConditions', 'note'])
-        if ((top.accountCategories as string[]).indexOf(o.category as string) < 0) fail(`requirementAccount[${i}]`, 'category not one of his four')
+        const o = onlyKeys(`requirementAccount[${i}]`, a, ['id', 'requirementRef', 'clause', 'reading', 'category', 'standard', 'paths', 'observableConditions', 'inCoachGuidance', 'note'], ['id', 'requirementRef', 'clause', 'reading', 'category', 'standard', 'paths', 'observableConditions', 'note'])
+        const outside = o.category === top.accountOutsideCategories
+        if ((top.accountCategories as string[]).indexOf(o.category as string) < 0 && !outside) fail(`requirementAccount[${i}]`, 'category not one of his four (nor the record\'s not-a-requirement marker)')
+        if (outside && o.reading !== 'FOR_EXAMPLE') fail(`requirementAccount[${i}]`, 'only the "for example" reading makes a clause no requirement')
         if ((top.accountStandards as string[]).indexOf(o.standard as string) < 0) fail(`requirementAccount[${i}]`, 'standard not one of his three')
         for (const x of o.paths as unknown[]) pathOk(`requirementAccount[${i}]`, x)
-        if (o.category === (top.accountCategories as string[])[2] && !isString(o.observableConditions)) fail(`requirementAccount[${i}]`, 'category 3 names the observable conditions')
+        const cat3 = o.category === (top.accountCategories as string[])[2]
+        if (cat3 && !isString(o.observableConditions)) fail(`requirementAccount[${i}]`, 'category 3 names the observable conditions')
+        if (cat3 !== ('inCoachGuidance' in o) || ('inCoachGuidance' in o && typeof o.inCoachGuidance !== 'boolean')) fail(`requirementAccount[${i}]`, 'a category 3 line, and only one, says whether its observable conditions are in the coach guidance')
     })
-    const suit = onlyKeys('suitability', top.suitability, ['standing', 'properties', 'scale', 'exposure', 'identityPoint', 'addNothing'], ['standing', 'properties', 'scale', 'exposure', 'identityPoint', 'addNothing'])
+    const suit = onlyKeys('suitability', top.suitability, ['standing', 'properties', 'scale', 'exposure', 'identityPoint', 'scopeTension', 'addNothing', 'reviewPoints'], ['standing', 'properties', 'scale', 'exposure', 'identityPoint', 'scopeTension', 'addNothing', 'reviewPoints'])
     ;(suit.properties as unknown[]).forEach((p, i) => {
         const o = onlyKeys(`suitability.properties[${i}]`, p, ['property', 'structural', 'functional', 'note'], ['property', 'structural', 'functional', 'note'])
         const s = onlyKeys(`suitability.properties[${i}].structural`, o.structural, ['status', 'paths', 'rows'], ['status', 'paths', 'rows'])
@@ -475,13 +599,30 @@ export function validateExperiment(raw: unknown): Experiment {
         for (const x of s.paths as unknown[]) pathOk(`suitability.properties[${i}]`, x)
         if (onlyKeys(`suitability.properties[${i}].functional`, o.functional, ['status'], ['status']).status !== 'ONLY_VERIFIABLE_IN_PLAY') fail(`suitability.properties[${i}]`, 'functional meaningfulness is only verifiable in play')
     })
-    rulingOk('suitability.addNothing', (suit.addNothing as Record<string, unknown>).rulingRef)
-    const sc = onlyKeys('scenarios', top.scenarios, ['standing', 'rulingRef', 'circumstances', 'decidingCircumstances', 'insufficientWhen', 'requirementLink', 'uncertaintyReport', 'widthCheck', 'items'], ['standing', 'rulingRef', 'circumstances', 'decidingCircumstances', 'insufficientWhen', 'requirementLink', 'uncertaintyReport', 'widthCheck', 'items'])
+    const addNothing = onlyKeys('suitability.addNothing', suit.addNothing, ['status', 'statement', 'rulingRef', 'quote'], ['status', 'statement', 'rulingRef', 'quote'])
+    const quoteOk = (where: string, rulingRef: unknown, quote: unknown) => {
+        const r = rulingOk(where, rulingRef)
+        if (!isString(quote) || !r.words.some((w) => w.indexOf(quote) >= 0)) fail(where, 'the quote is not in his words')
+    }
+    quoteOk('suitability.addNothing', addNothing.rulingRef, addNothing.quote)
+    const tension = onlyKeys('suitability.scopeTension', suit.scopeTension, ['statement', 'rulingRefs'], ['statement', 'rulingRefs'])
+    ;(tension.rulingRefs as unknown[]).forEach((r) => rulingOk('suitability.scopeTension', r))
+    ;(suit.reviewPoints as unknown[]).forEach((p, i) => {
+        const o = onlyKeys(`suitability.reviewPoints[${i}]`, p, ['id', 'statement', 'rulingRefs'], ['id', 'statement', 'rulingRefs'])
+        ;(o.rulingRefs as unknown[]).forEach((r) => rulingOk(`suitability.reviewPoints[${i}]`, r))
+    })
+    const sc = onlyKeys('scenarios', top.scenarios, ['standing', 'rulingRef', 'rulesRef', 'circumstances', 'scopeCircumstance', 'insufficientWhen', 'requirementLink', 'uncertaintyReport', 'widthCheck', 'items'], ['standing', 'rulingRef', 'rulesRef', 'circumstances', 'scopeCircumstance', 'insufficientWhen', 'requirementLink', 'uncertaintyReport', 'widthCheck', 'items'])
     const scRuling = rulingOk('scenarios.rulingRef', sc.rulingRef)
+    rulingOk('scenarios.rulesRef', sc.rulesRef)
     const keys = (sc.circumstances as Array<{ key: string }>).map((c) => c.key)
+    const scope = onlyKeys('scenarios.scopeCircumstance', sc.scopeCircumstance, ['key', 'holdsWhen', 'rulingRefs', 'whenNotEstablished'], ['key', 'holdsWhen', 'rulingRefs', 'whenNotEstablished'])
+    if (keys.indexOf(scope.key as string) < 0 || typeof scope.holdsWhen !== 'boolean') fail('scenarios.scopeCircumstance', 'a known circumstance key, and the value at which the scope holds')
+    ;(scope.rulingRefs as unknown[]).forEach((r) => rulingOk('scenarios.scopeCircumstance', r))
+    onlyKeys('scenarios.widthCheck', sc.widthCheck, ['note'], ['note'])
     ;(sc.items as unknown[]).forEach((s, i) => {
         const o = onlyKeys(`scenarios.items[${i}]`, s, ['id', 'words', 'configuredActivity', 'expected'], ['id', 'words', 'configuredActivity', 'expected'])
         if (!scRuling.words.some((w) => w === o.words)) fail(`scenarios.items[${i}]`, 'his scenario sentence must be verbatim')
+        onlyKeys(`scenarios.items[${i}].expected`, o.expected, ['mismatchReported', 'uncertaintyReported', 'scopeEstablished'], ['mismatchReported', 'uncertaintyReported', 'scopeEstablished'])
         const ca = o.configuredActivity as Record<string, { value: unknown; label: string }>
         if (JSON.stringify(Object.keys(ca).sort()) !== JSON.stringify([...keys].sort())) fail(`scenarios.items[${i}]`, 'every circumstance, and only those, is stated')
         for (const [key, x] of Object.entries(ca)) {
@@ -492,17 +633,21 @@ export function validateExperiment(raw: unknown): Experiment {
     const link = sc.requirementLink as Record<string, unknown>
     ;(link.rulingRefs as unknown[]).forEach((r) => rulingOk('scenarios.requirementLink', r))
     if (keys.indexOf(link.circumstanceKey as string) < 0) fail('scenarios.requirementLink', 'unknown circumstance key')
-    const refKeys = ['experimentPurpose', 'acceptance', 'limits', 'kickoffCaveat', 'futureFeedbackQuestion']
-    const refs = onlyKeys('reportRefs', top.reportRefs, refKeys, refKeys)
-    for (const [key, id] of Object.entries(refs)) rulingOk(`reportRefs.${key}`, id)
+    const refs = onlyKeys('reportRefs', top.reportRefs, REPORT_REF_KEYS, REPORT_REF_KEYS)
+    for (const [key, ref] of Object.entries(refs)) {
+        const o = onlyKeys(`reportRefs.${key}`, ref, ['rulingRef', 'quote'], ['rulingRef'])
+        if ('quote' in o) quoteOk(`reportRefs.${key}`, o.rulingRef, o.quote)
+        else rulingOk(`reportRefs.${key}`, o.rulingRef)
+    }
     ;(top.reconciliations as unknown[]).forEach((r, i) => {
-        const o = onlyKeys(`reconciliations[${i}]`, r, ['id', 'title', 'rulingRefs', 'showPaths', 'items'], ['id', 'title', 'rulingRefs', 'items'])
+        const o = onlyKeys(`reconciliations[${i}]`, r, ['id', 'title', 'rulingRefs', 'showPaths', 'items', 'smallest'], ['id', 'title', 'rulingRefs', 'items'])
         ;(o.rulingRefs as unknown[]).forEach((x) => rulingOk(`reconciliations[${i}]`, x))
         for (const p of (o.showPaths as unknown[]) ?? []) pathOk(`reconciliations[${i}].showPaths`, p)
+        if ('smallest' in o && !isString(o.smallest)) fail(`reconciliations[${i}]`, 'smallest must be a string')
     })
     ;(top.openDecisions as unknown[]).forEach((d, i) => {
         const o = onlyKeys(`openDecisions[${i}]`, d, ['id', 'blocks', 'question', 'rulingRefs', 'handling'], ['id', 'blocks', 'question', 'rulingRefs', 'handling'])
-        if (['ASSEMBLY', 'SCORING_FIDELITY_OR_PRODUCTION', 'SUITABILITY', 'NON_BLOCKING'].indexOf(o.blocks as string) < 0) fail(`openDecisions[${i}]`, 'unknown blocking class')
+        if (OPEN_DECISION_CLASSES.indexOf(o.blocks as OpenDecisionClass) < 0) fail(`openDecisions[${i}]`, 'unknown blocking class')
         ;(o.rulingRefs as unknown[]).forEach((r) => rulingOk(`openDecisions[${i}]`, r))
     })
     rulingOk('reconciliation.rulingRef', (top.reconciliation as Record<string, unknown>).rulingRef)
@@ -517,17 +662,21 @@ export function validateWording(raw: unknown, experiment: Experiment): Wording {
     const paths = new Set(experiment.choices.map((c) => c.path))
     const ids = new Set<string>()
     for (const t of top.templates as unknown[]) {
-        const o = onlyKeys(`${where} template`, t, ['id', 'section', 'text', 'expresses', 'whenValue', 'status', 'quote'], ['id', 'section', 'text', 'expresses', 'status'])
+        const o = onlyKeys(`${where} template`, t, ['id', 'section', 'text', 'expresses', 'whenValue', 'status', 'quote', 'reviewOnly', 'scope'], ['id', 'section', 'text', 'expresses', 'status'])
         const at = `${where} ${String(o.id)}`
         if (ids.has(o.id as string)) throw new Error(`${at}: template listed twice`)
         ids.add(o.id as string)
         if (!sections.has(o.section as string)) throw new Error(`${at}: unknown section`)
-        if (o.status !== 'APPROVED CANONICAL' && o.status !== 'NEWLY PROPOSED') throw new Error(`${at}: unknown status`)
+        if ((WORDING_STATUSES as readonly string[]).indexOf(o.status as string) < 0) throw new Error(`${at}: unknown status`)
+        if ('reviewOnly' in o && o.reviewOnly !== true) throw new Error(`${at}: reviewOnly is true when present`)
+        if ('scope' in o && o.scope !== 'GOAL' && o.scope !== 'CONTEXT') throw new Error(`${at}: scope is GOAL or CONTEXT`)
         const placeholders = placeholdersOf(o.text as string)
         const whenKeys = Object.keys((o.whenValue as Record<string, unknown>) ?? {})
         for (const p of [...placeholders, ...whenKeys]) if (!paths.has(p)) throw new Error(`${at}: unknown path ${p}`)
         const said = [...new Set([...placeholders, ...whenKeys])].sort()
         if (JSON.stringify([...(o.expresses as string[])].sort()) !== JSON.stringify(said)) throw new Error(`${at}: expresses must equal its placeholders and whenValue paths (${said.join(', ')})`)
+        // An abbreviated presentation is locked (whenValue) to the approved cell it derives from, so a changed cell refuses the sentence.
+        if (o.status === 'ABBREVIATED FROM APPROVED WORDING' && !whenKeys.some((p) => experiment.choices.find((c) => c.path === p)?.readBy === 'DISPLAY_CELL')) throw new Error(`${at}: an abbreviated presentation names, by whenValue, the approved cell it derives from`)
         if (o.quote !== undefined) {
             const q = onlyKeys(`${at}.quote`, o.quote, ['rulingRef'], ['rulingRef'])
             const r = experiment.rulings.find((x) => x.id === q.rulingRef)
@@ -566,9 +715,14 @@ export interface AssembledChoice {
     decidedBy: TraceItem[]
     consulted: TraceItem[]
     statusSetBy: TraceItem[]
+    /** His words in the non-decisive roles: permitting an illustrative value, read by our inference, setting a computed value's scope. */
+    permittedBy: TraceItem[]
+    readingOf: TraceItem[]
+    scopeSetBy: TraceItem[]
     traceLabel: string
     sixClass: SixClass
-    provisionalRulings: Array<{ id: string; received: string; words: string }>
+    /** True when every decisive ruling of a value declared RULING is one he called provisional (so its class is 3). */
+    allDecisiveRulingsProvisional: boolean
     note: string
 }
 
@@ -585,16 +739,68 @@ export interface AssembledActivity {
     choices: AssembledChoice[]
     derived: Array<{ id: string; value: number; label: string; fromPaths: string[]; sixClass: SixClass; note: string }>
     computed: ComputedConclusion[]
-    counts: { howReached: Record<HowReached, number>; classes: Record<string, number> }
+    /** Over the activity's values only (the values recorded but not part of the activity are listed in nonActivity). */
+    counts: { values: number; activityValues: number; nonActivity: string[]; howReached: Record<HowReached, number>; classes: Record<string, number> }
 }
 
 const RECORD_LABEL = 'our record of what decided it (OURS), not a computed influence'
 const COMPUTED_LABEL = 'computed by the Stage 1/2 code: its own influence trace, unchanged'
 
-function rulingItem(r: AssemblyRuling, role: string): TraceItem {
-    return item(`${r.id} (received ${longDate(r.received)}${r.provisional ? '; provisional' : ''})`, 'RULING', role, { file: SOURCE.assemblyExperiment, table: 'rulings', row: r.id })
+function rulingItem(r: AssemblyRuling, role: string, standing: Standing = 'RULING'): TraceItem {
+    return item(`${r.id} (received ${longDate(r.received)}${r.provisional ? '; provisional' : ''})`, standing, role, { file: SOURCE.assemblyExperiment, table: 'rulings', row: r.id })
 }
 const refText = (k: KnowledgeRef): string => `${k.source} ${k.table} ${k.row}${k.column ? ` ${k.column}` : ''}`
+
+/** A ruling's scope as printed beside what it decides: his scope words, or that he stated none. */
+export const scopeText = (r: AssemblyRuling): string =>
+    r.scope ? `scope ${r.scope}: "${(r.scopeWords ?? []).join('"; "')}"${r.scopeCovers ? `; ${r.scopeCovers.slice(-1) === '.' ? r.scopeCovers.slice(0, -1) : r.scopeCovers}` : ''}` : 'general, no scope stated'
+
+/** How his words read when they decide a value: provisional, canonical, or a ruling; always with the received date and the words. */
+export function decidingWords(r: AssemblyRuling, evidence: string, standing: Standing): string {
+    const who = standing === 'APPROVED' && r.establishesCanonicalKnowledge ? 'his ruling making it owner-authored canonical knowledge' : r.provisional ? 'his provisional ruling' : 'his ruling'
+    return `${who}, received ${longDate(r.received)}: "${evidence}" (states the value; ${scopeText(r)})`
+}
+
+/** How his words read in a non-decisive role. */
+export function roleWords(role: Role, r: AssemblyRuling, x: RoleItem): string {
+    const when = `received ${longDate(r.received)}`
+    if (role === 'permittedBy') return `permits an illustrative value, ${when}: "${x.quote}" (${x.namesValue ? 'a permission that names this value; the choice to use it is ours' : 'a permission; it does not state the value'})`
+    if (role === 'readingOf') return `our reading (OURS) of his words, ${when}: "${x.quote}" (his words do not state the value)`
+    return `sets the scope for this experiment, ${when}: "${x.quote}" (decides nothing)`
+}
+
+/** The column holding a row's status, and the column a row is found by, for the tables a decisive cell may come from (no narrative). */
+const ROW_KEYS: Record<string, { key: string; status: string | null }> = {
+    learning_goals: { key: 'ID', status: 'Status' },
+    relationships: { key: 'relationship_id', status: 'status' },
+    properties: { key: 'property_id', status: 'status' },
+    controlled_vocabulary: { key: 'value', status: null },
+}
+const ACTIVE_STATUSES = ['ACTIVE', 'Active']
+
+/**
+ * The standing a decisive knowledge cell may carry, read from knowledge: the source's own standing, and only while its row is active.
+ * A row that is not active, or missing, throws; so does a recorded standing stronger than the source's (a label never upgrades).
+ */
+export function cellStanding(k: DesignKnowledge, ref: KnowledgeRef, recorded: Standing): Standing {
+    const tableKeys = ROW_KEYS[ref.table]
+    const rows = ((((k as unknown as Record<string, Record<string, Array<Record<string, unknown>>>>)[ref.source] ?? {})[ref.table]) ?? []) as Array<Record<string, unknown>>
+    if (!tableKeys || !rows.length) throw new Error(`${refText(ref)}: a table the assembly cannot read a standing from`)
+    let key = ref.row
+    let vocabulary: string | null = null
+    if (ref.table === 'controlled_vocabulary') {
+        const space = ref.row.indexOf(' ')
+        vocabulary = ref.row.slice(0, space)
+        key = ref.row.slice(space + 1)
+    }
+    const row = rows.find((r) => cell(r, tableKeys.key) === key && (vocabulary === null || cell(r, 'vocabulary') === vocabulary))
+    if (!row) throw new Error(`${refText(ref)}: the row is missing`)
+    if (tableKeys.status && ACTIVE_STATUSES.indexOf(cell(row, tableKeys.status)) < 0) throw new Error(`${refText(ref)}: not an active row (status ${cell(row, tableKeys.status)}), so it cannot decide a value`)
+    const derived = sourceStanding(k, ref.source)
+    const rank = (s: Standing) => CLASS_OF_STANDING[s] as SixClass
+    if (rank(recorded) < rank(derived)) throw new Error(`${refText(ref)}: recorded ${recorded}, stronger than its source's standing ${derived}`)
+    return recorded
+}
 
 /** The related id of a context relationship row a knowledge reference names (ids only; it must be ACTIVE and the routed context's). */
 export function relationshipRelatedId(k: DesignKnowledge, rpcId: string, ref: KnowledgeRef): { relatedId: string; cite: Cite } {
@@ -624,6 +830,13 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
     const events = activeContextRelationships(k, rpcId, 'SCORING_EVENT')
     const eventRow = events.find((r) => r.relatedId === eventChoice.value)
     if (!eventRow) throw new Error(`the scoring event ${String(eventChoice.value)} is not one of ${rpcId}'s ACTIVE scoring events (${events.map((r) => r.relatedId).join(', ') || 'none'})`)
+    // The cell that describes the scoring event must be the vocabulary row of that very event (never another event's description).
+    const meansRef = choiceAt(experiment.bindings.scoringMeans).knowledgeRef
+    if (!meansRef || meansRef.table !== 'controlled_vocabulary' || meansRef.row !== `${experiment.scoringEventVocabulary} ${String(eventChoice.value)}`) {
+        throw new Error(`the scoring-event description is read from ${meansRef ? refText(meansRef) : 'nothing'}, not from the vocabulary row of the scoring event ${String(eventChoice.value)}`)
+    }
+    // A decisive knowledge cell's standing is read from knowledge: its row must be active, and the record may not upgrade it.
+    for (const c of experiment.choices) for (const d of c.decidedBy) if (d.knowledgeRef) cellStanding(k, d.knowledgeRef, d.standing)
 
     const computed: ComputedConclusion[] = [
         { id: 'game problems', statement: `Game Problems by ${resolution.gameProblems.basis}: primary ${resolution.gameProblems.primary.join(', ')}; secondary ${resolution.gameProblems.secondary.join(', ') || 'none'} (filed scope ${resolution.gameProblems.scope ?? 'none'}${resolution.gameProblems.continuedBy ? `, continued by ${resolution.gameProblems.continuedBy.ruling}` : ''}).`, establishedBy: resolution.gameProblems.establishedBy, trace: resolution.gameProblems.trace },
@@ -663,8 +876,10 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
                 const findings = resolution.profile?.findings ?? []
                 value = findings.map((f) => `${f.requirement}:${f.secondary.gameProblemId}>${f.primary.gameProblemId}:${f.outcome}`)
                 rendered = findings.length ? findings.map((f) => `${f.requirementName} is rated more strongly for ${nameOf(f.secondary.gameProblemId)} (${f.secondary.rating}) than for ${nameOf(f.primary.gameProblemId)} (${f.primary.rating}); not promoted (${f.outcome})`).join('; ') : 'none'
-                computedTrace = findings.length ? { influencedBy: findings.flatMap((f) => f.trace.influencedBy), consulted: findings.flatMap((f) => f.trace.consulted), citedOnly: findings.flatMap((f) => f.trace.citedOnly) } : { influencedBy: [], consulted: [], citedOnly: [] }
-                establishedBy = findings.length ? 'INSUFFICIENT EVIDENCE' : null
+                // No finding is itself computed: the absence carries the trace of the profile computation that found none (never class 6).
+                const profileTrace = resolution.profile?.effectiveProfile.trace ?? { influencedBy: [], consulted: [], citedOnly: [] }
+                computedTrace = findings.length ? { influencedBy: findings.flatMap((f) => f.trace.influencedBy), consulted: findings.flatMap((f) => f.trace.consulted), citedOnly: findings.flatMap((f) => f.trace.citedOnly) } : profileTrace
+                establishedBy = findings.length ? 'INSUFFICIENT EVIDENCE' : resolution.profile?.effectiveProfile.establishedBy ?? null
             } else if (readBy === 'COMPATIBLE_ALTERNATIVES') {
                 value = forms.compatible.filter((id) => id !== formChoice.value)
                 rendered = (value as string[]).map(nameOf).join(' and ')
@@ -682,14 +897,15 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
             rendered = display.names[c.value].text
         }
         const recorded = c.decidedBy.map((d) => {
-            if (d.rulingRef) return rulingItem(byId.get(d.rulingRef) as AssemblyRuling, d.valueEvidence ? `states the value: "${d.valueEvidence}"` : 'decides the value')
+            if (d.rulingRef) return rulingItem(byId.get(d.rulingRef) as AssemblyRuling, decidingWords(byId.get(d.rulingRef) as AssemblyRuling, d.valueEvidence as string, d.standing), d.standing)
             if (d.knowledgeRef) return item(refText(d.knowledgeRef), d.standing, d.valueEvidence ? `the cell: "${d.valueEvidence}"` : 'the row')
+            if (d.ref === 'ILLUSTRATIVE') return item('ILLUSTRATIVE', 'ILLUSTRATIVE', 'chosen by us: an illustrative value, which no authority gives')
+            if (d.ref === 'OURS') return item('OURS', 'OURS', 'our own reading, which no authority gives as the value')
             return item('UNRESOLVED', 'UNRESOLVED', 'no authorized value exists')
         })
         const decidedBy = computedTrace ? [...computedTrace.influencedBy, ...recorded] : recorded
-        const provisionalRulings = c.decidedBy
-            .filter((d) => d.rulingRef && (byId.get(d.rulingRef) as AssemblyRuling).provisional)
-            .map((d) => ({ id: d.rulingRef as string, received: (byId.get(d.rulingRef as string) as AssemblyRuling).received, words: d.valueEvidence ?? '' }))
+        const roleItems = (role: Role) => (c[role] ?? []).map((x) => rulingItem(byId.get(x.rulingRef) as AssemblyRuling, roleWords(role, byId.get(x.rulingRef) as AssemblyRuling, x)))
+        const decisiveRulings = c.decidedBy.filter((d) => d.rulingRef).map((d) => byId.get(d.rulingRef as string) as AssemblyRuling)
         const classInputs: ClassInput[] = [
             ...(computedTrace ? computedTrace.influencedBy.map((i) => ({ standing: i.standing })) : []),
             ...c.decidedBy.map((d) => ({ standing: d.standing, provisional: d.rulingRef ? (byId.get(d.rulingRef) as AssemblyRuling).provisional : false })),
@@ -712,33 +928,42 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
             decidedBy,
             consulted,
             statusSetBy: c.statusSetBy.map((s) => rulingItem(byId.get(s.rulingRef) as AssemblyRuling, 'sets the status (printed, never decisive)')),
+            permittedBy: roleItems('permittedBy'),
+            readingOf: roleItems('readingOf'),
+            scopeSetBy: roleItems('scopeSetBy'),
             traceLabel: computedTrace ? COMPUTED_LABEL : RECORD_LABEL,
             sixClass: sixClassOf(classInputs, c.declaredStatus, establishedBy === 'LOGICAL INFERENCE' ? establishedBy : null),
-            provisionalRulings,
+            allDecisiveRulingsProvisional: c.declaredStatus === 'RULING' && decisiveRulings.length > 0 && decisiveRulings.every((r) => r.provisional),
             note: c.note,
         }
     })
 
-    // Values derived in code from entered values: computed here, never typed, so they cannot go stale.
+    // Values derived in code from entered values: computed here, never typed. The number of target zones is read from the placement value.
     const num = (p: string) => {
         const v = choiceAt(p).value
         if (typeof v !== 'number') throw new Error(`${p} must be a number to derive from`)
         return v
     }
     const b = experiment.bindings
+    const placement = String(choiceAt(b.targetZonePlacement).value)
+    const zoneCount = experiment.placementZoneCount[placement]
+    if (typeof zoneCount !== 'number') throw new Error(`the placement ${placement} maps to no number of target zones (placementZoneCount)`)
     const players = num(b.teamCount) * num(b.playersPerTeam)
     const round1 = (n: number) => Math.round(n * 10) / 10
     const fromPaths = [b.areaLength, b.areaWidth, b.teamCount, b.playersPerTeam]
     const derived = experiment.derived.map((d) => {
-        const used = d.formula === 'AREA_PER_OUTFIELD_PLAYER_TOTAL' ? fromPaths : [...fromPaths, b.targetZoneDepth]
-        const value = d.formula === 'AREA_PER_OUTFIELD_PLAYER_TOTAL' ? round1((num(b.areaLength) * num(b.areaWidth)) / players) : round1(((num(b.areaLength) - d.targetZoneCount * num(b.targetZoneDepth)) * num(b.areaWidth)) / players)
+        const used = d.formula === 'AREA_PER_OUTFIELD_PLAYER_TOTAL' ? fromPaths : [...fromPaths, b.targetZoneDepth, b.targetZonePlacement]
+        const value = d.formula === 'AREA_PER_OUTFIELD_PLAYER_TOTAL' ? round1((num(b.areaLength) * num(b.areaWidth)) / players) : round1(((num(b.areaLength) - zoneCount * num(b.targetZoneDepth)) * num(b.areaWidth)) / players)
         const cls = Math.max(...used.map((p) => (choices.find((c) => c.path === p) as AssembledChoice).sixClass)) as SixClass
         return { id: d.id, value, label: d.label, fromPaths: used, sixClass: cls, note: d.note }
     })
 
-    const howReached = Object.fromEntries(HOW_REACHED.map((h) => [h, choices.filter((c) => c.howReached === h).length])) as Record<HowReached, number>
-    const classes = Object.fromEntries(SIX_CLASSES.map((_, i) => [classLabel((i + 1) as SixClass), choices.filter((c) => c.sixClass === i + 1).length]))
-    return { learningGoalId: experiment.learningGoalId, rpcId, choices, derived, computed, counts: { howReached, classes } }
+    // The counts cover the activity's values only; the values recorded but not part of the activity are listed apart.
+    const nonActivity = experiment.exemptions.filter((e) => e.nonActivity).map((e) => e.path)
+    const activityChoices = choices.filter((c) => nonActivity.indexOf(c.path) < 0)
+    const howReached = Object.fromEntries(HOW_REACHED.map((h) => [h, activityChoices.filter((c) => c.howReached === h).length])) as Record<HowReached, number>
+    const classes = Object.fromEntries(SIX_CLASSES.map((_, i) => [classLabel((i + 1) as SixClass), activityChoices.filter((c) => c.sixClass === i + 1).length]))
+    return { learningGoalId: experiment.learningGoalId, rpcId, choices, derived, computed, counts: { values: choices.length, activityValues: activityChoices.length, nonActivity, howReached, classes } }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -754,11 +979,17 @@ export interface ComposedSentence {
     sixClass: SixClass | null
     marker: string
     quoted: boolean
+    /** A review disclosure: printed in the review copy, marked, and dropped from a coach copy. */
+    reviewOnly: boolean
+    scope: 'GOAL' | 'CONTEXT' | null
 }
 
 export interface ComposedActivity {
     sections: Array<{ id: string; level: string; title: string; rc3: string; sentences: ComposedSentence[] }>
+    /** Every path a sentence expresses, review-only sentences included. */
     expressed: string[]
+    /** The paths a coach copy expresses (review-only sentences dropped). */
+    expressedInCoachCopy: string[]
 }
 
 /**
@@ -778,22 +1009,32 @@ export function composeCoachActivity(wording: Wording, activity: AssembledActivi
             if (actual !== expected) throw new Error(`template ${t.id}: whenValue ${p} = ${JSON.stringify(expected)}, but the assembled value is ${JSON.stringify(actual)}`)
         }
         const text = t.text.replace(/\{([A-Za-z0-9.]+)\}/g, (_, p: string) => (byPath.get(p) as AssembledChoice).rendered)
-        const classes = t.expresses.map((p) => (byPath.get(p) as AssembledChoice).sixClass)
-        const sixClass = classes.length ? (Math.max(...classes) as SixClass) : null
-        return { id: t.id, section: t.section, text, expresses: [...t.expresses], status: t.status, sixClass, marker: markerOf(sixClass), quoted: Boolean(t.quote) }
+        const classes = t.expresses.map((p) => ({ path: p, sixClass: (byPath.get(p) as AssembledChoice).sixClass }))
+        const sixClass = classes.length ? (Math.max(...classes.map((c) => c.sixClass)) as SixClass) : null
+        const reviewOnly = t.reviewOnly === true
+        return { id: t.id, section: t.section, text, expresses: [...t.expresses], status: t.status, sixClass, marker: sentenceMarker(classes, reviewOnly), quoted: Boolean(t.quote), reviewOnly, scope: t.scope ?? null }
     })
     return {
         sections: wording.sections.map((s) => ({ id: s.id, level: s.level, title: s.title, rc3: s.rc3, sentences: sentences.filter((x) => x.section === s.id) })),
         expressed: [...new Set(sentences.flatMap((x) => x.expresses))].sort(),
+        expressedInCoachCopy: [...new Set(sentences.filter((x) => !x.reviewOnly).flatMap((x) => x.expresses))].sort(),
     }
 }
 
-/** The labelled learning-design block shown beside the RC3 activity: the Game Problems and the Game Form, generated from the assembly. */
-export function designBlock(experiment: Experiment, activity: AssembledActivity, display: DisplayTexts): Array<{ text: string; expresses: string[]; marker: string }> {
+/** How the review pathway resolved the Game Problems, in words (never "computed" for a ruling's designation). */
+const BASIS_WORDS: Record<string, string> = {
+    SCOPED_RULING: "resolved by the review pathway from his scoped ruling for this goal (the planning model's translation for it is unpopulated)",
+    APPROVED_TRANSLATION: "read by the review pathway from the planning model's approved translation",
+}
+export const basisWords = (basis: string | null): string => (basis && BASIS_WORDS[basis]) || `resolved by the review pathway (basis ${String(basis)})`
+
+/** The labelled learning-design block shown beside the RC3 activity: the goal, the Game Problems and the Game Form, from the assembly. */
+export function designBlock(experiment: Experiment, activity: AssembledActivity, display: DisplayTexts, forms: GameFormSelection, basis: string | null): Array<{ text: string; expresses: string[]; marker: string }> {
     const at = (p: string) => activity.choices.find((c) => c.path === p) as AssembledChoice
     const scopeRulings = experiment.gameProblemScope.rulingRefs.map((id) => experiment.rulings.find((r) => r.id === id) as AssemblyRuling)
     const scopeWords = scopeRulings.flatMap((r) => (r.scopeWords ?? []).map((w) => `"${w}" (received ${longDate(r.received)})`))
-    const lines: Array<{ text: string; expresses: string[] }> = []
+    const lines: Array<{ text: string; expresses: string[]; marker?: string }> = []
+    lines.push({ text: `Learning Goal: ${display.goalName.text}.`, expresses: [], marker: '[the Learning Goal he authorized; its name read from the planning model by code]' })
     // Each block path is found by how it is read, never by its name.
     const readAs = (readBy: ReadBy): string | undefined => experiment.designBlockPaths.find((p) => experiment.choices.find((c) => c.path === p)?.readBy === readBy)
     const primary = readAs('RESOLUTION_PRIMARY')
@@ -803,15 +1044,12 @@ export function designBlock(experiment: Experiment, activity: AssembledActivity,
     const alternatives = readAs('COMPATIBLE_ALTERNATIVES')
     const form = experiment.bindings.illustrativeForm
     if (!alternatives || experiment.designBlockPaths.indexOf(form) < 0) throw new Error('the design block shows the illustrative form and its compatible alternatives')
-    if (primary && secondary) lines.push({ text: `Game Problems: ${at(primary).rendered} is the primary problem and ${at(secondary).rendered} a secondary consideration, as the review pathway's resolution computes them; his scope words: ${scopeWords.join('; ')}.`, expresses: [primary, secondary] })
+    if (primary && secondary) lines.push({ text: `Game Problems: ${at(primary).rendered} is the primary problem and ${at(secondary).rendered} a secondary consideration, ${basisWords(basis)}; the scope for this experiment is set by his words: ${scopeWords.join('; ')}.`, expresses: [primary, secondary] })
     if (finding) lines.push({ text: `Secondary finding: ${at(finding).rendered}.`, expresses: [finding] })
     if (candidate) lines.push({ text: `Candidate only: ${at(candidate).rendered} is shown as a candidate relationship and is not used.`, expresses: [candidate] })
-    lines.push({ text: `Game Form: ${at(form).rendered}, used as an illustrative choice; ${at(alternatives).rendered} are compatible alternatives, with no ranking among the three.`, expresses: [form, alternatives] })
-    lines.push({ text: `Learning Goal: ${display.goalName.text}.`, expresses: [] })
-    return lines.map((l) => {
-        const classes = l.expresses.map((p) => at(p).sixClass)
-        return { ...l, marker: markerOf(classes.length ? (Math.max(...classes) as SixClass) : null) }
-    })
+    const others = forms.compatible.length - 1
+    lines.push({ text: `Game Form: ${at(form).rendered}, used as an illustrative choice; ${others ? `${at(alternatives).rendered} ${others === 1 ? 'is a compatible alternative' : 'are compatible alternatives'}` : 'no other form is compatible'}, with no ranking among the ${forms.compatible.length} compatible forms.`, expresses: [form, alternatives] })
+    return lines.map((l) => ({ text: l.text, expresses: l.expresses, marker: l.marker ?? sentenceMarker(l.expresses.map((p) => ({ path: p, sixClass: at(p).sixClass }))) }))
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -823,12 +1061,20 @@ export interface AccountLine extends AccountEntry {
     requirementRole: string
     satisfied: boolean
     downgraded: string | null
+    /** Set when the requirement row is not ACTIVE: the line is listed, excluded and never counted. */
+    excluded: string | null
 }
 
-export function requirementAccountOf(k: DesignKnowledge, experiment: Experiment, activity: AssembledActivity): { lines: AccountLine[]; counts: Record<string, number> } {
+export interface AccountCounts {
+    /** Per reading of the scoring row: each category's count over the counted lines (the identity rules count under both readings). */
+    byReading: Record<string, Record<string, number>>
+    excluded: string[]
+}
+
+export function requirementAccountOf(k: DesignKnowledge, experiment: Experiment, activity: AssembledActivity): { lines: AccountLine[]; counts: AccountCounts } {
     const cats = experiment.accountCategories
     const identity = contextIdentityRules(k, activity.rpcId)
-    const lines = experiment.requirementAccount.map((a) => {
+    const lines = experiment.requirementAccount.map((a): AccountLine => {
         let requirementStatus = ''
         let requirementRole = ''
         if (a.requirementRef.table === 'identity_rules') {
@@ -842,10 +1088,13 @@ export function requirementAccountOf(k: DesignKnowledge, experiment: Experiment,
             requirementStatus = p.status
             requirementRole = p.category
         } else throw new Error(`${a.id}: unknown requirement table ${a.requirementRef.table}`)
-        // Category 1 holds only where every cited value is in the assembled activity; otherwise it falls to category 4, and says why.
+        // Only an active requirement is accounted for: any other row is listed as excluded and never counted.
+        const excluded = requirementStatus === 'ACTIVE' ? null : `${a.requirementRef.row} is ${requirementStatus || 'without a status'}, not an active requirement: excluded, not counted`
+        // Categories 1 and 2 hold only where every cited value is in the assembled activity; otherwise the line falls to category 4,
+        // and says why (an UNRESOLVED value is never present, so a clause resting on one can never pass).
         let category = a.category
         let downgraded: string | null = null
-        if (category === cats[0]) {
+        if (category === cats[0] || category === cats[1]) {
             const missing = a.paths.filter((p) => {
                 const c = activity.choices.find((x) => x.path === p)
                 return !c || c.value === null || (Array.isArray(c.value) && !c.value.length)
@@ -855,8 +1104,15 @@ export function requirementAccountOf(k: DesignKnowledge, experiment: Experiment,
                 downgraded = `a cited value is missing from the assembled activity (${missing.join(', ')})`
             }
         }
-        return { ...a, category, requirementStatus, requirementRole, satisfied: category === cats[0] || category === cats[1], downgraded }
+        return { ...a, category, requirementStatus, requirementRole, satisfied: !excluded && (category === cats[0] || category === cats[1]), downgraded, excluded }
     })
-    const counts = Object.fromEntries(cats.map((c) => [c, lines.filter((l) => l.category === c).length]))
-    return { lines, counts }
+    const counted = lines.filter((l) => !l.excluded)
+    const readings = [...new Set(experiment.requirementAccount.map((a) => a.reading).filter((r): r is string => r !== null))]
+    const byReading = Object.fromEntries(
+        readings.map((reading) => {
+            const under = counted.filter((l) => l.reading === null || l.reading === reading)
+            return [reading, Object.fromEntries([...cats, experiment.accountOutsideCategories].map((c) => [c, under.filter((l) => l.category === c).length]))]
+        })
+    )
+    return { lines, counts: { byReading, excluded: lines.filter((l) => l.excluded).map((l) => l.id) } }
 }

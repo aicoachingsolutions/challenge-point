@@ -8,16 +8,18 @@
  * wording, nothing else.
  *
  * This runner supplies the display texts (a goal's display name among them, read from its 'Learning Goal' cell), through the display
- * reader, after Steps 1 and 2 are computed; no decision reads them.
+ * reader, after Steps 1 and 2 are computed; no decision reads them. It also reads the committed regression record
+ * (`evidence/regression-record.json`, always from the evidence folder, whatever `--out` says), which Part 5 prints.
  */
 import fs from 'node:fs'
 import path from 'node:path'
 
 import { displayTextsFor } from './assembly-display'
-import { buildAssemblyReport, runAssembly } from './assembly-review'
+import { buildAssemblyReport, runAssembly, validateRegressionRecord } from './assembly-review'
 
 const REPO = path.resolve(__dirname, '..', '..', '..', '..')
 const DEFAULT_OUT = path.join(REPO, 'docs', 'audits', 'design-reasoning-assembly', 'evidence')
+const REGRESSION_RECORD = path.join(DEFAULT_OUT, 'regression-record.json')
 const GOAL_NAME_COLUMN = 'Learning Goal'
 
 function main(): void {
@@ -25,7 +27,8 @@ function main(): void {
     const outIndex = args.indexOf('--out')
     const outDir = outIndex >= 0 ? path.resolve(process.cwd(), args[outIndex + 1]) : DEFAULT_OUT
     const run = runAssembly((k, experiment, resolution, forms) => displayTextsFor(k, experiment, resolution, forms, GOAL_NAME_COLUMN))
-    const { report, results } = buildAssemblyReport(run)
+    const regression = validateRegressionRecord(JSON.parse(fs.readFileSync(REGRESSION_RECORD, 'utf8')))
+    const { report, results } = buildAssemblyReport(run, regression)
     fs.mkdirSync(outDir, { recursive: true })
     fs.writeFileSync(path.join(outDir, 'assembly-report.txt'), report)
     fs.writeFileSync(path.join(outDir, 'assembly-results.json'), `${JSON.stringify(results, null, 2)}\n`)

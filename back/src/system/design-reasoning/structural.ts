@@ -34,15 +34,17 @@ import { citeRef, Conclusion, EstablishedBy, InfluenceTrace, item, TraceItem } f
 
 /**
  * The configured activity the structural conditions are read against: team sizes only, a test input by default. The assembly experiment
- * (his second reply of 5 November 2026) passes the assembled team sizes with their own standing (ILLUSTRATIVE) and `assembled: true`; then
- * the team-size item carries that standing and the wording no longer says that no activity is assembled. Without the two optional fields
- * (Stage 2) nothing changes, and `activity` is returned exactly as received.
+ * (his second reply of 5 November 2026) passes the assembled team sizes with their own standing (ILLUSTRATIVE) and either `assembled: true`
+ * (the form it assembled) or `appliedHypothetically: true` (a compatible form it did not assemble, read with the same team sizes); then
+ * the team-size item carries that standing, and the wording says which: assembled, or not assembled with the team sizes applied
+ * hypothetically. Without the optional fields (Stage 2) nothing changes, and `activity` is returned exactly as received.
  */
 export interface StructuralActivity {
     playersPerTeam: number[]
     source: string
     standing?: Standing
     assembled?: true
+    appliedHypothetically?: true
 }
 
 export interface PreconditionResult {
@@ -60,8 +62,8 @@ export interface PreconditionResult {
 
 export type IntegrityStatus =
     | 'NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY'
-    /** Assembly experiment only: an activity is assembled for review, but the condition can be seen only in play. */
-    | 'NOT_EVALUABLE_FROM_THE_ASSEMBLED_CONFIGURATION'
+    /** Assembly experiment only: read against the assembled (or hypothetically applied) team sizes, the condition can be seen only in play. */
+    | 'NOT_EVALUABLE_FROM_THE_CONFIGURATION'
     | 'STRUCTURAL_SIGNAL_PRESENT'
     | 'STRUCTURAL_SIGNAL_ABSENT'
     | 'RISK_INDICATED_BY_DESIGN'
@@ -120,7 +122,9 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
     const archetypeId = form.declaration?.archetypeId ?? ''
     const formItem = form.declaration ? item(citeRef(form.declaration.cite), sourceStanding(k, 'sportModule'), `the form's archetype cell reads ${archetypeId}`, form.declaration.cite) : null
     const assembled = activity?.assembled === true
-    const activityItem = activity ? item(`${activity.source} playersPerTeam ${activity.playersPerTeam.join(' v ')}`, activity.standing ?? 'TEST INPUT', assembled ? 'the assembled activity\'s team sizes' : 'the configured activity\'s team sizes') : null
+    const hypothetical = !assembled && activity?.appliedHypothetically === true
+    const activityRole = assembled ? 'the assembled activity\'s team sizes' : hypothetical ? 'the illustrative team sizes, applied hypothetically (this form is not assembled)' : 'the configured activity\'s team sizes'
+    const activityItem = activity ? item(`${activity.source} playersPerTeam ${activity.playersPerTeam.join(' v ')}`, activity.standing ?? 'TEST INPUT', activityRole) : null
     const teams = twoTeamsWithPlayers(activity)
     const conclusions: Conclusion[] = []
     const step = `structural conditions of ${form.gameFormId}`
@@ -173,7 +177,9 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
                   status: 'APPLIES_AS_BASELINE_DEFAULT',
                   detail: assembled
                       ? 'Continuous play applies as the baseline default: no knowledge file this stage reads can record a departure. An activity is assembled for review, but its configuration is a labelled decision record, not a knowledge file, so this remains a default, not a condition evaluated and found to hold. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.'
-                      : 'Continuous play applies as the baseline default: no knowledge file this stage reads can record a departure, and no activity is assembled, so this is a default, not a condition evaluated and found to hold. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.',
+                      : hypothetical
+                        ? 'Continuous play applies as the baseline default: no knowledge file this stage reads can record a departure. This form is not assembled (the illustrative team sizes are applied to it hypothetically), so this remains a default, not a condition evaluated and found to hold. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.'
+                        : 'Continuous play applies as the baseline default: no knowledge file this stage reads can record a departure, and no activity is assembled, so this is a default, not a condition evaluated and found to hold. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.',
                   notAnInteractionRegulation: true,
                   establishedBy: 'LOGICAL INFERENCE',
                   trace: { influencedBy: basisItems, consulted: ecological, citedOnly: [] },
@@ -209,7 +215,9 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
                 detail = competitorPresent
                     ? assembled
                         ? 'A structural signal of ours (INFERRED): an opposing team with players is present. Whether the condition is expressed is emergent: not evaluable from the assembled configuration; only in play.'
-                        : 'A structural signal of ours (INFERRED): an opposing team with players is present. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.'
+                        : hypothetical
+                          ? 'A structural signal of ours (INFERRED): an opposing team with players is present under the team sizes applied hypothetically (this form is not assembled). Whether the condition is expressed is emergent: only in play.'
+                          : 'A structural signal of ours (INFERRED): an opposing team with players is present. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.'
                     : 'A structural signal of ours (INFERRED): no opposing team with players, so the design gives this condition nothing to be expressed through.'
                 establishedBy = 'LOGICAL INFERENCE'
                 evidenceStatus = 'INFERRED'
@@ -218,14 +226,17 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
                 if (activityItem) influencedBy.push(activityItem)
             } else if (cls.structuralSignal === 'CONTINUOUS_PLAY_BASELINE' && continuousPlay.status === 'APPLIES_AS_BASELINE_DEFAULT') {
                 status = 'STRUCTURAL_SIGNAL_PRESENT'
-                detail = `A structural signal of ours (INFERRED): the continuous-play baseline default (${continuousPlay.entryId}) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: ${assembled ? 'not evaluable from the assembled configuration; only in play.' : 'to be expressed by the assembled activity; not evaluable before activity assembly.'}`
+                detail = `A structural signal of ours (INFERRED): the continuous-play baseline default (${continuousPlay.entryId}) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: ${assembled ? 'not evaluable from the assembled configuration; only in play.' : hypothetical ? 'only in play (this form is not assembled).' : 'to be expressed by the assembled activity; not evaluable before activity assembly.'}`
                 establishedBy = 'LOGICAL INFERENCE'
                 evidenceStatus = 'INFERRED'
                 if (signalItem) influencedBy.push(signalItem)
                 influencedBy.push(item(`conditions-of-use.stage2.json ${continuousPlay.entryId}`, 'OURS', `continuous-play baseline ${continuousPlay.status}`))
             } else if (assembled) {
-                status = 'NOT_EVALUABLE_FROM_THE_ASSEMBLED_CONFIGURATION'
+                status = 'NOT_EVALUABLE_FROM_THE_CONFIGURATION'
                 detail = 'Not evaluable from the assembled configuration, a labelled review record (the configuration step itself is held); whether the condition is expressed can be seen only in play.'
+            } else if (hypothetical) {
+                status = 'NOT_EVALUABLE_FROM_THE_CONFIGURATION'
+                detail = 'Not evaluable: this form is not assembled (the illustrative team sizes are applied to it hypothetically); whether the condition is expressed can be seen only in play.'
             } else {
                 status = 'NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY'
                 detail = 'To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).'
@@ -245,13 +256,15 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
                 status = 'RISK_NOT_EVALUABLE'
                 detail = assembled
                     ? 'A risk, not a verdict. Not evaluable from the assembled configuration: an opposing team with players is present, but whether the opposition can change progression can be seen only in play.'
-                    : 'A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held): an opposing team with players is present, but whether the opposition can change progression depends on the assembled activity and on play.'
+                    : hypothetical
+                      ? 'A risk, not a verdict. Not evaluable: this form is not assembled; an opposing team with players is present under the team sizes applied hypothetically, but whether the opposition can change progression can be seen only in play.'
+                      : 'A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held): an opposing team with players is present, but whether the opposition can change progression depends on the assembled activity and on play.'
                 testOnly = true
                 if (signalItem) influencedBy.push(signalItem)
                 if (activityItem) influencedBy.push(activityItem)
             } else {
                 status = 'RISK_NOT_EVALUABLE'
-                detail = assembled ? 'A risk, not a verdict. Not evaluable from the assembled configuration; only in play.' : 'A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).'
+                detail = assembled ? 'A risk, not a verdict. Not evaluable from the assembled configuration; only in play.' : hypothetical ? 'A risk, not a verdict. Not evaluable: this form is not assembled; only in play.' : 'A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).'
             }
         }
         if (row.role !== 'CONDITION') missing.push({ kind: 'INTEGRITY_ROLE_CHANGED', detail: `${row.conditionId} has workbook role ${row.role}; his D6 classification was confirmed against role CONDITION.`, cites: [row.cite] })
