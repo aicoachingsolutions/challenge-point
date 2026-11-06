@@ -97,7 +97,7 @@
             "Which team attacks which end, and the teams' names, are not in the record: 'Team A' and 'Team B' are drawing labels only, and which arrow points which way is presentation.",
             "Bib colours are not named in the record: the two team colours are presentation colours, never green.",
             "Starting relationships are not drawn: the record holds an ordinary kick-off and our reading of 'own half' (OURS). Question: may each team's own half be drawn on that reading, labelled OURS?",
-            "The end-line restart's location is not drawn: it depends on where the ball went out; the exclusion is our illustrative choice, and the receiving distance is unresolved (R2)."
+            "The end-line restart's location is not drawn: it depends on where the ball went out; the exclusion is our illustrative choice, and the receiving distance is unresolved."
         ],
         "notDrawnTitle": "Not drawn, and why:",
         "notDrawn": [
@@ -119,11 +119,11 @@
             },
             {
                 "what": "The end-line restart location",
-                "why": "it depends on where the ball went out; our illustrative exclusion (never into or across a target zone) and an unresolved receiving distance (R2)"
+                "why": "it depends on where the ball went out; our illustrative exclusion (never into or across a target zone) and an unresolved receiving distance"
             },
             {
                 "what": "The coach's position",
-                "why": "in no value (R4)"
+                "why": "in no value"
             },
             {
                 "what": "Spare balls",

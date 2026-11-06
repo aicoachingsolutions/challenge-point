@@ -1949,6 +1949,7 @@ function testV_determinism(): void {
     assert.notEqual(buildAssemblyReport(run(committedKnowledge(), x), REGRESSION, MUTATION).report, fs.readFileSync(path.join(EVIDENCE, 'assembly-report.txt'), 'utf8'), 'bite: a changed note')
     assert.notEqual(buildAssemblyReport(BASE, { ...REGRESSION, standing: `${REGRESSION.standing} (changed)` }, MUTATION).report, fs.readFileSync(path.join(EVIDENCE, 'assembly-report.txt'), 'utf8'), 'bite: a changed regression record')
     // No gendered pronoun anywhere in the evidence (the binding rule; the stage 6 review, C1-02, C3-01, C4-01): report, results, diagram.
+    // The one exception to the no-pronoun rule in these files: the scanner's own pattern and its bite, two lines below.
     const PRONOUN = /\b(he|his|him|himself|she|her|hers|herself)\b/i
     for (const f of ['assembly-report.txt', 'assembly-results.json', 'assembly-diagram.svg', 'regression-record.json']) {
         const hit = fs.readFileSync(path.join(EVIDENCE, f), 'utf8').split('\n').findIndex((l) => PRONOUN.test(l))

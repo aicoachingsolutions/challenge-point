@@ -10786,7 +10786,7 @@
       "handling": "Labelled ILLUSTRATIVE, marked in the review copy; confirmation asked.",
       "answeredBy": {
         "rulingRef": "ASM-06NOV-RESTART",
-        "statement": "answered by the reply of 6 November, section 6: the illustrative end-line rule is not retained; a simple coach-served restart is tested provisionally, offline (the restart.endLine values)."
+        "statement": "answered by the reply of 6 November, section 6: the illustrative end-line rule is not retained; a simple coach-served restart is tested provisionally, offline (the restart.endLine values). Our earlier wording in the question, 'their goal kick and corner kick assume a goal', is corrected in the Laws account: the award by last touch needs no goal."
       }
     },
     {
@@ -10944,55 +10944,10 @@
     }
   ],
   "regressionRecord": {
-    "standing": "Recorded on 6 November 2026 from an independent run on the committed tree of build cf8707d (the review of the stage 6 build applied). This record and the evidence re-generated from it are committed on top of that build with no change to any code or data file; assembly.unit.ts test (v) requires the committed report, results and diagram to equal the runner's output with this record. Engineering evidence only: the live application and A01 are unchanged; it does not establish ecological suitability (Christian's reply of 6 November).",
-    "status": "RECORDED",
-    "build": "cf8707d (branch claude/a05-assembly-experiment, on top of the Stage 2 review branch at 38c61e2; main at f534a62)",
-    "results": [
-      {
-        "check": "Type check (tsc --noEmit)",
-        "result": "passed (exit 0)"
-      },
-      {
-        "check": "Full unit suite (npm test)",
-        "result": "151 test files, 0 failed"
-      },
-      {
-        "check": "Behaviour snapshot against main at f534a62",
-        "result": "391 entries, 0 changed, 0 added, 0 removed (sha-256 a8420db066c34341366254b9e8063aa9c66688fd777a350ce9aa1d0a2c4da246 on both sides); A01's 44 entries are among the unchanged"
-      },
-      {
-        "check": "Live backend bundle built from src/index.ts",
-        "result": "byte-identical to main at f534a62 (sha-256 6bd210238f7d620c9b968f17edac63cd4984b472320aadf58731e8b4b0a0deed, 3,228,588 bytes, 192 inputs); 0 inputs from the design-reasoning folder"
-      },
-      {
-        "check": "Stage 1 runner re-run to a scratch folder",
-        "result": "results byte-identical to the post-sweep baseline of 6 November (the committed Stage 1 evidence is not regenerated; its wording alone was swept, noted in the Stage 1 README)"
-      },
-      {
-        "check": "Stage 2 evidence re-generated to a scratch folder",
-        "result": "report and results byte-identical to the committed post-sweep files"
-      },
-      {
-        "check": "Assembly evidence re-generated to a scratch folder",
-        "result": "report, results and DRAFT diagram byte-identical to the committed files (before this record was filled)"
-      },
-      {
-        "check": "External quote check of every quoted string of Christian's in the two data files",
-        "result": "316 quotes and 15 terms: 331 passed, 0 failed; 303 of 303 received-date citations correct"
-      },
-      {
-        "check": "Gendered pronouns in the assembly, Stage 1 and Stage 2 audit folders",
-        "result": "none"
-      },
-      {
-        "check": "Files changed outside the design-reasoning folder and its three audit folders since 063fc52",
-        "result": "none"
-      },
-      {
-        "check": "GitHub checks",
-        "result": "none run: a push of a review branch triggers no workflow, and nothing deploys; this branch is not pushed"
-      }
-    ]
+    "standing": "NOT YET RECORDED for this build: the regression run on this build's committed tree is recorded in the commit on top of it, with no change to any code or data file. When recorded, it is engineering evidence only: the live application and A01 are unchanged; it does not establish ecological suitability (Christian's reply of 6 November).",
+    "status": "PLACEHOLDER",
+    "build": null,
+    "results": []
   },
   "mutationLoop": {
     "values": 60,
@@ -11064,7 +11019,7 @@
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ov-players: whenValue teams.equalOutfield = \"EQUAL\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template ov-players: whenValue teams.equalOutfield = 'EQUAL', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "players.perTeam",
@@ -11078,7 +11033,7 @@
         "howReached": "ENTERED_ILLUSTRATIVE",
         "mutatedTo": 1,
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ov-players: whenValue players.goalkeepers = 0, but the assembled value is 1"
+        "reason": "template ov-players: whenValue players.goalkeepers = '0', but the assembled value is '1'"
       },
       {
         "path": "area.lengthM",
@@ -11099,7 +11054,7 @@
         "howReached": "ENTERED_ILLUSTRATIVE",
         "mutatedTo": false,
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ov-area: whenValue area.includesEndZones = true, but the assembled value is false"
+        "reason": "template ov-area: whenValue area.includesEndZones = 'true', but the assembled value is 'false'"
       },
       {
         "path": "area.goalkeepersCounted",
@@ -11113,14 +11068,14 @@
         "howReached": "ENTERED_ILLUSTRATIVE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template st-area: whenValue area.halfwayLine = \"MARKED\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template st-area: whenValue area.halfwayLine = 'MARKED', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "area.centreMark",
         "howReached": "ENTERED_ILLUSTRATIVE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template st-area: whenValue area.centreMark = \"MARKED\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template st-area: whenValue area.centreMark = 'MARKED', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "endZones.depthM",
@@ -11148,21 +11103,21 @@
         "howReached": "ENTERED_OUR_INFERENCE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ru-access: whenValue endZones.access = \"ANY_PLAYER_ANY_TIME\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template ru-access: whenValue endZones.access = 'ANY_PLAYER_ANY_TIME', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "interactionRegulations",
         "howReached": "ENTERED_OUR_INFERENCE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ru-interaction: whenValue interactionRegulations = \"NONE_ADDED\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template ru-interaction: whenValue interactionRegulations = 'NONE_ADDED', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "directions",
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ov-game: whenValue directions = \"EACH_ATTACKS_ONE_DEFENDS_THE_OTHER_ALL_GAME\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template ov-game: whenValue directions = 'EACH_ATTACKS_ONE_DEFENDS_THE_OTHER_ALL_GAME', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "scoring.event",
@@ -11204,42 +11159,42 @@
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template sc-regain: whenValue scoring.afterRegain = \"COUNTS\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template sc-regain: whenValue scoring.afterRegain = 'COUNTS', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "scoring.mirrored",
         "howReached": "ENTERED_OUR_INFERENCE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template sc-mirrored: whenValue scoring.mirrored = \"SAME_FOR_BOTH\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template sc-mirrored: whenValue scoring.mirrored = 'SAME_FOR_BOTH', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "opposition.reciprocal",
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ru-directions: whenValue opposition.reciprocal = \"RECIPROCAL\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template ru-directions: whenValue opposition.reciprocal = 'RECIPROCAL', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "play.continuous",
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ru-continuous: whenValue play.continuous = \"CONTINUOUS_THROUGH_TURNOVERS\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template ru-continuous: whenValue play.continuous = 'CONTINUOUS_THROUGH_TURNOVERS', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "start.method",
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template rs-start: whenValue start.method = \"ORDINARY_KICKOFF\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template rs-start: whenValue start.method = 'ORDINARY_KICKOFF', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "start.kickoffDetails",
         "howReached": "ENTERED_OUR_INFERENCE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template rs-kickoff: whenValue start.kickoffDetails = \"LAWS_KICKOFF_UNCHANGED\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template rs-kickoff: whenValue start.kickoffDetails = 'LAWS_KICKOFF_UNCHANGED', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "start.kickoffDistanceM",
@@ -11253,98 +11208,98 @@
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template rs-after-point: whenValue restart.afterPoint.method = \"KICKOFF\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template rs-after-point: whenValue restart.afterPoint.method = 'KICKOFF', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "restart.afterPoint.who",
         "howReached": "ENTERED_OUR_INFERENCE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template rs-after-point: whenValue restart.afterPoint.who = \"CONCEDING_TEAM\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template rs-after-point: whenValue restart.afterPoint.who = 'CONCEDING_TEAM', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "rules.offside",
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ov-scoring: whenValue rules.offside = \"NONE\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template ov-scoring: whenValue rules.offside = 'NONE', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "restart.touchline",
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template sc-restart-point: whenValue restart.touchline = \"LAWS_THROW_IN\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template sc-restart-point: whenValue restart.touchline = 'LAWS_THROW_IN', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "rules.fouls",
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ru-fouls: whenValue rules.fouls = \"LAWS_FREE_KICKS\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template ru-fouls: whenValue rules.fouls = 'LAWS_FREE_KICKS', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "rules.handling",
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ru-handling: whenValue rules.handling = \"LAWS_HANDLING_UNCHANGED\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template ru-handling: whenValue rules.handling = 'LAWS_HANDLING_UNCHANGED', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "laws.default",
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ru-laws: whenValue laws.default = \"APPLY\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template ru-laws: whenValue laws.default = 'APPLY', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "laws.goalEnd",
         "howReached": "ENTERED_OUR_INFERENCE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template rs-goal-end: whenValue laws.goalEnd = \"REPLACED_BY_THE_END_LINE_RESTART\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template rs-goal-end: whenValue laws.goalEnd = 'REPLACED_BY_THE_END_LINE_RESTART', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "restart.endLine.method",
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template sc-restart-point: whenValue restart.endLine.method = \"COACH_SERVES_NEW_BALL\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template sc-restart-point: whenValue restart.endLine.method = 'COACH_SERVES_NEW_BALL', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "restart.endLine.toWhom",
         "howReached": "ENTERED_OUR_INFERENCE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template rs-end-line: whenValue restart.endLine.toWhom = \"TEAM_THAT_DID_NOT_TOUCH_IT_LAST\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template rs-end-line: whenValue restart.endLine.toWhom = 'TEAM_THAT_DID_NOT_TOUCH_IT_LAST', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "restart.endLine.timing",
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template rs-end-line: whenValue restart.endLine.timing = \"PROMPTLY\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template rs-end-line: whenValue restart.endLine.timing = 'PROMPTLY', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "restart.endLine.noReset",
         "howReached": "ENTERED_OUR_INFERENCE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template rs-end-line: whenValue restart.endLine.noReset = \"NO_REPOSITIONING_REQUIRED\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template rs-end-line: whenValue restart.endLine.noReset = 'NO_REPOSITIONING_REQUIRED', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "restart.endLine.contest",
         "howReached": "ENTERED_OUR_INFERENCE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template rs-end-line: whenValue restart.endLine.contest = \"LIVE_WHEN_PLAYED_NO_OPPONENT_DISTANCE\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template rs-end-line: whenValue restart.endLine.contest = 'LIVE_WHEN_PLAYED_NO_OPPONENT_DISTANCE', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "restart.endLine.location",
         "howReached": "ENTERED_ILLUSTRATIVE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template sc-restart-point: whenValue restart.endLine.location = \"IN_THE_HALF_WHERE_IT_WENT_OUT_OUTSIDE_BOTH_TARGET_ZONES_NOT_ACROSS_EITHER_COACH_CHOOSES_PLAYER\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template sc-restart-point: whenValue restart.endLine.location = 'IN_THE_HALF_WHERE_IT_WENT_OUT_OUTSIDE_BOTH_TARGET_ZONES_NOT_ACROSS_EITHER_COACH_CHOOSES_PLAYER', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "restart.endLine.receivingDistance",
@@ -11372,49 +11327,49 @@
         "howReached": "ENTERED_ILLUSTRATIVE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ov-duration: whenValue duration.breaks = \"SHORT_BREAK_BETWEEN_BLOCKS\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template ov-duration: whenValue duration.breaks = 'SHORT_BREAK_BETWEEN_BLOCKS', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "equipment.bibs",
         "howReached": "ENTERED_ILLUSTRATIVE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template st-teams: whenValue equipment.bibs = \"ONE_COLOUR_PER_TEAM_KEPT_ALL_SESSION\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template st-teams: whenValue equipment.bibs = 'ONE_COLOUR_PER_TEAM_KEPT_ALL_SESSION', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "equipment.markers",
         "howReached": "ENTERED_ILLUSTRATIVE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template st-equipment: whenValue equipment.markers = \"AREA_HALFWAY_CENTRE_TARGET_ZONES\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template st-equipment: whenValue equipment.markers = 'AREA_HALFWAY_CENTRE_TARGET_ZONES', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "equipment.balls",
         "howReached": "ENTERED_ILLUSTRATIVE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template st-equipment: whenValue equipment.balls = \"SPARE_BALLS\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template st-equipment: whenValue equipment.balls = 'SPARE_BALLS', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "win.condition",
         "howReached": "ENTERED_ILLUSTRATIVE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template wn-points: whenValue win.condition = \"MORE_POINTS_IN_A_BLOCK\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template wn-points: whenValue win.condition = 'MORE_POINTS_IN_A_BLOCK', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "observation.categories",
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template rs-served-presentation: whenValue observation.categories = \"CHRISTIANS_THREE_CATEGORIES\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template rs-served-presentation: whenValue observation.categories = 'CHRISTIANS_THREE_CATEGORIES', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "adjustments",
         "howReached": "ENTERED_OUR_INFERENCE",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template ad-none: whenValue adjustments = \"NONE_OFFERED\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template ad-none: whenValue adjustments = 'NONE_OFFERED', but the assembled value is 'SENTINEL_MUTATION'"
       },
       {
         "path": "coachQuestion",
@@ -12055,10 +12010,10 @@
       },
       {
         "id": "flag-5",
-        "text": "- The end-line restart's location is not drawn: it depends on where the ball went out; the exclusion is our illustrative choice, and the receiving distance is unresolved (R2).",
+        "text": "- The end-line restart's location is not drawn: it depends on where the ball went out; the exclusion is our illustrative choice, and the receiving distance is unresolved.",
         "x": 40,
         "y": 773,
-        "w": 1155,
+        "w": 1122,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12146,24 +12101,11 @@
         "colour": "#222222"
       },
       {
-        "id": "not-drawn-5-1",
-        "text": "(R2)",
+        "id": "not-drawn-6",
+        "text": "- The coach's position: in no value",
         "x": 40,
         "y": 893,
-        "w": 26.4,
-        "h": 14.3,
-        "size": 11,
-        "anchor": "start",
-        "inside": false,
-        "readsPaths": [],
-        "colour": "#222222"
-      },
-      {
-        "id": "not-drawn-6",
-        "text": "- The coach's position: in no value (R4)",
-        "x": 40,
-        "y": 909,
-        "w": 264,
+        "w": 231,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12175,7 +12117,7 @@
         "id": "not-drawn-7",
         "text": "- Spare balls: equipment, not a marking",
         "x": 40,
-        "y": 925,
+        "y": 909,
         "w": 257.4,
         "h": 14.3,
         "size": 11,
@@ -12188,7 +12130,7 @@
         "id": "not-drawn-8",
         "text": "- A principal-interaction region: which region holds the principal interactions is not established (OURS)",
         "x": 40,
-        "y": 941,
+        "y": 925,
         "w": 693,
         "h": 14.3,
         "size": 11,
@@ -12201,7 +12143,7 @@
         "id": "key-title",
         "text": "Key (one line per value the drawing reads or states: the value; Christian's class and the label; how it reached the record):",
         "x": 40,
-        "y": 965,
+        "y": 949,
         "w": 818.4,
         "h": 14.3,
         "size": 11,
@@ -12215,7 +12157,7 @@
         "id": "key-1",
         "text": "- Area length (end line to end line, target zones included): 40 m; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
         "x": 40,
-        "y": 981,
+        "y": 965,
         "w": 1122,
         "h": 14.3,
         "size": 11,
@@ -12230,7 +12172,7 @@
         "id": "key-1-1",
         "text": "before any production use); entered",
         "x": 40,
-        "y": 997,
+        "y": 981,
         "w": 231,
         "h": 14.3,
         "size": 11,
@@ -12245,7 +12187,7 @@
         "id": "key-2",
         "text": "- Area width: 30 m; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); entered",
         "x": 40,
-        "y": 1013,
+        "y": 997,
         "w": 1049.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -12260,7 +12202,7 @@
         "id": "key-3",
         "text": "- Target zones inside the length: yes, both inside the length; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before",
         "x": 40,
-        "y": 1029,
+        "y": 1013,
         "w": 1141.8,
         "h": 14.3,
         "size": 11,
@@ -12275,7 +12217,7 @@
         "id": "key-3-1",
         "text": "any production use); entered",
         "x": 40,
-        "y": 1045,
+        "y": 1029,
         "w": 184.79999999999998,
         "h": 14.3,
         "size": 11,
@@ -12290,7 +12232,7 @@
         "id": "key-4",
         "text": "- Target-zone depth (each zone): 5 m; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
         "x": 40,
-        "y": 1061,
+        "y": 1045,
         "w": 1115.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -12305,7 +12247,7 @@
         "id": "key-4-1",
         "text": "entered",
         "x": 40,
-        "y": 1077,
+        "y": 1061,
         "w": 46.199999999999996,
         "h": 14.3,
         "size": 11,
@@ -12320,7 +12262,7 @@
         "id": "key-5",
         "text": "- Target-zone placement: one at each end, across the full width; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before",
         "x": 40,
-        "y": 1093,
+        "y": 1077,
         "w": 1155,
         "h": 14.3,
         "size": 11,
@@ -12335,7 +12277,7 @@
         "id": "key-5-1",
         "text": "any production use); entered",
         "x": 40,
-        "y": 1109,
+        "y": 1093,
         "w": 184.79999999999998,
         "h": 14.3,
         "size": 11,
@@ -12350,7 +12292,7 @@
         "id": "key-6",
         "text": "- Target-zone position: no value; class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision; no value entered",
         "x": 40,
-        "y": 1125,
+        "y": 1109,
         "w": 1075.8,
         "h": 14.3,
         "size": 11,
@@ -12365,7 +12307,7 @@
         "id": "key-6-1",
         "text": "(UNRESOLVED)",
         "x": 40,
-        "y": 1141,
+        "y": 1125,
         "w": 79.2,
         "h": 14.3,
         "size": 11,
@@ -12380,7 +12322,7 @@
         "id": "key-7",
         "text": "- Target zones (one green): the scoring target: a controlled arrival in the target zone a team attacks; class 3: Candidate or provisional knowledge; RULING, provisional;",
         "x": 40,
-        "y": 1157,
+        "y": 1141,
         "w": 1115.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -12395,7 +12337,7 @@
         "id": "key-7-1",
         "text": "entered",
         "x": 40,
-        "y": 1173,
+        "y": 1157,
         "w": 46.199999999999996,
         "h": 14.3,
         "size": 11,
@@ -12410,7 +12352,7 @@
         "id": "key-8",
         "text": "- Halfway line: marked; position computed: halfway along the length; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
         "x": 40,
-        "y": 1189,
+        "y": 1173,
         "w": 1135.2,
         "h": 14.3,
         "size": 11,
@@ -12425,7 +12367,7 @@
         "id": "key-8-1",
         "text": "before any production use); entered",
         "x": 40,
-        "y": 1205,
+        "y": 1189,
         "w": 231,
         "h": 14.3,
         "size": 11,
@@ -12440,7 +12382,7 @@
         "id": "key-9",
         "text": "- Centre mark: marked; position computed: the centre of the area; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
         "x": 40,
-        "y": 1221,
+        "y": 1205,
         "w": 1115.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -12455,7 +12397,7 @@
         "id": "key-9-1",
         "text": "before any production use); entered",
         "x": 40,
-        "y": 1237,
+        "y": 1221,
         "w": 231,
         "h": 14.3,
         "size": 11,
@@ -12470,7 +12412,7 @@
         "id": "key-10",
         "text": "- Markings: the area, the halfway line, the centre mark and both target zones; nothing else; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test",
         "x": 40,
-        "y": 1253,
+        "y": 1237,
         "w": 1155,
         "h": 14.3,
         "size": 11,
@@ -12485,7 +12427,7 @@
         "id": "key-10-1",
         "text": "only; to be replaced before any production use); entered",
         "x": 40,
-        "y": 1269,
+        "y": 1253,
         "w": 369.59999999999997,
         "h": 14.3,
         "size": 11,
@@ -12500,7 +12442,7 @@
         "id": "key-11",
         "text": "- Teams: 2; class 2: An explicit scoped ruling; RULING; entered",
         "x": 40,
-        "y": 1285,
+        "y": 1269,
         "w": 415.8,
         "h": 14.3,
         "size": 11,
@@ -12515,7 +12457,7 @@
         "id": "key-12",
         "text": "- Players per team: 6; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); entered",
         "x": 40,
-        "y": 1301,
+        "y": 1285,
         "w": 1069.2,
         "h": 14.3,
         "size": 11,
@@ -12530,7 +12472,7 @@
         "id": "key-13",
         "text": "- Team numbers: equal; class 1: Approved canonical knowledge; APPROVED; entered",
         "x": 40,
-        "y": 1317,
+        "y": 1301,
         "w": 521.4,
         "h": 14.3,
         "size": 11,
@@ -12545,7 +12487,7 @@
         "id": "key-14",
         "text": "- Goalkeepers: 0 (no goalkeepers); class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); entered",
         "x": 40,
-        "y": 1333,
+        "y": 1317,
         "w": 1148.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -12560,7 +12502,7 @@
         "id": "key-15",
         "text": "- Goalkeepers counted: none to count; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
         "x": 40,
-        "y": 1349,
+        "y": 1333,
         "w": 1115.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -12575,7 +12517,7 @@
         "id": "key-15-1",
         "text": "entered",
         "x": 40,
-        "y": 1365,
+        "y": 1349,
         "w": 46.199999999999996,
         "h": 14.3,
         "size": 11,
@@ -12590,7 +12532,7 @@
         "id": "key-16",
         "text": "- Attacking directions (one arrow per team): each team attacks one target zone and defends the other, all game; class 2: An explicit scoped ruling; RULING; entered",
         "x": 40,
-        "y": 1381,
+        "y": 1365,
         "w": 1075.8,
         "h": 14.3,
         "size": 11,
@@ -12605,7 +12547,7 @@
         "id": "key-17",
         "text": "- Team colours: one colour per team, kept all session; no colour named; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
         "x": 40,
-        "y": 1397,
+        "y": 1381,
         "w": 1155,
         "h": 14.3,
         "size": 11,
@@ -12620,7 +12562,7 @@
         "id": "key-17-1",
         "text": "before any production use); entered",
         "x": 40,
-        "y": 1413,
+        "y": 1397,
         "w": 231,
         "h": 14.3,
         "size": 11,
@@ -12635,7 +12577,7 @@
         "id": "key-18",
         "text": "- Start: an ordinary kick-off from the centre mark; class 3: Candidate or provisional knowledge; RULING, provisional; entered",
         "x": 40,
-        "y": 1429,
+        "y": 1413,
         "w": 825,
         "h": 14.3,
         "size": 11,
@@ -12650,7 +12592,7 @@
         "id": "key-19",
         "text": "- Opponents' distance at the start: 9.15 m; class 2: An explicit scoped ruling; RULING; entered",
         "x": 40,
-        "y": 1445,
+        "y": 1429,
         "w": 627,
         "h": 14.3,
         "size": 11,
@@ -12665,7 +12607,7 @@
         "id": "key-20",
         "text": "- Game Form: Directional Possession Games; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
         "x": 40,
-        "y": 1461,
+        "y": 1445,
         "w": 1148.3999999999999,
         "h": 14.3,
         "size": 11,
@@ -12680,7 +12622,7 @@
         "id": "key-20-1",
         "text": "entered",
         "x": 40,
-        "y": 1477,
+        "y": 1461,
         "w": 46.199999999999996,
         "h": 14.3,
         "size": 11,
@@ -12695,7 +12637,7 @@
         "id": "key-21",
         "text": "- Compatible alternatives (unranked): Positional Play Games and Channel Games; class 3: Candidate or provisional knowledge; CANDIDATE; read by code",
         "x": 40,
-        "y": 1493,
+        "y": 1477,
         "w": 970.1999999999999,
         "h": 14.3,
         "size": 11,
@@ -12710,7 +12652,7 @@
         "id": "context",
         "text": "Context (measured): the checked pathway's diagram generation, the one A01 uses, draws GF2 here only as a game scored on a line and withholds end zones, because its renderer",
         "x": 40,
-        "y": 1517,
+        "y": 1501,
         "w": 1135.2,
         "h": 14.3,
         "size": 11,
@@ -12723,7 +12665,7 @@
         "id": "context-1",
         "text": "has no set-up sentence for them; until blocking decision 1 of the technical proposal is answered, this review drawing is the only picture of end zones.",
         "x": 40,
-        "y": 1533,
+        "y": 1517,
         "w": 996.5999999999999,
         "h": 14.3,
         "size": 11,
@@ -12901,11 +12843,11 @@
       },
       {
         "what": "The end-line restart location",
-        "why": "it depends on where the ball went out; our illustrative exclusion (never into or across a target zone) and an unresolved receiving distance (R2)"
+        "why": "it depends on where the ball went out; our illustrative exclusion (never into or across a target zone) and an unresolved receiving distance"
       },
       {
         "what": "The coach's position",
-        "why": "in no value (R4)"
+        "why": "in no value"
       },
       {
         "what": "Spare balls",
@@ -12921,10 +12863,10 @@
       "Which team attacks which end, and the teams' names, are not in the record: 'Team A' and 'Team B' are drawing labels only, and which arrow points which way is presentation.",
       "Bib colours are not named in the record: the two team colours are presentation colours, never green.",
       "Starting relationships are not drawn: the record holds an ordinary kick-off and our reading of 'own half' (OURS). Question: may each team's own half be drawn on that reading, labelled OURS?",
-      "The end-line restart's location is not drawn: it depends on where the ball went out; the exclusion is our illustrative choice, and the receiving distance is unresolved (R2)."
+      "The end-line restart's location is not drawn: it depends on where the ball went out; the exclusion is our illustrative choice, and the receiving distance is unresolved."
     ],
     "width": 1240,
-    "height": 1578,
+    "height": 1562,
     "outline": {
       "x": 100,
       "y": 133,

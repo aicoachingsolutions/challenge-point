@@ -1476,7 +1476,7 @@ export function composeCoachActivity(wording: Wording, activity: AssembledActivi
         if (JSON.stringify([...t.expresses].sort()) !== JSON.stringify(said)) throw new Error(`template ${t.id}: expresses ${t.expresses.join(', ')} but says ${said.join(', ')}`)
         for (const [p, expected] of Object.entries(when)) {
             const actual = (byPath.get(p) as AssembledChoice).value
-            if (actual !== expected) throw new Error(`template ${t.id}: whenValue ${p} = ${JSON.stringify(expected)}, but the assembled value is ${JSON.stringify(actual)}`)
+            if (actual !== expected) throw new Error(`template ${t.id}: whenValue ${p} = '${String(expected)}', but the assembled value is '${String(actual)}'`)
         }
         const text = t.text.replace(/\{([A-Za-z0-9.]+)\}/g, (_, p: string) => (byPath.get(p) as AssembledChoice).rendered)
         const classes = t.expresses.map((p) => ({ path: p, sixClass: (byPath.get(p) as AssembledChoice).sixClass, label: (byPath.get(p) as AssembledChoice).label }))
