@@ -66,7 +66,7 @@ export interface DiagramKeyLine {
     element: string
     valueText: string
     classAndLabel: string
-    /** How the value reached the record: read by code, entered, or (a value with no authorized value) the words saying nothing was entered. */
+    /** How the value reached the record: read from knowledge, entered by hand, or (a value with no authorized value) the words saying nothing was entered. */
     route: string
 }
 
@@ -191,10 +191,16 @@ export function assemblyDiagramOf(activity: AssembledActivity, experiment: Exper
         const c = at(key)
         return { path: c.path, value: c.value, sixClass: c.sixClass, howReached: c.howReached, label: c.label }
     })
+    // The key says 'category' (the delivery's word for Christian's six) where the report says 'class'; the words after it are the report's.
+    const categoryAndLabel = (c: { path: string; sixClass: SixClass; label: string }): string => {
+        const s = classAndLabel(c)
+        if (!s.startsWith('class ')) throw new Error(`${c.path}: expected the report's 'class N: ...', got ${s}`)
+        return `category ${s.slice('class '.length)}`
+    }
     const key: DiagramKeyLine[] = words.elements.map((e) => {
         const c = at(e.binding)
-        const route = c.howReached === 'READ_BY_CODE' ? 'read by code' : c.howReached === 'UNRESOLVED' ? words.noValueRoute : 'entered'
-        return { path: c.path, element: e.name, valueText: valueWords(e.binding), classAndLabel: classAndLabel(c), route }
+        const route = c.howReached === 'READ_BY_CODE' ? 'read from knowledge' : c.howReached === 'UNRESOLVED' ? words.noValueRoute : 'entered by hand'
+        return { path: c.path, element: e.name, valueText: valueWords(e.binding), classAndLabel: categoryAndLabel(c), route }
     })
     // Which way each team's arrow points, keyed by the recorded directions value (presentation, flagged); another value is refused.
     const arrows = words.arrowsFor[String(at('attackDirections').value)]

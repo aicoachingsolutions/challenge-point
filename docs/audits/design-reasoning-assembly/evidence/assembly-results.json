@@ -10944,63 +10944,10 @@
     }
   ],
   "regressionRecord": {
-    "standing": "Recorded on 6 November 2026 from an independent run on the committed tree of build d4aa1fd (the fixes after the stage 6 recheck). This record and the evidence re-generated from it are committed on top of that build with no change to any code or data file; assembly.unit.ts test (v) requires the committed report, results and diagram to equal the runner's output with this record. Engineering evidence only: the live application and A01 are unchanged; it does not establish ecological suitability (Christian's reply of 6 November).",
-    "status": "RECORDED",
-    "build": "d4aa1fd (branch claude/a05-assembly-experiment, on top of the Stage 2 review branch at 38c61e2; main at f534a62)",
-    "results": [
-      {
-        "check": "Type check (tsc --noEmit)",
-        "result": "passed (exit 0)"
-      },
-      {
-        "check": "Full unit suite (npm test)",
-        "result": "151 test files, 0 failed"
-      },
-      {
-        "check": "Behaviour snapshot against main at f534a62",
-        "result": "391 entries, 0 changed, 0 added, 0 removed (sha-256 a8420db066c34341366254b9e8063aa9c66688fd777a350ce9aa1d0a2c4da246 on both sides); A01's 44 entries are among the unchanged"
-      },
-      {
-        "check": "Live backend bundle built from src/index.ts",
-        "result": "byte-identical to main at f534a62 (sha-256 6bd210238f7d620c9b968f17edac63cd4984b472320aadf58731e8b4b0a0deed, 3,228,588 bytes, 192 inputs); 0 inputs from the design-reasoning folder"
-      },
-      {
-        "check": "Stage 1 runner re-run to a scratch folder",
-        "result": "results byte-identical to the post-sweep baseline of 6 November (the committed Stage 1 evidence is not regenerated; its wording alone was swept, noted in the Stage 1 README)"
-      },
-      {
-        "check": "Stage 2 evidence re-generated to a scratch folder",
-        "result": "report and results byte-identical to the committed post-sweep files"
-      },
-      {
-        "check": "Assembly evidence re-generated to a scratch folder, twice",
-        "result": "report, results and DRAFT diagram byte-identical to the committed files each time (before this record was filled)"
-      },
-      {
-        "check": "External quote check of every quoted string of Christian's in the two data files",
-        "result": "316 quotes and 15 terms: 331 passed, 0 failed; 303 of 303 received-date citations correct"
-      },
-      {
-        "check": "Double-quoted spans in the results file",
-        "result": "82 quotes and 10 terms: 92 passed, 0 near, 0 not found, 0 failed (no value of ours in double quotation marks)"
-      },
-      {
-        "check": "The whole report through the quote checker",
-        "result": "684 quotes and 35 terms: 719 passed, 0 failed; no citation names a wrong received date"
-      },
-      {
-        "check": "Gendered pronouns in the assembly, Stage 1 and Stage 2 audit folders",
-        "result": "none"
-      },
-      {
-        "check": "Files changed outside the design-reasoning folder and its three audit folders since 063fc52",
-        "result": "none"
-      },
-      {
-        "check": "GitHub checks",
-        "result": "none run: the repository runs its checks only on pushes to main and to its integration branch, and on pull requests; this review branch has no pull request, and nothing deploys"
-      }
-    ]
+    "standing": "NOT YET RECORDED for this build: the regression run on this build's committed tree is recorded in the commit on top of it, with no change to any code or data file. When recorded, it is engineering evidence only: the live application and A01 are unchanged; it does not establish ecological suitability (Christian's reply of 6 November).",
+    "status": "PLACEHOLDER",
+    "build": null,
+    "results": []
   },
   "mutationLoop": {
     "values": 60,
@@ -12194,10 +12141,10 @@
       },
       {
         "id": "key-title",
-        "text": "Key (one line per value the drawing reads or states: the value; Christian's class and the label; how it reached the record):",
+        "text": "Key (one line per value the drawing reads or states: the value; its category, of Christian's six, and its label; how it reached the record):",
         "x": 40,
         "y": 949,
-        "w": 818.4,
+        "w": 924,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12208,10 +12155,10 @@
       },
       {
         "id": "key-1",
-        "text": "- Area length (end line to end line, target zones included): 40 m; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
+        "text": "- Area length (end line to end line, target zones included): 40 m; category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
         "x": 40,
         "y": 965,
-        "w": 1122,
+        "w": 1141.8,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12223,10 +12170,10 @@
       },
       {
         "id": "key-1-1",
-        "text": "before any production use); entered",
+        "text": "before any production use); entered by hand",
         "x": 40,
         "y": 981,
-        "w": 231,
+        "w": 283.8,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12238,10 +12185,10 @@
       },
       {
         "id": "key-2",
-        "text": "- Area width: 30 m; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); entered",
+        "text": "- Area width: 30 m; category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); entered by hand",
         "x": 40,
         "y": 997,
-        "w": 1049.3999999999999,
+        "w": 1122,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12253,10 +12200,10 @@
       },
       {
         "id": "key-3",
-        "text": "- Target zones inside the length: yes, both inside the length; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before",
+        "text": "- Target zones inside the length: yes, both inside the length; category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
         "x": 40,
         "y": 1013,
-        "w": 1141.8,
+        "w": 1115.3999999999999,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12268,10 +12215,10 @@
       },
       {
         "id": "key-3-1",
-        "text": "any production use); entered",
+        "text": "before any production use); entered by hand",
         "x": 40,
         "y": 1029,
-        "w": 184.79999999999998,
+        "w": 283.8,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12283,10 +12230,10 @@
       },
       {
         "id": "key-4",
-        "text": "- Target-zone depth (each zone): 5 m; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
+        "text": "- Target-zone depth (each zone): 5 m; category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
         "x": 40,
         "y": 1045,
-        "w": 1115.3999999999999,
+        "w": 1135.2,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12298,10 +12245,10 @@
       },
       {
         "id": "key-4-1",
-        "text": "entered",
+        "text": "entered by hand",
         "x": 40,
         "y": 1061,
-        "w": 46.199999999999996,
+        "w": 99,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12313,10 +12260,10 @@
       },
       {
         "id": "key-5",
-        "text": "- Target-zone placement: one at each end, across the full width; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before",
+        "text": "- Target-zone placement: one at each end, across the full width; category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
         "x": 40,
         "y": 1077,
-        "w": 1155,
+        "w": 1128.6,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12328,10 +12275,10 @@
       },
       {
         "id": "key-5-1",
-        "text": "any production use); entered",
+        "text": "before any production use); entered by hand",
         "x": 40,
         "y": 1093,
-        "w": 184.79999999999998,
+        "w": 283.8,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12343,10 +12290,10 @@
       },
       {
         "id": "key-6",
-        "text": "- Target-zone position: no value; class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision; no value entered",
+        "text": "- Target-zone position: no value; category 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision; no value entered",
         "x": 40,
         "y": 1109,
-        "w": 1075.8,
+        "w": 1095.6,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12373,10 +12320,10 @@
       },
       {
         "id": "key-7",
-        "text": "- Target zones (one green): the scoring target: a controlled arrival in the target zone a team attacks; class 3: Candidate or provisional knowledge; RULING, provisional;",
+        "text": "- Target zones (one green): the scoring target: a controlled arrival in the target zone a team attacks; category 3: Candidate or provisional knowledge; RULING, provisional;",
         "x": 40,
         "y": 1141,
-        "w": 1115.3999999999999,
+        "w": 1135.2,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12388,10 +12335,10 @@
       },
       {
         "id": "key-7-1",
-        "text": "entered",
+        "text": "entered by hand",
         "x": 40,
         "y": 1157,
-        "w": 46.199999999999996,
+        "w": 99,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12403,10 +12350,10 @@
       },
       {
         "id": "key-8",
-        "text": "- Halfway line: marked; position computed: halfway along the length; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
+        "text": "- Halfway line: marked; position computed: halfway along the length; category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
         "x": 40,
         "y": 1173,
-        "w": 1135.2,
+        "w": 1155,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12418,10 +12365,10 @@
       },
       {
         "id": "key-8-1",
-        "text": "before any production use); entered",
+        "text": "before any production use); entered by hand",
         "x": 40,
         "y": 1189,
-        "w": 231,
+        "w": 283.8,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12433,10 +12380,10 @@
       },
       {
         "id": "key-9",
-        "text": "- Centre mark: marked; position computed: the centre of the area; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
+        "text": "- Centre mark: marked; position computed: the centre of the area; category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
         "x": 40,
         "y": 1205,
-        "w": 1115.3999999999999,
+        "w": 1135.2,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12448,10 +12395,10 @@
       },
       {
         "id": "key-9-1",
-        "text": "before any production use); entered",
+        "text": "before any production use); entered by hand",
         "x": 40,
         "y": 1221,
-        "w": 231,
+        "w": 283.8,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12463,10 +12410,10 @@
       },
       {
         "id": "key-10",
-        "text": "- Markings: the area, the halfway line, the centre mark and both target zones; nothing else; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test",
+        "text": "- Markings: the area, the halfway line, the centre mark and both target zones; nothing else; category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline",
         "x": 40,
         "y": 1237,
-        "w": 1155,
+        "w": 1141.8,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12478,10 +12425,10 @@
       },
       {
         "id": "key-10-1",
-        "text": "only; to be replaced before any production use); entered",
+        "text": "test only; to be replaced before any production use); entered by hand",
         "x": 40,
         "y": 1253,
-        "w": 369.59999999999997,
+        "w": 455.4,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12493,10 +12440,10 @@
       },
       {
         "id": "key-11",
-        "text": "- Teams: 2; class 2: An explicit scoped ruling; RULING; entered",
+        "text": "- Teams: 2; category 2: An explicit scoped ruling; RULING; entered by hand",
         "x": 40,
         "y": 1269,
-        "w": 415.8,
+        "w": 488.4,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12508,10 +12455,10 @@
       },
       {
         "id": "key-12",
-        "text": "- Players per team: 6; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); entered",
+        "text": "- Players per team: 6; category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); entered by hand",
         "x": 40,
         "y": 1285,
-        "w": 1069.2,
+        "w": 1141.8,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12523,10 +12470,10 @@
       },
       {
         "id": "key-13",
-        "text": "- Team numbers: equal; class 1: Approved canonical knowledge; APPROVED; entered",
+        "text": "- Team numbers: equal; category 1: Approved canonical knowledge; APPROVED; entered by hand",
         "x": 40,
         "y": 1301,
-        "w": 521.4,
+        "w": 594,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12538,10 +12485,25 @@
       },
       {
         "id": "key-14",
-        "text": "- Goalkeepers: 0 (no goalkeepers); class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); entered",
+        "text": "- Goalkeepers: 0 (no goalkeepers); category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
         "x": 40,
         "y": 1317,
-        "w": 1148.3999999999999,
+        "w": 1115.3999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "players.goalkeepers"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-14-1",
+        "text": "entered by hand",
+        "x": 40,
+        "y": 1333,
+        "w": 99,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12553,10 +12515,10 @@
       },
       {
         "id": "key-15",
-        "text": "- Goalkeepers counted: none to count; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
+        "text": "- Goalkeepers counted: none to count; category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
         "x": 40,
-        "y": 1333,
-        "w": 1115.3999999999999,
+        "y": 1349,
+        "w": 1135.2,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12568,10 +12530,10 @@
       },
       {
         "id": "key-15-1",
-        "text": "entered",
+        "text": "entered by hand",
         "x": 40,
-        "y": 1349,
-        "w": 46.199999999999996,
+        "y": 1365,
+        "w": 99,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12583,10 +12545,10 @@
       },
       {
         "id": "key-16",
-        "text": "- Attacking directions (one arrow per team): each team attacks one target zone and defends the other, all game; class 2: An explicit scoped ruling; RULING; entered",
+        "text": "- Attacking directions (one arrow per team): each team attacks one target zone and defends the other, all game; category 2: An explicit scoped ruling; RULING; entered by hand",
         "x": 40,
-        "y": 1365,
-        "w": 1075.8,
+        "y": 1381,
+        "w": 1148.3999999999999,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12598,10 +12560,10 @@
       },
       {
         "id": "key-17",
-        "text": "- Team colours: one colour per team, kept all session; no colour named; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
+        "text": "- Team colours: one colour per team, kept all session; no colour named; category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be",
         "x": 40,
-        "y": 1381,
-        "w": 1155,
+        "y": 1397,
+        "w": 1115.3999999999999,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12613,10 +12575,10 @@
       },
       {
         "id": "key-17-1",
-        "text": "before any production use); entered",
+        "text": "replaced before any production use); entered by hand",
         "x": 40,
-        "y": 1397,
-        "w": 231,
+        "y": 1413,
+        "w": 343.2,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12628,10 +12590,10 @@
       },
       {
         "id": "key-18",
-        "text": "- Start: an ordinary kick-off from the centre mark; class 3: Candidate or provisional knowledge; RULING, provisional; entered",
+        "text": "- Start: an ordinary kick-off from the centre mark; category 3: Candidate or provisional knowledge; RULING, provisional; entered by hand",
         "x": 40,
-        "y": 1413,
-        "w": 825,
+        "y": 1429,
+        "w": 897.6,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12643,10 +12605,10 @@
       },
       {
         "id": "key-19",
-        "text": "- Opponents' distance at the start: 9.15 m; class 2: An explicit scoped ruling; RULING; entered",
+        "text": "- Opponents' distance at the start: 9.15 m; category 2: An explicit scoped ruling; RULING; entered by hand",
         "x": 40,
-        "y": 1429,
-        "w": 627,
+        "y": 1445,
+        "w": 699.6,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12658,10 +12620,10 @@
       },
       {
         "id": "key-20",
-        "text": "- Game Form: Directional Possession Games; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
+        "text": "- Game Form: Directional Possession Games; category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production",
         "x": 40,
-        "y": 1445,
-        "w": 1148.3999999999999,
+        "y": 1461,
+        "w": 1128.6,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12673,10 +12635,10 @@
       },
       {
         "id": "key-20-1",
-        "text": "entered",
+        "text": "use); entered by hand",
         "x": 40,
-        "y": 1461,
-        "w": 46.199999999999996,
+        "y": 1477,
+        "w": 138.6,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12688,10 +12650,10 @@
       },
       {
         "id": "key-21",
-        "text": "- Compatible alternatives (unranked): Positional Play Games and Channel Games; class 3: Candidate or provisional knowledge; CANDIDATE; read by code",
+        "text": "- Compatible alternatives (unranked): Positional Play Games and Channel Games; category 3: Candidate or provisional knowledge; CANDIDATE; read from knowledge",
         "x": 40,
-        "y": 1477,
-        "w": 970.1999999999999,
+        "y": 1493,
+        "w": 1036.2,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12705,7 +12667,7 @@
         "id": "context",
         "text": "Context (measured): the checked pathway's diagram generation, the one A01 uses, draws GF2 here only as a game scored on a line and withholds end zones, because its renderer",
         "x": 40,
-        "y": 1501,
+        "y": 1517,
         "w": 1135.2,
         "h": 14.3,
         "size": 11,
@@ -12716,10 +12678,10 @@
       },
       {
         "id": "context-1",
-        "text": "has no set-up sentence for them; until blocking decision 1 of the technical proposal is answered, this review drawing is the only picture of end zones.",
+        "text": "has no set-up sentence for them; this review drawing is the only picture of end zones, and a yes to decision 1 of the technical proposal would not alone change that for A05.",
         "x": 40,
-        "y": 1517,
-        "w": 996.5999999999999,
+        "y": 1533,
+        "w": 1141.8,
         "h": 14.3,
         "size": 11,
         "anchor": "start",
@@ -12733,148 +12695,148 @@
         "path": "area.lengthM",
         "element": "Area length (end line to end line, target zones included)",
         "valueText": "40 m",
-        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
-        "route": "entered"
+        "classAndLabel": "category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered by hand"
       },
       {
         "path": "area.widthM",
         "element": "Area width",
         "valueText": "30 m",
-        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
-        "route": "entered"
+        "classAndLabel": "category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered by hand"
       },
       {
         "path": "area.includesEndZones",
         "element": "Target zones inside the length",
         "valueText": "yes, both inside the length",
-        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
-        "route": "entered"
+        "classAndLabel": "category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered by hand"
       },
       {
         "path": "endZones.depthM",
         "element": "Target-zone depth (each zone)",
         "valueText": "5 m",
-        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
-        "route": "entered"
+        "classAndLabel": "category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered by hand"
       },
       {
         "path": "endZones.placement",
         "element": "Target-zone placement",
         "valueText": "one at each end, across the full width",
-        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
-        "route": "entered"
+        "classAndLabel": "category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered by hand"
       },
       {
         "path": "endZones.positioning",
         "element": "Target-zone position",
         "valueText": "no value",
-        "classAndLabel": "class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision",
+        "classAndLabel": "category 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision",
         "route": "no value entered (UNRESOLVED)"
       },
       {
         "path": "scoring.event",
         "element": "Target zones (one green)",
         "valueText": "the scoring target: a controlled arrival in the target zone a team attacks",
-        "classAndLabel": "class 3: Candidate or provisional knowledge; RULING, provisional",
-        "route": "entered"
+        "classAndLabel": "category 3: Candidate or provisional knowledge; RULING, provisional",
+        "route": "entered by hand"
       },
       {
         "path": "area.halfwayLine",
         "element": "Halfway line",
         "valueText": "marked; position computed: halfway along the length",
-        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
-        "route": "entered"
+        "classAndLabel": "category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered by hand"
       },
       {
         "path": "area.centreMark",
         "element": "Centre mark",
         "valueText": "marked; position computed: the centre of the area",
-        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
-        "route": "entered"
+        "classAndLabel": "category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered by hand"
       },
       {
         "path": "equipment.markers",
         "element": "Markings",
         "valueText": "the area, the halfway line, the centre mark and both target zones; nothing else",
-        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
-        "route": "entered"
+        "classAndLabel": "category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered by hand"
       },
       {
         "path": "teams.count",
         "element": "Teams",
         "valueText": "2",
-        "classAndLabel": "class 2: An explicit scoped ruling; RULING",
-        "route": "entered"
+        "classAndLabel": "category 2: An explicit scoped ruling; RULING",
+        "route": "entered by hand"
       },
       {
         "path": "players.perTeam",
         "element": "Players per team",
         "valueText": "6",
-        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
-        "route": "entered"
+        "classAndLabel": "category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered by hand"
       },
       {
         "path": "teams.equalOutfield",
         "element": "Team numbers",
         "valueText": "equal",
-        "classAndLabel": "class 1: Approved canonical knowledge; APPROVED",
-        "route": "entered"
+        "classAndLabel": "category 1: Approved canonical knowledge; APPROVED",
+        "route": "entered by hand"
       },
       {
         "path": "players.goalkeepers",
         "element": "Goalkeepers",
         "valueText": "0 (no goalkeepers)",
-        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
-        "route": "entered"
+        "classAndLabel": "category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered by hand"
       },
       {
         "path": "area.goalkeepersCounted",
         "element": "Goalkeepers counted",
         "valueText": "none to count",
-        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
-        "route": "entered"
+        "classAndLabel": "category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered by hand"
       },
       {
         "path": "directions",
         "element": "Attacking directions (one arrow per team)",
         "valueText": "each team attacks one target zone and defends the other, all game",
-        "classAndLabel": "class 2: An explicit scoped ruling; RULING",
-        "route": "entered"
+        "classAndLabel": "category 2: An explicit scoped ruling; RULING",
+        "route": "entered by hand"
       },
       {
         "path": "equipment.bibs",
         "element": "Team colours",
         "valueText": "one colour per team, kept all session; no colour named",
-        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
-        "route": "entered"
+        "classAndLabel": "category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered by hand"
       },
       {
         "path": "start.method",
         "element": "Start",
         "valueText": "an ordinary kick-off from the centre mark",
-        "classAndLabel": "class 3: Candidate or provisional knowledge; RULING, provisional",
-        "route": "entered"
+        "classAndLabel": "category 3: Candidate or provisional knowledge; RULING, provisional",
+        "route": "entered by hand"
       },
       {
         "path": "start.kickoffDistanceM",
         "element": "Opponents' distance at the start",
         "valueText": "9.15 m",
-        "classAndLabel": "class 2: An explicit scoped ruling; RULING",
-        "route": "entered"
+        "classAndLabel": "category 2: An explicit scoped ruling; RULING",
+        "route": "entered by hand"
       },
       {
         "path": "gameForm.illustrativeChoice",
         "element": "Game Form",
         "valueText": "Directional Possession Games",
-        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
-        "route": "entered"
+        "classAndLabel": "category 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered by hand"
       },
       {
         "path": "gameForm.alternatives",
         "element": "Compatible alternatives (unranked)",
         "valueText": "Positional Play Games and Channel Games",
-        "classAndLabel": "class 3: Candidate or provisional knowledge; CANDIDATE",
-        "route": "read by code"
+        "classAndLabel": "category 3: Candidate or provisional knowledge; CANDIDATE",
+        "route": "read from knowledge"
       }
     ],
     "notDrawn": [
@@ -12919,7 +12881,7 @@
       "The end-line restart's location is not drawn: it depends on where the ball went out; the exclusion is our illustrative choice, and the receiving distance is unresolved."
     ],
     "width": 1240,
-    "height": 1562,
+    "height": 1578,
     "outline": {
       "x": 100,
       "y": 133,

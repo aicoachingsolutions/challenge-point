@@ -134,7 +134,7 @@
                 "why": "which region holds the principal interactions is not established (OURS)"
             }
         ],
-        "keyTitle": "Key (one line per value the drawing reads or states: the value; Christian's class and the label; how it reached the record):",
+        "keyTitle": "Key (one line per value the drawing reads or states: the value; its category, of Christian's six, and its label; how it reached the record):",
         "elements": [
             {
                 "binding": "areaLength",
@@ -271,6 +271,6 @@
             "halfway": "position computed: halfway along the length (OURS)",
             "centre": "position computed: the centre of the area (OURS)"
         },
-        "measuredContext": "Context (measured): the checked pathway's diagram generation, the one A01 uses, draws GF2 here only as a game scored on a line and withholds end zones, because its renderer has no set-up sentence for them; until blocking decision 1 of the technical proposal is answered, this review drawing is the only picture of end zones."
+        "measuredContext": "Context (measured): the checked pathway's diagram generation, the one A01 uses, draws GF2 here only as a game scored on a line and withholds end zones, because its renderer has no set-up sentence for them; this review drawing is the only picture of end zones, and a yes to decision 1 of the technical proposal would not alone change that for A05."
     }
 }

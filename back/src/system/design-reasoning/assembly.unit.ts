@@ -1806,11 +1806,11 @@ function testDiagram(): void {
     // T1 Trace: every element names the record paths it reads; every number the drawing prints is a value it reads or a class number.
     for (const s of [...m.shapes, ...m.texts]) for (const p of s.readsPaths) assert.ok(paths.has(p), `${s.id}: ${p} is not a value of the record`)
     const numbersRead = new Set(m.values.filter((v) => typeof v.value === 'number').map((v) => String(v.value)))
-    // Christian's class numbers ('class 5: ...') and the closing note's 'blocking decision 1' (the proposal's numbering) are lifted by
+    // Christian's category numbers ('category 5: ...') and the closing note's 'decision 1' (the proposal's numbering) are lifted by
     // pattern; every other number must be a value the drawing reads (the stage 6 review, C2-01: no blanket allowance).
-    const lifted = (s: string) => s.split(/\bclass [1-6]: /).join(' ').split(/\bblocking decision \d+ of the technical proposal\b/).join(' ')
+    const lifted = (s: string) => s.split(/\bcategory [1-6]: /).join(' ').split(/\bdecision \d+ of the technical proposal\b/).join(' ')
     for (const t of svgTexts(svg)) for (const n of numbersIn(lifted(t))) assert.ok(numbersRead.has(String(n)), `a number the record does not hold: ${n} in '${t}'`)
-    assert.deepEqual(numbersIn(lifted('- Area width: 30 m; class 5: An illustrative configuration choice')), [30], 'the class number is lifted, the value kept')
+    assert.deepEqual(numbersIn(lifted('- Area width: 30 m; category 5: An illustrative configuration choice')), [30], 'the category number is lifted, the value kept')
     // T7 Independent expectations: the geometry in metres for the committed record.
     assert.deepEqual(m.metres, EXPECTED_GEOMETRY)
     const textOf = (model: DiagramModel, id: string) => model.texts.find((y) => y.id === id)?.text
@@ -1831,9 +1831,9 @@ function testDiagram(): void {
     // T4 Status: each key line's class and label are the report's for the same value; the three labels stay distinct.
     for (const k of m.key) {
         const c = BASE.activity.choices.find((y) => y.path === k.path) as AssembledActivity['choices'][number]
-        assert.equal(k.classAndLabel, `class ${c.sixClass}: ${SIX_CLASSES[c.sixClass - 1].slice(0, -1)}; ${EXPECTED_LABEL[k.path]}`, `${k.path}: the key's class and label are the report's`)
-        assert.ok(part2Block(k.path).includes(`; ${k.classAndLabel}`), `${k.path}: the same class and label in Part 2`)
-        assert.equal(k.route, c.howReached === 'READ_BY_CODE' ? 'read by code' : c.howReached === 'UNRESOLVED' ? 'no value entered (UNRESOLVED)' : 'entered', k.path)
+        assert.equal(k.classAndLabel, `category ${c.sixClass}: ${SIX_CLASSES[c.sixClass - 1].slice(0, -1)}; ${EXPECTED_LABEL[k.path]}`, `${k.path}: the key's category and label are the report's class and label`)
+        assert.ok(part2Block(k.path).includes(`; class ${k.classAndLabel.slice('category '.length)}`), `${k.path}: the same class and label in Part 2`)
+        assert.equal(k.route, c.howReached === 'READ_BY_CODE' ? 'read from knowledge' : c.howReached === 'UNRESOLVED' ? 'no value entered (UNRESOLVED)' : 'entered by hand', k.path)
     }
     assert.deepEqual([...new Set(m.key.map((k) => k.classAndLabel.split('; ').slice(1).join('; ')))].filter((l) => [L_UNRESOLVED, L_OURS, L_ILLUSTRATIVE].includes(l)).sort(), [L_ILLUSTRATIVE, L_UNRESOLVED].sort(), 'the key shows ILLUSTRATIVE and UNRESOLVED values apart (no OURS value is drawn)')
     // The unresolved position appears on the field only as the placeholder, never as a shape of its own.
