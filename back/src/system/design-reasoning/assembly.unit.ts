@@ -41,6 +41,7 @@ import {
     committedExperimentData,
     committedWordingData,
     composeCoachActivity,
+    decidingWords,
     Experiment,
     longDate,
     markerOf,
@@ -390,7 +391,9 @@ function testE_numbersAreBoundToTheirValues(): void {
         assert.ok(t.text.includes('{area.lengthM} m long'), `${t.id}: the length is named as the length`)
         assert.ok(t.text.includes('{area.widthM} m wide'), `${t.id}: the width is named as the width`)
     }
-    assert.ok(BASE.wording.templates.some((x) => x.text.includes('the length runs between the target zones')), 'the Overview states which side runs between the target zones')
+    // The Overview states the orientation without reading as the distance between the zones: the length runs from end to end, zones included.
+    assert.ok(BASE.wording.templates.some((x) => x.section === 'OV-PARAMETERS' && x.text.includes('{area.lengthM} m long from end to end, including both target zones, by {area.widthM} m wide')), 'the Overview states which side runs from end to end')
+    assert.ok(!BASE.wording.templates.some((x) => x.text.includes('the length runs between the target zones')), 'no template reads as 40 m between the target zones')
 }
 
 /** Specialized roles the configuration names: none (no target player, no goalkeeper), so the role-ordering rule is vacuous here. */
@@ -475,12 +478,15 @@ function testF_noPrescriptionAndQuotesAreVerbatim(): void {
     assert.deepEqual(forbiddenTermViolations(sentences()), [])
     assert.deepEqual(forbiddenTermViolations([{ id: 'ru-access', text: 'Any player may enter either end zone at any time.' }]), ['ru-access: end zone'], 'bite')
     assert.deepEqual(forbiddenTermViolations([{ id: 'ru-laws', text: 'Shots at goal are not allowed.' }]), ['ru-laws: goal'], 'bite: goals')
-    // The scoring sentence is an abbreviated presentation derived from the approved scoring-event description (RC3 6.1, second status):
-    // its status says so, it is locked to that cell by whenValue, and it carries every part of the cell's meaning in coach terms.
+    // The scoring sentence is newly proposed wording derived from the approved scoring-event description (RC3 6.1, third status; RC3 6.2
+    // keeps abbreviations to the Overview, so Coach Details carries no sentence labelled an abbreviation): it is locked to that cell by
+    // whenValue, and it carries every part of the cell's meaning in coach terms. The record's note on scoring.means says it is derived.
     const k = committedKnowledge()
     const vocab = k.contexts.controlled_vocabulary.find((r) => cell(r, 'vocabulary') === 'scoring_event' && cell(r, 'value') === 'target_zone_entered')
     const template = BASE.wording.templates.find((t) => t.id === 'sc-event')
-    assert.equal(template?.status, 'ABBREVIATED FROM APPROVED WORDING')
+    assert.equal(template?.status, 'NEWLY PROPOSED')
+    assert.ok(!BASE.wording.templates.some((t) => t.status === 'ABBREVIATED FROM APPROVED WORDING' && BASE.wording.sections.find((s) => s.id === t.section)?.level === 'Coach Details'), 'RC3 6.2: no abbreviation in Coach Details')
+    assert.ok(REPORT_TEXT.includes('The Coach Details scoring sentence is newly proposed wording derived from this description'), 'the derivation is printed')
     assert.equal(template?.whenValue?.['scoring.means'], cell(vocab, 'description'))
     assert.equal(sentences().find((s) => s.id === 'sc-event')?.text, 'A team scores a point when one of its players dribbles into the target zone it attacks, or receives and controls the ball inside it.')
     // The approved description itself stays printed verbatim in Part 2.
@@ -660,6 +666,21 @@ function testK_displayTextsEqualTheirCells(): void {
     }
     assert.equal(BASE.display.goalName.text, raw('planning', 'learning_goals').find((r) => r.ID === 'A05')?.['Learning Goal'])
     throwsWith(() => displayCell(k, { source: 'planning', table: 'learning_goals', row: 'A05', column: 'Choose This When...' }), 'a cell outside the allowlist')
+    // Each requirement the account cites, as its statement cell holds it (an identity rule's statement, a property's text), one per cited
+    // requirement, printed beside every account line that cites it.
+    const STATEMENT: Record<string, [string, string]> = { identity_rules: ['identity_rule_id', 'identity_statement'], properties: ['property_id', 'property_text'] }
+    assert.deepEqual(Object.keys(BASE.display.statements).sort(), [...new Set(BASE.experiment.requirementAccount.map((a) => `${a.requirementRef.table} ${a.requirementRef.row}`))].sort())
+    for (const [key, s] of Object.entries(BASE.display.statements)) {
+        const [table, row] = key.split(' ')
+        assert.equal(s.text, raw('contexts', table).find((r) => r[STATEMENT[table][0]] === row)?.[STATEMENT[table][1]], key)
+    }
+    for (const l of BASE.account.lines) {
+        const s = BASE.display.statements[`${l.requirementRef.table} ${l.requirementRef.row}`]
+        assert.ok(REPORT_TEXT.includes(`    ${l.id} ${l.requirementRef.table} ${l.requirementRef.row} (`), l.id)
+        const after = REPORT_TEXT.split(`    ${l.id} ${l.requirementRef.table} ${l.requirementRef.row} (`)[1].split('\n')[1]
+        assert.equal(after, `      requirement (${l.requirementRef.row} ${STATEMENT[l.requirementRef.table][1]}): "${s.text}"`, `${l.id}: its requirement is printed on the next line`)
+    }
+    assert.ok(REPORT_TEXT.includes('requirement (RPC-ID-013 identity_statement): "Possession alone is insufficient as success."'))
     // The readers this experiment added agree with the context library's own loader, for every context (C4-11).
     const byId = (a: string, b: string) => a.localeCompare(b, 'en', { numeric: true })
     assert.ok(rpcLibrary.contexts().length >= 3)
@@ -680,7 +701,7 @@ function testK_displayTextsEqualTheirCells(): void {
  * (k2) No decision reads a display text (C4-05; the display reader's exemption argued from behaviour, not only from imports). Every cell on
  * the display allowlist is rewritten in a copy of the knowledge, the pipeline's deciding steps are re-run with the rewritten display texts,
  * and every decision is identical. Two guards compare display text with his words or an approved cell and can only REFUSE: the Game
- * Problems' names must be in his scope words, and the abbreviated scoring sentence is locked to the approved description. The full run
+ * Problems' names must be in his scope words, and the scoring sentence derived from it is locked to the approved description. The full run
  * therefore refuses with the rewritten texts, for those two reasons only.
  */
 function decisionsOf(k: DesignKnowledge): unknown {
@@ -814,6 +835,12 @@ function testL_sixClasses(): void {
     assert.equal(sixClassOf([{ standing: 'APPROVED' }], null, 'LOGICAL INFERENCE'), 6, 'a logical inference resting on approved rows is never class 1')
     throwsWith(() => sixClassOf([{ standing: 'Ruling' as Standing }]), 'an unknown standing')
     assert.equal(SIX_CLASSES.length, 6)
+    // His six classes are filed as his words (received 5 November 2026), and cited where they are printed (recheck S10).
+    const classesEntry = BASE.experiment.rulings.find((r) => r.id === BASE.experiment.reportRefs.sixClasses.rulingRef)
+    assert.deepEqual(classesEntry?.words.slice(1), [...SIX_CLASSES], 'his six classes are filed verbatim, in his order')
+    assert.equal(classesEntry?.received, '2026-11-05')
+    assert.ok(REPORT_TEXT.includes(`His six classes, in his order (his words, ${classesEntry?.id}, received 5 November 2026): ${SIX_CLASSES.map((c, i) => `${i + 1} "${c}"`).join(' / ')}`))
+    assert.ok(REPORT_TEXT.includes(`- His six classes (his words, ${classesEntry?.id}, received 5 November 2026; printed in full in Part 2) over the `))
     const at = (p: string) => BASE.activity.choices.find((c) => c.path === p)
     for (const c of BASE.activity.choices.filter((x) => x.howReached === 'UNRESOLVED')) assert.equal(c.sixClass, 6, c.path)
     assert.equal(at('gameProblems.candidate')?.sixClass, 3, 'Gain Access')
@@ -935,6 +962,14 @@ function testM_validatorBites(): void {
     plant((x) => (x.rulings.find((r: Raw) => r.id === 'ASM-9OCT-TEAMS').received = '2026-02-30'), 'received 2026-02-30')
     plant((x) => (x.rulings.find((r: Raw) => r.id === 'ASM-9OCT-TEAMS').received = '2026-11-31'), 'received 2026-11-31')
     plant((x) => (x.rulings.find((r: Raw) => r.id === 'ASM-9OCT-TEAMS').received = '2026-1-09'), 'received 2026-1-09')
+    // The values an entry's scope words are said of name values of the record, and need a scope (recheck S1).
+    plant((x) => (x.rulings.find((r: Raw) => r.id === 'ASM-28OCT-PROVISIONAL').scopePaths = ['rules.offsides']), 'scopePaths naming no value')
+    plant((x) => (x.rulings.find((r: Raw) => r.id === 'ASM-9OCT-TEAMS').scopePaths = ['teams.count']), 'scopePaths without a scope')
+    plant((x) => (x.rulings.find((r: Raw) => r.id === 'ASM-28OCT-PROVISIONAL').scopePaths = []), 'scopePaths empty')
+    // His six classes as the code prints them are his words in the registry entry the report cites (recheck S10).
+    plant((x) => (x.reportRefs.sixClasses.rulingRef = 'ASM-AUTH-PARTS'), 'the six classes cited to an entry that does not hold them')
+    plant((x) => (x.rulings.find((r: Raw) => r.id === 'ASM-AUTH-CLASSES').words[3] = 'Candidate knowledge.'), 'one of his classes reworded in the registry')
+    plant((x) => delete x.reportRefs.sixClasses, 'the six classes not cited')
     // The wording's own levels (C2-03).
     const plantW = (change: (w: Raw) => void, label: string) => {
         const w = rawW()
@@ -949,7 +984,9 @@ function testM_validatorBites(): void {
     validateExperiment(rawX())
     // His provisional flag follows his words (C3-20): an entry whose words call something provisional is filed provisional, unless pinned
     // here with the reason its words do not make the decision itself provisional.
-    const NOT_PROVISIONAL_DESPITE_THE_WORD: Record<string, string> = {}
+    const NOT_PROVISIONAL_DESPITE_THE_WORD: Record<string, string> = {
+        'ASM-AUTH-CLASSES': 'the word names his third class ("Candidate or provisional knowledge."); the entry lists his six classes and decides nothing provisionally',
+    }
     for (const r of BASE.experiment.rulings) {
         const says = r.words.some((w) => /\bprovisional(ly)?\b/i.test(w))
         if (says && !NOT_PROVISIONAL_DESPITE_THE_WORD[r.id]) assert.equal(r.provisional, true, `${r.id}: his words say provisional`)
@@ -961,14 +998,18 @@ function testM_validatorBites(): void {
     assert.ok(REPORT_TEXT.includes(`${BASE.experiment.rulings.length} entries of his words, verbatim (`))
 }
 
-/** Every value a decisive ruling or approved cell states: the value, and the word (or number) its evidence must contain. */
-const EXPECTED_VALUE_EVIDENCE: Record<string, { value: ChoiceValue; term: string; states?: number }> = {
-    purpose: { value: null, term: 'coach-facing definition' },
+/**
+ * Every value a decisive ruling or approved cell states: the value, and the words (or number) its stating evidence must contain. For a value
+ * the code reads from a cell (`selects`), the cell states the value and his ruling selects what the code reads: the stating words must be in
+ * the cell's evidence, and the selecting words in a decisive ruling's (recheck M1 and S8).
+ */
+const EXPECTED_VALUE_EVIDENCE: Record<string, { value: ChoiceValue; term: string; states?: number; selects?: string }> = {
+    purpose: { value: null, term: 'Improve attacking conditions while maintaining purposeful possession.', selects: "the Learning Goal's coach-facing definition" },
     'teams.count': { value: 2, term: 'Two opposing teams', states: 2 },
     'teams.equalOutfield': { value: 'EQUAL', term: 'equal outfield counts' },
     directions: { value: 'EACH_ATTACKS_ONE_DEFENDS_THE_OTHER_ALL_GAME', term: 'attacks one direction and defends the opposite' },
     'scoring.event': { value: 'target_zone_entered', term: 'Controlled arrival in an appropriately positioned advanced end zone' },
-    'scoring.means': { value: null, term: 'receives and controls the ball inside it' },
+    'scoring.means': { value: null, term: 'A player dribbles into a marked zone, or receives and controls the ball inside it.', selects: 'Controlled arrival in an appropriately positioned advanced end zone' },
     'scoring.qualifyingCondition.sep13Text': { value: 'The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.', term: '—for example,' },
     'scoring.afterRegain': { value: 'COUNTS', term: 'should count' },
     'opposition.reciprocal': { value: 'RECIPROCAL', term: 'Reciprocal objectives' },
@@ -980,18 +1021,23 @@ const EXPECTED_VALUE_EVIDENCE: Record<string, { value: ChoiceValue; term: string
     'rules.fouls': { value: 'LAWS_FREE_KICKS', term: 'fouls' },
     'rules.handling': { value: 'LAWS_HANDLING_UNCHANGED', term: 'normal Laws of the Game should apply by default' },
     'laws.default': { value: 'APPLY', term: 'normal Laws of the Game should apply by default' },
-    'observation.categories': { value: 'HIS_THREE_CATEGORIES', term: 'Observation criteria' },
+    'observation.categories': { value: 'HIS_THREE_CATEGORIES', term: 'Against Organized Opposition, During Transition, and Uncertain' },
 }
 const decisiveStating = (d: { rulingRef?: string; knowledgeRef?: unknown; standing: Standing }) => (Boolean(d.rulingRef) || Boolean(d.knowledgeRef)) && (d.standing === 'RULING' || d.standing === 'APPROVED')
-const valueEvidenceViolations = (choices: Array<Pick<Choice, 'path' | 'value' | 'decidedBy'>>): string[] => {
+const valueEvidenceViolations = (choices: Array<Pick<Choice, 'path' | 'value' | 'decidedBy' | 'howReached'>>): string[] => {
     const out: string[] = []
     const stated = choices.filter((c) => c.decidedBy.some(decisiveStating)).map((c) => c.path)
     for (const p of stated) if (!EXPECTED_VALUE_EVIDENCE[p]) out.push(`${p}: a value stated by a decisive ruling or cell, with no pinned evidence`)
     for (const p of Object.keys(EXPECTED_VALUE_EVIDENCE)) if (!stated.includes(p)) out.push(`${p}: pinned, but no decisive ruling or cell states it`)
     for (const c of choices.filter((y) => EXPECTED_VALUE_EVIDENCE[y.path])) {
         const e = EXPECTED_VALUE_EVIDENCE[c.path]
+        const stating = c.decidedBy.filter(decisiveStating)
         if (json(c.value) !== json(e.value)) out.push(`${c.path}: value ${json(c.value)}, but its evidence states ${e.states ?? json(e.value)}`)
-        if (!c.decidedBy.filter(decisiveStating).some((d) => (d.valueEvidence ?? '').includes(e.term))) out.push(`${c.path}: no decisive evidence contains "${e.term}"`)
+        // A value read from a cell is stated by the cell, never by the ruling that selects it.
+        const statingItems = e.selects ? stating.filter((d) => d.knowledgeRef) : stating
+        if (!statingItems.some((d) => (d.valueEvidence ?? '').includes(e.term))) out.push(`${c.path}: no decisive evidence ${e.selects ? 'from the cell ' : ''}contains "${e.term}"`)
+        if (e.selects && !stating.some((d) => d.rulingRef && (d.valueEvidence ?? '').includes(e.selects as string))) out.push(`${c.path}: no decisive ruling selects "${e.selects}"`)
+        if (c.howReached === 'READ_BY_CODE' && stating.some((d) => d.rulingRef) && !e.selects) out.push(`${c.path}: read by code and decided by a ruling, with no pinned selecting words`)
     }
     return out
 }
@@ -1022,6 +1068,32 @@ function testN_valueEvidence(): void {
     const reworded = rawX()
     reworded.choices.find((c: Raw) => c.path === 'rules.offside').decidedBy.forEach((d: Raw) => (d.valueEvidence = 'Offside: as in the normal Laws.'))
     assert.ok(valueEvidenceViolations(reworded.choices).some((v) => v.startsWith('rules.offside: no decisive evidence contains')))
+    // Bites (recheck S8): the ruling that selects the purpose's source re-pointed at other words of his fails; so does the categories'
+    // evidence put back to words that name no category.
+    const selecting = rawX()
+    selecting.choices.find((c: Raw) => c.path === 'purpose').decidedBy[0].valueEvidence = 'The system should not independently invent a learning purpose.'
+    assert.deepEqual(valueEvidenceViolations(selecting.choices), ['purpose: no decisive ruling selects "the Learning Goal\'s coach-facing definition"'])
+    const naming = rawX()
+    naming.choices.find((c: Raw) => c.path === 'observation.categories').decidedBy[1].valueEvidence = 'could help evaluate what actually occurs in the review prototype'
+    assert.deepEqual(valueEvidenceViolations(naming.choices), ['observation.categories: no decisive evidence contains "Against Organized Opposition, During Transition, and Uncertain"'])
+    // A value the code reads from a cell: his deciding words select what the code reads and the cell states the value; no Part 2 block or
+    // rationale line of such a value says his words state it (recheck M1).
+    const rationaleOf = (p: string) => rationaleLines(REPORT_TEXT).find((l) => l.trim().startsWith(`${p}:`)) as string
+    for (const c of x.choices.filter((y) => y.howReached === 'READ_BY_CODE')) {
+        assert.ok(!part2Block(c.path).includes('(states the value'), `${c.path}: Part 2 says his words state a value the code reads`)
+        assert.ok(!rationaleOf(c.path).includes('(states the value'), `${c.path}: the rationale says his words state a value the code reads`)
+        if (c.decidedBy.some((d) => d.rulingRef)) assert.ok(part2Block(c.path).includes('(selects what the code reads; the cell states the value; ') && rationaleOf(c.path).includes('(selects what the code reads; the cell states the value; '), c.path)
+    }
+    assert.deepEqual(x.choices.filter((y) => y.howReached === 'READ_BY_CODE' && y.decidedBy.some((d) => d.rulingRef)).map((y) => y.path), ['purpose', 'scoring.means'])
+    const someRuling = x.rulings.find((r) => r.id === 'ASM-21OCT-PURPOSE') as Experiment['rulings'][number]
+    assert.match(decidingWords(someRuling, 'w', 'RULING', { path: 'purpose', howReached: 'READ_BY_CODE' }), /\(selects what the code reads; the cell states the value; general, no scope stated\)$/, 'bite: read by code')
+    assert.match(decidingWords(someRuling, 'w', 'RULING', { path: 'purpose', howReached: 'ENTERED_EVIDENCED' }), /\(states the value; general, no scope stated\)$/, 'bite: entered')
+    // Scope words said of one value only are not printed as the scope of the other values the entry decides (recheck S1).
+    for (const p of ['scoring.event', 'scoring.means', 'opposition.reciprocal']) {
+        assert.ok(!part2Block(p).includes('scope INITIAL_SMALL_SIDED_REALIZATION'), `${p}: printed with the offside decision's scope`)
+        assert.ok(part2Block(p).includes('no scope stated for this decision (the entry\'s scope words, "for this initial small-sided realization", are said of rules.offside; OURS: the scope words cover the offside decision)'), p)
+    }
+    assert.ok(part2Block('rules.offside').includes('(states the value; scope INITIAL_SMALL_SIDED_REALIZATION: "for this initial small-sided realization"; OURS: the scope words cover the offside decision)'))
     // A value his words do not state is decided by us: an illustrative value by our choice, with his permission printed beside it; our
     // inference by our reading, with the words it reads printed beside it. No ruling of his is among what decided either.
     for (const c of x.choices.filter((y) => y.howReached === 'ENTERED_ILLUSTRATIVE')) {
@@ -1048,7 +1120,8 @@ function testN_valueEvidence(): void {
     for (const c of BASE.experiment.choices) {
         for (const d of c.decidedBy.filter((y) => y.rulingRef && BASE.experiment.rulings.find((r) => r.id === y.rulingRef)?.provisional)) {
             const r = BASE.experiment.rulings.find((y) => y.id === d.rulingRef) as Raw
-            assert.ok(part2Block(c.path).includes(`his provisional ruling, received ${Number(r.received.slice(8, 10))} `) && part2Block(c.path).includes(`: "${d.valueEvidence}" (states the value`), `${c.path} ${d.rulingRef}`)
+            const role = c.howReached === 'READ_BY_CODE' ? 'selects what the code reads' : 'states the value'
+            assert.ok(part2Block(c.path).includes(`his provisional ruling, received ${Number(r.received.slice(8, 10))} `) && part2Block(c.path).includes(`: "${d.valueEvidence}" (${role}`), `${c.path} ${d.rulingRef}`)
         }
     }
     for (const c of BASE.activity.choices.filter((y) => y.declaredStatus === 'RULING' && !y.allDecisiveRulingsProvisional)) assert.ok(!part2Block(c.path).includes('(his provisional ruling: class 3)'), c.path)
@@ -1474,6 +1547,9 @@ function testW_stage2Unchanged(): void {
  */
 const RULING_WORD_HASHES: Record<string, string> = {
     // Pinned 6 November 2026 after check-quotes.js --no-ban: 212 quotes and 12 terms PASS, 0 FAIL, 201 of 201 citations OK.
+    // ASM-AUTH-CLASSES (his six classes) pinned in the recheck the same day, after check-quotes.js --no-ban: 219 quotes and 12 terms PASS,
+    // 0 FAIL, 208 of 208 citations OK; no other entry's words changed.
+    'ASM-AUTH-CLASSES': 'ac2bfed3b44ed6ea56971667395abd478328848c2c727ed89eb5f7cc862c5ac5',
     'ASM-AUTH-PURPOSE': '4b8559f298f3d97813a7155e44734007503da084553adef5c48c0c4e44e664ac',
     'ASM-AUTH-RECONCILE': '491c62d856d0589b8ef5d84e283760c35b1a7101d044cbfb592097b67211967b',
     'ASM-AUTH-ILLUSTRATIVE': '62578996e752e44e87ed5ac3fecbf3de71d0956e052eb1bb18e0bbb3e1d1e653',

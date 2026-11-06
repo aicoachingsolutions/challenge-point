@@ -2,8 +2,9 @@
  * **Display texts for the assembly experiment, read from knowledge cells after the decisions** — presentation only (Christian's second reply
  * of 5 November 2026, the bounded assembly experiment). This is the one stage file that reads narrative cells, and it reads only the cells
  * on its allowlist: a Learning Goal's coach-facing definition (the learning purpose: his 21 October ruling names it the primary source) and
- * display name, a Game Problem's name, a Game Form's name, the context library's controlled-vocabulary description of a scoring event, and a
- * context property's text. Each text is returned with its citation, verbatim, for the coach text and the report; the assembly receives them
+ * display name, a Game Problem's name, a Game Form's name, the context library's controlled-vocabulary description of a scoring event, a
+ * context property's text, and a context identity rule's statement (the last two printed beside the requirement-account lines that cite
+ * them). Each text is returned with its citation, verbatim, for the coach text and the report; the assembly receives them
  * as an argument after every decision is made, so no decision reads them. A static test pins the allowlist and that only the runner and the
  * unit tests import this file. No goal, Game Problem, context, Game Form or row id appears here: the rows to read come from the record.
  */
@@ -22,7 +23,11 @@ export const DISPLAY_ALLOWLIST: ReadonlyArray<{ source: string; table: string; k
     { source: 'sportModule', table: 'game_forms', keyColumn: 'game_form_id', column: 'game_form_name' },
     { source: 'contexts', table: 'controlled_vocabulary', keyColumn: 'value', column: 'description' },
     { source: 'contexts', table: 'properties', keyColumn: 'property_id', column: 'property_text' },
+    { source: 'contexts', table: 'identity_rules', keyColumn: 'identity_rule_id', column: 'identity_statement' },
 ]
+
+/** The statement cell of each table a requirement-account line may cite (both on the allowlist above). */
+const STATEMENT_COLUMN: Record<string, string> = { properties: 'property_text', identity_rules: 'identity_statement' }
 
 const FILES: Record<string, string> = { planning: SOURCE.planning, gameProblems: SOURCE.gameProblems, sportModule: SOURCE.sportModule, contexts: SOURCE.contexts }
 
@@ -49,10 +54,19 @@ export function displayCell(k: DesignKnowledge, ref: KnowledgeRef): { text: stri
     return { text: raw, cite: { file: FILES[ref.source], table: ref.table, row: `${ref.row} ${String(ref.column)}` } }
 }
 
-/** Every display text the assembly needs: the cells its record reads, the names of the ids the computation returns, the goal's name. */
+/**
+ * Every display text the assembly needs: the cells its record reads, the names of the ids the computation returns, the goal's name, and the
+ * statement of each requirement the account cites.
+ */
 export function displayTextsFor(k: DesignKnowledge, experiment: Experiment, resolution: DesignResolution, forms: GameFormSelection, goalNameColumn: string): DisplayTexts {
     const cells: DisplayTexts['cells'] = {}
     const names: DisplayTexts['names'] = {}
+    const statements: DisplayTexts['statements'] = {}
+    for (const a of experiment.requirementAccount) {
+        const column = STATEMENT_COLUMN[a.requirementRef.table]
+        if (!column) throw new Error(`display reader: no statement cell for a requirement in ${a.requirementRef.table}`)
+        statements[`${a.requirementRef.table} ${a.requirementRef.row}`] = displayCell(k, { source: 'contexts', table: a.requirementRef.table, row: a.requirementRef.row, column })
+    }
     const gameProblemIds = new Set<string>([...resolution.gameProblems.primary, ...resolution.gameProblems.secondary])
     for (const c of experiment.choices) {
         if (c.readBy === 'DISPLAY_CELL') cells[c.path] = displayCell(k, c.knowledgeRef as KnowledgeRef)
@@ -65,5 +79,5 @@ export function displayTextsFor(k: DesignKnowledge, experiment: Experiment, reso
     for (const id of [...gameProblemIds].sort()) names[id] = displayCell(k, { source: 'gameProblems', table: 'gameProblems', row: id, column: 'Name' })
     for (const id of forms.compatible) names[id] = displayCell(k, { source: 'sportModule', table: 'game_forms', row: id, column: 'game_form_name' })
     const goalName = displayCell(k, { source: 'planning', table: 'learning_goals', row: experiment.learningGoalId, column: goalNameColumn })
-    return { cells, names, goalName }
+    return { cells, names, goalName, statements }
 }

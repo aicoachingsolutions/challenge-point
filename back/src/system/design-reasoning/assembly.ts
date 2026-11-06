@@ -131,6 +131,8 @@ export interface AssemblyRuling extends Ruling {
     kind: RulingKind
     /** His words made the item owner-authored canonical knowledge: a decisive item citing it may carry APPROVED. */
     establishesCanonicalKnowledge?: true
+    /** The values his scope words are said of, where the entry decides several and the scope words qualify only some (our reading). */
+    scopePaths?: string[]
 }
 
 export interface AccountEntry {
@@ -151,8 +153,8 @@ export interface AccountEntry {
 export type OpenDecisionClass = 'ASSEMBLY' | 'SCORING_FIDELITY_OR_PRODUCTION' | 'SUITABILITY' | 'NON_BLOCKING' | 'OUR_READING' | 'KNOWN_RISK'
 export const OPEN_DECISION_CLASSES: OpenDecisionClass[] = ['ASSEMBLY', 'SCORING_FIDELITY_OR_PRODUCTION', 'SUITABILITY', 'NON_BLOCKING', 'OUR_READING', 'KNOWN_RISK']
 
-export type ReportRefKey = 'experimentPurpose' | 'acceptance' | 'limits' | 'caveat' | 'futureFeedbackQuestion' | 'lawsPrinciple' | 'diagram'
-export const REPORT_REF_KEYS: ReportRefKey[] = ['experimentPurpose', 'acceptance', 'limits', 'caveat', 'futureFeedbackQuestion', 'lawsPrinciple', 'diagram']
+export type ReportRefKey = 'experimentPurpose' | 'acceptance' | 'limits' | 'caveat' | 'futureFeedbackQuestion' | 'lawsPrinciple' | 'diagram' | 'sixClasses'
+export const REPORT_REF_KEYS: ReportRefKey[] = ['experimentPurpose', 'acceptance', 'limits', 'caveat', 'futureFeedbackQuestion', 'lawsPrinciple', 'diagram', 'sixClasses']
 
 export type BindingKey = 'illustrativeForm' | 'scoringEvent' | 'scoringMeans' | 'teamCount' | 'playersPerTeam' | 'areaLength' | 'areaWidth' | 'targetZoneDepth' | 'targetZonePlacement'
 export const BINDING_KEYS: BindingKey[] = ['illustrativeForm', 'scoringEvent', 'scoringMeans', 'teamCount', 'playersPerTeam', 'areaLength', 'areaWidth', 'targetZoneDepth', 'targetZonePlacement']
@@ -383,7 +385,7 @@ const TOP_KEYS = [
     'accountCategories', 'accountStandards', 'accountOutsideCategories', 'requirementAccount', 'suitability', 'scenarios', 'reconciliations', 'openDecisions', 'reconciliation',
     'dependencies', 'secondGoalNeeds',
 ]
-const RULING_KEYS = ['id', 'decision', 'subject', 'scope', 'scopeWords', 'scopeCovers', 'kind', 'establishesCanonicalKnowledge', 'canonicalAmendment', 'words', 'supersedes', 'received', 'file', 'provisional']
+const RULING_KEYS = ['id', 'decision', 'subject', 'scope', 'scopeWords', 'scopeCovers', 'scopePaths', 'kind', 'establishesCanonicalKnowledge', 'canonicalAmendment', 'words', 'supersedes', 'received', 'file', 'provisional']
 const CHOICE_KEYS = ['path', 'value', 'valueIsEvidence', 'evidenceStates', 'declaredStatus', 'howReached', 'readBy', 'knowledgeRef', 'decidedBy', 'consulted', 'statusSetBy', 'permittedBy', 'readingOf', 'scopeSetBy', 'note']
 
 /**
@@ -419,7 +421,8 @@ export function validateExperiment(raw: unknown): Experiment {
         if (o.scope !== null) {
             if (!Array.isArray(o.scopeWords) || !o.scopeWords.length) fail(where, 'a scope needs his scope words')
             for (const w of o.scopeWords as string[]) if (!(o.words as string[]).some((x) => x.indexOf(w) >= 0)) fail(where, `scope words "${w}" are not in his words`)
-        } else if ('scopeWords' in o) fail(where, 'scope words without a scope')
+            if ('scopePaths' in o && (!isStringList(o.scopePaths) || !(o.scopePaths as string[]).length)) fail(where, 'scopePaths, when present, is a non-empty list of the values his scope words are said of')
+        } else if ('scopeWords' in o || 'scopePaths' in o) fail(where, 'scope words or scopePaths without a scope')
         rulings.set(o.id as string, o as unknown as AssemblyRuling)
     })
     const rulingOk = (where: string, id: unknown): AssemblyRuling => {
@@ -549,6 +552,7 @@ export function validateExperiment(raw: unknown): Experiment {
     const pathOk = (where: string, p: unknown) => {
         if (!isString(p) || !paths.has(p)) fail(where, `path ${JSON.stringify(p)} is not a choice`)
     }
+    for (const r of rulings.values()) for (const p of r.scopePaths ?? []) pathOk(`rulings (${r.id}).scopePaths`, p)
 
     // Top-level references.
     const gf = onlyKeys('gameForm', top.gameForm, ['illustrativeChoice', 'standing', 'rulingRefs', 'choicePath'], ['illustrativeChoice', 'standing', 'rulingRefs', 'choicePath'])
@@ -696,6 +700,9 @@ export function validateExperiment(raw: unknown): Experiment {
         if ('quote' in o) quoteOk(`reportRefs.${key}`, o.rulingRef, o.quote)
         else rulingOk(`reportRefs.${key}`, o.rulingRef)
     }
+    // His six classes, as this file prints them, are his words verbatim, filed in the registry entry the report cites for them.
+    const classes = rulingOk('reportRefs.sixClasses', (refs.sixClasses as { rulingRef: unknown }).rulingRef)
+    for (const c of SIX_CLASSES) if (!classes.words.some((w) => w === c)) fail('reportRefs.sixClasses', `his class "${c}" is not a word of ${classes.id}`)
     ;(top.reconciliations as unknown[]).forEach((r, i) => {
         const o = onlyKeys(`reconciliations[${i}]`, r, ['id', 'title', 'rulingRefs', 'showPaths', 'items', 'smallest'], ['id', 'title', 'rulingRefs', 'items'])
         ;(o.rulingRefs as unknown[]).forEach((x) => rulingOk(`reconciliations[${i}]`, x))
@@ -790,11 +797,15 @@ export function placeholdersWellFormed(at: string, text: string): void {
 // Assembly
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-/** Display text read from knowledge cells after the decisions (never by this file): by configuration path, and names by id. */
+/**
+ * Display text read from knowledge cells after the decisions (never by this file): by configuration path, names by id, and each requirement
+ * the account cites by "<table> <row>" (its statement cell, printed beside its account lines; no decision reads it).
+ */
 export interface DisplayTexts {
     cells: Record<string, { text: string; cite: Cite }>
     names: Record<string, { text: string; cite: Cite }>
     goalName: { text: string; cite: Cite }
+    statements: Record<string, { text: string; cite: Cite }>
 }
 
 export type AssembledValue = ChoiceValue | string[]
@@ -846,14 +857,27 @@ function rulingItem(r: AssemblyRuling, role: string, standing: Standing = 'RULIN
 }
 const refText = (k: KnowledgeRef): string => `${k.source} ${k.table} ${k.row}${k.column ? ` ${k.column}` : ''}`
 
-/** A ruling's scope as printed beside what it decides: his scope words, or that he stated none. */
-export const scopeText = (r: AssemblyRuling): string =>
-    r.scope ? `scope ${r.scope}: "${(r.scopeWords ?? []).join('"; "')}"${r.scopeCovers ? `; ${r.scopeCovers.slice(-1) === '.' ? r.scopeCovers.slice(0, -1) : r.scopeCovers}` : ''}` : 'general, no scope stated'
+/**
+ * A ruling's scope as printed beside the value it decides: his scope words, or that he stated none. Where the entry's scope words are said
+ * of other values only (scopePaths), the value printed has no scope stated, and the scope words are shown as said of those values.
+ */
+export const scopeText = (r: AssemblyRuling, path: string | null = null): string => {
+    const covers = r.scopeCovers ? `; ${r.scopeCovers.slice(-1) === '.' ? r.scopeCovers.slice(0, -1) : r.scopeCovers}` : ''
+    const words = `"${(r.scopeWords ?? []).join('"; "')}"`
+    if (!r.scope) return 'general, no scope stated'
+    if (path !== null && r.scopePaths && r.scopePaths.indexOf(path) < 0) return `no scope stated for this decision (the entry's scope words, ${words}, are said of ${r.scopePaths.join(', ')}${covers})`
+    return `scope ${r.scope}: ${words}${covers}`
+}
 
-/** How his words read when they decide a value: provisional, canonical, or a ruling; always with the received date and the words. */
-export function decidingWords(r: AssemblyRuling, evidence: string, standing: Standing): string {
+/**
+ * How his words read when they decide a value: provisional, canonical, or a ruling; always with the received date and the words. For a
+ * value the code reads from a knowledge cell, his words select what the code reads and the cell states the value; otherwise his words
+ * state the value (each such word pinned against the value in the unit test).
+ */
+export function decidingWords(r: AssemblyRuling, evidence: string, standing: Standing, c: { path: string; howReached: HowReached }): string {
     const who = standing === 'APPROVED' && r.establishesCanonicalKnowledge ? 'his ruling making it owner-authored canonical knowledge' : r.provisional ? 'his provisional ruling' : 'his ruling'
-    return `${who}, received ${longDate(r.received)}: "${evidence}" (states the value; ${scopeText(r)})`
+    const role = c.howReached === 'READ_BY_CODE' ? 'selects what the code reads; the cell states the value' : 'states the value'
+    return `${who}, received ${longDate(r.received)}: "${evidence}" (${role}; ${scopeText(r, c.path)})`
 }
 
 /** How his words read in a non-decisive role. */
@@ -1008,7 +1032,7 @@ export function assembleActivity(k: DesignKnowledge, resolution: DesignResolutio
             rendered = display.names[c.value].text
         }
         const recorded = c.decidedBy.map((d) => {
-            if (d.rulingRef) return rulingItem(byId.get(d.rulingRef) as AssemblyRuling, decidingWords(byId.get(d.rulingRef) as AssemblyRuling, d.valueEvidence as string, d.standing), d.standing)
+            if (d.rulingRef) return rulingItem(byId.get(d.rulingRef) as AssemblyRuling, decidingWords(byId.get(d.rulingRef) as AssemblyRuling, d.valueEvidence as string, d.standing, c), d.standing)
             if (d.knowledgeRef) return item(refText(d.knowledgeRef), d.standing, d.valueEvidence ? `the cell: "${d.valueEvidence}"` : 'the row')
             if (d.ref === 'ILLUSTRATIVE') return item('ILLUSTRATIVE', 'ILLUSTRATIVE', 'chosen by us: an illustrative value, which no authority gives')
             if (d.ref === 'OURS') return item('OURS', 'OURS', 'our own reading, which no authority gives as the value')
@@ -1145,6 +1169,12 @@ const BASIS_WORDS: Record<string, string> = {
     APPROVED_TRANSLATION: "read by the review pathway from the planning model's approved translation",
 }
 export const basisWords = (basis: string | null): string => (basis && BASIS_WORDS[basis]) || `resolved by the review pathway (basis ${String(basis)})`
+/** The same, short, for a list of what the code computed (so a designation read from his ruling is never listed as computed knowledge). */
+const BASIS_SHORT: Record<string, string> = {
+    SCOPED_RULING: "read from his scoped ruling by the resolution code, because the planning model's translation is unpopulated",
+    APPROVED_TRANSLATION: "read from the planning model's approved translation by the resolution code",
+}
+export const basisShort = (basis: string | null): string => (basis && BASIS_SHORT[basis]) || `read by the resolution code (basis ${String(basis)})`
 
 /** The labelled learning-design block shown beside the RC3 activity: the goal, the Game Problems and the Game Form, from the assembly. */
 export function designBlock(experiment: Experiment, activity: AssembledActivity, display: DisplayTexts, forms: GameFormSelection, basis: string | null): Array<{ text: string; expresses: string[]; marker: string }> {

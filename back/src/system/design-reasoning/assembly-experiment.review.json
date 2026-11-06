@@ -22,7 +22,8 @@
         "caveat": { "rulingRef": "ASM-REV1-KICKOFF", "quote": "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype, but do not promote it as a demonstrated method of restoring organized defensive relationships." },
         "futureFeedbackQuestion": { "rulingRef": "ASM-AUTH-COACH-QUESTION", "quote": "Are players becoming more capable of finding functional solutions as the game changes?" },
         "lawsPrinciple": { "rulingRef": "ASM-23OCT-LAWS", "quote": "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification." },
-        "diagram": { "rulingRef": "ASM-21OCT-PRESENTATION", "quote": "The immediate understanding of the activity: learning purpose, one-sentence game description, basic parameters, essential scoring objectives, and a simple diagram." }
+        "diagram": { "rulingRef": "ASM-21OCT-PRESENTATION", "quote": "The immediate understanding of the activity: learning purpose, one-sentence game description, basic parameters, essential scoring objectives, and a simple diagram." },
+        "sixClasses": { "rulingRef": "ASM-AUTH-CLASSES" }
     },
     "bindings": {
         "illustrativeForm": "gameForm.illustrativeChoice",
@@ -268,6 +269,26 @@
                 "Coach-facing instructions and appropriate observation guidance.",
                 "A clear explanation of the design rationale.",
                 "The activity should be complete enough that a coach could understand and run it."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "provisional": false
+        },
+        {
+            "id": "ASM-AUTH-CLASSES",
+            "decision": "His six classes for every material design choice (Deliverable B)",
+            "subject": "what each material design choice follows from, in his order; the report places every value in one of them",
+            "scope": null,
+            "kind": "RULING",
+            "canonicalAmendment": false,
+            "words": [
+                "For every material design choice, identify whether it follows from:",
+                "Approved canonical knowledge.",
+                "An explicit scoped ruling.",
+                "Candidate or provisional knowledge.",
+                "A stated test assumption.",
+                "An illustrative configuration choice.",
+                "An unsupported or unresolved relationship."
             ],
             "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
             "received": "2026-11-05",
@@ -642,6 +663,7 @@
             "scope": "INITIAL_SMALL_SIDED_REALIZATION",
             "scopeWords": ["for this initial small-sided realization"],
             "scopeCovers": "OURS: the scope words cover the offside decision.",
+            "scopePaths": ["rules.offside"],
             "kind": "RULING",
             "canonicalAmendment": false,
             "words": [
@@ -661,6 +683,7 @@
             "scope": "INITIAL_SMALL_SIDED_REALIZATION",
             "scopeWords": ["for this initial small-sided realization"],
             "scopeCovers": "OURS: the scope words cover the offside decision.",
+            "scopePaths": ["rules.offside"],
             "kind": "RULING",
             "canonicalAmendment": false,
             "words": [
@@ -680,6 +703,7 @@
             "scope": "INITIAL_REALIZATION",
             "scopeWords": ["for this initial realization"],
             "scopeCovers": "OURS: the scope words cover the offside decision; unlike his two other statements of it, they do not say small-sided.",
+            "scopePaths": ["rules.offside"],
             "kind": "RULING",
             "canonicalAmendment": false,
             "words": [
@@ -1358,7 +1382,7 @@
                 { "rulingRef": "ASM-30OCT-REGAIN", "standing": "RULING", "note": "an interception followed by an immediate controlled arrival counts: consistent with the vocabulary's \"receives and controls the ball inside it\"." }
             ],
             "statusSetBy": [],
-            "note": "The approved vocabulary's own description of the event, read by code; no narrowing to a received pass."
+            "note": "The approved vocabulary's own description of the event, read by code and printed here verbatim; no narrowing to a received pass. The Coach Details scoring sentence is newly proposed wording derived from this description (RC3 6.1, third status: newly proposed language awaiting approval); it is not labelled an abbreviation, because RC3 6.2 keeps abbreviations to the Overview."
         },
         {
             "path": "scoring.qualifyingCondition.workbookText",
@@ -1576,7 +1600,7 @@
                 { "ref": "sport-profile-soccer.json LAW-13", "standing": "OURS", "note": "listed only so an activity can depart from it; nothing here departs." }
             ],
             "statusSetBy": [],
-            "note": "The Laws apply unchanged; no free kick is moved or altered."
+            "note": "The Laws apply unchanged; no free kick is moved or altered. The coach sentence on fouls is kept, although the sentence that the normal Laws apply covers it, because free kicks taken beside a target zone are a review point (Law 13 in the Laws account; Part 3)."
         },
         {
             "path": "rules.handling",
@@ -1641,7 +1665,7 @@
                 { "rulingRef": "ASM-REV1-COACH-SERVED-BALL", "standing": "RULING", "note": "his alternative when the ball leaves play (a coach-served ball, not a live turnover); offered to him as an option in the end-line question, not used here." }
             ],
             "statusSetBy": [],
-            "note": "Illustrative only, pending his confirmation. The team defending the target zone at that end restarts, so no restart is taken on the edge of the zone the restarting team attacks; no opponent distance or retreat rule is added."
+            "note": "Illustrative only, pending his confirmation. The team defending the target zone at that end restarts, so no restart is taken on the edge of the zone the restarting team attacks; no opponent distance or retreat rule is added, so an opponent standing in that zone who intercepts the restart and controls the ball there scores at once (a known risk, Part 3)."
         },
         {
             "path": "duration.blocks",
@@ -1733,7 +1757,7 @@
             "howReached": "ENTERED_EVIDENCED",
             "decidedBy": [
                 { "rulingRef": "ASM-30OCT-EVE-OBSERVATION", "standing": "RULING", "valueEvidence": "Observation criteria — Provisionally approved" },
-                { "rulingRef": "ASM-REV1-OBSERVATION", "standing": "RULING", "valueEvidence": "could help evaluate what actually occurs in the review prototype" }
+                { "rulingRef": "ASM-REV1-OBSERVATION", "standing": "RULING", "valueEvidence": "Our provisional A05 observation categories—Against Organized Opposition, During Transition, and Uncertain" }
             ],
             "consulted": [],
             "statusSetBy": [],
@@ -1772,7 +1796,7 @@
         { "lawId": "LAW-14", "status": "NOT APPLICABLE", "paths": ["laws.goalEnd"], "reason": "No goal stands at either end, so there is no penalty kick." },
         { "lawId": "LAW-13", "status": "APPLIES", "paths": ["rules.fouls"], "reason": "Free kicks as in the Laws; nothing departs from them. Review point (OURS): a free kick next to a target zone keeps the opponents 9.15 m from the ball, which can leave the zone empty for an immediate point; no rule is invented (listed in Part 3 as a known risk)." },
         { "lawId": "LAW-15", "status": "APPLIES", "paths": ["restart.touchline"], "reason": "Throw-ins as in the Laws; nothing departs from them. Review point (OURS): a throw-in beside a target zone, to a teammate standing in it, could give an immediate point, although the Laws allow no goal straight from a throw-in; no rule is invented (listed in Part 3 as a known risk)." },
-        { "lawId": "LAW-16", "status": "ADAPTATION OWED", "paths": ["laws.goalEnd", "restart.endLine.status", "restart.endLine.illustrativeValue"], "reason": "The goal kick restarts a ball over the end line but assumes a goal and its goal area; there is no goal here, so an adaptation is owed. The ILLUSTRATIVE end-line value stands in (the team defending the target zone at that end restarts from that end line), pending his confirmation." },
+        { "lawId": "LAW-16", "status": "ADAPTATION OWED", "paths": ["laws.goalEnd", "restart.endLine.status", "restart.endLine.illustrativeValue"], "reason": "The goal kick restarts a ball over the end line but assumes a goal and its goal area; there is no goal here, so an adaptation is owed. The ILLUSTRATIVE end-line value stands in (the team defending the target zone at that end restarts from that end line), pending his confirmation. Review point (OURS): the Laws keep opponents outside the penalty area until a goal kick is in play; nothing here does, and that end line is the back edge of the target zone the opponents attack, so an opponent standing in that zone who intercepts the restart and controls the ball there scores at once; no rule is invented (listed in Part 3 as a known risk)." },
         { "lawId": "LAW-17", "status": "ADAPTATION OWED", "paths": ["laws.goalEnd", "restart.endLine.status", "restart.endLine.illustrativeValue"], "reason": "The corner kick restarts a ball over the end line but assumes a goal with a corner area beside it; there is no goal here, so an adaptation is owed. A corner kick would also be taken inside a target zone, where a pass to a teammate could give an immediate point (review point, OURS). The same ILLUSTRATIVE end-line value stands in, pending his confirmation." },
         { "lawId": "LAW-4-GK", "status": "NOT APPLICABLE", "paths": ["players.goalkeepers"], "reason": "There is no goalkeeper." }
     ],
@@ -1865,7 +1889,7 @@
         "addNothing": { "status": "UNVERIFIED", "statement": "Adding nothing is not shown to be knowledge-supported (K2 open), so suitability remains unverified.", "rulingRef": "ASM-REV1-ADD-NOTHING", "quote": "Where the knowledge doesn't support that conclusion, the system should report that suitability remains unverified." },
         "reviewPoints": [
             { "id": "RISK-WAITING", "statement": "Attackers may wait inside the target zone for a pass: a risk he has seen in similar games (said of the build-out activity, 15 October). Applying it here is ours (OURS: CAUSAL HYPOTHESIS). No mechanism is imposed, as his words ask; it bears on meaningful opposition and on multiple functional solutions, and is visible only in play.", "rulingRefs": ["ASM-15OCT-WAITING"] },
-            { "id": "RISK-RESTART-AT-A-ZONE", "statement": "A restart taken beside or inside a target zone could give an immediate point: a throw-in to a teammate standing in the zone; a free kick next to it, which keeps the opponents 9.15 m from the ball; a corner kick, were one taken. The Laws apply unchanged and no rule is invented; the end-line value keeps every end-line restart on the restarting team's own end line. Visible only in play.", "rulingRefs": ["ASM-23OCT-LAWS"] }
+            { "id": "RISK-RESTART-AT-A-ZONE", "statement": "A restart taken beside or inside a target zone could give an immediate point: a throw-in to a teammate standing in the zone; a free kick next to it, which keeps the opponents 9.15 m from the ball; a corner kick, were one taken. The Laws apply unchanged and no rule is invented; the end-line value has the team defending a target zone restart from its own end line, on the back edge of the zone its opponents attack; with no opponent distance added, an opponent standing in that zone who intercepts the restart and controls the ball there scores at once. Visible only in play.", "rulingRefs": ["ASM-23OCT-LAWS"] }
         ]
     },
     "scenarios": {
@@ -1971,14 +1995,14 @@
         { "id": "AOD-TRANSLATION-SCOPE", "blocks": "SCORING_FIDELITY_OR_PRODUCTION", "question": "What is the production scope of the A05 Game Problem translation (section 8.1)?", "rulingRefs": ["ASM-AUTH-GP-SCOPE"], "handling": "The experiment uses the scoped designation; the smallest decision we see is (a), with (b) and (c) set out in Part 6." },
         { "id": "AOD-K2-SUFFICIENCY", "blocks": "SUITABILITY", "question": "On what knowledge basis could adding nothing to the Game Form be shown sufficient (K2)?", "rulingRefs": ["ASM-REV1-ADD-NOTHING"], "handling": "Suitability is reported UNVERIFIED." },
         { "id": "AOD-CREATE-SPACE-RELATIONSHIP", "blocks": "SUITABILITY", "question": "Which approved environmental relationship would support Create Space in Attack Development?", "rulingRefs": ["ASM-REV1-ADD-NOTHING"], "handling": "None is approved; no element-to-affordance relationship is created." },
-        { "id": "AOD-T3-END-LINE", "blocks": "NON_BLOCKING", "question": "May the illustrative end-line restart stand in this offline example? With it, when the ball goes over an end line, the team defending the target zone at that end restarts from that end line, so no restart is taken on the edge of the zone the restarting team attacks (a departure the Laws do not supply: their goal kick and corner kick assume a goal). Or would you prefer a coach-served ball there (\"a coach quickly serving a new ball can be an effective way to maintain game flow, energy, and the frequency of meaningful opportunities\"), not treated as a live turnover?", "rulingRefs": ["ASM-AUTH-ILLUSTRATIVE", "ASM-23OCT-LAWS", "ASM-REV1-COACH-SERVED-BALL"], "handling": "Labelled ILLUSTRATIVE, marked in the review copy; confirmation asked." },
-        { "id": "AOD-PROVISIONAL-CLASS", "blocks": "NON_BLOCKING", "question": "We placed your provisional rulings in class 3 ('Candidate or provisional knowledge.'). Did you intend class 2?", "rulingRefs": [], "handling": "Class 3 printed, with your words and received date." },
+        { "id": "AOD-T3-END-LINE", "blocks": "NON_BLOCKING", "question": "May the illustrative end-line restart stand in this offline example? With it, when the ball goes over an end line, the team defending the target zone at that end restarts from that end line, so no restart is taken on the edge of the zone the restarting team attacks (a departure the Laws do not supply: their goal kick and corner kick assume a goal). With it, opponents may wait inside the target zone at that end, whose back edge is that end line, and score by intercepting the restart. Is that acceptable, or would you prefer a coach-served ball there (\"a coach quickly serving a new ball can be an effective way to maintain game flow, energy, and the frequency of meaningful opportunities\"), not treated as a live turnover?", "rulingRefs": ["ASM-AUTH-ILLUSTRATIVE", "ASM-23OCT-LAWS", "ASM-REV1-COACH-SERVED-BALL"], "handling": "Labelled ILLUSTRATIVE, marked in the review copy; confirmation asked." },
+        { "id": "AOD-PROVISIONAL-CLASS", "blocks": "NON_BLOCKING", "question": "We placed your provisional rulings in class 3 (\"Candidate or provisional knowledge.\"). Did you intend class 2? We also placed your rulings that state no scope in class 2 (\"An explicit scoped ruling.\"), with your scoped ones.", "rulingRefs": ["ASM-AUTH-CLASSES"], "handling": "Class 3 printed, with your words and received date; each ruling in class 2 prints its scope words, or that it states none." },
         { "id": "AOD-KICKOFF-DISTANCE", "blocks": "NON_BLOCKING", "question": "Optionally: should the kick-off keep the Laws' 9.15 m distance, or may it be relaxed? Your 29 October words: \"An adapted kick-off following a score seems reasonable for testing, provided it recreates useful playing relationships and doesn't unnecessarily interrupt the learning environment.\"", "rulingRefs": ["ASM-REV1-KICKOFF", "ASM-29OCT-ADAPTED-KICKOFF"], "handling": "Our reading of your 5 November \"ordinary kickoff\": the Laws kick-off unchanged, 9.15 m included." },
         { "id": "AOD-REQ-E1-REUSE", "blocks": "OUR_READING", "question": "The mismatch report stays a reusable reasoning requirement, applied only in this offline experiment; using it beyond that needs your authorization.", "rulingRefs": ["ASM-EVE-MISMATCH", "ASM-AUTH-BOUNDS"], "handling": "Read from your 4 November words (a reusable requirement) and your 5 November bounds (no broad Stage 2 implementation); dropped from the questions." },
         { "id": "AOD-COACH-QUESTION", "blocks": "OUR_READING", "question": "Your question for future coach feedback stays out of this activity's coach guidance, because you called it a future feedback direction.", "rulingRefs": ["ASM-AUTH-COACH-QUESTION"], "handling": "Kept out of the coach text; printed in Part 2 and Part 7; dropped from the questions." },
         { "id": "AOD-MIRRORED", "blocks": "OUR_READING", "question": "Both teams score in the same way: our reading of your reciprocal objectives and of each team having its own target; your words do not state it.", "rulingRefs": ["ASM-28OCT-PROVISIONAL", "ASM-9OCT-TEAMS"], "handling": "Printed in Scoring as its own sentence, class 6 (our reading)." },
         { "id": "AOD-WAITING-ATTACKERS", "blocks": "KNOWN_RISK", "question": "Attackers may wait inside the target zone for a pass, a risk you have seen in similar games (said of the build-out activity); applying it here is our causal hypothesis.", "rulingRefs": ["ASM-15OCT-WAITING"], "handling": "No mechanism is imposed, as your 15 October words ask; listed in Part 3 as a risk to review in play; kept out of the coach text." },
-        { "id": "AOD-RESTART-AT-A-ZONE", "blocks": "KNOWN_RISK", "question": "A restart taken beside or inside a target zone (a throw-in, a free kick, a corner kick were one taken) could give an immediate point.", "rulingRefs": ["ASM-23OCT-LAWS"], "handling": "The Laws apply unchanged and no rule is invented; the end-line value keeps every end-line restart on the restarting team's own end line; listed in Part 3 and the Laws account for review." }
+        { "id": "AOD-RESTART-AT-A-ZONE", "blocks": "KNOWN_RISK", "question": "A restart taken beside or inside a target zone (a throw-in, a free kick, a corner kick were one taken) could give an immediate point.", "rulingRefs": ["ASM-23OCT-LAWS"], "handling": "The Laws apply unchanged and no rule is invented; the end-line value has the team defending a target zone restart from its own end line, on the back edge of the zone its opponents attack; with no opponent distance added, an opponent standing in that zone who intercepts the restart and controls the ball there scores at once; listed in Part 3 and the Laws account for review." }
     ],
     "reconciliation": {
         "rulingRef": "ASM-AUTH-RECONCILE",
@@ -2018,6 +2042,7 @@
         "His scoring rulings for the goal's context, or the values left ILLUSTRATIVE or UNRESOLVED.",
         "The requirement account for the goal's context, the suitability entries and any scenarios, as data.",
         "Coach wording: a template is reused only where every value it is locked to (whenValue) is identical in the second goal's record; every value that differs needs its own template, and every template scoped to this goal or its context (counted below) needs rewriting.",
-        "Code, for a Game Form without target zones: a change to assembly.ts, which requires a target-zone depth and placement binding and computes the area figures by subtracting target zones (its only area formulas)."
+        "Code, for a Game Form without target zones: a change to assembly.ts, which requires a target-zone depth and placement binding and computes the area figures by subtracting target zones (its only area formulas).",
+        "Independent checks for the second record in the unit test: its expected classes, the value each decisive ruling states, phrases for every whenValue pair, number contexts, scenario expectations, Laws statuses and the mutation-loop lists, written apart from its record, plus the hashes of any newly filed words; today assembly.unit.ts pins all of these to this record (the GF2 contract mappings would carry over to another goal on GF2)."
     ]
 }

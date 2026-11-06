@@ -311,8 +311,10 @@ function testTheStageReadsNoNarrativeColumn(): void {
         for (const column of narrative) assert.ok(!code.includes(`'${column}'`) && !code.includes(`"${column}"`), `${path.basename(f)} reads the narrative column ${column}`)
     }
     const readerCode = stripComments(fs.readFileSync(DISPLAY_READER, 'utf8'))
-    assert.deepEqual(narrative.filter((column) => readerCode.includes(`'${column}'`) || readerCode.includes(`"${column}"`)).sort(), ['Coach Definition', 'Learning Goal', 'Name', 'description', 'game_form_name', 'property_text'], 'the display reader reads exactly its allowlisted narrative columns')
-    // The allowlist itself, exactly (a new display column, narrative or not, changes this list and must be argued here).
+    assert.deepEqual(narrative.filter((column) => readerCode.includes(`'${column}'`) || readerCode.includes(`"${column}"`)).sort(), ['Coach Definition', 'Learning Goal', 'Name', 'description', 'game_form_name', 'identity_statement', 'property_text'], 'the display reader reads exactly its allowlisted narrative columns')
+    // The allowlist itself, exactly (a new display column, narrative or not, changes this list and must be argued here). The identity rule's
+    // statement was added by the recheck of 6 November (S7): the requirement account prints each requirement as its cell states it, beside
+    // the account line, after the decisions; the account's categories, statuses and roles are read through the id-only readers, never this.
     assert.deepEqual(
         DISPLAY_ALLOWLIST.map((a) => `${a.source} ${a.table} ${a.keyColumn} ${a.column}`),
         [
@@ -322,6 +324,7 @@ function testTheStageReadsNoNarrativeColumn(): void {
             'sportModule game_forms game_form_id game_form_name',
             'contexts controlled_vocabulary value description',
             'contexts properties property_id property_text',
+            'contexts identity_rules identity_rule_id identity_statement',
         ],
         'the display reader\'s allowlist, exactly'
     )

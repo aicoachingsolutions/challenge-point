@@ -465,7 +465,7 @@
           {
             "ref": "ASM-21OCT-PURPOSE (received 21 October 2026)",
             "standing": "RULING",
-            "role": "his ruling, received 21 October 2026: \"My preference is to use the Learning Goal's coach-facing definition as the primary source.\" (states the value; general, no scope stated)",
+            "role": "his ruling, received 21 October 2026: \"My preference is to use the Learning Goal's coach-facing definition as the primary source.\" (selects what the code reads; the cell states the value; general, no scope stated)",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1730,7 +1730,7 @@
           {
             "ref": "ASM-28OCT-PROVISIONAL (received 28 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional ruling, received 28 October 2026: \"Scoring target: Controlled arrival in an appropriately positioned advanced end zone.\" (states the value; scope INITIAL_SMALL_SIDED_REALIZATION: \"for this initial small-sided realization\"; OURS: the scope words cover the offside decision)",
+            "role": "his provisional ruling, received 28 October 2026: \"Scoring target: Controlled arrival in an appropriately positioned advanced end zone.\" (states the value; no scope stated for this decision (the entry's scope words, \"for this initial small-sided realization\", are said of rules.offside; OURS: the scope words cover the offside decision))",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1790,7 +1790,7 @@
           {
             "ref": "ASM-29OCT-PROVISIONAL (received 29 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional ruling, received 29 October 2026: \"Scoring: Controlled arrival in an appropriately positioned advanced end zone.\" (states the value; scope INITIAL_SMALL_SIDED_REALIZATION: \"for this initial small-sided realization\"; OURS: the scope words cover the offside decision)",
+            "role": "his provisional ruling, received 29 October 2026: \"Scoring: Controlled arrival in an appropriately positioned advanced end zone.\" (selects what the code reads; the cell states the value; no scope stated for this decision (the entry's scope words, \"for this initial small-sided realization\", are said of rules.offside; OURS: the scope words cover the offside decision))",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -1817,7 +1817,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 3,
         "allDecisiveRulingsProvisional": true,
-        "note": "The approved vocabulary's own description of the event, read by code; no narrowing to a received pass."
+        "note": "The approved vocabulary's own description of the event, read by code and printed here verbatim; no narrowing to a received pass. The Coach Details scoring sentence is newly proposed wording derived from this description (RC3 6.1, third status: newly proposed language awaiting approval); it is not labelled an abbreviation, because RC3 6.2 keeps abbreviations to the Overview."
       },
       {
         "path": "scoring.qualifyingCondition.workbookText",
@@ -2087,7 +2087,7 @@
           {
             "ref": "ASM-29OCT-PROVISIONAL (received 29 October 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional ruling, received 29 October 2026: \"Opposition: Reciprocal objectives, meaningful defensive pressure, and continuous play through turnovers.\" (states the value; scope INITIAL_SMALL_SIDED_REALIZATION: \"for this initial small-sided realization\"; OURS: the scope words cover the offside decision)",
+            "role": "his provisional ruling, received 29 October 2026: \"Opposition: Reciprocal objectives, meaningful defensive pressure, and continuous play through turnovers.\" (states the value; no scope stated for this decision (the entry's scope words, \"for this initial small-sided realization\", are said of rules.offside; OURS: the scope words cover the offside decision))",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -2526,7 +2526,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 2,
         "allDecisiveRulingsProvisional": false,
-        "note": "The Laws apply unchanged; no free kick is moved or altered."
+        "note": "The Laws apply unchanged; no free kick is moved or altered. The coach sentence on fouls is kept, although the sentence that the normal Laws apply covers it, because free kicks taken beside a target zone are a review point (Law 13 in the Laws account; Part 3)."
       },
       {
         "path": "rules.handling",
@@ -2732,7 +2732,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 5,
         "allDecisiveRulingsProvisional": false,
-        "note": "Illustrative only, pending his confirmation. The team defending the target zone at that end restarts, so no restart is taken on the edge of the zone the restarting team attacks; no opponent distance or retreat rule is added."
+        "note": "Illustrative only, pending his confirmation. The team defending the target zone at that end restarts, so no restart is taken on the edge of the zone the restarting team attacks; no opponent distance or retreat rule is added, so an opponent standing in that zone who intercepts the restart and controls the ball there scores at once (a known risk, Part 3)."
       },
       {
         "path": "duration.blocks",
@@ -3023,7 +3023,7 @@
           {
             "ref": "ASM-REV1-OBSERVATION (received 5 November 2026; provisional)",
             "standing": "RULING",
-            "role": "his provisional ruling, received 5 November 2026: \"could help evaluate what actually occurs in the review prototype\" (states the value; scope REVIEW_PROTOTYPE: \"in the review prototype\")",
+            "role": "his provisional ruling, received 5 November 2026: \"Our provisional A05 observation categories—Against Organized Opposition, During Transition, and Uncertain\" (states the value; scope REVIEW_PROTOTYPE: \"in the review prototype\")",
             "cite": {
               "file": "back/src/system/design-reasoning/assembly-experiment.review.json",
               "table": "rulings",
@@ -3569,7 +3569,7 @@
           {
             "id": "ov-area",
             "section": "OV-PARAMETERS",
-            "text": "Area: 40 m long (the length runs between the target zones) by 30 m wide, including both target zones.",
+            "text": "Area: 40 m long from end to end, including both target zones, by 30 m wide.",
             "expresses": [
               "area.lengthM",
               "area.widthM",
@@ -3888,7 +3888,7 @@
               "scoring.event",
               "scoring.means"
             ],
-            "status": "ABBREVIATED FROM APPROVED WORDING",
+            "status": "NEWLY PROPOSED",
             "sixClass": 3,
             "marker": "[class 3: Candidate or provisional knowledge]",
             "quoted": false,
@@ -3923,6 +3923,22 @@
             "marker": "[class 3: Candidate or provisional knowledge; by value: scoring.afterRegain class 2, scoring.event class 3]",
             "quoted": false,
             "reviewOnly": false,
+            "scope": null
+          },
+          {
+            "id": "sc-restart-point",
+            "section": "CD-SCORING",
+            "text": "Whether a point counts when it comes straight from a throw-in, or from free kicks taken beside a target zone, is not yet decided; this example adds no rule about it.",
+            "expresses": [
+              "restart.touchline",
+              "rules.fouls",
+              "scoring.event"
+            ],
+            "status": "NEWLY PROPOSED",
+            "sixClass": 3,
+            "marker": "[class 3: Candidate or provisional knowledge; by value: restart.touchline class 2, rules.fouls class 2, scoring.event class 3] (review only: dropped from a coach copy)",
+            "quoted": false,
+            "reviewOnly": true,
             "scope": null
           },
           {
@@ -4748,7 +4764,7 @@
         "restart.endLine.status",
         "restart.endLine.illustrativeValue"
       ],
-      "reason": "The goal kick restarts a ball over the end line but assumes a goal and its goal area; there is no goal here, so an adaptation is owed. The ILLUSTRATIVE end-line value stands in (the team defending the target zone at that end restarts from that end line), pending his confirmation."
+      "reason": "The goal kick restarts a ball over the end line but assumes a goal and its goal area; there is no goal here, so an adaptation is owed. The ILLUSTRATIVE end-line value stands in (the team defending the target zone at that end restarts from that end line), pending his confirmation. Review point (OURS): the Laws keep opponents outside the penalty area until a goal kick is in play; nothing here does, and that end line is the back edge of the target zone the opponents attack, so an opponent standing in that zone who intercepts the restart and controls the ball there scores at once; no rule is invented (listed in Part 3 as a known risk)."
     },
     {
       "lawId": "LAW-17",
@@ -8649,7 +8665,7 @@
       },
       {
         "id": "RISK-RESTART-AT-A-ZONE",
-        "statement": "A restart taken beside or inside a target zone could give an immediate point: a throw-in to a teammate standing in the zone; a free kick next to it, which keeps the opponents 9.15 m from the ball; a corner kick, were one taken. The Laws apply unchanged and no rule is invented; the end-line value keeps every end-line restart on the restarting team's own end line. Visible only in play.",
+        "statement": "A restart taken beside or inside a target zone could give an immediate point: a throw-in to a teammate standing in the zone; a free kick next to it, which keeps the opponents 9.15 m from the ball; a corner kick, were one taken. The Laws apply unchanged and no rule is invented; the end-line value has the team defending a target zone restart from its own end line, on the back edge of the zone its opponents attack; with no opponent distance added, an opponent standing in that zone who intercepts the restart and controls the ball there scores at once. Visible only in play.",
         "rulingRefs": [
           "ASM-23OCT-LAWS"
         ]
@@ -9012,7 +9028,7 @@
     {
       "id": "AOD-T3-END-LINE",
       "blocks": "NON_BLOCKING",
-      "question": "May the illustrative end-line restart stand in this offline example? With it, when the ball goes over an end line, the team defending the target zone at that end restarts from that end line, so no restart is taken on the edge of the zone the restarting team attacks (a departure the Laws do not supply: their goal kick and corner kick assume a goal). Or would you prefer a coach-served ball there (\"a coach quickly serving a new ball can be an effective way to maintain game flow, energy, and the frequency of meaningful opportunities\"), not treated as a live turnover?",
+      "question": "May the illustrative end-line restart stand in this offline example? With it, when the ball goes over an end line, the team defending the target zone at that end restarts from that end line, so no restart is taken on the edge of the zone the restarting team attacks (a departure the Laws do not supply: their goal kick and corner kick assume a goal). With it, opponents may wait inside the target zone at that end, whose back edge is that end line, and score by intercepting the restart. Is that acceptable, or would you prefer a coach-served ball there (\"a coach quickly serving a new ball can be an effective way to maintain game flow, energy, and the frequency of meaningful opportunities\"), not treated as a live turnover?",
       "rulingRefs": [
         "ASM-AUTH-ILLUSTRATIVE",
         "ASM-23OCT-LAWS",
@@ -9023,9 +9039,11 @@
     {
       "id": "AOD-PROVISIONAL-CLASS",
       "blocks": "NON_BLOCKING",
-      "question": "We placed your provisional rulings in class 3 ('Candidate or provisional knowledge.'). Did you intend class 2?",
-      "rulingRefs": [],
-      "handling": "Class 3 printed, with your words and received date."
+      "question": "We placed your provisional rulings in class 3 (\"Candidate or provisional knowledge.\"). Did you intend class 2? We also placed your rulings that state no scope in class 2 (\"An explicit scoped ruling.\"), with your scoped ones.",
+      "rulingRefs": [
+        "ASM-AUTH-CLASSES"
+      ],
+      "handling": "Class 3 printed, with your words and received date; each ruling in class 2 prints its scope words, or that it states none."
     },
     {
       "id": "AOD-KICKOFF-DISTANCE",
@@ -9082,7 +9100,7 @@
       "rulingRefs": [
         "ASM-23OCT-LAWS"
       ],
-      "handling": "The Laws apply unchanged and no rule is invented; the end-line value keeps every end-line restart on the restarting team's own end line; listed in Part 3 and the Laws account for review."
+      "handling": "The Laws apply unchanged and no rule is invented; the end-line value has the team defending a target zone restart from its own end line, on the back edge of the zone its opponents attack; with no opponent distance added, an opponent standing in that zone who intercepts the restart and controls the ball there scores at once; listed in Part 3 and the Laws account for review."
     }
   ],
   "dependencies": [
@@ -9408,7 +9426,7 @@
         "howReached": "ENTERED_EVIDENCED",
         "mutatedTo": "SENTINEL_MUTATION",
         "outcome": "WHEN_VALUE_PINNED",
-        "reason": "template rs-touchline: whenValue restart.touchline = \"LAWS_THROW_IN\", but the assembled value is \"SENTINEL_MUTATION\""
+        "reason": "template sc-restart-point: whenValue restart.touchline = \"LAWS_THROW_IN\", but the assembled value is \"SENTINEL_MUTATION\""
       },
       {
         "path": "rules.fouls",
@@ -9549,5 +9567,6 @@
       "class": 6,
       "words": "An unsupported or unresolved relationship."
     }
-  ]
+  ],
+  "sixClassesFiledAs": "ASM-AUTH-CLASSES"
 }

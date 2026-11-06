@@ -34,6 +34,7 @@ import {
     AssembledActivity,
     AssembledChoice,
     AssemblyRuling,
+    basisShort,
     basisWords,
     Choice,
     ChoiceValue,
@@ -391,6 +392,11 @@ function traceLines(t: InfluenceTrace, indent: string): string[] {
 const itemLine = (label: string, i: TraceItem, indent: string) => `${indent}${label}: ${i.ref} [${standingLabel(i.standing)}] ${i.role}`
 const rulingsById = (x: Experiment) => new Map(x.rulings.map((r) => [r.id, r]))
 const choiceOf = (x: Experiment, p: string) => x.choices.find((c) => c.path === p) as Choice
+/** Where his six classes are filed: the registry entry holding his words for them, with its received date. */
+const classesSource = (x: Experiment): string => {
+    const r = rulingsById(x).get(x.reportRefs.sixClasses.rulingRef) as AssemblyRuling
+    return `his words, ${r.id}, received ${longDate(r.received)}`
+}
 
 /** A computed conclusion's weakest decisive standing and the class it gives (so "established by RULING" is never read as its standing). */
 function weakestOf(t: InfluenceTrace): string {
@@ -408,7 +414,7 @@ export function rationaleLine(run: AssemblyRun, c: AssembledChoice): string {
         parts.push(`Decided by: the Stage 1/2 computation (${own.length <= 4 ? own.map((i) => `${i.ref} [${i.standing}]`).join('; ') : `${own.length} trace items, in Part 2`})`)
     }
     for (const d of choice.decidedBy) {
-        if (d.rulingRef) parts.push(`Decided by: ${d.rulingRef}, ${decidingWords(byId.get(d.rulingRef) as AssemblyRuling, d.valueEvidence as string, d.standing)}`)
+        if (d.rulingRef) parts.push(`Decided by: ${d.rulingRef}, ${decidingWords(byId.get(d.rulingRef) as AssemblyRuling, d.valueEvidence as string, d.standing, choice)}`)
         else if (d.knowledgeRef) parts.push(`Decided by: ${d.knowledgeRef.source} ${d.knowledgeRef.table} ${d.knowledgeRef.row} [${d.standing}]${d.valueEvidence ? `: "${d.valueEvidence}"` : ''}`)
         else if (d.ref === 'ILLUSTRATIVE') parts.push('Chosen by us (ILLUSTRATIVE)')
         else if (d.ref === 'OURS') parts.push('Decided by our own reading (OURS)')
@@ -447,12 +453,14 @@ function frontAndParts(run: AssemblyRun, mutation: MutationLoop | null): string[
     L.push(`His question: ${ref('experimentPurpose')}; and earlier, his test: ${ref('acceptance')}`)
     L.push(`- The answer to that test is No: the activity was not constructed from reusable, authorized knowledge alone. The review pathway's code routed the goal to its context (${a.rpcId}) from the approved planning model; the Game Problems were ${basisWords(run.resolution.gameProblems.basis)}; it found ${run.forms.compatible.length} compatible Game Forms (${run.forms.compatible.join(', ')}) without ranking them; and it confirmed that the scoring event (${eventValue}) is one of the context's approved scoring events. It configured nothing: of the ${n} values the activity rests on, ${h.READ_BY_CODE} were read from knowledge by code and ${entered} were entered by hand in a labelled record written for this goal (${h.ENTERED_EVIDENCED} stated in his words, ${viaLaws} of them only through his ${longDate(lawsRuling.received)} principle that the Laws apply by default; ${h.ENTERED_ILLUSTRATIVE} illustrative; ${h.ENTERED_OUR_INFERENCE} our own readings); ${h.UNRESOLVED} are left unresolved, with no value. A second Learning Goal would need its own record (Part 7). Nothing here is evidence of ecological effectiveness.`)
     L.push(`- Recorded beside the activity but not part of it (${a.counts.nonActivity.length}): ${a.counts.nonActivity.join('; ')} (Part 2 gives each one's reason). The record holds ${a.counts.values} values in all.`)
-    L.push(`- COMPUTED (Part 2 prints each with its own influence trace): ${a.computed.map((c) => c.id).join('; ')}; and, counted separately, the structural conditions of each compatible form (Part 3).`)
-    L.push('- NOT COMPUTED: the architecture has no configuration step today (Steps 3-5 are held). The configuration is a labelled decision record we entered: each value is evidenced in his words, illustrative, our inference, or unresolved, and says so.')
+    // The Game Problems are listed with how they were read: from his scoped ruling where the planning model's translation is unpopulated.
+    const computedList = a.computed.map((c) => (c.trace === run.resolution.gameProblems.trace ? `${c.id} (${basisShort(run.resolution.gameProblems.basis)})` : c.id))
+    L.push(`- COMPUTED (Part 2 prints each with its own influence trace): ${computedList.join('; ')}; and, counted separately, the structural conditions of each compatible form (Part 3).`)
+    L.push(`- NOT COMPUTED: the architecture has no configuration step today (Steps 3-5 are held). The configuration is a labelled decision record we entered, which holds every value of the activity: each of its ${entered} entered values is evidenced in his words, illustrative, or our inference; each of its ${h.READ_BY_CODE} values read by code names the cell or the computation it is read from; each of its ${h.UNRESOLVED} unresolved values has no value; and each says which.`)
     L.push('- The coach text is a DRAFT template fill keyed to configuration paths: not the production renderer, and not approved wording.')
     L.push(`- How far the text follows the record: ${mutation ? `${mutationWords(mutation).front} (Part 5 lists each.)` : 'the mutation loop was not run for this report.'}`)
     L.push(`- How the ${n} activity values reached it: ${HOW_REACHED.map((key) => `${HOW_REACHED_LABEL[key]} ${h[key]}`).join('; ')}.`)
-    L.push(`- His six classes over the ${n} activity values: ${Object.entries(a.counts.classes).map(([c, k]) => `${c} ${k}`).join('; ')}.`)
+    L.push(`- His six classes (${classesSource(x)}; printed in full in Part 2) over the ${n} activity values: ${Object.entries(a.counts.classes).map(([c, k]) => `${c} ${k}`).join('; ')}.`)
     const class1 = activityChoices.filter((c) => c.sixClass === 1)
     const partlyApproved = activityChoices.filter((c) => c.sixClass > 1 && c.decidedBy.some((i) => i.standing === 'APPROVED'))
     L.push(`- Why class 1 is small: ${class1.length} value${class1.length === 1 ? '' : 's'} (${class1.map((c) => c.path).join(', ') || 'none'}). A value takes the weakest class of what decided it, so the ${partlyApproved.length} other values that rest partly on approved knowledge (an APPROVED item among what decided them) take a weaker class from a ruling, candidate data or our record beside it: ${partlyApproved.map((c) => `${c.path} (class ${c.sixClass})`).join(', ')}.`)
@@ -495,7 +503,7 @@ function activityPart(run: AssemblyRun): string[] {
     L.push(`Wording: ${wording.standing}`)
     L.push(`Wording keyed for: ${wording.keyedFor.gameForm} and the scoring event ${wording.keyedFor.scoringEvent}. ${wording.keyedFor.note}`)
     L.push(`Coach terms: "${wording.coachTerms.targetZone}" and "${wording.coachTerms.markedLine}" (${wording.coachTerms.source})`)
-    L.push('Markers: each sentence carries, in brackets, the weakest of his classes among the values it expresses (class 1 unmarked); where its values differ in class, each value\'s class is listed too. A sentence marked review only is a review disclosure, dropped from a coach copy. In a coach-facing copy every marker would be hidden from coaches (RC3 6.1); they are shown here for review. A sentence whose wording status is not newly proposed says so.')
+    L.push(`Markers: each sentence carries, in brackets, the weakest of his classes (${classesSource(x)}) among the values it expresses (class 1 unmarked); where its values differ in class, each value's class is listed too. A sentence marked review only is a review disclosure, dropped from a coach copy. In a coach-facing copy every marker would be hidden from coaches (RC3 6.1); they are shown here for review. A sentence whose wording status is not newly proposed says so.`)
     L.push('', 'LEARNING DESIGN (shown beside the RC3 activity; generated from the assembly, not from the wording file)')
     for (const d of run.design) L.push(`  ${d.text}${d.marker ? ` ${d.marker}` : ''}`)
     L.push('', 'WHY THIS DESIGN (our summary, from the record: each sentence carries the weakest class among the values it names; not evidence of ecological effectiveness)')
@@ -523,12 +531,13 @@ function tracePart(run: AssemblyRun): string[] {
     const { experiment: x, activity: a, account } = run
     const byId = rulingsById(x)
     const L: string[] = ['', '=== PART 2. Decision trace ===']
-    L.push('His six classes, in his order: ' + SIX_CLASSES.map((c, i) => `${i + 1} ${c}`).join(' / '))
-    L.push('A decision\'s class is the weakest, in his order, over everything that decided it and its declared status. His provisional rulings are placed in class 3 ("Candidate or provisional knowledge."), each printed with his words and received date; the code\'s own PROVISIONAL (his words given as an example) is printed HIS EXAMPLE WORDS and never decides anything. A value his words do not state is decided by our illustrative choice or our own reading, never by his words: the words that permit it, or that our reading reads, are printed beside it, and so are the words that set a computed value\'s scope.')
-    L.push('', 'His words, each filed once (with their kind; scope only where his words state one, quoted beside it; the file, with our filed copy where one exists):')
+    L.push(`His six classes, in his order (${classesSource(x)}): ${SIX_CLASSES.map((c, i) => `${i + 1} "${c}"`).join(' / ')}`)
+    L.push('A decision\'s class is the weakest, in his order, over everything that decided it and its declared status. His provisional rulings are placed in class 3 ("Candidate or provisional knowledge."), each printed with his words and received date; the code\'s own PROVISIONAL (his words given as an example) is printed HIS EXAMPLE WORDS and never decides anything. A value his words do not state is decided by our illustrative choice or our own reading, never by his words: the words that permit it, or that our reading reads, are printed beside it, and so are the words that set a computed value\'s scope. Where the code reads a value from a knowledge cell, his words that decide it select what the code reads, and the cell states the value.')
+    L.push(`Class 2 holds every ruling of his that is not provisional, scoped or general (our placement): his words name it "${SIX_CLASSES[1]}", and a ruling that states no scope is placed there too, its decided-by line saying 'general, no scope stated' (or, where the entry's scope words are said of another value, 'no scope stated for this decision').`)
+    L.push('', 'His words, each filed once (with their kind; scope only where his words state one, quoted beside it; the file, with our filed copy where one exists). The received date is the one that counts: our old filing dates, named beside some filed copies, ran ahead of the calendar, so some are later than this report.')
     for (const r of x.rulings) {
         const covers = r.scopeCovers ? `; ${r.scopeCovers.slice(-1) === '.' ? r.scopeCovers.slice(0, -1) : r.scopeCovers}` : ''
-        L.push(`  ${r.id} [${r.kind}]: ${r.decision} (${r.subject}). Received ${longDate(r.received)}${r.provisional ? '; provisional in his words' : ''}${r.establishesCanonicalKnowledge ? '; his words make the item owner-authored canonical knowledge' : ''}. File: ${r.file}. Scope: ${r.scope ?? 'none stated'}${r.scopeWords ? ` ("${r.scopeWords.join('"; "')}")` : ''}${covers}.`)
+        L.push(`  ${r.id} [${r.kind}]: ${r.decision} (${r.subject}). Received ${longDate(r.received)}${r.provisional ? '; provisional in his words' : ''}${r.establishesCanonicalKnowledge ? '; his words make the item owner-authored canonical knowledge' : ''}. File: ${r.file}. Scope: ${r.scope ?? 'none stated'}${r.scopeWords ? ` ("${r.scopeWords.join('"; "')}")` : ''}${r.scopePaths ? `, said of ${r.scopePaths.join(', ')} only` : ''}${covers}.`)
         for (const w of r.words) L.push(`    "${w}"`)
     }
     const parts = byId.get(x.requiredPartsRulingRef) as AssemblyRuling
@@ -565,12 +574,18 @@ function tracePart(run: AssemblyRun): string[] {
     L.push('', 'Not expressed in the coach activity, with the reason (pinned):')
     for (const e of x.exemptions) L.push(`  ${e.path}${e.nonActivity ? ' [not part of the activity]' : ''}: ${e.reason}`)
     const readingLabel = (r: string | null) => (r === 'FOR_EXAMPLE' ? 'the "for example" reading' : r === 'COLON' ? 'the colon reading' : `the ${String(r)} reading`)
-    L.push('', `Requirement account (his ruling of 29 October; each category placement is OURS; only active requirements are counted; categories 3 and 4 never count as satisfied, and categories 1 and 2 hold only where every cited value is present), under his three standards:`)
+    L.push('', `Requirement account (his ruling of 29 October; each category placement is OURS; only active requirements are counted; categories 3 and 4 never count as satisfied, and categories 1 and 2 hold only where every cited value is present), under his three standards; each line prints the requirement as its statement cell holds it, read after the decisions:`)
+    const statementOf = (l: AccountLine) => {
+        const s = run.display.statements[`${l.requirementRef.table} ${l.requirementRef.row}`]
+        if (!s) throw new Error(`${l.id}: no statement supplied for ${l.requirementRef.table} ${l.requirementRef.row}`)
+        return s
+    }
     for (const standard of x.accountStandards) {
         L.push(`  ${standard}:`)
         for (const l of account.lines.filter((y) => y.standard === standard)) {
             const counted = l.excluded ? ` (EXCLUDED: ${l.excluded})` : l.satisfied ? ' (counts as satisfied)' : ' (not counted as satisfied)'
             L.push(`    ${l.id} ${l.requirementRef.table} ${l.requirementRef.row} (${l.requirementRole}, ${l.requirementStatus})${l.clause ? ` clause "${l.clause}" under ${readingLabel(l.reading)}` : ''}: "${l.category}"${counted}`)
+            L.push(`      requirement (${statementOf(l).cite.row}): "${statementOf(l).text}"`)
             const conditions = l.observableConditions ? `; observable conditions: ${l.observableConditions} (${l.inCoachGuidance ? 'in the coach guidance (What to Watch)' : 'identified for review; not yet in the coach guidance'})` : ''
             L.push(`      values: ${l.paths.join(', ')}${conditions}${l.downgraded ? `; DOWNGRADED: ${l.downgraded}` : ''}`)
             L.push(`      note: ${l.note}`)
@@ -658,6 +673,7 @@ function reviewParts(run: AssemblyRun, regression: RegressionRecord | null, muta
     L.push('  The unit tests (assembly.unit.ts, in npm test) check, in plain words: every value reaches the coach text or the learning-design block, or is pinned as exempt with a reason; each number sits beside the word it counts (pinned per value), and a sentence\'s numbers come only from its values; a template written for one value (whenValue) refuses any other value, so the wording of those sentences is not checked by substitution: an independent phrase table in the test requires and forbids phrases for each value such a sentence is written for, and the keyword checks bind words to the values they concern; the scoring, direction and win sentences name the target zone and never a line; no scoring sentence makes keeping possession a condition; the What to Watch block says nothing about the starting condition; no coach sentence carries a status word or an unquoted quotation; no report line outside quotation marks makes an effect claim; no value his words do not state is printed as stated by him, and each value his words do state, with its class, is pinned in the test independently of the record; his words are verbatim in the record (their hashes pinned after the external quote check); the classes follow his order; the Laws (status per law) and contract items (load-bearing mappings and ranges) are all accounted for; the requirement account counts no unsupported, unresolved or observation-only component; no decision moves when the display texts are rewritten; Stage 2\'s evidence is byte-identical; two runs, and the committed evidence, are byte-identical. That the Game Problems are unchanged across the three scenarios holds by construction (the resolution takes no circumstance input); it is not a tested outcome.')
     if (mutation) L.push(...mutationWords(mutation).part5)
     else L.push('  Mutation loop: not run for this report.')
+    L.push('  What the runner alone does not refuse: the validator binds only numbers to the words his evidence uses for them. A non-numeric value his words state, changed in the record together with every whenValue that names it, is refused by the runner only where a structural check reads it (Part 5 above lists those); otherwise the runner prints it, and the unit test\'s phrase table (VALUE_PHRASES) and its table of each stated value (EXPECTED_VALUE_EVIDENCE) refuse it in npm test.')
     if (!regression) L.push('  Regression record: not supplied to this run.')
     else {
         L.push(`  Regression record (evidence/regression-record.json): ${regression.status}. ${regression.standing}`)
@@ -726,6 +742,7 @@ export function buildAssemblyReport(run: AssemblyRun, regression: RegressionReco
         regressionRecord: regression,
         mutationLoop: mutation,
         sixClasses: SIX_CLASSES.map((c, i) => ({ class: (i + 1) as SixClass, words: c })),
+        sixClassesFiledAs: run.experiment.reportRefs.sixClasses.rulingRef,
     }
     return { report: `${lines.join('\n')}\n`, results }
 }
