@@ -19,6 +19,10 @@
  *     classes (`sixClassOf`), each premise printed with its own standing and source; every sentence graded by the lines its from-paths join;
  *     the decision kinds A, B and C per line by our rule (`decisionKindOf`), for Christian's review; refusals, gaps, alternatives, illustrative
  *     values and TEST-ONLY treatments listed apart; and on every configuration the line `OPPORTUNITIES_NOT_ESTABLISHED`.
+ *   - Since S3b (DESIGN 3.6): a manipulation applied on a relationship is placed in the selection and every line it brings rests on that
+ *     relationship; a value proposed for a line is applied only as illustrative and never over a ruling's value; a TEST-ONLY Game Problem in the
+ *     record is reported as a mismatch, never switched; each refusal is read back to what it rests on (`RefusalBasis`); and `compareResults`
+ *     says exactly what changed between a case and a variant of it.
  *
  * WHAT IT IS NOT. Not a configuration step of the live engine, not served, not an authorization, not a selection input. It imports no
  * module of the checked chain: the chain arrives as an injected, structurally typed interface (`HandoffChain`), wired only by the unit test.
@@ -116,6 +120,33 @@ export interface ProposedManipulation {
     relationship?: { ref: string; label: 'TEST ASSUMPTION'; why: string }
 }
 
+/**
+ * A value proposed for a line (Tests B, Christian's reply of 7 November, section 11: "When knowledge is insufficient, the system identifies the
+ * missing relationship, retains alternatives where appropriate, and does not fabricate a selection."). It is applied only as an ILLUSTRATIVE
+ * supplied choice, and never over a line the case closes on a ruling of Christian's with a different value: that is reported as contrary to the
+ * ruling and the ruling's value stays. Whether the value is admissible is the chain's to say (its realizer refuses a value outside the line's
+ * alternatives, or a value for a line nothing established).
+ */
+export interface ProposedChoice {
+    id: string
+    lineId: string
+    value: unknown
+    why: string
+    rulingRefs: string[]
+}
+
+/**
+ * A Game Problem put into the TEST-ONLY record in place of Step 1's primary (Tests B): the record's gate requires one, and no line of the chain
+ * reads it. Step 1's resolution stands and is what the report names; the difference is reported, never switched (Christian's reply of 7 November,
+ * section 9: "with mismatch reporting rather than automatic switching").
+ */
+export interface GameProblemOverride {
+    id: string
+    label: 'TEST ASSUMPTION'
+    why: string
+    rulingRefs: string[]
+}
+
 export interface CaseInput {
     id: string
     basedOn?: string
@@ -154,6 +185,10 @@ export interface CaseInput {
     proposedManipulations: ProposedManipulation[]
     decisionKindOverrides: Array<{ path: string; kind: DecisionKind; contextual: boolean; rulingRefs: string[] }>
     notCarried: Array<{ id: string; what: string; rulingRefs: string[]; where: string; label: string }>
+    /** Optional (absent = none): values proposed for lines, each applied only as described at `ProposedChoice`. */
+    proposedChoices?: ProposedChoice[]
+    /** Optional (absent = none): a TEST-ONLY Game Problem for the record, as described at `GameProblemOverride`. */
+    gameProblemOverride?: GameProblemOverride | null
 }
 
 export interface GradingTables {
@@ -198,7 +233,7 @@ function citedRefs(c: Record<string, unknown>): string[] {
     return [...new Set(refs)]
 }
 
-const CASE_KEYS = ['id', 'basedOn', 'label', 'resultStanding', 'goalId', 'form', 'session', 'purpose', 'chain', 'record', 'realization', 'rulings', 'suppliedChoices', 'standIns', 'illustrative', 'testOnlyTreatments', 'proposedManipulations', 'decisionKindOverrides', 'notCarried']
+const CASE_KEYS = ['id', 'basedOn', 'label', 'resultStanding', 'goalId', 'form', 'session', 'purpose', 'chain', 'record', 'realization', 'rulings', 'suppliedChoices', 'standIns', 'illustrative', 'testOnlyTreatments', 'proposedManipulations', 'decisionKindOverrides', 'notCarried', 'proposedChoices', 'gameProblemOverride']
 const RULING_KEYS = ['id', 'words', 'file', 'received', 'replyOfDay', 'provisional', 'scope']
 
 /**
@@ -295,6 +330,24 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
         for (const o of Array.isArray(merged.decisionKindOverrides) ? (merged.decisionKindOverrides as unknown[]) : []) {
             if (!isObject(o) || !filled(o.path) || (DECISION_KINDS as readonly string[]).indexOf(String(o.kind)) < 0) errors.push(`${at}: a decision-kind override names a path and one of ${DECISION_KINDS.join(', ')}`)
         }
+        for (const m of Array.isArray(merged.proposedManipulations) ? (merged.proposedManipulations as unknown[]) : []) {
+            if (!isObject(m) || !filled(m.id) || !filled(m.purpose) || !filled(m.manipulation)) errors.push(`${at}: a proposed manipulation names its id, its purpose and the manipulation`)
+            else if (m.relationship !== undefined && (!isObject(m.relationship) || m.relationship.label !== 'TEST ASSUMPTION' || !filled(m.relationship.ref) || !filled(m.relationship.why))) errors.push(`${at}: manipulation ${m.id}: a relationship stand-in is labelled TEST ASSUMPTION and says its reference and why (never knowledge)`)
+        }
+        if (merged.proposedChoices !== undefined) {
+            if (!Array.isArray(merged.proposedChoices)) errors.push(`${at}: proposedChoices must be a list`)
+            else
+                for (const p of merged.proposedChoices as unknown[]) {
+                    if (!isObject(p) || !filled(p.id) || !filled(p.lineId) || p.value === undefined || !filled(p.why) || !Array.isArray(p.rulingRefs) || !p.rulingRefs.length) errors.push(`${at}: a proposed choice names its id, its line, its value, why, and the ruling that permits an illustrative value`)
+                    else for (const ref of p.rulingRefs as unknown[]) known(ref, `${at} proposed choice ${p.id}`)
+                }
+        }
+        if (merged.gameProblemOverride !== undefined && merged.gameProblemOverride !== null) {
+            const o = merged.gameProblemOverride
+            if (!isObject(o) || !filled(o.id) || o.label !== 'TEST ASSUMPTION' || !filled(o.why) || !Array.isArray(o.rulingRefs)) errors.push(`${at}: a Game Problem override names its id, is labelled TEST ASSUMPTION and says why`)
+            else for (const ref of o.rulingRefs as unknown[]) known(ref, `${at} Game Problem override`)
+            if (merged.chain && isObject(merged.chain) && merged.chain.records !== 'TEST_ONLY') errors.push(`${at}: a Game Problem override enters only a TEST-ONLY record`)
+        }
         for (const list of ['rulings', 'suppliedChoices', 'standIns', 'illustrative', 'testOnlyTreatments', 'proposedManipulations', 'decisionKindOverrides', 'notCarried']) {
             if (!Array.isArray(merged[list])) errors.push(`${at}: ${list} must be a list (an empty list says it holds none)`)
         }
@@ -364,6 +417,13 @@ export interface ChainRequest {
     withhold: Array<{ contractId: string; itemIds: string[]; treatmentId: string }>
     standIns: Array<{ contractId: string; item: Record<string, unknown> }>
     choices: Array<{ lineId: string; value: unknown; because: string }>
+    /**
+     * Manipulations the handoff applied (each on an authorized relationship, or in a test on a TEST-ONLY stand-in for one), placed in the
+     * selection explicitly, as the form is. The record's own authorized set is never widened by the handoff: measured, a record-backed pool
+     * holding a lone manipulation is refused at selection (no compatible combination; the form's other roles stay unfilled), so the record
+     * keeps what Christian ruled.
+     */
+    place: Array<{ id: string; manipulationId: string; relationshipRef: string }>
     supplement: boolean
     /** True where the case's realization declares REPORT: the harness then holds each owed law to the DRAFT materiality reading. */
     holdReportedLawsToMateriality: boolean
@@ -433,6 +493,10 @@ export interface ChainAnswer {
     laws: { mode: string | null; owed: string[]; reportedForReview: string[] } | null
     requirementAccount: { status: string; contract: string | null; components: Array<[string, string]> } | null
     diagram: { served: boolean; verdict: string | null; area: unknown; counts: unknown; legend: unknown; zones: unknown[]; findings: unknown[] } | null
+    /** Each manipulation the request placed, with the contracts the chain derived from for it (matched by the chain's own knowledge key). */
+    placed: Array<{ id: string; contractIds: string[] }>
+    /** The fidelity check's violations on the served text (0 for a served activity); null where the build stopped before communication. */
+    fidelityViolations: number | null
 }
 
 export interface HandoffChain {
@@ -595,6 +659,26 @@ export interface GradedSentence {
     otherLabels: string[]
 }
 
+/**
+ * What a refusal rests on, for Christian's second reply of 7 November, section 2 ("A check based solely on a candidate interpretation may
+ * conservatively refuse a configuration without establishing that the configuration violates approved knowledge."). OURS, computed from the
+ * refusal's own reasons: each line or element a reason cites is read back to the item that establishes its element, and that item's basis is
+ * printed; the verdict is RESTATEMENT-ONLY where every cited item is a restatement of ours (a restated contract item or a DRAFT store item) with
+ * no ruling of Christian's among them; MIXED where at least one cited item rests on a ruling of Christian's; NOT KNOWLEDGE where the refusal
+ * cites no item (a missing contract, a missing choices file, or an engine check, said which) or only an assumption of ours. It changes no check.
+ */
+export interface RefusalBasis {
+    stage: string
+    codes: string[]
+    /**
+     * Each line or element a reason cites, read back to the item that establishes its element (the line's own bound may come from another
+     * item, which this reading does not name), with that item's basis and its grading.
+     */
+    cited: Array<{ ref: string; contractId: string; itemId: string; basis: string; origin: string; premiseKind: PremiseKind; label: string; note: string | null }>
+    verdict: 'RESTATEMENT-ONLY' | 'MIXED' | 'NOT KNOWLEDGE'
+    why: string
+}
+
 export interface HandoffResult {
     caseId: string
     label: string
@@ -623,7 +707,8 @@ export interface HandoffResult {
         alternativesRetained: string[]
         stop: string | null
     }
-    manipulations: Array<{ id: string; purpose: string; manipulation: string; outcome: string; premise: Premise | null }>
+    manipulations: Array<{ id: string; purpose: string; manipulation: string; outcome: string; premise: Premise | null; placedContracts: string[] }>
+    proposedChoices: Array<{ id: string; lineId: string; value: unknown; applied: boolean; outcome: string }>
     chain: null | {
         outcome: string
         stage: string | null
@@ -632,8 +717,11 @@ export interface HandoffResult {
         scorerPick: string | null
         contextComparison: string
         gameProblemComparison: string
+        /** Where the case put a TEST-ONLY Game Problem into the record: the difference from Step 1, reported, never switched; else null. */
+        gameProblemOverride: string | null
         affordanceLenses: string
         constraints: string[]
+        fidelityViolations: number | null
     }
     lines: GradedLine[]
     sentences: GradedSentence[]
@@ -644,6 +732,8 @@ export interface HandoffResult {
     requirementAccount: ChainAnswer['requirementAccount']
     diagram: ChainAnswer['diagram']
     refusal: { stage: string; reasons: string[] } | null
+    /** What a refusal rests on (Christian's second reply of 7 November, section 2), computed by `refusalBasisOf`; null where nothing refused. */
+    refusalBasis: RefusalBasis | null
     gaps: string[]
     purpose: null | { sourceEvidence: string; approvalEvidence: string; rulingRefs: string[] }
     rulings: Array<{ ref: string; entersAs: EntersAs; how: string; words: string[]; received: string; provisional: boolean; scope: string | null }>
@@ -731,7 +821,7 @@ function determineForm(c: CaseInput, s1: Stage1Result | null, inputs: HandoffInp
 // Produce: the chain request
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inputs: HandoffInputs, appliedManipulations: string[]): ChainRequest {
+function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inputs: HandoffInputs, place: ChainRequest['place']): ChainRequest {
     const contextId = s1?.resolution.context?.rpcId ?? null
     let records: ChainRequest['records'] = 'PRODUCTION'
     if (c.chain.records === 'TEST_ONLY') {
@@ -741,11 +831,13 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
         records = {
             learningGoalId: c.goalId as string,
             contextId,
-            gameProblemId: s1.resolution.gameProblems.primary[0] ?? '',
+            // Step 1's primary, unless the case puts a TEST-ONLY Game Problem here (Tests B); no line of the chain reads it either way.
+            gameProblemId: c.gameProblemOverride ? c.gameProblemOverride.id : (s1.resolution.gameProblems.primary[0] ?? ''),
             ruledOn: dated[dated.length - 1],
             by: c.record.by,
             ruling: words,
-            authorizedConstraints: [...c.record.authorizedConstraints, ...appliedManipulations],
+            // Exactly the record's own set: the handoff never widens it (an applied manipulation is placed in the selection, `place`).
+            authorizedConstraints: [...c.record.authorizedConstraints],
             authorizedConstraintsFinding: c.record.constraintFinding,
             provisionalRealization: c.realization ? c.realization.id : null,
         }
@@ -790,6 +882,7 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
         withhold,
         standIns: c.standIns.map((s) => ({ contractId: s.contractId, item: deepCopy(s.item) })),
         choices,
+        place: place.map((p) => ({ ...p })),
         supplement: c.chain.supplement,
         holdReportedLawsToMateriality: c.realization?.lawsCheck.mode === 'REPORT',
     }
@@ -805,6 +898,19 @@ interface GradingContext {
     answer: ChainAnswer
     standInByItem: Map<string, StandInInput>
     standInByTerm: Map<string, StandInInput>
+    /** Each contract the chain derived from for a placed manipulation, with the manipulation and the relationship it was applied on. */
+    relationshipByContract: Map<string, ProposedManipulation & { relationship: NonNullable<ProposedManipulation['relationship']> }>
+}
+
+/** The contracts a line belongs to: what supports it, the element class it names, and the class its own id names. */
+function lineContracts(line: ChainLine): string[] {
+    const out: string[] = []
+    for (const s of line.support ?? []) if (s.contractId) out.push(s.contractId)
+    const own = classParts(line.lineId.split('::')[0])
+    if (own) out.push(own.contractId)
+    const cls = line.classId ? classParts(line.classId) : null
+    if (cls) out.push(cls.contractId)
+    return [...new Set(out)]
 }
 
 /** A value inside a premise's reference: a word in single quotation marks (double ones are kept for Christian's words), anything else as is. */
@@ -926,6 +1032,15 @@ function linePremises(ctx: GradingContext, line: ChainLine): { premises: Premise
             premises.push(premise('LAWS_ENCODING', `${line.law} ${line.lawStatus}: ${ctx.inputs.grading.lawsDefault.encoding}`))
         }
     }
+    // A line a placed manipulation brought into the game also rests on the relationship it was applied on: in a test, a TEST-ONLY stand-in
+    // (class 4), which this premise makes the line's ceiling; never knowledge. A line nothing establishes holds no value, so none is added.
+    if (line.kind !== 'NOT_ESTABLISHED') {
+        const owners = lineContracts(line)
+        const applied = new Map<string, ProposedManipulation & { relationship: NonNullable<ProposedManipulation['relationship']> }>()
+        for (const [contractId, m] of ctx.relationshipByContract) if (owners.indexOf(contractId) >= 0) applied.set(m.id, m)
+        for (const m of applied.values())
+            premises.push(premise('STAND_IN', `${m.relationship.ref}: the TEST-ONLY relationship ${m.purpose} to ${m.manipulation} (manipulation ${m.id})`, { standing: 'TEST ASSUMPTION', label: 'TEST ASSUMPTION', note: m.relationship.why }))
+    }
     return { premises, note }
 }
 
@@ -1028,6 +1143,69 @@ function gradeSentence(ctx: GradingContext, s: ChainSentence, lines: GradedLine[
     }
 }
 
+/** A token of a refusal reason with the punctuation that ends it removed (a colon, comma, full stop, closing bracket or ellipsis). */
+function bareToken(t: string): string {
+    let out = t
+    for (;;) {
+        const last = out.slice(-1)
+        if (last === ':' || last === ',' || last === '.' || last === ')' || last === ';' || last === String.fromCharCode(0x2026)) out = out.slice(0, -1)
+        else return out
+    }
+}
+
+/** The refusal codes its reasons name: the gate invariants (GA- tokens) and the fidelity questions, in order of first mention. */
+function refusalCodes(stage: string, reasons: string[]): string[] {
+    const codes: string[] = []
+    for (const reason of reasons) {
+        for (const raw of reason.split(' ')) {
+            const t = bareToken(raw)
+            if (t.slice(0, 3) === 'GA-' && codes.indexOf(t) < 0) codes.push(t)
+        }
+        if (reason.slice(0, 10) === 'fidelity Q') {
+            const q = reason.split(':')[0]
+            if (codes.indexOf(q) < 0) codes.push(q)
+        }
+    }
+    return codes.length ? codes : [`${stage} refusal`]
+}
+
+/**
+ * What a refusal met outside a case's own run rests on (a test that builds through the chain directly, such as the time-boxed restart), read
+ * from the contracts that build derived from, by the same reading as a case's refusal.
+ */
+export function refusalBasisOfBuild(c: CaseInput, inputs: HandoffInputs, stage: string, reasons: string[], contracts: ChainAnswer['contracts']): RefusalBasis {
+    const answer = { contracts } as ChainAnswer
+    return refusalBasisOf({ c, inputs, answer, standInByItem: new Map(c.standIns.map((x) => [x.item.itemId, x])), standInByTerm: new Map(), relationshipByContract: new Map() }, stage, reasons)
+}
+
+/** What a refusal rests on (see `RefusalBasis`). OURS: a reading of the refusal's reasons; it changes no check and no outcome. */
+function refusalBasisOf(ctx: GradingContext, stage: string, reasons: string[]): RefusalBasis {
+    const codes = refusalCodes(stage, reasons)
+    const cited: RefusalBasis['cited'] = []
+    for (const reason of reasons)
+        for (const raw of reason.split(' ')) {
+            const t = bareToken(raw)
+            if (t.slice(0, 2) !== 'c:') continue
+            const parts = classParts(t.split('::')[0])
+            if (!parts || cited.some((x) => x.ref === t)) continue
+            const contract = ctx.answer.contracts.find((x) => x.contractId === parts.contractId)
+            const item = contract?.items.find((x) => x.itemId === parts.itemId)
+            const p = itemPremise(ctx, parts.contractId, parts.itemId)
+            cited.push({ ref: t, contractId: parts.contractId, itemId: parts.itemId, basis: item ? item.basis : 'not among the contracts the chain derived from', origin: contract ? contract.origin : 'none', premiseKind: p.kind, label: p.label, note: p.note ?? null })
+        }
+    const all = reasons.join(' ')
+    if (!cited.length) {
+        const which = all.indexOf('has no contribution contract') >= 0 ? 'a missing contract' : all.indexOf('no realization choices') >= 0 ? 'a missing choices file' : `an engine check (${codes.join(', ')})`
+        return { stage, codes, cited, verdict: 'NOT KNOWLEDGE', why: `the refusal cites no item: ${which}` }
+    }
+    const kinds = [...new Set(cited.map((x) => x.premiseKind))]
+    const restatements: PremiseKind[] = ['RESTATED_ITEM', 'DRAFT_ITEM']
+    const rulings: PremiseKind[] = ['KNOWLEDGE_RULING_ITEM', 'REALIZATION_ITEM']
+    if (kinds.every((k) => restatements.indexOf(k) >= 0)) return { stage, codes, cited, verdict: 'RESTATEMENT-ONLY', why: `every cited item is a restatement of ours (${kinds.join(', ')}), with no ruling of Christian's among them` }
+    if (kinds.some((k) => rulings.indexOf(k) >= 0)) return { stage, codes, cited, verdict: 'MIXED', why: `at least one cited item rests on a ruling of Christian's (${kinds.join(', ')})` }
+    return { stage, codes, cited, verdict: 'NOT KNOWLEDGE', why: `the cited items are neither restatements nor rulings (${kinds.join(', ')})` }
+}
+
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // The run
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -1045,14 +1223,38 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
         const r = rulingOf(inputs, entry.ref)
         return { ref: entry.ref, entersAs: entry.entersAs, how: entry.how, words: [...r.words], received: receivedOf(r), provisional: r.provisional, scope: r.scope }
     })
-    // Manipulations: applied only with an authorized relationship; in a test only, a labelled TEST-ONLY stand-in for one (class 4).
-    const applied: string[] = []
-    const manipulations = c.proposedManipulations.map((m) => {
+    // Manipulations: applied only with an authorized relationship; in a test only, a labelled TEST-ONLY stand-in for one (class 4). An applied
+    // manipulation is placed in the selection explicitly, as the form is; the record's own authorized set is never widened.
+    const place: ChainRequest['place'] = []
+    const manipulationEntries = c.proposedManipulations.map((m) => {
         if (m.relationship && m.relationship.label === 'TEST ASSUMPTION') {
-            applied.push(m.manipulation)
-            return { id: m.id, purpose: m.purpose, manipulation: m.manipulation, outcome: `applied on a TEST-ONLY stand-in relationship (${m.relationship.ref}), never knowledge`, premise: premise('STAND_IN', m.relationship.ref, { standing: 'TEST ASSUMPTION', label: 'TEST ASSUMPTION', note: m.relationship.why }) }
+            place.push({ id: m.manipulation, manipulationId: m.id, relationshipRef: m.relationship.ref })
+            return { id: m.id, purpose: m.purpose, manipulation: m.manipulation, outcome: `applied on a TEST-ONLY stand-in relationship (${m.relationship.ref}), never knowledge: placed in the selection explicitly; the record's authorized set is unchanged`, premise: premise('STAND_IN', m.relationship.ref, { standing: 'TEST ASSUMPTION', label: 'TEST ASSUMPTION', note: m.relationship.why }) }
         }
         return { id: m.id, purpose: m.purpose, manipulation: m.manipulation, outcome: `no authorized relationship: ${m.purpose} to ${m.manipulation}; the configuration is unchanged`, premise: null }
+    })
+    // Proposed values: applied only as ILLUSTRATIVE supplied choices, never over a line the case closes on a ruling of Christian's.
+    const effective: CaseInput = { ...c, suppliedChoices: c.suppliedChoices.map((x) => ({ ...x })) }
+    const proposedChoices = (c.proposedChoices ?? []).map((p) => {
+        const ruled = effective.suppliedChoices.find((x) => x.lineId === p.lineId && x.standing === 'RULING')
+        if (ruled) {
+            const r = rulingOf(inputs, ruled.rulingRef as string)
+            const same = JSON.stringify(ruled.value) === JSON.stringify(p.value)
+            return {
+                id: p.id,
+                lineId: p.lineId,
+                value: deepCopy(p.value),
+                applied: false,
+                outcome: same
+                    ? `already the value Christian's ruling ${r.id} (received ${receivedOf(r)}${r.provisional ? ', provisional' : ''}) gives the line; nothing changes`
+                    : `contrary to Christian's ruling ${r.id} (received ${receivedOf(r)}${r.provisional ? ', provisional' : ''}), which closes the line as ${valueWords(ruled.value)}: not applied; the line keeps the ruling's value`,
+            }
+        }
+        const existing = effective.suppliedChoices.findIndex((x) => x.lineId === p.lineId)
+        const entry: SuppliedChoiceInput = { lineId: p.lineId, value: deepCopy(p.value), rulingRef: null, standing: 'ILLUSTRATIVE', provisional: false }
+        if (existing >= 0) effective.suppliedChoices[existing] = entry
+        else effective.suppliedChoices.push(entry)
+        return { id: p.id, lineId: p.lineId, value: deepCopy(p.value), applied: true, outcome: `applied as an ILLUSTRATIVE supplied choice (permitted by ${p.rulingRefs.join(', ')}); whether the line admits it is the chain's to say` }
     })
     const base = {
         caseId: c.id,
@@ -1061,7 +1263,7 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
         goalId: c.goalId,
         receive,
         form,
-        manipulations,
+        proposedChoices,
         purpose: c.purpose ? deepCopy(c.purpose) : null,
         rulings,
         illustrative: deepCopy(c.illustrative),
@@ -1082,19 +1284,27 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
             requirementAccount: null,
             diagram: null,
             refusal: { stage: 'handoff (form)', reasons: [form.stop ?? 'no form'] },
+            refusalBasis: { stage: 'handoff (form)', codes: ['handoff (form) refusal'], cited: [], verdict: 'NOT KNOWLEDGE', why: `the handoff stopped before the chain: ${form.stop ?? 'no form'}` },
+            manipulations: manipulationEntries.map((m) => ({ ...m, placedContracts: [] })),
             gaps: [form.stop ?? 'no form'],
             standIns: c.standIns.map((x) => ({ id: x.id, label: x.label, why: x.why, determines: [] })),
             counts: { lines: 0, byClass: {}, byKind: {}, sentences: 0 },
         }
     }
-    const request = chainRequest(c, s1, form.formId, inputs, applied)
+    const request = chainRequest(effective, s1, form.formId, inputs, place)
     const answer = chain.build(request)
+    const relationshipByContract: GradingContext['relationshipByContract'] = new Map()
+    for (const p of answer.placed) {
+        const m = c.proposedManipulations.find((x) => x.manipulation === p.id && x.relationship)
+        if (m && m.relationship) for (const contractId of p.contractIds) relationshipByContract.set(contractId, { ...m, relationship: m.relationship })
+    }
     const ctx: GradingContext = {
-        c,
+        c: effective,
         inputs,
         answer,
         standInByItem: new Map(c.standIns.map((x) => [x.item.itemId, x])),
         standInByTerm: new Map(c.standIns.map((x) => [x.item.value, x])),
+        relationshipByContract,
     }
     const lines: GradedLine[] = answer.lines.map((line) => {
         const { premises, note } = linePremises(ctx, line)
@@ -1138,9 +1348,14 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
             gameProblemComparison: gp
                 ? `the chain's account reads ${gp.status} ${gp.gameProblemId ?? 'none'}${gp.inferredFromWording ? ` (inferred from wording: ${gp.inferredFromWording})` : ''}; Step 1: ${step1Gp}; no line of the chain reads a Game Problem; a difference is reported, never switched`
                 : `the chain's account carries no Game Problem; Step 1: ${step1Gp}`,
+            gameProblemOverride: c.gameProblemOverride
+                ? `MISMATCH, reported and never switched: the TEST-ONLY record carries ${c.gameProblemOverride.id} (${c.gameProblemOverride.label}; ${c.gameProblemOverride.why}${c.gameProblemOverride.rulingRefs.length ? `; ${c.gameProblemOverride.rulingRefs.join(', ')}` : ''}), where Step 1 resolves ${step1Gp}; Step 1's resolution stands and is what this report names; no line of the chain reads a Game Problem, so no line can follow either`
+                : null,
             affordanceLenses: answer.account && answer.account.affordanceLenses.length ? `${answer.account.affordanceLenses.join('; ')}: the chain's vocabulary lenses, not contracted knowledge, not a selection` : 'none',
             constraints: answer.account ? [...answer.account.constraints] : [],
+            fidelityViolations: answer.fidelityViolations,
         },
+        manipulations: manipulationEntries.map((m) => ({ ...m, placedContracts: [...(answer.placed.find((p) => p.id === m.manipulation && m.premise !== null)?.contractIds ?? [])] })),
         lines,
         sentences,
         sentencesServed: answer.sentencesServed,
@@ -1150,10 +1365,129 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
         requirementAccount: deepCopy(answer.requirementAccount),
         diagram: deepCopy(answer.diagram),
         refusal: answer.outcome === 'refused' ? { stage: String(answer.stage), reasons: [...answer.reasons] } : null,
+        refusalBasis: answer.outcome === 'refused' ? refusalBasisOf(ctx, String(answer.stage), answer.reasons) : null,
         gaps,
         standIns: c.standIns.map((x) => ({ id: x.id, label: x.label, why: x.why, determines: lines.filter((l) => l.premises.some((p) => p.kind === 'STAND_IN' && p.ref.indexOf(x.id) >= 0)).map((l) => l.lineId) })),
         counts: { lines: lines.length, byClass, byKind, sentences: sentences.length },
     }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Comparing two runs (Tests A, B and C): exactly what changed between a case and a variant of it, and what did not
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
+export interface HandoffComparison {
+    baseCase: string
+    variantCase: string
+    outcome: [string | null, string | null]
+    stage: [string | null, string | null]
+    sentences: {
+        before: number
+        after: number
+        kept: number
+        /** A sentence of the base replaced by one of the variant, paired by section in reading order; `null` on one side where none pairs. */
+        changed: Array<{ section: string; before: string | null; after: string | null; fromChanged: boolean | null; gradeBefore: string | null; gradeAfter: string | null }>
+        /** A sentence said word for word in both, whose from-paths or grade differ. */
+        keptButChanged: Array<{ text: string; fromChanged: boolean; gradeBefore: string; gradeAfter: string }>
+    }
+    lines: {
+        before: number
+        after: number
+        changed: Array<{ lineId: string; before: unknown; after: unknown; gradeBefore: string; gradeAfter: string }>
+        added: string[]
+        removed: string[]
+    }
+    diagram: { changed: string[]; before: ChainAnswer['diagram']; after: ChainAnswer['diagram'] }
+    identical: { lines: boolean; sentences: boolean; diagram: boolean }
+    /** The variant's refusal, where it was refused (its stage and reasons, as the chain or the handoff gave them). */
+    variantRefusal: { stage: string; reasons: string[] } | null
+}
+
+const gradeWords = (sixClass: SixClass | null, label: string): string => `${sixClass === null ? 'no class' : `class ${sixClass}`}; ${label}`
+const same = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b)
+
+/** What changed from `base` to `variant`: outcome and stage, the sentences (by text), the lines (by id) and the diagram (by key). Pure. */
+export function compareResults(base: HandoffResult, variant: HandoffResult): HandoffComparison {
+    const before = base.sentences
+    const after = variant.sentences
+    const unmatchedAfter = after.map((_, i) => i)
+    const keptPairs: Array<[number, number]> = []
+    const removed: number[] = []
+    before.forEach((s, i) => {
+        const at = unmatchedAfter.find((j) => after[j].text === s.text)
+        if (at === undefined) removed.push(i)
+        else {
+            keptPairs.push([i, at])
+            unmatchedAfter.splice(unmatchedAfter.indexOf(at), 1)
+        }
+    })
+    const changed: HandoffComparison['sentences']['changed'] = []
+    const added = [...unmatchedAfter]
+    for (const i of removed) {
+        const at = added.find((j) => after[j].section === before[i].section)
+        const b = before[i]
+        if (at === undefined) changed.push({ section: b.section, before: b.text, after: null, fromChanged: null, gradeBefore: gradeWords(b.sixClass, b.label), gradeAfter: null })
+        else {
+            added.splice(added.indexOf(at), 1)
+            const a = after[at]
+            changed.push({ section: b.section, before: b.text, after: a.text, fromChanged: !same(b.from, a.from), gradeBefore: gradeWords(b.sixClass, b.label), gradeAfter: gradeWords(a.sixClass, a.label) })
+        }
+    }
+    for (const j of added) changed.push({ section: after[j].section, before: null, after: after[j].text, fromChanged: null, gradeBefore: null, gradeAfter: gradeWords(after[j].sixClass, after[j].label) })
+    const keptButChanged = keptPairs
+        .filter(([i, j]) => !same(before[i].from, after[j].from) || before[i].sixClass !== after[j].sixClass || before[i].label !== after[j].label)
+        .map(([i, j]) => ({ text: before[i].text, fromChanged: !same(before[i].from, after[j].from), gradeBefore: gradeWords(before[i].sixClass, before[i].label), gradeAfter: gradeWords(after[j].sixClass, after[j].label) }))
+    const linesBefore = new Map(base.lines.map((l) => [l.lineId, l]))
+    const linesAfter = new Map(variant.lines.map((l) => [l.lineId, l]))
+    const lineChanges: HandoffComparison['lines']['changed'] = []
+    for (const [id, l] of linesBefore) {
+        const v = linesAfter.get(id)
+        if (v && (!same(l.value, v.value) || l.sixClass !== v.sixClass || l.label !== v.label)) lineChanges.push({ lineId: id, before: l.value, after: v.value, gradeBefore: gradeWords(l.sixClass, l.label), gradeAfter: gradeWords(v.sixClass, v.label) })
+    }
+    const db = base.diagram
+    const dv = variant.diagram
+    const diagramKeys = ['served', 'verdict', 'area', 'counts', 'legend', 'zones', 'findings'] as const
+    const diagramChanged = !db || !dv ? (same(db, dv) ? [] : ['the diagram itself']) : diagramKeys.filter((k) => !same(db[k], dv[k]))
+    return {
+        baseCase: base.caseId,
+        variantCase: variant.caseId,
+        outcome: [base.chain?.outcome ?? null, variant.chain?.outcome ?? null],
+        stage: [base.refusal?.stage ?? null, variant.refusal?.stage ?? null],
+        sentences: { before: before.length, after: after.length, kept: keptPairs.length, changed, keptButChanged },
+        lines: {
+            before: base.lines.length,
+            after: variant.lines.length,
+            changed: lineChanges,
+            added: variant.lines.filter((l) => !linesBefore.has(l.lineId)).map((l) => l.lineId),
+            removed: base.lines.filter((l) => !linesAfter.has(l.lineId)).map((l) => l.lineId),
+        },
+        diagram: { changed: diagramChanged, before: deepCopy(db), after: deepCopy(dv) },
+        identical: { lines: same(base.lines, variant.lines), sentences: same(base.sentences, variant.sentences), diagram: same(db, dv) },
+        variantRefusal: variant.refusal ? { stage: variant.refusal.stage, reasons: [...variant.refusal.reasons] } : null,
+    }
+}
+
+/**
+ * One test as the report lists it (Christian's reply of 7 November, section 13: "Please distinguish implemented functionality, passing
+ * engineering tests, and ecological suitability in the report."): what it shows, what was measured, and its verdict as the unit test ran it.
+ * Ecological suitability is never established by any of them, and the report says so for each.
+ */
+export interface HandoffTestRecord {
+    id: string
+    group: string
+    cites: string
+    title: string
+    shows: string
+    measured: string[]
+    /** 'passing engineering test', or the failure as the unit test met it. */
+    verdict: string
+}
+
+/** One refusal in the evidence and what it rests on, with whether it obstructs the configuration pathway (the test or case says which). */
+export interface RefusalEntry {
+    where: string
+    basis: RefusalBasis
+    obstructs: string
 }
 
 /** Every case of the inputs, in file order. */

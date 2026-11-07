@@ -1,0 +1,6 @@
+{
+    "standing": "NOT YET RECORDED for this build: the regression run on this build's committed tree is recorded in the commit on top of it, with no change to any code or data file. When recorded, it is engineering evidence only: the live application and A01's checked behaviour are unchanged, nothing is deployed, and it does not establish ecological suitability (Christian's first reply of 7 November 2026, sections 1 and 13).",
+    "status": "PLACEHOLDER",
+    "build": null,
+    "results": []
+}

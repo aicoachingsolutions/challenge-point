@@ -10,7 +10,21 @@
  * in single quotation marks or bare (a double quotation mark inside an engine sentence is printed as a single one).
  */
 import { classLabel, receivedOf } from './assembly'
-import { CLASS_WORDS, DECISION_KIND_EXAMINATION, DECISION_KIND_RULE, GRADING_MAP, HandoffInputs, HandoffResult, OPPORTUNITIES_NOT_ESTABLISHED, Premise, PREMISE_KINDS } from './handoff'
+import {
+    CLASS_WORDS,
+    DECISION_KIND_EXAMINATION,
+    DECISION_KIND_RULE,
+    GRADING_MAP,
+    HandoffComparison,
+    HandoffInputs,
+    HandoffResult,
+    HandoffTestRecord,
+    OPPORTUNITIES_NOT_ESTABLISHED,
+    Premise,
+    PREMISE_KINDS,
+    RefusalBasis,
+    RefusalEntry,
+} from './handoff'
 
 /** A value as printed: strings in single quotation marks, structures compactly, never a double quotation mark. */
 export function show(v: unknown): string {
@@ -30,6 +44,43 @@ const CLOSE_QUOTE = String.fromCharCode(0x201d)
 export const quoted = (words: string): string => (words.indexOf('"') >= 0 ? `${OPEN_QUOTE}${words}${CLOSE_QUOTE}` : `"${words}"`)
 
 const classWords = (c: number | null): string => (c === null ? 'no class claimed' : classLabel(c as 1 | 2 | 3 | 4 | 5 | 6))
+
+/** What a refusal rests on, as printed under a case's refusal and in the refusals section. */
+export function basisLines(b: RefusalBasis): string[] {
+    const out = [`what it rests on (OURS): ${b.verdict}: ${plain(b.why)}; codes ${b.codes.join(', ')}`]
+    for (const c of b.cited) out.push(`  cites ${c.ref}: its element is established by item ${c.itemId} of ${c.contractId} (${c.origin === 'DRAFT_STORE' ? 'the TEST-ONLY draft store' : c.origin === 'REALIZATION' ? 'a provisional realization' : c.origin === 'KNOWLEDGE' ? 'knowledge' : c.origin}), basis ${c.basis}; graded ${c.premiseKind}, '${plain(c.label)}'${c.note ? ` (${plain(c.note)})` : ''}`)
+    return out
+}
+
+/** A comparison of a case and a variant, as the Tests section prints it: what changed, and how much stayed identical. */
+export function comparisonLines(c: HandoffComparison): string[] {
+    const out: string[] = []
+    out.push(`${c.baseCase} -> ${c.variantCase}: outcome ${c.outcome[0] ?? 'not run'}${c.stage[0] ? ` at ${c.stage[0]}` : ''} -> ${c.outcome[1] ?? 'not run'}${c.stage[1] ? ` at ${c.stage[1]}` : ''}`)
+    if (c.variantRefusal) out.push(`the variant is refused at ${c.variantRefusal.stage}: ${c.variantRefusal.reasons.map(plain).join('; ')}`)
+    if (c.variantRefusal && c.sentences.after === 0 && c.lines.after === 0) {
+        // Nothing is configured, so nothing is compared line by line: the base's whole configuration is simply not produced.
+        out.push(`no configuration is produced: none of the base's ${c.sentences.before} sentences or ${c.lines.before} lines${c.diagram.before ? ', and no diagram' : ''}`)
+        return out
+    }
+    out.push(`sentences ${c.sentences.before} -> ${c.sentences.after} (${c.sentences.kept} word for word the same); lines ${c.lines.before} -> ${c.lines.after}`)
+    for (const s of c.sentences.changed) {
+        if (s.before !== null && s.after !== null) out.push(`changed [${s.section}] '${plain(s.before)}' -> '${plain(s.after)}' (${plain(s.gradeBefore ?? '')} -> ${plain(s.gradeAfter ?? '')}; from-paths ${s.fromChanged ? 'changed' : 'the same'})`)
+        else if (s.before !== null) out.push(`gone [${s.section}] '${plain(s.before)}' (${plain(s.gradeBefore ?? '')})`)
+        else out.push(`added [${s.section}] '${plain(s.after ?? '')}' (${plain(s.gradeAfter ?? '')})`)
+    }
+    for (const s of c.sentences.keptButChanged) out.push(`same words, ${s.fromChanged ? 'other from-paths' : 'same from-paths'}: '${plain(s.text)}' (${plain(s.gradeBefore)} -> ${plain(s.gradeAfter)})`)
+    for (const l of c.lines.changed) out.push(`line ${l.lineId}: ${show(l.before)} -> ${show(l.after)} (${plain(l.gradeBefore)} -> ${plain(l.gradeAfter)})`)
+    if (c.lines.added.length) out.push(`lines added (${c.lines.added.length}): ${c.lines.added.join(', ')}`)
+    if (c.lines.removed.length) out.push(`lines gone (${c.lines.removed.length}): ${c.lines.removed.join(', ')}`)
+    if (!c.diagram.changed.length) out.push('diagram: identical')
+    else
+        for (const key of c.diagram.changed) {
+            const pick = (d: HandoffComparison['diagram']['before']) => (d ? (d as unknown as Record<string, unknown>)[key] : undefined)
+            out.push(key === 'the diagram itself' ? `diagram: ${show(c.diagram.before)} -> ${show(c.diagram.after)}` : `diagram ${key}: ${show(pick(c.diagram.before))} -> ${show(pick(c.diagram.after))}`)
+        }
+    out.push(`identical: lines ${c.identical.lines ? 'yes' : 'no'}, sentences ${c.identical.sentences ? 'yes' : 'no'}, diagram ${c.identical.diagram ? 'yes' : 'no'}`)
+    return out
+}
 
 function premiseLine(p: Premise): string {
     const parts = [`${plain(p.ref)}: ${classWords(p.sixClass)}; ${plain(p.label)}`]
@@ -83,7 +134,14 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
     push()
     push('5. Manipulations')
     if (!r.manipulations.length) push('   none proposed: nothing is added (K2, approved for review-only use); the configuration is the form\'s own')
-    for (const m of r.manipulations) push(`   - ${m.id}: ${plain(m.outcome)}${m.premise ? ` | ${premiseLine(m.premise)}` : ''}`)
+    for (const m of r.manipulations) {
+        push(`   - ${m.id} (purpose ${m.purpose}; ${m.manipulation}): ${plain(m.outcome)}${m.premise ? ` | ${premiseLine(m.premise)}` : ''}`)
+        if (m.placedContracts.length) push(`     the chain derived from ${m.placedContracts.join(', ')} for it; every line from it also rests on the relationship premise above`)
+    }
+    if (r.proposedChoices.length) {
+        push('   Proposed values for lines (applied only as ILLUSTRATIVE supplied choices, never over a line Christian\'s ruling closes):')
+        for (const p of r.proposedChoices) push(`   - ${p.id}: ${p.lineId} = ${show(p.value)}: ${plain(p.outcome)}`)
+    }
     push()
     push('6. The checked chain')
     if (!r.chain) push('   not run: the handoff stopped before the chain (see 4)')
@@ -92,8 +150,10 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
         for (const reason of r.chain.reasons) push(`   - ${plain(reason)}`)
         push(`   context: ${plain(r.chain.contextComparison)}`)
         push(`   Game Problems: ${plain(r.chain.gameProblemComparison)}`)
+        if (r.chain.gameProblemOverride) push(`   Game Problem in the TEST-ONLY record: ${plain(r.chain.gameProblemOverride)}`)
         push(`   affordance lenses: ${plain(r.chain.affordanceLenses)}`)
         push(`   constraints in the selection: ${r.chain.constraints.join(', ') || 'none'}`)
+        if (r.chain.fidelityViolations !== null) push(`   fidelity violations on the text: ${r.chain.fidelityViolations}`)
     }
     push()
     push(`7. Configuration lines (${r.lines.length})`)
@@ -150,6 +210,7 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
     else {
         push(`   stage ${r.refusal.stage}`)
         for (const reason of r.refusal.reasons) push(`   - ${plain(reason)}`)
+        if (r.refusalBasis) for (const line of basisLines(r.refusalBasis)) push(`   ${line}`)
     }
     push()
     push(`13. Gaps (${r.gaps.length})`)
@@ -171,8 +232,44 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
     return out
 }
 
-/** The whole report: the frame (classes, grading map, decision-kind rule), every case, and the input counts given by the test. */
-export function handoffReportText(results: HandoffResult[], inputs: HandoffInputs, counts: string[]): string {
+/**
+ * The Tests section: each test with what it shows, what was measured, and three standings kept apart (Christian's reply of 7 November, section
+ * 13): implemented (the mechanism code that ran it), passing engineering test (the unit test's exact assertions, as run), ecological suitability
+ * (never established by any test here).
+ */
+function testsText(tests: HandoffTestRecord[]): string[] {
+    const out: string[] = []
+    const passing = tests.filter((t) => t.verdict === 'passing engineering test').length
+    out.push(`TESTS (${tests.length}; ${passing} passing engineering tests, ${tests.length - passing} failing). Each test keeps three things apart: implemented (what code ran it), passing engineering test (whether its exact assertions held when the unit test ran), and ecological suitability, which no test here establishes: they show what the mechanism does, never that an activity is suitable for its Learning Goal. 'N7:n' cites line n of Christian's first reply of 7 November (the handoff authorization), as filed. A variant is a case copied and changed in one stated respect, held to the same input validator and run by the same mechanism and chain; its comparison with its base is printed under 'measured'.`)
+    let group = ''
+    for (const t of tests) {
+        if (t.group !== group) {
+            group = t.group
+            out.push('')
+            out.push(`-- ${group}`)
+        }
+        out.push(`${t.id} (${t.cites}): ${plain(t.title)}`)
+        out.push(`   shows: ${plain(t.shows)}`)
+        out.push(`   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: ${t.verdict === 'passing engineering test' ? 'yes' : `NO (${plain(t.verdict)})`}; ecological suitability: not established`)
+        for (const m of t.measured) out.push(`   measured: ${plain(m)}`)
+    }
+    return out
+}
+
+/** The refusals section (Christian's second reply of 7 November, section 2): every refusal in the evidence and what it rests on. */
+function refusalsText(refusals: RefusalEntry[]): string[] {
+    const out: string[] = []
+    const count = (v: string) => refusals.filter((r) => r.basis.verdict === v).length
+    out.push(`REFUSALS AND WHAT THEY REST ON (${refusals.length}: ${count('RESTATEMENT-ONLY')} RESTATEMENT-ONLY, ${count('MIXED')} MIXED, ${count('NOT KNOWLEDGE')} NOT KNOWLEDGE). OURS, read from each refusal's own reasons; no check is changed by it (Christian's second reply of 7 November: "No changes to validation behavior are authorized by this email."). A RESTATEMENT-ONLY refusal rests only on our restatements, which are CANDIDATE: it may be conservative without establishing that the configuration violates approved knowledge. Each cited line is read back to the item that establishes its element; the line's own bound may come from another item, which this reading does not name.`)
+    for (const r of refusals) {
+        out.push(`- ${r.where}: stage ${r.basis.stage}; obstructs the configuration pathway: ${plain(r.obstructs)}`)
+        for (const line of basisLines(r.basis)) out.push(`   ${line}`)
+    }
+    return out
+}
+
+/** The whole report: the frame (classes, grading map, decision-kind rule), the tests and the refusals, every case, and the input counts given by the test. */
+export function handoffReportText(results: HandoffResult[], inputs: HandoffInputs, counts: string[], tests: HandoffTestRecord[] = [], refusals: RefusalEntry[] = []): string {
     const out: string[] = []
     out.push('HANDOFF REPORT: the isolated reusable configuration handoff (TEST-ONLY review evidence)')
     out.push('')
@@ -193,6 +290,14 @@ export function handoffReportText(results: HandoffResult[], inputs: HandoffInput
     out.push('Input counts:')
     for (const line of counts) out.push(`   ${plain(line)}`)
     out.push('')
+    if (tests.length) {
+        out.push(...testsText(tests))
+        out.push('')
+    }
+    if (refusals.length) {
+        out.push(...refusalsText(refusals))
+        out.push('')
+    }
     out.push(`Christian's words cited (${inputs.rulings.length} entries, verbatim, each with its received date and the file it is filed in):`)
     for (const ruling of inputs.rulings) {
         out.push(`   ${ruling.id}, received ${receivedOf(ruling)}${ruling.provisional ? ', provisional' : ''}; scope ${ruling.scope ?? 'none stated'}; filed in ${plain(ruling.file)}`)

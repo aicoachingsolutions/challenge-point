@@ -54,7 +54,342 @@ Input counts:
    purpose text of A01 (display cell, read after the decisions): 'Build possession from deep while progressing beyond the opponent's first line of pressure.'
    purpose text of TA01 (display cell, read after the decisions): 'Exploit opportunities immediately after regaining possession.'
 
-Christian's words cited (27 entries, verbatim, each with its received date and the file it is filed in):
+TESTS (36; 36 passing engineering tests, 0 failing). Each test keeps three things apart: implemented (what code ran it), passing engineering test (whether its exact assertions held when the unit test ran), and ecological suitability, which no test here establishes: they show what the mechanism does, never that an activity is suitable for its Learning Goal. 'N7:n' cites line n of Christian's first reply of 7 November (the handoff authorization), as filed. A variant is a case copied and changed in one stated respect, held to the same input validator and run by the same mechanism and chain; its comparison with its base is printed under 'measured'.
+
+-- First: the pathways connect (Christian's reply of 7 November, section 11)
+F1 (N7:150-151): First: the A05 runs go end to end through Steps 1 and 2 and the chain with the hand-authored record never read
+   shows: the A05 cases are received, resolved by Steps 1 and 2, and run through the checked chain; the hand-authored A05 record is unreadable while they run and the results are identical
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+F2 (N7:150-151): First: A01 through the handoff, with its production records and realizations, gives buildActivity's 29 instructions, text and from-paths
+   shows: the same mechanism carries A01 to exactly the checked game a coach is served
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+F3 (N7:155-157, N7:163-166): A05-0, the knowledge as it stands: refused at structure on the drafted origin and control lines
+   shows: with the knowledge as it stands, the chain refuses A05 at structure and the refusal names the drafted lines; nothing is filled in to make it generate
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+F4 (N7:33-37): A05-1, the starting-condition reading as a TEST-ONLY treatment: refused at structure on the drafted control line alone (measured; DESIGN expected communication)
+   shows: the provisional state reading, carried only as a labelled TEST-ONLY withholding of the origin items, leaves the drafted control line refused at structure
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+F5 (N7:41-46): A05-2, CONDITIONAL and never A05's result: served, with the no-offside sentence, the review-only zone sentence and the kick-off reported
+   shows: what the handoff produces once the 13 September wording is verified and corrected offline: a conditional diagnostic, never A05's result
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+F6 (N7:150-151, N7:158-161): the structural cases (no Learning Goal) are served through the same mechanism; TA01 stops at knowledge with Step 2's form
+   shows: the same mechanism serves the two structural cases and stops TA01 at knowledge with the form Step 2 selected
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+
+-- Second: valid changes are reusable (Test A, section 11)
+A1 (N7:152-154, N7:126-128): 12 -> 10 players on the A05 route (A05-2) and on generic GF2 zones: exactly the players sentence, the two team sizes and the diagram's counts change
+   shows: a legitimate session change (players) produces exactly the corresponding changes in lines, text and diagram, on the A05 route and on generic GF2 zones, through the same code; each changed sentence keeps the label of its new premise (an illustrative session input)
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: A05-2 -> A05-2/players-10: outcome served -> served
+   measured: sentences 9 -> 9 (8 word for word the same); lines 58 -> 58
+   measured: changed [Players] 'Divide 12 players into 2 teams of 6, with no goalkeepers' -> 'Divide 10 players into 2 teams of 5, with no goalkeepers' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); from-paths the same)
+   measured: line game::E1: 12 -> 10 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))
+   measured: line assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2: 6 -> 5 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))
+   measured: line assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2: 6 -> 5 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))
+   measured: diagram counts: ['2 teams of 6'] -> ['2 teams of 5']
+   measured: identical: lines no, sentences no, diagram no
+   measured: GF2-ZONES -> GF2-ZONES/players-10: outcome served -> served
+   measured: sentences 8 -> 8 (7 word for word the same); lines 41 -> 41
+   measured: changed [Players] 'Divide 12 players into 2 teams of 6, with no goalkeepers' -> 'Divide 10 players into 2 teams of 5, with no goalkeepers' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); from-paths the same)
+   measured: line game::E1: 12 -> 10 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))
+   measured: line assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2: 6 -> 5 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))
+   measured: line assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2: 6 -> 5 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))
+   measured: diagram counts: ['2 teams of 6'] -> ['2 teams of 5']
+   measured: identical: lines no, sentences no, diagram no
+A2 (N7:152-154, N7:126-128): 40 x 30 -> 50 x 35 m on A05-2 and GF2 zones: exactly the area sentence, the two dimension lines and the diagram's area and zones change
+   shows: a legitimate session change (dimensions) changes exactly the area sentence, the dimension lines and the diagram (area, and the zones, which keep their 5 m depth and run the new full width)
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: A05-2 -> A05-2/area-50x35: outcome served -> served
+   measured: sentences 9 -> 9 (8 word for word the same); lines 58 -> 58
+   measured: changed [Set up] 'Mark out an area 40 m long by 30 m wide' -> 'Mark out an area 50 m long by 35 m wide' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); from-paths the same)
+   measured: line game::E2: 40 -> 50 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))
+   measured: line game::E3: 30 -> 35 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))
+   measured: diagram area: {lengthM: 40, widthM: 30} -> {lengthM: 50, widthM: 35}
+   measured: diagram zones: [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 35, to: 40}, across: {from: 0, to: 30}}] -> [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 35}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 45, to: 50}, across: {from: 0, to: 35}}]
+   measured: identical: lines no, sentences no, diagram no
+   measured: GF2-ZONES -> GF2-ZONES/area-50x35: outcome served -> served
+   measured: sentences 8 -> 8 (7 word for word the same); lines 41 -> 41
+   measured: changed [Set up] 'Mark out an area 40 m long by 30 m wide' -> 'Mark out an area 50 m long by 35 m wide' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); from-paths the same)
+   measured: line game::E2: 40 -> 50 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))
+   measured: line game::E3: 30 -> 35 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))
+   measured: diagram area: {lengthM: 40, widthM: 30} -> {lengthM: 50, widthM: 35}
+   measured: diagram zones: [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 35, to: 40}, across: {from: 0, to: 30}}] -> [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 35}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 45, to: 50}, across: {from: 0, to: 35}}]
+   measured: identical: lines no, sentences no, diagram no
+A3 (N7:152-154, N7:126-128): 18 -> 24 minutes on A05-2 and GF2 zones: exactly the duration sentence and line change; the diagram is identical
+   shows: a legitimate session change (duration) changes exactly the duration sentence and line
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: A05-2 -> A05-2/duration-24: outcome served -> served
+   measured: sentences 9 -> 9 (8 word for word the same); lines 58 -> 58
+   measured: changed [When it ends] 'Play for 18 minutes' -> 'Play for 24 minutes' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); from-paths the same)
+   measured: line game::E4: 18 -> 24 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))
+   measured: diagram: identical
+   measured: identical: lines no, sentences no, diagram yes
+   measured: GF2-ZONES -> GF2-ZONES/duration-24: outcome served -> served
+   measured: sentences 8 -> 8 (7 word for word the same); lines 41 -> 41
+   measured: changed [When it ends] 'Play for 18 minutes' -> 'Play for 24 minutes' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); from-paths the same)
+   measured: line game::E4: 18 -> 24 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))
+   measured: diagram: identical
+   measured: identical: lines no, sentences no, diagram yes
+A4 (N7:152-154, N7:157): the ILLUSTRATIVE zone depth 5 -> 8 m on A05-2 and GF2 zones: only the zone sentence and the diagram's zone depths change, and the sentence keeps the ILLUSTRATIVE label
+   shows: an illustrative value (the zone depth, carried by a labelled stand-in) changes only what says it: the zone sentence and the drawn zone depths; it stays labelled ILLUSTRATIVE
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: A05-2 -> A05-2/depth-8: outcome served -> served
+   measured: sentences 9 -> 9 (8 word for word the same); lines 58 -> 58
+   measured: changed [Set up] 'Mark a 5 m end zone across the full width at each end' -> 'Mark a 8 m end zone across the full width at each end' (class 6; OURS: assumption in our restatement -> class 6; OURS: assumption in our restatement; from-paths the same)
+   measured: diagram zones: [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 35, to: 40}, across: {from: 0, to: 30}}] -> [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 8}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 32, to: 40}, across: {from: 0, to: 30}}]
+   measured: identical: lines yes, sentences no, diagram no
+   measured: the variant's zone sentence still lists, among its other classes and labels: 'class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)'
+   measured: GF2-ZONES -> GF2-ZONES/depth-8: outcome served -> served
+   measured: sentences 8 -> 8 (7 word for word the same); lines 41 -> 41
+   measured: changed [Set up] 'Mark a 5 m end zone across the full width at each end' -> 'Mark a 8 m end zone across the full width at each end' (class 6; OURS: assumption in our restatement -> class 6; OURS: assumption in our restatement; from-paths the same)
+   measured: diagram zones: [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 35, to: 40}, across: {from: 0, to: 30}}] -> [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 8}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 32, to: 40}, across: {from: 0, to: 30}}]
+   measured: identical: lines yes, sentences no, diagram no
+   measured: the variant's zone sentence still lists, among its other classes and labels: 'class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)'
+A5 (N7:152-154; N7:12): A01 12 -> 11 players (within its ruled testing boundaries): exactly 2 of its 29 sentences change, with the lines that carry them
+   shows: on A01's production records, a coach's session change within the ruled testing boundaries changes exactly the two sentences that depend on it (the team sizes, and who moves at the exchange, whose relative count resolves to none)
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: A01 -> A01/players-11: outcome served -> served
+   measured: sentences 29 -> 29 (27 word for word the same); lines 153 -> 150
+   measured: changed [Players] 'Divide 12 players into 2 teams: the building team has 6 outfield players and 1 goalkeeper; the pressing team has 5 outfield players' -> 'Divide 11 players into 2 teams: the building team has 5 outfield players and 1 goalkeeper; the pressing team has 5 outfield players' (class 3; coach input, within a ruled bound (RULING, provisional) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / coach input, within a ruled bound (RULING, provisional) -> class 3; coach input, within a ruled bound (RULING, provisional) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / coach input, within a ruled bound (RULING, provisional); from-paths the same)
+   measured: changed [Role exchange] 'When you call the next block, 1 goalkeeper and 1 outfield player move to the team that becomes the building team' -> 'When you call the next block, 1 goalkeeper moves to the team that becomes the building team' (class 3; RULING, provisional -> class 3; RULING, provisional; from-paths changed)
+   measured: line game::E1: 12 -> 11 (class 3; coach input, within a ruled bound (RULING, provisional) -> class 3; coach input, within a ruled bound (RULING, provisional))
+   measured: line assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2: 6 -> 5 (class 3; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / coach input, within a ruled bound (RULING, provisional) -> class 3; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / coach input, within a ruled bound (RULING, provisional))
+   measured: lines gone (3): c:provisional:A01-R1:A01-R1-B4-2::B5, c:provisional:A01-R1:A01-R1-B4-2::B6, c:provisional:A01-R1:A01-R1-B4-2::B7
+   measured: diagram: identical
+   measured: identical: lines no, sentences no, diagram yes
+A6 (N7:152-154, N7:22-23): GF2's open target noun, zone <-> line (an authorized alternative of the form): structure, text and diagram change together and consistently
+   shows: choosing the form's other authorized target (lines for zones) changes the open lines, every sentence that says them and the diagram, consistently, with no sentence authored for either arrangement
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: GF2-ZONES -> GF2-LINES: outcome served -> served
+   measured: sentences 8 -> 8 (4 word for word the same); lines 41 -> 41
+   measured: changed [Set up] 'Mark a 5 m end zone across the full width at each end' -> 'Mark both end lines: they are the scoring lines' (class 6; OURS: assumption in our restatement -> class 6; OURS: a realization choice of ours, not knowledge / OURS: assumption in our restatement; from-paths changed)
+   measured: changed [How it works] 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same target' -> 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same line' (class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) -> class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json); from-paths changed)
+   measured: changed [How to score] 'A team scores 1 point by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside' -> 'A team scores 1 point by getting the ball across the line it is attacking' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 6; OURS: a realization choice of ours, not knowledge; from-paths changed)
+   measured: changed [How to score] 'Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game' -> 'Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 2; RULING; from-paths changed)
+   measured: line c:restated:GF2:GF2-03.e::S5: 'attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior' -> 'attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json))
+   measured: line c:restated:GF2:GF2-03.f::S5: 'attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior' -> 'attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json))
+   measured: line c:restated:GF2:GF2-03.e::S3: 'zone' -> 'line' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 6; OURS: a realization choice of ours, not knowledge)
+   measured: line c:restated:GF2:GF2-03.f::S3: 'zone' -> 'line' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 6; OURS: a realization choice of ours, not knowledge)
+   measured: line game::V1: 'target_zone_entered' -> 'line_crossed' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 6; OURS: a realization choice of ours, not knowledge)
+   measured: diagram legend: ['target zone'] -> ['target line']
+   measured: diagram zones: [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 35, to: 40}, across: {from: 0, to: 30}}] -> []
+   measured: identical: lines no, sentences no, diagram no
+   measured: the two along lines keep their value and change grade only: with zones their extent is the illustrative depth (a stand-in, class 5); with lines nothing bounds an extent
+
+-- Third: unsupported selections remain unsupported (Test B, section 11)
+B1a (N7:16, N7:155-157, N7:163-166): a manipulation proposed for Create Space with no authorized relationship is reported missing, and the configuration is identical
+   shows: with no authorized relationship between the Game Problem and the manipulation, nothing is added and the missing relationship is named
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: manipulation: no authorized relationship: GP-001 (Create Space) to tl-v0-constraint-wide-zone-advantage; the configuration is unchanged
+   measured: A05-2 -> A05-2/manipulation/tl-v0-constraint-wide-zone-advantage: outcome served -> served
+   measured: sentences 9 -> 9 (9 word for word the same); lines 58 -> 58
+   measured: diagram: identical
+   measured: identical: lines yes, sentences yes, diagram yes
+B1b (N7:17-18, N7:155-157): the same manipulation on a TEST-ONLY relationship stand-in (TEST ASSUMPTION): applied, and every line it brings is graded no higher than class 4
+   shows: once a relationship exists (here only a labelled TEST-ONLY stand-in, class 4, never knowledge), the same mechanism applies the manipulation and every line and sentence it brings carries that relationship as its ceiling
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: manipulation: applied on a TEST-ONLY stand-in relationship (TEST-ONLY-RELATIONSHIP-CS-WZA), never knowledge: placed in the selection explicitly; the record's authorized set is unchanged
+   measured: the TEST-ONLY record's authorized set stays empty; the manipulation is placed in the selection; lines it brings (18): c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S3 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S4 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S4::perceptual-reference class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S6 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S3 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S4 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S4::perceptual-reference class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S6 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8a class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b::restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-02.a class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b::restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-03 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8c class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8d class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V9 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V9a class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S5 class 6; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S5 class 6
+   measured: A05-2 -> A05-2/manipulation+relationship/tl-v0-constraint-wide-zone-advantage: outcome served -> served
+   measured: sentences 9 -> 14 (9 word for word the same); lines 58 -> 79
+   measured: added [Set up] 'Mark a channel along one touchline, 40 m long and between 4.5 m and 7.5 m wide' (class 6; OURS: assumption in our restatement)
+   measured: added [Set up] 'Mark a channel along the opposite touchline, 40 m long and between 4.5 m and 7.5 m wide' (class 6; OURS: assumption in our restatement)
+   measured: added [How to score] 'A score is worth 2 instead of 1 once the attacking team has touched the ball inside either channel and kept it after that touch. The bonus lasts until possession changes' (class 4; TEST ASSUMPTION)
+   measured: added [Adjusting the activity] 'Around 6 m to 7.5 m wide works well for the channel along one touchline' (class 4; TEST ASSUMPTION)
+   measured: added [Adjusting the activity] 'Around 6 m to 7.5 m wide works well for the channel along the opposite touchline' (class 4; TEST ASSUMPTION)
+   measured: lines added (21): c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S3, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S4, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S4::perceptual-reference, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S6, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S3, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S4, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S4::perceptual-reference, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S6, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8a, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b::restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-02.a, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b::restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-03, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8c, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8d, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V9, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V9a, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S5, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S5, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S7, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S7, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V10
+   measured: diagram served: true -> false
+   measured: diagram verdict: 'DRAWN' -> 'WITHHELD'
+   measured: diagram area: {lengthM: 40, widthM: 30} -> none
+   measured: diagram counts: ['2 teams of 6'] -> []
+   measured: diagram legend: ['target zone'] -> []
+   measured: diagram zones: [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 35, to: 40}, across: {from: 0, to: 30}}] -> []
+   measured: diagram findings: [] -> [{rule: 'D0', blockId: 'ONE_GAME', what: 'c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a: Set up states its extent as limits the coach chooses within, so drawing it at one size would state a size the activity does not fix'}, {rule: 'D0', blockId: 'ONE_GAME', what: 'c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03: Set up states its extent as limits the coach chooses within, so drawing it at one size would state a size the activity does not fix'}]
+   measured: identical: lines no, sentences no, diagram no
+B1c (N7:188): why the manipulation is placed in the selection and not authorized in the record, and why it is the one used (measured on the chain directly)
+   shows: the measured reasons behind B1b's route: the checked pathway refuses a record that authorizes one manipulation alone (an unexpected limitation), and of the contracted manipulations two compose with GF2 on A05-2 and one does not
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: through the TEST-ONLY record's authorized set (tl-v0-constraint-wide-zone-advantage as its one constraint): refused at selection: selection: A05: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF2; unfilled roles: foundation, consequence; held by ruling: none. Nothing was drawn from outside the goal's candidates.
+   measured: placed the same way: tl-v0-constraint-neutral-player-condition: served
+   measured: placed the same way: tl-v0-constraint-variable-target-condition: refused at structure (a pre-realization Gate A invariant fails: GA-INFORMATION, GA-NO-FAILED-LINE)
+   measured: used in B1b: tl-v0-constraint-wide-zone-advantage, which has a contract and a choices file and composes with GF2; the record route's refusal is reported as a limitation of the checked pathway (a record cannot authorize one manipulation alone)
+B2 (N7:139, N7:163-166): the Game Problem swapped to Gain Access (a candidate) in the TEST-ONLY record: the configuration is identical, and the mismatch is reported, never switched
+   shows: no Game Problem determines any line today (the critical gap): swapping it leaves the configuration identical; the difference is reported and Step 1's resolution stands
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: Game Problem: MISMATCH, reported and never switched: the TEST-ONLY record carries GP-005 (TEST ASSUMPTION; Gain Access, a candidate relationship for A05, put into the record in a test only, to show that no line follows the Game Problem; HO-05NOV-GAIN-ACCESS), where Step 1 resolves primary GP-001, secondary GP-002; Step 1's resolution stands and is what this report names; no line of the chain reads a Game Problem, so no line can follow either
+   measured: A05-2 -> A05-2/game-problem-GP-005: outcome served -> served
+   measured: sentences 9 -> 9 (9 word for word the same); lines 58 -> 58
+   measured: diagram: identical
+   measured: identical: lines yes, sentences yes, diagram yes
+B3 (N7:155-157): a value outside an open line's alternatives is refused by the chain (GF2 zones with a target noun the form does not authorize)
+   shows: a value outside the alternatives the knowledge authorizes for an open line is refused, never served
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: proposed: applied as an ILLUSTRATIVE supplied choice (permitted by HO-05NOV-ILLUSTRATIVE); whether the line admits it is the chain's to say
+   measured: GF2-ZONES -> GF2-ZONES/noun-outside: outcome served -> refused at realization
+   measured: the variant is refused at realization: realization refused; c:restated:GF2:GF2-03.e::S3: 'circle' is not one of the permitted alternatives ['zone','line']
+   measured: no configuration is produced: none of the base's 8 sentences or 41 lines, and no diagram
+B4a (N7:157): an ILLUSTRATIVE value on an open line is accepted and labelled on every sentence citing that line
+   shows: an illustrative choice for an open line is accepted only as illustrative: the line is class 5 and every sentence citing it carries the label
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: 'Mark a 5 m end zone across the full width at each end': class 6; OURS: assumption in our restatement (ILLUSTRATIVE among its other labels)
+   measured: 'A team scores 1 point by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside': class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+   measured: 'Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game': class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+B4b (N7:16, N7:174): an ILLUSTRATIVE value on a line nothing establishes is refused and reported
+   shows: missing knowledge is never filled by an illustrative value: a value for a line nothing establishes is refused, and the gap is reported
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: proposed: applied as an ILLUSTRATIVE supplied choice (permitted by HO-05NOV-ILLUSTRATIVE); whether the line admits it is the chain's to say
+   measured: GF2-ZONES -> GF2-ZONES/restart-policy: outcome served -> refused at realization
+   measured: the variant is refused at realization: realization refused; game::RP1: nobody established this, so it is not a freedom to close — filling it would convert missing knowledge into a choice
+   measured: no configuration is produced: none of the base's 8 sentences or 41 lines, and no diagram
+B5 (N7:15, N7:155-157): A05 zone -> line is reported contrary to Christian's 28 October ruling and not applied; the configuration is identical
+   shows: a value contrary to a ruling of Christian's is reported as contrary and never applied over it
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: proposed c:restated:GF2:GF2-03.e::S3 = 'line': contrary to Christian's ruling HO-28OCT-ENDZONE (received 28 October 2026, provisional), which closes the line as 'zone': not applied; the line keeps the ruling's value
+   measured: proposed c:restated:GF2:GF2-03.f::S3 = 'line': contrary to Christian's ruling HO-28OCT-ENDZONE (received 28 October 2026, provisional), which closes the line as 'zone': not applied; the line keeps the ruling's value
+   measured: proposed game::V1 = 'line_crossed': contrary to Christian's ruling HO-28OCT-PROVISIONAL (received 28 October 2026, provisional), which closes the line as 'target_zone_entered': not applied; the line keeps the ruling's value
+   measured: A05-2 -> A05-2/lines: outcome served -> served
+   measured: sentences 9 -> 9 (9 word for word the same); lines 58 -> 58
+   measured: diagram: identical
+   measured: identical: lines yes, sentences yes, diagram yes
+B6 (N7:16, N7:53): GF3 named for A05 is refused at knowledge (no contract) with the alternatives still listed; with no named form, the alternatives are retained and nothing is selected
+   shows: a compatible form without a contract is refused at knowledge with the other forms still visible; with no basis to select, the alternatives are retained and nothing is fabricated
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: A05-2 -> A05-2/GF3: outcome served -> refused at knowledge
+   measured: the variant is refused at knowledge: the game form GF3 has no contribution contract
+   measured: no configuration is produced: none of the base's 9 sentences or 58 lines, and no diagram
+   measured: A05-2 -> A05-2/no-form: outcome served -> not run at handoff (form)
+   measured: the variant is refused at handoff (form): alternatives retained; no basis to select
+   measured: no configuration is produced: none of the base's 9 sentences or 58 lines, and no diagram
+   measured: no named form: alternatives retained; no basis to select; retained with no preference: GF2, GF3, GF7
+
+-- Fourth: the mechanism is structurally reusable (Test C, section 11)
+C1 (N7:158-160, N7:22-23): three legitimate arrangements through the same code, each with complete text and the coach diagram: GF2 reciprocal end zones, GF2 on lines, A01's asymmetric role blocks
+   shows: the same configuration and rendering process supports more than one legitimate structural arrangement (role-less reciprocal zones, lines, asymmetric role blocks), each complete with text and diagram
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: GF2-ZONES: served; 8 sentences (1 review-only: 'Mark a 5 m end zone across the full width at each end'); fidelity 0; coach diagram served and drawn, legend 'target zone'
+   measured: GF2-LINES: served; 8 sentences (0 review-only: none); fidelity 0; coach diagram served and drawn, legend 'target line'
+   measured: A01: served; 29 sentences (0 review-only: none); fidelity 0; coach diagram served and drawn, legend 'marked line', 'target zone', 'starting area', 'team colour, kept in every block', 'role in this block', 'attacking direction', 'penalty area'
+   measured: one mechanism (runHandoff) and one chain wiring for all three; no sentence is authored for any of them: the text is the checked renderer's, plus decision 1's generic review-only zone sentence
+C2 (N7:161, N7:26-31): GF4 after decision 2, through the same code: refused at structure on its trigger reachability alone, no example-incentive line named
+   shows: decision 2 removes the example incentives as requirements, and GF4 still does not generate: it stops at structure for a reason decision 2 does not touch, stated honestly
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: GF2-LINES -> GF4-STRUCTURAL: outcome served -> refused at structure
+   measured: the variant is refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-TRIGGER-REACHABLE
+   measured: no configuration is produced: none of the base's 8 sentences or 41 lines, and no diagram
+   measured: the derivation-level account (the example-incentive lines gone, the required structural conditions still enforced) is pinned by derivation/gf4-example-incentives.unit.ts, in the suite
+C3 (N7:161, N7:188): TA01 through the handoff: Step 2 SELECTED GF4, and the chain refuses at knowledge (its context has no contract)
+   shows: a goal whose form Step 2 selects is carried by the same mechanism, and stops where the knowledge stops (our 6 November proposal said the GF4 goals stop at the structural check; they stop at knowledge first)
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: form: SELECTED_BY_STEP_2 GF4; refused at knowledge: the Representative Performance Context RPC-006 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game
+   measured: what it rests on: NOT KNOWLEDGE: the refusal cites no item: a missing contract
+C4 (N7:16, N7:155-157): refusal controls: the goals where Step 1 or Step 2 stops are stopped by the handoff before the chain; D02 (Step 2 SELECTED GF4) stops at knowledge
+   shows: where Step 1 or Step 2 gives the handoff nothing to place, it stops before the chain and names why; no goal is routed around its gap
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: A03: RESOLVED; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED; Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED
+   measured: A04: UNRESOLVED; Step 2 NOT_EVALUATED; Step 1 is UNRESOLVED: TRANSLATION_UNPOPULATED; no form is placed
+   measured: A06: UNRESOLVED; Step 2 NOT_EVALUATED; Step 1 is UNRESOLVED: TRANSLATION_UNPOPULATED; no form is placed
+   measured: D01: RESOLVED; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED; Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED
+   measured: D03: RESOLVED; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED; Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED
+   measured: TD01: RESOLVED_NOT_RELATED_TO_CONTEXT; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED; Step 1 is RESOLVED_NOT_RELATED_TO_CONTEXT: GAME_PROBLEM_NOT_RELATED_TO_CONTEXT; no form is placed
+   measured: TD02: RESOLVED_NOT_RELATED_TO_CONTEXT; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED; Step 1 is RESOLVED_NOT_RELATED_TO_CONTEXT: GAME_PROBLEM_NOT_RELATED_TO_CONTEXT; no form is placed
+   measured: D02: RESOLVED; Step 2 SELECTED; knowledge: the Representative Performance Context RPC-007 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game
+
+-- The coach-served end-line restart (DESIGN 3.5, time-boxed; section 7)
+R1 (N7:96-98, N7:101): DESIGN 3.5, time-boxed: the coach-served end-line restart in Christian's words does not compose; where it stops, pinned
+   shows: the restart Christian asked for, typed as TEST-ONLY realization items in Christian's words on A05-1 and A05-2: where the checked chain stops, and what a diagnostic TEST ASSUMPTION would meet next
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+   measured: A05-2 with the restart items (end-line trigger, last-touch partition for each team, the team that did not touch it last, the coach as taker, a served ball, play stopped and resumed, the location under N7:89): refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:provisional:A05-H1:A05-H1-T1-1::T7
+   measured: A05-1 with the same items: refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 2 unresolved properties are neither an authorized choice nor an authorized claim: c:provisional:A05-H1:A05-H1-T1-1::T7, c:restated:RPC-003:RPC-003-12.a::V5
+   measured: no ruling of Christian's says whether this restart begins an episode, so no episode item is added to any case; the restart does not compose from Christian's words, and no DRAFT restart sentence was added to the review-only wording
+   measured: diagnostic only, never a case: with a TEST ASSUMPTION that the restart begins an episode and the coach-decided location closed, A05-2 passes structure, realization and validation and is refused at communication (7 fidelity reasons: no instruction carries the restart's last touch, award, taker, method, play state or location; the renderer names no coach as taker and has no served-ball phrase); A05-1 is still refused at structure on the drafted control line alone
+   measured: no engine feature was built (DESIGN 3.5); the restart stays described in the report only, under the unexpected limitations of the checked pathway
+
+-- Provenance handling (section 13)
+P1 (N7:15, N7:133-134): the grading map, pinned per kind
+   shows: every kind of determining premise has one fixed grading (OURS, for Christian's review)
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+P2 (N7:25, N7:157): no line is graded APPROVED from a restatement of ours; ILLUSTRATIVE never above class 5; a stand-in never above its declared label
+   shows: no restatement of ours is graded above class 3, no illustrative value above class 5 and no stand-in above its label, in every case
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+P3 (N7:157): the illustrative depth: the stand-ins determine exactly the two zones' along lines, and every sentence citing them carries the ILLUSTRATIVE label
+   shows: an illustrative value carried as a stand-in item is labelled ILLUSTRATIVE on every sentence that says it
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+P4 (N7:135-136): the no-offside sentence rests on Christian's provisional ruling (class 3), and the session lines are ILLUSTRATIVE (A05) or coach input within a ruled bound (A01)
+   shows: a sentence resting on a provisional ruling is graded by it; session inputs are graded as illustrative or as coach input within a ruled bound
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+P5 (N7:137-138): the purpose's source evidence and approval evidence are printed apart, and the approval evidence claims no dated approval
+   shows: the purpose's source and its approval evidence are kept apart; an Active status is not offered as a dated approval
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+P6 (N7:163-175): every configuration carries the line that productive, recurring opportunities are not established
+   shows: the critical knowledge gap is printed on every configuration
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+P7 (N7:133-134): the grading tables are checked against their sources: the specification's standing decisions, the contracts, the choices files
+   shows: the grading tables are data checked against the specification, the contracts and the choices files
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+P8 (N7:12): a malformed TEST-ONLY realization is refused by the realization gate before any build
+   shows: a TEST-ONLY realization passes the same gate as a production one before any build
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+
+-- Engineering checks of the handoff itself
+E1 (N7:15): the inputs are validated by hand: each defect refuses the file
+   shows: a malformed handoff input is refused, naming the defect
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+E2 (N7:11-12): the stage files import nothing of the chain and name none of the assembly record's readers
+   shows: the handoff's stage files stay isolated from the chain and from the hand-authored record
+   implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
+
+REFUSALS AND WHAT THEY REST ON (19: 3 RESTATEMENT-ONLY, 3 MIXED, 13 NOT KNOWLEDGE). OURS, read from each refusal's own reasons; no check is changed by it (Christian's second reply of 7 November: "No changes to validation behavior are authorized by this email."). A RESTATEMENT-ONLY refusal rests only on our restatements, which are CANDIDATE: it may be conservative without establishing that the configuration violates approved knowledge. Each cited line is read back to the item that establishes its element; the line's own bound may come from another item, which this reading does not name.
+- case A05-0: stage structure; obstructs the configuration pathway: yes: the case's configuration stops here (A05_AS_THE_KNOWLEDGE_STANDS)
+   what it rests on (OURS): RESTATEMENT-ONLY: every cited item is a restatement of ours (DRAFT_ITEM), with no ruling of Christian's among them; codes GA-NO-FAILED-LINE
+     cites c:restated:RPC-003:RPC-003-12.a::V5: its element is established by item RPC-003-12.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, 'DRAFT knowledge (ours, unreviewed)'
+     cites c:restated:RPC-003:RPC-003-10.a::V6: its element is established by item RPC-003-10.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, 'DRAFT knowledge (ours, unreviewed)'
+- case A05-1: stage structure; obstructs the configuration pathway: yes: the case's configuration stops here (A05_UNDER_TEST_ONLY_TREATMENTS)
+   what it rests on (OURS): RESTATEMENT-ONLY: every cited item is a restatement of ours (DRAFT_ITEM), with no ruling of Christian's among them; codes GA-NO-FAILED-LINE
+     cites c:restated:RPC-003:RPC-003-12.a::V5: its element is established by item RPC-003-12.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, 'DRAFT knowledge (ours, unreviewed)'
+- case TA01: stage knowledge; obstructs the configuration pathway: yes: the case's configuration stops here (PRODUCTION_RECORDS)
+   what it rests on (OURS): NOT KNOWLEDGE: the refusal cites no item: a missing contract; codes knowledge refusal
+- test R1 (A05-2 with the restart items in Christian's words): stage structure; obstructs the configuration pathway: no for the activity (the restart is a refinement: Christian's second reply of 7 November, section 5), but it is a structural refusal of the restart Christian asked for: the episode line has no ruling, so the restart is described in the report only
+   what it rests on (OURS): MIXED: at least one cited item rests on a ruling of Christian's (REALIZATION_ITEM); codes GA-NO-FAILED-LINE
+     cites c:provisional:A05-H1:A05-H1-T1-1::T7: its element is established by item A05-H1-T1-1 of provisional:A05-H1 (a provisional realization), basis OWNER_RULING; graded REALIZATION_ITEM, 'RULING, provisional' (a TEST-ONLY realization of this case, in Christian's words)
+- test R1 (A05-1 with the restart items in Christian's words): stage structure; obstructs the configuration pathway: no for the activity (the restart is a refinement: Christian's second reply of 7 November, section 5), but it is a structural refusal of the restart Christian asked for: the episode line has no ruling, so the restart is described in the report only
+   what it rests on (OURS): MIXED: at least one cited item rests on a ruling of Christian's (REALIZATION_ITEM, DRAFT_ITEM); codes GA-NO-FAILED-LINE
+     cites c:provisional:A05-H1:A05-H1-T1-1::T7: its element is established by item A05-H1-T1-1 of provisional:A05-H1 (a provisional realization), basis OWNER_RULING; graded REALIZATION_ITEM, 'RULING, provisional' (a TEST-ONLY realization of this case, in Christian's words)
+     cites c:restated:RPC-003:RPC-003-12.a::V5: its element is established by item RPC-003-12.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, 'DRAFT knowledge (ours, unreviewed)'
+- test B1c (A05-2 with the variable target condition placed on the stand-in): stage structure; obstructs the configuration pathway: no for this pathway: it shows only that this manipulation does not compose with GF2 here; the manipulation Test B uses composes
+   what it rests on (OURS): RESTATEMENT-ONLY: every cited item is a restatement of ours (RESTATED_ITEM), with no ruling of Christian's among them; codes GA-INFORMATION, GA-NO-FAILED-LINE
+     cites c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-05.a::S3: its element is established by item VARTARGET-05.a of restated:VARIABLE-TARGET-CONDITION (knowledge), basis AUTHORED; graded RESTATED_ITEM, 'our restatement of the restated object (its evidence names no source the grading table knows)'
+     cites c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V18: its element is established by item VARTARGET-13.a of restated:VARIABLE-TARGET-CONDITION (knowledge), basis AUTHORED; graded RESTATED_ITEM, 'our restatement of the restated object (its evidence names no source the grading table knows)'
+     cites c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V19: its element is established by item VARTARGET-13.a of restated:VARIABLE-TARGET-CONDITION (knowledge), basis AUTHORED; graded RESTATED_ITEM, 'our restatement of the restated object (its evidence names no source the grading table knows)'
+     cites c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V20: its element is established by item VARTARGET-13.a of restated:VARIABLE-TARGET-CONDITION (knowledge), basis AUTHORED; graded RESTATED_ITEM, 'our restatement of the restated object (its evidence names no source the grading table knows)'
+- test B3 (GF2-ZONES/noun-outside): stage realization; obstructs the configuration pathway: no: the test exists to show this refusal
+   what it rests on (OURS): MIXED: at least one cited item rests on a ruling of Christian's (KNOWLEDGE_RULING_ITEM); codes realization refusal
+     cites c:restated:GF2:GF2-03.e::S3: its element is established by item GF2-03.e of restated:GF2 (knowledge), basis OWNER_RULING; graded KNOWLEDGE_RULING_ITEM, 'RULING'
+- test B4b (GF2-ZONES/restart-policy): stage realization; obstructs the configuration pathway: no: the test exists to show this refusal
+   what it rests on (OURS): NOT KNOWLEDGE: the refusal cites no item: an engine check (realization refusal); codes realization refusal
+- test B6 (A05-2/GF3): stage knowledge; obstructs the configuration pathway: no: the test exists to show this refusal
+   what it rests on (OURS): NOT KNOWLEDGE: the refusal cites no item: a missing contract; codes knowledge refusal
+- test B6 (A05-2/no-form): stage handoff (form); obstructs the configuration pathway: no: the test exists to show this refusal
+   what it rests on (OURS): NOT KNOWLEDGE: the handoff stopped before the chain: alternatives retained; no basis to select; codes handoff (form) refusal
+- test C2 (GF4-STRUCTURAL): stage structure; obstructs the configuration pathway: yes for GF4: it does not generate; the trigger the form needs is unreachable because its teams are an assumption of our restatement
+   what it rests on (OURS): NOT KNOWLEDGE: the refusal cites no item: an engine check (GA-TRIGGER-REACHABLE); codes GA-TRIGGER-REACHABLE
+- test C4 (A03): stage handoff (form); obstructs the configuration pathway: yes for A03: no form can be placed without a basis; nothing is fabricated to pass it
+   what it rests on (OURS): NOT KNOWLEDGE: the handoff stopped before the chain: Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED; codes handoff (form) refusal
+- test C4 (A04): stage handoff (form); obstructs the configuration pathway: yes for A04: no form can be placed without a basis; nothing is fabricated to pass it
+   what it rests on (OURS): NOT KNOWLEDGE: the handoff stopped before the chain: Step 1 is UNRESOLVED: TRANSLATION_UNPOPULATED; no form is placed; codes handoff (form) refusal
+- test C4 (A06): stage handoff (form); obstructs the configuration pathway: yes for A06: no form can be placed without a basis; nothing is fabricated to pass it
+   what it rests on (OURS): NOT KNOWLEDGE: the handoff stopped before the chain: Step 1 is UNRESOLVED: TRANSLATION_UNPOPULATED; no form is placed; codes handoff (form) refusal
+- test C4 (D01): stage handoff (form); obstructs the configuration pathway: yes for D01: no form can be placed without a basis; nothing is fabricated to pass it
+   what it rests on (OURS): NOT KNOWLEDGE: the handoff stopped before the chain: Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED; codes handoff (form) refusal
+- test C4 (D03): stage handoff (form); obstructs the configuration pathway: yes for D03: no form can be placed without a basis; nothing is fabricated to pass it
+   what it rests on (OURS): NOT KNOWLEDGE: the handoff stopped before the chain: Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED; codes handoff (form) refusal
+- test C4 (TD01): stage handoff (form); obstructs the configuration pathway: yes for TD01: no form can be placed without a basis; nothing is fabricated to pass it
+   what it rests on (OURS): NOT KNOWLEDGE: the handoff stopped before the chain: Step 1 is RESOLVED_NOT_RELATED_TO_CONTEXT: GAME_PROBLEM_NOT_RELATED_TO_CONTEXT; no form is placed; codes handoff (form) refusal
+- test C4 (TD02): stage handoff (form); obstructs the configuration pathway: yes for TD02: no form can be placed without a basis; nothing is fabricated to pass it
+   what it rests on (OURS): NOT KNOWLEDGE: the handoff stopped before the chain: Step 1 is RESOLVED_NOT_RELATED_TO_CONTEXT: GAME_PROBLEM_NOT_RELATED_TO_CONTEXT; no form is placed; codes handoff (form) refusal
+- test C4 (D02): stage knowledge; obstructs the configuration pathway: yes for D02: its context has no contract; nothing is fabricated to pass it
+   what it rests on (OURS): NOT KNOWLEDGE: the refusal cites no item: a missing contract; codes knowledge refusal
+
+Christian's words cited (28 entries, verbatim, each with its received date and the file it is filed in):
    HO-07NOV-HANDOFF, received 7 November 2026; scope ISOLATED_DEVELOPMENT_PATHWAY; filed in sources/2026-11-07-handoff-authorization/originals/christian-reply-to-reusable-configuration-proposal.txt
        "I authorize the bounded implementation and testing of your proposed handoff between the existing review pathway and the checked configuration/rendering machinery." (received 7 November 2026)
        "This authorization is for an isolated development pathway only." (received 7 November 2026)
@@ -124,6 +459,8 @@ Christian's words cited (27 entries, verbatim, each with its received date and t
        "The selected form should not be presented as demonstrably superior merely because it is the one assembled." (received 5 November 2026)
    HO-05NOV-GF2-REVIEW, received 5 November 2026, first reply; scope REVIEW_PROTOTYPE; filed in sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt
        "Using GF2 for a review prototype is acceptable when explicitly described as an illustrative choice, not a justified selection over the other forms." (received 5 November 2026)
+   HO-05NOV-GAIN-ACCESS, received 5 November 2026, second reply; scope none stated; filed in sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt
+       "Gain Access remains a candidate relationship, not an approved addition." (received 5 November 2026)
    HO-05NOV-ILLUSTRATIVE, received 5 November 2026, second reply; scope OFFLINE_PROTOTYPE; filed in sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt
        "Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled and kept outside production selection authority." (received 5 November 2026)
    HO-05NOV-KICKOFF, received 5 November 2026, first reply, provisional; scope CURRENT_PROTOTYPE; filed in sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt
@@ -233,6 +570,9 @@ Result standing: A05_AS_THE_KNOWLEDGE_STANDS
    - Gate A is FAIL
    - a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
    - 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6
+   what it rests on (OURS): RESTATEMENT-ONLY: every cited item is a restatement of ours (DRAFT_ITEM), with no ruling of Christian's among them; codes GA-NO-FAILED-LINE
+     cites c:restated:RPC-003:RPC-003-12.a::V5: its element is established by item RPC-003-12.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, 'DRAFT knowledge (ours, unreviewed)'
+     cites c:restated:RPC-003:RPC-003-10.a::V6: its element is established by item RPC-003-10.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, 'DRAFT knowledge (ours, unreviewed)'
 
 13. Gaps (6)
    - the chain refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6
@@ -351,6 +691,8 @@ Result standing: A05_UNDER_TEST_ONLY_TREATMENTS
    - Gate A is FAIL
    - a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
    - 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5
+   what it rests on (OURS): RESTATEMENT-ONLY: every cited item is a restatement of ours (DRAFT_ITEM), with no ruling of Christian's among them; codes GA-NO-FAILED-LINE
+     cites c:restated:RPC-003:RPC-003-12.a::V5: its element is established by item RPC-003-12.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, 'DRAFT knowledge (ours, unreviewed)'
 
 13. Gaps (6)
    - the chain refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5
@@ -448,6 +790,7 @@ Result standing: CONDITIONAL_NOT_A05_RESULT (a conditional diagnostic: never pre
    Game Problems: the chain's account reads UNRESOLVED none (inferred from wording: GP-015); Step 1: primary GP-001, secondary GP-002; no line of the chain reads a Game Problem; a difference is reported, never switched
    affordance lenses: Possession Stability Opportunity; Line-Breaking Opportunity; Space Creation Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection
    constraints in the selection: none
+   fidelity violations on the text: 0
 
 7. Configuration lines (58)
    c:restated:GF2:GF2-03.e::S5 | space.regions[c:restated:GF2:GF2-03.e].position.along | 'attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior'
@@ -797,6 +1140,7 @@ Result standing: PRODUCTION_RECORDS
    Game Problems: the chain's account reads APPROVED GP-005 (inferred from wording: GP-015); Step 1: primary GP-005, secondary none; no line of the chain reads a Game Problem; a difference is reported, never switched
    affordance lenses: Possession Stability Opportunity; Line-Breaking Opportunity; Space Creation Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection
    constraints in the selection: none
+   fidelity violations on the text: 0
 
 7. Configuration lines (153)
    c:provisional:A01-R1:A01-R1-B1-1::B2 | activityRoles[c:provisional:A01-R1:A01-R1-B1-1].activityRole | 'BUILDING'
@@ -1504,6 +1848,7 @@ Result standing: STRUCTURAL_CASE
    Game Problems: the chain's account reads APPROVED GP-015 (inferred from wording: GP-015); Step 1: none (structural case); no line of the chain reads a Game Problem; a difference is reported, never switched
    affordance lenses: Possession Stability Opportunity; Line-Breaking Opportunity; Space Creation Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection
    constraints in the selection: none
+   fidelity violations on the text: 0
 
 7. Configuration lines (41)
    c:restated:GF2:GF2-03.e::S5 | space.regions[c:restated:GF2:GF2-03.e].position.along | 'attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior'
@@ -1754,6 +2099,7 @@ Result standing: STRUCTURAL_CASE
    Game Problems: the chain's account reads APPROVED GP-015 (inferred from wording: GP-015); Step 1: none (structural case); no line of the chain reads a Game Problem; a difference is reported, never switched
    affordance lenses: Possession Stability Opportunity; Line-Breaking Opportunity; Space Creation Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection
    constraints in the selection: none
+   fidelity violations on the text: 0
 
 7. Configuration lines (41)
    c:restated:GF2:GF2-03.e::S5 | space.regions[c:restated:GF2:GF2-03.e].position.along | 'attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior'
@@ -2016,6 +2362,7 @@ Result standing: PRODUCTION_RECORDS
 12. Refusal
    stage knowledge
    - the Representative Performance Context RPC-006 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game
+   what it rests on (OURS): NOT KNOWLEDGE: the refusal cites no item: a missing contract; codes knowledge refusal
 
 13. Gaps (1)
    - the chain refused at knowledge: the Representative Performance Context RPC-006 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game

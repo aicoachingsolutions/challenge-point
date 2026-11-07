@@ -209,6 +209,17 @@
             "scope": "REVIEW_PROTOTYPE"
         },
         {
+            "id": "HO-05NOV-GAIN-ACCESS",
+            "words": [
+                "Gain Access remains a candidate relationship, not an approved addition."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "replyOfDay": "second reply",
+            "provisional": false,
+            "scope": null
+        },
+        {
             "id": "HO-05NOV-ILLUSTRATIVE",
             "words": [
                 "Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled and kept outside production selection authority."

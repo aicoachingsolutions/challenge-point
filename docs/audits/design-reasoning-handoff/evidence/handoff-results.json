@@ -7,6 +7,3815 @@
   "The hand-authored A05 review record these replace as the activity's source: 57 activity values and 47 coach-text templates (its sentences and notes), every one entered by hand; the handoff's coach text is the checked renderer's and the review-only wording's.",
   "Routine choices (kind C by our reading) the hand-authored record turned into values, which the handoff leaves to the coach with no value: restart.endLine.location = 'IN_THE_HALF_WHERE_IT_WENT_OUT_OUTSIDE_BOTH_TARGET_ZONES_NOT_ACROSS_EITHER_COACH_CHOOSES_PLAYER' (class 5, ENTERED_ILLUSTRATIVE); restart.endLine.receivingDistance = null (class 6, UNRESOLVED); duration.blocks = 3 (class 5, ENTERED_ILLUSTRATIVE); duration.blockMinutes = 6 (class 5, ENTERED_ILLUSTRATIVE); duration.breaks = 'SHORT_BREAK_BETWEEN_BLOCKS' (class 5, ENTERED_ILLUSTRATIVE); equipment.bibs = 'ONE_COLOUR_PER_TEAM_KEPT_ALL_SESSION' (class 5, ENTERED_ILLUSTRATIVE); equipment.markers = 'AREA_HALFWAY_CENTRE_TARGET_ZONES' (class 5, ENTERED_ILLUSTRATIVE); equipment.balls = 'SPARE_BALLS' (class 5, ENTERED_ILLUSTRATIVE)."
  ],
+ "tests": [
+  {
+   "id": "F1",
+   "group": "First: the pathways connect (Christian's reply of 7 November, section 11)",
+   "cites": "N7:150-151",
+   "shows": "the A05 cases are received, resolved by Steps 1 and 2, and run through the checked chain; the hand-authored A05 record is unreadable while they run and the results are identical",
+   "title": "First: the A05 runs go end to end through Steps 1 and 2 and the chain with the hand-authored record never read",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "F2",
+   "group": "First: the pathways connect (Christian's reply of 7 November, section 11)",
+   "cites": "N7:150-151",
+   "shows": "the same mechanism carries A01 to exactly the checked game a coach is served",
+   "title": "First: A01 through the handoff, with its production records and realizations, gives buildActivity's 29 instructions, text and from-paths",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "F3",
+   "group": "First: the pathways connect (Christian's reply of 7 November, section 11)",
+   "cites": "N7:155-157, N7:163-166",
+   "shows": "with the knowledge as it stands, the chain refuses A05 at structure and the refusal names the drafted lines; nothing is filled in to make it generate",
+   "title": "A05-0, the knowledge as it stands: refused at structure on the drafted origin and control lines",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "F4",
+   "group": "First: the pathways connect (Christian's reply of 7 November, section 11)",
+   "cites": "N7:33-37",
+   "shows": "the provisional state reading, carried only as a labelled TEST-ONLY withholding of the origin items, leaves the drafted control line refused at structure",
+   "title": "A05-1, the starting-condition reading as a TEST-ONLY treatment: refused at structure on the drafted control line alone (measured; DESIGN expected communication)",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "F5",
+   "group": "First: the pathways connect (Christian's reply of 7 November, section 11)",
+   "cites": "N7:41-46",
+   "shows": "what the handoff produces once the 13 September wording is verified and corrected offline: a conditional diagnostic, never A05's result",
+   "title": "A05-2, CONDITIONAL and never A05's result: served, with the no-offside sentence, the review-only zone sentence and the kick-off reported",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "F6",
+   "group": "First: the pathways connect (Christian's reply of 7 November, section 11)",
+   "cites": "N7:150-151, N7:158-161",
+   "shows": "the same mechanism serves the two structural cases and stops TA01 at knowledge with the form Step 2 selected",
+   "title": "the structural cases (no Learning Goal) are served through the same mechanism; TA01 stops at knowledge with Step 2's form",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "A1",
+   "group": "Second: valid changes are reusable (Test A, section 11)",
+   "cites": "N7:152-154, N7:126-128",
+   "shows": "a legitimate session change (players) produces exactly the corresponding changes in lines, text and diagram, on the A05 route and on generic GF2 zones, through the same code; each changed sentence keeps the label of its new premise (an illustrative session input)",
+   "title": "12 -> 10 players on the A05 route (A05-2) and on generic GF2 zones: exactly the players sentence, the two team sizes and the diagram's counts change",
+   "measured": [
+    "A05-2 -> A05-2/players-10: outcome served -> served",
+    "sentences 9 -> 9 (8 word for word the same); lines 58 -> 58",
+    "changed [Players] 'Divide 12 players into 2 teams of 6, with no goalkeepers' -> 'Divide 10 players into 2 teams of 5, with no goalkeepers' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); from-paths the same)",
+    "line game::E1: 12 -> 10 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))",
+    "line assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2: 6 -> 5 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))",
+    "line assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2: 6 -> 5 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))",
+    "diagram counts: ['2 teams of 6'] -> ['2 teams of 5']",
+    "identical: lines no, sentences no, diagram no",
+    "GF2-ZONES -> GF2-ZONES/players-10: outcome served -> served",
+    "sentences 8 -> 8 (7 word for word the same); lines 41 -> 41",
+    "changed [Players] 'Divide 12 players into 2 teams of 6, with no goalkeepers' -> 'Divide 10 players into 2 teams of 5, with no goalkeepers' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); from-paths the same)",
+    "line game::E1: 12 -> 10 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))",
+    "line assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2: 6 -> 5 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))",
+    "line assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2: 6 -> 5 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))",
+    "diagram counts: ['2 teams of 6'] -> ['2 teams of 5']",
+    "identical: lines no, sentences no, diagram no"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "A2",
+   "group": "Second: valid changes are reusable (Test A, section 11)",
+   "cites": "N7:152-154, N7:126-128",
+   "shows": "a legitimate session change (dimensions) changes exactly the area sentence, the dimension lines and the diagram (area, and the zones, which keep their 5 m depth and run the new full width)",
+   "title": "40 x 30 -> 50 x 35 m on A05-2 and GF2 zones: exactly the area sentence, the two dimension lines and the diagram's area and zones change",
+   "measured": [
+    "A05-2 -> A05-2/area-50x35: outcome served -> served",
+    "sentences 9 -> 9 (8 word for word the same); lines 58 -> 58",
+    "changed [Set up] 'Mark out an area 40 m long by 30 m wide' -> 'Mark out an area 50 m long by 35 m wide' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); from-paths the same)",
+    "line game::E2: 40 -> 50 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))",
+    "line game::E3: 30 -> 35 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))",
+    "diagram area: {lengthM: 40, widthM: 30} -> {lengthM: 50, widthM: 35}",
+    "diagram zones: [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 35, to: 40}, across: {from: 0, to: 30}}] -> [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 35}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 45, to: 50}, across: {from: 0, to: 35}}]",
+    "identical: lines no, sentences no, diagram no",
+    "GF2-ZONES -> GF2-ZONES/area-50x35: outcome served -> served",
+    "sentences 8 -> 8 (7 word for word the same); lines 41 -> 41",
+    "changed [Set up] 'Mark out an area 40 m long by 30 m wide' -> 'Mark out an area 50 m long by 35 m wide' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); from-paths the same)",
+    "line game::E2: 40 -> 50 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))",
+    "line game::E3: 30 -> 35 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))",
+    "diagram area: {lengthM: 40, widthM: 30} -> {lengthM: 50, widthM: 35}",
+    "diagram zones: [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 35, to: 40}, across: {from: 0, to: 30}}] -> [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 35}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 45, to: 50}, across: {from: 0, to: 35}}]",
+    "identical: lines no, sentences no, diagram no"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "A3",
+   "group": "Second: valid changes are reusable (Test A, section 11)",
+   "cites": "N7:152-154, N7:126-128",
+   "shows": "a legitimate session change (duration) changes exactly the duration sentence and line",
+   "title": "18 -> 24 minutes on A05-2 and GF2 zones: exactly the duration sentence and line change; the diagram is identical",
+   "measured": [
+    "A05-2 -> A05-2/duration-24: outcome served -> served",
+    "sentences 9 -> 9 (8 word for word the same); lines 58 -> 58",
+    "changed [When it ends] 'Play for 18 minutes' -> 'Play for 24 minutes' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); from-paths the same)",
+    "line game::E4: 18 -> 24 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))",
+    "diagram: identical",
+    "identical: lines no, sentences no, diagram yes",
+    "GF2-ZONES -> GF2-ZONES/duration-24: outcome served -> served",
+    "sentences 8 -> 8 (7 word for word the same); lines 41 -> 41",
+    "changed [When it ends] 'Play for 18 minutes' -> 'Play for 24 minutes' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); from-paths the same)",
+    "line game::E4: 18 -> 24 (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use))",
+    "diagram: identical",
+    "identical: lines no, sentences no, diagram yes"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "A4",
+   "group": "Second: valid changes are reusable (Test A, section 11)",
+   "cites": "N7:152-154, N7:157",
+   "shows": "an illustrative value (the zone depth, carried by a labelled stand-in) changes only what says it: the zone sentence and the drawn zone depths; it stays labelled ILLUSTRATIVE",
+   "title": "the ILLUSTRATIVE zone depth 5 -> 8 m on A05-2 and GF2 zones: only the zone sentence and the diagram's zone depths change, and the sentence keeps the ILLUSTRATIVE label",
+   "measured": [
+    "A05-2 -> A05-2/depth-8: outcome served -> served",
+    "sentences 9 -> 9 (8 word for word the same); lines 58 -> 58",
+    "changed [Set up] 'Mark a 5 m end zone across the full width at each end' -> 'Mark a 8 m end zone across the full width at each end' (class 6; OURS: assumption in our restatement -> class 6; OURS: assumption in our restatement; from-paths the same)",
+    "diagram zones: [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 35, to: 40}, across: {from: 0, to: 30}}] -> [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 8}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 32, to: 40}, across: {from: 0, to: 30}}]",
+    "identical: lines yes, sentences no, diagram no",
+    "the variant's zone sentence still lists, among its other classes and labels: 'class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)'",
+    "GF2-ZONES -> GF2-ZONES/depth-8: outcome served -> served",
+    "sentences 8 -> 8 (7 word for word the same); lines 41 -> 41",
+    "changed [Set up] 'Mark a 5 m end zone across the full width at each end' -> 'Mark a 8 m end zone across the full width at each end' (class 6; OURS: assumption in our restatement -> class 6; OURS: assumption in our restatement; from-paths the same)",
+    "diagram zones: [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 35, to: 40}, across: {from: 0, to: 30}}] -> [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 8}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 32, to: 40}, across: {from: 0, to: 30}}]",
+    "identical: lines yes, sentences no, diagram no",
+    "the variant's zone sentence still lists, among its other classes and labels: 'class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)'"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "A5",
+   "group": "Second: valid changes are reusable (Test A, section 11)",
+   "cites": "N7:152-154; N7:12",
+   "shows": "on A01's production records, a coach's session change within the ruled testing boundaries changes exactly the two sentences that depend on it (the team sizes, and who moves at the exchange, whose relative count resolves to none)",
+   "title": "A01 12 -> 11 players (within its ruled testing boundaries): exactly 2 of its 29 sentences change, with the lines that carry them",
+   "measured": [
+    "A01 -> A01/players-11: outcome served -> served",
+    "sentences 29 -> 29 (27 word for word the same); lines 153 -> 150",
+    "changed [Players] 'Divide 12 players into 2 teams: the building team has 6 outfield players and 1 goalkeeper; the pressing team has 5 outfield players' -> 'Divide 11 players into 2 teams: the building team has 5 outfield players and 1 goalkeeper; the pressing team has 5 outfield players' (class 3; coach input, within a ruled bound (RULING, provisional) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / coach input, within a ruled bound (RULING, provisional) -> class 3; coach input, within a ruled bound (RULING, provisional) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / coach input, within a ruled bound (RULING, provisional); from-paths the same)",
+    "changed [Role exchange] 'When you call the next block, 1 goalkeeper and 1 outfield player move to the team that becomes the building team' -> 'When you call the next block, 1 goalkeeper moves to the team that becomes the building team' (class 3; RULING, provisional -> class 3; RULING, provisional; from-paths changed)",
+    "line game::E1: 12 -> 11 (class 3; coach input, within a ruled bound (RULING, provisional) -> class 3; coach input, within a ruled bound (RULING, provisional))",
+    "line assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2: 6 -> 5 (class 3; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / coach input, within a ruled bound (RULING, provisional) -> class 3; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / coach input, within a ruled bound (RULING, provisional))",
+    "lines gone (3): c:provisional:A01-R1:A01-R1-B4-2::B5, c:provisional:A01-R1:A01-R1-B4-2::B6, c:provisional:A01-R1:A01-R1-B4-2::B7",
+    "diagram: identical",
+    "identical: lines no, sentences no, diagram yes"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "A6",
+   "group": "Second: valid changes are reusable (Test A, section 11)",
+   "cites": "N7:152-154, N7:22-23",
+   "shows": "choosing the form's other authorized target (lines for zones) changes the open lines, every sentence that says them and the diagram, consistently, with no sentence authored for either arrangement",
+   "title": "GF2's open target noun, zone <-> line (an authorized alternative of the form): structure, text and diagram change together and consistently",
+   "measured": [
+    "GF2-ZONES -> GF2-LINES: outcome served -> served",
+    "sentences 8 -> 8 (4 word for word the same); lines 41 -> 41",
+    "changed [Set up] 'Mark a 5 m end zone across the full width at each end' -> 'Mark both end lines: they are the scoring lines' (class 6; OURS: assumption in our restatement -> class 6; OURS: a realization choice of ours, not knowledge / OURS: assumption in our restatement; from-paths changed)",
+    "changed [How it works] 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same target' -> 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same line' (class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) -> class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json); from-paths changed)",
+    "changed [How to score] 'A team scores 1 point by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside' -> 'A team scores 1 point by getting the ball across the line it is attacking' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 6; OURS: a realization choice of ours, not knowledge; from-paths changed)",
+    "changed [How to score] 'Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game' -> 'Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 2; RULING; from-paths changed)",
+    "line c:restated:GF2:GF2-03.e::S5: 'attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior' -> 'attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json))",
+    "line c:restated:GF2:GF2-03.f::S5: 'attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior' -> 'attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json))",
+    "line c:restated:GF2:GF2-03.e::S3: 'zone' -> 'line' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 6; OURS: a realization choice of ours, not knowledge)",
+    "line c:restated:GF2:GF2-03.f::S3: 'zone' -> 'line' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 6; OURS: a realization choice of ours, not knowledge)",
+    "line game::V1: 'target_zone_entered' -> 'line_crossed' (class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) -> class 6; OURS: a realization choice of ours, not knowledge)",
+    "diagram legend: ['target zone'] -> ['target line']",
+    "diagram zones: [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 35, to: 40}, across: {from: 0, to: 30}}] -> []",
+    "identical: lines no, sentences no, diagram no",
+    "the two along lines keep their value and change grade only: with zones their extent is the illustrative depth (a stand-in, class 5); with lines nothing bounds an extent"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "B1a",
+   "group": "Third: unsupported selections remain unsupported (Test B, section 11)",
+   "cites": "N7:16, N7:155-157, N7:163-166",
+   "shows": "with no authorized relationship between the Game Problem and the manipulation, nothing is added and the missing relationship is named",
+   "title": "a manipulation proposed for Create Space with no authorized relationship is reported missing, and the configuration is identical",
+   "measured": [
+    "manipulation: no authorized relationship: GP-001 (Create Space) to tl-v0-constraint-wide-zone-advantage; the configuration is unchanged",
+    "A05-2 -> A05-2/manipulation/tl-v0-constraint-wide-zone-advantage: outcome served -> served",
+    "sentences 9 -> 9 (9 word for word the same); lines 58 -> 58",
+    "diagram: identical",
+    "identical: lines yes, sentences yes, diagram yes"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "B1b",
+   "group": "Third: unsupported selections remain unsupported (Test B, section 11)",
+   "cites": "N7:17-18, N7:155-157",
+   "shows": "once a relationship exists (here only a labelled TEST-ONLY stand-in, class 4, never knowledge), the same mechanism applies the manipulation and every line and sentence it brings carries that relationship as its ceiling",
+   "title": "the same manipulation on a TEST-ONLY relationship stand-in (TEST ASSUMPTION): applied, and every line it brings is graded no higher than class 4",
+   "measured": [
+    "manipulation: applied on a TEST-ONLY stand-in relationship (TEST-ONLY-RELATIONSHIP-CS-WZA), never knowledge: placed in the selection explicitly; the record's authorized set is unchanged",
+    "the TEST-ONLY record's authorized set stays empty; the manipulation is placed in the selection; lines it brings (18): c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S3 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S4 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S4::perceptual-reference class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S6 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S3 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S4 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S4::perceptual-reference class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S6 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8a class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b::restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-02.a class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b::restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-03 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8c class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8d class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V9 class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V9a class 4; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S5 class 6; c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S5 class 6",
+    "A05-2 -> A05-2/manipulation+relationship/tl-v0-constraint-wide-zone-advantage: outcome served -> served",
+    "sentences 9 -> 14 (9 word for word the same); lines 58 -> 79",
+    "added [Set up] 'Mark a channel along one touchline, 40 m long and between 4.5 m and 7.5 m wide' (class 6; OURS: assumption in our restatement)",
+    "added [Set up] 'Mark a channel along the opposite touchline, 40 m long and between 4.5 m and 7.5 m wide' (class 6; OURS: assumption in our restatement)",
+    "added [How to score] 'A score is worth 2 instead of 1 once the attacking team has touched the ball inside either channel and kept it after that touch. The bonus lasts until possession changes' (class 4; TEST ASSUMPTION)",
+    "added [Adjusting the activity] 'Around 6 m to 7.5 m wide works well for the channel along one touchline' (class 4; TEST ASSUMPTION)",
+    "added [Adjusting the activity] 'Around 6 m to 7.5 m wide works well for the channel along the opposite touchline' (class 4; TEST ASSUMPTION)",
+    "lines added (21): c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S3, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S4, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S4::perceptual-reference, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S6, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S3, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S4, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S4::perceptual-reference, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S6, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8a, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b::restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-02.a, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b::restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-03, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8c, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8d, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V9, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V9a, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S5, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S5, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S7, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S7, c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V10",
+    "diagram served: true -> false",
+    "diagram verdict: 'DRAWN' -> 'WITHHELD'",
+    "diagram area: {lengthM: 40, widthM: 30} -> none",
+    "diagram counts: ['2 teams of 6'] -> []",
+    "diagram legend: ['target zone'] -> []",
+    "diagram zones: [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 35, to: 40}, across: {from: 0, to: 30}}] -> []",
+    "diagram findings: [] -> [{rule: 'D0', blockId: 'ONE_GAME', what: 'c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a: Set up states its extent as limits the coach chooses within, so drawing it at one size would state a size the activity does not fix'}, {rule: 'D0', blockId: 'ONE_GAME', what: 'c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03: Set up states its extent as limits the coach chooses within, so drawing it at one size would state a size the activity does not fix'}]",
+    "identical: lines no, sentences no, diagram no"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "B1c",
+   "group": "Third: unsupported selections remain unsupported (Test B, section 11)",
+   "cites": "N7:188",
+   "shows": "the measured reasons behind B1b's route: the checked pathway refuses a record that authorizes one manipulation alone (an unexpected limitation), and of the contracted manipulations two compose with GF2 on A05-2 and one does not",
+   "title": "why the manipulation is placed in the selection and not authorized in the record, and why it is the one used (measured on the chain directly)",
+   "measured": [
+    "through the TEST-ONLY record's authorized set (tl-v0-constraint-wide-zone-advantage as its one constraint): refused at selection: selection: A05: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF2; unfilled roles: foundation, consequence; held by ruling: none. Nothing was drawn from outside the goal's candidates.",
+    "placed the same way: tl-v0-constraint-neutral-player-condition: served",
+    "placed the same way: tl-v0-constraint-variable-target-condition: refused at structure (a pre-realization Gate A invariant fails: GA-INFORMATION, GA-NO-FAILED-LINE)",
+    "used in B1b: tl-v0-constraint-wide-zone-advantage, which has a contract and a choices file and composes with GF2; the record route's refusal is reported as a limitation of the checked pathway (a record cannot authorize one manipulation alone)"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "B2",
+   "group": "Third: unsupported selections remain unsupported (Test B, section 11)",
+   "cites": "N7:139, N7:163-166",
+   "shows": "no Game Problem determines any line today (the critical gap): swapping it leaves the configuration identical; the difference is reported and Step 1's resolution stands",
+   "title": "the Game Problem swapped to Gain Access (a candidate) in the TEST-ONLY record: the configuration is identical, and the mismatch is reported, never switched",
+   "measured": [
+    "Game Problem: MISMATCH, reported and never switched: the TEST-ONLY record carries GP-005 (TEST ASSUMPTION; Gain Access, a candidate relationship for A05, put into the record in a test only, to show that no line follows the Game Problem; HO-05NOV-GAIN-ACCESS), where Step 1 resolves primary GP-001, secondary GP-002; Step 1's resolution stands and is what this report names; no line of the chain reads a Game Problem, so no line can follow either",
+    "A05-2 -> A05-2/game-problem-GP-005: outcome served -> served",
+    "sentences 9 -> 9 (9 word for word the same); lines 58 -> 58",
+    "diagram: identical",
+    "identical: lines yes, sentences yes, diagram yes"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "B3",
+   "group": "Third: unsupported selections remain unsupported (Test B, section 11)",
+   "cites": "N7:155-157",
+   "shows": "a value outside the alternatives the knowledge authorizes for an open line is refused, never served",
+   "title": "a value outside an open line's alternatives is refused by the chain (GF2 zones with a target noun the form does not authorize)",
+   "measured": [
+    "proposed: applied as an ILLUSTRATIVE supplied choice (permitted by HO-05NOV-ILLUSTRATIVE); whether the line admits it is the chain's to say",
+    "GF2-ZONES -> GF2-ZONES/noun-outside: outcome served -> refused at realization",
+    "the variant is refused at realization: realization refused; c:restated:GF2:GF2-03.e::S3: 'circle' is not one of the permitted alternatives ['zone','line']",
+    "no configuration is produced: none of the base's 8 sentences or 41 lines, and no diagram"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "B4a",
+   "group": "Third: unsupported selections remain unsupported (Test B, section 11)",
+   "cites": "N7:157",
+   "shows": "an illustrative choice for an open line is accepted only as illustrative: the line is class 5 and every sentence citing it carries the label",
+   "title": "an ILLUSTRATIVE value on an open line is accepted and labelled on every sentence citing that line",
+   "measured": [
+    "'Mark a 5 m end zone across the full width at each end': class 6; OURS: assumption in our restatement (ILLUSTRATIVE among its other labels)",
+    "'A team scores 1 point by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside': class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+    "'Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game': class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "B4b",
+   "group": "Third: unsupported selections remain unsupported (Test B, section 11)",
+   "cites": "N7:16, N7:174",
+   "shows": "missing knowledge is never filled by an illustrative value: a value for a line nothing establishes is refused, and the gap is reported",
+   "title": "an ILLUSTRATIVE value on a line nothing establishes is refused and reported",
+   "measured": [
+    "proposed: applied as an ILLUSTRATIVE supplied choice (permitted by HO-05NOV-ILLUSTRATIVE); whether the line admits it is the chain's to say",
+    "GF2-ZONES -> GF2-ZONES/restart-policy: outcome served -> refused at realization",
+    "the variant is refused at realization: realization refused; game::RP1: nobody established this, so it is not a freedom to close — filling it would convert missing knowledge into a choice",
+    "no configuration is produced: none of the base's 8 sentences or 41 lines, and no diagram"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "B5",
+   "group": "Third: unsupported selections remain unsupported (Test B, section 11)",
+   "cites": "N7:15, N7:155-157",
+   "shows": "a value contrary to a ruling of Christian's is reported as contrary and never applied over it",
+   "title": "A05 zone -> line is reported contrary to Christian's 28 October ruling and not applied; the configuration is identical",
+   "measured": [
+    "proposed c:restated:GF2:GF2-03.e::S3 = 'line': contrary to Christian's ruling HO-28OCT-ENDZONE (received 28 October 2026, provisional), which closes the line as 'zone': not applied; the line keeps the ruling's value",
+    "proposed c:restated:GF2:GF2-03.f::S3 = 'line': contrary to Christian's ruling HO-28OCT-ENDZONE (received 28 October 2026, provisional), which closes the line as 'zone': not applied; the line keeps the ruling's value",
+    "proposed game::V1 = 'line_crossed': contrary to Christian's ruling HO-28OCT-PROVISIONAL (received 28 October 2026, provisional), which closes the line as 'target_zone_entered': not applied; the line keeps the ruling's value",
+    "A05-2 -> A05-2/lines: outcome served -> served",
+    "sentences 9 -> 9 (9 word for word the same); lines 58 -> 58",
+    "diagram: identical",
+    "identical: lines yes, sentences yes, diagram yes"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "B6",
+   "group": "Third: unsupported selections remain unsupported (Test B, section 11)",
+   "cites": "N7:16, N7:53",
+   "shows": "a compatible form without a contract is refused at knowledge with the other forms still visible; with no basis to select, the alternatives are retained and nothing is fabricated",
+   "title": "GF3 named for A05 is refused at knowledge (no contract) with the alternatives still listed; with no named form, the alternatives are retained and nothing is selected",
+   "measured": [
+    "A05-2 -> A05-2/GF3: outcome served -> refused at knowledge",
+    "the variant is refused at knowledge: the game form GF3 has no contribution contract",
+    "no configuration is produced: none of the base's 9 sentences or 58 lines, and no diagram",
+    "A05-2 -> A05-2/no-form: outcome served -> not run at handoff (form)",
+    "the variant is refused at handoff (form): alternatives retained; no basis to select",
+    "no configuration is produced: none of the base's 9 sentences or 58 lines, and no diagram",
+    "no named form: alternatives retained; no basis to select; retained with no preference: GF2, GF3, GF7"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "C1",
+   "group": "Fourth: the mechanism is structurally reusable (Test C, section 11)",
+   "cites": "N7:158-160, N7:22-23",
+   "shows": "the same configuration and rendering process supports more than one legitimate structural arrangement (role-less reciprocal zones, lines, asymmetric role blocks), each complete with text and diagram",
+   "title": "three legitimate arrangements through the same code, each with complete text and the coach diagram: GF2 reciprocal end zones, GF2 on lines, A01's asymmetric role blocks",
+   "measured": [
+    "GF2-ZONES: served; 8 sentences (1 review-only: 'Mark a 5 m end zone across the full width at each end'); fidelity 0; coach diagram served and drawn, legend 'target zone'",
+    "GF2-LINES: served; 8 sentences (0 review-only: none); fidelity 0; coach diagram served and drawn, legend 'target line'",
+    "A01: served; 29 sentences (0 review-only: none); fidelity 0; coach diagram served and drawn, legend 'marked line', 'target zone', 'starting area', 'team colour, kept in every block', 'role in this block', 'attacking direction', 'penalty area'",
+    "one mechanism (runHandoff) and one chain wiring for all three; no sentence is authored for any of them: the text is the checked renderer's, plus decision 1's generic review-only zone sentence"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "C2",
+   "group": "Fourth: the mechanism is structurally reusable (Test C, section 11)",
+   "cites": "N7:161, N7:26-31",
+   "shows": "decision 2 removes the example incentives as requirements, and GF4 still does not generate: it stops at structure for a reason decision 2 does not touch, stated honestly",
+   "title": "GF4 after decision 2, through the same code: refused at structure on its trigger reachability alone, no example-incentive line named",
+   "measured": [
+    "GF2-LINES -> GF4-STRUCTURAL: outcome served -> refused at structure",
+    "the variant is refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-TRIGGER-REACHABLE",
+    "no configuration is produced: none of the base's 8 sentences or 41 lines, and no diagram",
+    "the derivation-level account (the example-incentive lines gone, the required structural conditions still enforced) is pinned by derivation/gf4-example-incentives.unit.ts, in the suite"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "C3",
+   "group": "Fourth: the mechanism is structurally reusable (Test C, section 11)",
+   "cites": "N7:161, N7:188",
+   "shows": "a goal whose form Step 2 selects is carried by the same mechanism, and stops where the knowledge stops (our 6 November proposal said the GF4 goals stop at the structural check; they stop at knowledge first)",
+   "title": "TA01 through the handoff: Step 2 SELECTED GF4, and the chain refuses at knowledge (its context has no contract)",
+   "measured": [
+    "form: SELECTED_BY_STEP_2 GF4; refused at knowledge: the Representative Performance Context RPC-006 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game",
+    "what it rests on: NOT KNOWLEDGE: the refusal cites no item: a missing contract"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "C4",
+   "group": "Fourth: the mechanism is structurally reusable (Test C, section 11)",
+   "cites": "N7:16, N7:155-157",
+   "shows": "where Step 1 or Step 2 gives the handoff nothing to place, it stops before the chain and names why; no goal is routed around its gap",
+   "title": "refusal controls: the goals where Step 1 or Step 2 stops are stopped by the handoff before the chain; D02 (Step 2 SELECTED GF4) stops at knowledge",
+   "measured": [
+    "A03: RESOLVED; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED; Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED",
+    "A04: UNRESOLVED; Step 2 NOT_EVALUATED; Step 1 is UNRESOLVED: TRANSLATION_UNPOPULATED; no form is placed",
+    "A06: UNRESOLVED; Step 2 NOT_EVALUATED; Step 1 is UNRESOLVED: TRANSLATION_UNPOPULATED; no form is placed",
+    "D01: RESOLVED; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED; Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED",
+    "D03: RESOLVED; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED; Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED",
+    "TD01: RESOLVED_NOT_RELATED_TO_CONTEXT; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED; Step 1 is RESOLVED_NOT_RELATED_TO_CONTEXT: GAME_PROBLEM_NOT_RELATED_TO_CONTEXT; no form is placed",
+    "TD02: RESOLVED_NOT_RELATED_TO_CONTEXT; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED; Step 1 is RESOLVED_NOT_RELATED_TO_CONTEXT: GAME_PROBLEM_NOT_RELATED_TO_CONTEXT; no form is placed",
+    "D02: RESOLVED; Step 2 SELECTED; knowledge: the Representative Performance Context RPC-007 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "R1",
+   "group": "The coach-served end-line restart (DESIGN 3.5, time-boxed; section 7)",
+   "cites": "N7:96-98, N7:101",
+   "shows": "the restart Christian asked for, typed as TEST-ONLY realization items in Christian's words on A05-1 and A05-2: where the checked chain stops, and what a diagnostic TEST ASSUMPTION would meet next",
+   "title": "DESIGN 3.5, time-boxed: the coach-served end-line restart in Christian's words does not compose; where it stops, pinned",
+   "measured": [
+    "A05-2 with the restart items (end-line trigger, last-touch partition for each team, the team that did not touch it last, the coach as taker, a served ball, play stopped and resumed, the location under N7:89): refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:provisional:A05-H1:A05-H1-T1-1::T7",
+    "A05-1 with the same items: refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 2 unresolved properties are neither an authorized choice nor an authorized claim: c:provisional:A05-H1:A05-H1-T1-1::T7, c:restated:RPC-003:RPC-003-12.a::V5",
+    "no ruling of Christian's says whether this restart begins an episode, so no episode item is added to any case; the restart does not compose from Christian's words, and no DRAFT restart sentence was added to the review-only wording",
+    "diagnostic only, never a case: with a TEST ASSUMPTION that the restart begins an episode and the coach-decided location closed, A05-2 passes structure, realization and validation and is refused at communication (7 fidelity reasons: no instruction carries the restart's last touch, award, taker, method, play state or location; the renderer names no coach as taker and has no served-ball phrase); A05-1 is still refused at structure on the drafted control line alone",
+    "no engine feature was built (DESIGN 3.5); the restart stays described in the report only, under the unexpected limitations of the checked pathway"
+   ],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "P1",
+   "group": "Provenance handling (section 13)",
+   "cites": "N7:15, N7:133-134",
+   "shows": "every kind of determining premise has one fixed grading (OURS, for Christian's review)",
+   "title": "the grading map, pinned per kind",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "P2",
+   "group": "Provenance handling (section 13)",
+   "cites": "N7:25, N7:157",
+   "shows": "no restatement of ours is graded above class 3, no illustrative value above class 5 and no stand-in above its label, in every case",
+   "title": "no line is graded APPROVED from a restatement of ours; ILLUSTRATIVE never above class 5; a stand-in never above its declared label",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "P3",
+   "group": "Provenance handling (section 13)",
+   "cites": "N7:157",
+   "shows": "an illustrative value carried as a stand-in item is labelled ILLUSTRATIVE on every sentence that says it",
+   "title": "the illustrative depth: the stand-ins determine exactly the two zones' along lines, and every sentence citing them carries the ILLUSTRATIVE label",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "P4",
+   "group": "Provenance handling (section 13)",
+   "cites": "N7:135-136",
+   "shows": "a sentence resting on a provisional ruling is graded by it; session inputs are graded as illustrative or as coach input within a ruled bound",
+   "title": "the no-offside sentence rests on Christian's provisional ruling (class 3), and the session lines are ILLUSTRATIVE (A05) or coach input within a ruled bound (A01)",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "P5",
+   "group": "Provenance handling (section 13)",
+   "cites": "N7:137-138",
+   "shows": "the purpose's source and its approval evidence are kept apart; an Active status is not offered as a dated approval",
+   "title": "the purpose's source evidence and approval evidence are printed apart, and the approval evidence claims no dated approval",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "P6",
+   "group": "Provenance handling (section 13)",
+   "cites": "N7:163-175",
+   "shows": "the critical knowledge gap is printed on every configuration",
+   "title": "every configuration carries the line that productive, recurring opportunities are not established",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "P7",
+   "group": "Provenance handling (section 13)",
+   "cites": "N7:133-134",
+   "shows": "the grading tables are data checked against the specification, the contracts and the choices files",
+   "title": "the grading tables are checked against their sources: the specification's standing decisions, the contracts, the choices files",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "P8",
+   "group": "Provenance handling (section 13)",
+   "cites": "N7:12",
+   "shows": "a TEST-ONLY realization passes the same gate as a production one before any build",
+   "title": "a malformed TEST-ONLY realization is refused by the realization gate before any build",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "E1",
+   "group": "Engineering checks of the handoff itself",
+   "cites": "N7:15",
+   "shows": "a malformed handoff input is refused, naming the defect",
+   "title": "the inputs are validated by hand: each defect refuses the file",
+   "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "E2",
+   "group": "Engineering checks of the handoff itself",
+   "cites": "N7:11-12",
+   "shows": "the handoff's stage files stay isolated from the chain and from the hand-authored record",
+   "title": "the stage files import nothing of the chain and name none of the assembly record's readers",
+   "measured": [],
+   "verdict": "passing engineering test"
+  }
+ ],
+ "comparisons": [
+  {
+   "test": "A1",
+   "comparison": {
+    "baseCase": "A05-2",
+    "variantCase": "A05-2/players-10",
+    "outcome": [
+     "served",
+     "served"
+    ],
+    "stage": [
+     null,
+     null
+    ],
+    "sentences": {
+     "before": 9,
+     "after": 9,
+     "kept": 8,
+     "changed": [
+      {
+       "section": "Players",
+       "before": "Divide 12 players into 2 teams of 6, with no goalkeepers",
+       "after": "Divide 10 players into 2 teams of 5, with no goalkeepers",
+       "fromChanged": false,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 58,
+     "after": 58,
+     "changed": [
+      {
+       "lineId": "game::E1",
+       "before": 12,
+       "after": 10,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+       "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2",
+       "before": 6,
+       "after": 5,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+       "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2",
+       "before": 6,
+       "after": 5,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "added": [],
+     "removed": []
+    },
+    "diagram": {
+     "changed": [
+      "counts"
+     ],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 5"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     }
+    },
+    "identical": {
+     "lines": false,
+     "sentences": false,
+     "diagram": false
+    },
+    "variantRefusal": null
+   }
+  },
+  {
+   "test": "A1",
+   "comparison": {
+    "baseCase": "GF2-ZONES",
+    "variantCase": "GF2-ZONES/players-10",
+    "outcome": [
+     "served",
+     "served"
+    ],
+    "stage": [
+     null,
+     null
+    ],
+    "sentences": {
+     "before": 8,
+     "after": 8,
+     "kept": 7,
+     "changed": [
+      {
+       "section": "Players",
+       "before": "Divide 12 players into 2 teams of 6, with no goalkeepers",
+       "after": "Divide 10 players into 2 teams of 5, with no goalkeepers",
+       "fromChanged": false,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 41,
+     "after": 41,
+     "changed": [
+      {
+       "lineId": "game::E1",
+       "before": 12,
+       "after": 10,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+       "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2",
+       "before": 6,
+       "after": 5,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+       "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2",
+       "before": 6,
+       "after": 5,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "added": [],
+     "removed": []
+    },
+    "diagram": {
+     "changed": [
+      "counts"
+     ],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 5"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     }
+    },
+    "identical": {
+     "lines": false,
+     "sentences": false,
+     "diagram": false
+    },
+    "variantRefusal": null
+   }
+  },
+  {
+   "test": "A2",
+   "comparison": {
+    "baseCase": "A05-2",
+    "variantCase": "A05-2/area-50x35",
+    "outcome": [
+     "served",
+     "served"
+    ],
+    "stage": [
+     null,
+     null
+    ],
+    "sentences": {
+     "before": 9,
+     "after": 9,
+     "kept": 8,
+     "changed": [
+      {
+       "section": "Set up",
+       "before": "Mark out an area 40 m long by 30 m wide",
+       "after": "Mark out an area 50 m long by 35 m wide",
+       "fromChanged": false,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 58,
+     "after": 58,
+     "changed": [
+      {
+       "lineId": "game::E2",
+       "before": 40,
+       "after": 50,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+       "lineId": "game::E3",
+       "before": 30,
+       "after": 35,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "added": [],
+     "removed": []
+    },
+    "diagram": {
+     "changed": [
+      "area",
+      "zones"
+     ],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 50,
+       "widthM": 35
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 35
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 45,
+         "to": 50
+        },
+        "across": {
+         "from": 0,
+         "to": 35
+        }
+       }
+      ],
+      "findings": []
+     }
+    },
+    "identical": {
+     "lines": false,
+     "sentences": false,
+     "diagram": false
+    },
+    "variantRefusal": null
+   }
+  },
+  {
+   "test": "A2",
+   "comparison": {
+    "baseCase": "GF2-ZONES",
+    "variantCase": "GF2-ZONES/area-50x35",
+    "outcome": [
+     "served",
+     "served"
+    ],
+    "stage": [
+     null,
+     null
+    ],
+    "sentences": {
+     "before": 8,
+     "after": 8,
+     "kept": 7,
+     "changed": [
+      {
+       "section": "Set up",
+       "before": "Mark out an area 40 m long by 30 m wide",
+       "after": "Mark out an area 50 m long by 35 m wide",
+       "fromChanged": false,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 41,
+     "after": 41,
+     "changed": [
+      {
+       "lineId": "game::E2",
+       "before": 40,
+       "after": 50,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+       "lineId": "game::E3",
+       "before": 30,
+       "after": 35,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "added": [],
+     "removed": []
+    },
+    "diagram": {
+     "changed": [
+      "area",
+      "zones"
+     ],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 50,
+       "widthM": 35
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 35
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 45,
+         "to": 50
+        },
+        "across": {
+         "from": 0,
+         "to": 35
+        }
+       }
+      ],
+      "findings": []
+     }
+    },
+    "identical": {
+     "lines": false,
+     "sentences": false,
+     "diagram": false
+    },
+    "variantRefusal": null
+   }
+  },
+  {
+   "test": "A3",
+   "comparison": {
+    "baseCase": "A05-2",
+    "variantCase": "A05-2/duration-24",
+    "outcome": [
+     "served",
+     "served"
+    ],
+    "stage": [
+     null,
+     null
+    ],
+    "sentences": {
+     "before": 9,
+     "after": 9,
+     "kept": 8,
+     "changed": [
+      {
+       "section": "When it ends",
+       "before": "Play for 18 minutes",
+       "after": "Play for 24 minutes",
+       "fromChanged": false,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 58,
+     "after": 58,
+     "changed": [
+      {
+       "lineId": "game::E4",
+       "before": 18,
+       "after": 24,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "added": [],
+     "removed": []
+    },
+    "diagram": {
+     "changed": [],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     }
+    },
+    "identical": {
+     "lines": false,
+     "sentences": false,
+     "diagram": true
+    },
+    "variantRefusal": null
+   }
+  },
+  {
+   "test": "A3",
+   "comparison": {
+    "baseCase": "GF2-ZONES",
+    "variantCase": "GF2-ZONES/duration-24",
+    "outcome": [
+     "served",
+     "served"
+    ],
+    "stage": [
+     null,
+     null
+    ],
+    "sentences": {
+     "before": 8,
+     "after": 8,
+     "kept": 7,
+     "changed": [
+      {
+       "section": "When it ends",
+       "before": "Play for 18 minutes",
+       "after": "Play for 24 minutes",
+       "fromChanged": false,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 41,
+     "after": 41,
+     "changed": [
+      {
+       "lineId": "game::E4",
+       "before": 18,
+       "after": 24,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "added": [],
+     "removed": []
+    },
+    "diagram": {
+     "changed": [],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     }
+    },
+    "identical": {
+     "lines": false,
+     "sentences": false,
+     "diagram": true
+    },
+    "variantRefusal": null
+   }
+  },
+  {
+   "test": "A4",
+   "comparison": {
+    "baseCase": "A05-2",
+    "variantCase": "A05-2/depth-8",
+    "outcome": [
+     "served",
+     "served"
+    ],
+    "stage": [
+     null,
+     null
+    ],
+    "sentences": {
+     "before": 9,
+     "after": 9,
+     "kept": 8,
+     "changed": [
+      {
+       "section": "Set up",
+       "before": "Mark a 5 m end zone across the full width at each end",
+       "after": "Mark a 8 m end zone across the full width at each end",
+       "fromChanged": false,
+       "gradeBefore": "class 6; OURS: assumption in our restatement",
+       "gradeAfter": "class 6; OURS: assumption in our restatement"
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 58,
+     "after": 58,
+     "changed": [],
+     "added": [],
+     "removed": []
+    },
+    "diagram": {
+     "changed": [
+      "zones"
+     ],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 8
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 32,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     }
+    },
+    "identical": {
+     "lines": true,
+     "sentences": false,
+     "diagram": false
+    },
+    "variantRefusal": null
+   }
+  },
+  {
+   "test": "A4",
+   "comparison": {
+    "baseCase": "GF2-ZONES",
+    "variantCase": "GF2-ZONES/depth-8",
+    "outcome": [
+     "served",
+     "served"
+    ],
+    "stage": [
+     null,
+     null
+    ],
+    "sentences": {
+     "before": 8,
+     "after": 8,
+     "kept": 7,
+     "changed": [
+      {
+       "section": "Set up",
+       "before": "Mark a 5 m end zone across the full width at each end",
+       "after": "Mark a 8 m end zone across the full width at each end",
+       "fromChanged": false,
+       "gradeBefore": "class 6; OURS: assumption in our restatement",
+       "gradeAfter": "class 6; OURS: assumption in our restatement"
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 41,
+     "after": 41,
+     "changed": [],
+     "added": [],
+     "removed": []
+    },
+    "diagram": {
+     "changed": [
+      "zones"
+     ],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 8
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 32,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     }
+    },
+    "identical": {
+     "lines": true,
+     "sentences": false,
+     "diagram": false
+    },
+    "variantRefusal": null
+   }
+  },
+  {
+   "test": "A5",
+   "comparison": {
+    "baseCase": "A01",
+    "variantCase": "A01/players-11",
+    "outcome": [
+     "served",
+     "served"
+    ],
+    "stage": [
+     null,
+     null
+    ],
+    "sentences": {
+     "before": 29,
+     "after": 29,
+     "kept": 27,
+     "changed": [
+      {
+       "section": "Players",
+       "before": "Divide 12 players into 2 teams: the building team has 6 outfield players and 1 goalkeeper; the pressing team has 5 outfield players",
+       "after": "Divide 11 players into 2 teams: the building team has 5 outfield players and 1 goalkeeper; the pressing team has 5 outfield players",
+       "fromChanged": false,
+       "gradeBefore": "class 3; coach input, within a ruled bound (RULING, provisional) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / coach input, within a ruled bound (RULING, provisional)",
+       "gradeAfter": "class 3; coach input, within a ruled bound (RULING, provisional) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / coach input, within a ruled bound (RULING, provisional)"
+      },
+      {
+       "section": "Role exchange",
+       "before": "When you call the next block, 1 goalkeeper and 1 outfield player move to the team that becomes the building team",
+       "after": "When you call the next block, 1 goalkeeper moves to the team that becomes the building team",
+       "fromChanged": true,
+       "gradeBefore": "class 3; RULING, provisional",
+       "gradeAfter": "class 3; RULING, provisional"
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 153,
+     "after": 150,
+     "changed": [
+      {
+       "lineId": "game::E1",
+       "before": 12,
+       "after": 11,
+       "gradeBefore": "class 3; coach input, within a ruled bound (RULING, provisional)",
+       "gradeAfter": "class 3; coach input, within a ruled bound (RULING, provisional)"
+      },
+      {
+       "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2",
+       "before": 6,
+       "after": 5,
+       "gradeBefore": "class 3; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / coach input, within a ruled bound (RULING, provisional)",
+       "gradeAfter": "class 3; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / coach input, within a ruled bound (RULING, provisional)"
+      }
+     ],
+     "added": [],
+     "removed": [
+      "c:provisional:A01-R1:A01-R1-B4-2::B5",
+      "c:provisional:A01-R1:A01-R1-B4-2::B6",
+      "c:provisional:A01-R1:A01-R1-B4-2::B7"
+     ]
+    },
+    "diagram": {
+     "changed": [],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [],
+      "legend": [
+       "marked line",
+       "target zone",
+       "starting area",
+       "team colour, kept in every block",
+       "role in this block",
+       "attacking direction",
+       "penalty area"
+      ],
+      "zones": [
+       {
+        "zone": "zone-1",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "zone-2",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [],
+      "legend": [
+       "marked line",
+       "target zone",
+       "starting area",
+       "team colour, kept in every block",
+       "role in this block",
+       "attacking direction",
+       "penalty area"
+      ],
+      "zones": [
+       {
+        "zone": "zone-1",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "zone-2",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     }
+    },
+    "identical": {
+     "lines": false,
+     "sentences": false,
+     "diagram": true
+    },
+    "variantRefusal": null
+   }
+  },
+  {
+   "test": "A6",
+   "comparison": {
+    "baseCase": "GF2-ZONES",
+    "variantCase": "GF2-LINES",
+    "outcome": [
+     "served",
+     "served"
+    ],
+    "stage": [
+     null,
+     null
+    ],
+    "sentences": {
+     "before": 8,
+     "after": 8,
+     "kept": 4,
+     "changed": [
+      {
+       "section": "Set up",
+       "before": "Mark a 5 m end zone across the full width at each end",
+       "after": "Mark both end lines: they are the scoring lines",
+       "fromChanged": true,
+       "gradeBefore": "class 6; OURS: assumption in our restatement",
+       "gradeAfter": "class 6; OURS: a realization choice of ours, not knowledge / OURS: assumption in our restatement"
+      },
+      {
+       "section": "How it works",
+       "before": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same target",
+       "after": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same line",
+       "fromChanged": true,
+       "gradeBefore": "class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "gradeAfter": "class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)"
+      },
+      {
+       "section": "How to score",
+       "before": "A team scores 1 point by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside",
+       "after": "A team scores 1 point by getting the ball across the line it is attacking",
+       "fromChanged": true,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 6; OURS: a realization choice of ours, not knowledge"
+      },
+      {
+       "section": "How to score",
+       "before": "Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
+       "after": "Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game",
+       "fromChanged": true,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 2; RULING"
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 41,
+     "after": 41,
+     "changed": [
+      {
+       "lineId": "c:restated:GF2:GF2-03.e::S5",
+       "before": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+       "after": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json)"
+      },
+      {
+       "lineId": "c:restated:GF2:GF2-03.f::S5",
+       "before": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+       "after": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json)"
+      },
+      {
+       "lineId": "c:restated:GF2:GF2-03.e::S3",
+       "before": "zone",
+       "after": "line",
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 6; OURS: a realization choice of ours, not knowledge"
+      },
+      {
+       "lineId": "c:restated:GF2:GF2-03.f::S3",
+       "before": "zone",
+       "after": "line",
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 6; OURS: a realization choice of ours, not knowledge"
+      },
+      {
+       "lineId": "game::V1",
+       "before": "target_zone_entered",
+       "after": "line_crossed",
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": "class 6; OURS: a realization choice of ours, not knowledge"
+      }
+     ],
+     "added": [],
+     "removed": []
+    },
+    "diagram": {
+     "changed": [
+      "legend",
+      "zones"
+     ],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target line"
+      ],
+      "zones": [],
+      "findings": []
+     }
+    },
+    "identical": {
+     "lines": false,
+     "sentences": false,
+     "diagram": false
+    },
+    "variantRefusal": null
+   }
+  },
+  {
+   "test": "B1a",
+   "comparison": {
+    "baseCase": "A05-2",
+    "variantCase": "A05-2/manipulation/tl-v0-constraint-wide-zone-advantage",
+    "outcome": [
+     "served",
+     "served"
+    ],
+    "stage": [
+     null,
+     null
+    ],
+    "sentences": {
+     "before": 9,
+     "after": 9,
+     "kept": 9,
+     "changed": [],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 58,
+     "after": 58,
+     "changed": [],
+     "added": [],
+     "removed": []
+    },
+    "diagram": {
+     "changed": [],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     }
+    },
+    "identical": {
+     "lines": true,
+     "sentences": true,
+     "diagram": true
+    },
+    "variantRefusal": null
+   }
+  },
+  {
+   "test": "B1b",
+   "comparison": {
+    "baseCase": "A05-2",
+    "variantCase": "A05-2/manipulation+relationship/tl-v0-constraint-wide-zone-advantage",
+    "outcome": [
+     "served",
+     "served"
+    ],
+    "stage": [
+     null,
+     null
+    ],
+    "sentences": {
+     "before": 9,
+     "after": 14,
+     "kept": 9,
+     "changed": [
+      {
+       "section": "Set up",
+       "before": null,
+       "after": "Mark a channel along one touchline, 40 m long and between 4.5 m and 7.5 m wide",
+       "fromChanged": null,
+       "gradeBefore": null,
+       "gradeAfter": "class 6; OURS: assumption in our restatement"
+      },
+      {
+       "section": "Set up",
+       "before": null,
+       "after": "Mark a channel along the opposite touchline, 40 m long and between 4.5 m and 7.5 m wide",
+       "fromChanged": null,
+       "gradeBefore": null,
+       "gradeAfter": "class 6; OURS: assumption in our restatement"
+      },
+      {
+       "section": "How to score",
+       "before": null,
+       "after": "A score is worth 2 instead of 1 once the attacking team has touched the ball inside either channel and kept it after that touch. The bonus lasts until possession changes",
+       "fromChanged": null,
+       "gradeBefore": null,
+       "gradeAfter": "class 4; TEST ASSUMPTION"
+      },
+      {
+       "section": "Adjusting the activity",
+       "before": null,
+       "after": "Around 6 m to 7.5 m wide works well for the channel along one touchline",
+       "fromChanged": null,
+       "gradeBefore": null,
+       "gradeAfter": "class 4; TEST ASSUMPTION"
+      },
+      {
+       "section": "Adjusting the activity",
+       "before": null,
+       "after": "Around 6 m to 7.5 m wide works well for the channel along the opposite touchline",
+       "fromChanged": null,
+       "gradeBefore": null,
+       "gradeAfter": "class 4; TEST ASSUMPTION"
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 58,
+     "after": 79,
+     "changed": [],
+     "added": [
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S3",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S4",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S4::perceptual-reference",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S6",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S3",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S4",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S4::perceptual-reference",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S6",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8a",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b::restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-02.a",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8b::restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-03",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8c",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V8d",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V9",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V9a",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S5",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S5",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S7",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S7",
+      "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a::V10"
+     ],
+     "removed": []
+    },
+    "diagram": {
+     "changed": [
+      "served",
+      "verdict",
+      "area",
+      "counts",
+      "legend",
+      "zones",
+      "findings"
+     ],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": {
+      "served": false,
+      "verdict": "WITHHELD",
+      "area": null,
+      "counts": [],
+      "legend": [],
+      "zones": [],
+      "findings": [
+       {
+        "rule": "D0",
+        "blockId": "ONE_GAME",
+        "what": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a: Set up states its extent as limits the coach chooses within, so drawing it at one size would state a size the activity does not fix"
+       },
+       {
+        "rule": "D0",
+        "blockId": "ONE_GAME",
+        "what": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03: Set up states its extent as limits the coach chooses within, so drawing it at one size would state a size the activity does not fix"
+       }
+      ]
+     }
+    },
+    "identical": {
+     "lines": false,
+     "sentences": false,
+     "diagram": false
+    },
+    "variantRefusal": null
+   }
+  },
+  {
+   "test": "B2",
+   "comparison": {
+    "baseCase": "A05-2",
+    "variantCase": "A05-2/game-problem-GP-005",
+    "outcome": [
+     "served",
+     "served"
+    ],
+    "stage": [
+     null,
+     null
+    ],
+    "sentences": {
+     "before": 9,
+     "after": 9,
+     "kept": 9,
+     "changed": [],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 58,
+     "after": 58,
+     "changed": [],
+     "added": [],
+     "removed": []
+    },
+    "diagram": {
+     "changed": [],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     }
+    },
+    "identical": {
+     "lines": true,
+     "sentences": true,
+     "diagram": true
+    },
+    "variantRefusal": null
+   }
+  },
+  {
+   "test": "B3",
+   "comparison": {
+    "baseCase": "GF2-ZONES",
+    "variantCase": "GF2-ZONES/noun-outside",
+    "outcome": [
+     "served",
+     "refused"
+    ],
+    "stage": [
+     null,
+     "realization"
+    ],
+    "sentences": {
+     "before": 8,
+     "after": 0,
+     "kept": 0,
+     "changed": [
+      {
+       "section": "Set up",
+       "before": "Mark out an area 40 m long by 30 m wide",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      },
+      {
+       "section": "Set up",
+       "before": "Mark a 5 m end zone across the full width at each end",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 6; OURS: assumption in our restatement",
+       "gradeAfter": null
+      },
+      {
+       "section": "Players",
+       "before": "Divide 12 players into 2 teams of 6, with no goalkeepers",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How it works",
+       "before": "Pick which team starts with the ball and tell both teams before you start",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How it works",
+       "before": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same target",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How to score",
+       "before": "A team scores 1 point by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How to score",
+       "before": "Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      },
+      {
+       "section": "When it ends",
+       "before": "Play for 18 minutes",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 41,
+     "after": 0,
+     "changed": [],
+     "added": [],
+     "removed": [
+      "c:restated:GF2:GF2-03.e::S5",
+      "c:restated:GF2:GF2-03.f::S5",
+      "c:restated:GF2:GF2-07.a::T6",
+      "c:restated:GF2:GF2-07.a::T7",
+      "c:restated:GF2:GF2-08.c::J2",
+      "c:restated:GF2:GF2-08.c::J3",
+      "c:restated:GF2:GF2-08.c::J4",
+      "c:restated:GF2:GF2-08.e::J2",
+      "c:restated:GF2:GF2-08.e::J3",
+      "c:restated:GF2:GF2-08.e::J4",
+      "c:sport-profile:soccer:SPORT-SOCCER-01::O2",
+      "game::E1",
+      "game::E2",
+      "game::E3",
+      "game::E4",
+      "game::S1",
+      "game::V2",
+      "c:restated:GF2:GF2-03.e::S3",
+      "c:restated:GF2:GF2-03.f::S3",
+      "game::V1",
+      "game::PS1",
+      "c:restated:GF2:GF2-03.e::S6",
+      "c:restated:GF2:GF2-03.f::S6",
+      "c:restated:GF2:GF2-03.e::S4",
+      "c:restated:GF2:GF2-03.e::S7",
+      "c:restated:GF2:GF2-03.f::S4",
+      "c:restated:GF2:GF2-03.f::S7",
+      "c:sport-profile:soccer:SPORT-SOCCER-01::O3",
+      "game::B10",
+      "game::P5",
+      "game::P6a",
+      "game::P6b",
+      "game::P6c",
+      "game::P7",
+      "game::RP1",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P3",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P3",
+      "c:restated:GF2:GF2-14.a::members",
+      "session::roles"
+     ]
+    },
+    "diagram": {
+     "changed": [
+      "the diagram itself"
+     ],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": null
+    },
+    "identical": {
+     "lines": false,
+     "sentences": false,
+     "diagram": false
+    },
+    "variantRefusal": {
+     "stage": "realization",
+     "reasons": [
+      "realization refused",
+      "c:restated:GF2:GF2-03.e::S3: \"circle\" is not one of the permitted alternatives [\"zone\",\"line\"]"
+     ]
+    }
+   }
+  },
+  {
+   "test": "B4b",
+   "comparison": {
+    "baseCase": "GF2-ZONES",
+    "variantCase": "GF2-ZONES/restart-policy",
+    "outcome": [
+     "served",
+     "refused"
+    ],
+    "stage": [
+     null,
+     "realization"
+    ],
+    "sentences": {
+     "before": 8,
+     "after": 0,
+     "kept": 0,
+     "changed": [
+      {
+       "section": "Set up",
+       "before": "Mark out an area 40 m long by 30 m wide",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      },
+      {
+       "section": "Set up",
+       "before": "Mark a 5 m end zone across the full width at each end",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 6; OURS: assumption in our restatement",
+       "gradeAfter": null
+      },
+      {
+       "section": "Players",
+       "before": "Divide 12 players into 2 teams of 6, with no goalkeepers",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How it works",
+       "before": "Pick which team starts with the ball and tell both teams before you start",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How it works",
+       "before": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same target",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How to score",
+       "before": "A team scores 1 point by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How to score",
+       "before": "Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      },
+      {
+       "section": "When it ends",
+       "before": "Play for 18 minutes",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 41,
+     "after": 0,
+     "changed": [],
+     "added": [],
+     "removed": [
+      "c:restated:GF2:GF2-03.e::S5",
+      "c:restated:GF2:GF2-03.f::S5",
+      "c:restated:GF2:GF2-07.a::T6",
+      "c:restated:GF2:GF2-07.a::T7",
+      "c:restated:GF2:GF2-08.c::J2",
+      "c:restated:GF2:GF2-08.c::J3",
+      "c:restated:GF2:GF2-08.c::J4",
+      "c:restated:GF2:GF2-08.e::J2",
+      "c:restated:GF2:GF2-08.e::J3",
+      "c:restated:GF2:GF2-08.e::J4",
+      "c:sport-profile:soccer:SPORT-SOCCER-01::O2",
+      "game::E1",
+      "game::E2",
+      "game::E3",
+      "game::E4",
+      "game::S1",
+      "game::V2",
+      "c:restated:GF2:GF2-03.e::S3",
+      "c:restated:GF2:GF2-03.f::S3",
+      "game::V1",
+      "game::PS1",
+      "c:restated:GF2:GF2-03.e::S6",
+      "c:restated:GF2:GF2-03.f::S6",
+      "c:restated:GF2:GF2-03.e::S4",
+      "c:restated:GF2:GF2-03.e::S7",
+      "c:restated:GF2:GF2-03.f::S4",
+      "c:restated:GF2:GF2-03.f::S7",
+      "c:sport-profile:soccer:SPORT-SOCCER-01::O3",
+      "game::B10",
+      "game::P5",
+      "game::P6a",
+      "game::P6b",
+      "game::P6c",
+      "game::P7",
+      "game::RP1",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P3",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P3",
+      "c:restated:GF2:GF2-14.a::members",
+      "session::roles"
+     ]
+    },
+    "diagram": {
+     "changed": [
+      "the diagram itself"
+     ],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": null
+    },
+    "identical": {
+     "lines": false,
+     "sentences": false,
+     "diagram": false
+    },
+    "variantRefusal": {
+     "stage": "realization",
+     "reasons": [
+      "realization refused",
+      "game::RP1: nobody established this, so it is not a freedom to close — filling it would convert missing knowledge into a choice"
+     ]
+    }
+   }
+  },
+  {
+   "test": "B5",
+   "comparison": {
+    "baseCase": "A05-2",
+    "variantCase": "A05-2/lines",
+    "outcome": [
+     "served",
+     "served"
+    ],
+    "stage": [
+     null,
+     null
+    ],
+    "sentences": {
+     "before": 9,
+     "after": 9,
+     "kept": 9,
+     "changed": [],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 58,
+     "after": 58,
+     "changed": [],
+     "added": [],
+     "removed": []
+    },
+    "diagram": {
+     "changed": [],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     }
+    },
+    "identical": {
+     "lines": true,
+     "sentences": true,
+     "diagram": true
+    },
+    "variantRefusal": null
+   }
+  },
+  {
+   "test": "B6",
+   "comparison": {
+    "baseCase": "A05-2",
+    "variantCase": "A05-2/GF3",
+    "outcome": [
+     "served",
+     "refused"
+    ],
+    "stage": [
+     null,
+     "knowledge"
+    ],
+    "sentences": {
+     "before": 9,
+     "after": 0,
+     "kept": 0,
+     "changed": [
+      {
+       "section": "Set up",
+       "before": "Mark out an area 40 m long by 30 m wide",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      },
+      {
+       "section": "Set up",
+       "before": "Mark a 5 m end zone across the full width at each end",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 6; OURS: assumption in our restatement",
+       "gradeAfter": null
+      },
+      {
+       "section": "Players",
+       "before": "Divide 12 players into 2 teams of 6, with no goalkeepers",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How it works",
+       "before": "Pick which team starts with the ball and tell both teams before you start",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How it works",
+       "before": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same target",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / DRAFT knowledge (ours, unreviewed)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How it works",
+       "before": "There is no offside",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; RULING, provisional",
+       "gradeAfter": null
+      },
+      {
+       "section": "How to score",
+       "before": "A team scores 1 point by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; RULING, provisional",
+       "gradeAfter": null
+      },
+      {
+       "section": "How to score",
+       "before": "Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; RULING, provisional",
+       "gradeAfter": null
+      },
+      {
+       "section": "When it ends",
+       "before": "Play for 18 minutes",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 58,
+     "after": 0,
+     "changed": [],
+     "added": [],
+     "removed": [
+      "c:restated:GF2:GF2-03.e::S5",
+      "c:restated:GF2:GF2-03.f::S5",
+      "c:restated:GF2:GF2-07.a::T6",
+      "c:restated:GF2:GF2-07.a::T7",
+      "c:restated:GF2:GF2-08.c::J2",
+      "c:restated:GF2:GF2-08.c::J3",
+      "c:restated:GF2:GF2-08.c::J4",
+      "c:restated:GF2:GF2-08.e::J2",
+      "c:restated:GF2:GF2-08.e::J3",
+      "c:restated:GF2:GF2-08.e::J4",
+      "c:sport-profile:soccer:SPORT-SOCCER-01::O2",
+      "game::E1",
+      "game::E2",
+      "game::E3",
+      "game::E4",
+      "game::S1",
+      "game::V2",
+      "c:restated:GF2:GF2-03.e::S3",
+      "c:restated:GF2:GF2-03.f::S3",
+      "game::V1",
+      "game::PS1",
+      "c:restated:GF2:GF2-03.e::S6",
+      "c:restated:GF2:GF2-03.f::S6",
+      "c:restated:GF2:GF2-03.e::S4",
+      "c:restated:GF2:GF2-03.e::S7",
+      "c:restated:GF2:GF2-03.f::S4",
+      "c:restated:GF2:GF2-03.f::S7",
+      "c:sport-profile:soccer:SPORT-SOCCER-01::O3",
+      "game::B10",
+      "game::P5",
+      "game::P6a",
+      "game::P6b",
+      "game::P6c",
+      "game::P7",
+      "game::RP1",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P3",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P3",
+      "c:restated:GF2:GF2-14.a::members",
+      "defaultLaws:LAW-8",
+      "defaultLaws:LAW-8-DB",
+      "defaultLaws:LAW-8-DB:applied",
+      "defaultLaws:LAW-11",
+      "defaultLaws:LAW-12-GK",
+      "defaultLaws:LAW-14:end 0",
+      "defaultLaws:LAW-14:end 1",
+      "defaultLaws:LAW-13",
+      "defaultLaws:LAW-13:applied",
+      "defaultLaws:LAW-15",
+      "defaultLaws:LAW-15:applied",
+      "defaultLaws:LAW-16:end 0",
+      "defaultLaws:LAW-16:end 1",
+      "defaultLaws:LAW-17:end 0",
+      "defaultLaws:LAW-17:end 1",
+      "defaultLaws:LAW-4-GK",
+      "defaultLaws:owed",
+      "session::roles"
+     ]
+    },
+    "diagram": {
+     "changed": [
+      "the diagram itself"
+     ],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": null
+    },
+    "identical": {
+     "lines": false,
+     "sentences": false,
+     "diagram": false
+    },
+    "variantRefusal": {
+     "stage": "knowledge",
+     "reasons": [
+      "the game form GF3 has no contribution contract"
+     ]
+    }
+   }
+  },
+  {
+   "test": "B6",
+   "comparison": {
+    "baseCase": "A05-2",
+    "variantCase": "A05-2/no-form",
+    "outcome": [
+     "served",
+     null
+    ],
+    "stage": [
+     null,
+     "handoff (form)"
+    ],
+    "sentences": {
+     "before": 9,
+     "after": 0,
+     "kept": 0,
+     "changed": [
+      {
+       "section": "Set up",
+       "before": "Mark out an area 40 m long by 30 m wide",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      },
+      {
+       "section": "Set up",
+       "before": "Mark a 5 m end zone across the full width at each end",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 6; OURS: assumption in our restatement",
+       "gradeAfter": null
+      },
+      {
+       "section": "Players",
+       "before": "Divide 12 players into 2 teams of 6, with no goalkeepers",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How it works",
+       "before": "Pick which team starts with the ball and tell both teams before you start",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How it works",
+       "before": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same target",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / DRAFT knowledge (ours, unreviewed)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How it works",
+       "before": "There is no offside",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; RULING, provisional",
+       "gradeAfter": null
+      },
+      {
+       "section": "How to score",
+       "before": "A team scores 1 point by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; RULING, provisional",
+       "gradeAfter": null
+      },
+      {
+       "section": "How to score",
+       "before": "Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; RULING, provisional",
+       "gradeAfter": null
+      },
+      {
+       "section": "When it ends",
+       "before": "Play for 18 minutes",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 58,
+     "after": 0,
+     "changed": [],
+     "added": [],
+     "removed": [
+      "c:restated:GF2:GF2-03.e::S5",
+      "c:restated:GF2:GF2-03.f::S5",
+      "c:restated:GF2:GF2-07.a::T6",
+      "c:restated:GF2:GF2-07.a::T7",
+      "c:restated:GF2:GF2-08.c::J2",
+      "c:restated:GF2:GF2-08.c::J3",
+      "c:restated:GF2:GF2-08.c::J4",
+      "c:restated:GF2:GF2-08.e::J2",
+      "c:restated:GF2:GF2-08.e::J3",
+      "c:restated:GF2:GF2-08.e::J4",
+      "c:sport-profile:soccer:SPORT-SOCCER-01::O2",
+      "game::E1",
+      "game::E2",
+      "game::E3",
+      "game::E4",
+      "game::S1",
+      "game::V2",
+      "c:restated:GF2:GF2-03.e::S3",
+      "c:restated:GF2:GF2-03.f::S3",
+      "game::V1",
+      "game::PS1",
+      "c:restated:GF2:GF2-03.e::S6",
+      "c:restated:GF2:GF2-03.f::S6",
+      "c:restated:GF2:GF2-03.e::S4",
+      "c:restated:GF2:GF2-03.e::S7",
+      "c:restated:GF2:GF2-03.f::S4",
+      "c:restated:GF2:GF2-03.f::S7",
+      "c:sport-profile:soccer:SPORT-SOCCER-01::O3",
+      "game::B10",
+      "game::P5",
+      "game::P6a",
+      "game::P6b",
+      "game::P6c",
+      "game::P7",
+      "game::RP1",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P3",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P3",
+      "c:restated:GF2:GF2-14.a::members",
+      "defaultLaws:LAW-8",
+      "defaultLaws:LAW-8-DB",
+      "defaultLaws:LAW-8-DB:applied",
+      "defaultLaws:LAW-11",
+      "defaultLaws:LAW-12-GK",
+      "defaultLaws:LAW-14:end 0",
+      "defaultLaws:LAW-14:end 1",
+      "defaultLaws:LAW-13",
+      "defaultLaws:LAW-13:applied",
+      "defaultLaws:LAW-15",
+      "defaultLaws:LAW-15:applied",
+      "defaultLaws:LAW-16:end 0",
+      "defaultLaws:LAW-16:end 1",
+      "defaultLaws:LAW-17:end 0",
+      "defaultLaws:LAW-17:end 1",
+      "defaultLaws:LAW-4-GK",
+      "defaultLaws:owed",
+      "session::roles"
+     ]
+    },
+    "diagram": {
+     "changed": [
+      "the diagram itself"
+     ],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target zone"
+      ],
+      "zones": [
+       {
+        "zone": "c:restated:GF2:GF2-03.e",
+        "along": {
+         "from": 0,
+         "to": 5
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       },
+       {
+        "zone": "c:restated:GF2:GF2-03.f",
+        "along": {
+         "from": 35,
+         "to": 40
+        },
+        "across": {
+         "from": 0,
+         "to": 30
+        }
+       }
+      ],
+      "findings": []
+     },
+     "after": null
+    },
+    "identical": {
+     "lines": false,
+     "sentences": false,
+     "diagram": false
+    },
+    "variantRefusal": {
+     "stage": "handoff (form)",
+     "reasons": [
+      "alternatives retained; no basis to select"
+     ]
+    }
+   }
+  },
+  {
+   "test": "C2",
+   "comparison": {
+    "baseCase": "GF2-LINES",
+    "variantCase": "GF4-STRUCTURAL",
+    "outcome": [
+     "served",
+     "refused"
+    ],
+    "stage": [
+     null,
+     "structure"
+    ],
+    "sentences": {
+     "before": 8,
+     "after": 0,
+     "kept": 0,
+     "changed": [
+      {
+       "section": "Set up",
+       "before": "Mark out an area 40 m long by 30 m wide",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      },
+      {
+       "section": "Set up",
+       "before": "Mark both end lines: they are the scoring lines",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 6; OURS: a realization choice of ours, not knowledge / OURS: assumption in our restatement",
+       "gradeAfter": null
+      },
+      {
+       "section": "Players",
+       "before": "Divide 12 players into 2 teams of 6, with no goalkeepers",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How it works",
+       "before": "Pick which team starts with the ball and tell both teams before you start",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How it works",
+       "before": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same line",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 3; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "gradeAfter": null
+      },
+      {
+       "section": "How to score",
+       "before": "A team scores 1 point by getting the ball across the line it is attacking",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 6; OURS: a realization choice of ours, not knowledge",
+       "gradeAfter": null
+      },
+      {
+       "section": "How to score",
+       "before": "Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 2; RULING",
+       "gradeAfter": null
+      },
+      {
+       "section": "When it ends",
+       "before": "Play for 18 minutes",
+       "after": null,
+       "fromChanged": null,
+       "gradeBefore": "class 5; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "gradeAfter": null
+      }
+     ],
+     "keptButChanged": []
+    },
+    "lines": {
+     "before": 41,
+     "after": 0,
+     "changed": [],
+     "added": [],
+     "removed": [
+      "c:restated:GF2:GF2-03.e::S5",
+      "c:restated:GF2:GF2-03.f::S5",
+      "c:restated:GF2:GF2-07.a::T6",
+      "c:restated:GF2:GF2-07.a::T7",
+      "c:restated:GF2:GF2-08.c::J2",
+      "c:restated:GF2:GF2-08.c::J3",
+      "c:restated:GF2:GF2-08.c::J4",
+      "c:restated:GF2:GF2-08.e::J2",
+      "c:restated:GF2:GF2-08.e::J3",
+      "c:restated:GF2:GF2-08.e::J4",
+      "c:sport-profile:soccer:SPORT-SOCCER-01::O2",
+      "game::E1",
+      "game::E2",
+      "game::E3",
+      "game::E4",
+      "game::S1",
+      "game::V2",
+      "c:restated:GF2:GF2-03.e::S3",
+      "c:restated:GF2:GF2-03.f::S3",
+      "game::V1",
+      "game::PS1",
+      "c:restated:GF2:GF2-03.e::S6",
+      "c:restated:GF2:GF2-03.f::S6",
+      "c:restated:GF2:GF2-03.e::S4",
+      "c:restated:GF2:GF2-03.e::S7",
+      "c:restated:GF2:GF2-03.f::S4",
+      "c:restated:GF2:GF2-03.f::S7",
+      "c:sport-profile:soccer:SPORT-SOCCER-01::O3",
+      "game::B10",
+      "game::P5",
+      "game::P6a",
+      "game::P6b",
+      "game::P6c",
+      "game::P7",
+      "game::RP1",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P3",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P3",
+      "c:restated:GF2:GF2-14.a::members",
+      "session::roles"
+     ]
+    },
+    "diagram": {
+     "changed": [
+      "the diagram itself"
+     ],
+     "before": {
+      "served": true,
+      "verdict": "DRAWN",
+      "area": {
+       "lengthM": 40,
+       "widthM": 30
+      },
+      "counts": [
+       "2 teams of 6"
+      ],
+      "legend": [
+       "target line"
+      ],
+      "zones": [],
+      "findings": []
+     },
+     "after": null
+    },
+    "identical": {
+     "lines": false,
+     "sentences": false,
+     "diagram": false
+    },
+    "variantRefusal": {
+     "stage": "structure",
+     "reasons": [
+      "Gate A is FAIL",
+      "a pre-realization Gate A invariant fails: GA-TRIGGER-REACHABLE"
+     ]
+    }
+   }
+  }
+ ],
+ "refusals": [
+  {
+   "where": "case A05-0",
+   "basis": {
+    "stage": "structure",
+    "codes": [
+     "GA-NO-FAILED-LINE"
+    ],
+    "cited": [
+     {
+      "ref": "c:restated:RPC-003:RPC-003-12.a::V5",
+      "contractId": "restated:RPC-003",
+      "itemId": "RPC-003-12.a",
+      "basis": "AUTHORED",
+      "origin": "DRAFT_STORE",
+      "premiseKind": "DRAFT_ITEM",
+      "label": "DRAFT knowledge (ours, unreviewed)",
+      "note": null
+     },
+     {
+      "ref": "c:restated:RPC-003:RPC-003-10.a::V6",
+      "contractId": "restated:RPC-003",
+      "itemId": "RPC-003-10.a",
+      "basis": "AUTHORED",
+      "origin": "DRAFT_STORE",
+      "premiseKind": "DRAFT_ITEM",
+      "label": "DRAFT knowledge (ours, unreviewed)",
+      "note": null
+     }
+    ],
+    "verdict": "RESTATEMENT-ONLY",
+    "why": "every cited item is a restatement of ours (DRAFT_ITEM), with no ruling of Christian's among them"
+   },
+   "obstructs": "yes: the case's configuration stops here (A05_AS_THE_KNOWLEDGE_STANDS)"
+  },
+  {
+   "where": "case A05-1",
+   "basis": {
+    "stage": "structure",
+    "codes": [
+     "GA-NO-FAILED-LINE"
+    ],
+    "cited": [
+     {
+      "ref": "c:restated:RPC-003:RPC-003-12.a::V5",
+      "contractId": "restated:RPC-003",
+      "itemId": "RPC-003-12.a",
+      "basis": "AUTHORED",
+      "origin": "DRAFT_STORE",
+      "premiseKind": "DRAFT_ITEM",
+      "label": "DRAFT knowledge (ours, unreviewed)",
+      "note": null
+     }
+    ],
+    "verdict": "RESTATEMENT-ONLY",
+    "why": "every cited item is a restatement of ours (DRAFT_ITEM), with no ruling of Christian's among them"
+   },
+   "obstructs": "yes: the case's configuration stops here (A05_UNDER_TEST_ONLY_TREATMENTS)"
+  },
+  {
+   "where": "case TA01",
+   "basis": {
+    "stage": "knowledge",
+    "codes": [
+     "knowledge refusal"
+    ],
+    "cited": [],
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the refusal cites no item: a missing contract"
+   },
+   "obstructs": "yes: the case's configuration stops here (PRODUCTION_RECORDS)"
+  },
+  {
+   "where": "test R1 (A05-2 with the restart items in Christian's words)",
+   "basis": {
+    "stage": "structure",
+    "codes": [
+     "GA-NO-FAILED-LINE"
+    ],
+    "cited": [
+     {
+      "ref": "c:provisional:A05-H1:A05-H1-T1-1::T7",
+      "contractId": "provisional:A05-H1",
+      "itemId": "A05-H1-T1-1",
+      "basis": "OWNER_RULING",
+      "origin": "REALIZATION",
+      "premiseKind": "REALIZATION_ITEM",
+      "label": "RULING, provisional",
+      "note": "a TEST-ONLY realization of this case, in Christian's words"
+     }
+    ],
+    "verdict": "MIXED",
+    "why": "at least one cited item rests on a ruling of Christian's (REALIZATION_ITEM)"
+   },
+   "obstructs": "no for the activity (the restart is a refinement: Christian's second reply of 7 November, section 5), but it is a structural refusal of the restart Christian asked for: the episode line has no ruling, so the restart is described in the report only"
+  },
+  {
+   "where": "test R1 (A05-1 with the restart items in Christian's words)",
+   "basis": {
+    "stage": "structure",
+    "codes": [
+     "GA-NO-FAILED-LINE"
+    ],
+    "cited": [
+     {
+      "ref": "c:provisional:A05-H1:A05-H1-T1-1::T7",
+      "contractId": "provisional:A05-H1",
+      "itemId": "A05-H1-T1-1",
+      "basis": "OWNER_RULING",
+      "origin": "REALIZATION",
+      "premiseKind": "REALIZATION_ITEM",
+      "label": "RULING, provisional",
+      "note": "a TEST-ONLY realization of this case, in Christian's words"
+     },
+     {
+      "ref": "c:restated:RPC-003:RPC-003-12.a::V5",
+      "contractId": "restated:RPC-003",
+      "itemId": "RPC-003-12.a",
+      "basis": "AUTHORED",
+      "origin": "DRAFT_STORE",
+      "premiseKind": "DRAFT_ITEM",
+      "label": "DRAFT knowledge (ours, unreviewed)",
+      "note": null
+     }
+    ],
+    "verdict": "MIXED",
+    "why": "at least one cited item rests on a ruling of Christian's (REALIZATION_ITEM, DRAFT_ITEM)"
+   },
+   "obstructs": "no for the activity (the restart is a refinement: Christian's second reply of 7 November, section 5), but it is a structural refusal of the restart Christian asked for: the episode line has no ruling, so the restart is described in the report only"
+  },
+  {
+   "where": "test B1c (A05-2 with the variable target condition placed on the stand-in)",
+   "basis": {
+    "stage": "structure",
+    "codes": [
+     "GA-INFORMATION",
+     "GA-NO-FAILED-LINE"
+    ],
+    "cited": [
+     {
+      "ref": "c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-05.a::S3",
+      "contractId": "restated:VARIABLE-TARGET-CONDITION",
+      "itemId": "VARTARGET-05.a",
+      "basis": "AUTHORED",
+      "origin": "KNOWLEDGE",
+      "premiseKind": "RESTATED_ITEM",
+      "label": "our restatement of the restated object (its evidence names no source the grading table knows)",
+      "note": null
+     },
+     {
+      "ref": "c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V18",
+      "contractId": "restated:VARIABLE-TARGET-CONDITION",
+      "itemId": "VARTARGET-13.a",
+      "basis": "AUTHORED",
+      "origin": "KNOWLEDGE",
+      "premiseKind": "RESTATED_ITEM",
+      "label": "our restatement of the restated object (its evidence names no source the grading table knows)",
+      "note": null
+     },
+     {
+      "ref": "c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V19",
+      "contractId": "restated:VARIABLE-TARGET-CONDITION",
+      "itemId": "VARTARGET-13.a",
+      "basis": "AUTHORED",
+      "origin": "KNOWLEDGE",
+      "premiseKind": "RESTATED_ITEM",
+      "label": "our restatement of the restated object (its evidence names no source the grading table knows)",
+      "note": null
+     },
+     {
+      "ref": "c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V20",
+      "contractId": "restated:VARIABLE-TARGET-CONDITION",
+      "itemId": "VARTARGET-13.a",
+      "basis": "AUTHORED",
+      "origin": "KNOWLEDGE",
+      "premiseKind": "RESTATED_ITEM",
+      "label": "our restatement of the restated object (its evidence names no source the grading table knows)",
+      "note": null
+     }
+    ],
+    "verdict": "RESTATEMENT-ONLY",
+    "why": "every cited item is a restatement of ours (RESTATED_ITEM), with no ruling of Christian's among them"
+   },
+   "obstructs": "no for this pathway: it shows only that this manipulation does not compose with GF2 here; the manipulation Test B uses composes"
+  },
+  {
+   "where": "test B3 (GF2-ZONES/noun-outside)",
+   "basis": {
+    "stage": "realization",
+    "codes": [
+     "realization refusal"
+    ],
+    "cited": [
+     {
+      "ref": "c:restated:GF2:GF2-03.e::S3",
+      "contractId": "restated:GF2",
+      "itemId": "GF2-03.e",
+      "basis": "OWNER_RULING",
+      "origin": "KNOWLEDGE",
+      "premiseKind": "KNOWLEDGE_RULING_ITEM",
+      "label": "RULING",
+      "note": null
+     }
+    ],
+    "verdict": "MIXED",
+    "why": "at least one cited item rests on a ruling of Christian's (KNOWLEDGE_RULING_ITEM)"
+   },
+   "obstructs": "no: the test exists to show this refusal"
+  },
+  {
+   "where": "test B4b (GF2-ZONES/restart-policy)",
+   "basis": {
+    "stage": "realization",
+    "codes": [
+     "realization refusal"
+    ],
+    "cited": [],
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the refusal cites no item: an engine check (realization refusal)"
+   },
+   "obstructs": "no: the test exists to show this refusal"
+  },
+  {
+   "where": "test B6 (A05-2/GF3)",
+   "basis": {
+    "stage": "knowledge",
+    "codes": [
+     "knowledge refusal"
+    ],
+    "cited": [],
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the refusal cites no item: a missing contract"
+   },
+   "obstructs": "no: the test exists to show this refusal"
+  },
+  {
+   "where": "test B6 (A05-2/no-form)",
+   "basis": {
+    "stage": "handoff (form)",
+    "codes": [
+     "handoff (form) refusal"
+    ],
+    "cited": [],
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the handoff stopped before the chain: alternatives retained; no basis to select"
+   },
+   "obstructs": "no: the test exists to show this refusal"
+  },
+  {
+   "where": "test C2 (GF4-STRUCTURAL)",
+   "basis": {
+    "stage": "structure",
+    "codes": [
+     "GA-TRIGGER-REACHABLE"
+    ],
+    "cited": [],
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the refusal cites no item: an engine check (GA-TRIGGER-REACHABLE)"
+   },
+   "obstructs": "yes for GF4: it does not generate; the trigger the form needs is unreachable because its teams are an assumption of our restatement"
+  },
+  {
+   "where": "test C4 (A03)",
+   "basis": {
+    "stage": "handoff (form)",
+    "codes": [
+     "handoff (form) refusal"
+    ],
+    "cited": [],
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the handoff stopped before the chain: Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED"
+   },
+   "obstructs": "yes for A03: no form can be placed without a basis; nothing is fabricated to pass it"
+  },
+  {
+   "where": "test C4 (A04)",
+   "basis": {
+    "stage": "handoff (form)",
+    "codes": [
+     "handoff (form) refusal"
+    ],
+    "cited": [],
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the handoff stopped before the chain: Step 1 is UNRESOLVED: TRANSLATION_UNPOPULATED; no form is placed"
+   },
+   "obstructs": "yes for A04: no form can be placed without a basis; nothing is fabricated to pass it"
+  },
+  {
+   "where": "test C4 (A06)",
+   "basis": {
+    "stage": "handoff (form)",
+    "codes": [
+     "handoff (form) refusal"
+    ],
+    "cited": [],
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the handoff stopped before the chain: Step 1 is UNRESOLVED: TRANSLATION_UNPOPULATED; no form is placed"
+   },
+   "obstructs": "yes for A06: no form can be placed without a basis; nothing is fabricated to pass it"
+  },
+  {
+   "where": "test C4 (D01)",
+   "basis": {
+    "stage": "handoff (form)",
+    "codes": [
+     "handoff (form) refusal"
+    ],
+    "cited": [],
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the handoff stopped before the chain: Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED"
+   },
+   "obstructs": "yes for D01: no form can be placed without a basis; nothing is fabricated to pass it"
+  },
+  {
+   "where": "test C4 (D03)",
+   "basis": {
+    "stage": "handoff (form)",
+    "codes": [
+     "handoff (form) refusal"
+    ],
+    "cited": [],
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the handoff stopped before the chain: Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED"
+   },
+   "obstructs": "yes for D03: no form can be placed without a basis; nothing is fabricated to pass it"
+  },
+  {
+   "where": "test C4 (TD01)",
+   "basis": {
+    "stage": "handoff (form)",
+    "codes": [
+     "handoff (form) refusal"
+    ],
+    "cited": [],
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the handoff stopped before the chain: Step 1 is RESOLVED_NOT_RELATED_TO_CONTEXT: GAME_PROBLEM_NOT_RELATED_TO_CONTEXT; no form is placed"
+   },
+   "obstructs": "yes for TD01: no form can be placed without a basis; nothing is fabricated to pass it"
+  },
+  {
+   "where": "test C4 (TD02)",
+   "basis": {
+    "stage": "handoff (form)",
+    "codes": [
+     "handoff (form) refusal"
+    ],
+    "cited": [],
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the handoff stopped before the chain: Step 1 is RESOLVED_NOT_RELATED_TO_CONTEXT: GAME_PROBLEM_NOT_RELATED_TO_CONTEXT; no form is placed"
+   },
+   "obstructs": "yes for TD02: no form can be placed without a basis; nothing is fabricated to pass it"
+  },
+  {
+   "where": "test C4 (D02)",
+   "basis": {
+    "stage": "knowledge",
+    "codes": [
+     "knowledge refusal"
+    ],
+    "cited": [],
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the refusal cites no item: a missing contract"
+   },
+   "obstructs": "yes for D02: its context has no contract; nothing is fabricated to pass it"
+  }
+ ],
  "cases": [
   {
    "caseId": "A05-0",
@@ -64,7 +3873,7 @@
     ],
     "stop": null
    },
-   "manipulations": [],
+   "proposedChoices": [],
    "purpose": {
     "rulingRefs": [
      "HO-07NOV-PURPOSE"
@@ -555,9 +4364,12 @@
     "scorerPick": "GF2 (the chain's own keyword-scorer pick: not used; the handoff placed GF2)",
     "contextComparison": "the chain's context equals Step 1's (RPC-003)",
     "gameProblemComparison": "the chain's account reads UNRESOLVED none (inferred from wording: GP-015); Step 1: primary GP-001, secondary GP-002; no line of the chain reads a Game Problem; a difference is reported, never switched",
+    "gameProblemOverride": null,
     "affordanceLenses": "Possession Stability Opportunity; Line-Breaking Opportunity; Space Creation Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection",
-    "constraints": []
+    "constraints": [],
+    "fidelityViolations": null
    },
+   "manipulations": [],
    "lines": [],
    "sentences": [],
    "sentencesServed": null,
@@ -573,6 +4385,36 @@
      "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
      "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6"
     ]
+   },
+   "refusalBasis": {
+    "stage": "structure",
+    "codes": [
+     "GA-NO-FAILED-LINE"
+    ],
+    "cited": [
+     {
+      "ref": "c:restated:RPC-003:RPC-003-12.a::V5",
+      "contractId": "restated:RPC-003",
+      "itemId": "RPC-003-12.a",
+      "basis": "AUTHORED",
+      "origin": "DRAFT_STORE",
+      "premiseKind": "DRAFT_ITEM",
+      "label": "DRAFT knowledge (ours, unreviewed)",
+      "note": null
+     },
+     {
+      "ref": "c:restated:RPC-003:RPC-003-10.a::V6",
+      "contractId": "restated:RPC-003",
+      "itemId": "RPC-003-10.a",
+      "basis": "AUTHORED",
+      "origin": "DRAFT_STORE",
+      "premiseKind": "DRAFT_ITEM",
+      "label": "DRAFT knowledge (ours, unreviewed)",
+      "note": null
+     }
+    ],
+    "verdict": "RESTATEMENT-ONLY",
+    "why": "every cited item is a restatement of ours (DRAFT_ITEM), with no ruling of Christian's among them"
    },
    "gaps": [
     "the chain refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6",
@@ -659,7 +4501,7 @@
     ],
     "stop": null
    },
-   "manipulations": [],
+   "proposedChoices": [],
    "purpose": {
     "rulingRefs": [
      "HO-07NOV-PURPOSE"
@@ -1167,9 +5009,12 @@
     "scorerPick": "GF2 (the chain's own keyword-scorer pick: not used; the handoff placed GF2)",
     "contextComparison": "the chain's context equals Step 1's (RPC-003)",
     "gameProblemComparison": "the chain's account reads UNRESOLVED none (inferred from wording: GP-015); Step 1: primary GP-001, secondary GP-002; no line of the chain reads a Game Problem; a difference is reported, never switched",
+    "gameProblemOverride": null,
     "affordanceLenses": "Possession Stability Opportunity; Line-Breaking Opportunity; Space Creation Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection",
-    "constraints": []
+    "constraints": [],
+    "fidelityViolations": null
    },
+   "manipulations": [],
    "lines": [],
    "sentences": [],
    "sentencesServed": null,
@@ -1185,6 +5030,26 @@
      "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
      "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5"
     ]
+   },
+   "refusalBasis": {
+    "stage": "structure",
+    "codes": [
+     "GA-NO-FAILED-LINE"
+    ],
+    "cited": [
+     {
+      "ref": "c:restated:RPC-003:RPC-003-12.a::V5",
+      "contractId": "restated:RPC-003",
+      "itemId": "RPC-003-12.a",
+      "basis": "AUTHORED",
+      "origin": "DRAFT_STORE",
+      "premiseKind": "DRAFT_ITEM",
+      "label": "DRAFT knowledge (ours, unreviewed)",
+      "note": null
+     }
+    ],
+    "verdict": "RESTATEMENT-ONLY",
+    "why": "every cited item is a restatement of ours (DRAFT_ITEM), with no ruling of Christian's among them"
    },
    "gaps": [
     "the chain refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5",
@@ -1271,7 +5136,7 @@
     ],
     "stop": null
    },
-   "manipulations": [],
+   "proposedChoices": [],
    "purpose": {
     "rulingRefs": [
      "HO-07NOV-PURPOSE"
@@ -1795,9 +5660,12 @@
     "scorerPick": "GF2 (the chain's own keyword-scorer pick: not used; the handoff placed GF2)",
     "contextComparison": "the chain's context equals Step 1's (RPC-003)",
     "gameProblemComparison": "the chain's account reads UNRESOLVED none (inferred from wording: GP-015); Step 1: primary GP-001, secondary GP-002; no line of the chain reads a Game Problem; a difference is reported, never switched",
+    "gameProblemOverride": null,
     "affordanceLenses": "Possession Stability Opportunity; Line-Breaking Opportunity; Space Creation Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection",
-    "constraints": []
+    "constraints": [],
+    "fidelityViolations": 0
    },
+   "manipulations": [],
    "lines": [
     {
      "lineId": "c:restated:GF2:GF2-03.e::S5",
@@ -3610,6 +7478,7 @@
     "findings": []
    },
    "refusal": null,
+   "refusalBasis": null,
    "gaps": [
     "c:restated:GF2:GF2-03.e::S4 (space.regions[c:restated:GF2:GF2-03.e].functions): not established",
     "c:restated:GF2:GF2-03.e::S7 (space.regions[c:restated:GF2:GF2-03.e].ofObject): not established",
@@ -3716,7 +7585,7 @@
     ],
     "stop": null
    },
-   "manipulations": [],
+   "proposedChoices": [],
    "purpose": {
     "rulingRefs": [
      "HO-07NOV-PURPOSE"
@@ -3777,9 +7646,12 @@
     "scorerPick": "GF2 (the chain's own keyword-scorer pick: not used; the handoff placed GF2)",
     "contextComparison": "the chain's context equals Step 1's (RPC-001)",
     "gameProblemComparison": "the chain's account reads APPROVED GP-005 (inferred from wording: GP-015); Step 1: primary GP-005, secondary none; no line of the chain reads a Game Problem; a difference is reported, never switched",
+    "gameProblemOverride": null,
     "affordanceLenses": "Possession Stability Opportunity; Line-Breaking Opportunity; Space Creation Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection",
-    "constraints": []
+    "constraints": [],
+    "fidelityViolations": 0
    },
+   "manipulations": [],
    "lines": [
     {
      "lineId": "c:provisional:A01-R1:A01-R1-B1-1::B2",
@@ -8529,6 +12401,7 @@
     "findings": []
    },
    "refusal": null,
+   "refusalBasis": null,
    "gaps": [
     "c:provisional:A01-R1:A01-R1-B1-1::B9 (activityRoles[c:provisional:A01-R1:A01-R1-B1-1].scoresBy): not established",
     "c:provisional:A01-R1:A01-R1-B1-2::B9 (activityRoles[c:provisional:A01-R1:A01-R1-B1-2].scoresBy): not established",
@@ -8593,7 +12466,7 @@
     "alternativesRetained": [],
     "stop": null
    },
-   "manipulations": [],
+   "proposedChoices": [],
    "purpose": null,
    "rulings": [
     {
@@ -8720,9 +12593,12 @@
     "scorerPick": "GF2 (the chain's own keyword-scorer pick: not used; the handoff placed GF2)",
     "contextComparison": "structural case: no Step 1 context; the chain's account reads RPC-003",
     "gameProblemComparison": "the chain's account reads APPROVED GP-015 (inferred from wording: GP-015); Step 1: none (structural case); no line of the chain reads a Game Problem; a difference is reported, never switched",
+    "gameProblemOverride": null,
     "affordanceLenses": "Possession Stability Opportunity; Line-Breaking Opportunity; Space Creation Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection",
-    "constraints": []
+    "constraints": [],
+    "fidelityViolations": 0
    },
+   "manipulations": [],
    "lines": [
     {
      "lineId": "c:restated:GF2:GF2-03.e::S5",
@@ -9953,6 +13829,7 @@
     "findings": []
    },
    "refusal": null,
+   "refusalBasis": null,
    "gaps": [
     "c:restated:GF2:GF2-03.e::S4 (space.regions[c:restated:GF2:GF2-03.e].functions): not established",
     "c:restated:GF2:GF2-03.e::S7 (space.regions[c:restated:GF2:GF2-03.e].ofObject): not established",
@@ -10029,7 +13906,7 @@
     "alternativesRetained": [],
     "stop": null
    },
-   "manipulations": [],
+   "proposedChoices": [],
    "purpose": null,
    "rulings": [
     {
@@ -10140,9 +14017,12 @@
     "scorerPick": "GF2 (the chain's own keyword-scorer pick: not used; the handoff placed GF2)",
     "contextComparison": "structural case: no Step 1 context; the chain's account reads RPC-003",
     "gameProblemComparison": "the chain's account reads APPROVED GP-015 (inferred from wording: GP-015); Step 1: none (structural case); no line of the chain reads a Game Problem; a difference is reported, never switched",
+    "gameProblemOverride": null,
     "affordanceLenses": "Possession Stability Opportunity; Line-Breaking Opportunity; Space Creation Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection",
-    "constraints": []
+    "constraints": [],
+    "fidelityViolations": 0
    },
+   "manipulations": [],
    "lines": [
     {
      "lineId": "c:restated:GF2:GF2-03.e::S5",
@@ -11321,6 +15201,7 @@
     "findings": []
    },
    "refusal": null,
+   "refusalBasis": null,
    "gaps": [
     "c:restated:GF2:GF2-03.e::S4 (space.regions[c:restated:GF2:GF2-03.e].functions): not established",
     "c:restated:GF2:GF2-03.e::S7 (space.regions[c:restated:GF2:GF2-03.e].ofObject): not established",
@@ -11400,7 +15281,7 @@
     "alternativesRetained": [],
     "stop": null
    },
-   "manipulations": [],
+   "proposedChoices": [],
    "purpose": {
     "rulingRefs": [
      "HO-07NOV-PURPOSE"
@@ -11475,14 +15356,17 @@
     "scorerPick": "GF4 (the chain's own keyword-scorer pick: not used; the handoff placed GF4)",
     "contextComparison": "the chain's context equals Step 1's (RPC-006)",
     "gameProblemComparison": "the chain's account reads APPROVED GP-002 (inferred from wording: GP-015); Step 1: primary GP-002, secondary none; no line of the chain reads a Game Problem; a difference is reported, never switched",
+    "gameProblemOverride": null,
     "affordanceLenses": "Transition Attack Opportunity; Regain Opportunity; Space Exploitation Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection",
     "constraints": [
      "tl-v0-constraint-transition-trigger",
      "tl-v0-constraint-wide-zone-advantage",
      "tl-v0-constraint-transition-bonus",
      "tl-v0-constraint-interception-reward"
-    ]
+    ],
+    "fidelityViolations": null
    },
+   "manipulations": [],
    "lines": [],
    "sentences": [],
    "sentencesServed": null,
@@ -11496,6 +15380,15 @@
     "reasons": [
      "the Representative Performance Context RPC-006 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game"
     ]
+   },
+   "refusalBasis": {
+    "stage": "knowledge",
+    "codes": [
+     "knowledge refusal"
+    ],
+    "cited": [],
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the refusal cites no item: a missing contract"
    },
    "gaps": [
     "the chain refused at knowledge: the Representative Performance Context RPC-006 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game"
