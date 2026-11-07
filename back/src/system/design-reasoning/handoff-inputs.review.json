@@ -1,0 +1,1513 @@
+{
+    "standing": "TEST-ONLY review data for the isolated handoff Christian authorized in the reply received 7 November 2026, section 1. Per case it holds what the handoff RECEIVES beside Steps 1 and 2: the Learning Goal, how the Game Form enters, the session, Christian's words that bear on the case (verbatim, with file and received date) and how each enters the checked chain, the illustrative values and the TEST-ONLY treatments, each labelled. It is not an activity record: it holds no value for a feature that knowledge, the session or the coach settles, and no sentence. Steps 1 and 2 are run by the handoff, never copied from here. Nothing on the live route or the checked pathway reads this file; only the handoff's unit test does.",
+    "rulings": [
+        {
+            "id": "HO-07NOV-HANDOFF",
+            "words": [
+                "I authorize the bounded implementation and testing of your proposed handoff between the existing review pathway and the checked configuration/rendering machinery.",
+                "This authorization is for an isolated development pathway only.",
+                "You may reuse and extend existing code where necessary, provided the new behavior remains unavailable to live coaches and does not change the existing application or A01's checked behavior.",
+                "The objective is to demonstrate that the system can receive an authorized learning context, resolved Game Problems, a selected or explicitly illustrative Game Form, and relevant session parameters, then construct a reusable activity configuration without relying on a separately hand-authored activity record.",
+                "Every material configuration decision should retain its authority and provenance.",
+                "Where knowledge is insufficient, the system should preserve alternatives or report the missing relationship rather than fabricate a selection."
+            ],
+            "file": "sources/2026-11-07-handoff-authorization/originals/christian-reply-to-reusable-configuration-proposal.txt",
+            "received": "2026-11-07",
+            "provisional": false,
+            "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+        },
+        {
+            "id": "HO-07NOV-GAP",
+            "words": [
+                "At present, the resolved A05 Game Problems do not determine the activity's environmental configuration through approved Create Space relationships.",
+                "That remains an important missing capability.",
+                "Connecting the existing pathways will not, by itself, establish that Challenge Point can select a configuration because it is particularly suitable for the intended Game Problem."
+            ],
+            "file": "sources/2026-11-07-handoff-authorization/originals/christian-reply-to-reusable-configuration-proposal.txt",
+            "received": "2026-11-07",
+            "provisional": false,
+            "scope": null
+        },
+        {
+            "id": "HO-07NOV-K2",
+            "words": [
+                "I approve your proposed K2 wording for review-only use, with the distinctions it preserves.",
+                "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+                "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+                "Compatible alternatives remain visible without an invented preference.",
+                "This should not yet become a production suitability rule."
+            ],
+            "file": "sources/2026-11-07-handoff-authorization/originals/christian-reply-to-reusable-configuration-proposal.txt",
+            "received": "2026-11-07",
+            "provisional": false,
+            "scope": "REVIEW_ONLY"
+        },
+        {
+            "id": "HO-07NOV-ADAPTATION",
+            "words": [
+                "A structural adaptation required to make a Game Form playable should not automatically count as an optional learning manipulation under K2.",
+                "However, necessary adaptations still need to preserve reasonable game consequences and should be examined for unintended effects.",
+                "They should not be exempt from representative-design scrutiny simply because they are operationally necessary."
+            ],
+            "file": "sources/2026-11-07-handoff-authorization/originals/christian-reply-to-reusable-configuration-proposal.txt",
+            "received": "2026-11-07",
+            "provisional": false,
+            "scope": null
+        },
+        {
+            "id": "HO-07NOV-STARTING",
+            "words": [
+                "Regarding the phrase \"from the attack's starting condition,\" I favor interpreting it provisionally in terms of the state of the attack, rather than solely its geographical starting location.",
+                "However, I don't want us to discard any intended relationship to the location from which an attack begins without reconciling the original approved wording.",
+                "For the A05 review, please retain the state interpretation as provisional and preserve the remaining source question."
+            ],
+            "file": "sources/2026-11-07-handoff-authorization/originals/christian-reply-to-reusable-configuration-proposal.txt",
+            "received": "2026-11-07",
+            "provisional": true,
+            "scope": "A05_REVIEW"
+        },
+        {
+            "id": "HO-07NOV-REGAIN",
+            "words": [
+                "I also want to maintain the distinction between a legitimate score and evidence that players encountered the intended Game Problem.",
+                "A successful attack immediately after a regain remains a legitimate scoring situation. It should not automatically be interpreted as evidence of solving Create Space against organized opposition.",
+                "Neither scoring situation should be artificially excluded merely to make one Game Problem more prominent."
+            ],
+            "file": "sources/2026-11-07-handoff-authorization/originals/christian-reply-to-reusable-configuration-proposal.txt",
+            "received": "2026-11-07",
+            "provisional": false,
+            "scope": null
+        },
+        {
+            "id": "HO-07NOV-SCORING-ROW",
+            "words": [
+                "Please complete verification of the September 13 source wording.",
+                "I support restoring \"for example\" so the final scoring clause retains its illustrative meaning rather than becoming an exclusive condition.",
+                "For now, apply the verified correction to the offline review record and prepare the corresponding canonical change for separate approval.",
+                "Do not change the live workbook or coach-visible scoring interpretation yet.",
+                "Similarly, do not convert \"maintaining attacking possession\" into a separate mandatory scoring requirement without identifying an authoritative basis."
+            ],
+            "file": "sources/2026-11-07-handoff-authorization/originals/christian-reply-to-reusable-configuration-proposal.txt",
+            "received": "2026-11-07",
+            "provisional": false,
+            "scope": "OFFLINE_REVIEW_RECORD"
+        },
+        {
+            "id": "HO-07NOV-RESTART",
+            "words": [
+                "For the present A05 prototype, please use a simple, clearly labeled, illustrative coach-served restart that preserves last-touch possession consequences, avoids an immediately manufactured point, and permits normal opposition once play resumes.",
+                "The exact distance, coach location, and delivery mechanics do not need to become canonical A05 knowledge.",
+                "If necessary, retain those details as coach-adjustable operational choices in the review prototype.",
+                "I would also avoid inventing special scoring exclusions for points arising after restarts without an established rationale."
+            ],
+            "file": "sources/2026-11-07-handoff-authorization/originals/christian-reply-to-reusable-configuration-proposal.txt",
+            "received": "2026-11-07",
+            "provisional": true,
+            "scope": "A05_PROTOTYPE"
+        },
+        {
+            "id": "HO-07NOV-KINDS",
+            "words": [
+                "I would like the configuration process to distinguish at least three kinds of decisions:",
+                "Choices that materially affect the affordance landscape, representative information, opposition, challenge, scoring consequences, or the intended Game Problem.",
+                "Choices required to make the selected Game Form coherent, playable, and internally consistent.",
+                "Choices that can reasonably be left to the coach or supplied through harmless defaults without materially changing the intended learning environment.",
+                "The boundary must remain contextual. A choice that is operational in one activity might matter to representative learning conditions in another.",
+                "For example, player numbers, pitch dimensions, and game duration can influence the relationships or demands players experience, even when they are entered as ordinary session parameters."
+            ],
+            "file": "sources/2026-11-07-handoff-authorization/originals/christian-reply-to-reusable-configuration-proposal.txt",
+            "received": "2026-11-07",
+            "provisional": false,
+            "scope": null
+        },
+        {
+            "id": "HO-07NOV-OFFSIDE-SCOPE",
+            "words": [
+                "The provisional no-offside ruling applies to the initial small-sided realization. It should not automatically be generalized to other Game Forms, scales, or contexts."
+            ],
+            "file": "sources/2026-11-07-handoff-authorization/originals/christian-reply-to-reusable-configuration-proposal.txt",
+            "received": "2026-11-07",
+            "provisional": true,
+            "scope": "INITIAL_SMALL_SIDED_REALIZATION"
+        },
+        {
+            "id": "HO-07NOV-PURPOSE",
+            "words": [
+                "The approved Session Planning Model can provide the A05 Learning Purpose for review, but an Active status alone should not be used as proof of a dated canonical approval where that distinction matters.",
+                "Please retain the source and approval evidence separately."
+            ],
+            "file": "sources/2026-11-07-handoff-authorization/originals/christian-reply-to-reusable-configuration-proposal.txt",
+            "received": "2026-11-07",
+            "provisional": false,
+            "scope": "REVIEW"
+        },
+        {
+            "id": "HO-07NOV-TRANSLATION",
+            "words": [
+                "The scoped Create Space primary and Exploit Space secondary translation remains approved only for the isolated A05 review pathway, with mismatch reporting rather than automatic switching."
+            ],
+            "file": "sources/2026-11-07-handoff-authorization/originals/christian-reply-to-reusable-configuration-proposal.txt",
+            "received": "2026-11-07",
+            "provisional": false,
+            "scope": "ISOLATED_A05_REVIEW_PATHWAY"
+        },
+        {
+            "id": "HO-06NOV-OPTION-A",
+            "words": [
+                "I approve option (a) for the isolated review pathway only.",
+                "When the described circumstances indicate sufficient usable space already exists, the system should report a potential mismatch rather than automatically changing the primary Game Problem."
+            ],
+            "file": "christian-2026-11-06-assembly-review.txt (received 6 November 2026)",
+            "received": "2026-11-06",
+            "provisional": false,
+            "scope": "REVIEW_PATHWAY"
+        },
+        {
+            "id": "HO-06NOV-KICKOFF",
+            "words": [
+                "Please retain the ordinary Laws' 9.15 m requirement for the current prototype.",
+                "As previously discussed, an ordinary kickoff should not be represented as proof that organized defensive relationships have been established."
+            ],
+            "file": "christian-2026-11-06-assembly-review.txt (received 6 November 2026)",
+            "received": "2026-11-06",
+            "provisional": false,
+            "scope": "CURRENT_PROTOTYPE"
+        },
+        {
+            "id": "HO-06NOV-SOURCE",
+            "words": [
+                "The original September 13 approval, as quoted in your report, uses \"for example\" before the final scoring realization.",
+                "However, please verify the exact wording against the original approved source before making the correction."
+            ],
+            "file": "christian-2026-11-06-assembly-review.txt (received 6 November 2026)",
+            "received": "2026-11-06",
+            "provisional": false,
+            "scope": null
+        },
+        {
+            "id": "HO-05NOV-GF",
+            "words": [
+                "GF2 may be used as an illustrative configuration for this experiment.",
+                "GF3 and GF7 must remain visible as compatible alternatives without an invented ranking.",
+                "The selected form should not be presented as demonstrably superior merely because it is the one assembled."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "replyOfDay": "second reply",
+            "provisional": false,
+            "scope": "THIS_EXPERIMENT"
+        },
+        {
+            "id": "HO-05NOV-GF2-REVIEW",
+            "words": [
+                "Using GF2 for a review prototype is acceptable when explicitly described as an illustrative choice, not a justified selection over the other forms."
+            ],
+            "file": "sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt",
+            "received": "2026-11-05",
+            "replyOfDay": "first reply",
+            "provisional": false,
+            "scope": "REVIEW_PROTOTYPE"
+        },
+        {
+            "id": "HO-05NOV-ILLUSTRATIVE",
+            "words": [
+                "Where a choice cannot be authorized, an illustrative value may be used for this offline prototype if clearly labeled and kept outside production selection authority."
+            ],
+            "file": "sources/2026-11-05-assembly-authorization/originals/christian-reply-to-dimensions-review.txt",
+            "received": "2026-11-05",
+            "replyOfDay": "second reply",
+            "provisional": false,
+            "scope": "OFFLINE_PROTOTYPE"
+        },
+        {
+            "id": "HO-05NOV-KICKOFF",
+            "words": [
+                "Please retain the ordinary kickoff as an acceptable provisional option for the current prototype, but do not promote it as a demonstrated method of restoring organized defensive relationships."
+            ],
+            "file": "sources/2026-11-05-a05-review/originals/christian-reply-to-a05-proposal.txt",
+            "received": "2026-11-05",
+            "replyOfDay": "first reply",
+            "provisional": true,
+            "scope": "CURRENT_PROTOTYPE"
+        },
+        {
+            "id": "HO-30OCT-WALKTHROUGH",
+            "words": [
+                "The provisional 5 m end zones are fine for the walk-through, but shouldn't become a canonical standard without a justified relationship to the learning environment."
+            ],
+            "file": "recovered reply received 30 October 2026, beginning \"Thank you for resending the starting-condition clarification\"; our filed copy christian-2026-11-06.txt, filed under the old filing date 6 November 2026 (received 30 October 2026, US Eastern)",
+            "received": "2026-10-30",
+            "provisional": true,
+            "scope": "THE_WALK_THROUGH"
+        },
+        {
+            "id": "HO-29OCT-PROVISIONAL",
+            "words": [
+                "Offside: None for this initial small-sided realization, explicitly communicated."
+            ],
+            "file": "recovered reply received 29 October 2026, beginning \"Thank you for the latest comparison.\"; our filed copy christian-2026-11-03.txt, filed under the old filing date 3 November 2026 (received 29 October 2026, US Eastern)",
+            "received": "2026-10-29",
+            "provisional": true,
+            "scope": "INITIAL_SMALL_SIDED_REALIZATION"
+        },
+        {
+            "id": "HO-28OCT-PROVISIONAL",
+            "words": [
+                "Scoring target: Controlled arrival in an appropriately positioned advanced end zone.",
+                "Offside: No offside for this initial small-sided realization, explicitly communicated.",
+                "These are provisional design decisions, not authorization of a complete activity."
+            ],
+            "file": "recovered reply received 28 October 2026, beginning \"Thank you for the detailed feasibility assessment.\"; our filed copy christian-2026-11-02.txt, filed under the old filing date 2 November 2026 (received 28 October 2026, US Eastern)",
+            "received": "2026-10-28",
+            "provisional": true,
+            "scope": "INITIAL_SMALL_SIDED_REALIZATION"
+        },
+        {
+            "id": "HO-28OCT-ENDZONE",
+            "words": [
+                "For scoring, I favor controlled arrival in an advanced end zone over crossing the far end line.",
+                "However, I don't want either decision finalized simply to accommodate the current engine."
+            ],
+            "file": "recovered reply received 28 October 2026, beginning \"Thank you for the Progress the Attack assessment.\"; our filed copy christian-2026-11-01.txt, filed under the old filing date 1 November 2026 (received 28 October 2026, US Eastern)",
+            "received": "2026-10-28",
+            "provisional": true,
+            "scope": null
+        },
+        {
+            "id": "HO-27OCT-MATERIALITY",
+            "words": [
+                "Material unresolved conflicts affecting the activity's meaning, safety, or structural validity should prevent approval.",
+                "Minor or nonessential procedural questions may be reported for review without stopping development."
+            ],
+            "file": "recovered reply received 27 October 2026, beginning \"Thank you for the detailed composition test and Game Form Library assessment.\"; our filed copy christian-2026-10-30.txt, filed under the old filing date 30 October 2026 (received 27 October 2026, US Eastern)",
+            "received": "2026-10-27",
+            "provisional": false,
+            "scope": null
+        },
+        {
+            "id": "HO-23OCT-LAWS",
+            "words": [
+                "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.",
+                "The governing principle is to inherit established sport rules and explicitly define only the necessary departures."
+            ],
+            "file": "recovered reply received 23 October 2026, beginning \"Thank you for narrowing the remaining questions and confirming that Directional Possession can support the proposed goal-based realization\"; our filed copy christian-2026-10-26.txt (its message 1), filed under the old filing date 26 October 2026 (received 23 October 2026, US Eastern)",
+            "received": "2026-10-23",
+            "provisional": false,
+            "scope": "WHEREVER_APPLICABLE"
+        },
+        {
+            "id": "HO-15OCT-NOT-MANDATORY",
+            "words": [
+                "A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment."
+            ],
+            "file": "recovered reply received 15 October 2026, beginning \"Thanks for identifying the remaining knowledge gaps and separating them from the work already underway.\"; our filed copy christian-2026-10-16.txt, filed under the old filing date 16 October 2026 (received 15 October 2026, US Eastern)",
+            "received": "2026-10-15",
+            "provisional": false,
+            "scope": null
+        },
+        {
+            "id": "HO-15OCT-TESTING-BOUNDARIES",
+            "words": [
+                "The 11–12-player support and 40 × 30 m prototype values are acceptable current testing boundaries, but they should not become permanent architectural limitations."
+            ],
+            "file": "recovered reply received 15 October 2026, beginning \"Thanks for narrowing the outstanding questions and documenting the implementation decisions.\"; our filed copy christian-2026-10-18.txt, filed under the old filing date 18 October 2026 (received 15 October 2026, US Eastern)",
+            "received": "2026-10-15",
+            "provisional": true,
+            "scope": "CURRENT_TESTING"
+        }
+    ],
+    "cases": [
+        {
+            "id": "A05-0",
+            "label": "A05, knowledge as it stands: the RPC-003 DRAFT contract as drafted",
+            "resultStanding": "A05_AS_THE_KNOWLEDGE_STANDS",
+            "goalId": "A05",
+            "form": {
+                "named": "GF2",
+                "basis": "ILLUSTRATIVE",
+                "rulingRefs": [
+                    "HO-05NOV-GF",
+                    "HO-05NOV-GF2-REVIEW"
+                ],
+                "why": "Step 2 leaves GF2, GF3 and GF7 compatible with no preference; Christian permits GF2 as an illustrative configuration, the other two kept visible without a ranking."
+            },
+            "session": {
+                "players": 12,
+                "lengthM": 40,
+                "widthM": 30,
+                "durationMin": 18,
+                "specializedRoles": 0,
+                "goals": null,
+                "label": "ILLUSTRATIVE",
+                "rulingRefs": [
+                    "HO-05NOV-ILLUSTRATIVE"
+                ]
+            },
+            "purpose": {
+                "rulingRefs": [
+                    "HO-07NOV-PURPOSE"
+                ],
+                "sourceEvidence": "Session Planning Model (session-planning-model.rc1.json), learning_goals, the goal's row, its coach definition (read by the display reader in the test, after the decisions)",
+                "approvalEvidence": "none dated: the row's Status cell reads 'Active', which Christian says is not proof of a dated canonical approval; no dated approval of this row is filed"
+            },
+            "chain": {
+                "records": "TEST_ONLY",
+                "draftStore": "ta02-composition",
+                "supplement": true,
+                "vehicle": null
+            },
+            "record": {
+                "by": "Christian",
+                "rulingRefs": [
+                    "HO-07NOV-HANDOFF"
+                ],
+                "gameProblemScopeRefs": [
+                    "HO-07NOV-TRANSLATION",
+                    "HO-06NOV-OPTION-A"
+                ],
+                "authorizedConstraints": [],
+                "constraintRulingRefs": [
+                    "HO-15OCT-NOT-MANDATORY",
+                    "HO-07NOV-K2"
+                ],
+                "constraintFinding": "OURS, under Christian's principle of 15 October and K2 approved for review-only use: no library constraint, incentive or environmental manipulation has an authorized relationship to this context and the resolved Game Problems, so none is added; this does not establish that the form is sufficient."
+            },
+            "realization": {
+                "id": "A05-H1",
+                "by": "Christian",
+                "rulingRefs": [
+                    "HO-28OCT-PROVISIONAL",
+                    "HO-29OCT-PROVISIONAL",
+                    "HO-07NOV-OFFSIDE-SCOPE"
+                ],
+                "departures": [
+                    {
+                        "law": "LAW-11",
+                        "extent": "WHOLE",
+                        "rulingRefs": [
+                            "HO-29OCT-PROVISIONAL",
+                            "HO-28OCT-PROVISIONAL",
+                            "HO-07NOV-OFFSIDE-SCOPE"
+                        ],
+                        "because": "OURS, recording Christian's provisional ruling: no offside for this initial small-sided realization, said once to the coach; nothing in the game replaces the law, so the departure is recorded on the realization, for the whole of the law; scoped by Christian's reply of 7 November to this initial small-sided realization, never generalized."
+                    }
+                ],
+                "lawsCheck": {
+                    "mode": "REPORT",
+                    "rulingRefs": [
+                        "HO-27OCT-MATERIALITY"
+                    ],
+                    "treatmentRef": "TT-LAWS-REPORT",
+                    "because": "TEST-ONLY, OURS: a realization that records a departure must declare a check; REPORT is declared and the harness holds every law the activity owes to our DRAFT classification of Christian's materiality test (any law it does not classify PROCEDURAL refuses the run at validation), so the run is held as the sport's own check would hold it under that classification."
+                }
+            },
+            "rulings": [
+                {
+                    "ref": "HO-07NOV-HANDOFF",
+                    "entersAs": "RECORD_RULING",
+                    "how": "the words of the TEST-ONLY authorization record (in memory, held to the record gate; never written to the production file)"
+                },
+                {
+                    "ref": "HO-07NOV-TRANSLATION",
+                    "entersAs": "RECORD_GAME_PROBLEM_SCOPE",
+                    "how": "the Game Problems travel beside the chain from Step 1; the record names the primary only because its gate requires one; a mismatch with the chain's own account is reported, never switched"
+                },
+                {
+                    "ref": "HO-06NOV-OPTION-A",
+                    "entersAs": "RECORD_GAME_PROBLEM_SCOPE",
+                    "how": "scope of the translation, printed beside Step 1's filed scope; decides nothing"
+                },
+                {
+                    "ref": "HO-05NOV-GF",
+                    "entersAs": "FORM_PERMISSION",
+                    "how": "permits GF2 as an illustrative form; the form is placed in the chain's selection explicitly"
+                },
+                {
+                    "ref": "HO-05NOV-GF2-REVIEW",
+                    "entersAs": "FORM_PERMISSION",
+                    "how": "the same permission for a review prototype"
+                },
+                {
+                    "ref": "HO-28OCT-ENDZONE",
+                    "entersAs": "SUPPLIED_CHOICE",
+                    "how": "the open target-noun lines closed as 'zone' and the open scoring-event line as the zone-entry kind, each choice's because quoting Christian"
+                },
+                {
+                    "ref": "HO-28OCT-PROVISIONAL",
+                    "entersAs": "SUPPLIED_CHOICE",
+                    "how": "the same choices (scoring target); also the no-offside departure"
+                },
+                {
+                    "ref": "HO-29OCT-PROVISIONAL",
+                    "entersAs": "LAW_DEPARTURE",
+                    "how": "a departure from the law of offside, whole, recorded on the TEST-ONLY realization"
+                },
+                {
+                    "ref": "HO-07NOV-OFFSIDE-SCOPE",
+                    "entersAs": "LAW_DEPARTURE",
+                    "how": "the departure's scope: this initial small-sided realization only"
+                },
+                {
+                    "ref": "HO-15OCT-NOT-MANDATORY",
+                    "entersAs": "EMPTY_CONSTRAINT_SET",
+                    "how": "the TEST-ONLY record's authorized constraint set is empty, with its finding"
+                },
+                {
+                    "ref": "HO-07NOV-K2",
+                    "entersAs": "EMPTY_CONSTRAINT_SET",
+                    "how": "nothing is added; K2 for review-only use"
+                },
+                {
+                    "ref": "HO-05NOV-ILLUSTRATIVE",
+                    "entersAs": "ILLUSTRATIVE_PERMISSION",
+                    "how": "permits the labelled illustrative session and zone depth"
+                },
+                {
+                    "ref": "HO-30OCT-WALKTHROUGH",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "consulted for the zone depth: scoped to the walk-through, so it is not quoted as the depth's authority; the depth is ILLUSTRATIVE"
+                },
+                {
+                    "ref": "HO-27OCT-MATERIALITY",
+                    "entersAs": "LAWS_CHECK_BASIS",
+                    "how": "the basis of the TEST-ONLY realization's declared check, applied through our DRAFT classification"
+                },
+                {
+                    "ref": "HO-23OCT-LAWS",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the Laws apply by default: nothing enters; the chain's laws account reports each law"
+                },
+                {
+                    "ref": "HO-06NOV-KICKOFF",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the ordinary kick-off and 9.15 m are the Laws' default: nothing enters; the kick-off's centre mark has no register row, so its adaptation is owed and reported"
+                },
+                {
+                    "ref": "HO-05NOV-KICKOFF",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "as above; never shown as restoring organized defending"
+                },
+                {
+                    "ref": "HO-07NOV-RESTART",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the coach-served end-line restart is described in the report only: the checked chain does not compose it from Christian's words (see the case's notCarried)"
+                },
+                {
+                    "ref": "HO-07NOV-ADAPTATION",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the end-line restart is a necessary adaptation, still scrutinized"
+                },
+                {
+                    "ref": "HO-07NOV-REGAIN",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "no exclusion is added for scores after a regain; a score is not evidence of the Game Problem"
+                },
+                {
+                    "ref": "HO-07NOV-STARTING",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the state reading is provisional and has no structural carrier; the source question is kept"
+                },
+                {
+                    "ref": "HO-07NOV-PURPOSE",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the purpose's source and approval evidence printed apart"
+                },
+                {
+                    "ref": "HO-07NOV-KINDS",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the decision kinds A, B and C, computed per line by our rule for Christian's review"
+                },
+                {
+                    "ref": "HO-07NOV-GAP",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the critical knowledge gap, printed for every configuration"
+                },
+                {
+                    "ref": "HO-07NOV-SCORING-ROW",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the 13 September verification is Joe's step and is still owed; the corrected wording cannot reach the chain without the live change Christian withholds; the CONDITIONAL run A05-2 treats the final clause as the verified wording would make it"
+                },
+                {
+                    "ref": "HO-06NOV-SOURCE",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the 'for example' reading, to be verified against the original approved source before any correction"
+                }
+            ],
+            "suppliedChoices": [
+                {
+                    "lineId": "c:restated:GF2:GF2-03.e::S3",
+                    "value": "zone",
+                    "rulingRef": "HO-28OCT-ENDZONE",
+                    "standing": "RULING",
+                    "provisional": true
+                },
+                {
+                    "lineId": "c:restated:GF2:GF2-03.f::S3",
+                    "value": "zone",
+                    "rulingRef": "HO-28OCT-ENDZONE",
+                    "standing": "RULING",
+                    "provisional": true
+                },
+                {
+                    "lineId": "game::V1",
+                    "value": "target_zone_entered",
+                    "rulingRef": "HO-28OCT-PROVISIONAL",
+                    "standing": "RULING",
+                    "provisional": true
+                }
+            ],
+            "standIns": [
+                {
+                    "id": "SI-DEPTH-NEAR",
+                    "contractId": "restated:GF2",
+                    "label": "ILLUSTRATIVE",
+                    "why": "GF2 authors no depth for a target zone and no ruling of Christian's gives one for this case; the chain carries a depth only as a contract item, so a labelled TEST-ONLY stand-in item carries the illustrative 5 m. Never knowledge.",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ],
+                    "item": {
+                        "itemId": "TEST-ONLY-DEPTH-NEAR",
+                        "row": "S5",
+                        "selector": "functions CONTAINS objective-area & longitudinal=end-near",
+                        "requirement": "RANGE",
+                        "value": "TEST-ONLY ILLUSTRATIVE depth of the end-near target",
+                        "typedBound": {
+                            "min": 5,
+                            "max": 5
+                        },
+                        "strictness": "REQUIRED",
+                        "valueStatus": "REQUIRED_RANGE",
+                        "scope": "WHOLE_GAME",
+                        "basis": "OWNER_RULING",
+                        "basisEvidence": "TEST-ONLY stand-in for an ILLUSTRATIVE value: never production data, never a ruling",
+                        "checkability": "STRUCTURAL",
+                        "structuralClause": "whole item"
+                    }
+                },
+                {
+                    "id": "SI-DEPTH-FAR",
+                    "contractId": "restated:GF2",
+                    "label": "ILLUSTRATIVE",
+                    "why": "As the near zone's depth.",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ],
+                    "item": {
+                        "itemId": "TEST-ONLY-DEPTH-FAR",
+                        "row": "S5",
+                        "selector": "functions CONTAINS objective-area & longitudinal=end-far",
+                        "requirement": "RANGE",
+                        "value": "TEST-ONLY ILLUSTRATIVE depth of the end-far target",
+                        "typedBound": {
+                            "min": 5,
+                            "max": 5
+                        },
+                        "strictness": "REQUIRED",
+                        "valueStatus": "REQUIRED_RANGE",
+                        "scope": "WHOLE_GAME",
+                        "basis": "OWNER_RULING",
+                        "basisEvidence": "TEST-ONLY stand-in for an ILLUSTRATIVE value: never production data, never a ruling",
+                        "checkability": "STRUCTURAL",
+                        "structuralClause": "whole item"
+                    }
+                }
+            ],
+            "illustrative": [
+                {
+                    "id": "IL-FORM",
+                    "what": "the Game Form",
+                    "value": "GF2",
+                    "how": "placed in the chain's selection explicitly",
+                    "rulingRefs": [
+                        "HO-05NOV-GF",
+                        "HO-05NOV-GF2-REVIEW"
+                    ]
+                },
+                {
+                    "id": "IL-PLAYERS",
+                    "what": "players",
+                    "value": "12, no specialized role",
+                    "how": "session input",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ]
+                },
+                {
+                    "id": "IL-AREA",
+                    "what": "area",
+                    "value": "40 x 30 m",
+                    "how": "session input",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ]
+                },
+                {
+                    "id": "IL-DURATION",
+                    "what": "duration",
+                    "value": "18 minutes",
+                    "how": "session input",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ]
+                },
+                {
+                    "id": "IL-DEPTH",
+                    "what": "end-zone depth",
+                    "value": "5 m at each end",
+                    "how": "two TEST-ONLY stand-in items (SI-DEPTH-NEAR, SI-DEPTH-FAR)",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ]
+                },
+                {
+                    "id": "IL-RESTART",
+                    "what": "the coach-served end-line restart",
+                    "value": "a coach-served ball after the ball goes over an end line, to the team that did not touch it last",
+                    "how": "not carried: described in the report only",
+                    "rulingRefs": [
+                        "HO-07NOV-RESTART"
+                    ]
+                }
+            ],
+            "testOnlyTreatments": [
+                {
+                    "id": "TT-RECORD",
+                    "kind": "IN_MEMORY_RECORD",
+                    "what": "a TEST-ONLY authorization record for the goal, built from the case's rulings, in memory",
+                    "effect": "the chain selects the form and the context with no constraint, and gates the record and its realization exactly as a production record",
+                    "why": "the goal has no production record; writing one would switch its live route",
+                    "label": "TEST-ONLY"
+                },
+                {
+                    "id": "TT-REALIZATION",
+                    "kind": "IN_MEMORY_REALIZATION",
+                    "what": "a TEST-ONLY provisional realization holding only Christian's no-offside ruling, loaded through the realization gate on a copy of the production file",
+                    "effect": "the law of offside is departed from, whole; the coach is told there is no offside",
+                    "why": "the chain carries an activity-scoped law departure only on a provisional realization; nothing is written to the production file",
+                    "label": "TEST-ONLY"
+                },
+                {
+                    "id": "TT-DRAFT-STORE",
+                    "kind": "DRAFT_STORE",
+                    "what": "the context's DRAFT contract read from the TEST-ONLY draft store",
+                    "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed)",
+                    "why": "the context has no production contract",
+                    "label": "TEST-ONLY"
+                },
+                {
+                    "id": "TT-LAWS-REPORT",
+                    "kind": "LAWS_CHECK",
+                    "what": "the TEST-ONLY realization declares the REPORT check, and the harness refuses the run at validation if any law it owes is not PROCEDURAL under our DRAFT classification",
+                    "effect": "the kick-off's owed adaptation (no centre mark row) is reported, not refused, as our DRAFT classification reads it",
+                    "why": "a realization that records a departure must declare a check; under ENFORCE the kick-off's representation gap would refuse the run although our DRAFT reading of Christian's materiality test calls it procedural",
+                    "label": "TEST-ONLY"
+                }
+            ],
+            "proposedManipulations": [],
+            "decisionKindOverrides": [
+                {
+                    "path": "envelope.players",
+                    "kind": "A",
+                    "contextual": true,
+                    "rulingRefs": [
+                        "HO-07NOV-KINDS"
+                    ]
+                },
+                {
+                    "path": "envelope.area.length_m",
+                    "kind": "A",
+                    "contextual": true,
+                    "rulingRefs": [
+                        "HO-07NOV-KINDS"
+                    ]
+                },
+                {
+                    "path": "envelope.area.width_m",
+                    "kind": "A",
+                    "contextual": true,
+                    "rulingRefs": [
+                        "HO-07NOV-KINDS"
+                    ]
+                },
+                {
+                    "path": "envelope.duration_min",
+                    "kind": "A",
+                    "contextual": true,
+                    "rulingRefs": [
+                        "HO-07NOV-KINDS"
+                    ]
+                }
+            ],
+            "notCarried": [
+                {
+                    "id": "NC-RESTART",
+                    "what": "the coach-served end-line restart",
+                    "rulingRefs": [
+                        "HO-07NOV-RESTART",
+                        "HO-07NOV-ADAPTATION"
+                    ],
+                    "where": "measured: as TEST-ONLY realization items in Christian's words (the end-line trigger, a last-touch partition, the team that did not touch it last, the coach as taker, a served ball, play stopped and resumed, a location under Christian's qualitative condition), the build is refused at structure: the restart transition's episode line is neither chosen nor claimed, and no ruling of Christian's says whether the restart begins an episode. As a diagnostic only, with a TEST ASSUMPTION for the episode line and the coach-decided location closed, structure, realization and validation pass and the build is refused at communication: no sentence exists for a restart the coach serves (its last touch, award, taker, method, play state and location reach no instruction); decision 1's review-only wording holds none. No engine feature was built; the restart stays described in the report only",
+                    "label": "UNEXPECTED_LIMITATION"
+                },
+                {
+                    "id": "NC-STARTING",
+                    "what": "the starting condition read as the state of the attack",
+                    "rulingRefs": [
+                        "HO-07NOV-STARTING"
+                    ],
+                    "where": "no structural carrier: a scoring condition's scope is the whole game, and the only typed begin condition is a restart taken by a performer; the location question is kept open",
+                    "label": "KNOWLEDGE_OR_CAPABILITY_GAP"
+                },
+                {
+                    "id": "NC-KICKOFF",
+                    "what": "the ordinary kick-off and 9.15 m",
+                    "rulingRefs": [
+                        "HO-06NOV-KICKOFF",
+                        "HO-05NOV-KICKOFF",
+                        "HO-23OCT-LAWS"
+                    ],
+                    "where": "the Laws' default; nothing enters; the centre mark has no register row, so the kick-off's adaptation is owed and reported, and the coach text says nothing about the kick-off",
+                    "label": "REPRESENTATION_GAP"
+                },
+                {
+                    "id": "NC-REGAIN",
+                    "what": "scores after a regain count",
+                    "rulingRefs": [
+                        "HO-07NOV-REGAIN"
+                    ],
+                    "where": "nothing excludes them in any run; the origin items are what would have, and they are withheld (A05-1, A05-2) or stop the run (A05-0)",
+                    "label": "REPORT_ONLY"
+                },
+                {
+                    "id": "NC-SCORING-ROW",
+                    "what": "the scoring row's 'for example' correction",
+                    "rulingRefs": [
+                        "HO-07NOV-SCORING-ROW",
+                        "HO-06NOV-SOURCE"
+                    ],
+                    "where": "the 13 September verification is still owed (Joe's step); every draft item must quote the live row verbatim, so the corrected wording cannot reach the chain without the live change Christian withholds",
+                    "label": "AWAITING_VERIFICATION"
+                }
+            ]
+        },
+        {
+            "id": "A05-1",
+            "basedOn": "A05-0",
+            "label": "A05 with Christian's provisional starting-condition reading applied as a labelled TEST-ONLY treatment (origin items withheld; progression and control kept as drafted)",
+            "resultStanding": "A05_UNDER_TEST_ONLY_TREATMENTS",
+            "testOnlyTreatments": [
+                {
+                    "id": "TT-RECORD",
+                    "kind": "IN_MEMORY_RECORD",
+                    "what": "a TEST-ONLY authorization record for the goal, built from the case's rulings, in memory",
+                    "effect": "the chain selects the form and the context with no constraint, and gates the record and its realization exactly as a production record",
+                    "why": "the goal has no production record; writing one would switch its live route",
+                    "label": "TEST-ONLY"
+                },
+                {
+                    "id": "TT-REALIZATION",
+                    "kind": "IN_MEMORY_REALIZATION",
+                    "what": "a TEST-ONLY provisional realization holding only Christian's no-offside ruling, loaded through the realization gate on a copy of the production file",
+                    "effect": "the law of offside is departed from, whole; the coach is told there is no offside",
+                    "why": "the chain carries an activity-scoped law departure only on a provisional realization; nothing is written to the production file",
+                    "label": "TEST-ONLY"
+                },
+                {
+                    "id": "TT-DRAFT-STORE",
+                    "kind": "DRAFT_STORE",
+                    "what": "the context's DRAFT contract read from the TEST-ONLY draft store",
+                    "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed)",
+                    "why": "the context has no production contract",
+                    "label": "TEST-ONLY"
+                },
+                {
+                    "id": "TT-LAWS-REPORT",
+                    "kind": "LAWS_CHECK",
+                    "what": "the TEST-ONLY realization declares the REPORT check, and the harness refuses the run at validation if any law it owes is not PROCEDURAL under our DRAFT classification",
+                    "effect": "the kick-off's owed adaptation (no centre mark row) is reported, not refused, as our DRAFT classification reads it",
+                    "why": "a realization that records a departure must declare a check; under ENFORCE the kick-off's representation gap would refuse the run although our DRAFT reading of Christian's materiality test calls it procedural",
+                    "label": "TEST-ONLY"
+                },
+                {
+                    "id": "TT-ORIGIN-WITHHELD",
+                    "kind": "WITHHOLD_ITEMS",
+                    "contractId": "restated:RPC-003",
+                    "itemIds": [
+                        "RPC-003-10.a",
+                        "RPC-003-10.b"
+                    ],
+                    "what": "the DRAFT contract's origin items withheld on a copy",
+                    "effect": "no line requires the attack's starting condition; scores after a regain are not excluded by it",
+                    "why": "Christian's provisional state reading of the starting condition has no structural carrier in the checked chain (a condition's scope is the whole game; only restart-begun episodes are typed); the location question is kept open, not discarded",
+                    "rulingRefs": [
+                        "HO-07NOV-STARTING",
+                        "HO-07NOV-REGAIN"
+                    ],
+                    "label": "TEST-ONLY"
+                }
+            ]
+        },
+        {
+            "id": "A05-2",
+            "basedOn": "A05-0",
+            "label": "CONDITIONAL on the 13 September verification (not A05's result): as A05-1, with the final clause treated as the example the verified wording would make it (progression and control items withheld as requirements)",
+            "resultStanding": "CONDITIONAL_NOT_A05_RESULT",
+            "testOnlyTreatments": [
+                {
+                    "id": "TT-RECORD",
+                    "kind": "IN_MEMORY_RECORD",
+                    "what": "a TEST-ONLY authorization record for the goal, built from the case's rulings, in memory",
+                    "effect": "the chain selects the form and the context with no constraint, and gates the record and its realization exactly as a production record",
+                    "why": "the goal has no production record; writing one would switch its live route",
+                    "label": "TEST-ONLY"
+                },
+                {
+                    "id": "TT-REALIZATION",
+                    "kind": "IN_MEMORY_REALIZATION",
+                    "what": "a TEST-ONLY provisional realization holding only Christian's no-offside ruling, loaded through the realization gate on a copy of the production file",
+                    "effect": "the law of offside is departed from, whole; the coach is told there is no offside",
+                    "why": "the chain carries an activity-scoped law departure only on a provisional realization; nothing is written to the production file",
+                    "label": "TEST-ONLY"
+                },
+                {
+                    "id": "TT-DRAFT-STORE",
+                    "kind": "DRAFT_STORE",
+                    "what": "the context's DRAFT contract read from the TEST-ONLY draft store",
+                    "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed)",
+                    "why": "the context has no production contract",
+                    "label": "TEST-ONLY"
+                },
+                {
+                    "id": "TT-LAWS-REPORT",
+                    "kind": "LAWS_CHECK",
+                    "what": "the TEST-ONLY realization declares the REPORT check, and the harness refuses the run at validation if any law it owes is not PROCEDURAL under our DRAFT classification",
+                    "effect": "the kick-off's owed adaptation (no centre mark row) is reported, not refused, as our DRAFT classification reads it",
+                    "why": "a realization that records a departure must declare a check; under ENFORCE the kick-off's representation gap would refuse the run although our DRAFT reading of Christian's materiality test calls it procedural",
+                    "label": "TEST-ONLY"
+                },
+                {
+                    "id": "TT-ORIGIN-WITHHELD",
+                    "kind": "WITHHOLD_ITEMS",
+                    "contractId": "restated:RPC-003",
+                    "itemIds": [
+                        "RPC-003-10.a",
+                        "RPC-003-10.b"
+                    ],
+                    "what": "the DRAFT contract's origin items withheld on a copy",
+                    "effect": "no line requires the attack's starting condition; scores after a regain are not excluded by it",
+                    "why": "Christian's provisional state reading of the starting condition has no structural carrier in the checked chain (a condition's scope is the whole game; only restart-begun episodes are typed); the location question is kept open, not discarded",
+                    "rulingRefs": [
+                        "HO-07NOV-STARTING",
+                        "HO-07NOV-REGAIN"
+                    ],
+                    "label": "TEST-ONLY"
+                },
+                {
+                    "id": "TT-FINAL-CLAUSE-EXAMPLE",
+                    "kind": "WITHHOLD_ITEMS",
+                    "contractId": "restated:RPC-003",
+                    "itemIds": [
+                        "RPC-003-11.a",
+                        "RPC-003-11.b",
+                        "RPC-003-11.c",
+                        "RPC-003-12.a",
+                        "RPC-003-12.b"
+                    ],
+                    "what": "the DRAFT contract's progression and control items withheld as requirements on a copy",
+                    "effect": "the final clause binds nothing: the activity is the form's own game with the scoring target Christian chose",
+                    "why": "CONDITIONAL: what the handoff produces once Joe verifies the 13 September wording and Christian's correction applies to the offline record; under the 'for example' reading the whole final clause is an example (OURS: LOGICAL INFERENCE, pending verification); the RPC-003 contract is our DRAFT, so the checked pathway reports rather than enforces its components, and under the 4 November safeguard an approved contract with these components missing would be refused",
+                    "rulingRefs": [
+                        "HO-07NOV-SCORING-ROW",
+                        "HO-06NOV-SOURCE"
+                    ],
+                    "label": "TEST-ONLY, CONDITIONAL"
+                }
+            ]
+        },
+        {
+            "id": "A01",
+            "label": "A01 through the handoff with its production records and realizations",
+            "resultStanding": "PRODUCTION_RECORDS",
+            "goalId": "A01",
+            "form": {
+                "named": "GF2",
+                "basis": "LOGICAL_INFERENCE",
+                "rulingRefs": [],
+                "why": "entailed by A01's activity-scoped rulings, which are typed on GF2's lines (OURS: LOGICAL INFERENCE): A01-R1's items and its choices file are written on GF2's line ids; no ruling of Christian's found names GF2 as A01's form, and Step 2 leaves GF2, GF3 and GF7 compatible."
+            },
+            "session": {
+                "players": 12,
+                "lengthM": 40,
+                "widthM": 30,
+                "durationMin": 20,
+                "specializedRoles": 1,
+                "goals": 0,
+                "label": "COACH_INPUT",
+                "rulingRefs": [
+                    "HO-15OCT-TESTING-BOUNDARIES"
+                ]
+            },
+            "purpose": {
+                "rulingRefs": [
+                    "HO-07NOV-PURPOSE"
+                ],
+                "sourceEvidence": "Session Planning Model (session-planning-model.rc1.json), learning_goals, the goal's row, its coach definition (read by the display reader in the test, after the decisions)",
+                "approvalEvidence": "none dated in this data: the row's Status cell reads 'Active', which is not by itself proof of a dated canonical approval"
+            },
+            "chain": {
+                "records": "PRODUCTION",
+                "draftStore": null,
+                "supplement": true,
+                "vehicle": null
+            },
+            "record": null,
+            "realization": null,
+            "rulings": [
+                {
+                    "ref": "HO-15OCT-TESTING-BOUNDARIES",
+                    "entersAs": "SESSION_BOUND",
+                    "how": "the session is within the testing boundaries A01-R1 records"
+                },
+                {
+                    "ref": "HO-07NOV-PURPOSE",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the purpose's source and approval evidence printed apart"
+                },
+                {
+                    "ref": "HO-07NOV-KINDS",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the decision kinds A, B and C, computed per line by our rule for Christian's review"
+                }
+            ],
+            "suppliedChoices": [],
+            "standIns": [],
+            "illustrative": [],
+            "testOnlyTreatments": [],
+            "proposedManipulations": [],
+            "decisionKindOverrides": [
+                {
+                    "path": "envelope.players",
+                    "kind": "A",
+                    "contextual": true,
+                    "rulingRefs": [
+                        "HO-07NOV-KINDS"
+                    ]
+                },
+                {
+                    "path": "envelope.area.length_m",
+                    "kind": "A",
+                    "contextual": true,
+                    "rulingRefs": [
+                        "HO-07NOV-KINDS"
+                    ]
+                },
+                {
+                    "path": "envelope.area.width_m",
+                    "kind": "A",
+                    "contextual": true,
+                    "rulingRefs": [
+                        "HO-07NOV-KINDS"
+                    ]
+                },
+                {
+                    "path": "envelope.duration_min",
+                    "kind": "A",
+                    "contextual": true,
+                    "rulingRefs": [
+                        "HO-07NOV-KINDS"
+                    ]
+                }
+            ],
+            "notCarried": []
+        },
+        {
+            "id": "GF2-ZONES",
+            "label": "structural cases, no Learning Goal: GF2 with reciprocal end zones",
+            "resultStanding": "STRUCTURAL_CASE",
+            "goalId": null,
+            "form": {
+                "named": "GF2",
+                "basis": "STRUCTURAL_CASE",
+                "rulingRefs": [
+                    "HO-07NOV-HANDOFF"
+                ],
+                "why": "a structural case with no Learning Goal: shows that the same mechanism carries a second legitimate arrangement; it selects nothing for any goal"
+            },
+            "session": {
+                "players": 12,
+                "lengthM": 40,
+                "widthM": 30,
+                "durationMin": 18,
+                "specializedRoles": 0,
+                "goals": null,
+                "label": "ILLUSTRATIVE",
+                "rulingRefs": [
+                    "HO-05NOV-ILLUSTRATIVE"
+                ]
+            },
+            "purpose": null,
+            "chain": {
+                "records": "PRODUCTION",
+                "draftStore": "ta02-composition",
+                "supplement": true,
+                "vehicle": {
+                    "goalId": "TA02",
+                    "removeContext": true,
+                    "lawsStandIn": {
+                        "law": "LAW-11",
+                        "materiality": "PROCEDURAL"
+                    },
+                    "treatmentRef": "TT-VEHICLE"
+                }
+            },
+            "record": null,
+            "realization": null,
+            "rulings": [
+                {
+                    "ref": "HO-05NOV-ILLUSTRATIVE",
+                    "entersAs": "ILLUSTRATIVE_PERMISSION",
+                    "how": "permits the labelled illustrative session, zone choice and depth"
+                },
+                {
+                    "ref": "HO-07NOV-HANDOFF",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the structural case shows the mechanism carries more than one legitimate arrangement; it selects nothing for any goal"
+                },
+                {
+                    "ref": "HO-07NOV-KINDS",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the decision kinds A, B and C, computed per line by our rule for Christian's review"
+                }
+            ],
+            "suppliedChoices": [
+                {
+                    "lineId": "c:restated:GF2:GF2-03.e::S3",
+                    "value": "zone",
+                    "rulingRef": null,
+                    "standing": "ILLUSTRATIVE",
+                    "provisional": false
+                },
+                {
+                    "lineId": "c:restated:GF2:GF2-03.f::S3",
+                    "value": "zone",
+                    "rulingRef": null,
+                    "standing": "ILLUSTRATIVE",
+                    "provisional": false
+                },
+                {
+                    "lineId": "game::V1",
+                    "value": "target_zone_entered",
+                    "rulingRef": null,
+                    "standing": "ILLUSTRATIVE",
+                    "provisional": false
+                }
+            ],
+            "standIns": [
+                {
+                    "id": "SI-DEPTH-NEAR",
+                    "contractId": "restated:GF2",
+                    "label": "ILLUSTRATIVE",
+                    "why": "GF2 authors no depth for a target zone; the chain carries a depth only as a contract item, so a labelled TEST-ONLY stand-in item carries the illustrative 5 m. Never knowledge.",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ],
+                    "item": {
+                        "itemId": "TEST-ONLY-DEPTH-NEAR",
+                        "row": "S5",
+                        "selector": "functions CONTAINS objective-area & longitudinal=end-near",
+                        "requirement": "RANGE",
+                        "value": "TEST-ONLY ILLUSTRATIVE depth of the end-near target",
+                        "typedBound": {
+                            "min": 5,
+                            "max": 5
+                        },
+                        "strictness": "REQUIRED",
+                        "valueStatus": "REQUIRED_RANGE",
+                        "scope": "WHOLE_GAME",
+                        "basis": "OWNER_RULING",
+                        "basisEvidence": "TEST-ONLY stand-in for an ILLUSTRATIVE value: never production data, never a ruling",
+                        "checkability": "STRUCTURAL",
+                        "structuralClause": "whole item"
+                    }
+                },
+                {
+                    "id": "SI-DEPTH-FAR",
+                    "contractId": "restated:GF2",
+                    "label": "ILLUSTRATIVE",
+                    "why": "As the near zone's depth.",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ],
+                    "item": {
+                        "itemId": "TEST-ONLY-DEPTH-FAR",
+                        "row": "S5",
+                        "selector": "functions CONTAINS objective-area & longitudinal=end-far",
+                        "requirement": "RANGE",
+                        "value": "TEST-ONLY ILLUSTRATIVE depth of the end-far target",
+                        "typedBound": {
+                            "min": 5,
+                            "max": 5
+                        },
+                        "strictness": "REQUIRED",
+                        "valueStatus": "REQUIRED_RANGE",
+                        "scope": "WHOLE_GAME",
+                        "basis": "OWNER_RULING",
+                        "basisEvidence": "TEST-ONLY stand-in for an ILLUSTRATIVE value: never production data, never a ruling",
+                        "checkability": "STRUCTURAL",
+                        "structuralClause": "whole item"
+                    }
+                }
+            ],
+            "illustrative": [
+                {
+                    "id": "IL-FORM",
+                    "what": "the Game Form",
+                    "value": "GF2",
+                    "how": "placed in the chain's selection explicitly",
+                    "rulingRefs": []
+                },
+                {
+                    "id": "IL-PLAYERS",
+                    "what": "players",
+                    "value": "12, no specialized role",
+                    "how": "session input",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ]
+                },
+                {
+                    "id": "IL-AREA",
+                    "what": "area",
+                    "value": "40 x 30 m",
+                    "how": "session input",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ]
+                },
+                {
+                    "id": "IL-DURATION",
+                    "what": "duration",
+                    "value": "18 minutes",
+                    "how": "session input",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ]
+                },
+                {
+                    "id": "IL-TARGETS",
+                    "what": "the targets",
+                    "value": "a zone at each end, the zone-entry scoring kind",
+                    "how": "supplied choices among the form's authorized alternatives",
+                    "rulingRefs": []
+                },
+                {
+                    "id": "IL-DEPTH",
+                    "what": "end-zone depth",
+                    "value": "5 m at each end",
+                    "how": "two TEST-ONLY stand-in items (SI-DEPTH-NEAR, SI-DEPTH-FAR)",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ]
+                }
+            ],
+            "testOnlyTreatments": [
+                {
+                    "id": "TT-VEHICLE",
+                    "kind": "VEHICLE",
+                    "what": "the form built under a Learning Goal's TEST-ONLY build (the TA02 DRAFT record from the draft store, its context taken out of a copy of the selection), the only entry that takes the review-only wording",
+                    "effect": "the game is the form alone; the overview's purpose and the diagram's title are the vehicle goal's, not this case's",
+                    "why": "the TEST-ONLY entry takes only a Learning Goal request",
+                    "label": "TEST-ONLY"
+                },
+                {
+                    "id": "TT-LAW-11-STAND-IN",
+                    "kind": "LAWS_CHECK",
+                    "what": "a TEST-ONLY stand-in classification of the Laws with the law of offside PROCEDURAL (neither our reading nor a ruling of Christian's)",
+                    "effect": "the offside and kick-off adaptations the form alone owes are reported, not refused",
+                    "why": "a composed Learning Goal's activity is otherwise refused at validation before its text is served; no ruling covers offside for a form with no Learning Goal",
+                    "label": "TEST ASSUMPTION"
+                }
+            ],
+            "proposedManipulations": [],
+            "decisionKindOverrides": [
+                {
+                    "path": "envelope.players",
+                    "kind": "A",
+                    "contextual": true,
+                    "rulingRefs": [
+                        "HO-07NOV-KINDS"
+                    ]
+                },
+                {
+                    "path": "envelope.area.length_m",
+                    "kind": "A",
+                    "contextual": true,
+                    "rulingRefs": [
+                        "HO-07NOV-KINDS"
+                    ]
+                },
+                {
+                    "path": "envelope.area.width_m",
+                    "kind": "A",
+                    "contextual": true,
+                    "rulingRefs": [
+                        "HO-07NOV-KINDS"
+                    ]
+                },
+                {
+                    "path": "envelope.duration_min",
+                    "kind": "A",
+                    "contextual": true,
+                    "rulingRefs": [
+                        "HO-07NOV-KINDS"
+                    ]
+                }
+            ],
+            "notCarried": []
+        },
+        {
+            "id": "GF2-LINES",
+            "basedOn": "GF2-ZONES",
+            "label": "structural cases, no Learning Goal: GF2 on lines (the form's own realization choices)",
+            "suppliedChoices": [],
+            "standIns": [],
+            "illustrative": [
+                {
+                    "id": "IL-FORM",
+                    "what": "the Game Form",
+                    "value": "GF2",
+                    "how": "placed in the chain's selection explicitly",
+                    "rulingRefs": []
+                },
+                {
+                    "id": "IL-PLAYERS",
+                    "what": "players",
+                    "value": "12, no specialized role",
+                    "how": "session input",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ]
+                },
+                {
+                    "id": "IL-AREA",
+                    "what": "area",
+                    "value": "40 x 30 m",
+                    "how": "session input",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ]
+                },
+                {
+                    "id": "IL-DURATION",
+                    "what": "duration",
+                    "value": "18 minutes",
+                    "how": "session input",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "TA01",
+            "label": "TA01 through the handoff (Step 2 SELECTED its form)",
+            "resultStanding": "PRODUCTION_RECORDS",
+            "goalId": "TA01",
+            "form": {
+                "fromStep2": true
+            },
+            "session": {
+                "players": 12,
+                "lengthM": 40,
+                "widthM": 30,
+                "durationMin": 18,
+                "specializedRoles": 0,
+                "goals": null,
+                "label": "ILLUSTRATIVE",
+                "rulingRefs": [
+                    "HO-05NOV-ILLUSTRATIVE"
+                ]
+            },
+            "purpose": {
+                "rulingRefs": [
+                    "HO-07NOV-PURPOSE"
+                ],
+                "sourceEvidence": "Session Planning Model (session-planning-model.rc1.json), learning_goals, the goal's row, its coach definition (read by the display reader in the test, after the decisions)",
+                "approvalEvidence": "none dated in this data: the row's Status cell reads 'Active', which is not by itself proof of a dated canonical approval"
+            },
+            "chain": {
+                "records": "PRODUCTION",
+                "draftStore": null,
+                "supplement": true,
+                "vehicle": null
+            },
+            "record": null,
+            "realization": null,
+            "rulings": [
+                {
+                    "ref": "HO-05NOV-ILLUSTRATIVE",
+                    "entersAs": "ILLUSTRATIVE_PERMISSION",
+                    "how": "permits the labelled illustrative session"
+                },
+                {
+                    "ref": "HO-07NOV-PURPOSE",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the purpose's source and approval evidence printed apart"
+                }
+            ],
+            "suppliedChoices": [],
+            "standIns": [],
+            "illustrative": [
+                {
+                    "id": "IL-PLAYERS",
+                    "what": "players",
+                    "value": "12, no specialized role",
+                    "how": "session input",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ]
+                },
+                {
+                    "id": "IL-AREA",
+                    "what": "area",
+                    "value": "40 x 30 m",
+                    "how": "session input",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ]
+                },
+                {
+                    "id": "IL-DURATION",
+                    "what": "duration",
+                    "value": "18 minutes",
+                    "how": "session input",
+                    "rulingRefs": [
+                        "HO-05NOV-ILLUSTRATIVE"
+                    ]
+                }
+            ],
+            "testOnlyTreatments": [],
+            "proposedManipulations": [],
+            "decisionKindOverrides": [],
+            "notCarried": []
+        }
+    ],
+    "grading": {
+        "sources": [
+            {
+                "id": "SRC-SOCCER-MODULE",
+                "markers": [
+                    "soccer-module.rc1-v3.json",
+                    "game_forms["
+                ],
+                "source": "the Soccer Module workbook (soccer-module.rc1-v3.json)",
+                "sourceStanding": "DRAFT (the module's own status, module_status DRAFT; the review pathway reads its Game Form rows as CANDIDATE)",
+                "knowledgeSource": "sportModule"
+            },
+            {
+                "id": "SRC-ARCHETYPE-WORKBOOK",
+                "markers": [
+                    "game-archetype-workbook.rc1.1.json",
+                    "GAK-"
+                ],
+                "source": "the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+                "sourceStanding": "APPROVED (the review pathway's standing for the Game Archetype Workbook RC1.1)",
+                "knowledgeSource": "archetypes"
+            },
+            {
+                "id": "SRC-CONTEXT-LIBRARY",
+                "markers": [
+                    "rpc-library.rc1.json",
+                    "RPC-PROP-",
+                    "RPC-REL-",
+                    "RPC-ID-"
+                ],
+                "source": "the context library (rpc-library.rc1.json)",
+                "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, runtime_status ACTIVE)",
+                "knowledgeSource": "contexts"
+            },
+            {
+                "id": "SRC-PLANNING-MODEL",
+                "markers": [
+                    "session-planning-model.rc1.json"
+                ],
+                "source": "the Session Planning Model (session-planning-model.rc1.json)",
+                "sourceStanding": "APPROVED (the review pathway's standing for the Session Planning Model)",
+                "knowledgeSource": "planning"
+            }
+        ],
+        "standingDecisions": [
+            {
+                "id": "SD-10",
+                "specLine": 315,
+                "sourceCell": "[C18b]",
+                "reference": "Christian's second set of decisions of 18 September, on revision 3",
+                "referenceLine": 232,
+                "provisional": false
+            },
+            {
+                "id": "SD-11",
+                "specLine": 321,
+                "sourceCell": "[C18]",
+                "reference": "Christian's decisions of 18 September on revision 2",
+                "referenceLine": 231,
+                "provisional": false
+            },
+            {
+                "id": "SD-13",
+                "specLine": 323,
+                "sourceCell": "[C18]",
+                "reference": "Christian's decisions of 18 September on revision 2",
+                "referenceLine": 231,
+                "provisional": false
+            },
+            {
+                "id": "SD-14",
+                "specLine": 324,
+                "sourceCell": "[C18]",
+                "reference": "Christian's decisions of 18 September on revision 2",
+                "referenceLine": 231,
+                "provisional": false
+            },
+            {
+                "id": "SD-25",
+                "specLine": 339,
+                "sourceCell": "[C20b]",
+                "reference": "Christian's rulings of 20 September closing the collision exercise",
+                "referenceLine": 242,
+                "provisional": false
+            },
+            {
+                "id": "SD-39",
+                "specLine": 355,
+                "sourceCell": "[C21]",
+                "reference": "Christian's rulings of 21 September settling the authority for OPEN",
+                "referenceLine": 237,
+                "provisional": false
+            }
+        ],
+        "choiceFiles": [
+            {
+                "file": "a04-realization-choices.json",
+                "standing": "OURS",
+                "why": "the file says of itself that it is a realizer's input, not knowledge: none of it is authored"
+            },
+            {
+                "file": "realization-choices-a01-r1.json",
+                "standing": "RULING",
+                "provisional": true,
+                "why": "each choice is labelled PROVISIONAL_REALIZATION_CHOICE and quotes Christian"
+            },
+            {
+                "file": "realization-choices-a01-r2.json",
+                "standing": "RULING",
+                "provisional": true,
+                "why": "each choice is labelled PROVISIONAL_REALIZATION_CHOICE and quotes Christian"
+            }
+        ],
+        "lawsDefault": {
+            "principleRef": "HO-23OCT-LAWS",
+            "encoding": "our DRAFT per-law encoding in the Sport Profile's default-laws block"
+        }
+    }
+}

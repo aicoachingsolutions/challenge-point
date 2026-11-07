@@ -271,6 +271,11 @@ function testTheStageReachesNoKeywordParserOrTokenScorer(): void {
     // DRAFT DIAGRAM AMENDMENT (Christian's reply of 6 November 2026, section 9, l.84: "Please produce a draft diagram from the offline
     // configuration record, without changing the live application or A01's diagram-generation pathway."): the diagram file joins the
     // closure (13 files become 14); it imports only assembly.ts, already in it, so the closure still reaches no loader beyond the two below.
+    // HANDOFF AMENDMENT (Christian's reply received 7 November 2026, section 1: "You may reuse and extend existing code where necessary,
+    // provided the new behavior remains unavailable to live coaches and does not change the existing application or A01's checked
+    // behavior."): the handoff's two stage files join the closure (14 files become 16); they import only assembly.ts, knowledge.ts,
+    // stage1.ts, trace.ts and each other, all already in it or added here, and receive the checked chain as an injected interface (no import
+    // of rendering, derivation or realization), so the closure still reaches no loader beyond the two below.
     assert.deepEqual(
         closure.filter((f) => f.endsWith('.ts')),
         [
@@ -279,6 +284,8 @@ function testTheStageReachesNoKeywordParserOrTokenScorer(): void {
             'system/design-reasoning/assembly-review.ts',
             'system/design-reasoning/assembly.ts',
             'system/design-reasoning/forms.ts',
+            'system/design-reasoning/handoff-report.ts',
+            'system/design-reasoning/handoff.ts',
             'system/design-reasoning/knowledge.ts',
             'system/design-reasoning/resolve.ts',
             'system/design-reasoning/stage1.ts',
