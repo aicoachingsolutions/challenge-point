@@ -50,7 +50,9 @@ export function basisLines(b: RefusalBasis): string[] {
     const out = [`what it rests on (OURS): ${b.verdict}: ${plain(b.why)}; codes ${b.codes.join(', ')}`, `  basis mix of the cited items: ${b.mix}`]
     for (const c of b.cited) {
         const where = c.origin === 'DRAFT_STORE' ? 'the TEST-ONLY draft store' : c.origin === 'REALIZATION' ? 'a provisional realization' : c.origin === 'KNOWLEDGE' ? 'knowledge' : c.origin
-        out.push(`  cites ${c.ref} (found in ${plain(c.via)}): its element is established by item ${c.itemId} of ${c.contractId} (${where}), basis ${c.basis}; graded ${c.premiseKind}, '${plain(c.label)}'${c.source ? `; source: ${plain(c.source)}; the source's standing as the review pathway reads its status fields (OURS): ${plain(c.sourceStanding ?? 'not recorded')}` : ''}${c.note ? ` (${plain(c.note)})` : ''}`)
+        const whose = c.elementNotBounding ? 'the line is bounded by' : 'its element is established by'
+        out.push(`  cites ${c.ref} (found in ${plain(c.via)}): ${whose} item ${c.itemId} of ${c.contractId} (${where}), basis ${c.basis}; graded ${c.premiseKind}, ${c.sixClass === null ? 'no class claimed' : `class ${c.sixClass}`}, '${plain(c.label)}'${c.source ? `; source: ${plain(c.source)}; the source's standing as the review pathway reads its status fields (OURS): ${plain(c.sourceStanding ?? 'not recorded')}` : ''}${c.note ? ` (${plain(c.note)})` : ''}`)
+        if (c.elementNotBounding) out.push(`    ${plain(c.elementNotBounding)}`)
         if (c.chainReading) out.push(`    ${plain(c.chainReading)}`)
     }
     for (const g of b.gaps) out.push(`  a line nobody established (a gap): ${g.ref}: ${plain(g.why)}; ${plain(g.element)}`)
@@ -84,7 +86,9 @@ export function comparisonLines(c: HandoffComparison): string[] {
     else
         for (const key of c.diagram.changed) {
             const pick = (d: HandoffComparison['diagram']['before']) => (d ? (d as unknown as Record<string, unknown>)[key] : undefined)
-            out.push(key === 'the diagram itself' ? `diagram: ${show(c.diagram.before)} -> ${show(c.diagram.after)}` : `diagram ${key}: ${show(pick(c.diagram.before))} -> ${show(pick(c.diagram.after))}`)
+            // The diagram's served flag is said as section 9 says it: a TEST-ONLY run reaches no coach.
+            const servedWords = (v: unknown) => (v === true ? 'would be served' : v === false ? 'withheld' : show(v))
+            out.push(key === 'the diagram itself' ? `diagram: ${show(c.diagram.before)} -> ${show(c.diagram.after)}` : key === 'served' ? `diagram, the checked chain's verdict: ${servedWords(pick(c.diagram.before))} -> ${servedWords(pick(c.diagram.after))}` : `diagram ${key}: ${show(pick(c.diagram.before))} -> ${show(pick(c.diagram.after))}`)
         }
     out.push(`identical: lines ${c.identical.lines ? 'yes' : 'no'}, sentences ${c.identical.sentences ? 'yes' : 'no'}, diagram ${c.identical.diagram ? 'yes' : 'no'}`)
     return out
@@ -230,7 +234,7 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
     }
     push()
     push('12. Refusal')
-    if (!r.refusal) push('   none: served')
+    if (!r.refusal) push('   none: the chain would serve it (a TEST-ONLY run; nothing here reaches a coach)')
     else {
         push(`   stage ${r.refusal.stage}`)
         for (const reason of r.refusal.reasons) push(`   - ${plain(reason)}`)
@@ -284,7 +288,7 @@ function testsText(tests: HandoffTestRecord[]): string[] {
 function refusalsText(refusals: RefusalEntry[], notes: string[]): string[] {
     const out: string[] = []
     const count = (v: string) => refusals.filter((r) => r.basis.verdict === v).length
-    out.push(`REFUSALS AND WHAT THEY REST ON (${refusals.length}: ${count('RESTATEMENT-ONLY')} RESTATEMENT-ONLY, ${count('MIXED')} MIXED, ${count('NOT KNOWLEDGE')} NOT KNOWLEDGE; counted from the entries below). OURS, read from each refusal's own reasons and, for a refusal met before any game exists, from the chain's own account behind it (each failing check's own result, each owed line's classification); no check is changed by it (Christian's second reply of 7 November: "No changes to validation behavior are authorized by this email."). A RESTATEMENT-ONLY refusal rests only on items that are ours and unreviewed (our restatements, which are CANDIDATE, DRAFT store items, and assumptions in our restatements): it may be conservative without establishing that the configuration violates approved knowledge. Each cited line is read back to the item that establishes its element; the line's own bound may come from another item, which this reading does not name. A cited line whose element's own object declares nothing on the line's row is listed apart as a line nobody established (a gap); the verdict is computed over the cited items, and a refusal citing only gaps is NOT KNOWLEDGE. Every verdict prints its basis mix.`)
+    out.push(`REFUSALS AND WHAT THEY REST ON (${refusals.length}: ${count('RESTATEMENT-ONLY')} RESTATEMENT-ONLY, ${count('MIXED')} MIXED, ${count('NOT KNOWLEDGE')} NOT KNOWLEDGE; counted from the entries below). OURS, read from each refusal's own reasons and, for a refusal met before any game exists, from the chain's own account behind it (each failing check's own result; each owed line's classification, with the chain's own reach of the line's element for each declaration it was decided over; each open line's permitted alternatives and the items the chain names as bounding it); no check is changed by it (Christian's second reply of 7 November: "No changes to validation behavior are authorized by this email."). The build returns no game at such a refusal, so the unit test runs the chain's own derivation again on the input the build derived from (build-activity's input assembly replicated in the test only) and reads nothing unless it reproduces the build's reasons word for word (at structure the Gate A reasons, at realization the realizer's reasons); otherwise the test fails. A RESTATEMENT-ONLY refusal rests only on items that are ours and unreviewed (our restatements, which are CANDIDATE, DRAFT store items, and assumptions in our restatements): it may be conservative without establishing that the configuration violates approved knowledge. Each cited line is read back to the item that establishes its element, or, for an open line whose bounding items the chain names (its narrowing items or bounds), to those items, with the element's item named as not bounding it; each cited item prints its class. The gap rule (OURS): a cited owed line is listed apart as a line nobody established (a gap) when no requirement declaration (NOT_AUTHORED, EXCLUDED or CLAIMED) among those the chain decided it over reaches the line's element class by the chain's own reach function (derivation/reach.ts reaches(), applied by the test to the element class); a requirement counts as reaching unless that function answers FALSE, as the chain's classification keeps a requirement in force against a class (classify.ts governingDeclarations; undetermined is never rounded to false). The verdict is computed over the cited items, and a refusal citing only gaps is NOT KNOWLEDGE. Every verdict prints its basis mix.`)
     for (const note of notes) out.push(plain(note))
     for (const r of refusals) {
         out.push(`- ${r.where}: stage ${r.basis.stage}; obstructs the configuration pathway: ${plain(r.obstructs)}`)
@@ -299,6 +303,7 @@ const READING_KEY = [
     'How to read the coach text (OURS): \'wording APPROVED\' means the sentence is, word for word, one of Christian\'s approved coach sentences; it says nothing about the standing of what it states (its class). \'wording DRAFT\' means words that are not approved (the renderer\'s DRAFT wording, or the review-only wording of decision 1).',
     'The renderer\'s own status words: DERIVED, required by the selected knowledge and worded as a requirement of the game; STARTING, where this activity starts (a value chosen inside authored bounds, an alternative taken, or a preferred default), said as a fact about this activity and adjustable; COACH_CHOICE, left to the coach and put to the coach as a choice.',
     'Quotation marks: double, Christian\'s words, verbatim, with their received date; single, ours (labels, values, record text such as an item\'s evidence, and engine sentences, whose own double quotation marks are printed as single ones).',
+    'Diagram words (the labels of the diagram\'s dimensions, targets and teams) are compared and printed with their status, CHRISTIANS_TERM (the diagram\'s value for one of Christian\'s terms, printed under this token) or DRAFT, and the sentence of the coach text that carries them, where one does.',
 ]
 
 /** The whole report: the frame (classes, grading map, decision-kind rule), the tests and the refusals, every case, and the input counts given by the test. */

@@ -1,5 +1,5 @@
 {
-    "standing": "TEST-ONLY review data for the isolated handoff Christian authorized in the reply received 7 November 2026, section 1. Per case it holds what the handoff RECEIVES beside Steps 1 and 2: the Learning Goal, how the Game Form enters, the session, Christian's words that bear on the case (verbatim, with file and received date) and how each enters the checked chain, the illustrative values and the TEST-ONLY treatments, each labelled. It is not an activity record: it holds no value for a feature that knowledge, the session or the coach settles, and no sentence. Steps 1 and 2 are run by the handoff, never copied from here. Nothing on the live route or the checked pathway reads this file; only the handoff's unit test does.",
+    "standing": "TEST-ONLY review data for the isolated handoff Christian authorized in Christian's first reply of 7 November 2026 (received 7 November 2026), section 1. Per case it holds what the handoff RECEIVES beside Steps 1 and 2: the Learning Goal, how the Game Form enters, the session, Christian's words that bear on the case (verbatim, with file and received date) and how each enters the checked chain, the illustrative values and the TEST-ONLY treatments, each labelled. It is not an activity record: it holds no value for a feature that knowledge, the session or the coach settles, and no sentence. Steps 1 and 2 are run by the handoff, never copied from here. Nothing on the live route or the checked pathway reads this file; only the handoff's unit test does.",
     "rulings": [
         {
             "id": "HO-07NOV-HANDOFF",
@@ -1003,7 +1003,7 @@
                     ],
                     "what": "the DRAFT contract's progression and control items withheld as requirements on a copy",
                     "effect": "the final clause binds nothing: the activity is the form's own game with the scoring target Christian chose",
-                    "why": "CONDITIONAL: what the handoff produces once Joe verifies the 13 September wording and Christian's correction applies to the offline record; under the 'for example' reading the whole final clause is an example (OURS: LOGICAL INFERENCE, pending verification); the RPC-003 contract is our DRAFT, so the checked pathway reports rather than enforces its components, and under the 4 November safeguard an approved contract with these components missing would be refused",
+                    "why": "CONDITIONAL: what the handoff produces once Joe verifies the 13 September wording and Christian's correction applies to the offline record; under the 'for example' reading the whole final clause is an example (OURS: LOGICAL INFERENCE, pending verification); the RPC-003 contract is our DRAFT, so the checked pathway reports rather than enforces its components, and under the safeguard Christian approved in the reply received 29 October 2026 on the requirement-accounting report (item 7: missing or altered components of approved scoring conditions), an approved contract with these components missing would be refused",
                     "rulingRefs": [
                         "HO-07NOV-SCORING-ROW",
                         "HO-06NOV-SOURCE"
@@ -1252,7 +1252,9 @@
                     "what": "the Game Form",
                     "value": "GF2",
                     "how": "placed in the chain's selection explicitly",
-                    "rulingRefs": []
+                    "rulingRefs": [
+                        "HO-07NOV-ILLUSTRATIVE"
+                    ]
                 },
                 {
                     "id": "IL-PLAYERS",
@@ -1288,7 +1290,10 @@
                     "what": "the targets",
                     "value": "a zone at each end, the zone-entry scoring kind",
                     "how": "supplied choices among the alternatives our restatement of the DRAFT soccer module lists (CANDIDATE)",
-                    "rulingRefs": []
+                    "rulingRefs": [
+                        "HO-07NOV-ILLUSTRATIVE"
+                    ],
+                    "onDiagram": "zones"
                 },
                 {
                     "id": "IL-DEPTH",
@@ -1374,7 +1379,9 @@
                     "what": "the Game Form",
                     "value": "GF2",
                     "how": "placed in the chain's selection explicitly",
-                    "rulingRefs": []
+                    "rulingRefs": [
+                        "HO-07NOV-ILLUSTRATIVE"
+                    ]
                 },
                 {
                     "id": "IL-PLAYERS",
@@ -1525,7 +1532,7 @@
                     "RPC-ID-"
                 ],
                 "source": "the context library (rpc-library.rc1.json)",
-                "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, runtime_status ACTIVE)",
+                "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
                 "knowledgeSource": "contexts"
             },
             {

@@ -245,8 +245,10 @@ function importClosure(files: string[]): string[] {
         seen.add(file)
         if (!file.endsWith('.ts')) continue
         const source = fs.readFileSync(file, 'utf8')
-        // Static imports, require() and import(), in either quotation mark (a double-quoted or required module is followed too).
-        for (const match of source.matchAll(/(?:from\s+|require\(\s*|import\(\s*)['"](\.[^'"]+)['"]/g)) {
+        // Static imports, require() and import(), in either quotation mark (a double-quoted or required module is followed too); and a
+        // side-effect import, 'import' followed directly by a quoted specifier (the handoff review of 7 November, round 2; measured: the
+        // closure stays the 16 files pinned below).
+        for (const match of source.matchAll(/(?:from\s+|require\(\s*|import\(\s*|import\s+)['"](\.[^'"]+)['"]/g)) {
             const base = path.resolve(path.dirname(file), match[1])
             const candidate = [`${base}.ts`, base, path.join(base, 'index.ts')].find((p) => fs.existsSync(p) && fs.statSync(p).isFile())
             if (candidate) stack.push(candidate)
