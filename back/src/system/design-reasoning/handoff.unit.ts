@@ -1573,7 +1573,7 @@ test(
         const { lines } = compared('B4b', byCase(resultsOnce(), 'GF2-ZONES'), v)
         assert.deepEqual([v.chain?.outcome, v.refusal?.stage, v.refusal?.reasons], ['refused', 'realization', ['realization refused', 'game::RP1: nobody established this, so it is not a freedom to close — filling it would convert missing knowledge into a choice']])
         assert.ok(v.gaps.some((g) => g.startsWith('the chain refused at realization')))
-        return [`proposed: ${v.proposedChoices[0].outcome}`, ...lines]
+        return [`proposed: ${v.proposedChoices[0].outcome}`, ...lines, GF2_STAND_IN_NOTE]
     },
     { id: 'B4b', group: THIRD, cites: 'N7:16, N7:174', shows: 'missing knowledge is never filled by an illustrative value: a value for a line nothing establishes is refused, and the gap is reported' },
 )
@@ -1907,14 +1907,19 @@ test(
         const ours = `[${REQUIREMENT_DECLARATIONS.map((d) => `'${d}'`).join(', ')}]`
         assert.equal(literal[0].slice(PREFIX.length), ours, 'REQUIREMENT_DECLARATIONS equals classify.ts\'s GENERAL_REQUIREMENTS')
         assert.equal(source.split(SCOPE_RULE_SOURCE).length - 1, 1, 'classify.ts holds the scope rule the wiring mirrors, exactly once')
-        // Bites: the mirror answers as the rule reads.
+        // The executed mirror's own text holds the rule's expression (review of 7 November, final recheck), so a drift in what runs fails here.
+        const ruleExpression = SCOPE_RULE_SOURCE.slice(SCOPE_RULE_SOURCE.indexOf('=>') + 3)
+        assert.ok(scopeReachesMirror.toString().includes(ruleExpression), `the mirror that runs is the rule's expression: ${scopeReachesMirror.toString()}`)
+        // Bites: the mirror answers as the rule reads; an own-involvement declaration of a supporting object does not reach the class.
+        const supporting = { fromItem: { contractId: 'Y' }, supportedBy: [{ contractId: 'X' }] }
         assert.deepEqual(
             [
                 scopeReachesMirror({ scope: 'OWN_INVOLVEMENT', contractId: 'X' }, { fromItem: { contractId: 'Y' } }),
                 scopeReachesMirror({ scope: 'OWN_INVOLVEMENT', contractId: 'X' }, { fromItem: { contractId: 'X' } }),
                 scopeReachesMirror({ scope: 'WHOLE_GAME', contractId: 'X' }, { fromItem: { contractId: 'Y' } }),
+                scopeReachesMirror({ scope: 'OWN_INVOLVEMENT', contractId: 'X' }, supporting),
             ],
-            [false, true, true],
+            [false, true, true, false],
         )
         // Measured over every owed line the refusal readings read (each declaration counted once per line): how many own-involvement
         // declarations they meet, and how many the scope rule keeps from reaching the element.
