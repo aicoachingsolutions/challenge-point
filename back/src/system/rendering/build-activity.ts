@@ -2491,11 +2491,14 @@ interface GameContext {
     supplement: ((fixture: Record<string, unknown>, rendered: RenderedActivity) => RenderedActivity) | null
 }
 
-/** 7 November 2026, tests only: a supplement only adds sentences; the renderer's own are kept in order, its withheld fields and observations with them. */
-function onlyAdded(said: RenderedActivity, given: RenderedActivity): RenderedActivity {
+/**
+ * 7 November 2026, tests only: a supplement only adds sentences; the renderer's own are kept in order, its withheld fields and observations with
+ * them, by reference and by value (`before` is the renderer's rendering as text, taken before the supplement ran: a change made in place fails).
+ */
+function onlyAdded(said: RenderedActivity, before: string, given: RenderedActivity): RenderedActivity {
     let kept = 0
     for (const instruction of given.instructions) if (instruction === said.instructions[kept]) kept++
-    if (kept !== said.instructions.length || given.withheld !== said.withheld || given.coachingObservations !== said.coachingObservations)
+    if (kept !== said.instructions.length || given.withheld !== said.withheld || given.coachingObservations !== said.coachingObservations || JSON.stringify(said) !== before)
         throw new Error(`a TEST-ONLY communication supplement may only add sentences: the renderer's own, its withheld fields and its observations are kept, in order`)
     return given
 }
@@ -3076,7 +3079,7 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
     const communicate = (assembled: any): GameOutcome => {
         const said = renderConcreteGame(assembled)
         // 7 November 2026, tests only: a review-only supplement's sentences join the renderer's here, before fidelity; null on every other build.
-        const rendered = supplement ? onlyAdded(said, supplement(assembled, said)) : said
+        const rendered = supplement ? onlyAdded(said, JSON.stringify(said), supplement(assembled, said)) : said
         const report = checkFidelity(assembled, rendered)
         const violations = report.findings.filter((f: any) => f.severity === 'VIOLATION')
         const recommunicate = (extra: Record<string, unknown>): GameOutcome => communicate({ ...assembled, ...extra })

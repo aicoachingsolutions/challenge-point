@@ -24,7 +24,8 @@
  *   5. GF2 on lines unchanged with the option, and the game form's own text;
  *   6. the review draft (`reviewDraftOf`) marks the sentence DRAFT, never APPROVED, and every other sentence as without it;
  *   7. no field only approved words may say is said by the supplement, also on a copy holding such fields (which stay withheld);
- *   8. the option only adds: a TEST-ONLY supplement that drops, reorders or replaces what the renderer said is refused by the build;
+ *   8. the option only adds: a TEST-ONLY supplement that drops, reorders or replaces what the renderer said, or changes it in place, is refused
+ *      by the build;
  *   9. statically: no non-unit module imports the module, and no non-unit module but `build-activity.ts` names the option, where it is
  *      named exactly twice in code (its declaration and its pass-through to `build`).
  *
@@ -402,6 +403,28 @@ test('the option only adds: a TEST-ONLY supplement that drops, reorders or repla
     for (const [label, supplement] of [['drops one', dropsOne], ['reorders', reorders], ['replaces one', rewords], ['clears the withheld fields', clearsWithheld], ['replaces the observations', dropsObservations]] as const) {
         assert.throws(() => vehicle({ communicationSupplement: supplement }), refusal, label)
     }
+    // Review of 7 November: changes made IN PLACE, on the renderer's own objects (which the reference checks alone let through), are refused
+    // too: the hook compares the renderer's rendering by value, taken before the supplement ran.
+    let observations = -1
+    const rewordsInPlace = (_fixture: Record<string, unknown>, rendered: RenderedActivity): RenderedActivity => {
+        ;(rendered.instructions[0] as { text: string }).text = `${rendered.instructions[0].text} [TEST-ONLY: altered in place]`
+        return rendered
+    }
+    const splicesInPlace = (_fixture: Record<string, unknown>, rendered: RenderedActivity): RenderedActivity => {
+        rendered.instructions.splice(1, 1)
+        return rendered
+    }
+    const clearsObservationsInPlace = (_fixture: Record<string, unknown>, rendered: RenderedActivity): RenderedActivity => {
+        observations = rendered.coachingObservations.length
+        // Emptied in place where there are any; where there are none, one TEST-ONLY observation is added in place (the list changes either way).
+        if (rendered.coachingObservations.length) rendered.coachingObservations.length = 0
+        else rendered.coachingObservations.push('TEST-ONLY: an observation added in place')
+        return rendered
+    }
+    for (const [label, supplement] of [['rewords a sentence in place', rewordsInPlace], ['splices a sentence out in place', splicesInPlace], ['changes the observations in place', clearsObservationsInPlace]] as const) {
+        assert.throws(() => vehicle({ communicationSupplement: supplement }), refusal, label)
+    }
+    assert.ok(observations >= 0, 'the observation case ran')
     // Returning the renderer's rendering itself, or adding only, is accepted.
     const identity = (_fixture: Record<string, unknown>, rendered: RenderedActivity): RenderedActivity => rendered
     assert.equal(JSON.stringify(vehicle({ communicationSupplement: identity })), JSON.stringify(vehicle()))

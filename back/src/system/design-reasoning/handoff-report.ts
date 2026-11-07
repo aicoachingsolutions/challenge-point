@@ -47,15 +47,23 @@ const classWords = (c: number | null): string => (c === null ? 'no class claimed
 
 /** What a refusal rests on, as printed under a case's refusal and in the refusals section. */
 export function basisLines(b: RefusalBasis): string[] {
-    const out = [`what it rests on (OURS): ${b.verdict}: ${plain(b.why)}; codes ${b.codes.join(', ')}`]
-    for (const c of b.cited) out.push(`  cites ${c.ref}: its element is established by item ${c.itemId} of ${c.contractId} (${c.origin === 'DRAFT_STORE' ? 'the TEST-ONLY draft store' : c.origin === 'REALIZATION' ? 'a provisional realization' : c.origin === 'KNOWLEDGE' ? 'knowledge' : c.origin}), basis ${c.basis}; graded ${c.premiseKind}, '${plain(c.label)}'${c.note ? ` (${plain(c.note)})` : ''}`)
+    const out = [`what it rests on (OURS): ${b.verdict}: ${plain(b.why)}; codes ${b.codes.join(', ')}`, `  basis mix of the cited items: ${b.mix}`]
+    for (const c of b.cited) {
+        const where = c.origin === 'DRAFT_STORE' ? 'the TEST-ONLY draft store' : c.origin === 'REALIZATION' ? 'a provisional realization' : c.origin === 'KNOWLEDGE' ? 'knowledge' : c.origin
+        out.push(`  cites ${c.ref} (found in ${plain(c.via)}): its element is established by item ${c.itemId} of ${c.contractId} (${where}), basis ${c.basis}; graded ${c.premiseKind}, '${plain(c.label)}'${c.source ? `; source: ${plain(c.source)}; the source's standing as the review pathway reads its status fields (OURS): ${plain(c.sourceStanding ?? 'not recorded')}` : ''}${c.note ? ` (${plain(c.note)})` : ''}`)
+        if (c.chainReading) out.push(`    ${plain(c.chainReading)}`)
+    }
+    for (const g of b.gaps) out.push(`  a line nobody established (a gap): ${g.ref}: ${plain(g.why)}; ${plain(g.element)}`)
     return out
 }
+
+/** An outcome as a comparison prints it: a TEST-ONLY run reaches no coach, so a served outcome is what the chain would serve. */
+const outcomeWords = (outcome: string | null, stage: string | null): string => (outcome === 'served' ? 'the chain would serve it' : outcome ? `${outcome}${stage ? ` at ${stage}` : ''}` : `not run${stage ? ` (stopped at ${stage})` : ''}`)
 
 /** A comparison of a case and a variant, as the Tests section prints it: what changed, and how much stayed identical. */
 export function comparisonLines(c: HandoffComparison): string[] {
     const out: string[] = []
-    out.push(`${c.baseCase} -> ${c.variantCase}: outcome ${c.outcome[0] ?? 'not run'}${c.stage[0] ? ` at ${c.stage[0]}` : ''} -> ${c.outcome[1] ?? 'not run'}${c.stage[1] ? ` at ${c.stage[1]}` : ''}`)
+    out.push(`${c.baseCase} -> ${c.variantCase}: outcome: ${outcomeWords(c.outcome[0], c.stage[0])} -> ${outcomeWords(c.outcome[1], c.stage[1])}`)
     if (c.variantRefusal) out.push(`the variant is refused at ${c.variantRefusal.stage}: ${c.variantRefusal.reasons.map(plain).join('; ')}`)
     if (c.variantRefusal && c.sentences.after === 0 && c.lines.after === 0) {
         // Nothing is configured, so nothing is compared line by line: the base's whole configuration is simply not produced.
@@ -64,11 +72,11 @@ export function comparisonLines(c: HandoffComparison): string[] {
     }
     out.push(`sentences ${c.sentences.before} -> ${c.sentences.after} (${c.sentences.kept} word for word the same); lines ${c.lines.before} -> ${c.lines.after}`)
     for (const s of c.sentences.changed) {
-        if (s.before !== null && s.after !== null) out.push(`changed [${s.section}] '${plain(s.before)}' -> '${plain(s.after)}' (${plain(s.gradeBefore ?? '')} -> ${plain(s.gradeAfter ?? '')}; from-paths ${s.fromChanged ? 'changed' : 'the same'})`)
-        else if (s.before !== null) out.push(`gone [${s.section}] '${plain(s.before)}' (${plain(s.gradeBefore ?? '')})`)
-        else out.push(`added [${s.section}] '${plain(s.after ?? '')}' (${plain(s.gradeAfter ?? '')})`)
+        if (s.before !== null && s.after !== null) out.push(`changed [${s.section}] '${plain(s.before)}' -> '${plain(s.after)}' (wording ${s.wordingBefore}, ${plain(s.gradeBefore ?? '')} -> wording ${s.wordingAfter}, ${plain(s.gradeAfter ?? '')}; from-paths ${s.fromChanged ? 'changed' : 'the same'})`)
+        else if (s.before !== null) out.push(`gone [${s.section}] '${plain(s.before)}' (wording ${s.wordingBefore}, ${plain(s.gradeBefore ?? '')})`)
+        else out.push(`added [${s.section}] '${plain(s.after ?? '')}' (wording ${s.wordingAfter}, ${plain(s.gradeAfter ?? '')})`)
     }
-    for (const s of c.sentences.keptButChanged) out.push(`same words, ${s.fromChanged ? 'other from-paths' : 'same from-paths'}: '${plain(s.text)}' (${plain(s.gradeBefore)} -> ${plain(s.gradeAfter)})`)
+    for (const s of c.sentences.keptButChanged) out.push(`same words, ${s.fromChanged ? 'other from-paths' : 'same from-paths'}: '${plain(s.text)}' (wording ${s.wording}; ${plain(s.gradeBefore)} -> ${plain(s.gradeAfter)})`)
     for (const l of c.lines.changed) out.push(`line ${l.lineId}: ${show(l.before)} -> ${show(l.after)} (${plain(l.gradeBefore)} -> ${plain(l.gradeAfter)})`)
     if (c.lines.added.length) out.push(`lines added (${c.lines.added.length}): ${c.lines.added.join(', ')}`)
     if (c.lines.removed.length) out.push(`lines gone (${c.lines.removed.length}): ${c.lines.removed.join(', ')}`)
@@ -84,16 +92,22 @@ export function comparisonLines(c: HandoffComparison): string[] {
 
 function premiseLine(p: Premise): string {
     const parts = [`${plain(p.ref)}: ${classWords(p.sixClass)}; ${plain(p.label)}`]
-    if (p.source) parts.push(`source: ${plain(p.source)}; the source's own standing: ${plain(p.sourceStanding ?? 'not recorded')}`)
+    if (p.source) parts.push(`source: ${plain(p.source)}; the source's standing as the review pathway reads its status fields (OURS): ${plain(p.sourceStanding ?? 'not recorded')}`)
     if (p.note) parts.push(plain(p.note))
     return parts.join(' | ')
+}
+
+/** The case's notes for one section, in the data's words, each quotation of Christian's printed verbatim with its received date. */
+function noteLines(r: HandoffResult, section: HandoffResult['reportNotes'][number]['section']): string[] {
+    return r.reportNotes.filter((n) => n.section === section).map((n) => `${plain(n.text)}${n.quotes.map((q) => ` ${quoted(q.words)} (received ${q.received.split(',')[0]})`).join('')}`)
 }
 
 function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
     const out: string[] = []
     const push = (s = '') => out.push(s)
     push(`== CASE ${r.caseId}: ${plain(r.label)}`)
-    push(`Result standing: ${r.resultStanding}${r.resultStanding === 'CONDITIONAL_NOT_A05_RESULT' ? ' (a conditional diagnostic: never presented as the goal\'s result)' : ''}`)
+    push(`Result standing: ${r.resultStanding}`)
+    for (const line of noteLines(r, 'standing')) push(`   ${line}`)
     push()
     push('1. Inputs')
     push(`   Learning Goal: ${r.goalId ?? 'none (structural case, no Learning Goal)'}`)
@@ -114,7 +128,8 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
     if (!s1) push('   none: a structural case has no Learning Goal')
     else {
         push(`   status ${s1.status}; basis ${s1.basis ?? 'none'}; primary ${s1.primary.join(', ') || 'none'}; secondary ${s1.secondary.join(', ') || 'none'}; context ${s1.contextId ?? 'none'}`)
-        push(`   filed scope ${s1.scope ?? 'none'}; qualifier ${s1.qualifier ? `'${plain(s1.qualifier)}'` : 'none'}; established by ${s1.establishedBy}`)
+        const qualifier = !s1.qualifier ? 'none' : s1.qualifierRuling ? `${quoted(s1.qualifier)} (received ${s1.qualifierRuling.received.split(',')[0]}; Christian's words, ${s1.qualifierRuling.ref})` : `'${plain(s1.qualifier)}'`
+        push(`   filed scope ${s1.scope ?? 'none'}; qualifier ${qualifier}; established by ${s1.establishedBy}`)
         for (const x of r.receive.scopeSetBy) push(`   scope set by ${plain(x)}`)
         if (s1.missing.length) push(`   missing: ${s1.missing.map(plain).join('; ')}`)
     }
@@ -146,7 +161,7 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
     push('6. The checked chain')
     if (!r.chain) push('   not run: the handoff stopped before the chain (see 4)')
     else {
-        push(`   outcome ${r.chain.outcome}${r.chain.stage ? ` at ${r.chain.stage}` : ''}${r.chain.summary ? `: ${plain(r.chain.summary)}` : ''}`)
+        push(`   outcome: ${r.chain.outcome === 'served' ? 'the chain would serve it (a TEST-ONLY run; nothing here reaches a coach)' : `${r.chain.outcome}${r.chain.stage ? ` at ${r.chain.stage}` : ''}`}${r.chain.summary ? `: ${plain(r.chain.summary)}` : ''}`)
         for (const reason of r.chain.reasons) push(`   - ${plain(reason)}`)
         push(`   context: ${plain(r.chain.contextComparison)}`)
         push(`   Game Problems: ${plain(r.chain.gameProblemComparison)}`)
@@ -164,7 +179,8 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
     }
     push()
     const served = r.sentencesServed
-    push(`8. Coach text (${r.sentences.length} sentences; ${served === null ? 'none' : served ? 'served' : 'the review draft of a communication refusal: DRAFT, NOT SERVED'})`)
+    push(`8. Coach text (${r.sentences.length} sentences; ${served === null ? 'none' : served ? 'the text the chain would serve, in a TEST-ONLY run' : 'the review draft of a communication refusal: DRAFT, NOT SERVED'})`)
+    for (const line of noteLines(r, 'text')) push(`   note: ${line}`)
     for (const s of r.sentences) {
         push(`   [${s.section}${s.block ? ` | ${s.block}` : ''}] ${plain(s.text)}`)
         push(`     wording ${s.wording}${s.reviewOnly ? ' (review-only, DRAFT, not served to any coach)' : ''}; status ${s.status}; ${classWords(s.sixClass)}; ${plain(s.label)}`)
@@ -181,11 +197,19 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
     push('9. Diagram')
     if (!r.diagram) push('   none')
     else {
-        push(`   served to a coach: ${r.diagram.served ? 'yes' : 'no'}; the review model's verdict: ${r.diagram.verdict ?? 'none'}`)
-        push(`   area ${show(r.diagram.area)}; counts ${show(r.diagram.counts)}; legend ${show(r.diagram.legend)}`)
-        if (r.diagram.zones.length) push(`   zones ${show(r.diagram.zones)}`)
-        if (r.diagram.findings.length) push(`   findings ${show(r.diagram.findings)}`)
-        push('   no team start placement is drawn: the configuration holds none (the kick-off is the Laws\' default and the centre mark has no register row); the own-half schematic Christian permitted is not drawn')
+        const d = r.diagram
+        push(`   the checked chain's diagram verdict: ${d.served ? 'would be served' : 'withheld'} (a TEST-ONLY run; nothing here reaches a coach); the review model's verdict: ${d.verdict ?? 'none'}`)
+        push(`   area ${show(d.area)}; counts ${show(d.counts)}; legend ${show(d.legend)}`)
+        if (d.zones.length) push(`   zones ${show(d.zones)}`)
+        if (d.findings.length) push(`   findings ${show(d.findings)}`)
+        // The illustrative values this diagram draws (the case's data names where each is drawn), kept apart as section 14 keeps them.
+        const drawn = r.illustrative.filter((i) => {
+            if (!i.onDiagram) return false
+            const v = (d as unknown as Record<string, unknown>)[i.onDiagram]
+            return Array.isArray(v) ? v.length > 0 : v !== null && v !== undefined
+        })
+        push(`   illustrative values on this diagram: ${drawn.map((i) => `${plain(i.what)} ${show(i.value)} (${i.id})`).join('; ') || 'none'}${drawn.length ? ' (see 14. Illustrative values)' : ''}`)
+        for (const line of noteLines(r, 'diagram')) push(`   ${line}`)
     }
     push()
     push('10. Laws account')
@@ -257,24 +281,34 @@ function testsText(tests: HandoffTestRecord[]): string[] {
 }
 
 /** The refusals section (Christian's second reply of 7 November, section 2): every refusal in the evidence and what it rests on. */
-function refusalsText(refusals: RefusalEntry[]): string[] {
+function refusalsText(refusals: RefusalEntry[], notes: string[]): string[] {
     const out: string[] = []
     const count = (v: string) => refusals.filter((r) => r.basis.verdict === v).length
-    out.push(`REFUSALS AND WHAT THEY REST ON (${refusals.length}: ${count('RESTATEMENT-ONLY')} RESTATEMENT-ONLY, ${count('MIXED')} MIXED, ${count('NOT KNOWLEDGE')} NOT KNOWLEDGE). OURS, read from each refusal's own reasons; no check is changed by it (Christian's second reply of 7 November: "No changes to validation behavior are authorized by this email."). A RESTATEMENT-ONLY refusal rests only on our restatements, which are CANDIDATE: it may be conservative without establishing that the configuration violates approved knowledge. Each cited line is read back to the item that establishes its element; the line's own bound may come from another item, which this reading does not name.`)
+    out.push(`REFUSALS AND WHAT THEY REST ON (${refusals.length}: ${count('RESTATEMENT-ONLY')} RESTATEMENT-ONLY, ${count('MIXED')} MIXED, ${count('NOT KNOWLEDGE')} NOT KNOWLEDGE; counted from the entries below). OURS, read from each refusal's own reasons and, for a refusal met before any game exists, from the chain's own account behind it (each failing check's own result, each owed line's classification); no check is changed by it (Christian's second reply of 7 November: "No changes to validation behavior are authorized by this email."). A RESTATEMENT-ONLY refusal rests only on items that are ours and unreviewed (our restatements, which are CANDIDATE, DRAFT store items, and assumptions in our restatements): it may be conservative without establishing that the configuration violates approved knowledge. Each cited line is read back to the item that establishes its element; the line's own bound may come from another item, which this reading does not name. A cited line whose element's own object declares nothing on the line's row is listed apart as a line nobody established (a gap); the verdict is computed over the cited items, and a refusal citing only gaps is NOT KNOWLEDGE. Every verdict prints its basis mix.`)
+    for (const note of notes) out.push(plain(note))
     for (const r of refusals) {
         out.push(`- ${r.where}: stage ${r.basis.stage}; obstructs the configuration pathway: ${plain(r.obstructs)}`)
         for (const line of basisLines(r.basis)) out.push(`   ${line}`)
+        for (const note of r.notes ?? []) out.push(`   note (measured by the test, beside the reading): ${plain(note)}`)
     }
     return out
 }
 
+/** The key to the coach text and the quotation marks, printed in the frame (OURS). */
+const READING_KEY = [
+    'How to read the coach text (OURS): \'wording APPROVED\' means the sentence is, word for word, one of Christian\'s approved coach sentences; it says nothing about the standing of what it states (its class). \'wording DRAFT\' means words that are not approved (the renderer\'s DRAFT wording, or the review-only wording of decision 1).',
+    'The renderer\'s own status words: DERIVED, required by the selected knowledge and worded as a requirement of the game; STARTING, where this activity starts (a value chosen inside authored bounds, an alternative taken, or a preferred default), said as a fact about this activity and adjustable; COACH_CHOICE, left to the coach and put to the coach as a choice.',
+    'Quotation marks: double, Christian\'s words, verbatim, with their received date; single, ours (labels, values, record text such as an item\'s evidence, and engine sentences, whose own double quotation marks are printed as single ones).',
+]
+
 /** The whole report: the frame (classes, grading map, decision-kind rule), the tests and the refusals, every case, and the input counts given by the test. */
-export function handoffReportText(results: HandoffResult[], inputs: HandoffInputs, counts: string[], tests: HandoffTestRecord[] = [], refusals: RefusalEntry[] = []): string {
+export function handoffReportText(results: HandoffResult[], inputs: HandoffInputs, counts: string[], tests: HandoffTestRecord[] = [], refusals: RefusalEntry[] = [], refusalNotes: string[] = []): string {
     const out: string[] = []
     out.push('HANDOFF REPORT: the isolated reusable configuration handoff (TEST-ONLY review evidence)')
     out.push('')
     out.push('What this is: the review pathway\'s Steps 1 and 2 handed to the checked configuration and rendering chain, case by case, with every line and sentence graded by what determined it. Engineering evidence only: passing these tests is not evidence of ecological suitability or of representative learning quality in the field. Nothing here is served to a coach, written to production knowledge, or an authorization.')
     out.push(`Every configuration below: ${OPPORTUNITIES_NOT_ESTABLISHED}.`)
+    for (const line of READING_KEY) out.push(line)
     out.push('')
     out.push('Christian\'s six classes:')
     for (const w of CLASS_WORDS) out.push(`   ${w}`)
@@ -295,7 +329,7 @@ export function handoffReportText(results: HandoffResult[], inputs: HandoffInput
         out.push('')
     }
     if (refusals.length) {
-        out.push(...refusalsText(refusals))
+        out.push(...refusalsText(refusals, refusalNotes))
         out.push('')
     }
     out.push(`Christian's words cited (${inputs.rulings.length} entries, verbatim, each with its received date and the file it is filed in):`)

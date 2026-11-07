@@ -23,6 +23,11 @@
  *     relationship; a value proposed for a line is applied only as illustrative and never over a ruling's value; a TEST-ONLY Game Problem in the
  *     record is reported as a mismatch, never switched; each refusal is read back to what it rests on (`RefusalBasis`); and `compareResults`
  *     says exactly what changed between a case and a variant of it.
+ *   - Since the review of 7 November: the refusal reading counts ASSUMED items and bounds as ours, prints the basis mix, reads the chain's own
+ *     account behind a refusal met before any game exists (failing checks' own results, owed lines' classification) and lists apart a cited line
+ *     nobody established (a gap); a line's relation item is graded; a knowledge ruling item prints its evidence; the inputs validator refuses a
+ *     coach-input session with no ruling, a choice whose provisional flag differs from its ruling's, and an unknown treatment kind; the case
+ *     data's notes are printed from the data; the diagram is compared over its whole projection.
  *
  * WHAT IT IS NOT. Not a configuration step of the live engine, not served, not an authorization, not a selection input. It imports no
  * module of the checked chain: the chain arrives as an injected, structurally typed interface (`HandoffChain`), wired only by the unit test.
@@ -100,9 +105,15 @@ export interface StandInInput {
     item: Record<string, unknown> & { itemId: string; value: string }
 }
 
+/**
+ * The kinds of TEST-ONLY treatment the cases use (a closed list, so a misspelled kind is refused rather than printed as a treatment that does
+ * nothing). Only WITHHOLD_ITEMS acts on the chain request; the others say what the case's chain wiring does, for the report.
+ */
+export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE'] as const
+
 export interface TreatmentInput {
     id: string
-    kind: string
+    kind: (typeof TREATMENT_KINDS)[number]
     what: string
     effect: string
     why: string
@@ -147,6 +158,19 @@ export interface GameProblemOverride {
     rulingRefs: string[]
 }
 
+/**
+ * A note the case's data asks the report to print in one of its sections (the result standing, the coach text, the diagram), in the data's own
+ * words; where it quotes Christian, each quotation is named by its ruling and the index of the words in that ruling, and printed verbatim.
+ */
+export interface CaseNote {
+    section: 'standing' | 'text' | 'diagram'
+    text: string
+    quotes?: Array<{ rulingRef: string; word: number }>
+}
+
+/** Where an illustrative value is drawn on the checked diagram (its key in the diagram model), so the diagram block can list it. */
+export const DIAGRAM_KEYS = ['area', 'counts', 'zones'] as const
+
 export interface CaseInput {
     id: string
     basedOn?: string
@@ -180,7 +204,7 @@ export interface CaseInput {
     rulings: Array<{ ref: string; entersAs: EntersAs; how: string }>
     suppliedChoices: SuppliedChoiceInput[]
     standIns: StandInInput[]
-    illustrative: Array<{ id: string; what: string; value: string; how: string; rulingRefs: string[] }>
+    illustrative: Array<{ id: string; what: string; value: string; how: string; rulingRefs: string[]; onDiagram?: (typeof DIAGRAM_KEYS)[number] }>
     testOnlyTreatments: TreatmentInput[]
     proposedManipulations: ProposedManipulation[]
     decisionKindOverrides: Array<{ path: string; kind: DecisionKind; contextual: boolean; rulingRefs: string[] }>
@@ -189,10 +213,22 @@ export interface CaseInput {
     proposedChoices?: ProposedChoice[]
     /** Optional (absent = none): a TEST-ONLY Game Problem for the record, as described at `GameProblemOverride`. */
     gameProblemOverride?: GameProblemOverride | null
+    /** Optional (absent = none): notes the report prints from the data, as described at `CaseNote`. */
+    reportNotes?: CaseNote[]
+    /**
+     * Optional: the ruling whose words hold Step 1's qualifier, so the report prints the qualifier as Christian's words with its received date
+     * (only where the qualifier Step 1 returns is, word for word, among that ruling's words; otherwise it is printed as a value).
+     */
+    qualifierRulingRef?: string
 }
 
 export interface GradingTables {
-    sources: Array<{ id: string; markers: string[]; source: string; sourceStanding: string; knowledgeSource: string }>
+    /**
+     * Each source an item's evidence may cite, with the standing printed beside a restatement of it: the review pathway's standing for it
+     * (`knowledgeSource`, checked by the test), or, for a source that table has no entry for, the file's own status fields (`ownStatus`, checked
+     * by the test against the file).
+     */
+    sources: Array<{ id: string; markers: string[]; source: string; sourceStanding: string; knowledgeSource: string | null; ownStatus?: { file: string; fields: string[] } }>
     standingDecisions: Array<{ id: string; specLine: number; sourceCell: string; reference: string; referenceLine: number; provisional: boolean }>
     choiceFiles: Array<{ file: string; standing: 'OURS' | 'RULING'; provisional?: boolean; why: string }>
     lawsDefault: { principleRef: string; encoding: string }
@@ -225,7 +261,7 @@ function citedRefs(c: Record<string, unknown>): string[] {
         else if (isObject(v))
             for (const [key, x] of Object.entries(v)) {
                 if (key === 'rulingRefs' || key === 'gameProblemScopeRefs' || key === 'constraintRulingRefs') take(x)
-                else if (key === 'rulingRef' && typeof x === 'string') refs.push(x)
+                else if ((key === 'rulingRef' || key === 'qualifierRulingRef') && typeof x === 'string') refs.push(x)
                 else walk(x)
             }
     }
@@ -233,14 +269,18 @@ function citedRefs(c: Record<string, unknown>): string[] {
     return [...new Set(refs)]
 }
 
-const CASE_KEYS = ['id', 'basedOn', 'label', 'resultStanding', 'goalId', 'form', 'session', 'purpose', 'chain', 'record', 'realization', 'rulings', 'suppliedChoices', 'standIns', 'illustrative', 'testOnlyTreatments', 'proposedManipulations', 'decisionKindOverrides', 'notCarried', 'proposedChoices', 'gameProblemOverride']
+const CASE_KEYS = ['id', 'basedOn', 'label', 'resultStanding', 'goalId', 'form', 'session', 'purpose', 'chain', 'record', 'realization', 'rulings', 'suppliedChoices', 'standIns', 'illustrative', 'testOnlyTreatments', 'proposedManipulations', 'decisionKindOverrides', 'notCarried', 'proposedChoices', 'gameProblemOverride', 'reportNotes', 'qualifierRulingRef']
+const NOTE_SECTIONS = ['standing', 'text', 'diagram']
 const RULING_KEYS = ['id', 'words', 'file', 'received', 'replyOfDay', 'provisional', 'scope']
 
 /**
  * The review data, checked by hand and returned as a deep copy with every case's `basedOn` resolved (a case states only what differs from its
  * base; one level). Throws, naming every defect: unknown keys, a ruling without words, file or a real received date, a reference to a
  * ruling the file does not hold, a form basis outside the closed list, a stand-in without its label, a treatment without what, effect and
- * why, a supplied choice standing on no ruling that does not say it is ILLUSTRATIVE.
+ * why, a supplied choice standing on no ruling that does not say it is ILLUSTRATIVE. Since the review of 7 November also: a coach-input session
+ * citing no ruling for its bound; a supplied choice on a ruling whose provisional flag differs from that ruling's; a treatment kind outside
+ * `TREATMENT_KINDS`, or one naming items to withhold that is not WITHHOLD_ITEMS; a note in an unknown section or quoting words a ruling does
+ * not hold. Every case is returned as a deep copy, based on another or not.
  */
 export function validateHandoffInputs(raw: unknown): HandoffInputs {
     const errors: string[] = []
@@ -277,7 +317,7 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
             continue
         }
         for (const key of Object.keys(c)) if (CASE_KEYS.indexOf(key) < 0) errors.push(`case ${String(c.id)}: unknown key ${key}`)
-        let merged: Record<string, unknown> = c
+        let merged: Record<string, unknown> = deepCopy(c)
         if (c.basedOn !== undefined) {
             const base = byId.get(String(c.basedOn))
             if (!base) errors.push(`case ${String(c.id)} is based on ${String(c.basedOn)}, which the file does not hold`)
@@ -304,6 +344,7 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
         else {
             for (const key of ['players', 'lengthM', 'widthM', 'durationMin', 'specializedRoles']) if (typeof session[key] !== 'number' || !Number.isFinite(session[key] as number)) errors.push(`${at}: session.${key} is not a number`)
             if (session.label !== 'ILLUSTRATIVE' && session.label !== 'COACH_INPUT') errors.push(`${at}: the session is labelled neither ILLUSTRATIVE nor COACH_INPUT`)
+            if (session.label === 'COACH_INPUT' && !(Array.isArray(session.rulingRefs) && session.rulingRefs.length)) errors.push(`${at}: a coach-input session cites no ruling for the bound it is within`)
             for (const ref of Array.isArray(session.rulingRefs) ? session.rulingRefs : []) known(ref, `${at} session`)
         }
         for (const entry of Array.isArray(merged.rulings) ? (merged.rulings as unknown[]) : []) {
@@ -315,8 +356,11 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
         for (const choice of Array.isArray(merged.suppliedChoices) ? (merged.suppliedChoices as unknown[]) : []) {
             if (!isObject(choice)) continue
             if (!filled(choice.lineId)) errors.push(`${at}: a supplied choice names no line`)
-            if (choice.standing === 'RULING') known(choice.rulingRef, `${at} supplied choice ${String(choice.lineId)}`)
-            else if (choice.standing !== 'ILLUSTRATIVE' || choice.rulingRef !== null) errors.push(`${at}: supplied choice ${String(choice.lineId)} stands on no ruling and is not labelled ILLUSTRATIVE`)
+            if (choice.standing === 'RULING') {
+                known(choice.rulingRef, `${at} supplied choice ${String(choice.lineId)}`)
+                const ruled = rulings.find((r) => isObject(r) && r.id === choice.rulingRef) as Record<string, unknown> | undefined
+                if (ruled && choice.provisional !== ruled.provisional) errors.push(`${at}: supplied choice ${String(choice.lineId)} is marked provisional ${String(choice.provisional)}, and its ruling ${String(choice.rulingRef)} is provisional ${String(ruled.provisional)}`)
+            } else if (choice.standing !== 'ILLUSTRATIVE' || choice.rulingRef !== null) errors.push(`${at}: supplied choice ${String(choice.lineId)} stands on no ruling and is not labelled ILLUSTRATIVE`)
         }
         for (const s of Array.isArray(merged.standIns) ? (merged.standIns as unknown[]) : []) {
             if (!isObject(s)) continue
@@ -325,8 +369,28 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
         }
         for (const t of Array.isArray(merged.testOnlyTreatments) ? (merged.testOnlyTreatments as unknown[]) : []) {
             if (!isObject(t) || !filled(t.id) || !filled(t.what) || !filled(t.effect) || !filled(t.why) || !filled(t.label)) errors.push(`${at}: a TEST-ONLY treatment must say what, its effect, why and its label`)
+            else if ((TREATMENT_KINDS as readonly string[]).indexOf(String(t.kind)) < 0) errors.push(`${at}: treatment ${t.id}: the kind ${JSON.stringify(t.kind)} is none of ${TREATMENT_KINDS.join(', ')}`)
             else if (t.kind === 'WITHHOLD_ITEMS' && (!filled(t.contractId) || !Array.isArray(t.itemIds) || !t.itemIds.length)) errors.push(`${at}: treatment ${t.id} withholds items and names none`)
+            else if (t.kind !== 'WITHHOLD_ITEMS' && (t.contractId !== undefined || t.itemIds !== undefined)) errors.push(`${at}: treatment ${t.id} names a contract or items, and only WITHHOLD_ITEMS acts on them`)
         }
+        for (const i of Array.isArray(merged.illustrative) ? (merged.illustrative as unknown[]) : []) {
+            if (isObject(i) && i.onDiagram !== undefined && (DIAGRAM_KEYS as readonly string[]).indexOf(String(i.onDiagram)) < 0) errors.push(`${at}: illustrative ${String(i.id)} is drawn as ${JSON.stringify(i.onDiagram)}, none of ${DIAGRAM_KEYS.join(', ')}`)
+        }
+        if (merged.reportNotes !== undefined) {
+            if (!Array.isArray(merged.reportNotes)) errors.push(`${at}: reportNotes must be a list`)
+            else
+                for (const n of merged.reportNotes as unknown[]) {
+                    if (!isObject(n) || NOTE_SECTIONS.indexOf(String(n.section)) < 0 || !filled(n.text)) {
+                        errors.push(`${at}: a note names its section (${NOTE_SECTIONS.join(', ')}) and its text`)
+                        continue
+                    }
+                    for (const q of Array.isArray(n.quotes) ? (n.quotes as unknown[]) : []) {
+                        const ruled = isObject(q) ? (rulings.find((r) => isObject(r) && r.id === q.rulingRef) as Record<string, unknown> | undefined) : undefined
+                        if (!isObject(q) || !ruled || typeof q.word !== 'number' || !Array.isArray(ruled.words) || q.word < 0 || q.word >= ruled.words.length) errors.push(`${at}: a note quotes words a ruling of the file does not hold`)
+                    }
+                }
+        }
+        if (merged.qualifierRulingRef !== undefined) known(merged.qualifierRulingRef, `${at} qualifier`)
         for (const o of Array.isArray(merged.decisionKindOverrides) ? (merged.decisionKindOverrides as unknown[]) : []) {
             if (!isObject(o) || !filled(o.path) || (DECISION_KINDS as readonly string[]).indexOf(String(o.kind)) < 0) errors.push(`${at}: a decision-kind override names a path and one of ${DECISION_KINDS.join(', ')}`)
         }
@@ -452,6 +516,8 @@ export interface ChainLine {
     classId?: string
     /** DERIVED geometry: the term that bounded its extent, where one did. */
     extentTerm?: string | null
+    /** DERIVED geometry: the item whose element the line's position is stated relative to, as the chain names it (its relation's `of`). */
+    relationOf?: { contractId: string; itemId: string } | null
     /** LAW: the law, its status, and what departed from it. */
     law?: string
     lawStatus?: string
@@ -480,11 +546,16 @@ export interface ChainAnswer {
         gameFormId: string | null
         contextId: string | null
         contextContract: string | null
-        gameProblem: { status: string; gameProblemId: string | null; inferredFromWording: string | null } | null
+        /** `names`: the Game Problem library's name for each id named here, read by the wiring through the display reader (for the report only). */
+        gameProblem: { status: string; gameProblemId: string | null; inferredFromWording: string | null; names?: Record<string, string> } | null
         constraints: string[]
         affordanceLenses: string[]
     } | null
-    contracts: Array<{ contractId: string; origin: 'KNOWLEDGE' | 'DRAFT_STORE' | 'REALIZATION'; items: Array<{ itemId: string; row: string; basis: string; category: string | null; basisEvidence: string }> }>
+    /**
+     * The contracts the chain derived from, item by item. `evidenceWithheld`, where the wiring sets it, says why the item's evidence is not to
+     * be printed verbatim (the report then names the item and does not print it).
+     */
+    contracts: Array<{ contractId: string; origin: 'KNOWLEDGE' | 'DRAFT_STORE' | 'REALIZATION'; items: Array<{ itemId: string; row: string; basis: string; category: string | null; basisEvidence: string; provisional?: boolean | null; evidenceWithheld?: string | null }> }>
     lines: ChainLine[]
     sentences: ChainSentence[]
     /** True where the sentences are the served text; false where they are the review draft of a communication refusal; none otherwise. */
@@ -492,11 +563,22 @@ export interface ChainAnswer {
     withheld: Array<{ path: string; reason: string }>
     laws: { mode: string | null; owed: string[]; reportedForReview: string[] } | null
     requirementAccount: { status: string; contract: string | null; components: Array<[string, string]> } | null
-    diagram: { served: boolean; verdict: string | null; area: unknown; counts: unknown; legend: unknown; zones: unknown[]; findings: unknown[] } | null
+    diagram: { served: boolean; verdict: string | null; area: unknown; counts: unknown; legend: unknown; zones: unknown[]; findings: unknown[]; dimensions: unknown[]; targets: unknown[]; teams: unknown[] } | null
     /** Each manipulation the request placed, with the contracts the chain derived from for it (matched by the chain's own knowledge key). */
     placed: Array<{ id: string; contractIds: string[] }>
     /** The fidelity check's violations on the served text (0 for a served activity); null where the build stopped before communication. */
     fidelityViolations: number | null
+    /**
+     * The chain's own account behind a refusal met before any game exists (structure or realization), as the chain reports it: each failing
+     * pre-realization check's own result (its why and the lines it names), each owed line with the declarations it was decided over, and each
+     * open line's permitted alternatives with the items that bound it. Null where the build was served or stopped elsewhere. Read only by the
+     * refusal reading; it changes no check.
+     */
+    refusalDetail?: {
+        failingChecks: Array<{ checkId: string; why: string; subjects: string[] }>
+        owedLines: Array<{ lineId: string; verdict: string; reason: string | null; declared: string[]; governedBy: Array<{ contractId: string; declaration: string; selector: string | null }> }>
+        openLines: Array<{ lineId: string; permitted: unknown[] | null; boundedBy: Array<{ contractId: string; itemId: string }> }>
+    } | null
 }
 
 export interface HandoffChain {
@@ -662,20 +744,42 @@ export interface GradedSentence {
 /**
  * What a refusal rests on, for Christian's second reply of 7 November, section 2 ("A check based solely on a candidate interpretation may
  * conservatively refuse a configuration without establishing that the configuration violates approved knowledge."). OURS, computed from the
- * refusal's own reasons: each line or element a reason cites is read back to the item that establishes its element, and that item's basis is
- * printed; the verdict is RESTATEMENT-ONLY where every cited item is a restatement of ours (a restated contract item or a DRAFT store item) with
- * no ruling of Christian's among them; MIXED where at least one cited item rests on a ruling of Christian's; NOT KNOWLEDGE where the refusal
- * cites no item (a missing contract, a missing choices file, or an engine check, said which) or only an assumption of ours. It changes no check.
+ * refusal's own reasons and from the chain's own account behind a refusal met before any game exists (each failing check's own result, each
+ * owed line's classification): each line or element they cite is read back to the item that establishes its element, and that item's basis is
+ * printed, with its source and that source's standing; a cited line whose element's own object declares nothing on the line's row (the chain
+ * decided it over other objects' declarations alone) is listed apart as a line nobody established (a gap). The verdict is computed over the
+ * cited items: RESTATEMENT-ONLY where every cited item is ours and unreviewed (a restated contract item, a DRAFT store item, or an ASSUMED item
+ * or bound), with no ruling of Christian's among them; MIXED where at least one cited item rests on a ruling of Christian's; NOT KNOWLEDGE where
+ * the refusal cites no item (a missing contract, a missing choices file, an engine check or rule, or only lines nobody established; said
+ * which). The basis mix is printed with every verdict. It changes no check.
  */
 export interface RefusalBasis {
     stage: string
     codes: string[]
     /**
-     * Each line or element a reason cites, read back to the item that establishes its element (the line's own bound may come from another
-     * item, which this reading does not name), with that item's basis and its grading.
+     * Each line or element cited, read back to the item that establishes its element (the line's own bound may come from another item, which
+     * this reading does not name), with that item's basis, its grading, its source and the source's standing, where the citation was found
+     * (a reason, or a failing check's own result), and the chain's own classification of the line where the chain gives one.
      */
-    cited: Array<{ ref: string; contractId: string; itemId: string; basis: string; origin: string; premiseKind: PremiseKind; label: string; note: string | null }>
+    cited: Array<{ ref: string; contractId: string; itemId: string; basis: string; origin: string; premiseKind: PremiseKind; label: string; note: string | null; source: string | null; sourceStanding: string | null; via: string; chainReading: string | null }>
+    /** Cited lines nobody established: the element's own object declares nothing on the line's row (see above); listed after the verdict. */
+    gaps: Array<{ ref: string; why: string; element: string }>
     verdict: 'RESTATEMENT-ONLY' | 'MIXED' | 'NOT KNOWLEDGE'
+    why: string
+    /** The cited items counted by basis and grading, e.g. '2 AUTHORED (DRAFT store item)'; 'none' where nothing is cited. */
+    mix: string
+}
+
+/**
+ * Items a test typed itself on a TEST-ONLY realization in the words of one of Christian's rulings, to be graded in a refusal reading by
+ * Christian's own label for what they type (here 'ILLUSTRATIVE', where the ruling's words say so; the test checks that), not by the basis
+ * the realization gate requires such items to carry. The gate's typing is not changed.
+ */
+export interface LabelledItems {
+    contractId: string
+    itemIds: string[]
+    rulingRef: string
+    label: 'ILLUSTRATIVE'
     why: string
 }
 
@@ -693,6 +797,8 @@ export interface HandoffResult {
             contextId: string | null
             scope: string | null
             qualifier: string | null
+            /** The ruling whose words hold the qualifier word for word, with its received date; null where the case names none or they differ. */
+            qualifierRuling: { ref: string; received: string } | null
             establishedBy: string
             missing: string[]
         }
@@ -737,10 +843,12 @@ export interface HandoffResult {
     gaps: string[]
     purpose: null | { sourceEvidence: string; approvalEvidence: string; rulingRefs: string[] }
     rulings: Array<{ ref: string; entersAs: EntersAs; how: string; words: string[]; received: string; provisional: boolean; scope: string | null }>
-    illustrative: Array<{ id: string; what: string; value: string; how: string; rulingRefs: string[] }>
+    illustrative: CaseInput['illustrative']
     testOnlyTreatments: TreatmentInput[]
     standIns: Array<{ id: string; label: string; why: string; determines: string[] }>
     notCarried: CaseInput['notCarried']
+    /** The case's notes, with each quotation resolved to Christian's words and received date. */
+    reportNotes: Array<{ section: CaseNote['section']; text: string; quotes: Array<{ ref: string; words: string; received: string }> }>
     opportunities: string
     counts: { lines: number; byClass: Record<string, number>; byKind: Record<string, number>; sentences: number }
 }
@@ -758,10 +866,12 @@ const rulingOf = (inputs: HandoffInputs, id: string): HandoffRuling => {
 const citedWords = (r: HandoffRuling): string => `Christian, received ${receivedOf(r)}${r.provisional ? ' (provisional)' : ''}: ${r.words.map((w) => `"${w}"`).join(' ')}`
 const citedAs = (r: HandoffRuling): string => `Christian's reply received ${receivedOf(r)}`
 
-function receiveStep1(result: Stage1Result | null): HandoffResult['receive'] {
+function receiveStep1(result: Stage1Result | null, c: CaseInput, inputs: HandoffInputs): HandoffResult['receive'] {
     if (!result) return { step1: null, step2: null, scopeSetBy: [] }
     const r = result.resolution
     const g = result.gameForm
+    const qualifier = r.gameProblems.qualifier
+    const holder = c.qualifierRulingRef ? rulingOf(inputs, c.qualifierRulingRef) : null
     return {
         step1: {
             status: r.status,
@@ -770,7 +880,8 @@ function receiveStep1(result: Stage1Result | null): HandoffResult['receive'] {
             secondary: [...r.gameProblems.secondary],
             contextId: r.context?.rpcId ?? null,
             scope: r.gameProblems.scope,
-            qualifier: r.gameProblems.qualifier,
+            qualifier,
+            qualifierRuling: qualifier && holder && holder.words.some((w) => w.indexOf(qualifier) >= 0) ? { ref: holder.id, received: receivedOf(holder) } : null,
             establishedBy: r.gameProblems.establishedBy,
             missing: r.missing.map((m) => JSON.stringify(m)),
         },
@@ -867,7 +978,7 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
     const choices = c.suppliedChoices.map((ch) => ({
         lineId: ch.lineId,
         value: ch.value,
-        because: ch.rulingRef ? citedWords(rulingOf(inputs, ch.rulingRef)) : `${VALUE_LABELS.ILLUSTRATIVE}: chosen among the alternatives the form authorizes, for this case only`,
+        because: ch.rulingRef ? citedWords(rulingOf(inputs, ch.rulingRef)) : `${VALUE_LABELS.ILLUSTRATIVE}: chosen among the alternatives our restatement of the form lists (CANDIDATE), for this case only`,
     }))
     return {
         caseId: c.id,
@@ -900,6 +1011,8 @@ interface GradingContext {
     standInByTerm: Map<string, StandInInput>
     /** Each contract the chain derived from for a placed manipulation, with the manipulation and the relationship it was applied on. */
     relationshipByContract: Map<string, ProposedManipulation & { relationship: NonNullable<ProposedManipulation['relationship']> }>
+    /** Items a test typed itself, graded by Christian's own label for what they type (see `LabelledItems`); none in a case's own run. */
+    labelled: LabelledItems[]
 }
 
 /** The contracts a line belongs to: what supports it, the element class it names, and the class its own id names. */
@@ -937,14 +1050,24 @@ function itemPremise(ctx: GradingContext, contractId: string, itemId: string): P
     if (!contract || !item) return premise('UNRESOLVED', `${ref}: the item is not among the contracts the chain derived from`)
     const cited = sourcesCited(ctx, item.basisEvidence)
     if (contract.origin === 'DRAFT_STORE') return premise('DRAFT_ITEM', ref, cited)
+    const labelled = ctx.labelled.find((l) => l.contractId === contractId && l.itemIds.indexOf(itemId) >= 0)
+    if (labelled) {
+        const r = rulingOf(ctx.inputs, labelled.rulingRef)
+        return premise('REALIZATION_ITEM', ref, {
+            standing: 'ILLUSTRATIVE',
+            label: VALUE_LABELS.ILLUSTRATIVE,
+            note: `Christian's own label for what these items type is illustrative (${r.id}, received ${receivedOf(r)}); ${labelled.why}; the realization gate types such items ${item.basis} only because a provisional realization's items must carry that basis, and that typing is not changed`,
+        })
+    }
     if (contract.origin === 'REALIZATION') {
         const ownRealization = ctx.c.realization && contractId.endsWith(`:${ctx.c.realization.id}`)
         return premise('REALIZATION_ITEM', ref, { provisional: true, note: ownRealization ? 'a TEST-ONLY realization of this case, in Christian\'s words' : 'a production provisional realization, in Christian\'s words' })
     }
     if (item.basis === 'ASSUMED') return premise('ASSUMED_ITEM', ref, cited)
     if (item.basis === 'ENGINE_ONLY') return premise('ENGINE_ONLY_ITEM', ref)
-    if (item.basis === 'OWNER_RULING') return premise('KNOWLEDGE_RULING_ITEM', ref)
-    if (item.basis === 'AUTHORED') return premise('RESTATED_ITEM', ref, { label: `our restatement of ${cited.source}`, ...cited })
+    // Which ruling: the item's own evidence, verbatim (never parsed), and a provisional flag only where the item records one.
+    if (item.basis === 'OWNER_RULING') return premise('KNOWLEDGE_RULING_ITEM', ref, { provisional: item.provisional === true, note: item.evidenceWithheld ? `the item's evidence is not printed here: ${item.evidenceWithheld}` : `the item's evidence, verbatim: ${item.basisEvidence}` })
+    if (item.basis === 'AUTHORED') return premise('RESTATED_ITEM', ref, { label: cited.sourceStanding === 'not recorded' ? `our restatement: ${cited.source}` : `our restatement of ${cited.source}`, ...cited })
     return premise('UNRESOLVED', `${ref}: basis ${item.basis} has no reading in the grading map`)
 }
 
@@ -954,7 +1077,7 @@ function itemPremise(ctx: GradingContext, contractId: string, itemId: string): P
  */
 function sourcesCited(ctx: GradingContext, evidence: string): { source: string; sourceStanding: string } {
     const found = ctx.inputs.grading.sources.filter((s) => s.markers.some((m) => evidence.indexOf(m) >= 0))
-    if (!found.length) return { source: 'the restated object (its evidence names no source the grading table knows)', sourceStanding: 'not recorded' }
+    if (!found.length) return { source: 'an item whose evidence names no source in our standing table', sourceStanding: 'not recorded' }
     return { source: found.map((s) => s.source).join(' and '), sourceStanding: found.map((s) => s.sourceStanding).join('; ') }
 }
 
@@ -984,10 +1107,12 @@ function linePremises(ctx: GradingContext, line: ChainLine): { premises: Premise
             else if (s.kind === 'SESSION') premises.push(sessionPremise(ctx, `${s.row ?? 'the session'} = ${valueWords(line.value)}`))
             else premises.push(premise('UNRESOLVED', `support of kind ${s.kind} has no reading in the grading map`))
         }
+        // The item the line's position is stated relative to, as the chain names it (its relation's `of`): graded as any item is.
+        if (line.relationOf) premises.push(itemPremise(ctx, line.relationOf.contractId, line.relationOf.itemId))
         if (line.extentTerm) {
             const standIn = ctx.standInByTerm.get(line.extentTerm)
             if (standIn) premises.push(premise('STAND_IN', `${standIn.contractId} ${standIn.item.itemId} (TEST-ONLY stand-in ${standIn.id}): the extent`, { standing: standIn.label, label: standIn.label === 'ILLUSTRATIVE' ? VALUE_LABELS.ILLUSTRATIVE : standIn.label, note: standIn.why }))
-            else note = `its extent is bounded by the term '${line.extentTerm}', which no stand-in of the case declares`
+            else note = `its extent is bounded by the term '${line.extentTerm}'; the chain does not name the item it comes from, so the extent is not graded here`
         }
         if (line.strength === 'DEFAULT') note = `${note ? `${note}; ` : ''}a default (an alternative exists)`
     } else if (line.kind === 'CHOICE') {
@@ -1153,13 +1278,26 @@ function bareToken(t: string): string {
     }
 }
 
-/** The refusal codes its reasons name: the gate invariants (GA- tokens) and the fidelity questions, in order of first mention. */
+/** A token made only of capital letters and underscores, holding an underscore (an engine's refusal code), with any opening bracket removed. */
+function engineCode(t: string): string | null {
+    const bare = t.slice(0, 1) === '(' ? t.slice(1) : t
+    if (bare.length < 4 || bare.indexOf('_') < 0) return null
+    for (const ch of bare) if (!((ch >= 'A' && ch <= 'Z') || ch === '_')) return null
+    return bare
+}
+
+/**
+ * The refusal codes its reasons name: the gate invariants (GA- tokens) and the fidelity questions, in order of first mention; at selection,
+ * the selection's own code (a capital-letter code in its reason).
+ */
 function refusalCodes(stage: string, reasons: string[]): string[] {
     const codes: string[] = []
     for (const reason of reasons) {
         for (const raw of reason.split(' ')) {
             const t = bareToken(raw)
             if (t.slice(0, 3) === 'GA-' && codes.indexOf(t) < 0) codes.push(t)
+            const code = stage === 'selection' ? engineCode(t) : null
+            if (code && codes.indexOf(code) < 0) codes.push(code)
         }
         if (reason.slice(0, 10) === 'fidelity Q') {
             const q = reason.split(':')[0]
@@ -1171,39 +1309,109 @@ function refusalCodes(stage: string, reasons: string[]): string[] {
 
 /**
  * What a refusal met outside a case's own run rests on (a test that builds through the chain directly, such as the time-boxed restart), read
- * from the contracts that build derived from, by the same reading as a case's refusal.
+ * from the contracts that build derived from and, where the test read it, the chain's own account behind the refusal, by the same reading as a
+ * case's refusal. `labelled` grades items the test typed itself by Christian's own label for them (`LabelledItems`).
  */
-export function refusalBasisOfBuild(c: CaseInput, inputs: HandoffInputs, stage: string, reasons: string[], contracts: ChainAnswer['contracts']): RefusalBasis {
-    const answer = { contracts } as ChainAnswer
-    return refusalBasisOf({ c, inputs, answer, standInByItem: new Map(c.standIns.map((x) => [x.item.itemId, x])), standInByTerm: new Map(), relationshipByContract: new Map() }, stage, reasons)
+export function refusalBasisOfBuild(
+    c: CaseInput,
+    inputs: HandoffInputs,
+    stage: string,
+    reasons: string[],
+    contracts: ChainAnswer['contracts'],
+    extra: { detail?: ChainAnswer['refusalDetail']; labelled?: LabelledItems[] } = {},
+): RefusalBasis {
+    const answer = { contracts, refusalDetail: extra.detail ?? null } as ChainAnswer
+    return refusalBasisOf({ c, inputs, answer, standInByItem: new Map(c.standIns.map((x) => [x.item.itemId, x])), standInByTerm: new Map(), relationshipByContract: new Map(), labelled: extra.labelled ?? [] }, stage, reasons)
 }
 
-/** What a refusal rests on (see `RefusalBasis`). OURS: a reading of the refusal's reasons; it changes no check and no outcome. */
+/** How a premise kind is named in a refusal's basis mix. */
+const MIX_WORDS: Partial<Record<PremiseKind, string>> = {
+    RESTATED_ITEM: 'restated item',
+    DRAFT_ITEM: 'DRAFT store item',
+    ASSUMED_ITEM: 'assumed item',
+    ASSUMED_BOUND: 'assumed bound',
+    KNOWLEDGE_RULING_ITEM: 'ruling item',
+    REALIZATION_ITEM: 'realization item',
+    ENGINE_ONLY_ITEM: 'engine-only item',
+}
+
+/** The cited items counted by basis and grading, in order of first mention: '2 AUTHORED (DRAFT store item)', '1 AUTHORED, 3 ASSUMED' and so on. */
+function mixOf(cited: RefusalBasis['cited']): string {
+    const counts: Array<[string, number]> = []
+    for (const x of cited) {
+        const key = `${x.basis} (${MIX_WORDS[x.premiseKind] ?? x.premiseKind}${x.label === VALUE_LABELS.ILLUSTRATIVE ? ', graded ILLUSTRATIVE' : ''})`
+        const at = counts.find((e) => e[0] === key)
+        if (at) at[1]++
+        else counts.push([key, 1])
+    }
+    return counts.length ? counts.map(([key, n]) => `${n} ${key}`).join(', ') : 'none'
+}
+
+/**
+ * What a refusal rests on (see `RefusalBasis`). OURS: a reading of the refusal's reasons and of the chain's own account behind it; it changes no
+ * check and no outcome.
+ */
 function refusalBasisOf(ctx: GradingContext, stage: string, reasons: string[]): RefusalBasis {
     const codes = refusalCodes(stage, reasons)
+    const detail = ctx.answer.refusalDetail ?? null
     const cited: RefusalBasis['cited'] = []
-    for (const reason of reasons)
-        for (const raw of reason.split(' ')) {
+    const gaps: RefusalBasis['gaps'] = []
+    // Where the citations are read: the refusal's reasons, then each failing check's own result (its why and the lines it names), which can
+    // name items the reasons do not (a trigger's item; a line the reasons cut short).
+    const texts: Array<{ text: string; via: string }> = [
+        ...reasons.map((text) => ({ text, via: 'its reasons' })),
+        ...(detail?.failingChecks ?? []).flatMap((check) => [check.why, ...check.subjects].map((text) => ({ text, via: `the failing check ${check.checkId}'s own result` }))),
+    ]
+    const seen = new Set<string>()
+    for (const { text, via } of texts)
+        for (const raw of text.split(' ')) {
             const t = bareToken(raw)
-            if (t.slice(0, 2) !== 'c:') continue
+            if (t.slice(0, 2) !== 'c:' || seen.has(t)) continue
             const parts = classParts(t.split('::')[0])
-            if (!parts || cited.some((x) => x.ref === t)) continue
+            if (!parts) continue
+            seen.add(t)
             const contract = ctx.answer.contracts.find((x) => x.contractId === parts.contractId)
             const item = contract?.items.find((x) => x.itemId === parts.itemId)
             const p = itemPremise(ctx, parts.contractId, parts.itemId)
-            cited.push({ ref: t, contractId: parts.contractId, itemId: parts.itemId, basis: item ? item.basis : 'not among the contracts the chain derived from', origin: contract ? contract.origin : 'none', premiseKind: p.kind, label: p.label, note: p.note ?? null })
+            const owed = detail?.owedLines.find((l) => l.lineId === t) ?? null
+            const chainReading = owed
+                ? `the chain classes the line ${owed.verdict}, ${owed.reason ?? 'no reason'}, decided over ${owed.governedBy.map((g) => `${g.contractId} ${g.declaration}${g.selector ? ` (${g.selector})` : ''}`).join('; ') || 'no declaration'}`
+                : null
+            const basis = item ? item.basis : 'not among the contracts the chain derived from'
+            // A line whose element's own object declares nothing on its row: the chain decided it over other objects' declarations alone, so no
+            // item establishes or claims it for this element.
+            if (owed && t.indexOf('::') > 0 && !owed.governedBy.some((g) => g.contractId === parts.contractId)) {
+                gaps.push({
+                    ref: t,
+                    why: `${chainReading}; the object establishing its element (${parts.contractId}) declares nothing on the line's row, so no item establishes or claims the line: a line nobody established (a gap)`,
+                    element: `its element is established by item ${parts.itemId} of ${parts.contractId}, basis ${basis}; graded ${p.kind}, '${p.label}'${p.note ? ` (${p.note})` : ''}`,
+                })
+                continue
+            }
+            cited.push({ ref: t, contractId: parts.contractId, itemId: parts.itemId, basis, origin: contract ? contract.origin : 'none', premiseKind: p.kind, label: p.label, note: p.note ?? null, source: p.source ?? null, sourceStanding: p.sourceStanding ?? null, via, chainReading })
         }
+    const mix = mixOf(cited)
+    const gapWords = gaps.length ? `; ${gaps.length} cited line${gaps.length === 1 ? '' : 's'} nobody established (a gap), listed after` : ''
     const all = reasons.join(' ')
     if (!cited.length) {
-        const which = all.indexOf('has no contribution contract') >= 0 ? 'a missing contract' : all.indexOf('no realization choices') >= 0 ? 'a missing choices file' : `an engine check (${codes.join(', ')})`
-        return { stage, codes, cited, verdict: 'NOT KNOWLEDGE', why: `the refusal cites no item: ${which}` }
+        if (gaps.length) return { stage, codes, cited, gaps, mix, verdict: 'NOT KNOWLEDGE', why: `a gap: the refusal cites no item, only ${gaps.length === 1 ? 'a line' : `${gaps.length} lines`} nobody established` }
+        const which =
+            all.indexOf('has no contribution contract') >= 0
+                ? 'a missing contract'
+                : all.indexOf('no realization choices') >= 0
+                  ? 'a missing choices file'
+                  : stage === 'selection'
+                    ? `an engine selection rule (${codes.join(', ')})`
+                    : stage === 'communication' && codes.some((code) => code.slice(0, 9) === 'fidelity ')
+                      ? `a renderer capability gap: the checked renderer has no sentence for what the game establishes (${codes.join(', ')})`
+                      : `an engine check (${codes.join(', ')})`
+        return { stage, codes, cited, gaps, mix, verdict: 'NOT KNOWLEDGE', why: `the refusal cites no item: ${which}` }
     }
-    const kinds = [...new Set(cited.map((x) => x.premiseKind))]
-    const restatements: PremiseKind[] = ['RESTATED_ITEM', 'DRAFT_ITEM']
-    const rulings: PremiseKind[] = ['KNOWLEDGE_RULING_ITEM', 'REALIZATION_ITEM']
-    if (kinds.every((k) => restatements.indexOf(k) >= 0)) return { stage, codes, cited, verdict: 'RESTATEMENT-ONLY', why: `every cited item is a restatement of ours (${kinds.join(', ')}), with no ruling of Christian's among them` }
-    if (kinds.some((k) => rulings.indexOf(k) >= 0)) return { stage, codes, cited, verdict: 'MIXED', why: `at least one cited item rests on a ruling of Christian's (${kinds.join(', ')})` }
-    return { stage, codes, cited, verdict: 'NOT KNOWLEDGE', why: `the cited items are neither restatements nor rulings (${kinds.join(', ')})` }
+    const ours: PremiseKind[] = ['RESTATED_ITEM', 'DRAFT_ITEM', 'ASSUMED_ITEM', 'ASSUMED_BOUND']
+    const ruling = (x: RefusalBasis['cited'][number]) => (x.premiseKind === 'KNOWLEDGE_RULING_ITEM' || x.premiseKind === 'REALIZATION_ITEM') && x.label !== VALUE_LABELS.ILLUSTRATIVE
+    if (cited.every((x) => ours.indexOf(x.premiseKind) >= 0)) return { stage, codes, cited, gaps, mix, verdict: 'RESTATEMENT-ONLY', why: `every cited item is ours and unreviewed (${mix}), with no ruling of Christian's among them${gapWords}` }
+    if (cited.some(ruling)) return { stage, codes, cited, gaps, mix, verdict: 'MIXED', why: `at least one cited item rests on a ruling of Christian's (${mix})${gapWords}` }
+    return { stage, codes, cited, gaps, mix, verdict: 'NOT KNOWLEDGE', why: `the cited items are neither ours and unreviewed nor rulings (${mix})${gapWords}` }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -1213,7 +1421,7 @@ function refusalBasisOf(ctx: GradingContext, stage: string, reasons: string[]): 
 /** One case through the handoff: Receive, Determine the form, Manipulations, Chain request, Determine and Produce, Preserve. */
 export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffChain, knowledge: DesignKnowledge = committedKnowledge()): HandoffResult {
     const s1 = c.goalId ? runStage1(c.goalId, knowledge) : null
-    const receive = receiveStep1(s1)
+    const receive = receiveStep1(s1, c, inputs)
     if (c.record) receive.scopeSetBy = c.record.gameProblemScopeRefs.map((ref) => {
         const r = rulingOf(inputs, ref)
         return `${r.id} (received ${receivedOf(r)}; scope ${r.scope ?? 'none stated'}): sets the scope only, decides nothing`
@@ -1269,6 +1477,14 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
         illustrative: deepCopy(c.illustrative),
         testOnlyTreatments: deepCopy(c.testOnlyTreatments),
         notCarried: deepCopy(c.notCarried),
+        reportNotes: (c.reportNotes ?? []).map((n) => ({
+            section: n.section,
+            text: n.text,
+            quotes: (n.quotes ?? []).map((q) => {
+                const r = rulingOf(inputs, q.rulingRef)
+                return { ref: r.id, words: r.words[q.word], received: receivedOf(r) }
+            }),
+        })),
         opportunities: OPPORTUNITIES_NOT_ESTABLISHED,
     }
     if (form.decision === 'STOP' || !form.formId) {
@@ -1284,7 +1500,7 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
             requirementAccount: null,
             diagram: null,
             refusal: { stage: 'handoff (form)', reasons: [form.stop ?? 'no form'] },
-            refusalBasis: { stage: 'handoff (form)', codes: ['handoff (form) refusal'], cited: [], verdict: 'NOT KNOWLEDGE', why: `the handoff stopped before the chain: ${form.stop ?? 'no form'}` },
+            refusalBasis: { stage: 'handoff (form)', codes: ['handoff (form) refusal'], cited: [], gaps: [], mix: 'none', verdict: 'NOT KNOWLEDGE', why: `the handoff stopped before the chain: ${form.stop ?? 'no form'}` },
             manipulations: manipulationEntries.map((m) => ({ ...m, placedContracts: [] })),
             gaps: [form.stop ?? 'no form'],
             standIns: c.standIns.map((x) => ({ id: x.id, label: x.label, why: x.why, determines: [] })),
@@ -1305,6 +1521,7 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
         standInByItem: new Map(c.standIns.map((x) => [x.item.itemId, x])),
         standInByTerm: new Map(c.standIns.map((x) => [x.item.value, x])),
         relationshipByContract,
+        labelled: [],
     }
     const lines: GradedLine[] = answer.lines.map((line) => {
         const { premises, note } = linePremises(ctx, line)
@@ -1318,6 +1535,15 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
     const chainContext = answer.account?.contextId ?? null
     const gp = answer.account?.gameProblem ?? null
     const step1Gp = receive.step1 ? `primary ${receive.step1.primary.join(', ') || 'none'}, secondary ${receive.step1.secondary.join(', ') || 'none'}` : 'none (structural case)'
+    /**
+     * A Game Problem id with its name, where the chain's answer carries one (the unit wiring reads the names through the display reader, after
+     * the decisions; this stage file reads no name column).
+     */
+    const gpWords = (id: string | null): string => {
+        if (!id) return 'none'
+        const name = gp?.names?.[id]
+        return name ? `${id} '${name}'` : id
+    }
     const gaps: string[] = []
     if (answer.outcome === 'refused') gaps.push(`the chain refused at ${answer.stage ?? 'an unnamed stage'}: ${answer.reasons.join('; ')}`)
     for (const l of lines.filter((x) => x.kind === 'NOT_ESTABLISHED')) gaps.push(`${l.lineId} (${l.path}): not established`)
@@ -1345,9 +1571,12 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
                     : chainContext === step1Context
                       ? `the chain's context equals Step 1's (${step1Context})`
                       : `MISMATCH: Step 1 resolves ${step1Context}; the chain's account reads ${chainContext ?? 'none'} (reported, never switched)`,
-            gameProblemComparison: gp
-                ? `the chain's account reads ${gp.status} ${gp.gameProblemId ?? 'none'}${gp.inferredFromWording ? ` (inferred from wording: ${gp.inferredFromWording})` : ''}; Step 1: ${step1Gp}; no line of the chain reads a Game Problem; a difference is reported, never switched`
-                : `the chain's account carries no Game Problem; Step 1: ${step1Gp}`,
+            gameProblemComparison: !gp
+                ? `the chain's account carries no Game Problem; Step 1: ${step1Gp}`
+                : !receive.step1 && c.chain.vehicle
+                  ? // A structural case has no Game Problem: what the account names is the vehicle goal's, said as such (never this case's, never a standing).
+                    `a structural case has no Game Problem of its own; the chain's account names the vehicle goal's (${c.chain.vehicle.goalId}, the TEST-ONLY vehicle): ${gpWords(gp.gameProblemId)}, with the account's own status word ${gp.status}${gp.inferredFromWording ? `, inferred from wording (${gpWords(gp.inferredFromWording)})` : ''}; it is not this case's Game Problem and not a standing; no line of the chain reads a Game Problem`
+                  : `the chain's account reads ${gp.status} ${gpWords(gp.gameProblemId)}${gp.inferredFromWording ? ` (inferred from wording: ${gpWords(gp.inferredFromWording)})` : ''}; Step 1: ${step1Gp}; no line of the chain reads a Game Problem; a difference is reported, never switched`,
             gameProblemOverride: c.gameProblemOverride
                 ? `MISMATCH, reported and never switched: the TEST-ONLY record carries ${c.gameProblemOverride.id} (${c.gameProblemOverride.label}; ${c.gameProblemOverride.why}${c.gameProblemOverride.rulingRefs.length ? `; ${c.gameProblemOverride.rulingRefs.join(', ')}` : ''}), where Step 1 resolves ${step1Gp}; Step 1's resolution stands and is what this report names; no line of the chain reads a Game Problem, so no line can follow either`
                 : null,
@@ -1385,10 +1614,13 @@ export interface HandoffComparison {
         before: number
         after: number
         kept: number
-        /** A sentence of the base replaced by one of the variant, paired by section in reading order; `null` on one side where none pairs. */
-        changed: Array<{ section: string; before: string | null; after: string | null; fromChanged: boolean | null; gradeBefore: string | null; gradeAfter: string | null }>
+        /**
+         * A sentence of the base replaced by one of the variant, paired by section in reading order; `null` on one side where none pairs. Each
+         * side's wording standing (APPROVED, DRAFT or the renderer's) is kept beside its grade.
+         */
+        changed: Array<{ section: string; before: string | null; after: string | null; fromChanged: boolean | null; gradeBefore: string | null; gradeAfter: string | null; wordingBefore: string | null; wordingAfter: string | null }>
         /** A sentence said word for word in both, whose from-paths or grade differ. */
-        keptButChanged: Array<{ text: string; fromChanged: boolean; gradeBefore: string; gradeAfter: string }>
+        keptButChanged: Array<{ text: string; fromChanged: boolean; gradeBefore: string; gradeAfter: string; wording: string }>
     }
     lines: {
         before: number
@@ -1426,17 +1658,17 @@ export function compareResults(base: HandoffResult, variant: HandoffResult): Han
     for (const i of removed) {
         const at = added.find((j) => after[j].section === before[i].section)
         const b = before[i]
-        if (at === undefined) changed.push({ section: b.section, before: b.text, after: null, fromChanged: null, gradeBefore: gradeWords(b.sixClass, b.label), gradeAfter: null })
+        if (at === undefined) changed.push({ section: b.section, before: b.text, after: null, fromChanged: null, gradeBefore: gradeWords(b.sixClass, b.label), gradeAfter: null, wordingBefore: b.wording, wordingAfter: null })
         else {
             added.splice(added.indexOf(at), 1)
             const a = after[at]
-            changed.push({ section: b.section, before: b.text, after: a.text, fromChanged: !same(b.from, a.from), gradeBefore: gradeWords(b.sixClass, b.label), gradeAfter: gradeWords(a.sixClass, a.label) })
+            changed.push({ section: b.section, before: b.text, after: a.text, fromChanged: !same(b.from, a.from), gradeBefore: gradeWords(b.sixClass, b.label), gradeAfter: gradeWords(a.sixClass, a.label), wordingBefore: b.wording, wordingAfter: a.wording })
         }
     }
-    for (const j of added) changed.push({ section: after[j].section, before: null, after: after[j].text, fromChanged: null, gradeBefore: null, gradeAfter: gradeWords(after[j].sixClass, after[j].label) })
+    for (const j of added) changed.push({ section: after[j].section, before: null, after: after[j].text, fromChanged: null, gradeBefore: null, gradeAfter: gradeWords(after[j].sixClass, after[j].label), wordingBefore: null, wordingAfter: after[j].wording })
     const keptButChanged = keptPairs
         .filter(([i, j]) => !same(before[i].from, after[j].from) || before[i].sixClass !== after[j].sixClass || before[i].label !== after[j].label)
-        .map(([i, j]) => ({ text: before[i].text, fromChanged: !same(before[i].from, after[j].from), gradeBefore: gradeWords(before[i].sixClass, before[i].label), gradeAfter: gradeWords(after[j].sixClass, after[j].label) }))
+        .map(([i, j]) => ({ text: before[i].text, fromChanged: !same(before[i].from, after[j].from), gradeBefore: gradeWords(before[i].sixClass, before[i].label), gradeAfter: gradeWords(after[j].sixClass, after[j].label), wording: after[j].wording }))
     const linesBefore = new Map(base.lines.map((l) => [l.lineId, l]))
     const linesAfter = new Map(variant.lines.map((l) => [l.lineId, l]))
     const lineChanges: HandoffComparison['lines']['changed'] = []
@@ -1446,7 +1678,8 @@ export function compareResults(base: HandoffResult, variant: HandoffResult): Han
     }
     const db = base.diagram
     const dv = variant.diagram
-    const diagramKeys = ['served', 'verdict', 'area', 'counts', 'legend', 'zones', 'findings'] as const
+    // The diagram compared over its whole projection: dimensions, targets and teams too (since the review of 7 November), so 'exactly' holds.
+    const diagramKeys = ['served', 'verdict', 'area', 'counts', 'legend', 'zones', 'findings', 'dimensions', 'targets', 'teams'] as const
     const diagramChanged = !db || !dv ? (same(db, dv) ? [] : ['the diagram itself']) : diagramKeys.filter((k) => !same(db[k], dv[k]))
     return {
         baseCase: base.caseId,
@@ -1483,11 +1716,15 @@ export interface HandoffTestRecord {
     verdict: string
 }
 
-/** One refusal in the evidence and what it rests on, with whether it obstructs the configuration pathway (the test or case says which). */
+/**
+ * One refusal in the evidence and what it rests on, with whether it obstructs the configuration pathway (the test or case says which), and any
+ * notes the test measured beside the reading (an item the chain's own account does not name, found by the test and said how).
+ */
 export interface RefusalEntry {
     where: string
     basis: RefusalBasis
     obstructs: string
+    notes?: string[]
 }
 
 /** Every case of the inputs, in file order. */
