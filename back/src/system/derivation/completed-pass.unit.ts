@@ -326,15 +326,25 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * 25). The new region carries the one line every region of this game carries unconstrained, its functions list (S4, 'not constrained');
      * its S7 line is written (A01-R1-S7-1), so it adds none. A01's zone version holds 18 failed lines; Gate A is unchanged.
      */
+    /**
+     * **22 · 7 November 2026, Decision 2 — TA01 22 → 16, TD01, D02 and TD02 19 → 13 failed lines (RE-PINNED, measured); no verdict
+     * moves.** Christian's reply received 7 November 2026, section 2, Decision 2: "Illustrative incentive examples should not be
+     * interpreted as mandatory structural requirements." GF4's I17 is restated TYPICAL_EXAMPLE (SD-59) and GF4's example-only claims on
+     * V7, V8b and V9 NON_CLAIMED (corpus-restatements.json), so GF4 establishes no value modifier, and each of the four goals that select
+     * GF4 loses exactly that modifier's six failed lines (c:blind:GF4:I17::V8b, V8c, V8d, V9, V9a, V10; its V8a line was entailed). The
+     * note of 7 October above ('GF4's modifier gains the two new rows and authors neither') is history. Gate A stays FAIL in all four and
+     * reachability stays false: GF4's teams are ASSUMED and establish nothing (SD-83), so GA-TRIGGER-REACHABLE still fails, which the
+     * correction neither causes nor fixes. gf4-example-incentives.unit.ts pins the correction, line for line.
+     */
     const A01_COMPOSITION = { failed: 17, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
         A01: { failed: 18, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         D01: { failed: 12, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        TA01: { failed: 22, gateA: 'FAIL', reachable: false },
-        TD01: { failed: 19, gateA: 'FAIL', reachable: false },
-        D02: { failed: 19, gateA: 'FAIL', reachable: false },
+        TA01: { failed: 16, gateA: 'FAIL', reachable: false },
+        TD01: { failed: 13, gateA: 'FAIL', reachable: false },
+        D02: { failed: 13, gateA: 'FAIL', reachable: false },
         TA02: { failed: 15, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        TD02: { failed: 19, gateA: 'FAIL', reachable: false },
+        TD02: { failed: 13, gateA: 'FAIL', reachable: false },
         A03: { failed: 12, gateA: 'FAIL', reachable: true },
         A04: { failed: 12, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         A05: { failed: 15, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },

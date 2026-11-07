@@ -328,9 +328,12 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     // have a different primary scoring event where authorized by the selected context."): the role-yield marker on GF2-19, GF2-03.b, GF2-06.a
     // and RPC-001-08.a, and RPC-001-08.b's note restated as one primary scoring event per role. Pinned in goal-version-knowledge.unit.ts. C63's
     // deferral and pairing (GF2-08.f, GF2-03.e) are edits of added items, not restatements, so they move itemsAdded by nothing.
+    // 65 -> 66 on 7 November 2026 (RE-PINNED, measured): GF4's I17 restated TYPICAL_EXAMPLE (ruling 'SD-59; 7 November 2026, section 2,
+    // Decision 2'), Christian's reply received 7 November 2026, section 2, Decision 2: "Please make the smallest correction that restores
+    // the source's intended meaning." Pinned in gf4-example-incentives.unit.ts.
     assert.equal(
         restatementTally.itemsRestated,
-        65,
+        66,
         'six Phase A rulings, six sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89), ' +
             'one typed reference (SD-98), one Wide Zone gloss (C29a), one DISTINCT_ON mark (C29b/C29e), two typed neutral bounds (C29c), ' +
             'one typed channel width (C30b), one equal-outfield promotion (C31b), three Wide Zone lateral restatements (C33), ' +
@@ -351,7 +354,8 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
             'and, from 57, his M8 safeguard beside the long-clearance exclusion, RPC-001-19.b (C57) — ' +
             'and, from 58, GF2-14.b deferring to a knowledge-authorized realization (C56, his D6) — ' +
             'and, from 59, the build-out origin typed as the restarts that begin a build-out episode (C58, his 18 October item 4) — ' +
-            'and, from 60 to 65, restatement S1 (C60, his reply filed 26 October 2026, item 1): four role-yield markers and RPC-001-08.b read per role',
+            'and, from 60 to 65, restatement S1 (C60, Christian\'s reply filed 26 October 2026, item 1): four role-yield markers and RPC-001-08.b read per role — ' +
+            'and, from 66 on 7 November 2026, GF4\'s I17 marked TYPICAL_EXAMPLE (SD-59; Christian\'s reply received 7 November 2026, section 2, Decision 2)',
     )
     // **4 since ruling C42.** GF2-08.a and GF2-03.a are retired — the shared objective's existence and the
     // target it referenced — so the game holds exactly two objectives and two targets rather than three of each.
@@ -416,7 +420,11 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     // retires and nothing else (SV1, P4, P8, P10, S5, O4, J2, V2, T4); each is restated beside the retirement, as C45
     // did for the gate. Which kind each became, and that no line or gate verdict moved, is pinned in the C51 test below.
     // **16 since C53, the same day**: RPC-001's P3 claim cited only 02 and 03, so it is restated NON_CLAIMED beside them.
-    assert.equal(restatementTally.declarationsRestated, 16, 'the gate’s V5 and SV1 claims (C45, V5 corrected by C49), GF2’s four deferring V3-V6 gaps (C50), nine RPC-001 claims on retired items (C51), and its P3 claim (C53)')
+    // **16 -> 19 on 7 November 2026 (RE-PINNED, measured).** GF4's V7, V8b and V9 claims rested only on the example items I17, I15 and
+    // I14, so they are restated NON_CLAIMED beside I17 (ruling 'SD-59; 7 November 2026, section 2, Decision 2'), as GF2 holds its own
+    // example incentives. Christian's reply received 7 November 2026, section 2, Decision 2: "Illustrative incentive examples should not
+    // be interpreted as mandatory structural requirements." Pinned in gf4-example-incentives.unit.ts.
+    assert.equal(restatementTally.declarationsRestated, 19, 'the gate’s V5 and SV1 claims (C45, V5 corrected by C49), GF2’s four deferring V3-V6 gaps (C50), nine RPC-001 claims on retired items (C51), its P3 claim (C53), and GF4’s three example-only claims on V7, V8b and V9 (Decision 2, 7 November 2026)')
     // **New on 14 October 2026 (C48), counted apart from both.** Register row P6c was added that day (C43) after
     // every contract was written, so none declared it and every game without neutrals read it as "no coverage" —
     // nobody looked. The seven contracts that declare P6a NON_CLAIMED get the same declaration on P6c; the Neutral
@@ -1405,7 +1413,13 @@ test('C51: GA-DIRECTION is the only check that moves, and only as pinned here; G
         // where it is, the retired objective's open-text target put back is now the only reason those two would withhold, and
         // putting it back moves them too (measured: NOT_EVALUABLE with it, DEFERRED_TO_REALIZATION and PASS without). What C51
         // itself moved is unchanged.
-        const alsoMoved = [...(name === 'GF2 + RPC-001' || name === 'RPC-001' ? ['GA-NO-FAILED-LINE'] : []), ...(name.startsWith('GF2 + RPC-001') ? ['GA-ONE-PRIMARY-EVENT', 'GA-REFERENCE-INTEGRITY'] : [])]
+        // **Re-pinned 7 November 2026 (Decision 2), measured: 'GF4 + RPC-001' joins the GA-NO-FAILED-LINE list (FAIL put back, PASS now).**
+        // Until today GF4's example-only modifier failed that check in both arms (c:blind:GF4:I17::V8b and V9, 'claimed but unresolved'),
+        // so putting the retired objective back did not move it. Christian's reply received 7 November 2026, section 2, Decision 2:
+        // "Illustrative incentive examples should not be interpreted as mandatory structural requirements." With GF4's I17 restated
+        // TYPICAL_EXAMPLE (SD-59) and its example-only claims NON_CLAIMED, the retired objective's target is the only line the check would
+        // fail on, as in GF2 + RPC-001 and RPC-001 alone. What C51 itself moved is unchanged.
+        const alsoMoved = [...(name === 'GF2 + RPC-001' || name === 'RPC-001' || name === 'GF4 + RPC-001' ? ['GA-NO-FAILED-LINE'] : []), ...(name.startsWith('GF2 + RPC-001') ? ['GA-ONE-PRIMARY-EVENT', 'GA-REFERENCE-INTEGRITY'] : [])]
         const sinceC59 = name === 'GF2 + RPC-001 + A01-02' ? ['GA-ONE-PRIMARY-EVENT'] : alsoMoved
         // **Re-pointed 22 October 2026 (stage A).** GA-ROLE-EVENTS (register version 16) reads the target of every objective a team scores
         // at (its clause 4, the kind of target), so the retired objective's open-text target put back withholds it in every composition

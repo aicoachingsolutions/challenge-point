@@ -59,6 +59,7 @@
     "./src/system/derivation/derivation-stage11.unit.ts",
     "./src/system/derivation/resolved-game.unit.ts",
     "./src/system/derivation/governing-declarations.unit.ts",
+    "./src/system/derivation/gf4-example-incentives.unit.ts",
     "./src/system/derivation/condition-scope.unit.ts",
     "./src/system/derivation/cardinality.unit.ts",
     "./src/system/derivation/distinct-on-wiring.unit.ts",
