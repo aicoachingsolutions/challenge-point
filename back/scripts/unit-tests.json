@@ -147,6 +147,7 @@
     "./src/system/rendering/requirement-account.unit.ts",
     "./src/system/rendering/requirement-account-controls.unit.ts",
     "./src/system/rendering/requirement-scoring-gate.unit.ts",
+    "./src/system/rendering/review-structure-wording.unit.ts",
     "./src/system/design-reasoning/design-reasoning.unit.ts",
     "./src/system/activity/fixed-response-pathway.unit.ts",
     "./src/system/design-reasoning/stage2.unit.ts",

@@ -1261,6 +1261,15 @@ export function buildActivityUnderAuthorizationRecords(
          * copy of the chain. Only an administrator's review build computes the account, so only it calls this.
          */
         observeRequirementInputs?: (inputs: BlockRequirementInputs) => void
+        /**
+         * 7 November 2026, tests only (Christian's reply received 7 November 2026, section 2, decision 1, approved "for isolated implementation
+         * and testing"): handed each game's rendering before fidelity, it returns that rendering with review-only DRAFT sentences added
+         * (`review-structure-wording.ts`, which only unit tests import), so fidelity, the overview, the diagram, the review draft and the review
+         * evidence read the supplemented rendering (the requirement account reads the game, never the rendering). It may only add: every
+         * sentence the renderer said is kept, in its order, with its withheld fields and observations, or the build throws (`onlyAdded`).
+         * Absent: the renderer's rendering alone.
+         */
+        communicationSupplement?: (fixture: Record<string, unknown>, rendered: RenderedActivity) => RenderedActivity
     } = {},
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     // Round 2, R3 NIT 12: a TEST-ONLY option the build would ignore throws, as a refused copy does: only an administrator's review computes the
@@ -1318,6 +1327,7 @@ export function buildActivityUnderAuthorizationRecords(
         options.observeRequirementInputs ?? null,
         options.requirementBindingsRefused ? [...options.requirementBindingsRefused] : null,
         options.requirementBindingsFile ?? null,
+        options.communicationSupplement ?? null,
     )
     if (drafts) built.activity.draftKnowledge = draftKnowledgeAccountOf(drafts.store, built, drafts.seen.contracts)
     if (options.relevance && observed) built.activity.relevance = relevanceOfBuilt(built, observed.contracts, request.goalId, options.relevance)
@@ -1452,6 +1462,8 @@ function build(
     requirementBindingsRefusedGiven: string[] | null = null,
     /** Round 3b, tests only (`requirementBindingsFile`): a bindings file read the production loader's way, in place of the production file. */
     requirementBindingsFileGiven: string | null = null,
+    /** 7 November 2026, tests only (`buildActivityUnderAuthorizationRecords`): the review-only supplement each game's rendering is handed to. */
+    supplement: GameContext['supplement'] = null,
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const boundRegions: SportBoundRegions | null = boundRegionsGiven === undefined ? loadSportBoundRegions() : boundRegionsGiven
     // B2 (28 October 2026): the playing environment's elements, read once for every game of this build (the guard in `buildOneGame`).
@@ -1817,7 +1829,7 @@ function build(
             ...(movers.has(entry.id) ? { moves: { role: movers.get(entry.id)! } } : {}),
         }))
         const alternatives = deferral.deferred.map(alternativeOf)
-        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements }
+        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements, supplement }
         /**
          * A game built through to communication becomes the served activity; one refused on the way says where. `games` are the games it was
          * rendered from, each with its block id, for the input digests the live save compares (L3, 22 October 2026); nothing served carries them.
@@ -2475,6 +2487,17 @@ interface GameContext {
         account: boolean
         observe: ((inputs: BlockRequirementInputs) => void) | null
     }
+    /** 7 November 2026, tests only (the option of `buildActivityUnderAuthorizationRecords` that injects it): adds review-only sentences to the rendering before fidelity. Null on every other build. */
+    supplement: ((fixture: Record<string, unknown>, rendered: RenderedActivity) => RenderedActivity) | null
+}
+
+/** 7 November 2026, tests only: a supplement only adds sentences; the renderer's own are kept in order, its withheld fields and observations with them. */
+function onlyAdded(said: RenderedActivity, given: RenderedActivity): RenderedActivity {
+    let kept = 0
+    for (const instruction of given.instructions) if (instruction === said.instructions[kept]) kept++
+    if (kept !== said.instructions.length || given.withheld !== said.withheld || given.coachingObservations !== said.coachingObservations)
+        throw new Error(`a TEST-ONLY communication supplement may only add sentences: the renderer's own, its withheld fields and its observations are kept, in order`)
+    return given
 }
 
 /** One game built from its derivation input to communication, or the stage it stopped at. */
@@ -2556,7 +2579,7 @@ const STAGE_ORDER: ActivityStage[] = ['session', 'selection', 'knowledge', 'stru
  * K3) so that a game played in role blocks runs it once per block. Every refusal sentence, reason and order is what it
  * was: measured, every goal and demonstration answers byte-identically through the review route.
  */
-function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements }: GameContext): GameOutcome {
+function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements, supplement }: GameContext): GameOutcome {
     let fixture: any = null
     /** 29 October 2026: this block's requirement account, read right after the context-scoring guard; null where the build is not an administrator's review, or stopped before the guard. */
     let blockRequirements: BlockRequirementAccount | null = null
@@ -3051,7 +3074,9 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
      * given neither is rendered once, exactly as before.
      */
     const communicate = (assembled: any): GameOutcome => {
-        const rendered = renderConcreteGame(assembled)
+        const said = renderConcreteGame(assembled)
+        // 7 November 2026, tests only: a review-only supplement's sentences join the renderer's here, before fidelity; null on every other build.
+        const rendered = supplement ? onlyAdded(said, supplement(assembled, said)) : said
         const report = checkFidelity(assembled, rendered)
         const violations = report.findings.filter((f: any) => f.severity === 'VIOLATION')
         const recommunicate = (extra: Record<string, unknown>): GameOutcome => communicate({ ...assembled, ...extra })
