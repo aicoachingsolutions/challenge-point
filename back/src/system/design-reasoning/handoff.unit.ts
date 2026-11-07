@@ -33,6 +33,10 @@
  *     items are graded by Christian's own label for the restart; the record route's selection refusal and the R1 diagnostic are listed with the
  *     other refusals; the harness's hold on a REPORT check is shown refusing (E3, on labelled TEST-ONLY stand-in classifications); the inputs
  *     validator's new refusals bite (E1); the import allowlist reads both quotation marks (E2); the diagram is compared over its whole projection.
+ *   - Since its third round: each cited owed line says which requirement declaration owes it; the chain's scope rule is applied in the reach
+ *     the gap rule reads, and the copies of the chain's requirement kinds and scope rule are held to classify.ts's source text (E4); C4 runs
+ *     A02 and TA02 as it runs D02 (and TA02 again with the draft store, labelled DRAFT), so every Learning Goal of the planning file is run
+ *     once, and the report prints where each one stops.
  *
  * Run: node node_modules/ts-node/dist/bin.js --files -r tsconfig-paths/register ./src/system/design-reasoning/handoff.unit.ts
  * Rewrite the evidence: UPDATE_HANDOFF_EVIDENCE=1 (same command).
@@ -70,6 +74,7 @@ import {
     ChainLine,
     ChainRequest,
     compareResults,
+    GoalStopRun,
     GRADING_MAP,
     HandoffChain,
     HandoffComparison,
@@ -81,6 +86,7 @@ import {
     PREMISE_KINDS,
     RefusalEntry,
     refusalBasisOfBuild,
+    REQUIREMENT_DECLARATIONS,
     runHandoff,
     runHandoffCases,
     validateHandoffInputs,
@@ -137,7 +143,7 @@ const LISTED: Record<string, TestMeta> = {
     'A05-0, the knowledge as it stands: refused at structure on the drafted origin and control lines': { id: 'F3', group: FIRST, cites: 'N7:155-157, N7:163-166', shows: 'with the knowledge as it stands, the chain refuses A05 at structure and the refusal names the drafted lines; nothing is filled in to make it generate' },
     'A05-1, the starting-condition reading as a TEST-ONLY treatment: refused at structure on the drafted control line alone (measured; our plan expected a refusal at communication)': { id: 'F4', group: FIRST, cites: 'N7:33-37', shows: 'the provisional state reading, carried only as a labelled TEST-ONLY withholding of the origin items, leaves the drafted control line refused at structure' },
     'A05-2, CONDITIONAL and never A05\'s result: the chain would serve it, with the no-offside sentence, the review-only zone sentence and the kick-off reported': { id: 'F5', group: FIRST, cites: 'N7:41-46', shows: 'what the handoff produces once the 13 September wording is verified and corrected offline: a conditional diagnostic, never A05\'s result' },
-    'the chain would serve the structural cases (no Learning Goal) through the same mechanism; TA01 stops at knowledge with Step 2\'s form': { id: 'F6', group: FIRST, cites: 'N7:150-151, N7:158-161', shows: 'the same mechanism serves the two structural cases and stops TA01 at knowledge with the form Step 2 selected' },
+    'the chain would serve the structural cases (no Learning Goal) through the same mechanism; TA01 stops at knowledge with Step 2\'s form': { id: 'F6', group: FIRST, cites: 'N7:150-151, N7:158-161', shows: 'the same mechanism carries the two structural cases to a game the chain would serve, and stops TA01 at knowledge with the form Step 2 selected' },
     'the grading map, pinned per kind': { id: 'P1', group: PROVENANCE, cites: 'N7:15, N7:133-134', shows: 'every kind of determining premise has one fixed grading (OURS, for Christian\'s review)' },
     'no line is graded APPROVED from a restatement of ours; ILLUSTRATIVE never above class 5; a stand-in never above its declared label': { id: 'P2', group: PROVENANCE, cites: 'N7:25, N7:157', shows: 'no restatement of ours is graded above class 3, no illustrative value above class 5 and no stand-in above its label, in every case' },
     'the illustrative depth: the stand-ins determine exactly the two zones\' along lines, and every sentence citing them carries the ILLUSTRATIVE label': { id: 'P3', group: PROVENANCE, cites: 'N7:157', shows: 'an illustrative value carried as a stand-in item is labelled ILLUSTRATIVE on every sentence that says it' },
@@ -297,6 +303,15 @@ function heldLaws(fixture: any, classification: LawsMateriality = lawsMaterialit
 }
 
 /**
+ * The chain's scope rule, mirrored from classify.ts `governingDeclarations` (review of 7 November, round 3): a general requirement stays in force
+ * against a class only if its scope reaches the class, and an OWN_INVOLVEMENT declaration reaches only the classes its own object forms
+ * (`cls.fromItem`). classify.ts keeps the rule inside that function and does not export it, so it is mirrored here, and test E4 holds this
+ * mirror to the rule's source text in classify.ts (`SCOPE_RULE_SOURCE`, which must occur there exactly once).
+ */
+const SCOPE_RULE_SOURCE = "const scopeReaches = (d: DeclarationReach) => d.scope !== 'OWN_INVOLVEMENT' || cls.fromItem.contractId === d.contractId"
+const scopeReachesMirror = (d: { scope: unknown; contractId: unknown }, cls: { fromItem: { contractId: unknown } }): boolean => d.scope !== 'OWN_INVOLVEMENT' || cls.fromItem.contractId === d.contractId
+
+/**
  * **The chain's own account behind a refusal met before any game exists** (structure or realization), for the refusal reading (Christian's
  * second reply of 7 November, section 2). The build returns no game there, so the derivation is run again here, by the chain's own functions,
  * on exactly the input the build derived from: the selection and the contracts its own TEST-ONLY options were handed (after the case's
@@ -338,6 +353,8 @@ function refusalDetailOf(selection: any, contracts: LoadedContract[], session: R
      * held to equal the set the line carries (else this throws); each one's reach of the element class is the chain's own reach function
      * (reach.ts `reaches`: TRUE, FALSE or UNDETERMINED; 'UNREADABLE' where the selector did not parse; null where the line names no class).
      * `rowWide` says the governing set is every declaration on the row (the object establishing the element said nothing explicit about it).
+     * Since round 3, each declaration also carries its scope and whether that scope reaches the element class by the chain's scope rule
+     * (`scopeReachesMirror`), and the line carries the contracts establishing its element class (`cls.fromItem`, `cls.supportedBy`).
      */
     const declarations: any[] = staged.scope?.declarations ?? []
     const governedWithReach = (e: any) => {
@@ -350,23 +367,29 @@ function refusalDetailOf(selection: any, contracts: LoadedContract[], session: R
         const key = (g: { contractId: string; declaration: string; selector: unknown }) => `${g.contractId}|${g.declaration}|${g.selector === null || g.selector === undefined ? null : String(g.selector)}`
         const ours = governing.map(key).sort()
         if (JSON.stringify(ours) !== JSON.stringify(carried.map(key).sort())) throw new Error(`the refusal detail: the chain's governing set for ${String(e.lineId)} does not reproduce the set the line carries: ${JSON.stringify(ours)} against ${JSON.stringify(carried.map(key).sort())}`)
-        const reachOf = (g: { contractId: string; declaration: string; selector: string | null }): string | null => {
+        const reachOf = (g: { contractId: string; declaration: string; selector: string | null }): { reach: string | null; scope: string | null; scopeReaches: boolean | null } => {
             const d = governing.find((x) => key(x) === key(g)) as any
-            if (!cls) return null
-            return d.parsed && d.parsed.predicate ? reaches(d.parsed.predicate, cls) : 'UNREADABLE'
+            const scope = d.scope === null || d.scope === undefined ? null : String(d.scope)
+            if (!cls) return { reach: null, scope, scopeReaches: null }
+            // Review of 7 November, round 3: the chain's scope rule, mirrored (classify.ts keeps it inside governingDeclarations, unexported);
+            // test E4 holds this mirror to classify.ts's source text (SCOPE_RULE_SOURCE).
+            return { reach: d.parsed && d.parsed.predicate ? reaches(d.parsed.predicate, cls) : 'UNREADABLE', scope, scopeReaches: scopeReachesMirror(d, cls) }
         }
         return {
-            governedBy: carried.map((g) => ({ ...g, reach: reachOf(g) })),
+            governedBy: carried.map((g) => ({ ...g, ...reachOf(g) })),
             rowWide: governing.length === onRow.length && governing.every((d) => onRow.indexOf(d) >= 0),
             elementClass: cls ? String(cls.classId) : null,
+            establishing: cls ? [...new Set([String(cls.fromItem.contractId), ...((cls.supportedBy ?? []) as any[]).map((s) => String(s.contractId))])] : [],
         }
     }
     const derivedLine = (lineId: string): any => staged.derived?.lines?.get(lineId) ?? null
+    const owedLines = ((resolved.notEstablished ?? []) as any[])
+        .filter((e) => e.reason === 'declared gap' || e.reason === 'claimed but unresolved')
+        .map((e) => ({ lineId: String(e.lineId), verdict: String(e.verdict), reason: e.reason === null ? null : String(e.reason), declared: ((e.declared ?? []) as unknown[]).map(String), ...governedWithReach(e) }))
+    owedLinesRead.push(...copy(owedLines))
     return {
         failingChecks: ((result.gates?.gateA?.checks ?? []) as any[]).filter((c) => c.verdict === 'FAIL').map((c) => ({ checkId: String(c.checkId), why: String(c.why ?? ''), subjects: ((c.subjects ?? []) as unknown[]).map(String) })),
-        owedLines: ((resolved.notEstablished ?? []) as any[])
-            .filter((e) => e.reason === 'declared gap' || e.reason === 'claimed but unresolved')
-            .map((e) => ({ lineId: String(e.lineId), verdict: String(e.verdict), reason: e.reason === null ? null : String(e.reason), declared: ((e.declared ?? []) as unknown[]).map(String), ...governedWithReach(e) })),
+        owedLines,
         // Review of 7 November, round 2: the items bounding an open line as the chain names them on its derived line (derive.ts: the SD-78
         // narrowing items, `narrowedTo.items`, and the bounding items, `bounding[].item`), with any bound the resolved entry names.
         openLines: ((resolved.open ?? []) as any[]).map((o) => {
@@ -652,6 +675,10 @@ const purposeTexts = (): Record<string, string> =>
 /** Each test variant's comparison with its base, and each refusal a test met, in run order (the evidence prints them). */
 const testComparisons: Array<{ test: string; comparison: HandoffComparison }> = []
 const testRefusals: RefusalEntry[] = []
+/** The Learning Goal runs a test made (C4), for the 'where each Learning Goal stops' block, beside the cases' own runs (review of 7 November, round 3). */
+const goalStopRuns: GoalStopRun[] = []
+/** Every owed line the refusal detail read, with the chain's reach and scope of each declaration (for test E4's measurement of the scope rule). */
+const owedLinesRead: NonNullable<ChainAnswer['refusalDetail']>['owedLines'] = []
 const GROUP_ORDER = [FIRST, SECOND, THIRD, FOURTH, RESTART, PROVENANCE, CHECKS]
 
 /**
@@ -668,12 +695,32 @@ const caseRefusals = (results: HandoffResult[]): RefusalEntry[] =>
         .filter((r) => r.refusalBasis)
         .map((r) => ({ where: `case ${r.caseId}`, basis: r.refusalBasis as NonNullable<HandoffResult['refusalBasis']>, obstructs: `yes: the case's configuration stops here (${r.resultStanding})` }))
 
-function evidenceOf(results: HandoffResult[]): { report: string; json: string } {
+/**
+ * The runs the 'where each Learning Goal stops' block prints (review of 7 November, round 3): each case with a Learning Goal, then the goals
+ * test C4 ran, in the planning file's goals sorted by id (A01 to A06, D01 to D03, TA01, TA02, TD01, TD02). For the evidence (`complete`), every
+ * goal of the planning file must be run, each from one place only (the cases or C4); otherwise this throws. A test that reads the report before
+ * C4 has run (P5, P6) gets the cases' runs only.
+ */
+function goalStopsOf(results: HandoffResult[], complete: boolean): GoalStopRun[] {
+    const fromCases: GoalStopRun[] = results.filter((r) => r.goalId).map((r) => ({ goalId: r.goalId as string, where: `case ${r.caseId}`, result: r }))
+    const goals = k.planning.learning_goals.map((row) => String(row['ID'])).sort()
+    const caseGoals = [...new Set(fromCases.map((x) => x.goalId))]
+    const testGoals = [...new Set(goalStopRuns.map((x) => x.goalId))]
+    assert.deepEqual(caseGoals.filter((g) => testGoals.indexOf(g) >= 0), [], 'a goal is run in one place only')
+    if (complete) assert.deepEqual([...caseGoals, ...testGoals].sort(), goals, 'every goal of the planning file is run')
+    const runs = goals.flatMap((g) => [...fromCases, ...goalStopRuns].filter((x) => x.goalId === g))
+    // The block prints one goal's Step 1, Step 2 and form once, from its first run: every run of the goal must agree on them.
+    const steps = (r: HandoffResult) => JSON.stringify([r.receive.step1?.status, r.receive.step1?.contextId, r.receive.step2?.status, r.receive.step2?.selected, r.form.decision, r.form.formId])
+    for (const g of goals) assert.equal(new Set(runs.filter((x) => x.goalId === g).map((x) => steps(x.result))).size <= 1, true, `${g}: its runs agree on Step 1, Step 2 and the form`)
+    return runs
+}
+
+function evidenceOf(results: HandoffResult[], complete = false): { report: string; json: string } {
     const counts = countLines()
     const purposes = purposeTexts()
     const tests = [...reported].sort((a, b) => GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group))
     const refusals = [...caseRefusals(results), ...testRefusals]
-    const report = handoffReportText(results, inputs, [...counts, ...Object.entries(purposes).map(([goal, text]) => `purpose text of ${goal} (display cell, read after the decisions): '${text}'`)], tests, refusals, REFUSAL_NOTES)
+    const report = handoffReportText(results, inputs, [...counts, ...Object.entries(purposes).map(([goal, text]) => `purpose text of ${goal} (display cell, read after the decisions): '${text}'`)], tests, refusals, REFUSAL_NOTES, goalStopsOf(results, complete))
     const json = `${JSON.stringify({ stage: 'DESIGN_REASONING_HANDOFF', standing: inputs.standing, opportunities: OPPORTUNITIES_NOT_ESTABLISHED, counts, tests, comparisons: testComparisons, refusals, cases: results }, null, 1)}\n`
     return { report, json }
 }
@@ -716,7 +763,7 @@ const ILLUSTRATIVE_GRADE = `class 5; ${VALUE_LABELS.ILLUSTRATIVE}`
  * is scoped to A05's initial small-sided realization and is not generalized to them.
  */
 const GF2_STAND_IN_NOTE = 'the GF2 structural cases are built through the TA02 DRAFT record as a TEST-ONLY vehicle (TT-VEHICLE), and the chain would serve them only under TT-LAW-11-STAND-IN (a TEST ASSUMPTION, neither our reading nor a ruling of Christian\'s); without it, our DRAFT classification (LAW-11 MATERIAL) refuses them at validation, and with no classification the fail safe refuses them on LAW-8 and LAW-11 (measured in C1); Christian\'s no-offside ruling is not generalized to them (Christian\'s first reply of 7 November, section 9, scopes it to the initial small-sided realization)'
-/** Said beside the A05-2 halves of Tests A (review of 7 November). */
+/** Said beside the A05-2 halves of Tests A (review of 7 November) and, since round 3, beside every Test B whose base is A05-2. */
 const A05_2_NOTE = 'A05-2 is CONDITIONAL on the 13 September verification and is not A05\'s result'
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -791,6 +838,12 @@ test('A05-0, the knowledge as it stands: refused at structure on the drafted ori
     // Review of 7 November, round 2 (measured): a requirement declaration of the chain's reaches each line's element (restated:GF2's
     // NOT_AUTHORED on V5, our DRAFT contract's NOT_AUTHORED on V6), so neither is a gap; both are read through their DRAFT items.
     assert.deepEqual([r.refusalBasis?.verdict, r.refusalBasis?.cited.map((x) => [x.ref, x.premiseKind]), r.refusalBasis?.gaps], ['RESTATEMENT-ONLY', [['c:restated:RPC-003:RPC-003-12.a::V5', 'DRAFT_ITEM'], ['c:restated:RPC-003:RPC-003-10.a::V6', 'DRAFT_ITEM']], []])
+    // Round 3 (measured): which declaration owes each line. V6: our DRAFT contract's own NOT_AUTHORED (type=origin). V5: only restated:GF2's
+    // NOT_AUTHORED (*), our CANDIDATE restatement's, applied row-wide because our DRAFT contract states nothing explicit that reaches the control
+    // element (its CLAIMED does not reach it; its UNDECLARED (type=control) is recorded silence).
+    const [v5, v6] = r.refusalBasis?.cited ?? []
+    assert.equal(v6?.owedBy, 'the requirement declaration reaching the element: restated:RPC-003 NOT_AUTHORED (type=origin), a declaration of the contract establishing the element')
+    assert.equal(v5?.owedBy, 'the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)')
 })
 
 test('A05-1, the starting-condition reading as a TEST-ONLY treatment: refused at structure on the drafted control line alone (measured; our plan expected a refusal at communication)', () => {
@@ -799,6 +852,8 @@ test('A05-1, the starting-condition reading as a TEST-ONLY treatment: refused at
     assert.deepEqual(r.chain?.reasons, ['Gate A is FAIL', 'a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE', '1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5'])
     assert.ok(r.testOnlyTreatments.some((t) => t.id === 'TT-ORIGIN-WITHHELD'))
     assert.deepEqual([r.refusalBasis?.verdict, r.refusalBasis?.cited.map((x) => [x.ref, x.premiseKind]), r.refusalBasis?.gaps], ['RESTATEMENT-ONLY', [['c:restated:RPC-003:RPC-003-12.a::V5', 'DRAFT_ITEM']], []])
+    // Round 3 (measured): V5 is owed as in A05-0, by restated:GF2's NOT_AUTHORED applied row-wide.
+    assert.equal(r.refusalBasis?.cited[0].owedBy, byCase(resultsOnce(), 'A05-0').refusalBasis?.cited[0].owedBy)
 })
 
 test('A05-2, CONDITIONAL and never A05\'s result: the chain would serve it, with the no-offside sentence, the review-only zone sentence and the kick-off reported', () => {
@@ -1333,7 +1388,7 @@ test(
         assert.deepEqual(v.manipulations.map((m) => [m.outcome, m.premise, m.placedContracts]), [[`no authorized relationship: GP-001 (Create Space) to ${WZA}; the configuration is unchanged`, null, []]])
         assert.deepEqual(cmp.identical, { lines: true, sentences: true, diagram: true })
         assert.deepEqual(v.chain?.constraints, [])
-        return [`manipulation: ${v.manipulations[0].outcome}`, ...lines]
+        return [`manipulation: ${v.manipulations[0].outcome}`, ...lines, A05_2_NOTE]
     },
     { id: 'B1a', group: THIRD, cites: 'N7:16, N7:155-157, N7:163-166', shows: 'with no authorized relationship between the Game Problem and the manipulation, nothing is added and the missing relationship is named' },
 )
@@ -1368,6 +1423,7 @@ test(
             'the placement bypasses bounded selection (whose record route refuses a lone manipulation: B1c) and the live route\'s check that refuses a served constraint no record authorizes; derivation, realization, validation, the hold and exclusion guards and communication still run, and no check is widened',
             'no representation or reader of approved relationships exists (none is represented for Create Space), and the input accepts only a TEST-ONLY stand-in: what is shown is the placement and grading path an authorized relationship would take, not that the mechanism reads one',
             ...lines,
+            A05_2_NOTE,
         ]
     },
     { id: 'B1b', group: THIRD, cites: 'N7:17-18, N7:155-157', shows: 'the placement and grading path an authorized relationship would take, shown only on a labelled TEST-ONLY stand-in (class 4, never knowledge): the manipulation is applied and every line and sentence it brings carries that relationship as its ceiling; no representation or reader of approved relationships exists yet (none is represented for Create Space)' },
@@ -1418,6 +1474,7 @@ test(
             ...outcomes.map((o) => `placed the same way: ${o[0]}: ${o[1] === 'served' ? 'the chain would serve it' : o[1]}${o[2] ? ` at ${o[2]} (${o[3]})` : ''}`),
             'the variable target\'s refusal: its region line (row S3) has two requirement declarations whose reach of its element the chain answers UNDETERMINED; a requirement counts as reaching unless the chain answers FALSE, so the line is cited, not listed as a gap',
             `used in B1b: ${WZA}, which has a contract and a choices file and composes with GF2; the record route's refusal is reported as a limitation of the checked pathway (a record cannot authorize one manipulation alone)`,
+            A05_2_NOTE,
         ]
     },
     { id: 'B1c', group: THIRD, cites: 'N7:188', shows: 'the measured reasons behind B1b\'s route: the checked pathway refuses a record that authorizes one manipulation alone (an unexpected limitation), and of the contracted manipulations two compose with GF2 on A05-2 and one does not' },
@@ -1437,7 +1494,7 @@ test(
         assert.deepEqual([v.receive.step1?.primary, v.receive.step1?.secondary], [['GP-001'], ['GP-002']], 'Step 1 stands')
         assert.match(String(v.chain?.gameProblemOverride), /^MISMATCH, reported and never switched: the TEST-ONLY record carries GP-005 \(TEST ASSUMPTION;/)
         assert.ok(v.lines.every((l) => l.premises.every((p) => p.ref.indexOf('GP-') < 0)), 'no line names a Game Problem among its premises')
-        return [`Game Problem: ${v.chain?.gameProblemOverride}`, ...lines]
+        return [`Game Problem: ${v.chain?.gameProblemOverride}`, ...lines, A05_2_NOTE]
     },
     { id: 'B2', group: THIRD, cites: 'N7:139, N7:163-166', shows: 'no Game Problem determines any line today (the critical gap): swapping it leaves the configuration identical; the difference is reported and Step 1\'s resolution stands' },
 )
@@ -1540,7 +1597,7 @@ test(
             [false, 'contrary to Christian\'s ruling HO-28OCT-PROVISIONAL (received 28 October 2026, provisional), which closes the line as \'target_zone_entered\': not applied; the line keeps the ruling\'s value'],
         ])
         assert.deepEqual(cmp.identical, { lines: true, sentences: true, diagram: true })
-        return [...v.proposedChoices.map((p) => `proposed ${p.lineId} = '${String(p.value)}': ${p.outcome}`), ...lines]
+        return [...v.proposedChoices.map((p) => `proposed ${p.lineId} = '${String(p.value)}': ${p.outcome}`), ...lines, A05_2_NOTE]
     },
     { id: 'B5', group: THIRD, cites: 'N7:15, N7:155-157', shows: 'a value contrary to a ruling of Christian\'s is reported as contrary and never applied over it' },
 )
@@ -1562,7 +1619,7 @@ test(
         )
         const second = compared('B6', byCase(resultsOnce(), 'A05-2'), none)
         assert.deepEqual([none.form.decision, none.form.formId, none.form.stop, none.form.alternativesRetained, none.chain], ['STOP', null, 'alternatives retained; no basis to select', ['GF2', 'GF3', 'GF7'], null])
-        return [...lines, ...second.lines, `no named form: ${none.form.stop}; retained with no preference: ${none.form.alternativesRetained.join(', ')}`]
+        return [...lines, ...second.lines, `no named form: ${none.form.stop}; retained with no preference: ${none.form.alternativesRetained.join(', ')}`, A05_2_NOTE]
     },
     { id: 'B6', group: THIRD, cites: 'N7:16, N7:53', shows: 'a compatible form without a contract is refused at knowledge with the other forms still visible; with no basis to select, the alternatives are retained and nothing is fabricated' },
 )
@@ -1673,30 +1730,84 @@ test(
 )
 
 test(
-    'refusal controls: the goals where Step 1 or Step 2 stops are stopped by the handoff before the chain; D02 (Step 2 SELECTED GF4) stops at knowledge',
+    'refusal controls and the rest of the 13 goals: where Step 1 or Step 2 stops, the handoff stops before the chain; where Step 2 selects a form (D02: GF4; A02 and TA02: GF2), the chain stops at knowledge (D02, TA02) or at its own selection (A02), measured; TA02 also with the TEST-ONLY draft store (DRAFT)',
     () => {
         const out: string[] = []
         const rows: string[][] = []
-        for (const goal of ['A03', 'A04', 'A06', 'D01', 'D03', 'TD01', 'TD02', 'D02']) {
+        // Each goal exactly as D02 is run here: the TA01 case copied with its goal changed (Step 2's form, production records only, no draft
+        // store, no TEST-ONLY record). A02 and TA02 added in round 3 of the review of 7 November (the sweep omitted them).
+        const stopOf = (v: HandoffResult) => v.form.stop ?? `${v.refusal?.stage}: ${v.refusal?.reasons[0]}`
+        const obstructsOf = (v: HandoffResult): string =>
+            v.form.stop !== null
+                ? 'no form can be placed without a basis'
+                : v.refusal?.stage === 'knowledge' && (v.refusal?.reasons[0] ?? '').indexOf('Representative Performance Context') >= 0
+                  ? 'its context has no contract'
+                  : v.refusal?.stage === 'selection'
+                    ? 'the chain\'s own selection refuses before the form Step 2 selected is placed'
+                    : `the chain refuses at ${v.refusal?.stage}`
+        // Said beside A02's refusal; every clause is asserted below.
+        const a02NoteOf = (v: HandoffResult) =>
+            `A02 has no production record, so the chain's own bounded selection draws on the goal's own candidates; it refuses (${v.refusalBasis?.codes.join(', ')}) on GF3, before the handoff places the form Step 2 selected (${v.form.formId}): the handoff's selection step, which runs only on a selection the chain made, never runs (no form placed, no scorer pick read), and the knowledge stage, where a context without a contract is refused (D02, TA02), is not reached`
+        const runs: Record<string, HandoffResult> = {}
+        for (const goal of ['A03', 'A04', 'A06', 'D01', 'D03', 'TD01', 'TD02', 'D02', 'A02', 'TA02']) {
             const v = runVariant(variantOf('TA01', `CONTROL-${goal}`, `${goal} through the handoff with its form from Step 2 (a Test C refusal control)`, (c) => (c.goalId = goal)))
-            const stop = v.form.stop ?? `${v.refusal?.stage}: ${v.refusal?.reasons[0]}`
-            rows.push([goal, v.form.decision, v.refusal?.stage ?? 'none', v.chain === null ? 'not run' : String(v.chain.outcome)])
-            if (v.refusalBasis) testRefusals.push({ where: `test C4 (${goal})`, basis: v.refusalBasis, obstructs: `yes for ${goal}: ${goal === 'D02' ? 'its context has no contract' : 'no form can be placed without a basis'}; nothing is fabricated to pass it` })
-            out.push(`${goal}: ${v.receive.step1?.status}; Step 2 ${v.receive.step2?.status}; ${stop}`)
+            runs[goal] = v
+            rows.push([goal, v.form.decision, v.form.formId ?? 'none', v.refusal?.stage ?? 'none', v.chain === null ? 'not run' : String(v.chain.outcome)])
+            goalStopRuns.push({ goalId: goal, where: 'test C4', result: v })
+            if (v.refusalBasis) testRefusals.push({ where: `test C4 (${goal})`, basis: v.refusalBasis, obstructs: `yes for ${goal}: ${obstructsOf(v)}; nothing is fabricated to pass it`, ...(goal === 'A02' ? { notes: [a02NoteOf(v)] } : {}) })
+            out.push(`${goal}: ${v.receive.step1?.status}; Step 2 ${v.receive.step2?.status}${v.receive.step2?.selected ? ` ${v.receive.step2.selected}` : ''}; ${stopOf(v)}`)
         }
+        // Measured, then pinned (round 3): A02 and TA02 are SELECTED GF2 by Step 2. TA02 stops at knowledge (its context, RPC-003, has no
+        // contract among the production records). A02 does not reach knowledge: the chain's own selection refuses first, on GF3, before the
+        // handoff places the form Step 2 selected (the lead expected a refusal at knowledge; the measurement says selection).
         assert.deepEqual(rows, [
-            ['A03', 'STOP', 'handoff (form)', 'not run'],
-            ['A04', 'STOP', 'handoff (form)', 'not run'],
-            ['A06', 'STOP', 'handoff (form)', 'not run'],
-            ['D01', 'STOP', 'handoff (form)', 'not run'],
-            ['D03', 'STOP', 'handoff (form)', 'not run'],
-            ['TD01', 'STOP', 'handoff (form)', 'not run'],
-            ['TD02', 'STOP', 'handoff (form)', 'not run'],
-            ['D02', 'SELECTED_BY_STEP_2', 'knowledge', 'refused'],
+            ['A03', 'STOP', 'none', 'handoff (form)', 'not run'],
+            ['A04', 'STOP', 'none', 'handoff (form)', 'not run'],
+            ['A06', 'STOP', 'none', 'handoff (form)', 'not run'],
+            ['D01', 'STOP', 'none', 'handoff (form)', 'not run'],
+            ['D03', 'STOP', 'none', 'handoff (form)', 'not run'],
+            ['TD01', 'STOP', 'none', 'handoff (form)', 'not run'],
+            ['TD02', 'STOP', 'none', 'handoff (form)', 'not run'],
+            ['D02', 'SELECTED_BY_STEP_2', 'GF4', 'knowledge', 'refused'],
+            ['A02', 'SELECTED_BY_STEP_2', 'GF2', 'selection', 'refused'],
+            ['TA02', 'SELECTED_BY_STEP_2', 'GF2', 'knowledge', 'refused'],
         ])
-        return out
+        const a02 = runs['A02']
+        const ta02 = runs['TA02']
+        assert.deepEqual([a02.receive.step1?.contextId, a02.receive.step2?.status, a02.receive.step2?.selected, ta02.receive.step1?.contextId, ta02.receive.step2?.status, ta02.receive.step2?.selected], ['RPC-002', 'SELECTED', 'GF2', 'RPC-003', 'SELECTED', 'GF2'])
+        assert.deepEqual(a02.refusal?.reasons, ['selection: A02: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal\'s designated knowledge cannot be combined into a selection on GF3; unfilled roles: shaping; held by ruling: none. Nothing was drawn from outside the goal\'s candidates.'])
+        assert.deepEqual([a02.refusalBasis?.verdict, a02.refusalBasis?.why], ['NOT KNOWLEDGE', 'the refusal cites no item: an engine selection rule (NO_COMPATIBLE_COMBINATION)'])
+        // The handoff's selection step never ran for A02 (it runs only on a selection the chain made): no form placed, no scorer pick read.
+        assert.equal(a02.chain?.scorerPick, null)
+        assert.equal(productionRecords.some((r) => r.learningGoalId === 'A02'), false, 'A02 has no production record')
+        assert.deepEqual(ta02.refusal?.reasons, ['the Representative Performance Context RPC-003 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game'])
+        const a02Note = a02NoteOf(a02)
+        // TA02 with the TEST-ONLY draft store, as A05-0 uses it (RPC-003 has only our DRAFT restatement there): a second run, labelled DRAFT.
+        const draft = runVariant(
+            variantOf('TA01', 'CONTROL-TA02-DRAFT', 'TA02 through the handoff with its form from Step 2 and the TEST-ONLY draft store ta02-composition (DRAFT; a Test C measurement, not a production run)', (c) => {
+                c.goalId = 'TA02'
+                c.resultStanding = 'DRAFT_STORE_NOT_A_PRODUCTION_RUN'
+                c.chain.draftStore = 'ta02-composition'
+            }),
+        )
+        goalStopRuns.push({ goalId: 'TA02', where: 'test C4, DRAFT', result: draft })
+        // Measured, then pinned: refused at structure on the same two drafted lines as A05-0, and read RESTATEMENT-ONLY from the DRAFT store items.
+        assert.deepEqual([draft.form.decision, draft.form.formId, draft.chain?.outcome, draft.refusal?.stage, draft.refusal?.reasons], ['SELECTED_BY_STEP_2', 'GF2', 'refused', 'structure', byCase(resultsOnce(), 'A05-0').refusal?.reasons])
+        assert.deepEqual([draft.refusalBasis?.verdict, draft.refusalBasis?.mix, draft.refusalBasis?.cited.map((x) => [x.ref, x.premiseKind]), draft.refusalBasis?.gaps], ['RESTATEMENT-ONLY', '2 AUTHORED (DRAFT store item)', [['c:restated:RPC-003:RPC-003-12.a::V5', 'DRAFT_ITEM'], ['c:restated:RPC-003:RPC-003-10.a::V6', 'DRAFT_ITEM']], []])
+        if (draft.refusalBasis) testRefusals.push({ where: 'test C4 (TA02, DRAFT: with the TEST-ONLY draft store)', basis: draft.refusalBasis, obstructs: 'yes for TA02 with the draft store: our drafted lines stop it at structure, as in A05-0; without the draft store it stops earlier, at knowledge; nothing is fabricated to pass it' })
+        // Every goal of the planning file is run once in the sweep: the cases (A01, A05's three runs, TA01) and the goals above (asserted again
+        // where the block is built).
+        const caseGoals = [...new Set(resultsOnce().filter((r) => r.goalId).map((r) => r.goalId as string))]
+        const all = k.planning.learning_goals.map((row) => String(row['ID'])).sort()
+        assert.deepEqual([...caseGoals, ...Object.keys(runs)].sort(), all)
+        return [
+            ...out,
+            a02Note,
+            `TA02, DRAFT (with the TEST-ONLY draft store ta02-composition, as A05-0 uses it; not a production run): ${draft.receive.step1?.status}; Step 2 ${draft.receive.step2?.status} ${draft.receive.step2?.selected}; ${draft.refusal?.stage}: ${draft.refusal?.reasons.join('; ')}; what it rests on: ${draft.refusalBasis?.verdict} (${draft.refusalBasis?.mix}): the same drafted lines as A05-0`,
+            `with the cases (${caseGoals.join(', ')}), these ${Object.keys(runs).length} goals cover all ${all.length} Learning Goals of the planning file, each run from one place (the WHERE EACH LEARNING GOAL STOPS block)`,
+        ]
     },
-    { id: 'C4', group: FOURTH, cites: 'N7:16, N7:155-157', shows: 'where Step 1 or Step 2 gives the handoff nothing to place, it stops before the chain and names why; no goal is routed around its gap' },
+    { id: 'C4', group: FOURTH, cites: 'N7:16, N7:155-157', shows: 'where Step 1 or Step 2 gives the handoff nothing to place, it stops before the chain and names why; where Step 2 selects a form, the handoff carries it to the chain, which stops where the knowledge or its own selection stops; no goal is routed around its gap' },
 )
 
 test('the inputs are validated by hand: each defect refuses the file', () => {
@@ -1783,9 +1894,51 @@ test('the stage files import nothing of the chain and name none of the assembly 
     }
 })
 
+test(
+    'the gap rule\'s copies of the chain\'s own rules are held to classify.ts\'s source text: the requirement kinds and the own-involvement scope rule',
+    () => {
+        // Review of 7 November, round 3. classify.ts exports neither GENERAL_REQUIREMENTS nor its scope rule, so the stage file copies the one
+        // (REQUIREMENT_DECLARATIONS) and the wiring mirrors the other (scopeReachesMirror); both are held here to classify.ts's source text,
+        // which is read, not changed.
+        const source = fs.readFileSync(path.join(HERE, '..', 'derivation', 'classify.ts'), 'utf8')
+        const PREFIX = 'const GENERAL_REQUIREMENTS = '
+        const literal = source.split('\n').map((l) => l.trim()).filter((l) => l.startsWith(PREFIX))
+        assert.equal(literal.length, 1, 'classify.ts holds one GENERAL_REQUIREMENTS literal')
+        const ours = `[${REQUIREMENT_DECLARATIONS.map((d) => `'${d}'`).join(', ')}]`
+        assert.equal(literal[0].slice(PREFIX.length), ours, 'REQUIREMENT_DECLARATIONS equals classify.ts\'s GENERAL_REQUIREMENTS')
+        assert.equal(source.split(SCOPE_RULE_SOURCE).length - 1, 1, 'classify.ts holds the scope rule the wiring mirrors, exactly once')
+        // Bites: the mirror answers as the rule reads.
+        assert.deepEqual(
+            [
+                scopeReachesMirror({ scope: 'OWN_INVOLVEMENT', contractId: 'X' }, { fromItem: { contractId: 'Y' } }),
+                scopeReachesMirror({ scope: 'OWN_INVOLVEMENT', contractId: 'X' }, { fromItem: { contractId: 'X' } }),
+                scopeReachesMirror({ scope: 'WHOLE_GAME', contractId: 'X' }, { fromItem: { contractId: 'Y' } }),
+            ],
+            [false, true, true],
+        )
+        // Measured over every owed line the refusal readings read (each declaration counted once per line): how many own-involvement
+        // declarations they meet, and how many the scope rule keeps from reaching the element.
+        const seen = new Map<string, { lineId: string; contractId: string; declaration: string; scope: string | null; scopeReaches: boolean | null }>()
+        for (const l of owedLinesRead) for (const g of l.governedBy) seen.set(`${l.lineId}|${g.contractId}|${g.declaration}|${g.selector}`, { lineId: l.lineId, contractId: g.contractId, declaration: g.declaration, scope: g.scope, scopeReaches: g.scopeReaches })
+        const all = [...seen.values()]
+        const own = all.filter((g) => g.scope === 'OWN_INVOLVEMENT')
+        const kept = own.filter((g) => g.scopeReaches === false)
+        const ownContracts = [...new Set(own.map((g) => g.contractId))]
+        // Measured, then pinned: the scope rule, now applied, changes no reading in the evidence (every own-involvement declaration met is its
+        // element's own object's: the variable target condition's, on lines its item VARTARGET-13.a forms).
+        assert.deepEqual([seen.size, new Set(all.map((g) => g.lineId)).size, own.length, ownContracts, kept.length], [19, 8, 5, ['restated:VARIABLE-TARGET-CONDITION'], 0])
+        return [
+            `classify.ts's GENERAL_REQUIREMENTS: ${literal[0].slice(PREFIX.length)}; the stage file's REQUIREMENT_DECLARATIONS: ${ours}`,
+            `classify.ts's scope rule, found once in its source text and mirrored by the wiring: '${SCOPE_RULE_SOURCE}'`,
+            `over the owed lines the refusal readings read: ${seen.size} declarations on ${new Set(all.map((g) => g.lineId)).size} lines; ${own.length} own-involvement declarations (${ownContracts.join(', ') || 'none'}), of which the scope rule keeps ${kept.length} from reaching the element, so applying it changes no reading in the evidence`,
+        ]
+    },
+    { id: 'E4', group: CHECKS, cites: 'N7:15', shows: 'the refusal reading (Christian\'s second reply of 7 November, section 2) uses the chain\'s own requirement kinds and scope rule, copied because classify.ts does not export them, and each copy is held to classify.ts\'s source text, so a change there fails this test rather than drifting silently' },
+)
+
 test('the evidence equals what this file generates, generated twice and identical (rewritten only under UPDATE_HANDOFF_EVIDENCE=1)', () => {
-    const first = evidenceOf(resultsOnce())
-    const second = evidenceOf(runHandoffCases(inputs, realChain, committedKnowledge()))
+    const first = evidenceOf(resultsOnce(), true)
+    const second = evidenceOf(runHandoffCases(inputs, realChain, committedKnowledge()), true)
     assert.equal(second.json, first.json, 'two runs, identical results')
     assert.equal(second.report, first.report, 'two runs, identical report')
     const reportFile = path.join(EVIDENCE, 'handoff-report.txt')

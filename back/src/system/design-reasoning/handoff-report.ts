@@ -14,6 +14,7 @@ import {
     CLASS_WORDS,
     DECISION_KIND_EXAMINATION,
     DECISION_KIND_RULE,
+    GoalStopRun,
     GRADING_MAP,
     HandoffComparison,
     HandoffInputs,
@@ -54,6 +55,7 @@ export function basisLines(b: RefusalBasis): string[] {
         out.push(`  cites ${c.ref} (found in ${plain(c.via)}): ${whose} item ${c.itemId} of ${c.contractId} (${where}), basis ${c.basis}; graded ${c.premiseKind}, ${c.sixClass === null ? 'no class claimed' : `class ${c.sixClass}`}, '${plain(c.label)}'${c.source ? `; source: ${plain(c.source)}; the source's standing as the review pathway reads its status fields (OURS): ${plain(c.sourceStanding ?? 'not recorded')}` : ''}${c.note ? ` (${plain(c.note)})` : ''}`)
         if (c.elementNotBounding) out.push(`    ${plain(c.elementNotBounding)}`)
         if (c.chainReading) out.push(`    ${plain(c.chainReading)}`)
+        if (c.owedBy) out.push(`    which declaration owes it (OURS, read from the chain's reach and scope rule): ${plain(c.owedBy)}`)
     }
     for (const g of b.gaps) out.push(`  a line nobody established (a gap): ${g.ref}: ${plain(g.why)}; ${plain(g.element)}`)
     return out
@@ -284,11 +286,43 @@ function testsText(tests: HandoffTestRecord[]): string[] {
     return out
 }
 
+/** Where one run stops, read from its result: before the chain, at a refusal of the chain, or at a game the chain would serve. */
+function stopWords(r: HandoffResult): string {
+    if (r.form.stop !== null) return `the handoff, before the chain: ${plain(r.form.stop)}`
+    if (r.chain === null) return 'not run'
+    if (r.chain.outcome === 'served') return 'configuration and text (the chain would serve it)'
+    const reasons = r.refusal?.reasons ?? []
+    return `the chain refuses at ${r.refusal?.stage ?? 'an unnamed stage'}: '${plain(reasons[reasons.length - 1] ?? 'no reason')}'`
+}
+
+/**
+ * The 'where each Learning Goal stops' block (review of 7 November, round 3): one line per goal, in the order given, with Step 1's status and
+ * context, Step 2's status and the form the run carried, and where each of the goal's runs stops, every value read from the measured runs.
+ */
+function goalStopsText(runs: GoalStopRun[]): string[] {
+    const goals: string[] = []
+    for (const run of runs) if (goals.indexOf(run.goalId) < 0) goals.push(run.goalId)
+    const out = [`WHERE EACH LEARNING GOAL STOPS (${goals.length} goals; OURS: each value read from the measured run named in brackets: a case, or the test that ran it)`]
+    for (const goal of goals) {
+        const mine = runs.filter((x) => x.goalId === goal)
+        const first = mine[0].result
+        const s1 = first.receive.step1
+        const s2 = first.receive.step2
+        const steps = `Step 1 ${s1 ? `${s1.status}, context ${s1.contextId ?? 'none'}` : 'not run'}; Step 2 ${s2 ? `${s2.status}${s2.selected ? ` ${s2.selected}` : `, selected none${s2.compatible.length ? `, compatible ${s2.compatible.join(', ')}` : ''}`}` : 'not run'}; form ${first.form.decision}${first.form.formId ? ` ${first.form.formId}` : ''}`
+        const stops =
+            mine.length === 1
+                ? `${stopWords(first)} [${mine[0].where}; ${first.resultStanding}]`
+                : mine.map((x) => `${x.result.caseId} [${x.where}; ${x.result.resultStanding}]: ${stopWords(x.result)}`).join('; ')
+        out.push(`- ${goal}: ${steps}; stops: ${stops}`)
+    }
+    return out
+}
+
 /** The refusals section (Christian's second reply of 7 November, section 2): every refusal in the evidence and what it rests on. */
 function refusalsText(refusals: RefusalEntry[], notes: string[]): string[] {
     const out: string[] = []
     const count = (v: string) => refusals.filter((r) => r.basis.verdict === v).length
-    out.push(`REFUSALS AND WHAT THEY REST ON (${refusals.length}: ${count('RESTATEMENT-ONLY')} RESTATEMENT-ONLY, ${count('MIXED')} MIXED, ${count('NOT KNOWLEDGE')} NOT KNOWLEDGE; counted from the entries below). OURS, read from each refusal's own reasons and, for a refusal met before any game exists, from the chain's own account behind it (each failing check's own result; each owed line's classification, with the chain's own reach of the line's element for each declaration it was decided over; each open line's permitted alternatives and the items the chain names as bounding it); no check is changed by it (Christian's second reply of 7 November: "No changes to validation behavior are authorized by this email."). The build returns no game at such a refusal, so the unit test runs the chain's own derivation again on the input the build derived from (build-activity's input assembly replicated in the test only) and reads nothing unless it reproduces the build's reasons word for word (at structure the Gate A reasons, at realization the realizer's reasons); otherwise the test fails. A RESTATEMENT-ONLY refusal rests only on items that are ours and unreviewed (our restatements, which are CANDIDATE, DRAFT store items, and assumptions in our restatements): it may be conservative without establishing that the configuration violates approved knowledge. Each cited line is read back to the item that establishes its element, or, for an open line whose bounding items the chain names (its narrowing items or bounds), to those items, with the element's item named as not bounding it; each cited item prints its class. The gap rule (OURS): a cited owed line is listed apart as a line nobody established (a gap) when no requirement declaration (NOT_AUTHORED, EXCLUDED or CLAIMED) among those the chain decided it over reaches the line's element class by the chain's own reach function (derivation/reach.ts reaches(), applied by the test to the element class); a requirement counts as reaching unless that function answers FALSE, as the chain's classification keeps a requirement in force against a class (classify.ts governingDeclarations; undetermined is never rounded to false). The verdict is computed over the cited items, and a refusal citing only gaps is NOT KNOWLEDGE. Every verdict prints its basis mix.`)
+    out.push(`REFUSALS AND WHAT THEY REST ON (${refusals.length}: ${count('RESTATEMENT-ONLY')} RESTATEMENT-ONLY, ${count('MIXED')} MIXED, ${count('NOT KNOWLEDGE')} NOT KNOWLEDGE; counted from the entries below). OURS, read from each refusal's own reasons and, for a refusal met before any game exists, from the chain's own account behind it (each failing check's own result; each owed line's classification, with the chain's own reach of the line's element for each declaration it was decided over; each open line's permitted alternatives and the items the chain names as bounding it); no check is changed by it (Christian's second reply of 7 November: "No changes to validation behavior are authorized by this email."). The build returns no game at such a refusal, so the unit test runs the chain's own derivation again on the input the build derived from (build-activity's input assembly replicated in the test only) and reads nothing unless it reproduces the build's reasons word for word (at structure the Gate A reasons, at realization the realizer's reasons); otherwise the test fails. A RESTATEMENT-ONLY refusal rests only on items that are ours and unreviewed (our restatements, which are CANDIDATE, DRAFT store items, and assumptions in our restatements): it may be conservative without establishing that the configuration violates approved knowledge. Each cited line is read back to the item that establishes its element, or, for an open line refused for being outside its permitted set (a reason saying the value is not one of the permitted alternatives) whose bounding items the chain names (its narrowing items or bounds), to those items, with the element's item named as not bounding it; each cited item prints its class. The chain's words are kept apart from ours: its line verdict NOT_AUTHORED means nothing authored the line's value, and the chain's reason 'declared gap' is not our gap. The gap rule (OURS): a cited owed line is listed apart as a line nobody established (a gap) when no requirement declaration (NOT_AUTHORED, EXCLUDED or CLAIMED) among those the chain decided it over reaches the line's element class by the chain's own reach function (derivation/reach.ts reaches(), applied by the test to the element class) and the chain's own scope rule; a requirement counts as reaching when its scope reaches the class (an own-involvement declaration reaches only the classes its own object forms) and that function does not answer FALSE, as the chain's classification keeps a requirement in force against a class (classify.ts governingDeclarations, whose requirement kinds and scope rule the test copies and holds to classify.ts's source text, among the engineering checks under TESTS; undetermined is never rounded to false). Every other cited owed line prints which requirement declarations reach its element (which declaration owes it), and, where the chain decided it row-wide, that no contract establishing the element states anything explicit that reaches it. The verdict is computed over the cited items, and a refusal citing only gaps is NOT KNOWLEDGE. Every verdict prints its basis mix.`)
     for (const note of notes) out.push(plain(note))
     for (const r of refusals) {
         out.push(`- ${r.where}: stage ${r.basis.stage}; obstructs the configuration pathway: ${plain(r.obstructs)}`)
@@ -307,7 +341,7 @@ const READING_KEY = [
 ]
 
 /** The whole report: the frame (classes, grading map, decision-kind rule), the tests and the refusals, every case, and the input counts given by the test. */
-export function handoffReportText(results: HandoffResult[], inputs: HandoffInputs, counts: string[], tests: HandoffTestRecord[] = [], refusals: RefusalEntry[] = [], refusalNotes: string[] = []): string {
+export function handoffReportText(results: HandoffResult[], inputs: HandoffInputs, counts: string[], tests: HandoffTestRecord[] = [], refusals: RefusalEntry[] = [], refusalNotes: string[] = [], goalStops: GoalStopRun[] = []): string {
     const out: string[] = []
     out.push('HANDOFF REPORT: the isolated reusable configuration handoff (TEST-ONLY review evidence)')
     out.push('')
@@ -331,6 +365,10 @@ export function handoffReportText(results: HandoffResult[], inputs: HandoffInput
     out.push('')
     if (tests.length) {
         out.push(...testsText(tests))
+        out.push('')
+    }
+    if (goalStops.length) {
+        out.push(...goalStopsText(goalStops))
         out.push('')
     }
     if (refusals.length) {

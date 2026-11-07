@@ -58,7 +58,7 @@
    "id": "F6",
    "group": "First: the pathways connect (Christian's first reply of 7 November, section 11)",
    "cites": "N7:150-151, N7:158-161",
-   "shows": "the same mechanism serves the two structural cases and stops TA01 at knowledge with the form Step 2 selected",
+   "shows": "the same mechanism carries the two structural cases to a game the chain would serve, and stops TA01 at knowledge with the form Step 2 selected",
    "title": "the chain would serve the structural cases (no Learning Goal) through the same mechanism; TA01 stops at knowledge with Step 2's form",
    "measured": [],
    "verdict": "passing engineering test"
@@ -240,7 +240,8 @@
     "A05-2 -> A05-2/manipulation/tl-v0-constraint-wide-zone-advantage: outcome: the chain would serve it -> the chain would serve it",
     "sentences 9 -> 9 (9 word for word the same); lines 58 -> 58",
     "diagram: identical",
-    "identical: lines yes, sentences yes, diagram yes"
+    "identical: lines yes, sentences yes, diagram yes",
+    "A05-2 is CONDITIONAL on the 13 September verification and is not A05's result"
    ],
    "verdict": "passing engineering test"
   },
@@ -273,7 +274,8 @@
     "diagram dimensions: [{kind: 'AREA_LENGTH', axis: 'along', from: 0, to: 40, quantity: 40, path: 'envelope.area.length_m', of: none, label: {text: '40 m', status: 'DRAFT', carriedBy: none}}, {kind: 'AREA_WIDTH', axis: 'across', from: 0, to: 30, quantity: 30, path: 'envelope.area.width_m', of: none, label: {text: '30 m', status: 'DRAFT', carriedBy: none}}, {kind: 'ZONE_DEPTH', axis: 'along', from: 0, to: 5, quantity: 5, path: 'space.regions[c:restated:GF2:GF2-03.e].position.along', of: 'c:restated:GF2:GF2-03.e', label: {text: '5 m', status: 'DRAFT', carriedBy: none}}, {kind: 'ZONE_DEPTH', axis: 'along', from: 35, to: 40, quantity: 5, path: 'space.regions[c:restated:GF2:GF2-03.f].position.along', of: 'c:restated:GF2:GF2-03.f', label: {text: '5 m', status: 'DRAFT', carriedBy: none}}] -> []",
     "diagram targets: [{objective: 'c:restated:GF2:GF2-08.c', region: 'c:restated:GF2:GF2-03.f', attackedBy: 'TEAM_AT_AXIS_START', along: {from: 35, to: 40}, across: {from: 0, to: 30}, line: false, markedZone: 'c:restated:GF2:GF2-03.f', label: {text: 'target zone', status: 'CHRISTIANS_TERM', carriedBy: none}, cites: ['objectives[c:restated:GF2:GF2-08.c].team', 'objectives[c:restated:GF2:GF2-08.c].reference', 'space.regions[c:restated:GF2:GF2-03.f].noun', 'space.regions[c:restated:GF2:GF2-03.f].position.along', 'space.regions[c:restated:GF2:GF2-03.f].position.across']}, {objective: 'c:restated:GF2:GF2-08.e', region: 'c:restated:GF2:GF2-03.e', attackedBy: 'TEAM_AT_AXIS_END', along: {from: 0, to: 5}, across: {from: 0, to: 30}, line: false, markedZone: 'c:restated:GF2:GF2-03.e', label: {text: 'target zone', status: 'CHRISTIANS_TERM', carriedBy: none}, cites: ['objectives[c:restated:GF2:GF2-08.e].team', 'objectives[c:restated:GF2:GF2-08.e].reference', 'space.regions[c:restated:GF2:GF2-03.e].noun', 'space.regions[c:restated:GF2:GF2-03.e].position.along', 'space.regions[c:restated:GF2:GF2-03.e].position.across']}] -> []",
     "diagram teams: [{key: 'TEAM_AT_AXIS_START', role: none, designation: 'TEAM_AT_AXIS_START', handle: 'c:restated:GF2:GF2-14.a#1', position: 0, label: none, noun: none, counts: [], start: none, attacks: [{end: 40, target: 'c:restated:GF2:GF2-03.f', objective: 'c:restated:GF2:GF2-08.c', cites: ['objectives[c:restated:GF2:GF2-08.c].team', 'objectives[c:restated:GF2:GF2-08.c].reference']}]}, {key: 'TEAM_AT_AXIS_END', role: none, designation: 'TEAM_AT_AXIS_END', handle: 'c:restated:GF2:GF2-14.a#2', position: 1, label: none, noun: none, counts: [], start: none, attacks: [{end: 0, target: 'c:restated:GF2:GF2-03.e', objective: 'c:restated:GF2:GF2-08.e', cites: ['objectives[c:restated:GF2:GF2-08.e].team', 'objectives[c:restated:GF2:GF2-08.e].reference']}]}] -> []",
-    "identical: lines no, sentences no, diagram no"
+    "identical: lines no, sentences no, diagram no",
+    "A05-2 is CONDITIONAL on the 13 September verification and is not A05's result"
    ],
    "verdict": "passing engineering test"
   },
@@ -288,7 +290,8 @@
     "placed the same way: tl-v0-constraint-neutral-player-condition: the chain would serve it",
     "placed the same way: tl-v0-constraint-variable-target-condition: refused at structure (a pre-realization Gate A invariant fails: GA-INFORMATION, GA-NO-FAILED-LINE)",
     "the variable target's refusal: its region line (row S3) has two requirement declarations whose reach of its element the chain answers UNDETERMINED; a requirement counts as reaching unless the chain answers FALSE, so the line is cited, not listed as a gap",
-    "used in B1b: tl-v0-constraint-wide-zone-advantage, which has a contract and a choices file and composes with GF2; the record route's refusal is reported as a limitation of the checked pathway (a record cannot authorize one manipulation alone)"
+    "used in B1b: tl-v0-constraint-wide-zone-advantage, which has a contract and a choices file and composes with GF2; the record route's refusal is reported as a limitation of the checked pathway (a record cannot authorize one manipulation alone)",
+    "A05-2 is CONDITIONAL on the 13 September verification and is not A05's result"
    ],
    "verdict": "passing engineering test"
   },
@@ -303,7 +306,8 @@
     "A05-2 -> A05-2/game-problem-GP-005: outcome: the chain would serve it -> the chain would serve it",
     "sentences 9 -> 9 (9 word for word the same); lines 58 -> 58",
     "diagram: identical",
-    "identical: lines yes, sentences yes, diagram yes"
+    "identical: lines yes, sentences yes, diagram yes",
+    "A05-2 is CONDITIONAL on the 13 September verification and is not A05's result"
    ],
    "verdict": "passing engineering test"
   },
@@ -364,7 +368,8 @@
     "A05-2 -> A05-2/lines: outcome: the chain would serve it -> the chain would serve it",
     "sentences 9 -> 9 (9 word for word the same); lines 58 -> 58",
     "diagram: identical",
-    "identical: lines yes, sentences yes, diagram yes"
+    "identical: lines yes, sentences yes, diagram yes",
+    "A05-2 is CONDITIONAL on the 13 September verification and is not A05's result"
    ],
    "verdict": "passing engineering test"
   },
@@ -381,7 +386,8 @@
     "A05-2 -> A05-2/no-form: outcome: the chain would serve it -> not run (stopped at handoff (form))",
     "the variant is refused at handoff (form): alternatives retained; no basis to select",
     "no configuration is produced: none of the base's 9 sentences or 58 lines, and no diagram",
-    "no named form: alternatives retained; no basis to select; retained with no preference: GF2, GF3, GF7"
+    "no named form: alternatives retained; no basis to select; retained with no preference: GF2, GF3, GF7",
+    "A05-2 is CONDITIONAL on the 13 September verification and is not A05's result"
    ],
    "verdict": "passing engineering test"
   },
@@ -433,8 +439,8 @@
    "id": "C4",
    "group": "Fourth: the mechanism is structurally reusable (Test C, section 11)",
    "cites": "N7:16, N7:155-157",
-   "shows": "where Step 1 or Step 2 gives the handoff nothing to place, it stops before the chain and names why; no goal is routed around its gap",
-   "title": "refusal controls: the goals where Step 1 or Step 2 stops are stopped by the handoff before the chain; D02 (Step 2 SELECTED GF4) stops at knowledge",
+   "shows": "where Step 1 or Step 2 gives the handoff nothing to place, it stops before the chain and names why; where Step 2 selects a form, the handoff carries it to the chain, which stops where the knowledge or its own selection stops; no goal is routed around its gap",
+   "title": "refusal controls and the rest of the 13 goals: where Step 1 or Step 2 stops, the handoff stops before the chain; where Step 2 selects a form (D02: GF4; A02 and TA02: GF2), the chain stops at knowledge (D02, TA02) or at its own selection (A02), measured; TA02 also with the TEST-ONLY draft store (DRAFT)",
    "measured": [
     "A03: RESOLVED; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED; Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED",
     "A04: UNRESOLVED; Step 2 NOT_EVALUATED; Step 1 is UNRESOLVED: TRANSLATION_UNPOPULATED; no form is placed",
@@ -443,7 +449,12 @@
     "D03: RESOLVED; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED; Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED",
     "TD01: RESOLVED_NOT_RELATED_TO_CONTEXT; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED; Step 1 is RESOLVED_NOT_RELATED_TO_CONTEXT: GAME_PROBLEM_NOT_RELATED_TO_CONTEXT; no form is placed",
     "TD02: RESOLVED_NOT_RELATED_TO_CONTEXT; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED; Step 1 is RESOLVED_NOT_RELATED_TO_CONTEXT: GAME_PROBLEM_NOT_RELATED_TO_CONTEXT; no form is placed",
-    "D02: RESOLVED; Step 2 SELECTED; knowledge: the Representative Performance Context RPC-007 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game"
+    "D02: RESOLVED; Step 2 SELECTED GF4; knowledge: the Representative Performance Context RPC-007 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game",
+    "A02: RESOLVED; Step 2 SELECTED GF2; selection: selection: A02: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF3; unfilled roles: shaping; held by ruling: none. Nothing was drawn from outside the goal's candidates.",
+    "TA02: RESOLVED; Step 2 SELECTED GF2; knowledge: the Representative Performance Context RPC-003 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game",
+    "A02 has no production record, so the chain's own bounded selection draws on the goal's own candidates; it refuses (NO_COMPATIBLE_COMBINATION) on GF3, before the handoff places the form Step 2 selected (GF2): the handoff's selection step, which runs only on a selection the chain made, never runs (no form placed, no scorer pick read), and the knowledge stage, where a context without a contract is refused (D02, TA02), is not reached",
+    "TA02, DRAFT (with the TEST-ONLY draft store ta02-composition, as A05-0 uses it; not a production run): RESOLVED; Step 2 SELECTED GF2; structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6; what it rests on: RESTATEMENT-ONLY (2 AUTHORED (DRAFT store item)): the same drafted lines as A05-0",
+    "with the cases (A05, A01, TA01), these 10 goals cover all 13 Learning Goals of the planning file, each run from one place (the WHERE EACH LEARNING GOAL STOPS block)"
    ],
    "verdict": "passing engineering test"
   },
@@ -564,6 +575,19 @@
    "shows": "the handoff's stage files stay isolated from the chain and from the hand-authored record",
    "title": "the stage files import nothing of the chain and name none of the assembly record's readers",
    "measured": [],
+   "verdict": "passing engineering test"
+  },
+  {
+   "id": "E4",
+   "group": "Engineering checks of the handoff itself",
+   "cites": "N7:15",
+   "shows": "the refusal reading (Christian's second reply of 7 November, section 2) uses the chain's own requirement kinds and scope rule, copied because classify.ts does not export them, and each copy is held to classify.ts's source text, so a change there fails this test rather than drifting silently",
+   "title": "the gap rule's copies of the chain's own rules are held to classify.ts's source text: the requirement kinds and the own-involvement scope rule",
+   "measured": [
+    "classify.ts's GENERAL_REQUIREMENTS: ['NOT_AUTHORED', 'EXCLUDED', 'CLAIMED']; the stage file's REQUIREMENT_DECLARATIONS: ['NOT_AUTHORED', 'EXCLUDED', 'CLAIMED']",
+    "classify.ts's scope rule, found once in its source text and mirrored by the wiring: 'const scopeReaches = (d: DeclarationReach) => d.scope !== 'OWN_INVOLVEMENT' || cls.fromItem.contractId === d.contractId'",
+    "over the owed lines the refusal readings read: 19 declarations on 8 lines; 5 own-involvement declarations (restated:VARIABLE-TARGET-CONDITION), of which the scope rule keeps 0 from reaching the element, so applying it changes no reading in the evidence"
+   ],
    "verdict": "passing engineering test"
   }
  ],
@@ -8974,7 +8998,8 @@
       "source": "the context library (rpc-library.rc1.json)",
       "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
       "via": "its reasons",
-      "chainReading": "the chain classes the line NOT_AUTHORED, declared gap, decided over restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
+      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
+      "owedBy": "the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)",
       "elementNotBounding": null
      },
      {
@@ -8990,7 +9015,8 @@
       "source": "the context library (rpc-library.rc1.json)",
       "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
       "via": "its reasons",
-      "chainReading": "the chain classes the line NOT_AUTHORED, declared gap, decided over restated:RPC-003 NOT_AUTHORED (type=origin) [the chain's reach of the element: TRUE]",
+      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:RPC-003 NOT_AUTHORED (type=origin) [the chain's reach of the element: TRUE]",
+      "owedBy": "the requirement declaration reaching the element: restated:RPC-003 NOT_AUTHORED (type=origin), a declaration of the contract establishing the element",
       "elementNotBounding": null
      }
     ],
@@ -9022,7 +9048,8 @@
       "source": "the context library (rpc-library.rc1.json)",
       "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
       "via": "its reasons",
-      "chainReading": "the chain classes the line NOT_AUTHORED, declared gap, decided over restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
+      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
+      "owedBy": "the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)",
       "elementNotBounding": null
      }
     ],
@@ -9059,7 +9086,7 @@
     "gaps": [
      {
       "ref": "c:provisional:A05-H1:A05-H1-T1-1::T7",
-      "why": "the chain classes the line NOT_AUTHORED, claimed but unresolved, decided over restated:GF2 UNDECLARED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (trigger=POSSESSION_CHANGE) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (trigger ∈ {START, SCORE, OUT_END_LINE, OUT_TOUCHLINE}) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row); the chain classes it claimed but unresolved, row-wide, by restated:RPC-003 CLAIMED (trigger=POSSESSION_CHANGE), a declaration whose selector does not reach this element (the chain's own reach: FALSE); no requirement declaration reaches it, so nobody established it: a line nobody established (a gap)",
+      "why": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'claimed but unresolved', decided over the declarations restated:GF2 UNDECLARED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (trigger=POSSESSION_CHANGE) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (trigger ∈ {START, SCORE, OUT_END_LINE, OUT_TOUCHLINE}) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row); its reason 'claimed but unresolved' comes row-wide from a requirement declaration that does not reach this element: restated:RPC-003 CLAIMED (trigger=POSSESSION_CHANGE), whose selector does not reach it (the chain's own reach: FALSE); no requirement declaration reaches it, so nobody established it: a line nobody established (a gap)",
       "element": "its element is established by item A05-H1-T1-1 of provisional:A05-H1, basis OWNER_RULING; graded REALIZATION_ITEM, class 5, 'ILLUSTRATIVE (for this offline test only; to be replaced before any production use)' (Christian's own label for what these items type is illustrative (HO-07NOV-RESTART, received 7 November 2026, first reply); these items are our TEST-ONLY typing, for a diagnostic, of the restart that ruling asks for; the realization gate types such items OWNER_RULING only because a provisional realization's items must carry that basis, and that typing is not changed)"
      }
     ],
@@ -9090,14 +9117,15 @@
       "source": "the context library (rpc-library.rc1.json)",
       "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
       "via": "its reasons",
-      "chainReading": "the chain classes the line NOT_AUTHORED, declared gap, decided over restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
+      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
+      "owedBy": "the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)",
       "elementNotBounding": null
      }
     ],
     "gaps": [
      {
       "ref": "c:provisional:A05-H1:A05-H1-T1-1::T7",
-      "why": "the chain classes the line NOT_AUTHORED, claimed but unresolved, decided over restated:GF2 UNDECLARED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (trigger=POSSESSION_CHANGE) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (trigger ∈ {START, SCORE, OUT_END_LINE, OUT_TOUCHLINE}) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row); the chain classes it claimed but unresolved, row-wide, by restated:RPC-003 CLAIMED (trigger=POSSESSION_CHANGE), a declaration whose selector does not reach this element (the chain's own reach: FALSE); no requirement declaration reaches it, so nobody established it: a line nobody established (a gap)",
+      "why": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'claimed but unresolved', decided over the declarations restated:GF2 UNDECLARED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (trigger=POSSESSION_CHANGE) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (trigger ∈ {START, SCORE, OUT_END_LINE, OUT_TOUCHLINE}) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row); its reason 'claimed but unresolved' comes row-wide from a requirement declaration that does not reach this element: restated:RPC-003 CLAIMED (trigger=POSSESSION_CHANGE), whose selector does not reach it (the chain's own reach: FALSE); no requirement declaration reaches it, so nobody established it: a line nobody established (a gap)",
       "element": "its element is established by item A05-H1-T1-1 of provisional:A05-H1, basis OWNER_RULING; graded REALIZATION_ITEM, class 5, 'ILLUSTRATIVE (for this offline test only; to be replaced before any production use)' (Christian's own label for what these items type is illustrative (HO-07NOV-RESTART, received 7 November 2026, first reply); these items are our TEST-ONLY typing, for a diagnostic, of the restart that ruling asks for; the realization gate types such items OWNER_RULING only because a provisional realization's items must carry that basis, and that typing is not changed)"
      }
     ],
@@ -9162,7 +9190,8 @@
       "source": "an item whose evidence names no source in our standing table",
       "sourceStanding": "not recorded",
       "via": "its reasons",
-      "chainReading": "the chain classes the line NOT_AUTHORED, declared gap, decided over restated:GF2 CLAIMED (functions ∋ objective-area) [the chain's reach of the element: UNDETERMINED]; restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (functions ∋ objective-area) [the chain's reach of the element: UNDETERMINED]; restated:RPC-003 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:VARIABLE-TARGET-CONDITION NON_CLAIMED (regions without the trigger function) [the chain's reach of the element: UNREADABLE]; restated:VARIABLE-TARGET-CONDITION UNDECLARED (functions ∋ trigger) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
+      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 CLAIMED (functions ∋ objective-area) [the chain's reach of the element: UNDETERMINED]; restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (functions ∋ objective-area) [the chain's reach of the element: UNDETERMINED]; restated:RPC-003 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:VARIABLE-TARGET-CONDITION NON_CLAIMED (regions without the trigger function) [the chain's reach of the element: UNREADABLE]; restated:VARIABLE-TARGET-CONDITION UNDECLARED (functions ∋ trigger) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
+      "owedBy": "the requirement declarations reaching the element: restated:GF2 CLAIMED (functions ∋ objective-area), a declaration of another contract; restated:GF2 NOT_AUTHORED (functions ∋ objective-area), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:VARIABLE-TARGET-CONDITION) states anything explicit that reaches it: its declarations on the row are NON_CLAIMED (regions without the trigger function) [reach UNREADABLE]; UNDECLARED (functions ∋ trigger) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)",
       "elementNotBounding": null
      },
      {
@@ -9178,7 +9207,8 @@
       "source": "the Information Expression Library (information-expression.rc1.1.json)",
       "sourceStanding": "CANDIDATE (the review pathway's standing table holds no entry for this file; read by us from the file's own status fields: workbook_version '1.1-RC1-CANDIDATE', allowed_registry_statuses 'RC1_CANDIDATE', allowed_runtime_statuses 'SHADOW_REFERENCE')",
       "via": "its reasons",
-      "chainReading": "the chain classes the line NOT_AUTHORED, declared gap, decided over restated:VARIABLE-TARGET-CONDITION CLAIMED (*) [the chain's reach of the element: TRUE]; restated:VARIABLE-TARGET-CONDITION NOT_AUTHORED (*) [the chain's reach of the element: TRUE]",
+      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:VARIABLE-TARGET-CONDITION CLAIMED (*) [the chain's reach of the element: TRUE]; restated:VARIABLE-TARGET-CONDITION NOT_AUTHORED (*) [the chain's reach of the element: TRUE]",
+      "owedBy": "the requirement declarations reaching the element: restated:VARIABLE-TARGET-CONDITION CLAIMED (*), a declaration of the contract establishing the element; restated:VARIABLE-TARGET-CONDITION NOT_AUTHORED (*), a declaration of the contract establishing the element",
       "elementNotBounding": null
      },
      {
@@ -9194,7 +9224,8 @@
       "source": "the Information Expression Library (information-expression.rc1.1.json)",
       "sourceStanding": "CANDIDATE (the review pathway's standing table holds no entry for this file; read by us from the file's own status fields: workbook_version '1.1-RC1-CANDIDATE', allowed_registry_statuses 'RC1_CANDIDATE', allowed_runtime_statuses 'SHADOW_REFERENCE')",
       "via": "its reasons",
-      "chainReading": "the chain classes the line NOT_AUTHORED, declared gap, decided over restated:VARIABLE-TARGET-CONDITION NOT_AUTHORED (*) [the chain's reach of the element: TRUE]",
+      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:VARIABLE-TARGET-CONDITION NOT_AUTHORED (*) [the chain's reach of the element: TRUE]",
+      "owedBy": "the requirement declaration reaching the element: restated:VARIABLE-TARGET-CONDITION NOT_AUTHORED (*), a declaration of the contract establishing the element",
       "elementNotBounding": null
      },
      {
@@ -9210,7 +9241,8 @@
       "source": "the Information Expression Library (information-expression.rc1.1.json)",
       "sourceStanding": "CANDIDATE (the review pathway's standing table holds no entry for this file; read by us from the file's own status fields: workbook_version '1.1-RC1-CANDIDATE', allowed_registry_statuses 'RC1_CANDIDATE', allowed_runtime_statuses 'SHADOW_REFERENCE')",
       "via": "its reasons",
-      "chainReading": "the chain classes the line NOT_AUTHORED, claimed but unresolved, decided over restated:VARIABLE-TARGET-CONDITION CLAIMED (*) [the chain's reach of the element: TRUE]",
+      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'claimed but unresolved', decided over the declarations restated:VARIABLE-TARGET-CONDITION CLAIMED (*) [the chain's reach of the element: TRUE]",
+      "owedBy": "the requirement declaration reaching the element: restated:VARIABLE-TARGET-CONDITION CLAIMED (*), a declaration of the contract establishing the element",
       "elementNotBounding": null
      },
      {
@@ -9227,6 +9259,7 @@
       "sourceStanding": "CANDIDATE (the review pathway's standing table holds no entry for this file; read by us from the file's own status fields: workbook_version '1.1-RC1-CANDIDATE', allowed_registry_statuses 'RC1_CANDIDATE', allowed_runtime_statuses 'SHADOW_REFERENCE')",
       "via": "the failing check GA-INFORMATION's own result",
       "chainReading": null,
+      "owedBy": null,
       "elementNotBounding": null
      },
      {
@@ -9243,6 +9276,7 @@
       "sourceStanding": "CANDIDATE (the review pathway's standing table holds no entry for this file; read by us from the file's own status fields: workbook_version '1.1-RC1-CANDIDATE', allowed_registry_statuses 'RC1_CANDIDATE', allowed_runtime_statuses 'SHADOW_REFERENCE')",
       "via": "the failing check GA-INFORMATION's own result",
       "chainReading": null,
+      "owedBy": null,
       "elementNotBounding": null
      },
      {
@@ -9258,7 +9292,8 @@
       "source": "the Information Expression Library (information-expression.rc1.1.json)",
       "sourceStanding": "CANDIDATE (the review pathway's standing table holds no entry for this file; read by us from the file's own status fields: workbook_version '1.1-RC1-CANDIDATE', allowed_registry_statuses 'RC1_CANDIDATE', allowed_runtime_statuses 'SHADOW_REFERENCE')",
       "via": "the failing check GA-NO-FAILED-LINE's own result",
-      "chainReading": "the chain classes the line NOT_AUTHORED, declared gap, decided over restated:VARIABLE-TARGET-CONDITION NOT_AUTHORED (*) [the chain's reach of the element: TRUE]",
+      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:VARIABLE-TARGET-CONDITION NOT_AUTHORED (*) [the chain's reach of the element: TRUE]",
+      "owedBy": "the requirement declaration reaching the element: restated:VARIABLE-TARGET-CONDITION NOT_AUTHORED (*), a declaration of the contract establishing the element",
       "elementNotBounding": null
      }
     ],
@@ -9291,6 +9326,7 @@
       "sourceStanding": "DRAFT (the module's own status, module_status DRAFT; the review pathway reads its Game Form rows as CANDIDATE)",
       "via": "its reasons; the bound read from the chain's own account of the open line, its narrowing items",
       "chainReading": "the chain names the line open, its permitted alternatives 'zone', 'line', bounded by restated:GF2 GF2-03.b (a narrowing item)",
+      "owedBy": null,
       "elementNotBounding": "its element is established by item GF2-03.e of restated:GF2, basis OWNER_RULING; graded KNOWLEDGE_RULING_ITEM, class 2, 'RULING' (the item's evidence, verbatim: Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.), which does not bound the line"
      }
     ],
@@ -9404,6 +9440,7 @@
       "sourceStanding": "DRAFT (the module's own status, module_status DRAFT; the review pathway reads its Game Form rows as CANDIDATE)",
       "via": "the failing check GA-TRIGGER-REACHABLE's own result",
       "chainReading": null,
+      "owedBy": null,
       "elementNotBounding": null
      }
     ],
@@ -9536,6 +9573,89 @@
     "why": "the refusal cites no item: a missing contract"
    },
    "obstructs": "yes for D02: its context has no contract; nothing is fabricated to pass it"
+  },
+  {
+   "where": "test C4 (A02)",
+   "basis": {
+    "stage": "selection",
+    "codes": [
+     "NO_COMPATIBLE_COMBINATION"
+    ],
+    "cited": [],
+    "gaps": [],
+    "mix": "none",
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the refusal cites no item: an engine selection rule (NO_COMPATIBLE_COMBINATION)"
+   },
+   "obstructs": "yes for A02: the chain's own selection refuses before the form Step 2 selected is placed; nothing is fabricated to pass it",
+   "notes": [
+    "A02 has no production record, so the chain's own bounded selection draws on the goal's own candidates; it refuses (NO_COMPATIBLE_COMBINATION) on GF3, before the handoff places the form Step 2 selected (GF2): the handoff's selection step, which runs only on a selection the chain made, never runs (no form placed, no scorer pick read), and the knowledge stage, where a context without a contract is refused (D02, TA02), is not reached"
+   ]
+  },
+  {
+   "where": "test C4 (TA02)",
+   "basis": {
+    "stage": "knowledge",
+    "codes": [
+     "knowledge refusal"
+    ],
+    "cited": [],
+    "gaps": [],
+    "mix": "none",
+    "verdict": "NOT KNOWLEDGE",
+    "why": "the refusal cites no item: a missing contract"
+   },
+   "obstructs": "yes for TA02: its context has no contract; nothing is fabricated to pass it"
+  },
+  {
+   "where": "test C4 (TA02, DRAFT: with the TEST-ONLY draft store)",
+   "basis": {
+    "stage": "structure",
+    "codes": [
+     "GA-NO-FAILED-LINE"
+    ],
+    "cited": [
+     {
+      "ref": "c:restated:RPC-003:RPC-003-12.a::V5",
+      "contractId": "restated:RPC-003",
+      "itemId": "RPC-003-12.a",
+      "basis": "AUTHORED",
+      "origin": "DRAFT_STORE",
+      "premiseKind": "DRAFT_ITEM",
+      "label": "DRAFT knowledge (ours, unreviewed)",
+      "sixClass": 3,
+      "note": null,
+      "source": "the context library (rpc-library.rc1.json)",
+      "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
+      "via": "its reasons",
+      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
+      "owedBy": "the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)",
+      "elementNotBounding": null
+     },
+     {
+      "ref": "c:restated:RPC-003:RPC-003-10.a::V6",
+      "contractId": "restated:RPC-003",
+      "itemId": "RPC-003-10.a",
+      "basis": "AUTHORED",
+      "origin": "DRAFT_STORE",
+      "premiseKind": "DRAFT_ITEM",
+      "label": "DRAFT knowledge (ours, unreviewed)",
+      "sixClass": 3,
+      "note": null,
+      "source": "the context library (rpc-library.rc1.json)",
+      "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
+      "via": "its reasons",
+      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:RPC-003 NOT_AUTHORED (type=origin) [the chain's reach of the element: TRUE]",
+      "owedBy": "the requirement declaration reaching the element: restated:RPC-003 NOT_AUTHORED (type=origin), a declaration of the contract establishing the element",
+      "elementNotBounding": null
+     }
+    ],
+    "gaps": [],
+    "mix": "2 AUTHORED (DRAFT store item)",
+    "verdict": "RESTATEMENT-ONLY",
+    "why": "every cited item is ours and unreviewed (2 AUTHORED (DRAFT store item)), with no ruling of Christian's among them"
+   },
+   "obstructs": "yes for TA02 with the draft store: our drafted lines stop it at structure, as in A05-0; without the draft store it stops earlier, at knowledge; nothing is fabricated to pass it"
   },
   {
    "where": "test E3 (A05-2 held to a TEST-ONLY stand-in classification: LAW-8 MATERIAL)",
@@ -10081,7 +10201,7 @@
       "HO-07NOV-RESTART",
       "HO-07NOV-ADAPTATION"
      ],
-     "where": "measured: as TEST-ONLY realization items in Christian's words (the end-line trigger, a last-touch partition, the team that did not touch it last, the coach as taker, a served ball, play stopped and resumed, a location under Christian's qualitative condition), the build is refused at structure: the restart transition's episode line is neither chosen nor claimed, and no ruling of Christian's says whether the restart begins an episode. As a diagnostic only, with a TEST ASSUMPTION for the episode line and the coach-decided location closed, structure, realization and validation pass and the build is refused at communication: no sentence exists for a restart the coach serves (its last touch, award, taker, method, play state and location reach no instruction); decision 1's review-only wording holds none. No engine feature was built; the restart stays described in the report only",
+     "where": "measured: as TEST-ONLY realization items in Christian's words (the end-line trigger, a last-touch partition, the team that did not touch it last, the coach as taker, a served ball, play stopped and resumed, a location under Christian's qualitative condition), the build is refused at structure: the restart transition's episode line is a line nobody established (the chain classes it claimed but unresolved, row-wide, by a declaration whose selector does not reach the restart; neither an authorized choice nor an authorized claim), and no ruling of Christian's says whether the restart begins an episode. As a diagnostic only, with a TEST ASSUMPTION for the episode line and the coach-decided location closed, structure, realization and validation pass and the build is refused at communication: no sentence exists for a restart the coach serves (its last touch, award, taker, method, play state and location reach no instruction); decision 1's review-only wording holds none. No engine feature was built; the restart stays described in the report only",
      "label": "UNEXPECTED_LIMITATION"
     },
     {
@@ -10188,7 +10308,8 @@
       "source": "the context library (rpc-library.rc1.json)",
       "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
       "via": "its reasons",
-      "chainReading": "the chain classes the line NOT_AUTHORED, declared gap, decided over restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
+      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
+      "owedBy": "the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)",
       "elementNotBounding": null
      },
      {
@@ -10204,7 +10325,8 @@
       "source": "the context library (rpc-library.rc1.json)",
       "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
       "via": "its reasons",
-      "chainReading": "the chain classes the line NOT_AUTHORED, declared gap, decided over restated:RPC-003 NOT_AUTHORED (type=origin) [the chain's reach of the element: TRUE]",
+      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:RPC-003 NOT_AUTHORED (type=origin) [the chain's reach of the element: TRUE]",
+      "owedBy": "the requirement declaration reaching the element: restated:RPC-003 NOT_AUTHORED (type=origin), a declaration of the contract establishing the element",
       "elementNotBounding": null
      }
     ],
@@ -10772,7 +10894,7 @@
       "HO-07NOV-RESTART",
       "HO-07NOV-ADAPTATION"
      ],
-     "where": "measured: as TEST-ONLY realization items in Christian's words (the end-line trigger, a last-touch partition, the team that did not touch it last, the coach as taker, a served ball, play stopped and resumed, a location under Christian's qualitative condition), the build is refused at structure: the restart transition's episode line is neither chosen nor claimed, and no ruling of Christian's says whether the restart begins an episode. As a diagnostic only, with a TEST ASSUMPTION for the episode line and the coach-decided location closed, structure, realization and validation pass and the build is refused at communication: no sentence exists for a restart the coach serves (its last touch, award, taker, method, play state and location reach no instruction); decision 1's review-only wording holds none. No engine feature was built; the restart stays described in the report only",
+     "where": "measured: as TEST-ONLY realization items in Christian's words (the end-line trigger, a last-touch partition, the team that did not touch it last, the coach as taker, a served ball, play stopped and resumed, a location under Christian's qualitative condition), the build is refused at structure: the restart transition's episode line is a line nobody established (the chain classes it claimed but unresolved, row-wide, by a declaration whose selector does not reach the restart; neither an authorized choice nor an authorized claim), and no ruling of Christian's says whether the restart begins an episode. As a diagnostic only, with a TEST ASSUMPTION for the episode line and the coach-decided location closed, structure, realization and validation pass and the build is refused at communication: no sentence exists for a restart the coach serves (its last touch, award, taker, method, play state and location reach no instruction); decision 1's review-only wording holds none. No engine feature was built; the restart stays described in the report only",
      "label": "UNEXPECTED_LIMITATION"
     },
     {
@@ -10879,7 +11001,8 @@
       "source": "the context library (rpc-library.rc1.json)",
       "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
       "via": "its reasons",
-      "chainReading": "the chain classes the line NOT_AUTHORED, declared gap, decided over restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
+      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
+      "owedBy": "the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)",
       "elementNotBounding": null
      }
     ],
@@ -11467,7 +11590,7 @@
       "HO-07NOV-RESTART",
       "HO-07NOV-ADAPTATION"
      ],
-     "where": "measured: as TEST-ONLY realization items in Christian's words (the end-line trigger, a last-touch partition, the team that did not touch it last, the coach as taker, a served ball, play stopped and resumed, a location under Christian's qualitative condition), the build is refused at structure: the restart transition's episode line is neither chosen nor claimed, and no ruling of Christian's says whether the restart begins an episode. As a diagnostic only, with a TEST ASSUMPTION for the episode line and the coach-decided location closed, structure, realization and validation pass and the build is refused at communication: no sentence exists for a restart the coach serves (its last touch, award, taker, method, play state and location reach no instruction); decision 1's review-only wording holds none. No engine feature was built; the restart stays described in the report only",
+     "where": "measured: as TEST-ONLY realization items in Christian's words (the end-line trigger, a last-touch partition, the team that did not touch it last, the coach as taker, a served ball, play stopped and resumed, a location under Christian's qualitative condition), the build is refused at structure: the restart transition's episode line is a line nobody established (the chain classes it claimed but unresolved, row-wide, by a declaration whose selector does not reach the restart; neither an authorized choice nor an authorized claim), and no ruling of Christian's says whether the restart begins an episode. As a diagnostic only, with a TEST ASSUMPTION for the episode line and the coach-decided location closed, structure, realization and validation pass and the build is refused at communication: no sentence exists for a restart the coach serves (its last touch, award, taker, method, play state and location reach no instruction); decision 1's review-only wording holds none. No engine feature was built; the restart stays described in the report only",
      "label": "UNEXPECTED_LIMITATION"
     },
     {

@@ -582,10 +582,12 @@ export interface ChainAnswer {
         /**
          * Each owed line with the declarations the chain decided it over and, for each, the chain's own reach of the line's element class
          * (`reach`: TRUE, FALSE or UNDETERMINED as the chain's reach function answers, UNREADABLE where the selector did not parse, null where the
-         * line names no class); `rowWide` where that set is every declaration on the row (the object establishing the element said nothing
-         * explicit about it).
+         * line names no class); `scope`, the declaration's scope, and `scopeReaches`, whether that scope reaches the element class by the
+         * chain's own scope rule (classify.ts: an own-involvement declaration reaches only the classes its own object forms; null where the line
+         * names no class); `rowWide` where that set is every declaration on the row; `establishing`, the contracts whose items form the
+         * element class (the chain's establishing objects; empty where the line names no class).
          */
-        owedLines: Array<{ lineId: string; verdict: string; reason: string | null; declared: string[]; governedBy: Array<{ contractId: string; declaration: string; selector: string | null; reach: string | null }>; rowWide: boolean; elementClass: string | null }>
+        owedLines: Array<{ lineId: string; verdict: string; reason: string | null; declared: string[]; governedBy: Array<{ contractId: string; declaration: string; selector: string | null; reach: string | null; scope: string | null; scopeReaches: boolean | null }>; rowWide: boolean; elementClass: string | null; establishing: string[] }>
         /** Each open line's permitted alternatives and the items bounding it as the chain names them (its narrowing items, its bounding items). */
         openLines: Array<{ lineId: string; permitted: unknown[] | null; boundedBy: Array<{ contractId: string; itemId: string; how: 'NARROWING' | 'BOUNDING' }> }>
     } | null
@@ -756,10 +758,12 @@ export interface GradedSentence {
  * conservatively refuse a configuration without establishing that the configuration violates approved knowledge."). OURS, computed from the
  * refusal's own reasons and from the chain's own account behind a refusal met before any game exists (each failing check's own result, each
  * owed line's classification and the chain's reach of each declaration it was decided over, each open line's bounding items): each line or
- * element they cite is read back to the item that establishes its element, or, for an open line whose bounding items the chain names, to those
- * items (the element's item named as not bounding it), and that item's basis and class are printed, with its source and that source's
- * standing; a cited owed line that no requirement declaration among those it was decided over reaches (the chain's own reach of the line's
- * element class, `REQUIREMENT_DECLARATIONS`, `reachesTheElement`) is listed apart as a line nobody established (a gap). The verdict is computed
+ * element they cite is read back to the item that establishes its element, or, for an open line refused for being outside its permitted set (a
+ * reason saying the value is not one of the permitted alternatives) whose bounding items the chain names, to those items (the element's item
+ * named as not bounding it), and that item's basis and class are printed, with its source and that source's standing; a cited owed line
+ * prints the requirement declarations that reach its element (`owedBy`); a cited owed line that no requirement declaration among those it was
+ * decided over reaches (the chain's own reach of the line's element class and the chain's own scope rule, `REQUIREMENT_DECLARATIONS`,
+ * `reachesTheElement`) is listed apart as a line nobody established (a gap). The verdict is computed
  * over the cited items: RESTATEMENT-ONLY where every cited item is ours and unreviewed (a restated contract item, a DRAFT store item, or an
  * ASSUMED item or bound), with no ruling of Christian's among them; MIXED where at least one cited item rests on a ruling of Christian's; NOT
  * KNOWLEDGE where the refusal cites no item (a missing contract, a missing choices file, an engine check or rule, or only lines nobody
@@ -769,12 +773,14 @@ export interface RefusalBasis {
     stage: string
     codes: string[]
     /**
-     * Each line or element cited, read back to the item that establishes its element, or, for an open line whose bounding items the chain
-     * names, to each of those items (`elementNotBounding` then names the element's item, which does not bound the line), with that item's
-     * basis, its grading and class, its source and the source's standing, where the citation was found (a reason, a failing check's own result,
-     * or the chain's own account of the open line), and the chain's own classification of the line where the chain gives one.
+     * Each line or element cited, read back to the item that establishes its element, or, for an open line refused for being outside its
+     * permitted set (a reason saying the value is not one of the permitted alternatives) whose bounding items the chain names, to each of those
+     * items (`elementNotBounding` then names the element's item, which does not bound the line), with that item's basis, its grading and class,
+     * its source and the source's standing, where the citation was found (a reason, a failing check's own result, or the chain's own account of
+     * the open line), the chain's own classification of the line where the chain gives one, and, for an owed line, which requirement
+     * declarations reach its element (`owedBy`; OURS, read from the chain's reach and scope rule).
      */
-    cited: Array<{ ref: string; contractId: string; itemId: string; basis: string; origin: string; premiseKind: PremiseKind; label: string; sixClass: SixClass | null; note: string | null; source: string | null; sourceStanding: string | null; via: string; chainReading: string | null; elementNotBounding: string | null }>
+    cited: Array<{ ref: string; contractId: string; itemId: string; basis: string; origin: string; premiseKind: PremiseKind; label: string; sixClass: SixClass | null; note: string | null; source: string | null; sourceStanding: string | null; via: string; chainReading: string | null; owedBy: string | null; elementNotBounding: string | null }>
     /** Cited owed lines no requirement declaration reaches (see above), each with the chain's reading and its element's item; listed after the verdict. */
     gaps: Array<{ ref: string; why: string; element: string }>
     verdict: 'RESTATEMENT-ONLY' | 'MIXED' | 'NOT KNOWLEDGE'
@@ -1362,17 +1368,58 @@ function mixOf(cited: RefusalBasis['cited']): string {
 
 /**
  * The declaration kinds that state a requirement: the chain's own list of the kinds that stay in force against a more specific statement
- * (classify.ts, `GENERAL_REQUIREMENTS`). Only a declaration of these kinds can say that someone owes a line.
+ * (classify.ts, `GENERAL_REQUIREMENTS`, which classify.ts does not export; the unit test holds this copy to that literal in classify.ts's
+ * source text, test E4). Only a declaration of these kinds can say that someone owes a line.
  */
 export const REQUIREMENT_DECLARATIONS = ['NOT_AUTHORED', 'EXCLUDED', 'CLAIMED']
 
 /**
  * Whether a declaration reaches the line's element class, read from the chain's own reach of it (the wiring passes reach.ts `reaches` for the
- * element class): everything but FALSE, which is how the chain's classification keeps a requirement in force against a class (its selector
- * not FALSE for the class; an unreadable selector keeps reaching; and reach.ts's invariant: undetermined is never rounded to false). A line
- * that names no class is read row-wide by the chain, so every declaration on its row reaches it. The rule that uses this is OURS.
+ * element class) and the chain's own scope rule (the wiring passes `scopeReaches`, its mirror of classify.ts's rule, held to classify.ts's
+ * source text by test E4): its scope reaches the class (an own-involvement declaration reaches only the classes its own object forms) and its
+ * reach is anything but FALSE, which is how the chain's classification keeps a requirement in force against a class (classify.ts
+ * `governingDeclarations`: its scope reaches the class and its selector is not FALSE for it; an unreadable selector keeps reaching; and
+ * reach.ts's invariant: undetermined is never rounded to false). A line that names no class is read row-wide by the chain, so every
+ * declaration on its row reaches it. The rule that uses this is OURS.
  */
-const reachesTheElement = (g: { reach: string | null }): boolean => g.reach !== 'FALSE'
+const reachesTheElement = (g: { reach: string | null; scopeReaches: boolean | null }): boolean => g.scopeReaches !== false && g.reach !== 'FALSE'
+
+/** Why a requirement declaration does not reach the element, in the chain's own terms (its scope rule first, as classify.ts applies it); said after 'whose'. */
+const whyNotReaching = (g: { reach: string | null; scope: string | null; scopeReaches: boolean | null }): string =>
+    g.scopeReaches === false
+        ? `scope (${g.scope ?? 'none'}) does not reach it: an own-involvement declaration reaches only the classes its own object forms (the chain's scope rule)`
+        : 'selector does not reach it (the chain\'s own reach: FALSE)'
+
+/** A declaration as the reading names it. */
+const declarationWords = (g: { contractId: string; declaration: string; selector: string | null }): string => `${g.contractId} ${g.declaration}${g.selector ? ` (${g.selector})` : ''}`
+
+/** The chain's line verdicts, glossed where the reading prints them (the chain's words, kept apart from ours). */
+const LINE_VERDICT_GLOSS: Record<string, string> = { NOT_AUTHORED: 'nothing authored its value' }
+
+/**
+ * Which requirement declarations owe a cited owed line (OURS, read from the chain's reach and scope rule, as the gap rule reads them): each
+ * one that reaches the element, said as a declaration of a contract establishing the element or of another contract; where the chain decided
+ * the line row-wide and no establishing contract states anything explicit that reaches the element (the chain's own test for reading a line
+ * row-wide: a declaration of an establishing contract that is not UNDECLARED, whose scope reaches the class and whose selector reaches it
+ * TRUE), that is said, with the establishing contracts' own declarations on the row. It says nothing about what a correction would change.
+ */
+function owedByWords(owed: NonNullable<ChainAnswer['refusalDetail']>['owedLines'][number]): string | null {
+    const reaching = owed.governedBy.filter((g) => REQUIREMENT_DECLARATIONS.indexOf(g.declaration) >= 0 && reachesTheElement(g))
+    if (!reaching.length) return null
+    const whose = (g: { contractId: string }) => (owed.establishing.indexOf(g.contractId) >= 0 ? 'a declaration of the contract establishing the element' : 'a declaration of another contract')
+    const named = reaching.map((g) => `${declarationWords(g)}, ${whose(g)}`).join('; ')
+    const establishingOnRow = owed.governedBy.filter((g) => owed.establishing.indexOf(g.contractId) >= 0)
+    const explicit = establishingOnRow.filter((g) => g.declaration !== 'UNDECLARED' && g.scopeReaches !== false && g.reach === 'TRUE')
+    const rowWide =
+        owed.rowWide && owed.establishing.length && !explicit.length
+            ? `; applied row-wide, because no contract establishing the element (${owed.establishing.join(', ')}) states anything explicit that reaches it: ${
+                  establishingOnRow.length
+                      ? `its declarations on the row are ${establishingOnRow.map((g) => `${g.declaration}${g.selector ? ` (${g.selector})` : ''} [reach ${g.reach ?? 'no class'}${g.scopeReaches === false ? ', scope does not reach' : ''}]`).join('; ')}${establishingOnRow.some((g) => g.declaration === 'UNDECLARED' && g.reach === 'TRUE') ? ' (UNDECLARED is recorded silence: the element is left undeclared)' : ''}`
+                      : 'it makes no declaration on the row'
+              }`
+            : ''
+    return `the requirement declaration${reaching.length === 1 ? '' : 's'} reaching the element: ${named}${rowWide}`
+}
 
 const classWordsOf = (c: SixClass | null): string => (c === null ? 'no class claimed' : `class ${c}`)
 
@@ -1407,17 +1454,20 @@ function refusalBasisOf(ctx: GradingContext, stage: string, reasons: string[]): 
             const { origin, basis, p } = read(parts.contractId, parts.itemId)
             const elementWords = `item ${parts.itemId} of ${parts.contractId}, basis ${basis}; graded ${p.kind}, ${classWordsOf(p.sixClass)}, '${p.label}'${p.note ? ` (${p.note})` : ''}`
             const owed = detail?.owedLines.find((l) => l.lineId === t) ?? null
+            // The chain's words are kept apart from ours (review of 7 November, round 3): its line verdict (NOT_AUTHORED: nothing authored the
+            // line's value) and its reason (e.g. 'declared gap', which is not our gap) are printed as the chain's.
+            const gloss = owed ? LINE_VERDICT_GLOSS[owed.verdict] : undefined
             const chainReading = owed
-                ? `the chain classes the line ${owed.verdict}, ${owed.reason ?? 'no reason'}, decided over ${owed.governedBy.map((g) => `${g.contractId} ${g.declaration}${g.selector ? ` (${g.selector})` : ''} [the chain's reach of the element: ${g.reach ?? 'no class'}]`).join('; ') || 'no declaration'}${owed.rowWide ? ' (row-wide: every declaration on the row)' : ''}`
+                ? `the chain's line verdict ${owed.verdict}${gloss ? ` (${gloss})` : ''}, its reason '${owed.reason ?? 'none'}', decided over the declarations ${owed.governedBy.map((g) => `${declarationWords(g)} [the chain's reach of the element: ${g.reach ?? 'no class'}${g.scopeReaches === false ? `; its scope, ${g.scope ?? 'none'}, does not reach the element (the chain's scope rule)` : ''}]`).join('; ') || 'none'}${owed.rowWide ? ' (row-wide: every declaration on the row)' : ''}`
                 : null
-            // A cited owed line that no requirement declaration it was decided over reaches (the chain's own reach of its element): nobody
-            // established it, whatever reason the chain's precedence gives it (a declaration that does not reach the element can still name it).
+            // A cited owed line that no requirement declaration it was decided over reaches (the chain's own reach of its element and its scope
+            // rule): nobody established it, whatever reason the chain's precedence gives it (a declaration that does not reach the element can
+            // still name it).
             if (owed && t.indexOf('::') > 0) {
                 const requirements = owed.governedBy.filter((g) => REQUIREMENT_DECLARATIONS.indexOf(g.declaration) >= 0)
                 if (!requirements.some(reachesTheElement)) {
-                    const named = requirements.map((g) => `${g.contractId} ${g.declaration}${g.selector ? ` (${g.selector})` : ''}`).join('; ')
                     const said = requirements.length
-                        ? `the chain classes it ${owed.reason ?? 'unresolved'}${owed.rowWide ? ', row-wide,' : ''} by ${named}, ${requirements.length === 1 ? 'a declaration whose selector does' : 'declarations whose selectors do'} not reach this element (the chain's own reach: FALSE)`
+                        ? `its reason '${owed.reason ?? 'none'}' comes${owed.rowWide ? ' row-wide' : ''} from ${requirements.length === 1 ? 'a requirement declaration that does' : 'requirement declarations that do'} not reach this element: ${requirements.map((g) => `${declarationWords(g)}, whose ${whyNotReaching(g)}`).join('; ')}`
                         : 'no requirement declaration is among those the chain decided it over'
                     gaps.push({ ref: t, why: `${chainReading}; ${said}; no requirement declaration reaches it, so nobody established it: a line nobody established (a gap)`, element: `its element is established by ${elementWords}` })
                     continue
@@ -1432,11 +1482,11 @@ function refusalBasisOf(ctx: GradingContext, stage: string, reasons: string[]): 
                 const openReading = `the chain names the line open, its permitted alternatives ${open.permitted ? open.permitted.map(valueWords).join(', ') : 'not named'}, bounded by ${open.boundedBy.map((b) => `${b.contractId} ${b.itemId} (${b.how === 'NARROWING' ? 'a narrowing item' : 'a bounding item'})`).join('; ')}`
                 for (const b of open.boundedBy) {
                     const bound = read(b.contractId, b.itemId)
-                    cited.push({ ref: t, contractId: b.contractId, itemId: b.itemId, basis: bound.basis, origin: bound.origin, premiseKind: bound.p.kind, label: bound.p.label, sixClass: bound.p.sixClass, note: bound.p.note ?? null, source: bound.p.source ?? null, sourceStanding: bound.p.sourceStanding ?? null, via: `${via}; the bound read from the chain's own account of the open line, its ${b.how === 'NARROWING' ? 'narrowing items' : 'bounding items'}`, chainReading: openReading, elementNotBounding: elementBounds ? null : `its element is established by ${elementWords}, which does not bound the line` })
+                    cited.push({ ref: t, contractId: b.contractId, itemId: b.itemId, basis: bound.basis, origin: bound.origin, premiseKind: bound.p.kind, label: bound.p.label, sixClass: bound.p.sixClass, note: bound.p.note ?? null, source: bound.p.source ?? null, sourceStanding: bound.p.sourceStanding ?? null, via: `${via}; the bound read from the chain's own account of the open line, its ${b.how === 'NARROWING' ? 'narrowing items' : 'bounding items'}`, chainReading: openReading, owedBy: null, elementNotBounding: elementBounds ? null : `its element is established by ${elementWords}, which does not bound the line` })
                 }
                 continue
             }
-            cited.push({ ref: t, contractId: parts.contractId, itemId: parts.itemId, basis, origin, premiseKind: p.kind, label: p.label, sixClass: p.sixClass, note: p.note ?? null, source: p.source ?? null, sourceStanding: p.sourceStanding ?? null, via, chainReading, elementNotBounding: null })
+            cited.push({ ref: t, contractId: parts.contractId, itemId: parts.itemId, basis, origin, premiseKind: p.kind, label: p.label, sixClass: p.sixClass, note: p.note ?? null, source: p.source ?? null, sourceStanding: p.sourceStanding ?? null, via, chainReading, owedBy: owed && t.indexOf('::') > 0 ? owedByWords(owed) : null, elementNotBounding: null })
         }
     const mix = mixOf(cited)
     const gapWords = gaps.length ? `; ${gaps.length} cited line${gaps.length === 1 ? '' : 's'} nobody established (a gap), listed after` : ''
@@ -1775,6 +1825,17 @@ export interface RefusalEntry {
     basis: RefusalBasis
     obstructs: string
     notes?: string[]
+}
+
+/**
+ * One measured run of a Learning Goal, for the report's 'where each Learning Goal stops' block (review of 7 November, round 3): the run's own
+ * result (with its own result standing) and where in the evidence it was run (a case, or a test). Every value the block prints is read from
+ * `result`, except `where`.
+ */
+export interface GoalStopRun {
+    goalId: string
+    where: string
+    result: HandoffResult
 }
 
 /** Every case of the inputs, in file order. */
