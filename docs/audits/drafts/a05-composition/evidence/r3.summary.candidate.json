@@ -1,0 +1,108 @@
+[
+ {
+  "gameProblem": null,
+  "essentialComposed": [],
+  "essentialPlain": null,
+  "composedGaps": 1,
+  "plainGaps": null
+ },
+ {
+  "gameProblem": "GP-002",
+  "essentialComposed": [
+   "FOI=INFERRED",
+   "OP=UNVERIFIED",
+   "CIO=UNVERIFIED"
+  ],
+  "essentialPlain": [
+   "FOI=INFERRED",
+   "OP=UNVERIFIED",
+   "CIO=UNVERIFIED"
+  ],
+  "composedGaps": 11,
+  "plainGaps": 3
+ },
+ {
+  "gameProblem": "GP-001",
+  "essentialComposed": [
+   "OP=UNVERIFIED",
+   "CIO=UNVERIFIED"
+  ],
+  "essentialPlain": [
+   "OP=UNVERIFIED",
+   "CIO=UNVERIFIED"
+  ],
+  "composedGaps": 10,
+  "plainGaps": 2
+ },
+ {
+  "gameProblem": "GP-005",
+  "essentialComposed": [
+   "FOI=INFERRED",
+   "OP=UNVERIFIED",
+   "CIO=UNVERIFIED"
+  ],
+  "essentialPlain": [
+   "FOI=INFERRED",
+   "OP=UNVERIFIED",
+   "CIO=UNVERIFIED"
+  ],
+  "composedGaps": 10,
+  "plainGaps": 2
+ },
+ {
+  "gameProblem": "GP-015",
+  "essentialComposed": [
+   "FOI=INFERRED",
+   "OP=UNVERIFIED",
+   "SA=GAP",
+   "CIO=UNVERIFIED"
+  ],
+  "essentialPlain": [
+   "FOI=INFERRED",
+   "OP=UNVERIFIED",
+   "SA=GAP",
+   "CIO=UNVERIFIED"
+  ],
+  "composedGaps": 11,
+  "plainGaps": 3
+ },
+ {
+  "gameProblem": "GP-003",
+  "essentialComposed": [
+   "OP=UNVERIFIED",
+   "CIO=UNVERIFIED"
+  ],
+  "essentialPlain": [
+   "OP=UNVERIFIED",
+   "CIO=UNVERIFIED"
+  ],
+  "composedGaps": 12,
+  "plainGaps": 3
+ },
+ {
+  "gameProblem": "GP-014",
+  "essentialComposed": [
+   "OP=UNVERIFIED",
+   "CIO=UNVERIFIED"
+  ],
+  "essentialPlain": [
+   "OP=UNVERIFIED",
+   "CIO=UNVERIFIED"
+  ],
+  "composedGaps": 12,
+  "plainGaps": 3
+ },
+ {
+  "gameProblem": "GP-009",
+  "essentialComposed": [
+   "OP=UNVERIFIED",
+   "CIO=UNVERIFIED"
+  ],
+  "essentialPlain": [
+   "OP=UNVERIFIED",
+   "CIO=UNVERIFIED"
+  ],
+  "composedGaps": 12,
+  "plainGaps": 3
+ }
+]

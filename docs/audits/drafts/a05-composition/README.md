@@ -9,6 +9,28 @@
 - **His two-goal objective.** Play Out from the Back reaches a complete activity through realization choices he approved item by item. No goal yet reaches one through composition alone, so a composed Progress the Attack would be the first (section 8).
 - **His decisions:** D1 (Game Problem), D2 (when an attack begins) and D3 (what counts as a score) now; D4, D5, D6 and D10 later (section 7).
 
+## Corrections of 7 November 2026: our restatements are CANDIDATE, not APPROVED
+
+The review evidence labelled every contract item with basis AUTHORED as APPROVED, the same as his rulings. AUTHORED records only that an item's quoted words are the cited source's. The item itself is our restatement of them, and nobody has approved that restatement. His reply, received 7 November 2026, on the correction, item 1: *"Please remove the incorrect APPROVED classifications and use option (a): CANDIDATE for restatements whose executable interpretation has not been explicitly authorized."* Item 3: *"Please make the corresponding corrections to the A05 composition evidence and notes."*
+
+Re-measured with the corrected grading (`evidence/c1-candidate-correction.out.txt`, `evidence/r3.summary.candidate.json`; MEASURED). The first measurements, `r2-all.activity.json`, `r3.out.txt` and `r3.summary.json`, are kept as first committed. Their APPROVED labels on the elements below, and their CIO grades, are superseded.
+
+1. **Four elements of the draft account were APPROVED only through our restatements of GF2. They are now CANDIDATE:**
+   - `performers.teams`: two teams, GF2-14.a, our restatement of "Meaningful external objectives remain live for both sides." (Game Archetype Workbook GAK-0103);
+   - `transitions`, the possession change, and `transitions[…GF2-07.a].selector`, which event counts as that change: GF2-07.a, our restatement of the Game Archetype Workbook's GA-001 Interaction_Organization, "Shared, adaptive, generally simultaneous access with reciprocal influence.";
+   - `transitions[…GF2-07.a].playState`, play continues after the change: GF2-17, our restatement of the DRAFT Soccer Module's "Continuous directional circulation".
+
+   The two target positions also cite a restatement, GF2-04, the DRAFT Soccer Module's "a directional target line or zone at one end". They stay APPROVED beside it, because the realized geometry also places them, and they now show APPROVED+CANDIDATE. The other 27 elements are unchanged, byte for byte. The six condition fields differ only because the TEST-ONLY sentence was not re-injected (the header of the re-measurement says so).
+2. **Competitive Interaction Opportunity: INFERRED becomes UNVERIFIED, under every candidate Game Problem, composed and plain.**
+   - **Rationale (preserved, as he asked).** A link is INFERRED only when every premise is APPROVED (`../../../../back/src/system/rendering/relevance-trace.ts:492-493`). CIO's only INFERRED element link was `performers.teams` by J-CIO-TEAMS. Its one knowledge premise is GF2-14.a, our restatement 'two teams'. Now it reads: "a premise is not approved knowledge: restated:GF2::GF2-14.a (CANDIDATE)".
+   - **No independent approved evidence reaches CIO at element level.** Its other element, the turnover's play state, is graded by J-CIO-TURNOVER, a reading of play capped at UNVERIFIED, and it rests on GF2-17 (also ours). So `inferredBy` is now empty. Each trace gains one gap: "Competitive Interaction Opportunity is Essential and no element reaches it by approved premises and a join rule (only unverified readings: 2)".
+   - **Object-level J-OBJ links to CIO are unchanged.** They read the Game Problem's row of his matrix, not an element of the game.
+   - **His condition is met.** He asked for the change *"if its previous inference depended solely on the incorrectly approved "two teams" restatement and no independent approved evidence supports it."* Both halves hold, as measured.
+3. **Functional Object Interaction is unchanged.** It rests on the ball, `SPORT-SOCCER-01`, basis OWNER_RULING, his ruling that "the game's functional object is a ball".
+4. **Gap counts rise by one per candidate** (composed 10-12, plain 2-3; previously 9-11 and 1-2). Section 4, criterion 5 is corrected where it stood.
+
+Validation is unchanged: whether an item may establish an element or refuse a build is decided elsewhere, and AUTHORED keeps that authority. The same reply, item 2: *"No changes to validation behavior are authorized by this email."*
+
 ## Corrections of 28 October 2026
 
 Four adversarial verifications re-ran every measurement, and all of them reproduce. They showed these statements of the folder as first committed to be inaccurate. Each is corrected where it stood (marked **Corrected**), and the record's `corrections` list carries the record's share.
@@ -130,7 +152,7 @@ The two files touched by WORDING and READING were not edited.
   - the Laws check reports LAW-8 and LAW-11 under the TEST-ONLY classification;
   - overview check PASS, with two NOTE findings (the essentials table is partly approved; the sentence is said under a PROPOSED reading);
   - diagram DRAWN, no findings;
-  - draft account: every element resting on the RPC-003 draft grades DRAFT, none APPROVED;
+  - draft account: every element resting on the RPC-003 draft grades DRAFT, none APPROVED. **Corrected 7 November:** four elements resting only on our restatements of GF2 (the two teams, the possession change, which event counts as it, and play continuing after it) were graded APPROVED; they are CANDIDATE (Corrections of 7 November);
   - the relevance trace opens with "no Game Problem: the build resolved none and none was given".
 - **Not checked:** his context validation protocol for Attack Development, RPC-VAL-011..015 (`LIB:3351-3405`). The engine's only reader of those rows, `rpcLibrary.validationRules` (`rpc-library.ts:438`), has no caller (VERIFIED).
 
@@ -169,12 +191,12 @@ Only one configuration was run in R0-R7. V1-E5 adds three. The probe scripts are
    - G6: no equipment.
 5. **A traceable explanation of relevance.** As built, the trace grades nothing. Its only gap is "no Game Problem" (R2-ALL). Grades exist only with a TEST-ONLY candidate under our DRAFT join rules (R3). **R3 cannot discriminate (corrected), so it is engineering evidence only:**
    - our DRAFT join table has no rule for scoring conditions;
-   - the INFERRED grades for FOI and CIO come only from the ball and the two teams being present;
+   - the INFERRED grade for FOI comes only from the ball being present. **Corrected 7 November:** CIO was graded INFERRED only through our restatement 'two teams' (GF2-14.a); with that restatement CANDIDATE, CIO is UNVERIFIED and reported as a gap (Corrections of 7 November, item 2);
    - Open Pathway is capped at UNVERIFIED;
-   - Play Out from the Back gets the identical best-grade profile (`relevance-trace.unit.ts:194` against `:446`; the unit run passes);
+   - Play Out from the Back gets the identical best-grade profile (`relevance-trace.unit.ts:194` against `:446`; the unit run passes; **corrected 7 November:** still identical, now with CIO UNVERIFIED in both, at `:203` against `:462`);
    - it was traced on the game built from the goal's wording, not on each candidate's own game. GP-003 and GP-014 throw NO_LENS_CANDIDATES at selection (U2 row, section 3).
 
-The per-candidate grades are in `evidence/r3.summary.json` (MEASURED). Under every candidate, composed and plain games get the same best grades, and the composed game has more gaps (9-11 against 1-2). The extra gaps are eight elements: the six fields of the two conditions, the event kind the context narrows and the episode flag it sets on the turnover. Each is "a shaping element that no join rule relates to any affordance of the profile"; for GP-003, GP-014 and GP-009 there is also "the context RPC-003 has no ACTIVE relationship row". Open Pathway is reached only by J-OP-TARGET on GF2's targets, a reading of play whose ceiling is UNVERIFIED. No authored row relates any element to an affordance today (`../../../../back/src/system/rendering/relevance-trace.ts:19`). Attack Development's own targets are deferred (RPC-MAP-103..107, `LIB:4612-4660`: "canonical Affordance Target ids are not to be inferred to reach runtime", `LIB:4621`).
+The per-candidate grades are in `evidence/r3.summary.json` (MEASURED), re-measured with the corrected grading in `evidence/r3.summary.candidate.json`. Under every candidate, composed and plain games get the same best grades, and the composed game has more gaps (9-11 against 1-2; **corrected 7 November:** 10-12 against 2-3, each trace adding the CIO gap). The extra gaps are eight elements: the six fields of the two conditions, the event kind the context narrows and the episode flag it sets on the turnover. Each is "a shaping element that no join rule relates to any affordance of the profile"; for GP-003, GP-014 and GP-009 there is also "the context RPC-003 has no ACTIVE relationship row". Open Pathway is reached only by J-OP-TARGET on GF2's targets, a reading of play whose ceiling is UNVERIFIED. No authored row relates any element to an affordance today (`../../../../back/src/system/rendering/relevance-trace.ts:19`). Attack Development's own targets are deferred (RPC-MAP-103..107, `LIB:4612-4660`: "canonical Affordance Target ids are not to be inferred to reach runtime", `LIB:4621`).
 
 **The relevance verdict rests on R7(1), R6 and these rows of his workbook** (rows VERIFIED; the judgement is OUR READING, made by hand):
 - RPC-ID-011, REQUIRED: "Organized attacking possession is already established." (`LIB:2787`). Also RPC-PROP-034 and RPC-PROP-035, both CORE BEGIN_CONDITION (`LIB:1751`, `1760`), and Library lines 570 and 580. The ORIGIN stand-in departs from all of them.

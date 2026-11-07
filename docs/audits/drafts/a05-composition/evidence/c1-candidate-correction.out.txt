@@ -1,0 +1,106 @@
+A05 composition attempt, re-measured 7 November 2026 for the CANDIDATE correction (his reply received 7 November 2026 on the review-evidence correction, item 3).
+Code: main f534a62 plus the correction (basis AUTHORED graded CANDIDATE, back/src/system/rendering/review-evidence.ts itemSource).
+Set-up: the TEST-ONLY combined store and stand-ins of README section 3 (GP placeholder, PR-1, PR-2, ORIGIN withheld, LAW-11 PROCEDURAL), as draft-composition.unit.ts:59-90 applies them.
+WORDING and READING were NOT re-injected (the original probe is scratch-only and was not kept), so the build stops at communication after the game is assembled.
+The six condition fields therefore also carry 'GAP awaiting approved wording' below; that difference is the missing TEST-ONLY sentence, not the correction.
+Compared against the committed r2-all.activity.json (draftKnowledge.elements) and r3.summary.json.
+
+A05 rebuilt with the corrected grading: outcome=refused stage=communication
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value (V6)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value (V6)
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value is established by the game and no instruction carries it
+draft-account elements: now 39, committed R2-ALL 39
+  CHANGED performers.teams
+    before: standings APPROVED; APPROVED restated:GF2::GF2-14.a (basis AUTHORED)
+    now:    standings CANDIDATE; CANDIDATE restated:GF2::GF2-14.a (basis AUTHORED: our restatement of the source's quoted words, not approved; source: "Meaningful external objectives remain live for both sides." — game-archetype-workbook.rc1.1.json GAK-0103 (GA-001-OIC-01))
+  CHANGED space.regions[c:restated:GF2:GF2-03.e].position.along
+    before: standings APPROVED; APPROVED restated:GF2::GF2-04 (basis AUTHORED); APPROVED realization (realized geometry) (attacking end (of team T) {"from":0,"to":0})
+    now:    standings APPROVED+CANDIDATE; CANDIDATE restated:GF2::GF2-04 (basis AUTHORED: our restatement of the source's quoted words, not approved; source: "a directional target line or zone at one end" — soccer-module.rc1-v3.json GF2.setup_guidance); APPROVED realization (realized geometry) (attacking end (of team T) {"from":0,"to":0})
+  CHANGED space.regions[c:restated:GF2:GF2-03.f].position.along
+    before: standings APPROVED; APPROVED restated:GF2::GF2-04 (basis AUTHORED); APPROVED realization (realized geometry) (attacking end (of team T) {"from":40,"to":40})
+    now:    standings APPROVED+CANDIDATE; CANDIDATE restated:GF2::GF2-04 (basis AUTHORED: our restatement of the source's quoted words, not approved; source: "a directional target line or zone at one end" — soccer-module.rc1-v3.json GF2.setup_guidance); APPROVED realization (realized geometry) (attacking end (of team T) {"from":40,"to":40})
+  CHANGED transitions
+    before: standings APPROVED; APPROVED restated:GF2::GF2-07.a (basis AUTHORED)
+    now:    standings CANDIDATE; CANDIDATE restated:GF2::GF2-07.a (basis AUTHORED: our restatement of the source's quoted words, not approved; source: "Shared, adaptive, generally simultaneous access with reciprocal influence." — game-archetype-workbook.rc1.1.json GA-001 Interaction_Organization)
+  CHANGED transitions[c:restated:GF2:GF2-07.a].playState
+    before: standings APPROVED; APPROVED restated:GF2::GF2-17 (basis AUTHORED)
+    now:    standings CANDIDATE; CANDIDATE restated:GF2::GF2-17 (basis AUTHORED: our restatement of the source's quoted words, not approved; source: "Continuous directional circulation" — soccer-module.rc1-v3.json GF2.interaction_structure)
+  CHANGED transitions[c:restated:GF2:GF2-07.a].selector
+    before: standings APPROVED; APPROVED restated:GF2::GF2-07.a (basis AUTHORED)
+    now:    standings CANDIDATE; CANDIDATE restated:GF2::GF2-07.a (basis AUTHORED: our restatement of the source's quoted words, not approved; source: "Shared, adaptive, generally simultaneous access with reciprocal influence." — game-archetype-workbook.rc1.1.json GA-001 Interaction_Organization)
+  CHANGED value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents
+    before: standings DRAFT; DRAFT restated:RPC-003::RPC-003-11.b (DRAFT knowledge awaiting his review (drafted with basis AUTHORED))
+    now:    standings DRAFT+GAP; DRAFT restated:RPC-003::RPC-003-11.b (DRAFT knowledge awaiting his review (drafted with basis AUTHORED)); GAP awaiting approved wording (row V5: no approved sentence says it yet)
+    UNEXPLAINED: differs beyond the AUTHORED sources' standing and detail
+  CHANGED value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type
+    before: standings DRAFT; DRAFT restated:RPC-003::RPC-003-11.a (DRAFT knowledge awaiting his review (drafted with basis AUTHORED))
+    now:    standings DRAFT+GAP; DRAFT restated:RPC-003::RPC-003-11.a (DRAFT knowledge awaiting his review (drafted with basis AUTHORED)); GAP awaiting approved wording (row V4: no approved sentence says it yet)
+    UNEXPLAINED: differs beyond the AUTHORED sources' standing and detail
+  CHANGED value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value
+    before: standings DRAFT; DRAFT restated:RPC-003::RPC-003-11.c (DRAFT knowledge awaiting his review (drafted with basis AUTHORED))
+    now:    standings DRAFT+GAP; DRAFT restated:RPC-003::RPC-003-11.c (DRAFT knowledge awaiting his review (drafted with basis AUTHORED)); GAP awaiting approved wording (row V6: no approved sentence says it yet)
+    UNEXPLAINED: differs beyond the AUTHORED sources' standing and detail
+  CHANGED value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents
+    before: standings DRAFT; DRAFT restated:RPC-003::RPC-003-12.c (DRAFT knowledge awaiting his review (drafted with basis OWNER_RULING))
+    now:    standings DRAFT+GAP; DRAFT restated:RPC-003::RPC-003-12.c (DRAFT knowledge awaiting his review (drafted with basis OWNER_RULING)); GAP awaiting approved wording (row V5: no approved sentence says it yet)
+    UNEXPLAINED: differs beyond the AUTHORED sources' standing and detail
+  CHANGED value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type
+    before: standings DRAFT; DRAFT restated:RPC-003::RPC-003-12.a (DRAFT knowledge awaiting his review (drafted with basis AUTHORED))
+    now:    standings DRAFT+GAP; DRAFT restated:RPC-003::RPC-003-12.a (DRAFT knowledge awaiting his review (drafted with basis AUTHORED)); GAP awaiting approved wording (row V4: no approved sentence says it yet)
+    UNEXPLAINED: differs beyond the AUTHORED sources' standing and detail
+  CHANGED value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value
+    before: standings DRAFT; DRAFT restated:RPC-003::RPC-003-12.b (DRAFT knowledge awaiting his review (drafted with basis AUTHORED))
+    now:    standings DRAFT+GAP; DRAFT restated:RPC-003::RPC-003-12.b (DRAFT knowledge awaiting his review (drafted with basis AUTHORED)); GAP awaiting approved wording (row V6: no approved sentence says it yet)
+    UNEXPLAINED: differs beyond the AUTHORED sources' standing and detail
+  unchanged elements: 27
+  committed elements APPROVED only through AUTHORED items: performers.teams, transitions, transitions[c:restated:GF2:GF2-07.a].playState, transitions[c:restated:GF2:GF2-07.a].selector
+    performers.teams: now CANDIDATE
+    transitions: now CANDIDATE
+    transitions[c:restated:GF2:GF2-07.a].playState: now CANDIDATE
+    transitions[c:restated:GF2:GF2-07.a].selector: now CANDIDATE
+R3 (none): composed - gaps 1 | plain - gaps null
+   committed:   composed - gaps 1 | plain - gaps null
+R3 GP-002: composed FOI=INFERRED, OP=UNVERIFIED, CIO=UNVERIFIED gaps 11 | plain FOI=INFERRED, OP=UNVERIFIED, CIO=UNVERIFIED gaps 3
+   committed:   composed FOI=INFERRED, OP=UNVERIFIED, CIO=INFERRED gaps 10 | plain FOI=INFERRED, OP=UNVERIFIED, CIO=INFERRED gaps 2
+   CIO composed: best UNVERIFIED; inferredBy []; unverifiedBy ["performers.teams","transitions[c:restated:GF2:GF2-07.a].playState"]
+   CIO gap: Competitive Interaction Opportunity is Essential and no element reaches it by approved premises and a join rule (only unverified readings: 2)
+   performers.teams: UNVERIFIED by J-CIO-TEAMS; a premise is not approved knowledge: restated:GF2::GF2-14.a (CANDIDATE)
+R3 GP-001: composed OP=UNVERIFIED, CIO=UNVERIFIED gaps 10 | plain OP=UNVERIFIED, CIO=UNVERIFIED gaps 2
+   committed:   composed OP=UNVERIFIED, CIO=INFERRED gaps 9 | plain OP=UNVERIFIED, CIO=INFERRED gaps 1
+   CIO composed: best UNVERIFIED; inferredBy []; unverifiedBy ["performers.teams","transitions[c:restated:GF2:GF2-07.a].playState"]
+   CIO gap: Competitive Interaction Opportunity is Essential and no element reaches it by approved premises and a join rule (only unverified readings: 2)
+   performers.teams: UNVERIFIED by J-CIO-TEAMS; a premise is not approved knowledge: restated:GF2::GF2-14.a (CANDIDATE)
+R3 GP-005: composed FOI=INFERRED, OP=UNVERIFIED, CIO=UNVERIFIED gaps 10 | plain FOI=INFERRED, OP=UNVERIFIED, CIO=UNVERIFIED gaps 2
+   committed:   composed FOI=INFERRED, OP=UNVERIFIED, CIO=INFERRED gaps 9 | plain FOI=INFERRED, OP=UNVERIFIED, CIO=INFERRED gaps 1
+   CIO composed: best UNVERIFIED; inferredBy []; unverifiedBy ["performers.teams","transitions[c:restated:GF2:GF2-07.a].playState"]
+   CIO gap: Competitive Interaction Opportunity is Essential and no element reaches it by approved premises and a join rule (only unverified readings: 2)
+   performers.teams: UNVERIFIED by J-CIO-TEAMS; a premise is not approved knowledge: restated:GF2::GF2-14.a (CANDIDATE)
+R3 GP-015: composed FOI=INFERRED, OP=UNVERIFIED, SA=GAP, CIO=UNVERIFIED gaps 11 | plain FOI=INFERRED, OP=UNVERIFIED, SA=GAP, CIO=UNVERIFIED gaps 3
+   committed:   composed FOI=INFERRED, OP=UNVERIFIED, SA=GAP, CIO=INFERRED gaps 10 | plain FOI=INFERRED, OP=UNVERIFIED, SA=GAP, CIO=INFERRED gaps 2
+   CIO composed: best UNVERIFIED; inferredBy []; unverifiedBy ["performers.teams","transitions[c:restated:GF2:GF2-07.a].playState"]
+   CIO gap: Competitive Interaction Opportunity is Essential and no element reaches it by approved premises and a join rule (only unverified readings: 2)
+   performers.teams: UNVERIFIED by J-CIO-TEAMS; a premise is not approved knowledge: restated:GF2::GF2-14.a (CANDIDATE)
+R3 GP-003: composed OP=UNVERIFIED, CIO=UNVERIFIED gaps 12 | plain OP=UNVERIFIED, CIO=UNVERIFIED gaps 3
+   committed:   composed OP=UNVERIFIED, CIO=INFERRED gaps 11 | plain OP=UNVERIFIED, CIO=INFERRED gaps 2
+   CIO composed: best UNVERIFIED; inferredBy []; unverifiedBy ["performers.teams","transitions[c:restated:GF2:GF2-07.a].playState"]
+   CIO gap: Competitive Interaction Opportunity is Essential and no element reaches it by approved premises and a join rule (only unverified readings: 2)
+   performers.teams: UNVERIFIED by J-CIO-TEAMS; a premise is not approved knowledge: restated:GF2::GF2-14.a (CANDIDATE)
+R3 GP-014: composed OP=UNVERIFIED, CIO=UNVERIFIED gaps 12 | plain OP=UNVERIFIED, CIO=UNVERIFIED gaps 3
+   committed:   composed OP=UNVERIFIED, CIO=INFERRED gaps 11 | plain OP=UNVERIFIED, CIO=INFERRED gaps 2
+   CIO composed: best UNVERIFIED; inferredBy []; unverifiedBy ["performers.teams","transitions[c:restated:GF2:GF2-07.a].playState"]
+   CIO gap: Competitive Interaction Opportunity is Essential and no element reaches it by approved premises and a join rule (only unverified readings: 2)
+   performers.teams: UNVERIFIED by J-CIO-TEAMS; a premise is not approved knowledge: restated:GF2::GF2-14.a (CANDIDATE)
+R3 GP-009: composed OP=UNVERIFIED, CIO=UNVERIFIED gaps 12 | plain OP=UNVERIFIED, CIO=UNVERIFIED gaps 3
+   committed:   composed OP=UNVERIFIED, CIO=INFERRED gaps 11 | plain OP=UNVERIFIED, CIO=INFERRED gaps 2
+   CIO composed: best UNVERIFIED; inferredBy []; unverifiedBy ["performers.teams","transitions[c:restated:GF2:GF2-07.a].playState"]
+   CIO gap: Competitive Interaction Opportunity is Essential and no element reaches it by approved premises and a join rule (only unverified readings: 2)
+   performers.teams: UNVERIFIED by J-CIO-TEAMS; a premise is not approved knowledge: restated:GF2::GF2-14.a (CANDIDATE)
