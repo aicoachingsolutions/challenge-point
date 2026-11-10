@@ -435,6 +435,8 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'LAW-8', means: 'Law 8 (The Start and Restart of Play)' },
     { id: 'D3', means: 'Christian\'s decision D3 (received 4 November 2026): Game Form relationships are compatibility information unless approved knowledge establishes a preference' },
     { id: 'M6', means: 'one of the eight A01 safeguards Christian approved: no further value required, explicitly unrestricted, and a necessary value missing stay three distinct states' },
+    { id: 'K2', means: 'Christian\'s K2, retaining a basic Game Form, approved for review-only use (received 7 November 2026, first reply); under it the review pathway proposes no manipulation where none has an authorized basis (appendix D, 5. Manipulations); quoted in item 5' },
+    { id: 'E5', means: 'Christian\'s E5, design authorization (received 3 November 2026); quoted in item 5' },
     { id: 'RC1.1', means: 'the version of the Representative Performance Context Library the program holds (its rows\' last verified version)' },
     { id: SELECTOR_FILE, family: true, means: 'the constraint selector\'s source file, with line numbers; any other name ending .ts is an engine source file, with line numbers, and a short hexadecimal string after one (its origin) is a commit, found by git blame, that introduced the rule or the part of it named beside it' },
     { id: 'TEST-ONLY', means: 'code, data or a treatment no route, controller or service reaches' },
@@ -442,6 +444,7 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'APPROVED_TRANSLATION', means: 'Step 1\'s basis: the goal\'s approved translation row in the planning model' },
     { id: 'SELECTION_TRACE_RANKING', means: 'where the chain\'s record of the forms its scorer ranked is read (its selection trace)' },
     { id: 'AUTHORIZATION_RECORD', means: 'the constraints\' authority: the authorization record\'s set (here a DRAFT record of ours, no ruling field filled)' },
+    { id: 'VOCABULARY_POOL', means: 'the constraints\' authority the engine records where no authorization record governs: the goal\'s own candidate constraints (from its Game Problem\'s Coverage row, or the wording), which no record authorizes; nothing is drawn from outside them' },
     { id: 'ENGINE_LENS', means: 'an affordance lens the engine scores from the goal\'s wording: an engine input, not knowledge' },
     { id: 'NO_COMPATIBLE_COMBINATION', means: 'the selector\'s refusal: no combination of lenses and constraints passed its checks' },
     { id: 'FOUNDATION_CLAUSE', means: 'the selection check that a package holds a foundation constraint (with its keyword threshold)' },
@@ -464,7 +467,7 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'NO_FURTHER_VALUE', means: 'a declaration that a value needs no further referent: here only a TEST-ONLY treatment, not ruled' },
     { id: 'OUTSIDE_BOUNDARY', means: 'an item recorded outside what the engine can check: it establishes nothing' },
     { id: 'TEST ASSUMPTION', means: 'Christian\'s class 4: a stated test assumption, never knowledge' },
-    { id: 'UNAUTHORIZED_SOURCE', means: 'a verdict: constraints built from a source the authorization record does not authorize (a vocabulary pool, or a constraint outside the record\'s set)' },
+    { id: 'UNAUTHORIZED_SOURCE', means: 'a verdict: constraints built from a source the authorization record does not authorize (the goal\'s own candidate constraints where no record authorizes them, VOCABULARY_POOL, or a constraint outside the record\'s set)' },
     { id: 'violation verdict', means: `a verdict that fails the assertion every experiment run must pass: ${VIOLATION_VERDICTS.map((v) => (v === 'MISSING' ? 'MISSING (a reached decision without its record)' : v)).join(', ')}, or ENGINE_RULE_DECIDED where no kept check is attributed; each one on the experiment path is listed as an open disconnection` },
     { id: 'detected disconnection', means: `a verdict printed as an open finding, never a pass and never a violation: ${DETECTED_VERDICTS.join(', ')}, or ENGINE_RULE_DECIDED attributed to a kept check` },
     // The chain's stages a run of this report stops at, in chain order (R4-11): a run is refused at the first stage whose check fails.
@@ -557,6 +560,13 @@ const valuePathRefusals = (clause: string) => {
         .filter((x) => x.reasons.length > 0)
 }
 
+/**
+ * Batch A4 (the lead's decision, from the delivery review): a gap found in review that the safeguards cannot detect, said in items 1 and 3
+ * and in the README's known limitations. It is not an open disconnection: an entry there lists the safeguards' measured verdicts, and the
+ * ownership table gives the constraints to the authorization record, so no verdict of theirs reads the review pathway's K2 result.
+ */
+const K2_NOT_TAKEN = 'Open, found in review, not detected by the safeguards: the checked pathway does not take the review pathway\'s proposal of no manipulation under K2 (item 5); the safeguards cannot see it because their ownership table gives the constraints to the authorization record (not an open disconnection: it has no measured verdict).'
+
 function bodyLines(): string[] {
     const out: string[] = []
     const add = (...l: string[]) => out.push(...l)
@@ -616,6 +626,7 @@ function bodyLines(): string[] {
     add('Open (detected and listed as open disconnections, never passes):')
     for (const id of ['OD-HINT-GAME-PROBLEM', 'OD-CONTEXT', 'OD-A02-LEGACY-FORM']) add(`- ${id}: ${plain(entry(id).what)}`)
     add('- the engine lenses still follow the wording, and on one two-manipulation set the wording decides the selection (item 3).')
+    add(K2_NOT_TAKEN)
     add('Proposals (OURS, for Christian\'s decision): whether the Game Problem reading that governs the engine\'s lens hints should also be taken from Step 1; it lives in the guided selection module, which this experiment leaves untouched by design.')
     add('Assumptions (OURS): the consumption is itself a TEST-ONLY treatment (TT-CONSUMED-STEPS); GF2\'s Game Problem cell keeps its grade, CANDIDATE.')
     add('Ecological suitability: not established; consuming GF2 shows structural compatibility only.')
@@ -696,6 +707,7 @@ function bodyLines(): string[] {
     add(`   the legacy route (${leg.rs.length} runs, the production route and its variants, reported only): ${leg.v.length} violation verdicts and ${leg.d.length} detected disconnections.`)
     add(`Open disconnections (${S.OPEN_DISCONNECTIONS.length}; each with its evidence and runs in appendix B):`)
     for (const e of S.OPEN_DISCONNECTIONS) add(`- ${e.id} [${e.scope === 'EXPERIMENT' ? 'experiment path' : 'legacy route, reported only'}]: ${plain(e.what)}`)
+    add(K2_NOT_TAKEN)
     add(`Proposals (OURS, for Christian's decision): whether the kept package checks that read the wording-derived lenses fall under ${cite('A02-10NOV-QUOTA', 1)}, or are a selection from wording the consumption is meant to remove; they are kept, enforced and reported here.`)
     add('Assumptions (OURS): the verdicts, the ownership table and the attribution of each refusal to a check.')
     add('Ecological suitability: not addressed by the safeguards.')
@@ -733,18 +745,18 @@ function bodyLines(): string[] {
     add(`Christian asked: ${cite('A02-10NOV-REPORT', 4)}`)
     const first = seq.sequence[0]
     add(
-        `Answer (OURS): in chain order, the first stop is that A02 has no authorization record (${cats(first.categories)}): the experiment passes it only with our TEST-ONLY DRAFT record (an empty set; the finding ours; no ruling). What would resolve it is small: Christian's evaluation of whether A02 needs any manipulation (an evaluated empty set is admitted under Christian's general principle of 15 October 2026). Past it, the earliest consequential blocker is the origin clause of High Press Escape's approved scoring condition (the sequence begins under established coordinated pressure): ${cats(seq.earliest.categories)}. A02-0's single refusal cites the origin clause's value and the control clause's referent together; placing the origin clause first is ours (an assumption, below).`,
+        `Answer (OURS): in reasoning order, the first blocker is that the checked pathway takes manipulations only from a per-goal authorization record, which A02 lacks, and does not take the review pathway's K2 result (${cats(first.categories)}; the category ours): for every A02 run the review pathway proposes no manipulation (appendix D, 5. Manipulations) under K2, ${cite('HO-07NOV-K2', 1)}; Christian's E5 also bears on this stop, ${cite('A02-03NOV-DESIGN-AUTHORIZATION', 0)}; neither standing ruling is read here as deciding it (the request below). The experiment passes this stop only with our TEST-ONLY DRAFT record standing in for the review pathway's result (an empty set; the finding ours; no ruling). Past it, the earliest consequential blocker is the origin clause of High Press Escape's approved scoring condition (the sequence begins under established coordinated pressure): ${cats(seq.earliest.categories)}. A02-0's single refusal cites the origin clause's value and the control clause's referent together; placing the origin clause first is ours (an assumption, below).`,
     )
     add('Implemented and tested (computed from the runs, in chain order):')
     for (const s of seq.sequence) add(`- ${plain(s.path)}: ${s.stage}: ${plain(s.reason)} [${cats(s.categories)}] ${s.passed ? `(passed by ${s.passedBy})` : '(remains)'}`)
     add(`- The first stop: ${plain(first.why)}.`)
-    add(`- Every experiment path past the first stop, and the zero-manipulation base of every A02 run, stands on our TEST-ONLY DRAFT A02 record (an empty set, or on item 4's runs a TEST-ONLY copy holding the stand-in manipulations; the finding ours, no ruling), in place of Christian's evaluation of A02's manipulations, which no record holds.`)
+    add(`- Every experiment path past the first stop, and the zero-manipulation base of every A02 run, stands on our TEST-ONLY DRAFT A02 record (an empty set, or on item 4's runs a TEST-ONLY copy holding the stand-in manipulations; the finding ours, no ruling) in place of a per-goal authorization record, which A02 lacks; its empty set stands in for the review pathway's K2 result, which the checked pathway does not take.`)
     add(`- Earliest remaining: ${plain(seq.earliest.path)}: ${plain(seq.earliest.why)}.`)
     add('- Downstream, recorded and not investigated:')
     for (const s of seq.downstream) add(`   ${plain(s.path)}: ${s.stage} [${cats(s.categories)}]`)
     add(`The categories are Christian's: ${cite('A02-10NOV-FAILURE-SOURCES', 0)} ${S.CATEGORIES.slice(1).map((w) => quoted(w)).join(' ')}`)
-    add('Proposals: none; the smallest source material for the first stop is Christian\'s evaluation of A02\'s manipulations (an authorization record), and for the blocker past it question 1 of item 2; each a request, not a proposal of knowledge.')
-    add('Assumptions (OURS): the assignment of each stop to Christian\'s categories; the order of the questions; placing the origin clause before the control clause\'s referent, which A02-0\'s single refusal cites together.')
+    add('Proposals: none. The requests: for the first blocker, Christian\'s decision whether, in the isolated experiment, the checked pathway may take the review pathway\'s K2 result (no manipulation proposed) in place of a per-goal authorization record; whether A02 needs any manipulation to represent High Press Escape stays open (item 2, questions 1 and 5). For the blocker past it, question 1 of item 2. Each is a request, not a proposal of knowledge.')
+    add('Assumptions (OURS): the assignment of each stop to Christian\'s categories (the first blocker\'s included); the order of the questions; placing the origin clause before the control clause\'s referent, which A02-0\'s single refusal cites together.')
     add('Ecological suitability: not addressed: the blocker is a gap of knowledge and of a carrier, met before any activity is built.')
     add('')
 
@@ -1112,8 +1124,10 @@ test('the evidence equals what this file generates, generated twice and identica
     for (const e of S.OPEN_DISCONNECTIONS) assert.ok(readme.includes(`| ${e.id} |`), `the README lists ${e.id}`)
     for (const h of SELECTOR_HUNKS) assert.ok(readme.includes(`${SELECTOR_FILE}:${h.lines}`), `the README discloses ${SELECTOR_FILE}:${h.lines}`)
     // The README's counts are held to the runs (batch A2): the safeguard runs, the restatement's items, and the date of the reply about A02.
-    // Batch A3: the lone runs the switch's removal would refuse (NF-02); the first stop and the DRAFT record standing in for Christian's
-    // evaluation (RC3-N2); the TA02 stop's parallel as the report words it (NF-05).
+    // Batch A3: the lone runs the switch's removal would refuse (NF-02); the first stop and the DRAFT record standing in (RC3-N2); the TA02
+    // stop's parallel as the report words it (NF-05). Batch A4, re-pinned openly: the DRAFT record stands in for the review pathway's K2
+    // result, in place of a per-goal authorization record (was: in place of Christian's evaluation of A02's manipulations); the K2 gap is
+    // said in the known limitations and is not an open disconnection.
     const firstStop = blockerSequence(S.stopsOf()).sequence[0]
     assert.equal(firstStop.id, 'L1', 'the first stop is the legacy route\'s (A02 has no authorization record)')
     for (const phrase of [
@@ -1124,11 +1138,14 @@ test('the evidence equals what this file generates, generated twice and identica
         `'reply about A02, pasted 10 November 2026'`,
         `the lone Neutral Player runs of item 4 (${LONE_RUNS.join(', ')})`,
         'A02 has no authorization record, and that is the first stop',
-        'in place of Christian\'s evaluation of A02\'s manipulations',
+        'stands in for the review pathway\'s K2 result, in place of a per-goal authorization record',
+        'is not among the open disconnections',
         'never by the consumption (report item 5)',
         'not a like-for-like parallel',
     ])
         assert.ok(readme.includes(phrase), `the README says ${phrase}`)
+    // Batch A4: no text says the first stop is closed by an evaluation of A02's manipulations any longer.
+    for (const [name, text] of [['README.md', readme], ['a02-report.txt', FIRST.report], ['a02-results.json', FIRST.json]]) assert.equal(text.indexOf('evaluation of A02\'s manipulations'), -1, `${name} no longer names an evaluation of A02's manipulations`)
     assert.equal(readme.split('received 10 November').length - 1, 0, 'the README gives the reply about A02 no received date')
     assert.ok(holdsGenderedPronoun(`as quoted in ${[...'sih'].reverse().join('')} reply`) && !holdsGenderedPronoun('whether the heron'), 'bite: the scan sees one, and not inside a word')
 })

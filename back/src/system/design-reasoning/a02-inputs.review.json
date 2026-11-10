@@ -2,7 +2,7 @@
   "standing": "TEST-ONLY review data for the isolated A02 foundational test Christian authorized in the reply about A02, pasted 10 November 2026 without its mail header, so its received date is not recorded (stage 9; its slice S2). Per case it holds what the handoff RECEIVES beside Steps 1 and 2, in the shape of the handoff's own review data (handoff-inputs.review.json), held to the same validator: the Learning Goal, that the form is Step 2's, the session (illustrative), Christian's words that bear on the case (verbatim, with file and date: the received date, or, for the reply about A02, marked PASTED_WITHOUT_HEADER, the date it was pasted and filed) and how each enters the checked chain, and the TEST-ONLY treatments, each labelled. Steps 1 and 2 are run by the handoff and consumed by the chain, never copied from here. The context's CANDIDATE restatement and the DRAFT A02 record live only in the TEST-ONLY draft store docs/audits/drafts/a02-composition. Nothing on the live route or the checked pathway reads this file; only the A02 unit tests do (a02.unit.ts, a02-safeguards.unit.ts and a02-evidence.unit.ts, which also builds the two TA02 runs of the reuse comparison from these cases and rulings).",
   "borrowed": {
     "file": "handoff-inputs.review.json",
-    "rulings": ["HO-07NOV-ILLUSTRATIVE", "HO-07NOV-PURPOSE", "HO-23OCT-LAWS", "HO-07NOV-OFFSIDE-SCOPE", "HO-07NOV-SCORING-ROW"],
+    "rulings": ["HO-07NOV-ILLUSTRATIVE", "HO-07NOV-PURPOSE", "HO-23OCT-LAWS", "HO-07NOV-OFFSIDE-SCOPE", "HO-07NOV-SCORING-ROW", "HO-07NOV-K2"],
     "grading": "the handoff's grading tables, unchanged (held to their sources by handoff.unit.ts test P7), so a line of these runs is graded exactly as a line of the handoff's cases"
   },
   "rulings": [
@@ -113,6 +113,17 @@
       "replyOfDay": "second reply",
       "provisional": false,
       "scope": null
+    },
+    {
+      "id": "A02-03NOV-DESIGN-AUTHORIZATION",
+      "words": [
+        "I agree that a design package should not require a separately authored authorization record for every Learning Goal.",
+        "For the new reasoning stage, an approved Game Problem and context, supported by governed relationships and passing the required validation, should be sufficient to authorize a design package for review."
+      ],
+      "file": "sources/2026-11-03-stage1-authorization/originals/christian-reply-to-development-proposal.txt",
+      "received": "2026-11-03",
+      "provisional": false,
+      "scope": "NEW_REASONING_STAGE"
     },
     {
       "id": "A02-10NOV-QUOTA",

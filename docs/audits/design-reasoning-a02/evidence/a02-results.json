@@ -1093,7 +1093,7 @@
   },
   {
    "id": "OD-LEGACY-VOCABULARY",
-   "what": "constraints built from a vocabulary pool where no record authorizes any",
+   "what": "constraints built from the goal's own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal's candidates)",
    "scope": "LEGACY",
    "rows": [
     "CONSTRAINTS"
@@ -1106,7 +1106,7 @@
     "D02",
     "TA02"
    ],
-   "evidence": "TA01 builds 4, D02 3 and TA02 4 constraints from VOCABULARY_POOL (types.ts:136-140: derived from wording or from a Coverage row)"
+   "evidence": "TA01 builds 4, D02 3 and TA02 4 constraints, each goal from its own candidate constraints, labelled VOCABULARY_POOL (types.ts:136-140: derived from wording or from a Coverage row; generateSelection.ts:155-176: a goal's pool is its own candidate ids, minus holds)"
   },
   {
    "id": "OD-LEGACY-GAME-PROBLEM",
@@ -1283,7 +1283,7 @@
  "disposition": [
   {
    "id": "RECORD_POOL",
-   "check": "the pool: the record's authorized set replaces the vocabulary pool, minus holds",
+   "check": "the pool: the record's authorized set replaces the goal's own candidate constraints (which no record authorizes; the engine labels their authority VOCABULARY_POOL), minus holds",
    "where": "generateSelection.ts:135-190; guided-selection.ts (the record route)",
    "origin": "dc98ecb, 14 October 2026 (authorized constraints only); 1f18a02, 15 October 2026 (the record route)",
    "disposition": "KEPT_ENFORCED",
@@ -1493,9 +1493,9 @@
     "reason": "A02: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF3; unfilled roles: shaping; held by ruling: none. Nothing was drawn from outside the goal's candidates.",
     "kind": "PATH",
     "categories": [
-     1
+     4
     ],
-    "why": "A02 has no authorization record evaluating its manipulations, so its candidates are the vocabulary pool, which cannot be combined on any of RPC-002's declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); passed only by our TEST-ONLY DRAFT record (an empty set, or on item 4's runs a TEST-ONLY copy holding the stand-in manipulations; the finding OURS, no ruling), never by the consumption",
+    "why": "the checked pathway takes its manipulations only from a per-goal authorization record, and A02 has none, so its candidates are A02's own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal's candidates), and they cannot be combined on any of RPC-002's declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the review pathway proposes no manipulation for A02 under K2 (approved for review-only use), and the checked pathway does not take that result; passed only by our TEST-ONLY DRAFT record standing in for that result (an empty set; on item 4's runs a TEST-ONLY copy of it holds the stand-in manipulations instead; the finding OURS, no ruling), never by the consumption; the category is OURS (an assumption)",
     "passed": true,
     "passedBy": "L2"
    },

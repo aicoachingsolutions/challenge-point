@@ -606,12 +606,12 @@ export const OPEN_DISCONNECTIONS: OpenDisconnection[] = [
     },
     {
         id: 'OD-LEGACY-VOCABULARY',
-        what: 'constraints built from a vocabulary pool where no record authorizes any',
+        what: 'constraints built from the goal\'s own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal\'s candidates)',
         scope: 'LEGACY',
         rows: ['CONSTRAINTS'],
         verdicts: ['UNAUTHORIZED_SOURCE'],
         runs: ['TA01', 'D02', 'TA02'],
-        evidence: 'TA01 builds 4, D02 3 and TA02 4 constraints from VOCABULARY_POOL (types.ts:136-140: derived from wording or from a Coverage row)',
+        evidence: 'TA01 builds 4, D02 3 and TA02 4 constraints, each goal from its own candidate constraints, labelled VOCABULARY_POOL (types.ts:136-140: derived from wording or from a Coverage row; generateSelection.ts:155-176: a goal\'s pool is its own candidate ids, minus holds)',
     },
     {
         id: 'OD-LEGACY-GAME-PROBLEM',
@@ -1217,8 +1217,9 @@ export function stopsOf(): Stop[] {
             stage: String(at('L1').result.chain?.stage),
             reason: reason('L1'),
             kind: 'PATH',
-            categories: [1],
-            why: 'A02 has no authorization record evaluating its manipulations, so its candidates are the vocabulary pool, which cannot be combined on any of RPC-002\'s declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); passed only by our TEST-ONLY DRAFT record (an empty set, or on item 4\'s runs a TEST-ONLY copy holding the stand-in manipulations; the finding OURS, no ruling), never by the consumption',
+            // Batch A4 (the lead's decision, from the delivery review): read as decision authority [4], no longer Missing knowledge [1].
+            categories: [4],
+            why: 'the checked pathway takes its manipulations only from a per-goal authorization record, and A02 has none, so its candidates are A02\'s own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal\'s candidates), and they cannot be combined on any of RPC-002\'s declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the review pathway proposes no manipulation for A02 under K2 (approved for review-only use), and the checked pathway does not take that result; passed only by our TEST-ONLY DRAFT record standing in for that result (an empty set; on item 4\'s runs a TEST-ONLY copy of it holds the stand-in manipulations instead; the finding OURS, no ruling), never by the consumption; the category is OURS (an assumption)',
         },
         {
             id: 'L2',
@@ -1251,8 +1252,12 @@ test('S6. the earliest consequential blocker, computed from the runs: the stops 
     assert.deepEqual(seq.earliest.categories.map((i) => CATEGORIES[i]), ['Missing knowledge.', 'A configuration or rendering implementation limitation.'])
     assert.ok(seq.earliest.reason.includes('c:restated:RPC-002:RPC-002-02.a::V6'), 'the origin clause\'s line is among the lines it stops on')
     assert.deepEqual(seq.downstream.map((s) => [s.id, s.stage]), [['A02-1', 'structure'], ['A02-1b', 'validation'], ['A02-2', 'communication']])
-    // L1's stop is a missing record, not the form: on the production records A02's selection is refused the same way on each of RPC-002's
-    // declared forms (the vocabulary pool cannot be combined), so consuming Step 2's form does not pass it; our TEST-ONLY DRAFT record does (L2).
+    // Batch A4, re-pinned openly (was [1] Missing knowledge): L1 is read as decision authority, our assignment: the checked pathway takes its
+    // manipulations only from a per-goal authorization record and does not take the review pathway's proposal of no manipulation under K2.
+    assert.deepEqual(seq.sequence[0].categories.map((i) => CATEGORIES[i]), ['Incorrect reasoning chronology or decision authority.'])
+    // L1's stop is the missing record, not the form: on the production records A02's selection is refused the same way on each of RPC-002's
+    // declared forms (A02's own candidate constraints, which no record authorizes, cannot be combined), so consuming Step 2's form does not
+    // pass it; our TEST-ONLY DRAFT record does (L2).
     const text = guidedGoalText('A02')
     const guided = guidedSelectionHints('A02', text)
     assert.deepEqual([guided.authorization ?? null, guided.hints.candidateArchetypeIds], [null, ['GF2', 'GF3', 'GF7']])
@@ -1263,6 +1268,11 @@ test('S6. the earliest consequential blocker, computed from the runs: the stops 
             form,
         )
     assert.equal(at('L1').result.chain?.reasons[0].includes('NO_COMPATIBLE_COMBINATION'), true)
+    // What the L1 why says of the candidates, measured: the engine labels their authority VOCABULARY_POOL, and its refusal says nothing was
+    // drawn from outside the goal's own candidates (generateSelection.ts:155-176: a goal's pool is its own candidate ids, minus holds).
+    assert.deepEqual([at('L1').run.chain?.constraintAuthority, at('L1').result.chain?.reasons[0].includes('Nothing was drawn from outside the goal\'s candidates.')], ['VOCABULARY_POOL', true])
+    const poolLine = fs.readFileSync(path.resolve(HERE, '..', 'test-library', 'generateSelection.ts'), 'utf8').split('\n')[164 - 1]
+    assert.ok(poolLine.includes('const constraints = full.filter((c) => ids.includes(c.id) && !heldKeys.has(knowledgeKey(c.id)))'), 'generateSelection.ts:164 holds the goal pool filter')
     // L2's stop is the chain's own form (test 2); NO-RESTATEMENT, consumed, passes it: the knowledge stage checks the form's contract before
     // the context's (each within line held to the source), and NO-RESTATEMENT stops at the context's.
     assert.deepEqual([verdictOf('L1', 'GAME_FORM'), verdictOf('L2', 'GAME_FORM'), at('L2').result.chain?.reasons], ['REFUSED_ON_OWN_CHOICE', 'CONTRADICTED', ['the game form GF3 has no contribution contract']])
