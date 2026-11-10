@@ -9,8 +9,9 @@
  *     names a row the register lacks, a selector attribute or a field the register does not hold there, when it is not marked DRAFT and ours,
  *     or when its anchor defines another affordance; its rules (ids, ceilings, anchors) are pinned as written, and the trace's summary of them;
  *   - the plain Directional Possession game against GP-015: GF2's authored mapping and the matrix's ratings AUTHORIZED; the object-level
- *     inference labelled as such, and never for Support Availability; FOI and CIO reached at INFERRED by approved premises, each coverage row
- *     with what its links do not show; Open Pathway only by an unverified reading, so a gap; Support Availability never graded, a gap, with its
+ *     inference labelled as such, and never for Support Availability; FOI reached at INFERRED by approved premises, each coverage row with
+ *     what its links do not show; CIO only UNVERIFIED, so a gap (7 November 2026: its one knowledge premise, GF2-14.a 'two teams', is our
+ *     restatement, CANDIDATE); Open Pathway only by an unverified reading, so a gap; Support Availability never graded, a gap, with its
  *     measured facts (5 possible supporters against 6 possible pressers; 100 m2 each; no rule removing a direction, a receiver or a place);
  *     every element read placed by layer, reached or not;
  *   - removing GF2's mapping (a TEST-ONLY reader) leaves no object-level link and names the gap; a context with neither row names both gaps;
@@ -191,19 +192,32 @@ const plain = plainBuilt.activity.relevance!
     assert.deepEqual(objectInferred.map(link => [link.from, link.to, link.rule, link.level]), CANONICAL_AFFORDANCES.filter(a => a !== SA).map(a => ['game form GF2', a, 'J-OBJ', 'OBJECT']))
     assert.ok(objectInferred.every(link => link.says === joinRules.objectRule.says && link.says.startsWith('Object level:') && link.doesNotShow === joinRules.objectRule.doesNotShow), 'object level, said so')
 
-    assert.deepEqual(best(plain), { 'Functional Object Interaction': 'INFERRED', 'Open Pathway': 'UNVERIFIED', [SA]: 'GAP', 'Competitive Interaction Opportunity': 'INFERRED' })
+    /*
+     * 7 November 2026: CIO is UNVERIFIED, no longer INFERRED. Its only INFERRED link was `performers.teams` by J-CIO-TEAMS, whose one knowledge
+     * premise is GF2-14.a, our restatement 'two teams' of the archetype workbook's "both sides". The review evidence graded that restatement
+     * APPROVED; it is CANDIDATE now (`review-evidence.ts` itemSource), and a link is INFERRED only on approved premises. Christian, his reply
+     * received 7 November 2026 on the correction, item 3: "Competitive Interaction Opportunity should move from INFERRED to UNVERIFIED if its
+     * previous inference depended solely on the incorrectly approved "two teams" restatement and no independent approved evidence supports it."
+     * Measured: nothing else reaches it, so CIO is a gap like Open Pathway, and both its links are now its best.
+     */
+    assert.deepEqual(best(plain), { 'Functional Object Interaction': 'INFERRED', 'Open Pathway': 'UNVERIFIED', [SA]: 'GAP', 'Competitive Interaction Opportunity': 'UNVERIFIED' })
     const coverage = Object.fromEntries(plain.coverage.map(entry => [entry.affordance, entry]))
     assert.deepEqual(coverage['Functional Object Interaction'].inferredBy, ['objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind'])
-    assert.deepEqual(coverage['Competitive Interaction Opportunity'].inferredBy, ['performers.teams'])
-    assert.deepEqual(coverage['Competitive Interaction Opportunity'].unverifiedBy, ['transitions[c:restated:GF2:GF2-07.a].playState'])
+    assert.deepEqual(coverage['Competitive Interaction Opportunity'].inferredBy, [])
+    assert.deepEqual(coverage['Competitive Interaction Opportunity'].unverifiedBy, ['performers.teams', 'transitions[c:restated:GF2:GF2-07.a].playState'])
     assert.deepEqual(coverage['Open Pathway'].unverifiedBy, ['objectives[c:restated:GF2:GF2-08.c].reference', 'objectives[c:restated:GF2:GF2-08.e].reference'])
     // A row at INFERRED shows presence only: each row carries what its best links do not show, in the rule's own words.
     assert.deepEqual(
         plain.coverage.map(entry => [entry.affordance, entry.doesNotShow]),
-        [['Functional Object Interaction', [doesNotShowOf('J-FOI-OBJECT')]], ['Open Pathway', [doesNotShowOf('J-OP-TARGET')]], [SA, []], ['Competitive Interaction Opportunity', [doesNotShowOf('J-CIO-TEAMS')]]],
+        [['Functional Object Interaction', [doesNotShowOf('J-FOI-OBJECT')]], ['Open Pathway', [doesNotShowOf('J-OP-TARGET')]], [SA, []], ['Competitive Interaction Opportunity', [doesNotShowOf('J-CIO-TEAMS'), doesNotShowOf('J-CIO-TURNOVER')]]],
     )
-    assert.deepEqual(plain.gaps.map(gap => gap.affordance), ['Open Pathway', SA], 'the two Essential affordances not reached at INFERRED, and nothing else')
+    assert.deepEqual(plain.gaps.map(gap => gap.affordance), ['Open Pathway', SA, 'Competitive Interaction Opportunity'], 'the three Essential affordances not reached at INFERRED, and nothing else')
     assert.match(plain.gaps[1].missing, /admits no rule for it \(inference NONE\)/)
+    assert.deepEqual(
+        (plain.elements.find(element => element.path === 'performers.teams')?.links ?? []).map(link => [link.grade, link.why]),
+        [['UNVERIFIED', 'a premise is not approved knowledge: restated:GF2::GF2-14.a (CANDIDATE)']],
+        'the two teams rest on our restatement, CANDIDATE',
+    )
     assert.equal(plain.elements.flatMap(element => element.links).filter(link => link.affordance === SA).length, 0, 'support is never graded')
     // Every element a rule reached, with its row and layer, and every element no rule reached, by layer.
     assert.deepEqual(
@@ -212,7 +226,7 @@ const plain = plainBuilt.activity.relevance!
             ['objectives[c:restated:GF2:GF2-08.c].reference', 'J2', 'GAME_FORM', ['UNVERIFIED J-OP-TARGET']],
             ['objectives[c:restated:GF2:GF2-08.e].reference', 'J2', 'GAME_FORM', ['UNVERIFIED J-OP-TARGET']],
             ['objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind', 'O2', 'CONSTITUTIVE', ['INFERRED J-FOI-OBJECT']],
-            ['performers.teams', null, 'GAME_FORM', ['INFERRED J-CIO-TEAMS']],
+            ['performers.teams', null, 'GAME_FORM', ['UNVERIFIED J-CIO-TEAMS']],
             ['transitions[c:restated:GF2:GF2-07.a].playState', 'T6', 'GAME_FORM', ['UNVERIFIED J-CIO-TURNOVER']],
         ],
     )
@@ -368,7 +382,8 @@ const linksOf = (trace: RelevanceTrace, at: string) => trace.elements.find(eleme
         },
     })
     assert.deepEqual(linksOf(stops, 'transitions[c:restated:GF2:GF2-07.a].playState'), [])
-    assert.deepEqual(stops.coverage.find(entry => entry.affordance === CIO)!.unverifiedBy, [])
+    // 7 November 2026: the two teams are an unverified reading too now (GF2-14.a, our restatement, is CANDIDATE), so they stay; the turnover is gone.
+    assert.deepEqual(stops.coverage.find(entry => entry.affordance === CIO)!.unverifiedBy, ['performers.teams'])
 
     // A path one block holds and another does not is in the game; only a path no block holds is notInGame (TEST-ONLY blocks without one target).
     const OBJECTIVE = 'objectives[c:restated:GF2:GF2-08.c]'
@@ -443,7 +458,9 @@ for (const [version, objects] of [
     assert.equal(trace.measured.blocks.length, 2, 'every role block measured')
     const said = trace.objectLevel.map(link => `${link.grade} ${link.from} -> ${link.to}: ${link.says}`)
     for (const row of ['AUTHORIZED context RPC-001 -> GP-005: COMPATIBLE PRIMARY', 'AUTHORIZED context RPC-001 -> A01: COMPATIBLE PRIMARY', 'AUTHORIZED game form GF2 -> GP-005: secondary_game_problem_ids: "GP-005"']) assert.ok(said.includes(row), `${version}: ${row}`)
-    assert.deepEqual(best(trace), { 'Functional Object Interaction': 'INFERRED', 'Open Pathway': 'UNVERIFIED', [SA]: 'GAP', 'Competitive Interaction Opportunity': 'INFERRED' }, version)
+    // 7 November 2026: CIO UNVERIFIED and a gap, as on the plain game above (its two teams rest on our restatement GF2-14.a, CANDIDATE).
+    assert.deepEqual(best(trace), { 'Functional Object Interaction': 'INFERRED', 'Open Pathway': 'UNVERIFIED', [SA]: 'GAP', 'Competitive Interaction Opportunity': 'UNVERIFIED' }, version)
+    assert.deepEqual(trace.gaps.filter(gap => gap.affordance !== null).map(gap => gap.affordance), ['Open Pathway', 'Competitive Interaction Opportunity'], version)
     assert.equal(trace.affordances.find(entry => entry.affordance === SA)!.rating, 'Supportive')
     assert.ok(!trace.gaps.some(gap => gap.affordance === SA), 'a Supportive affordance is reported, not required')
     // A goal object is never read as the task object; the context's own object, identified with the environment's, is not in the game.
