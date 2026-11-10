@@ -23,6 +23,9 @@
  * sequence (section 6), the report, registration. Under A02_SAFEGUARDS_OUT=<file> the report is also written there (for reading only); under
  * A02_SAFEGUARDS_MEASURE=<file> every finding of every run is written there (the measurement the pins were taken from).
  *
+ * Imported by a02-evidence.unit.ts (slice B4: the evidence folder and the A02/TA02 comparison), which reads the runs built here and the report's
+ * lines; imported, the runs are built and none of the tests below runs (they run only when this file itself is run).
+ *
  * Run: node node_modules/ts-node/dist/bin.js --files -r tsconfig-paths/register ./src/system/design-reasoning/a02-safeguards.unit.ts
  */
 import assert from 'node:assert/strict'
@@ -71,7 +74,10 @@ console.log = (...args: unknown[]) => {
     quiet(...args)
 }
 let passed = 0
+/** Run itself (npm test runs it so), the tests run; imported (by a02-evidence.unit.ts, for the runs), none does (B4). */
+const MAIN = require.main === module
 function test(name: string, run: () => void): void {
+    if (!MAIN) return
     try {
         run()
         passed++
@@ -81,7 +87,7 @@ function test(name: string, run: () => void): void {
         process.exitCode = 1
     }
 }
-quiet(`the isolated A02 foundational test, slices S3, S4 and S6 (Christian's authorization received 10 November 2026)`)
+if (MAIN) quiet(`the isolated A02 foundational test, slices S3, S4 and S6 (Christian's authorization received 10 November 2026)`)
 
 const HERE = __dirname
 const WT = path.resolve(HERE, '..', '..', '..', '..')
@@ -112,7 +118,7 @@ const k = committedKnowledge()
 const caseOf = (id: string, from: HandoffInputs = inputs): CaseInput => copy(from.cases.find((c) => c.id === id)!)
 const words = (id: string): string[] => inputs.rulings.find((r) => r.id === id)!.words
 /** Christian's failure-source categories (Christian's words, in Christian's order); index 0 is the sentence that introduces them. */
-const CATEGORIES = words('A02-10NOV-FAILURE-SOURCES')
+export const CATEGORIES = words('A02-10NOV-FAILURE-SOURCES')
 
 /** The clauses of the cited approved row and the items of our restatement that constitute each (read from the store: selector type=<clause>). */
 const store = loadDraftStore(STORE)
@@ -130,7 +136,7 @@ const clausesOf = (): Array<{ clause: string; items: string[] }> => {
     return out
 }
 const CLAUSES = clausesOf()
-const SCORING = { contractId: CONTRACT, rowId: ROW, clauses: CLAUSES }
+export const SCORING = { contractId: CONTRACT, rowId: ROW, clauses: CLAUSES }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // TEST-ONLY copies of the draft-store folder (each held to the store's own gate)
@@ -157,7 +163,7 @@ function storeCopy(change: (contractFile: any, recordFile: any) => void, withCon
 // The quota runs' cases (S4): the manipulation(s) only in the DRAFT record's authorized set (the record route), never placed
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-const QUOTA_SETS: Array<[string, string[]]> = [
+export const QUOTA_SETS: Array<[string, string[]]> = [
     ['NP', [C('neutral-player-condition')]],
     ['WZA', [C('wide-zone-advantage')]],
     ['TR', [C('turnover-reward')]],
@@ -204,8 +210,8 @@ function quotaCase(name: string, bypass: boolean, baseId = 'A02-0'): CaseInput {
 // The runs
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-type Kind = 'EXPERIMENT' | 'CONTROL' | 'LEGACY'
-interface Run {
+export type Kind = 'EXPERIMENT' | 'CONTROL' | 'LEGACY'
+export interface Run {
     id: string
     kind: Kind
     label: string
@@ -215,7 +221,7 @@ interface Run {
     run: SafeguardRun
     findings: Finding[]
 }
-const runs = new Map<string, Run>()
+export const runs = new Map<string, Run>()
 const productionRecord = (goal: string) => learningGoalAuthorizations().find((r) => r.learningGoalId === goal) ?? null
 
 /** One case through the handoff and the real chain; the chain's answer captured; the safeguard run assembled from the test's facts. */
@@ -244,12 +250,12 @@ function runCase(c: CaseInput, kind: Kind, label: string, facts: Partial<Safegua
     runs.set(c.id, entry)
     return entry
 }
-const at = (id: string): Run => {
+export const at = (id: string): Run => {
     const r = runs.get(id)
     assert.ok(r, `no run ${id}`)
     return r
 }
-const verdictOf = (id: string, row: string, clause: string | null = null): string => at(id).findings.find((f) => f.row === row && f.clause === clause)?.verdict ?? 'ABSENT'
+export const verdictOf = (id: string, row: string, clause: string | null = null): string => at(id).findings.find((f) => f.row === row && f.clause === clause)?.verdict ?? 'ABSENT'
 
 // The rewordings (test 5): the goal's descriptive wording rewritten in the knowledge copy Steps 1 and 2 read AND in the planning-model row
 // the chain reads (in memory; restored in finally; the restore asserted).
@@ -292,7 +298,7 @@ function subsets<T>(items: T[], size: number): T[][] {
     walk(0, [])
     return out
 }
-const attributions = new Map<string, { pool: string[]; perCombo: string[] }>()
+export const attributions = new Map<string, { pool: string[]; perCombo: string[] }>()
 function attributeWith(pool: () => string[], set: string[], bypass: boolean) {
     return (r: HandoffResult): EngineRuleAttribution | null => {
         if (!r.chain || r.chain.stage !== 'selection') return null
@@ -448,10 +454,10 @@ function buildAll(): void {
 const none = Object.fromEntries(specializedRoleNames().map((role) => [role, 0]))
 const A01_REQUEST: any = { kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [specializedRoleNames()[0]]: 1 }, objects: { goal: { count: 0 } } } }
 const a01Build = () => buildActivity(A01_REQUEST)
-const a01Hash = () => crypto.createHash('sha256').update(json(a01Build())).digest('hex')
-const A01_BEFORE = a01Hash()
+export const a01Hash = () => crypto.createHash('sha256').update(json(a01Build())).digest('hex')
+export const A01_BEFORE = a01Hash()
 buildAll()
-const A01_AFTER = a01Hash()
+export const A01_AFTER = a01Hash()
 const BUILD_MS = Date.now() - T0
 quiet(`  (${runs.size} runs built in ${BUILD_MS} ms)`)
 
@@ -480,7 +486,7 @@ function writeMeasurement(file: string): void {
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
 const WORDED = (ids: string[]) => ['reversed', 'neutral'].flatMap((w) => ids.map((id) => `${id}~${w}`))
-const QUOTA_REFUSED = ['S4-WZA', 'S4-TR', 'S4-CDC', 'S4-CDC+IR']
+export const QUOTA_REFUSED = ['S4-WZA', 'S4-TR', 'S4-CDC', 'S4-CDC+IR']
 /** Every experiment run that reached the chain (measured: every one but GP-001, which stops at the handoff). */
 const REACHED_CHAIN = [
     'A02-0', 'A02-1', 'A02-1b', 'A02-2', 'A02-D',
@@ -649,9 +655,9 @@ const Q = String.fromCharCode(34)
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
 const OWNED: string[] = ['GAME_PROBLEM', 'GAME_FORM', 'CONSTRAINTS']
-const EXPERIMENT_RUNS = [...runs.values()].filter((r) => r.kind === 'EXPERIMENT').map((r) => r.id)
+export const EXPERIMENT_RUNS = [...runs.values()].filter((r) => r.kind === 'EXPERIMENT').map((r) => r.id)
 /** Test 1's assertion for one experiment run: owned decisions CONSUMED or NOT_REACHED; every finding that must be listed is listed. Throws, naming each. */
-function assertExperimentRun(findings: Finding[], entries: OpenDisconnection[] = OPEN_DISCONNECTIONS): void {
+export function assertExperimentRun(findings: Finding[], entries: OpenDisconnection[] = OPEN_DISCONNECTIONS): void {
     const bad = [...findings.filter((f) => OWNED.indexOf(f.row) >= 0 && f.verdict !== 'CONSUMED' && f.verdict !== 'NOT_REACHED'), ...unlisted(findings, entries, ['EXPERIMENT'])]
     const messages = [...new Set(bad.map(ownershipMessage))]
     if (messages.length) throw new Error(messages.join(' | '))
@@ -665,7 +671,7 @@ function reachCounts(): Record<string, number> {
         }
     return out
 }
-const withheldOf = (id: string) => at(id).findings.filter((f) => f.verdict === 'WITHHELD_BY_TREATMENT').map((f) => String(f.clause))
+export const withheldOf = (id: string) => at(id).findings.filter((f) => f.verdict === 'WITHHELD_BY_TREATMENT').map((f) => String(f.clause))
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // Test 1
@@ -1044,7 +1050,7 @@ test('the disposition table: every selection check kept and enforced except the 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
 const firstNext = (raw.experiment.questions as Array<{ order: number; question: string; next: boolean }>).find((q) => q.next)!
-function stopsOf(): Stop[] {
+export function stopsOf(): Stop[] {
     const reason = (id: string, n = 0) => String(at(id).result.chain?.reasons[n] ?? at(id).result.form.stop)
     return [
         { id: 'L1', path: 'the legacy route (nothing consumed, the production records)', stage: String(at('L1').result.chain?.stage), reason: reason('L1'), kind: 'PATH', categories: [4], why: 'the chain selects its own form from the wording against Step 2\'s SELECTED form (GAME_FORM REFUSED_ON_OWN_CHOICE); the consumption (S1) closes it on the experiment path' },
@@ -1077,13 +1083,12 @@ test('S6. the earliest consequential blocker, computed from the runs: the stops 
 // The report
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-function reportLines(): string[] {
+export function reportLines(): string[] {
     const notes = [
         'QUOTA (S4): zero is the base cases (the empty set, through the zero branch): representable, not shown to be justified (generateSelection.ts:1018-1021 names this goal among the knowledge gaps a floor of 0 would turn into empty selections).',
         'QUOTA (S4): one and two manipulations entered only through the DRAFT record\'s authorized set, with the TEST-ONLY size-rule bypass; a lone Neutral Player is selected with the bypass and refused without it; a lone Wide Zone Advantage or Turnover Reward is refused by the foundation clause, Central Density Condition (alone and with Interception Reward) by row o, each attributed by re-running the exported package check; Neutral Player with Wide Zone Advantage or with Turnover Reward is selected whole.',
         'QUOTA (S4): no manipulation is justified for A02 in anything we hold; every manipulation here rests on a TEST-ONLY relationship stand-in (TEST ASSUMPTION), never knowledge, and every line it brings is graded class 4 at best.',
         `WORDING (test 5): the lens list moves from ${LENSES_BEFORE} to ${LENSES_AFTER} under both rewordings; the owned decisions do not move; the selection of Neutral Player with Turnover Reward flips (OD-WORDING-FLIP).`,
-        'NOT BUILT HERE: the evidence folder and the A02/TA02 comparison (later slices).',
     ]
     return safeguardsText({ runs: [...runs.values()].map((r) => ({ run: r.run, findings: r.findings, label: `${r.kind}: ${r.label}` })), entries: OPEN_DISCONNECTIONS, categories: CATEGORIES, stops: stopsOf(), notes })
 }
@@ -1127,5 +1132,5 @@ test('registered; the stage file joins no chain import, and the wiring is a unit
 
 if (process.env.A02_SAFEGUARDS_MEASURE) writeMeasurement(process.env.A02_SAFEGUARDS_MEASURE)
 fs.rmSync(TMP, { recursive: true, force: true })
-quiet(`a02 safeguards (S3, S4, S6): ${passed} passed`)
+if (MAIN) quiet(`a02 safeguards (S3, S4, S6): ${passed} passed`)
 

@@ -24,8 +24,9 @@
  *   - the report's sections (`foundational-test.ts`): the runs and what each refusal rests on, the CANDIDATE mapping line, each restated item
  *     in three columns, the UNRESOLVED list, the smallest-source questions, the Essential Representative Relationships; double quotation marks
  *     only around Christian's words, no gendered pronoun; generated twice, identical.
- * The evidence folder (DESIGN section 7) is a later slice's: the report is generated here and compared in memory; under A02_REPORT_OUT=<file>
- * it is also written to that file, for reading only.
+ * The evidence folder (DESIGN section 7) is a02-evidence.unit.ts's, which imports this file's data (`inputs`, `items`, `experiment`); imported,
+ * this file runs none of its tests (they run only when the file itself is run). The report is generated here and compared in memory; under
+ * A02_REPORT_OUT=<file> it is also written to that file, for reading only.
  *
  * Run: node node_modules/ts-node/dist/bin.js --files -r tsconfig-paths/register ./src/system/design-reasoning/a02.unit.ts
  */
@@ -49,7 +50,10 @@ console.log = (...args: unknown[]) => {
     quiet(...args)
 }
 let passed = 0
+/** Run itself (npm test runs it so), the tests run; imported (by a02-evidence.unit.ts, for the data below), none does (B4). */
+const MAIN = require.main === module
 function test(name: string, run: () => void): void {
+    if (!MAIN) return
     try {
         run()
         passed++
@@ -59,7 +63,7 @@ function test(name: string, run: () => void): void {
         process.exitCode = 1
     }
 }
-quiet(`the isolated A02 foundational test, slice S2 (Christian's authorization received 10 November 2026)`)
+if (MAIN) quiet(`the isolated A02 foundational test, slice S2 (Christian's authorization received 10 November 2026)`)
 
 const HERE = __dirname
 const WT = path.resolve(HERE, '..', '..', '..', '..')
@@ -78,11 +82,11 @@ const composed = (data: any = raw) => ({
     cases: data.cases,
     grading: handoffData.grading,
 })
-const inputs: HandoffInputs = validateHandoffInputs(composed())
+export const inputs: HandoffInputs = validateHandoffInputs(composed())
 const store = loadDraftStore(STORE)
 const contract = store.contracts.find((c) => c.contractId === CONTRACT)
 assert.ok(contract, `the draft store holds ${CONTRACT}`)
-const items: RestatedItem[] = contract.items.map((i: any) => ({
+export const items: RestatedItem[] = contract.items.map((i: any) => ({
     itemId: String(i.itemId),
     row: String(i.row),
     selector: String(i.selector),
@@ -94,7 +98,7 @@ const items: RestatedItem[] = contract.items.map((i: any) => ({
     basisEvidence: String(i.basisEvidence ?? ''),
     sources: ((i.source ?? []) as any[]).map((s) => ({ rowId: String(s.rowId).split(' ')[0], table: String(s.table), line: Number(s.line) })),
 }))
-const experiment = validateFoundationalTest(raw.experiment, inputs, items)
+export const experiment = validateFoundationalTest(raw.experiment, inputs, items)
 const k = committedKnowledge()
 
 /** Every case through the handoff and the real chain, each request and answer captured (the answer's own account is read by test 8). */
@@ -476,4 +480,4 @@ test('registered', () => {
     for (const f of ['./src/system/design-reasoning/a02.unit.ts', './src/system/design-reasoning/handoff-chain.unit.ts']) assert.ok(registry.includes(f), f)
 })
 
-quiet(`a02 foundational test (S2): ${passed} passed`)
+if (MAIN) quiet(`a02 foundational test (S2): ${passed} passed`)

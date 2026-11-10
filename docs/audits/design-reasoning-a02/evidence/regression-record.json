@@ -1,0 +1,8 @@
+{
+ "stage": "DESIGN_REASONING_A02_FOUNDATIONAL_TEST",
+ "status": "NOT YET RECORDED for this build",
+ "what": "PLACEHOLDER. The lead regression of the isolated A02 foundational test is recorded here, on the committed tree of the build it names, in a commit with no code or data change: the type check; npm test run alone (files and failures); the behaviour snapshot against the baseline of main (391 entries, how many changed); the live bundle compared with main (the TEST-ONLY hunks, listed); dist/knowledge compared with main; the Stage 1, Stage 2, assembly and handoff evidence (identical, or each re-pin named with its measured before and after); the quotation check of the report and the README; the pronoun scan of every added line. Engineering evidence only.",
+ "build": null,
+ "recordedOn": null,
+ "checks": []
+}
