@@ -12,17 +12,26 @@
  * What it holds:
  *   - `OWNERSHIP_TABLE`: each consequential decision with its owner, input, output and authority (principle A, decision ownership).
  *   - `ownershipOf`: one verdict per decision row for one run. CONSUMED needs the value equal to the upstream decision AND the run's own
- *     evidence (the chain's TEST-ONLY consumption record); equal values without that evidence are AGREES_INDEPENDENTLY, never consumption
- *     (principle C). The other verdicts: CONTRADICTED, REFUSED_ON_OWN_CHOICE, UNAUTHORIZED_SOURCE, ENGINE_RULE_DECIDED (with its attribution),
- *     CARRIED / WITHHELD_BY_TREATMENT / CITED_NOT_CARRIED per clause of the cited approved row and for the account's display, NOT_REACHED
- *     (from the stage order only), LEGITIMATE_CHAIN_DECISION (the chain's own rows), MISSING (a reached stage without its field).
- *   - `classOf`: PASS, DETECTED (printed as a detected disconnection, never a pass: a declared TEST-ONLY treatment withholding a clause; an
+ *     evidence that the decision was made from it (the chain's TEST-ONLY consumption record: the forms its scorer was handed, the record's
+ *     pool); equal values without that evidence are AGREES_INDEPENDENTLY, never consumption (principle C). The Game Problem the chain carries
+ *     from Step 1 is read by no decision of the chain, so it reads CARRIED_NOT_READ, never CONSUMED (Christian's authorization, section 3: a
+ *     citation the engine ignores is insufficient; a deliberate departure from DESIGN-9 section 3's marker). The other verdicts: CONTRADICTED,
+ *     REFUSED_ON_OWN_CHOICE, UNAUTHORIZED_SOURCE, ENGINE_RULE_DECIDED (with its attribution, on a refusal whose basis is NOT KNOWLEDGE),
+ *     CARRIED (every open item of the clause derived and resolved, no declaration replaced) / CARRIED_UNDER_TREATMENT / WITHHELD_BY_TREATMENT /
+ *     REFUSED_ON_CLAUSE_LINE / CITED_NOT_CARRIED per clause of the cited approved row and for the account's display, NOT_REACHED (the run
+ *     stopped before the decision, and its refusal cites none of the clause's lines), LEGITIMATE_CHAIN_DECISION (the chain's own rows),
+ *     MISSING (a reached stage without its field, a withheld item that entered derivation, or a selection refusal no rule can be attributed to
+ *     because its basis is not NOT KNOWLEDGE).
+ *   - `classOf`: PASS, DETECTED (printed as a detected disconnection, never a pass: a declared TEST-ONLY treatment withholding a clause, or
+ *     carrying it by a replaced declaration; a clause whose own line the run's refusal cites; the carried Game Problem no decision reads; an
  *     engine rule kept under the authorization's section 5 refusing after consumption) or VIOLATION.
- *   - `unlisted` / `stale`: the findings no open-disconnection entry lists, and the entries no finding supports (the list is data).
+ *   - `unlisted` / `stale`: the findings no open-disconnection entry lists, and the entries no finding supports (the list is data; an entry may
+ *     name its measured run and verdict pairs, and the rule of each engine refusal, and then lists only those).
  *   - `DISPOSITION`: every selection check, kept-enforced or bypassed (the numerical size rule only), with its source, origin and authority,
- *     and `dispositionOf`, the per-run column: ran, not run on this path (the zero branch), bypassed, or not reached.
- *   - `blockerSequence`: the stops of the paths in chain order, which ones a later path passes, and the earliest that remains, named in the
- *     failure-source categories Christian listed (Christian's words, handed in as data).
+ *     and `dispositionOf`, the per-run column: ran, not run on this path (the zero branch, or no combination enumerated), bypassed, or not
+ *     reached.
+ *   - `blockerSequence`: the stops of the paths in chain order, which ones a later path passes (a later stage, or a later check of the same
+ *     stage), and the earliest that remains, named in the failure-source categories Christian listed (Christian's words, handed in as data).
  *   - `safeguardsText`: the report's lines. Double quotation marks are never printed (category names are printed bare).
  */
 import { ChainAnswer, HandoffResult } from './handoff'
@@ -114,7 +123,23 @@ export const OWNERSHIP_TABLE: Array<{ row: DecisionRow; decision: string; owner:
 // The run, as the check reads it
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-export const VERDICTS = ['CONSUMED', 'AGREES_INDEPENDENTLY', 'CONTRADICTED', 'REFUSED_ON_OWN_CHOICE', 'UNAUTHORIZED_SOURCE', 'ENGINE_RULE_DECIDED', 'CARRIED', 'WITHHELD_BY_TREATMENT', 'NOT_REACHED', 'CITED_NOT_CARRIED', 'LEGITIMATE_CHAIN_DECISION', 'MISSING'] as const
+export const VERDICTS = [
+    'CONSUMED',
+    'CARRIED_NOT_READ',
+    'AGREES_INDEPENDENTLY',
+    'CONTRADICTED',
+    'REFUSED_ON_OWN_CHOICE',
+    'UNAUTHORIZED_SOURCE',
+    'ENGINE_RULE_DECIDED',
+    'CARRIED',
+    'CARRIED_UNDER_TREATMENT',
+    'WITHHELD_BY_TREATMENT',
+    'REFUSED_ON_CLAUSE_LINE',
+    'NOT_REACHED',
+    'CITED_NOT_CARRIED',
+    'LEGITIMATE_CHAIN_DECISION',
+    'MISSING',
+] as const
 export type Verdict = (typeof VERDICTS)[number]
 
 /** The chain's stages in order (the handoff's own stop first). A stage the order does not hold is refused, never guessed. */
@@ -168,12 +193,18 @@ export interface SafeguardRun {
         clauses: Array<{ clause: string; items: string[] }>
         /** Items that entered derivation (the contracts the chain derived from). */
         derived: string[]
-        /** Items a line of the built game rests on, or that the chain records as shaping a line it built. */
+        /** Items a line of the built game that establishes something rests on, or that the chain records as shaping a line it built. */
+        resting: string[]
+        /** The lines of an item (line id c:<contract>:<item>::<row>) that establish nothing (NOT_ESTABLISHED). */
+        unestablished: Array<{ itemId: string; lineId: string }>
+        /** Items resolved: resting, and no line of the item establishes nothing. */
         resolved: string[]
         /** Items withheld by a declared TEST-ONLY treatment, with the treatment. */
         withheld: Array<{ itemId: string; treatmentId: string }>
-        /** Declaration replacements by declared TEST-ONLY treatments, said beside a carried clause. */
-        declarationTreatments: Array<{ selectorClause: string; treatmentId: string }>
+        /** Declaration replacements by declared TEST-ONLY treatments: the clause, the treatment and the register row whose declaration it replaced. */
+        declarationTreatments: Array<{ selectorClause: string; treatmentId: string; row: string | null }>
+        /** The items a line of which the run's refusal cites (its refusal basis's cited lines, or else its reasons), with the line cited. */
+        refusedOn: Array<{ itemId: string; ref: string }>
     }
     engineRule: EngineRuleAttribution | null
 }
@@ -193,13 +224,30 @@ export function safeguardRunOf(r: HandoffResult, a: ChainAnswer | null, experime
     const ref = (itemId: string) => (scoring ? `${scoring.contractId} ${itemId}` : itemId)
     const allItems = scoring ? scoring.clauses.flatMap((c) => c.items) : []
     const derived = scoring && a ? allItems.filter((id) => a.contracts.some((c) => c.contractId === scoring.contractId && c.origin === 'DRAFT_STORE' && c.items.some((i) => i.itemId === id))) : []
-    const resolved = scoring ? allItems.filter((id) => r.lines.some((l) => l.kind !== 'NOT_ESTABLISHED' && l.premises.some((p) => p.ref === ref(id))) || (r.consumption?.draftShaped ?? []).some((s) => s.by.some((b) => b.split(' ').slice(0, 2).join(' ') === ref(id)))) : []
+    const resting = scoring ? allItems.filter((id) => r.lines.some((l) => l.kind !== 'NOT_ESTABLISHED' && l.premises.some((p) => p.ref === ref(id))) || (r.consumption?.draftShaped ?? []).some((s) => s.by.some((b) => b.split(' ').slice(0, 2).join(' ') === ref(id)))) : []
+    const lineOf = (itemId: string) => (scoring ? `c:${scoring.contractId}:${itemId}::` : '')
+    const unestablished = scoring ? allItems.flatMap((id) => r.lines.filter((l) => l.kind === 'NOT_ESTABLISHED' && l.lineId.indexOf(lineOf(id)) === 0).map((l) => ({ itemId: id, lineId: l.lineId }))) : []
+    // DESIGN-9 section 3, 'its lines resolved': an item is resolved only when a line rests on it and no line of it establishes nothing.
+    const resolved = resting.filter((id) => !unestablished.some((u) => u.itemId === id))
     const withheld = scoring
         ? r.testOnlyTreatments.filter((t) => t.kind === 'WITHHOLD_ITEMS' && t.contractId === scoring.contractId).flatMap((t) => (t.itemIds ?? []).filter((id) => allItems.indexOf(id) >= 0).map((itemId) => ({ itemId, treatmentId: t.id })))
         : []
     const declarationTreatments = scoring
-        ? r.testOnlyTreatments.filter((t) => t.kind === 'REPLACE_DECLARATION' && t.contractId === scoring.contractId && t.declaration).map((t) => ({ selectorClause: String(t.declaration!.selector.split('=').slice(1).join('=')), treatmentId: t.id }))
+        ? r.testOnlyTreatments
+              .filter((t) => t.kind === 'REPLACE_DECLARATION' && t.contractId === scoring.contractId && t.declaration)
+              .map((t) => ({ selectorClause: String(t.declaration!.selector.split('=').slice(1).join('=')), treatmentId: t.id, row: t.declaration!.row ? String(t.declaration!.row) : null }))
         : []
+    // The lines the run's refusal cites: the refusal basis's cited lines where it names any, otherwise the chain's reasons (a line is cited as
+    // c:<contract>:<item>::<row>; within a reason, up to the next space, comma or semicolon).
+    const cited = r.refusalBasis && r.refusalBasis.cited.length ? r.refusalBasis.cited.map((c) => c.ref) : r.chain ? r.chain.reasons : []
+    const lineCited = (text: string, prefix: string): string | null => {
+        const at = text.indexOf(prefix)
+        if (at < 0) return null
+        let end = at
+        while (end < text.length && ' ,;'.indexOf(text[end]) < 0) end++
+        return text.slice(at, end)
+    }
+    const refusedOn = scoring && r.chain && r.chain.outcome !== 'served' ? allItems.flatMap((id) => cited.map((text) => lineCited(text, lineOf(id))).filter((x): x is string => x !== null).map((ref) => ({ itemId: id, ref }))) : []
     const consumption = a?.consumption ?? null
     return {
         runId: r.caseId,
@@ -243,7 +291,7 @@ export function safeguardRunOf(r: HandoffResult, a: ChainAnswer | null, experime
                       scoringCondition: a.observed?.scoringCondition ? { ...a.observed.scoringCondition } : null,
                   }
                 : null,
-        scoring: scoring ? { rowId: scoring.rowId, clauses: scoring.clauses.map((c) => ({ clause: c.clause, items: [...c.items] })), derived, resolved, withheld, declarationTreatments } : null,
+        scoring: scoring ? { rowId: scoring.rowId, clauses: scoring.clauses.map((c) => ({ clause: c.clause, items: [...c.items] })), derived, resting, unestablished, resolved, withheld, declarationTreatments, refusedOn } : null,
         engineRule: facts.engineRule ? { ...facts.engineRule } : null,
     }
 }
@@ -289,12 +337,19 @@ export function ownershipOf(run: SafeguardRun): Finding[] {
     const notRun = run.handoffStop ? `the handoff stopped before the chain (${run.handoffStop})` : 'the chain was not run'
     const x = c?.consumption ?? null
 
-    // The Game Problem: CONSUMED only with the chain's own record of Step 1's value.
+    // The Game Problem: the chain's record of Step 1's value is a carried record, read by no decision of the chain (CARRIED_NOT_READ, a detected
+    // disconnection, never CONSUMED: the authorization's section 3, a citation the engine ignores is insufficient).
     if (!c) push('GAME_PROBLEM', 'NOT_REACHED', notRun)
     else if (x && x.gameProblemId !== null) {
         if (x.gameProblemId !== u.gameProblemId) push('GAME_PROBLEM', 'CONTRADICTED', `the chain carried ${x.gameProblemId} where Step 1 resolved ${u.gameProblemId ?? 'none'}`)
         else if (x.gameProblemSource !== 'Step 1 (review pathway)') push('GAME_PROBLEM', 'AGREES_INDEPENDENTLY', `equal to Step 1, and the chain's record names no Step 1 source (${x.gameProblemSource ?? 'none'})`)
-        else push('GAME_PROBLEM', 'CONSUMED', `the chain's account carries Step 1's ${x.gameProblemId} (source: Step 1, review pathway)`, `the chain's own reading (planning model): ${c.gameProblemStatus ?? 'none'} ${c.gameProblemId ?? 'none'}`)
+        else
+            push(
+                'GAME_PROBLEM',
+                'CARRIED_NOT_READ',
+                `the chain carries Step 1's ${x.gameProblemId} as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)`,
+                `the chain's own reading (planning model): ${c.gameProblemStatus ?? 'none'} ${c.gameProblemId ?? 'none'}`,
+            )
     } else if (c.gameProblemStatus === null) push('GAME_PROBLEM', 'MISSING', 'the chain was run and its account carries no Game Problem')
     else if (c.gameProblemId === u.gameProblemId) push('GAME_PROBLEM', 'AGREES_INDEPENDENTLY', `the chain's own reading (${c.gameProblemStatus} ${c.gameProblemId}, the planning model, which also governs the hints) equals Step 1's, and nothing records Step 1's value as consumed`)
     else push('GAME_PROBLEM', 'CONTRADICTED', `the chain's own reading is ${c.gameProblemStatus} ${c.gameProblemId ?? 'none'}; Step 1 resolved ${u.gameProblemId ?? 'none'}`)
@@ -368,6 +423,9 @@ export function ownershipOf(run: SafeguardRun): Finding[] {
 
     // The selection outcome: an engine rule deciding after the form was consumed.
     if (!c) push('SELECTION_OUTCOME', 'NOT_REACHED', notRun)
+    else if (c.stage === 'selection' && x && formVerdict === 'CONSUMED' && c.refusalVerdict !== 'NOT KNOWLEDGE')
+        // DESIGN-9 section 3 limits ENGINE_RULE_DECIDED to a refusal whose basis is NOT KNOWLEDGE; any other basis fails closed.
+        push('SELECTION_OUTCOME', 'MISSING', `refused at selection after consuming the form, on a refusal basis ${c.refusalVerdict ?? 'none'}, not NOT KNOWLEDGE: no engine rule is attributed to it (fails closed)`)
     else if (c.stage === 'selection' && x && formVerdict === 'CONSUMED') {
         const rule = run.engineRule?.rule ? DISPOSITION.find((d) => d.id === run.engineRule!.rule) ?? null : null
         const kept = rule !== null && rule.disposition === 'KEPT_ENFORCED'
@@ -391,47 +449,93 @@ export function ownershipOf(run: SafeguardRun): Finding[] {
         for (const clause of s.clauses) {
             const withheld = s.withheld.filter((w) => clause.items.indexOf(w.itemId) >= 0)
             const open = clause.items.filter((id) => !withheld.some((w) => w.itemId === id))
+            const leaked = withheld.filter((w) => s.derived.indexOf(w.itemId) >= 0)
+            const refused = s.refusedOn.filter((r) => open.indexOf(r.itemId) >= 0)
+            const declared = s.declarationTreatments.filter((d) => d.selectorClause === clause.clause)
             let v: Verdict
             let why: string
-            if (!open.length) {
+            if (leaked.length) {
+                // A withholding is read from what derivation received, not only from the declaration.
+                v = 'MISSING'
+                why = `declared withheld by ${[...new Set(leaked.map((w) => w.treatmentId))].join(', ')}, yet ${leaked.map((w) => w.itemId).join(', ')} entered derivation (the treatment was not applied)`
+            } else if (!open.length) {
                 v = 'WITHHELD_BY_TREATMENT'
                 why = `every constituting item withheld by ${[...new Set(withheld.map((w) => w.treatmentId))].join(', ')} (a detected disconnection, never a pass)`
+            } else if (refused.length) {
+                // The clause was decided: the run's refusal cites its own line (explicitly unresolved), so it is neither unreached nor a pass.
+                v = 'REFUSED_ON_CLAUSE_LINE'
+                why = `the chain refused at ${STAGE_ORDER[stop]} on this clause's line(s) ${[...new Set(refused.map((r) => r.ref))].join(', ')}: explicitly unresolved, never a pass`
             } else if (stop <= stageIndex('realization')) {
                 v = 'NOT_REACHED'
-                why = `no game was built (the run stopped at ${STAGE_ORDER[stop]})`
+                why = `no game was built (the run stopped at ${STAGE_ORDER[stop]}), and the refusal cites none of this clause's lines`
             } else {
+                // CARRIED only when every open item is derived and resolved; a line the clause's replaced declaration covers is carried only
+                // under that treatment; a clause carried with a declaration replaced reads CARRIED_UNDER_TREATMENT, never a pass.
                 const carried = open.filter((id) => s.derived.indexOf(id) >= 0 && s.resolved.indexOf(id) >= 0)
-                const declared = s.declarationTreatments.filter((d) => d.selectorClause === clause.clause).map((d) => d.treatmentId)
-                v = carried.length ? 'CARRIED' : 'CITED_NOT_CARRIED'
-                why = carried.length
-                    ? `${carried.join(', ')} entered derivation and lines of the built game rest on ${carried.length === 1 ? 'it' : 'them'}${declared.length ? ` (with a declaration replaced by ${declared.join(', ')})` : ''}`
-                    : `cited by the approved row and carried by no line of the built game (${open.filter((id) => s.derived.indexOf(id) < 0).length ? `not derived: ${open.filter((id) => s.derived.indexOf(id) < 0).join(', ')}` : 'derived, and no line rests on it'}), with no declared treatment`
+                const notCarried = open.filter((id) => carried.indexOf(id) < 0)
+                const linesOf = (id: string) => s.unestablished.filter((u) => u.itemId === id).map((u) => u.lineId)
+                const coveredBy = (lineId: string) => declared.filter((d) => d.row !== null && lineId.slice(-(`::${d.row}`.length)) === `::${d.row}`)
+                const underTreatment = (id: string) => s.derived.indexOf(id) >= 0 && s.resting.indexOf(id) >= 0 && linesOf(id).length > 0 && linesOf(id).every((l) => coveredBy(l).length > 0)
+                const treatments = [...new Set(declared.map((d) => d.treatmentId))].join(', ')
+                const notCarriedWhy = (id: string) =>
+                    `${id} (${s.derived.indexOf(id) < 0 ? 'not derived' : s.resting.indexOf(id) < 0 ? 'derived, and no line rests on it' : `line(s) ${linesOf(id).join(', ')} establish nothing`})`
+                if (!notCarried.length && !declared.length) {
+                    v = 'CARRIED'
+                    why = `${carried.join(', ')} entered derivation and lines of the built game rest on ${carried.length === 1 ? 'it' : 'them'}; none of ${carried.length === 1 ? 'its' : 'their'} lines is NOT_ESTABLISHED`
+                } else if (declared.length && notCarried.every(underTreatment)) {
+                    v = 'CARRIED_UNDER_TREATMENT'
+                    why = `${open.join(', ')} entered derivation and lines of the built game rest on ${open.length === 1 ? 'it' : 'them'}, carried only under ${treatments}, a declaration replaced${notCarried.length ? `: line(s) ${notCarried.flatMap(linesOf).join(', ')} establish nothing` : ''} (a detected disconnection, never a pass)`
+                } else {
+                    v = 'CITED_NOT_CARRIED'
+                    why = carried.length
+                        ? `partly carried: ${carried.join(', ')}; not carried: ${notCarried.map(notCarriedWhy).join('; ')}${declared.length ? ` (with a declaration replaced by ${treatments})` : ', with no declared treatment'}`
+                        : `cited by the approved row and carried by no line of the built game (${notCarried.map(notCarriedWhy).join('; ')})${declared.length ? ` (with a declaration replaced by ${treatments})` : ', with no declared treatment'}`
+                }
             }
             verdicts.push(v)
             push('SCORING', v, why, null, clause.clause)
         }
         const state = c?.scoringCondition ? `the requirement account's state ${c.scoringCondition.state}${c.scoringCondition.state === 'NOT_CLASSIFIED' ? ` (a limitation: no requirement bindings for ${s.rowId}; never a pass)` : ''}` : 'the requirement account is not on this run'
+        const underTreatment = s.clauses.filter((_, n) => verdicts[n] === 'CARRIED_UNDER_TREATMENT').map((cl) => cl.clause)
         if (!c) push('SCORING_DISPLAY', 'NOT_REACHED', notRun)
         else if (c.contextInThisActivity === null) push('SCORING_DISPLAY', 'MISSING', 'the chain was run and its account displays no context')
-        else if (c.contextInThisActivity && verdicts.some((v) => v !== 'CARRIED')) push('SCORING_DISPLAY', 'CITED_NOT_CARRIED', `the account displays the approved condition as in this activity while ${s.clauses.filter((_, n) => verdicts[n] !== 'CARRIED').map((cl) => cl.clause).join(', ')} ${verdicts.filter((v) => v !== 'CARRIED').length === 1 ? 'is' : 'are'} not carried`, state)
+        else if (c.contextInThisActivity && verdicts.some((v) => v !== 'CARRIED'))
+            push(
+                'SCORING_DISPLAY',
+                'CITED_NOT_CARRIED',
+                `the account displays the approved condition as in this activity while ${s.clauses.filter((_, n) => verdicts[n] !== 'CARRIED').map((cl) => cl.clause).join(', ')} ${verdicts.filter((v) => v !== 'CARRIED').length === 1 ? 'is' : 'are'} not carried${underTreatment.length ? ` (${underTreatment.join(', ')} only under a declared TEST-ONLY treatment)` : ''}`,
+                state,
+            )
         else if (c.contextInThisActivity) push('SCORING_DISPLAY', 'CARRIED', 'every clause carried, and the account says so', state)
         else push('SCORING_DISPLAY', 'NOT_REACHED', 'the account does not display the condition as in this activity', state)
     }
 
-    // The chain's own row.
-    if (!c || stop <= stageIndex('realization')) push('REALIZATION', 'NOT_REACHED', !c ? notRun : `no game was built (the run stopped at ${STAGE_ORDER[stop]})`)
+    // The chain's own row: a refusal by the realizer itself is the chain's own decision.
+    if (!c || stop < stageIndex('realization')) push('REALIZATION', 'NOT_REACHED', !c ? notRun : `no game was built (the run stopped at ${STAGE_ORDER[stop]})`)
+    else if (stop === stageIndex('realization')) push('REALIZATION', 'LEGITIMATE_CHAIN_DECISION', `the realizer refused: ${c.reasons.join('; ')}`)
     else push('REALIZATION', 'LEGITIMATE_CHAIN_DECISION', 'the chain closed the open lines within their authored bounds (each line graded by the handoff)')
     return out
 }
 
 export const VIOLATION_VERDICTS: Verdict[] = ['AGREES_INDEPENDENTLY', 'CONTRADICTED', 'REFUSED_ON_OWN_CHOICE', 'UNAUTHORIZED_SOURCE', 'CITED_NOT_CARRIED', 'MISSING']
 
+/** The verdicts printed as a detected disconnection, never a pass (beside a kept engine rule's refusal). */
+export const DETECTED_VERDICTS: Verdict[] = ['CARRIED_NOT_READ', 'WITHHELD_BY_TREATMENT', 'CARRIED_UNDER_TREATMENT', 'REFUSED_ON_CLAUSE_LINE']
+
 /** PASS, DETECTED (printed as a detected disconnection, never a pass) or VIOLATION. */
 export function classOf(f: Finding): 'PASS' | 'DETECTED' | 'VIOLATION' {
     if (VIOLATION_VERDICTS.indexOf(f.verdict) >= 0) return 'VIOLATION'
     if (f.verdict === 'ENGINE_RULE_DECIDED') return f.keptRule ? 'DETECTED' : 'VIOLATION'
-    if (f.verdict === 'WITHHELD_BY_TREATMENT') return 'DETECTED'
+    if (DETECTED_VERDICTS.indexOf(f.verdict) >= 0) return 'DETECTED'
     return 'PASS'
+}
+
+/** The detected disconnections of a set of findings, counted by verdict (in the order of VERDICTS), for the report. */
+export function detectedByVerdict(findings: Finding[]): string {
+    const detected = findings.filter((f) => classOf(f) === 'DETECTED')
+    return VERDICTS.filter((v) => detected.some((f) => f.verdict === v))
+        .map((v) => `${v} ${detected.filter((f) => f.verdict === v).length}`)
+        .join(', ')
 }
 
 /** A finding an open-disconnection entry must list: every violation, and every detected engine-rule refusal that reads wording-derived lenses. */
@@ -446,10 +550,21 @@ export interface OpenDisconnection {
     rows: DecisionRow[]
     verdicts: Verdict[]
     runs: string[]
+    /**
+     * Optional: the measured (run, verdict) pairs, with the rule each engine refusal was attributed to. Where given, the entry lists only a
+     * finding of one of its pairs (never a cross product of its runs and verdicts).
+     */
+    pairs?: Array<{ run: string; verdict: Verdict; rule?: string }>
     evidence: string
     measured?: { before: string; after: string }
 }
-const listedBy = (f: Finding, e: OpenDisconnection): boolean => e.rows.indexOf(f.row) >= 0 && e.verdicts.indexOf(f.verdict) >= 0 && e.runs.indexOf(f.runId) >= 0
+const listedBy = (f: Finding, e: OpenDisconnection): boolean => {
+    if (e.rows.indexOf(f.row) < 0 || e.verdicts.indexOf(f.verdict) < 0 || e.runs.indexOf(f.runId) < 0) return false
+    // An engine refusal no kept check is attributed to is never listed (it fails test 1).
+    if (f.verdict === 'ENGINE_RULE_DECIDED' && !f.keptRule) return false
+    if (!e.pairs) return true
+    return e.pairs.some((p) => p.run === f.runId && p.verdict === f.verdict && (f.verdict !== 'ENGINE_RULE_DECIDED' || p.rule === f.keptRule?.id))
+}
 /** The findings that must be listed and no entry (of the given scopes) lists. */
 export function unlisted(findings: Finding[], entries: OpenDisconnection[], scopes: Array<OpenDisconnection['scope']>): Finding[] {
     const inScope = entries.filter((e) => scopes.indexOf(e.scope) >= 0)
@@ -461,7 +576,10 @@ export function unlisted(findings: Finding[], entries: OpenDisconnection[], scop
  */
 export function stale(findings: Finding[], entries: OpenDisconnection[]): Array<{ entry: string; run: string }> {
     const out: Array<{ entry: string; run: string }> = []
-    for (const e of entries.filter((x) => x.verdicts.length)) for (const run of e.runs) if (!findings.some((f) => f.runId === run && listedBy(f, e) && mustBeListed(f))) out.push({ entry: e.id, run })
+    for (const e of entries.filter((x) => x.verdicts.length)) {
+        const pairs: Array<{ run: string; verdict?: Verdict }> = e.pairs ?? e.runs.map((run) => ({ run }))
+        for (const p of pairs) if (!findings.some((f) => f.runId === p.run && (p.verdict === undefined || f.verdict === p.verdict) && listedBy(f, e) && mustBeListed(f))) out.push({ entry: e.id, run: p.run })
+    }
     return out
 }
 
@@ -528,12 +646,18 @@ export function dispositionOf(run: SafeguardRun): Array<{ id: string; ran: strin
     const zero = !!c && recordRoute && ids !== null && ids.length === 0
     const committed = !!c && stopIndexOf(run) > stageIndex('selection')
     const zeroWords = 'not run on this path (zero branch, generateSelection.ts:811-815)'
+    // A consumed set smaller than 2 (the smallest size generateSelection.ts:1037 enumerates without the bypass) is never enumerated: no
+    // combination reaches the role mix or the package checks (generateSelection.ts:835-836 skips every size larger than the pool).
+    const unenumerated = !!x && !x.sizeRuleBypassed && ids !== null && ids.length > 0 && ids.length < 2
+    const unenumeratedWords = `not run on this path (no combination enumerated: the set holds ${ids ? ids.length : 0}; without the bypass the sizes enumerated are 2 to 4, generateSelection.ts:835-836)`
+    const ENUMERATED_ONLY = ['ROLE_MIX', 'FOUNDATION_CLAUSE', 'PACKAGE_ROW_O', 'PACKAGE_ROW_K', 'PACKAGE_OTHER']
     return DISPOSITION.map((d) => {
         if (!c) return { id: d.id, ran: 'not reached (the chain was not run)' }
         if (d.path === 'EVERY_SELECTION') return { id: d.id, ran: 'ran' }
         if (d.path === 'EMPTY_SET') return { id: d.id, ran: zero ? 'ran' : 'not on this path (the set is not empty, or no evaluated record governs)' }
         if (d.path === 'COMMITTED_SELECTION') return { id: d.id, ran: committed ? 'ran' : 'not reached (no selection was committed)' }
         if (zero) return { id: d.id, ran: zeroWords }
+        if (unenumerated && ENUMERATED_ONLY.indexOf(d.id) >= 0) return { id: d.id, ran: unenumeratedWords }
         if (d.id === 'SIZE_RULE' && x && x.sizeRuleBypassed) return { id: d.id, ran: 'bypassed (TEST-ONLY): the set\'s own size tried, and the contract admits 1 to its size' }
         return { id: d.id, ran: 'ran' }
     })
@@ -543,13 +667,22 @@ export function dispositionOf(run: SafeguardRun): Array<{ id: string; ran: strin
 // The earliest consequential blocker (DESIGN-9 section 6)
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-/** One stop: a path of the experiment (each adds one piece) or a downstream run, where it stopped, and our reading of its source. */
+/**
+ * One stop: a path of the experiment or a downstream run, where it stopped, and our reading of its source. The paths come in chain order;
+ * each path's text names what it holds, and a later path passes an earlier stop by what it adds (a path may also set a piece aside, so
+ * that its own stop shows what that piece closes; its text says so).
+ */
 export interface Stop {
     id: string
     path: string
     stage: string
     reason: string
     kind: 'PATH' | 'DOWNSTREAM'
+    /**
+     * Where two paths stop in one stage: the source line of the refusing check (the checks of a stage run in source order; the test holds
+     * each line to the source text). A later path passes a stop in the same stage only where both name one and its check comes later.
+     */
+    within?: number
     /** OURS: the failure-source categories (indices into Christian's words) and why. */
     categories: number[]
     why: string
@@ -559,8 +692,9 @@ export interface Stop {
 export function blockerSequence(stops: Stop[]): { sequence: Array<Stop & { passed: boolean; passedBy: string | null }>; earliest: Stop; downstream: Stop[] } {
     const paths = stops.filter((s) => s.kind === 'PATH')
     if (!paths.length) throw new Error('safeguards: no path stop')
+    const past = (p: Stop, s: Stop) => stageIndex(p.stage) > stageIndex(s.stage) || (p.stage === s.stage && s.within !== undefined && p.within !== undefined && p.within > s.within)
     const sequence = paths.map((s, n) => {
-        const later = paths.slice(n + 1).find((p) => stageIndex(p.stage) > stageIndex(s.stage)) ?? null
+        const later = paths.slice(n + 1).find((p) => past(p, s)) ?? null
         return { ...s, passed: later !== null, passedBy: later ? later.id : null }
     })
     const earliest = sequence.find((s) => !s.passed) as Stop
@@ -594,7 +728,7 @@ export function safeguardsText(rep: SafeguardsReport): string[] {
     const all = rep.runs.flatMap((r) => r.findings)
     const violations = all.filter((f) => classOf(f) === 'VIOLATION')
     const detected = all.filter((f) => classOf(f) === 'DETECTED')
-    out.push(`open disconnections detected: ${violations.length} violation verdicts and ${detected.length} detected disconnections over ${rep.runs.length} runs (none of them a pass)`)
+    out.push(`open disconnections detected: ${violations.length} violation verdicts and ${detected.length} detected disconnections over ${rep.runs.length} runs (none of them a pass; the detected, by verdict: ${detectedByVerdict(all)})`)
     out.push('')
     out.push('THE RUNS, DECISION BY DECISION')
     for (const r of rep.runs) {
@@ -607,8 +741,13 @@ export function safeguardsText(rep: SafeguardsReport): string[] {
     for (const d of DISPOSITION) out.push(`- ${d.id}: ${d.check}; ${d.disposition}; source ${d.where}, ${d.origin}; authority ${d.authority}; reads ${d.reads}; reads wording-derived lenses: ${d.readsLenses ? 'yes' : 'no'}${d.reported ? `; ${d.reported}` : ''}; negative control: ${d.control}`)
     out.push('')
     out.push(`OPEN DISCONNECTIONS (${rep.entries.length}; printed as open disconnections, never as safeguards passing)`)
+    // An entry with measured pairs prints them, grouped by verdict and rule; otherwise its rows and verdicts on its runs.
+    const pairsText = (e: OpenDisconnection): string => {
+        const keys = [...new Set(e.pairs!.map((p) => `${p.verdict}${p.rule ? ` (${p.rule})` : ''}`))]
+        return `${e.rows.join(', ')}: ${keys.map((key) => `${key} on ${e.pairs!.filter((p) => `${p.verdict}${p.rule ? ` (${p.rule})` : ''}` === key).map((p) => p.run).join(', ')}`).join('; ')}`
+    }
     for (const e of rep.entries) {
-        out.push(`- ${e.id} [${e.scope === 'EXPERIMENT' ? 'experiment path' : 'legacy route, reported only'}] ${plainText(e.what)}: ${e.verdicts.length ? `${e.rows.join(', ')} ${e.verdicts.join(', ')}` : 'a measured change, no verdict'} on ${e.runs.join(', ')}`)
+        out.push(`- ${e.id} [${e.scope === 'EXPERIMENT' ? 'experiment path' : 'legacy route, reported only'}] ${plainText(e.what)}: ${e.pairs ? pairsText(e) : e.verdicts.length ? `${e.rows.join(', ')} ${e.verdicts.join(', ')} on ${e.runs.join(', ')}` : `a measured change, no verdict on ${e.runs.join(', ')}`}`)
         out.push(`   evidence: ${plainText(e.evidence)}`)
         if (e.measured) out.push(`   measured: before ${plainText(e.measured.before)}; after ${plainText(e.measured.after)}`)
     }

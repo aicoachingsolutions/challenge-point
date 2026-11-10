@@ -7,8 +7,8 @@
  * handoff and consumed by the chain's TEST-ONLY option), over our DRAFT restatement of RPC-003 and the DRAFT TA02 record, both read from the
  * TEST-ONLY draft store ta02-composition (as the handoff's A05 cases read it), each run labelled TA02's context pending: TA02-0 (the knowledge
  * as it stands) and TA02-D (every condition item withheld, the LAW-11 stand-in, as A02-D). One test measures, from both goals' own results,
- * which decisions are shared and which differ, whether the two built outputs collapse into one activity, and that the TA02 runs' owned
- * decisions are consumed (the safeguard check of a02-safeguards.unit.ts, run on them).
+ * which decisions are shared and which differ, whether the two built outputs collapse into one activity, and that the TA02 runs' Game Form
+ * and constraints are consumed and their Game Problem carried, read by no decision (the safeguard check of a02-safeguards.unit.ts, run on them).
  *
  * The evidence (docs/audits/design-reasoning-a02/evidence/): `a02-report.txt`, organized by Christian's seven report items (each keeping the
  * implemented and tested behaviour apart from what stays open, our proposals, our assumptions and ecological suitability), then the detailed
@@ -33,7 +33,7 @@ import { CaseInput, ChainAnswer, ChainRequest, HandoffChain, HandoffResult, runH
 import { holdsGenderedPronoun, realChain } from './handoff-chain.unit'
 import { handoffReportText, plain, quoted, show } from './handoff-report'
 import { carRequirementNames, cell, committedKnowledge } from './knowledge'
-import { blockerSequence, classOf, DISPOSITION, Finding, OpenDisconnection, ownershipMessage, ownershipOf, OWNERSHIP_TABLE, SafeguardRun, safeguardRunOf, stale, unlisted } from './safeguards'
+import { blockerSequence, classOf, detectedByVerdict, DISPOSITION, Finding, OpenDisconnection, ownershipMessage, ownershipOf, OWNERSHIP_TABLE, SafeguardRun, safeguardRunOf, stale, unlisted } from './safeguards'
 import { runStage1 } from './stage1'
 
 const quiet = console.log
@@ -214,7 +214,8 @@ const TA02_IDS = TA02_CASES.map((c) => c.id)
 const TA02_DISCONNECTIONS: OpenDisconnection[] = ['OD-HINT-GAME-PROBLEM', 'OD-CONTEXT', 'OD-DISPLAY'].map((id) => {
     const e = S.OPEN_DISCONNECTIONS.find((x) => x.id === id)
     assert.ok(e, id)
-    return { ...copy(e), runs: [...TA02_IDS] }
+    // An entry's measured pairs are measured again on these runs: the hint-governing reading equals Step 1's GP-015 on both by agreement.
+    return { ...copy(e), runs: [...TA02_IDS], ...(e.pairs ? { pairs: TA02_IDS.map((run) => ({ run, verdict: 'AGREES_INDEPENDENTLY' as const })) } : {}) }
 })
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -393,6 +394,7 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'TA02-0', means: 'the TA02 run of the knowledge as it stands, with our DRAFT restatement of Attack Development (the reuse comparison)' },
     { id: 'TA02-D', means: 'the TA02 diagnostic, as A02-D (the reuse comparison)' },
     { id: 'L1', means: 'the legacy route: A02 on the production records, nothing consumed (the route the production chain takes)' },
+    { id: 'L2', means: 'the chain\'s own route: A02 with our TEST-ONLY draft store (our DRAFT record and our restatement), nothing consumed, nothing placed' },
     { id: 'S4-', family: true, means: 'a run of item 4: manipulations entered only through the DRAFT record\'s authorized set (NP Neutral Player, WZA Wide Zone Advantage, TR Turnover Reward, CDC Central Density Condition, IR Interception Reward; /no-bypass: without the size-rule bypass)' },
     { id: 'OD-', family: true, means: 'an open disconnection the safeguards detect, listed with its measured evidence in appendix B; printed as open, never as a pass' },
     { id: 'TT-', family: true, means: 'a TEST-ONLY treatment, labelled where it enters (appendix A and appendix D)' },
@@ -414,13 +416,17 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'NO_COMPATIBLE_COMBINATION', means: 'the selector\'s refusal: no combination of lenses and constraints passed its checks' },
     { id: 'FOUNDATION_CLAUSE', means: 'the selection check that a package holds a foundation constraint (with its keyword threshold)' },
     { id: 'PACKAGE_ROW_O', means: 'the selection check that a package shows a clear relationship to the selected affordance (row o)' },
-    { id: 'CONSUMED', means: 'a verdict: the value equals the upstream one and the chain\'s own record shows it was handed that value' },
+    { id: 'CONSUMED', means: 'a verdict: the value equals the upstream one and the chain\'s own record shows the decision was made from it (the forms its scorer was handed; the record\'s pool)' },
+    { id: 'CARRIED_NOT_READ', means: 'a verdict: the chain carries the upstream value as a record that no decision of the chain reads (a detected disconnection, never a pass, never consumption)' },
     { id: 'AGREES_INDEPENDENTLY', means: 'a verdict: equal values with no record of consumption (a latent disconnection, never counted as consumption)' },
     { id: 'CONTRADICTED', means: 'a verdict: the value used downstream differs from the upstream one' },
     { id: 'REFUSED_ON_OWN_CHOICE', means: 'a verdict: the chain refused on its own choice before consuming the upstream one' },
-    { id: 'CARRIED', means: 'a verdict: an item constituting the clause reached derivation and its lines resolved in the built game' },
-    { id: 'CITED_NOT_CARRIED', means: 'a verdict: an approved row is cited (or displayed) while nothing carries it' },
+    { id: 'ENGINE_RULE_DECIDED', means: 'a verdict: after the form was consumed, an engine rule refused the selection (a detected disconnection where attributed to a check kept under the authorization\'s section 5; a violation otherwise)' },
+    { id: 'CARRIED', means: 'a verdict: every open item constituting the clause reached derivation and lines of the built game rest on each, none of them without a value; no declaration replaced' },
+    { id: 'CARRIED_UNDER_TREATMENT', means: 'a verdict: the clause is carried only with a declaration replaced by a TEST-ONLY treatment (a detected disconnection, never a pass)' },
+    { id: 'CITED_NOT_CARRIED', means: 'a verdict: an approved row is cited (or displayed) while nothing carries it, or only part of it' },
     { id: 'WITHHELD_BY_TREATMENT', means: 'a verdict: a declared TEST-ONLY treatment withheld it (a detected disconnection, never a pass)' },
+    { id: 'REFUSED_ON_CLAUSE_LINE', means: 'a verdict: the run\'s refusal cites a line of the clause\'s own items, so the clause was decided and stays explicitly unresolved (a detected disconnection, never a pass)' },
     { id: 'NOT_REACHED', means: 'a verdict: the run stopped before the decision' },
     { id: 'NOT_CLASSIFIED', means: 'the requirement account\'s state for a scoring condition with no requirement bindings: never a pass' },
     { id: 'NOT_AUTHORED', means: 'a restatement declaration: nothing authored the value' },
@@ -455,7 +461,7 @@ function identifiersOf(text: string): string[] {
 
 const A02_RUN_IDS = experiment.runOrder
 const reachedChain = S.EXPERIMENT_RUNS.filter((id) => S.at(id).run.chain !== null)
-const consumedOn = (row: string) => reachedChain.filter((id) => S.verdictOf(id, row) === 'CONSUMED').length
+const verdictOn = (row: string, verdict: string) => reachedChain.filter((id) => S.verdictOf(id, row) === verdict).length
 const clauseCounts = (clause: string) => {
     const counts: Record<string, number> = {}
     for (const id of S.EXPERIMENT_RUNS) {
@@ -528,11 +534,16 @@ function bodyLines(): string[] {
 
     add('1. CONSUMPTION OF STEP 1 AND STEP 2')
     add(`Christian asked: ${cite('A02-10NOV-REPORT', 0)}`)
-    add('Answer (OURS): on the isolated pathway, yes, for the Game Problem and the Game Form: the chain builds on Step 2\'s form and carries Step 1\'s Game Problem, and its own record of what it was handed shows it on every run. Two readings still come from the wording or the routing beside them (open, below). The production route is unchanged and still picks A02\'s form from the wording.')
+    const gp2 = S.at('GP-002')
+    add(
+        `Answer (OURS): on the isolated pathway, yes for the Game Form: the chain builds on Step 2's form, its scorer handed only that form. The Game Problem reaches the chain only through Step 2's form: Step 2 chooses the form from Step 1's Game Problem (with Step 1's primary swapped to ${gp2.result.receive.step1?.primary.join(', ')}, the chain builds on ${gp2.result.consumption?.form?.formId}). The chain also carries Step 1's Game Problem in its account, but no chain decision reads it (${S.verdictOf('A02-0', 'GAME_PROBLEM')}): its Game-Problem-dependent inputs (the lens hints and matched signals) still read the planning model (OD-HINT-GAME-PROBLEM; on ${gp2.id} they read ${gp2.run.chain?.gameProblemId} while the account carries ${gp2.result.consumption?.gameProblem?.gameProblemId}), and the context is read from the routing (open, below). The production route is unchanged and still picks A02's form from the wording.`,
+    )
     add('Implemented and tested:')
     add('- A TEST-ONLY option of the checked chain hands it Step 1\'s resolved Game Problem and Step 2\'s SELECTED form: its candidate forms become the routed context\'s declared forms filtered to Step 2\'s form (never replaced by it), a form outside them is refused, and its constraints come only from the authorization record.')
     add(`- The ${A02_RUN_IDS.length} A02 runs (${A02_RUN_IDS.join(', ')}): Step 1 ${s1?.status} ${s1?.primary.join(', ')} at ${s1?.contextId} (${s1?.basis}); Step 2 ${s2?.status} ${s2?.selected} (compatible: ${s2?.compatible.join(', ')}); the chain built on ${a0.consumption?.form?.formId}, its scorer handed only ${a0.consumption?.formCandidatesScored.join(', ')}; the handoff placed nothing.`)
-    add(`- On ${reachedChain.length} of the ${S.EXPERIMENT_RUNS.length} experiment runs (every one that reaches the chain), the Game Problem, the Game Form and the constraints read CONSUMED (${consumedOn('GAME_PROBLEM')}, ${consumedOn('GAME_FORM')} and ${consumedOn('CONSTRAINTS')} runs): each value equals Step 1's or Step 2's and the chain's own record shows it was handed that value. The one other run (Step 1's primary swapped to GP-001) is reconsidered by Step 2, which retains ${S.at('GP-001').result.receive.step2?.compatible.join(', ')} with no basis to select, and stops before the chain.`)
+    add(
+        `- On ${reachedChain.length} of the ${S.EXPERIMENT_RUNS.length} experiment runs (every one that reaches the chain): the Game Form reads CONSUMED (${verdictOn('GAME_FORM', 'CONSUMED')} runs), equal to Step 2's form, and the chain's own record shows its scorer was handed only it; the constraints read CONSUMED (${verdictOn('CONSTRAINTS', 'CONSUMED')} runs) against the authorized set of our TEST-ONLY DRAFT A02 record, or of a TEST-ONLY copy of it on the runs of item 4 (no ruling; the finding is ours), not against any decision of Step 1 or Step 2; Step 1's Game Problem is carried in the account and read by no chain decision: CARRIED_NOT_READ (${verdictOn('GAME_PROBLEM', 'CARRIED_NOT_READ')} runs, a detected disconnection). The one other run (Step 1's primary swapped to GP-001) is reconsidered by Step 2, which retains ${S.at('GP-001').result.receive.step2?.compatible.join(', ')} with no basis to select, and stops before the chain.`,
+    )
     const legacyPicks = [...new Set(['GP-002/legacy', 'GF7-CELL/legacy'].map((id) => S.at(id).run.chain?.ownPick?.join(', ')))]
     add(`- Dependency: with Step 1's primary swapped to GP-002 in a test copy of the knowledge (TEST ASSUMPTION), Step 2 selects ${S.at('GP-002').result.receive.step2?.selected} and the chain builds on ${S.at('GP-002').result.consumption?.form?.formId} carrying ${S.at('GP-002').result.consumption?.gameProblem?.gameProblemId}; with GF2's GP-015 cell moved to GF7 there, Step 2 selects ${S.at('GF7-CELL').result.receive.step2?.selected} and the chain builds on ${S.at('GF7-CELL').result.consumption?.form?.formId}. The legacy route on the same two inputs stays on ${legacyPicks.join(' and ')}${legacyPicks.length === 1 ? ' in both' : ''}, its pick from the wording.`)
     add(`- Wording: with the goal's wording rewritten twice (in the knowledge copy and in the row the chain reads; restored, the restore asserted), Steps 1 and 2 and the consumed form do not move (${json(S.at('A02-0~reversed').result.receive) === json(a0.receive) && json(S.at('A02-0~neutral').result.receive) === json(a0.receive) ? 'identical' : 'CHANGED'}), while the chain's own route moves from ${S.at('L2').run.chain?.ownPick?.join(', ')} to ${S.at('L2~reversed').run.chain?.ownPick?.join(', ')}, which proves the rewrite reached the chain.`)
@@ -553,7 +564,11 @@ function bodyLines(): string[] {
     add(`- A02-0, the knowledge as it stands: refused at ${a0.refusal?.stage} on ${(a0.refusalBasis?.cited ?? []).map((c) => c.ref).join(' (the control clause\'s referent) and ')} (the origin clause's value): ${plain(experiment.restatementOnlyWords)}.`)
     for (const clause of ['origin', 'progression', 'control']) {
         const c = clauseCounts(clause)
-        add(`- The ${clause} clause over the ${S.EXPERIMENT_RUNS.length} experiment runs: ${Object.entries(c).map(([v, n]) => `${v} on ${n}`).join(', ')}${clause === 'control' ? ' (carried only under the TEST-ONLY declaration that its referent needs no further value, which Christian has not ruled)' : ''}.`)
+        add(
+            `- The ${clause} clause over the ${S.EXPERIMENT_RUNS.length} experiment runs: ${Object.entries(c)
+                .map(([v, n]) => `${v} on ${n}${v === 'CARRIED_UNDER_TREATMENT' ? ' (carried only under the TEST-ONLY declaration that its referent needs no further value, which Christian has not ruled; its referent line holds no value)' : ''}`)
+                .join(', ')}.`,
+        )
     }
     add(`- A02-D, the diagnostic (every condition item withheld): the chain would serve plain GF2 (${aD.sentences.length} sentences): structural compatibility only, not representative sufficiency.`)
     add('Unsupported (UNRESOLVED, kept explicit, never closed by an assumption; where each stands: appendix A):')
@@ -575,10 +590,10 @@ function bodyLines(): string[] {
     add(`- The known failure: on L1 the chain refuses at selection on its own ${S.at('L1').run.chain?.form} before consuming Step 2's ${s2?.selected}: ${S.verdictOf('L1', 'GAME_FORM')}; the assertion every experiment run must pass fails on it: '${plain(failureOf(S.at('L1').findings).split(' | ')[1] ?? '')}'.`)
     const fails = (findings: Finding[]) => (failureOf(findings) === 'PASSED' ? 'the assertion PASSES on it' : 'the assertion fails on it')
     add(`- A comparable substitution: a test-only wrapper that drops the handed decisions, on a wording where the chain's own pick equals ${s2?.selected}: the form reads ${S.verdictOf('W-DROPS-UPSTREAM', 'GAME_FORM')} and ${fails(S.at('W-DROPS-UPSTREAM').findings)}; the same run with the decisions handed reads ${S.verdictOf('A02-0~pressure', 'GAME_FORM')} and ${failureOf(S.at('A02-0~pressure').findings) === 'PASSED' ? 'passes' : 'FAILS'}.`)
-    add(`- Dependency verification: a changed Game Problem and a moved cell are reconsidered by Step 2 and consumed (item 1); the planning model's hint-governing reading stays GP-015 when Step 1 says GP-002 (${S.verdictOf('GP-002', 'GAME_PROBLEM_HINTS')}, listed).`)
+    add(`- Dependency verification: a changed Game Problem and a moved cell are reconsidered by Step 2, whose form the chain consumes (item 1); the planning model's hint-governing reading stays GP-015 when Step 1 says GP-002 (${S.verdictOf('GP-002', 'GAME_PROBLEM_HINTS')}, listed), and the GP-002 the chain carries is read by no chain decision (${S.verdictOf('GP-002', 'GAME_PROBLEM')}).`)
     for (const id of ['OD-WORDING-LENSES', 'OD-WORDING-FLIP']) add(`- Safeguard B fails on ${id}: ${plain(entry(id).what)}; before: ${plain(entry(id).measured?.before ?? '')}; after: ${plain(entry(id).measured?.after ?? '')}.`)
     add(`- Consumption tracing: with one cited event removed from our restatement, A02-2 moves from ${S.at('A02-2').result.chain?.stage} to ${S.at('A02-2/no-line-crossed').result.chain?.stage}, on the event line that item shaped; with A02-D's treatment declaration removed, its three clauses read ${[...new Set(doctoredA02D.filter((f) => f.row === 'SCORING').map((f) => f.verdict))].join(', ')} and ${fails(doctoredA02D)}; with GP-015's CAR ratings changed, the chain's result is identical (consulted, not determining).`)
-    add(`- Over the ${S.runs.size} runs: ${violations} violation verdicts and ${detected} detected disconnections, none of them a pass.`)
+    add(`- Over the ${S.runs.size} runs: ${violations} violation verdicts and ${detected} detected disconnections (by verdict: ${detectedByVerdict(all)}), none of them a pass.`)
     add(`Open disconnections (${S.OPEN_DISCONNECTIONS.length}; each with its evidence and runs in appendix B):`)
     for (const e of S.OPEN_DISCONNECTIONS) add(`- ${e.id} [${e.scope === 'EXPERIMENT' ? 'experiment path' : 'legacy route, reported only'}]: ${plain(e.what)}`)
     add(`Proposals (OURS, for Christian's decision): whether the kept package checks that read the wording-derived lenses fall under ${cite('A02-10NOV-QUOTA', 1)}, or are a selection from wording the consumption is meant to remove; they are kept, enforced and reported here.`)
@@ -608,15 +623,20 @@ function bodyLines(): string[] {
 
     add('5. THE EARLIEST CONSEQUENTIAL BLOCKER')
     add(`Christian asked: ${cite('A02-10NOV-REPORT', 4)}`)
-    add(`Answer (OURS): the origin clause of High Press Escape's approved scoring condition (the sequence begins under established coordinated pressure): ${cats(seq.earliest.categories)}.`)
+    const first = seq.sequence[0]
+    add(
+        `Answer (OURS): in chain order, the first stop is that A02 has no authorization record (${cats(first.categories)}): the experiment passes it only with our TEST-ONLY DRAFT record (an empty set; the finding ours; no ruling). What would resolve it is small: Christian's evaluation of whether A02 needs any manipulation (an evaluated empty set is admitted under Christian's general principle of 15 October 2026). Past it, the earliest consequential blocker is the origin clause of High Press Escape's approved scoring condition (the sequence begins under established coordinated pressure): ${cats(seq.earliest.categories)}. A02-0's single refusal cites the origin clause's value and the control clause's referent together; placing the origin clause first is ours (an assumption, below).`,
+    )
     add('Implemented and tested (computed from the runs, in chain order):')
     for (const s of seq.sequence) add(`- ${plain(s.path)}: ${s.stage}: ${plain(s.reason)} [${cats(s.categories)}] ${s.passed ? `(passed by ${s.passedBy})` : '(remains)'}`)
+    add(`- The first stop: ${plain(first.why)}.`)
+    add(`- Every experiment path past the first stop, and the zero-manipulation base of every A02 run, stands on our TEST-ONLY DRAFT A02 record (an empty set, the finding ours, no ruling), in place of Christian's evaluation of A02's manipulations, which no record holds.`)
     add(`- Earliest remaining: ${plain(seq.earliest.path)}: ${plain(seq.earliest.why)}.`)
     add('- Downstream, recorded and not investigated:')
     for (const s of seq.downstream) add(`   ${plain(s.path)}: ${s.stage} [${cats(s.categories)}]`)
     add(`The categories are Christian's: ${cite('A02-10NOV-FAILURE-SOURCES', 0)} ${S.CATEGORIES.slice(1).map((w) => quoted(w)).join(' ')}`)
-    add('Proposals: none; the smallest source material that would resolve it is question 1 of item 2, a request, not a proposal of knowledge.')
-    add('Assumptions (OURS): the assignment of each stop to Christian\'s categories, and the order of the questions.')
+    add('Proposals: none; the smallest source material for the first stop is Christian\'s evaluation of A02\'s manipulations (an authorization record), and for the blocker past it question 1 of item 2; each a request, not a proposal of knowledge.')
+    add('Assumptions (OURS): the assignment of each stop to Christian\'s categories; the order of the questions; placing the origin clause before the control clause\'s referent, which A02-0\'s single refusal cites together.')
     add('Ecological suitability: not addressed: the blocker is a gap of knowledge and of a carrier, met before any activity is built.')
     add('')
 
@@ -625,7 +645,7 @@ function bodyLines(): string[] {
     const shared = COMPARISON.rows.filter((r) => r.kind === 'SHARED')
     const differs = COMPARISON.rows.filter((r) => r.kind === 'DIFFERS')
     add(`Answer (OURS): ${REUSE_FINDING}`)
-    add(`Implemented and tested: TA02 run through the same consumption (TA02-0, the knowledge as it stands; TA02-D, the diagnostic), over our DRAFT restatement of RPC-003 and the DRAFT TA02 record (TEST-ONLY draft store): its Game Problem, Game Form and constraints read ${[...new Set(TA02_IDS.flatMap((id) => ['GAME_PROBLEM', 'GAME_FORM', 'CONSTRAINTS'].flatMap((row) => verdictsOf(ta02Safeguard(id).findings, row))))].join(', ')}. Measured from both goals' results (appendix C):`)
+    add(`Implemented and tested: TA02 run through the same consumption (TA02-0, the knowledge as it stands; TA02-D, the diagnostic), over our DRAFT restatement of RPC-003 and the DRAFT TA02 record (TEST-ONLY draft store): ${[['its Game Problem', 'GAME_PROBLEM'], ['its Game Form', 'GAME_FORM'], ['its constraints', 'CONSTRAINTS']].map(([what, row]) => `${what} reads ${[...new Set(TA02_IDS.flatMap((id) => verdictsOf(ta02Safeguard(id).findings, row)))].join(', ')}`).join(', ')}. Measured from both goals' results (appendix C):`)
     add(`- shared (${shared.length}): ${shared.map((r) => r.aspect).join('; ')}.`)
     add(`- differing (${differs.length}): ${differs.map((r) => r.aspect).join('; ')}.`)
     for (const r of differs.filter((x) => x.aspect === 'the context' || x.aspect.indexOf('the condition\'s') === 0)) add(`   ${r.aspect}: A02 ${plain(r.a02)} | TA02 ${plain(r.ta02)}`)
@@ -761,7 +781,7 @@ const rowOf = (aspect: string): ReuseRow => {
     return r
 }
 
-test(`S5. reuse, brief: TA02 through the same consumption over our DRAFT restatement of RPC-003 (TA02's context pending); one comparison measured from both goals' results, the shared decisions (Step 1's GP-015, the CAR profile, Step 2's GF2 and its cell grade, the consumption, the events) against the differing ones (the context, the scoring condition and its clauses, where each stops, opposition, the lenses, the targets); the two diagnostic builds collapse into one activity; the TA02 runs' owned decisions consumed, their detected disconnections listed`, () => {
+test(`S5. reuse, brief: TA02 through the same consumption over our DRAFT restatement of RPC-003 (TA02's context pending); one comparison measured from both goals' results, the shared decisions (Step 1's GP-015, the CAR profile, Step 2's GF2 and its cell grade, the consumption, the events) against the differing ones (the context, the scoring condition and its clauses, where each stops, opposition, the lenses, the targets); the two diagnostic builds collapse into one activity; the TA02 runs' Game Form and constraints consumed and their Game Problem carried and read by no decision, their detected disconnections listed`, () => {
     // The TA02 cases are held to the handoff's own validator; the store is admitted whole by its gate (loadDraftStore, above).
     assert.doesNotThrow(() => validateHandoffInputs(ta02Inputs))
     assert.deepEqual(
@@ -785,7 +805,7 @@ test(`S5. reuse, brief: TA02 through the same consumption over our DRAFT restate
         assert.deepEqual([r.consumption?.selectionObservedOnly, r.consumption?.formCandidatesScored, r.consumption?.constraintAuthority, r.consumption?.constraintCandidateIds], [true, ['GF2'], 'AUTHORIZATION_RECORD', []], id)
         // The same safeguard check as the A02 runs: the owned decisions consumed; every detected disconnection listed; none stale.
         const { findings } = ta02Safeguard(id)
-        assert.deepEqual(['GAME_PROBLEM', 'GAME_FORM', 'CONSTRAINTS'].map((row) => verdictsOf(findings, row).join(',')), ['CONSUMED', 'CONSUMED', 'CONSUMED'], id)
+        assert.deepEqual(['GAME_PROBLEM', 'GAME_FORM', 'CONSTRAINTS'].map((row) => verdictsOf(findings, row).join(',')), ['CARRIED_NOT_READ', 'CONSUMED', 'CONSUMED'], id)
         assert.deepEqual(unlisted(findings, TA02_DISCONNECTIONS, ['EXPERIMENT']).map(ownershipMessage), [], id)
         // Never a TA02 configuration: each run carries the context-pending note.
         assert.ok(r.reportNotes.some((n) => n.text.indexOf('TA02\'s context pending') === 0), id)

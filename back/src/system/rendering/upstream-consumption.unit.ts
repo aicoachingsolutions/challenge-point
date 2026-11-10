@@ -357,6 +357,12 @@ test('statically: production cannot reach the option (identifiers, positional ar
     const calls: string[] = []
     const references: string[] = []
     const callersOfTheEntry: string[] = []
+    // Forms the name-based checks above cannot follow: an import or export that renames selectFor or generateSelection
+    // or names the TEST-ONLY entry, a call through element access with a string key naming one of the three, and any reference to the entry
+    // outside its declaration. None may appear outside build-activity.ts and run-bounded-selection.ts.
+    const WATCHED = new Set(['selectFor', 'generateSelection', 'buildActivityUnderAuthorizationRecords'])
+    const ENTRY = 'buildActivityUnderAuthorizationRecords'
+    const evasions: string[] = []
     const scan = (name: string, text: string) => {
         const source = ts.createSourceFile(name, text, ts.ScriptTarget.ES2020, true)
         const lineOf = (node: ts.Node) => source.getLineAndCharacterOfPosition(node.getStart(source)).line
@@ -391,6 +397,15 @@ test('statically: production cannot reach the option (identifiers, positional ar
                 const typeQuery = ts.isTypeQueryNode(parent)
                 if (!callee && !method && !declaration && !specifier && !typeQuery) references.push(`${name} ${node.text} :: ${lines[lineOf(node)].trim()}`)
             }
+            if (ts.isImportSpecifier(node) || ts.isExportSpecifier(node)) {
+                const imported = node.propertyName ? node.propertyName.text : node.name.text
+                if (imported === ENTRY || node.name.text === ENTRY) evasions.push(`${name} specifier naming the entry`)
+                else if (node.propertyName && WATCHED.has(imported) && node.name.text !== imported) evasions.push(`${name} specifier renaming ${imported} as ${node.name.text}`)
+            }
+            if (ts.isCallExpression(node) && ts.isElementAccessExpression(node.expression) && ts.isStringLiteralLike(node.expression.argumentExpression) && WATCHED.has(node.expression.argumentExpression.text))
+                evasions.push(`${name} element-access call of ${node.expression.argumentExpression.text}`)
+            if (ts.isIdentifier(node) && node.text === ENTRY && !(ts.isFunctionDeclaration(node.parent) && node.parent.name === node) && !ts.isImportSpecifier(node.parent) && !ts.isExportSpecifier(node.parent))
+                evasions.push(`${name} reference to the entry`)
             ts.forEachChild(node, visit)
         }
         visit(source)
@@ -399,10 +414,31 @@ test('statically: production cannot reach the option (identifiers, positional ar
     scan('probe.ts', `selectFor('A02', null, r, undefined, undefined, u)\ngenerateSelection(i, h, true)\nselectFor(...args)\nconst s = selectFor\nconst x = upstream`)
     assert.deepEqual(calls.splice(0), ['probe.ts selectFor 6', 'probe.ts generateSelection 3', 'probe.ts selectFor spread'])
     assert.deepEqual(references.splice(0), ['probe.ts selectFor :: const s = selectFor'])
+    // ... and each form the name-based checks cannot follow.
+    scan(
+        'probe2.ts',
+        [
+            `import { generateSelection as pick } from '../test-library/generateSelection'`,
+            `export { selectFor as choose } from '../derivation/run-bounded-selection'`,
+            `import { ${ENTRY} } from '../rendering/build-activity'`,
+            `rbs['selectFor'](a, b, c, d, e, f)`,
+            `const run = ${ENTRY}`,
+        ].join('\n'),
+    )
+    assert.deepEqual(evasions.splice(0), [
+        'probe2.ts specifier renaming generateSelection as pick',
+        'probe2.ts specifier renaming selectFor as choose',
+        'probe2.ts specifier naming the entry',
+        'probe2.ts element-access call of selectFor',
+        'probe2.ts reference to the entry',
+    ])
+    assert.deepEqual([calls.splice(0), references.splice(0)], [[], []], 'the name-based checks do not see those forms (which is why these exist)')
     named.clear()
     namedLines.clear()
 
     for (const file of files) scan(relative(file), fs.readFileSync(file, 'utf8'))
+    // 7e. None of those forms outside the two files that thread the option (the entry's declaration is in build-activity.ts).
+    assert.deepEqual(evasions.filter((e) => !e.startsWith('system/rendering/build-activity.ts ') && !e.startsWith('system/derivation/run-bounded-selection.ts ')), [])
 
     // 7a. The only calls with an argument in the new position: the threading itself, one per file.
     assert.deepEqual(calls.sort(), ['system/derivation/run-bounded-selection.ts generateSelection 3', 'system/rendering/build-activity.ts build 18', 'system/rendering/build-activity.ts selectFor 6'])

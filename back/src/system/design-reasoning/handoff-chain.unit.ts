@@ -15,7 +15,7 @@
  *
  * Added in stage 9, and used only where a request carries them (no earlier case does): a request that CONSUMES Steps 1 and 2 (`consume`) is
  * built with the entry's TEST-ONLY `upstream` option and an observe-only selection hook (the entry throws if a hook changes a selection that
- * consumed upstream decisions), and refused here if it places anything; its answer carries what the chain's own account recorded it consumed
+ * consumed upstream decisions), and refused here if it places anything or carries a vehicle; its answer carries what the chain's own account recorded it consumed
  * (`consumption`). A request's `replaceDeclarations` replace one declaration each on the chain's copy of a contract; a request's `laws` hands
  * the chain's own laws check our DRAFT classification, with its labelled stand-in where it names one. On every request: a choice line
  * carries the draft items the chain records as shaping it (`draftShapedBy`, never graded), and the chain's own sentences are printed without
@@ -386,6 +386,8 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
         const consume = request.consume
         if (consume && request.place.length) throw new Error(`case ${request.caseId}: a request that consumes Steps 1 and 2 places nothing, and this one places ${request.place.map((p) => p.id).join(', ')}`)
         if (request.laws && vehicle?.lawsStandIn) throw new Error(`case ${request.caseId}: a classification of the laws is given either by the vehicle or by the request, not both`)
+        // The hook below only observes a consuming request's selection, so a vehicle's removeContext could not be applied (the handoff refuses the pair too).
+        if (consume && vehicle) throw new Error(`case ${request.caseId}: a request that consumes Steps 1 and 2 carries no TEST-ONLY vehicle, and this one carries ${vehicle.goalId}`)
         // Handed to the entry's TEST-ONLY option as Steps 1 and 2 returned them in this run (the selection refuses a malformed one, fail closed).
         // The safeguards slice: the size-rule bypass is handed on only where the case declares it (the option's boolean, and nothing else).
         const upstream: UpstreamDecisions | undefined = consume

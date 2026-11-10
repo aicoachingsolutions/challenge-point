@@ -289,9 +289,21 @@
       "RPC-003-12.a",
       "RPC-003-12.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-003-10.a",
+       "ref": "c:restated:RPC-003:RPC-003-10.a::V6"
+      },
+      {
+       "itemId": "RPC-003-12.a",
+       "ref": "c:restated:RPC-003:RPC-003-12.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -300,8 +312,8 @@
      "runId": "TA02-0",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -348,8 +360,8 @@
      "runId": "TA02-0",
      "row": "SCORING",
      "clause": "origin",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-003:RPC-003-10.a::V6: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -357,15 +369,15 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
      "runId": "TA02-0",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-003:RPC-003-12.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -464,6 +476,8 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [
       {
@@ -495,7 +509,8 @@
        "treatmentId": "TT-WITHHOLD-CONDITION"
       }
      ],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -504,8 +519,8 @@
      "runId": "TA02-D",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -594,7 +609,7 @@
  "openDisconnections": [
   {
    "id": "OD-HINT-GAME-PROBLEM",
-   "what": "the Game Problem reading that governs the engine lens hints and matched signals is still the planning model's (guided-selection.ts:228), not Step 1's: equal by agreement on the A02 runs, different where Step 1 differs",
+   "what": "the Game Problem reading that governs the engine lens hints and matched signals is still the planning model's (guided-selection.ts:228), not Step 1's: equal by agreement on the A02 runs, different where Step 1 differs; the Step 1 value the chain carries is read by no decision of the chain (the Game Problem row reads CARRIED_NOT_READ)",
    "scope": "EXPERIMENT",
    "rows": [
     "GAME_PROBLEM_HINTS"
@@ -645,7 +660,169 @@
     "S4-CDC+IR~neutral",
     "A02-0~pressure"
    ],
-   "evidence": "every A02 run: the account reads APPROVED GP-015 from the planning model beside the carried Step 1 value; GP-002 (Step 1 swapped in a TEST copy): the planning model still reads GP-015 (CONTRADICTED). guided-selection.ts is not touched (DESIGN-9 section 0)"
+   "pairs": [
+    {
+     "run": "A02-0",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "A02-1",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "A02-1b",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "A02-2",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "A02-D",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-NP",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-WZA",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-TR",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-CDC",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-NP+WZA",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-NP+TR",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-CDC+IR",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-NP@A02-D",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-NP+WZA@A02-D",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "GP-002",
+     "verdict": "CONTRADICTED"
+    },
+    {
+     "run": "GF7-CELL",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "A02-2/narrowed",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "A02-2/no-line-crossed",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "NO-RESTATEMENT",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "A02-0~reversed",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "A02-1~reversed",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "A02-2~reversed",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-NP~reversed",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-WZA~reversed",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-TR~reversed",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-CDC~reversed",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-NP+WZA~reversed",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-NP+TR~reversed",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-CDC+IR~reversed",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "A02-0~neutral",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "A02-1~neutral",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "A02-2~neutral",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-NP~neutral",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-WZA~neutral",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-TR~neutral",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-CDC~neutral",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-NP+WZA~neutral",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-NP+TR~neutral",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "S4-CDC+IR~neutral",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "A02-0~pressure",
+     "verdict": "AGREES_INDEPENDENTLY"
+    }
+   ],
+   "evidence": "every A02 run: the account reads APPROVED GP-015 from the planning model beside the carried Step 1 value; GP-002 (Step 1 swapped in a TEST copy): the planning model still reads GP-015 (CONTRADICTED) while the account carries GP-002. guided-selection.ts is not touched (DESIGN-9 section 0)"
   },
   {
    "id": "OD-CONTEXT",
@@ -764,6 +941,68 @@
     "S4-CDC~neutral",
     "S4-CDC+IR~neutral"
    ],
+   "pairs": [
+    {
+     "run": "S4-WZA",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "FOUNDATION_CLAUSE"
+    },
+    {
+     "run": "S4-TR",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "FOUNDATION_CLAUSE"
+    },
+    {
+     "run": "S4-CDC",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "PACKAGE_ROW_O"
+    },
+    {
+     "run": "S4-CDC+IR",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "PACKAGE_ROW_O"
+    },
+    {
+     "run": "S4-WZA~reversed",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "FOUNDATION_CLAUSE"
+    },
+    {
+     "run": "S4-TR~reversed",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "FOUNDATION_CLAUSE"
+    },
+    {
+     "run": "S4-CDC~reversed",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "PACKAGE_ROW_O"
+    },
+    {
+     "run": "S4-CDC+IR~reversed",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "PACKAGE_ROW_O"
+    },
+    {
+     "run": "S4-WZA~neutral",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "FOUNDATION_CLAUSE"
+    },
+    {
+     "run": "S4-TR~neutral",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "FOUNDATION_CLAUSE"
+    },
+    {
+     "run": "S4-CDC~neutral",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "PACKAGE_ROW_O"
+    },
+    {
+     "run": "S4-CDC+IR~neutral",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "PACKAGE_ROW_O"
+    }
+   ],
    "evidence": "attributed by re-running the exported isSelectionPackageCompatible on GF2 and each of the 4 lens combinations: a lone Wide Zone Advantage or Turnover Reward is refused by the foundation clause on every combination, Central Density Condition alone and with Interception Reward by row o; the role mix is not attributable without an observer"
   },
   {
@@ -779,6 +1018,18 @@
    "runs": [
     "S4-NP+TR~reversed",
     "S4-NP+TR~neutral"
+   ],
+   "pairs": [
+    {
+     "run": "S4-NP+TR~reversed",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "PACKAGE_ROW_K"
+    },
+    {
+     "run": "S4-NP+TR~neutral",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "PACKAGE_ROW_K"
+    }
    ],
    "evidence": "the reworded lenses are Line-Breaking, Possession Stability and Space Creation; row k (Turnover Reward does not support the selected affordance tag group) refuses all 4 lens combinations there, 1 of 4 on the goal's own lenses",
    "measured": {
@@ -897,7 +1148,7 @@
  "ta02OpenDisconnections": [
   {
    "id": "OD-HINT-GAME-PROBLEM",
-   "what": "the Game Problem reading that governs the engine lens hints and matched signals is still the planning model's (guided-selection.ts:228), not Step 1's: equal by agreement on the A02 runs, different where Step 1 differs",
+   "what": "the Game Problem reading that governs the engine lens hints and matched signals is still the planning model's (guided-selection.ts:228), not Step 1's: equal by agreement on the A02 runs, different where Step 1 differs; the Step 1 value the chain carries is read by no decision of the chain (the Game Problem row reads CARRIED_NOT_READ)",
    "scope": "EXPERIMENT",
    "rows": [
     "GAME_PROBLEM_HINTS"
@@ -910,7 +1161,17 @@
     "TA02-0",
     "TA02-D"
    ],
-   "evidence": "every A02 run: the account reads APPROVED GP-015 from the planning model beside the carried Step 1 value; GP-002 (Step 1 swapped in a TEST copy): the planning model still reads GP-015 (CONTRADICTED). guided-selection.ts is not touched (DESIGN-9 section 0)"
+   "pairs": [
+    {
+     "run": "TA02-0",
+     "verdict": "AGREES_INDEPENDENTLY"
+    },
+    {
+     "run": "TA02-D",
+     "verdict": "AGREES_INDEPENDENTLY"
+    }
+   ],
+   "evidence": "every A02 run: the account reads APPROVED GP-015 from the planning model beside the carried Step 1 value; GP-002 (Step 1 swapped in a TEST copy): the planning model still reads GP-015 (CONTRADICTED) while the account carries GP-002. guided-selection.ts is not touched (DESIGN-9 section 0)"
   },
   {
    "id": "OD-CONTEXT",
@@ -1227,23 +1488,38 @@
   "sequence": [
    {
     "id": "L1",
-    "path": "the legacy route (nothing consumed, the production records)",
+    "path": "the legacy route (nothing consumed, the production records: no A02 authorization record)",
     "stage": "selection",
     "reason": "selection: A02: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF3; unfilled roles: shaping; held by ruling: none. Nothing was drawn from outside the goal's candidates.",
     "kind": "PATH",
     "categories": [
+     1
+    ],
+    "why": "A02 has no authorization record evaluating its manipulations, so its candidates are the vocabulary pool, which cannot be combined on any of RPC-002's declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); passed only by our TEST-ONLY DRAFT record (an empty set, the finding OURS, no ruling), never by the consumption",
+    "passed": true,
+    "passedBy": "L2"
+   },
+   {
+    "id": "L2",
+    "path": "the chain's own route with our TEST-ONLY draft store (our DRAFT record and our CANDIDATE restatement), nothing consumed",
+    "stage": "knowledge",
+    "reason": "the game form GF3 has no contribution contract",
+    "kind": "PATH",
+    "within": 1617,
+    "categories": [
      4
     ],
-    "why": "the chain selects its own form from the wording against Step 2's SELECTED form (GAME_FORM REFUSED_ON_OWN_CHOICE); the consumption (S1) closes it on the experiment path",
+    "why": "the chain selects its own GF3 from the wording against Step 2's SELECTED form (GAME_FORM CONTRADICTED); the consumption (S1) closes it",
     "passed": true,
     "passedBy": "NO-RESTATEMENT"
    },
    {
     "id": "NO-RESTATEMENT",
-    "path": "consumed, without the restatement",
+    "path": "consumed, with our DRAFT record and without the restatement",
     "stage": "knowledge",
     "reason": "the Representative Performance Context RPC-002 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game",
     "kind": "PATH",
+    "within": 1684,
     "categories": [
      3,
      5
@@ -1408,9 +1684,21 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -1419,8 +1707,8 @@
      "runId": "A02-0",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -1467,8 +1755,8 @@
      "runId": "A02-0",
      "row": "SCORING",
      "clause": "origin",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -1476,15 +1764,15 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
      "runId": "A02-0",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -1588,6 +1876,8 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [
       {
@@ -1611,7 +1901,13 @@
        "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
       }
      ],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -1620,8 +1916,8 @@
      "runId": "A02-1",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -1684,8 +1980,8 @@
      "runId": "A02-1",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -1793,8 +2089,17 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
-     "resolved": [
+     "resting": [
       "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "unestablished": [
+      {
+       "itemId": "RPC-002-04.a",
+       "lineId": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ],
+     "resolved": [
       "RPC-002-04.b"
      ],
      "withheld": [
@@ -1822,9 +2127,11 @@
      "declarationTreatments": [
       {
        "selectorClause": "control",
-       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE"
+       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE",
+       "row": "V5"
       }
-     ]
+     ],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -1833,8 +2140,8 @@
      "runId": "A02-1b",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -1897,8 +2204,8 @@
      "runId": "A02-1b",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "CARRIED",
-     "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them (with a declaration replaced by TT-CONTROL-NO-FURTHER-VALUE)",
+     "verdict": "CARRIED_UNDER_TREATMENT",
+     "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them, carried only under TT-CONTROL-NO-FURTHER-VALUE, a declaration replaced: line(s) c:restated:RPC-002:RPC-002-04.a::V5 establish nothing (a detected disconnection, never a pass)",
      "consulted": null
     },
     {
@@ -1906,7 +2213,7 @@
      "row": "SCORING_DISPLAY",
      "clause": null,
      "verdict": "CITED_NOT_CARRIED",
-     "why": "the account displays the approved condition as in this activity while origin, progression are not carried",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried (control only under a declared TEST-ONLY treatment)",
      "consulted": "the requirement account's state NOT_CLASSIFIED (a limitation: no requirement bindings for RPC-PROP-133; never a pass)"
     },
     {
@@ -2007,8 +2314,17 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
-     "resolved": [
+     "resting": [
       "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "unestablished": [
+      {
+       "itemId": "RPC-002-04.a",
+       "lineId": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ],
+     "resolved": [
       "RPC-002-04.b"
      ],
      "withheld": [
@@ -2036,9 +2352,11 @@
      "declarationTreatments": [
       {
        "selectorClause": "control",
-       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE"
+       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE",
+       "row": "V5"
       }
-     ]
+     ],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -2047,8 +2365,8 @@
      "runId": "A02-2",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -2111,8 +2429,8 @@
      "runId": "A02-2",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "CARRIED",
-     "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them (with a declaration replaced by TT-CONTROL-NO-FURTHER-VALUE)",
+     "verdict": "CARRIED_UNDER_TREATMENT",
+     "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them, carried only under TT-CONTROL-NO-FURTHER-VALUE, a declaration replaced: line(s) c:restated:RPC-002:RPC-002-04.a::V5 establish nothing (a detected disconnection, never a pass)",
      "consulted": null
     },
     {
@@ -2120,7 +2438,7 @@
      "row": "SCORING_DISPLAY",
      "clause": null,
      "verdict": "CITED_NOT_CARRIED",
-     "why": "the account displays the approved condition as in this activity while origin, progression are not carried",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried (control only under a declared TEST-ONLY treatment)",
      "consulted": "the requirement account's state NOT_CLASSIFIED (a limitation: no requirement bindings for RPC-PROP-133; never a pass)"
     },
     {
@@ -2213,6 +2531,8 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [
       {
@@ -2244,7 +2564,8 @@
        "treatmentId": "TT-WITHHOLD-CONDITION"
       }
      ],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -2253,8 +2574,8 @@
      "runId": "A02-D",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -2433,9 +2754,21 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -2444,8 +2777,8 @@
      "runId": "S4-NP",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -2492,8 +2825,8 @@
      "runId": "S4-NP",
      "row": "SCORING",
      "clause": "origin",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -2501,15 +2834,15 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
      "runId": "S4-NP",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -2606,9 +2939,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "FOUNDATION_CLAUSE",
@@ -2620,8 +2956,8 @@
      "runId": "S4-WZA",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -2675,7 +3011,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -2683,7 +3019,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -2691,7 +3027,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -2788,9 +3124,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "FOUNDATION_CLAUSE",
@@ -2802,8 +3141,8 @@
      "runId": "S4-TR",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -2857,7 +3196,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -2865,7 +3204,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -2873,7 +3212,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -2970,9 +3309,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
@@ -2984,8 +3326,8 @@
      "runId": "S4-CDC",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -3039,7 +3381,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -3047,7 +3389,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -3055,7 +3397,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -3173,9 +3515,21 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -3184,8 +3538,8 @@
      "runId": "S4-NP+WZA",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -3232,8 +3586,8 @@
      "runId": "S4-NP+WZA",
      "row": "SCORING",
      "clause": "origin",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -3241,15 +3595,15 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
      "runId": "S4-NP+WZA",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -3357,9 +3711,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -3368,8 +3725,8 @@
      "runId": "S4-NP+TR",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -3417,7 +3774,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at knowledge)",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -3425,7 +3782,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at knowledge)",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -3433,7 +3790,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at knowledge)",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -3532,9 +3889,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
@@ -3546,8 +3906,8 @@
      "runId": "S4-CDC+IR",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -3601,7 +3961,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -3609,7 +3969,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -3617,7 +3977,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -3714,9 +4074,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "SIZE_RULE",
@@ -3728,8 +4091,8 @@
      "runId": "S4-NP/no-bypass",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -3778,7 +4141,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -3786,7 +4149,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -3794,7 +4157,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -3901,6 +4264,8 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [
       {
@@ -3932,7 +4297,8 @@
        "treatmentId": "TT-WITHHOLD-CONDITION"
       }
      ],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -3941,8 +4307,8 @@
      "runId": "S4-NP@A02-D",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -4116,6 +4482,8 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [
       {
@@ -4147,7 +4515,8 @@
        "treatmentId": "TT-WITHHOLD-CONDITION"
       }
      ],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -4156,8 +4525,8 @@
      "runId": "S4-NP+WZA@A02-D",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -4320,9 +4689,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -4331,8 +4703,8 @@
      "runId": "GP-002",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-002 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-002 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -4380,7 +4752,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at knowledge)",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -4388,7 +4760,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at knowledge)",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -4396,7 +4768,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at knowledge)",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -4556,9 +4928,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -4608,7 +4983,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at handoff (form))",
+     "why": "no game was built (the run stopped at handoff (form)), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -4616,7 +4991,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at handoff (form))",
+     "why": "no game was built (the run stopped at handoff (form)), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -4624,7 +4999,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at handoff (form))",
+     "why": "no game was built (the run stopped at handoff (form)), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -4794,9 +5169,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -4805,8 +5183,8 @@
      "runId": "GF7-CELL",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -4854,7 +5232,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at knowledge)",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -4862,7 +5240,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at knowledge)",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -4870,7 +5248,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at knowledge)",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -5068,6 +5446,8 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [
       {
@@ -5094,9 +5474,11 @@
      "declarationTreatments": [
       {
        "selectorClause": "control",
-       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE"
+       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE",
+       "row": "V5"
       }
-     ]
+     ],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -5105,8 +5487,8 @@
      "runId": "A02-2/narrowed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -5170,7 +5552,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at realization)",
+     "why": "no game was built (the run stopped at realization), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -5185,8 +5567,8 @@
      "runId": "A02-2/narrowed",
      "row": "REALIZATION",
      "clause": null,
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at realization)",
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the realizer refused: realization refused; game::V1: the resolved game does not list this line as open, so nothing authorizes a value for it",
      "consulted": null
     }
    ]
@@ -5273,6 +5655,8 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [
       {
@@ -5299,9 +5683,11 @@
      "declarationTreatments": [
       {
        "selectorClause": "control",
-       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE"
+       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE",
+       "row": "V5"
       }
-     ]
+     ],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -5310,8 +5696,8 @@
      "runId": "A02-2/no-line-crossed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -5375,7 +5761,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at realization)",
+     "why": "no game was built (the run stopped at realization), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -5390,8 +5776,8 @@
      "runId": "A02-2/no-line-crossed",
      "row": "REALIZATION",
      "clause": null,
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at realization)",
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the realizer refused: realization refused; game::V1: the resolved game does not list this line as open, so nothing authorizes a value for it",
      "consulted": null
     }
    ]
@@ -5474,9 +5860,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -5485,8 +5874,8 @@
      "runId": "NO-RESTATEMENT",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -5534,7 +5923,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at knowledge)",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -5542,7 +5931,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at knowledge)",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -5550,7 +5939,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at knowledge)",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -5659,8 +6048,17 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
-     "resolved": [
+     "resting": [
       "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "unestablished": [
+      {
+       "itemId": "RPC-002-04.a",
+       "lineId": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ],
+     "resolved": [
       "RPC-002-04.b"
      ],
      "withheld": [
@@ -5688,9 +6086,11 @@
      "declarationTreatments": [
       {
        "selectorClause": "control",
-       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE"
+       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE",
+       "row": "V5"
       }
-     ]
+     ],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -5699,8 +6099,8 @@
      "runId": "A02-2/CAR",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -5763,8 +6163,8 @@
      "runId": "A02-2/CAR",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "CARRIED",
-     "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them (with a declaration replaced by TT-CONTROL-NO-FURTHER-VALUE)",
+     "verdict": "CARRIED_UNDER_TREATMENT",
+     "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them, carried only under TT-CONTROL-NO-FURTHER-VALUE, a declaration replaced: line(s) c:restated:RPC-002:RPC-002-04.a::V5 establish nothing (a detected disconnection, never a pass)",
      "consulted": null
     },
     {
@@ -5772,7 +6172,7 @@
      "row": "SCORING_DISPLAY",
      "clause": null,
      "verdict": "CITED_NOT_CARRIED",
-     "why": "the account displays the approved condition as in this activity while origin, progression are not carried",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried (control only under a declared TEST-ONLY treatment)",
      "consulted": "the requirement account's state NOT_CLASSIFIED (a limitation: no requirement bindings for RPC-PROP-133; never a pass)"
     },
     {
@@ -7144,9 +7544,21 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -7155,8 +7567,8 @@
      "runId": "A02-0~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -7203,8 +7615,8 @@
      "runId": "A02-0~reversed",
      "row": "SCORING",
      "clause": "origin",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -7212,15 +7624,15 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
      "runId": "A02-0~reversed",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -7324,6 +7736,8 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [
       {
@@ -7347,7 +7761,13 @@
        "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
       }
      ],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -7356,8 +7776,8 @@
      "runId": "A02-1~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -7420,8 +7840,8 @@
      "runId": "A02-1~reversed",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -7530,8 +7950,17 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
-     "resolved": [
+     "resting": [
       "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "unestablished": [
+      {
+       "itemId": "RPC-002-04.a",
+       "lineId": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ],
+     "resolved": [
       "RPC-002-04.b"
      ],
      "withheld": [
@@ -7559,9 +7988,11 @@
      "declarationTreatments": [
       {
        "selectorClause": "control",
-       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE"
+       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE",
+       "row": "V5"
       }
-     ]
+     ],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -7570,8 +8001,8 @@
      "runId": "A02-2~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -7634,8 +8065,8 @@
      "runId": "A02-2~reversed",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "CARRIED",
-     "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them (with a declaration replaced by TT-CONTROL-NO-FURTHER-VALUE)",
+     "verdict": "CARRIED_UNDER_TREATMENT",
+     "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them, carried only under TT-CONTROL-NO-FURTHER-VALUE, a declaration replaced: line(s) c:restated:RPC-002:RPC-002-04.a::V5 establish nothing (a detected disconnection, never a pass)",
      "consulted": null
     },
     {
@@ -7643,7 +8074,7 @@
      "row": "SCORING_DISPLAY",
      "clause": null,
      "verdict": "CITED_NOT_CARRIED",
-     "why": "the account displays the approved condition as in this activity while origin, progression are not carried",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried (control only under a declared TEST-ONLY treatment)",
      "consulted": "the requirement account's state NOT_CLASSIFIED (a limitation: no requirement bindings for RPC-PROP-133; never a pass)"
     },
     {
@@ -7750,9 +8181,21 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -7761,8 +8204,8 @@
      "runId": "S4-NP~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -7809,8 +8252,8 @@
      "runId": "S4-NP~reversed",
      "row": "SCORING",
      "clause": "origin",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -7818,15 +8261,15 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
      "runId": "S4-NP~reversed",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -7923,9 +8366,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "FOUNDATION_CLAUSE",
@@ -7937,8 +8383,8 @@
      "runId": "S4-WZA~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -7992,7 +8438,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -8000,7 +8446,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -8008,7 +8454,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -8105,9 +8551,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "FOUNDATION_CLAUSE",
@@ -8119,8 +8568,8 @@
      "runId": "S4-TR~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -8174,7 +8623,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -8182,7 +8631,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -8190,7 +8639,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -8287,9 +8736,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
@@ -8301,8 +8753,8 @@
      "runId": "S4-CDC~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -8356,7 +8808,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -8364,7 +8816,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -8372,7 +8824,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -8490,9 +8942,21 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -8501,8 +8965,8 @@
      "runId": "S4-NP+WZA~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -8549,8 +9013,8 @@
      "runId": "S4-NP+WZA~reversed",
      "row": "SCORING",
      "clause": "origin",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -8558,15 +9022,15 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
      "runId": "S4-NP+WZA~reversed",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -8665,9 +9129,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_K",
@@ -8679,8 +9146,8 @@
      "runId": "S4-NP+TR~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -8734,7 +9201,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -8742,7 +9209,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -8750,7 +9217,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -8849,9 +9316,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
@@ -8863,8 +9333,8 @@
      "runId": "S4-CDC+IR~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -8918,7 +9388,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -8926,7 +9396,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -8934,7 +9404,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -9140,9 +9610,21 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -9151,8 +9633,8 @@
      "runId": "A02-0~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -9199,8 +9681,8 @@
      "runId": "A02-0~neutral",
      "row": "SCORING",
      "clause": "origin",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -9208,15 +9690,15 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
      "runId": "A02-0~neutral",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -9320,6 +9802,8 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [
       {
@@ -9343,7 +9827,13 @@
        "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
       }
      ],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -9352,8 +9842,8 @@
      "runId": "A02-1~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -9416,8 +9906,8 @@
      "runId": "A02-1~neutral",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -9526,8 +10016,17 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
-     "resolved": [
+     "resting": [
       "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "unestablished": [
+      {
+       "itemId": "RPC-002-04.a",
+       "lineId": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ],
+     "resolved": [
       "RPC-002-04.b"
      ],
      "withheld": [
@@ -9555,9 +10054,11 @@
      "declarationTreatments": [
       {
        "selectorClause": "control",
-       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE"
+       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE",
+       "row": "V5"
       }
-     ]
+     ],
+     "refusedOn": []
     },
     "engineRule": null
    },
@@ -9566,8 +10067,8 @@
      "runId": "A02-2~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -9630,8 +10131,8 @@
      "runId": "A02-2~neutral",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "CARRIED",
-     "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them (with a declaration replaced by TT-CONTROL-NO-FURTHER-VALUE)",
+     "verdict": "CARRIED_UNDER_TREATMENT",
+     "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them, carried only under TT-CONTROL-NO-FURTHER-VALUE, a declaration replaced: line(s) c:restated:RPC-002:RPC-002-04.a::V5 establish nothing (a detected disconnection, never a pass)",
      "consulted": null
     },
     {
@@ -9639,7 +10140,7 @@
      "row": "SCORING_DISPLAY",
      "clause": null,
      "verdict": "CITED_NOT_CARRIED",
-     "why": "the account displays the approved condition as in this activity while origin, progression are not carried",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried (control only under a declared TEST-ONLY treatment)",
      "consulted": "the requirement account's state NOT_CLASSIFIED (a limitation: no requirement bindings for RPC-PROP-133; never a pass)"
     },
     {
@@ -9746,9 +10247,21 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -9757,8 +10270,8 @@
      "runId": "S4-NP~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -9805,8 +10318,8 @@
      "runId": "S4-NP~neutral",
      "row": "SCORING",
      "clause": "origin",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -9814,15 +10327,15 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
      "runId": "S4-NP~neutral",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -9919,9 +10432,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "FOUNDATION_CLAUSE",
@@ -9933,8 +10449,8 @@
      "runId": "S4-WZA~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -9988,7 +10504,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -9996,7 +10512,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -10004,7 +10520,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -10101,9 +10617,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "FOUNDATION_CLAUSE",
@@ -10115,8 +10634,8 @@
      "runId": "S4-TR~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -10170,7 +10689,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -10178,7 +10697,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -10186,7 +10705,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -10283,9 +10802,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
@@ -10297,8 +10819,8 @@
      "runId": "S4-CDC~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -10352,7 +10874,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -10360,7 +10882,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -10368,7 +10890,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -10486,9 +11008,21 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -10497,8 +11031,8 @@
      "runId": "S4-NP+WZA~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -10545,8 +11079,8 @@
      "runId": "S4-NP+WZA~neutral",
      "row": "SCORING",
      "clause": "origin",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -10554,15 +11088,15 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
      "runId": "S4-NP+WZA~neutral",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -10661,9 +11195,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_K",
@@ -10675,8 +11212,8 @@
      "runId": "S4-NP+TR~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -10730,7 +11267,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -10738,7 +11275,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -10746,7 +11283,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -10845,9 +11382,12 @@
       }
      ],
      "derived": [],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": []
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
@@ -10859,8 +11399,8 @@
      "runId": "S4-CDC+IR~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -10914,7 +11454,7 @@
      "row": "SCORING",
      "clause": "origin",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -10922,7 +11462,7 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -10930,7 +11470,7 @@
      "row": "SCORING",
      "clause": "control",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at selection)",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -11136,9 +11676,21 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -11147,8 +11699,8 @@
      "runId": "A02-0~pressure",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CONSUMED",
-     "why": "the chain's account carries Step 1's GP-015 (source: Step 1, review pathway)",
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
@@ -11195,8 +11747,8 @@
      "runId": "A02-0~pressure",
      "row": "SCORING",
      "clause": "origin",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -11204,15 +11756,15 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
      "runId": "A02-0~pressure",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -11408,9 +11960,21 @@
       "RPC-002-04.a",
       "RPC-002-04.b"
      ],
+     "resting": [],
+     "unestablished": [],
      "resolved": [],
      "withheld": [],
-     "declarationTreatments": []
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
     },
     "engineRule": null
    },
@@ -11467,8 +12031,8 @@
      "runId": "W-DROPS-UPSTREAM",
      "row": "SCORING",
      "clause": "origin",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
      "consulted": null
     },
     {
@@ -11476,15 +12040,15 @@
      "row": "SCORING",
      "clause": "progression",
      "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
      "runId": "W-DROPS-UPSTREAM",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "NOT_REACHED",
-     "why": "no game was built (the run stopped at structure)",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
      "consulted": null
     },
     {

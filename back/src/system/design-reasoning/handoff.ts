@@ -419,6 +419,8 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
             // No manipulation enters by placement on a consuming run (the design of stage 9: the place route is not used); one may enter only
             // through the record's authorized set (entersBy RECORD).
             if (manipulations.some((m) => m.relationship !== undefined && m.entersBy !== 'RECORD')) errors.push(`${at}: a case that consumes Steps 1 and 2 places no manipulation (no relationship stand-in outside the record route)`)
+            // A consuming run may not alter the selection (the wiring only observes it), so a vehicle's declared treatment could not be applied.
+            if (isObject(merged.chain) && isObject(merged.chain.vehicle)) errors.push(`${at}: CONSUMED_STEPS is not declared beside a TEST-ONLY vehicle (a consuming run may not alter the selection, so a vehicle's removeContext could not be applied)`)
         }
         // The safeguards slice (DESIGN-9 section 4): the size-rule bypass and the record route exist only on a consuming run.
         if (ofKind('SIZE_RULE_BYPASS').length > 1 || (ofKind('SIZE_RULE_BYPASS').length && !ofKind('CONSUMED_STEPS').length)) errors.push(`${at}: SIZE_RULE_BYPASS is declared at most once, and only beside CONSUMED_STEPS (the record route)`)
