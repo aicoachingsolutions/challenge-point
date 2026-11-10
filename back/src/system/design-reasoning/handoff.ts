@@ -68,6 +68,12 @@ export interface HandoffRuling {
     provisional: boolean
     scope: string | null
 }
+/**
+ * What a result's entry for a ruling serializes beside its `received` field: a marked ruling's date basis and the name a citation gives the
+ * reply, so the results never present a paste date as a received date (stage 9 review); nothing for an unmarked ruling, whose entry is unchanged.
+ */
+export type DatedEntry = { dateBasis?: 'PASTED_WITHOUT_HEADER'; citedAs?: string }
+const datedEntryOf = (r: HandoffRuling): DatedEntry => (r.dateBasis ? { dateBasis: r.dateBasis, citedAs: r.citedAs } : {})
 
 /** How one of Christian's rulings enters the checked chain for a case (or that it does not). */
 export const ENTERS_AS = [
@@ -945,8 +951,11 @@ export interface HandoffResult {
             contextId: string | null
             scope: string | null
             qualifier: string | null
-            /** The ruling whose words hold the qualifier word for word, with its received date; null where the case names none or they differ. */
-            qualifierRuling: { ref: string; received: string } | null
+            /**
+             * The ruling whose words hold the qualifier word for word, with its received date (and, for a reply pasted without its mail header,
+             * its date basis and the name a citation gives it: `DatedEntry`); null where the case names none or they differ.
+             */
+            qualifierRuling: ({ ref: string; received: string } & DatedEntry) | null
             establishedBy: string
             missing: string[]
         }
@@ -990,13 +999,13 @@ export interface HandoffResult {
     refusalBasis: RefusalBasis | null
     gaps: string[]
     purpose: null | { sourceEvidence: string; approvalEvidence: string; rulingRefs: string[] }
-    rulings: Array<{ ref: string; entersAs: EntersAs; how: string; words: string[]; received: string; provisional: boolean; scope: string | null }>
+    rulings: Array<{ ref: string; entersAs: EntersAs; how: string; words: string[]; received: string; provisional: boolean; scope: string | null } & DatedEntry>
     illustrative: CaseInput['illustrative']
     testOnlyTreatments: TreatmentInput[]
     standIns: Array<{ id: string; label: string; why: string; determines: string[] }>
     notCarried: CaseInput['notCarried']
-    /** The case's notes, with each quotation resolved to Christian's words and received date. */
-    reportNotes: Array<{ section: CaseNote['section']; text: string; quotes: Array<{ ref: string; words: string; received: string }> }>
+    /** The case's notes, with each quotation resolved to Christian's words and received date (with the date basis, `DatedEntry`, where marked). */
+    reportNotes: Array<{ section: CaseNote['section']; text: string; quotes: Array<{ ref: string; words: string; received: string } & DatedEntry> }>
     opportunities: string
     counts: { lines: number; byClass: Record<string, number>; byKind: Record<string, number>; sentences: number }
     /**
@@ -1037,7 +1046,7 @@ function receiveStep1(result: Stage1Result | null, c: CaseInput, inputs: Handoff
             contextId: r.context?.rpcId ?? null,
             scope: r.gameProblems.scope,
             qualifier,
-            qualifierRuling: qualifier && holder && holder.words.some((w) => w.indexOf(qualifier) >= 0) ? { ref: holder.id, received: receivedOf(holder) } : null,
+            qualifierRuling: qualifier && holder && holder.words.some((w) => w.indexOf(qualifier) >= 0) ? { ref: holder.id, received: receivedOf(holder), ...datedEntryOf(holder) } : null,
             establishedBy: r.gameProblems.establishedBy,
             missing: r.missing.map((m) => JSON.stringify(m)),
         },
@@ -1693,7 +1702,7 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
     const form = determineForm(c, s1, inputs)
     const rulings = c.rulings.map((entry) => {
         const r = rulingOf(inputs, entry.ref)
-        return { ref: entry.ref, entersAs: entry.entersAs, how: entry.how, words: [...r.words], received: receivedOf(r), provisional: r.provisional, scope: r.scope }
+        return { ref: entry.ref, entersAs: entry.entersAs, how: entry.how, words: [...r.words], received: receivedOf(r), ...datedEntryOf(r), provisional: r.provisional, scope: r.scope }
     })
     // Manipulations: applied only with an authorized relationship; in a test only, a labelled TEST-ONLY stand-in for one (class 4). An applied
     // manipulation is placed in the selection explicitly, as the form is; the record's own authorized set is never widened.
@@ -1750,7 +1759,7 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
             text: n.text,
             quotes: (n.quotes ?? []).map((q) => {
                 const r = rulingOf(inputs, q.rulingRef)
-                return { ref: r.id, words: r.words[q.word], received: receivedOf(r) }
+                return { ref: r.id, words: r.words[q.word], received: receivedOf(r), ...datedEntryOf(r) }
             }),
         })),
         opportunities: OPPORTUNITIES_NOT_ESTABLISHED,

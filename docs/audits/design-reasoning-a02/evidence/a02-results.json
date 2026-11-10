@@ -1285,7 +1285,7 @@
    "id": "RECORD_POOL",
    "check": "the pool: the record's authorized set replaces the vocabulary pool, minus holds",
    "where": "generateSelection.ts:135-190; guided-selection.ts (the record route)",
-   "origin": "dc98ecb, 14-15 October 2026",
+   "origin": "dc98ecb, 14 October 2026 (authorized constraints only); 1f18a02, 15 October 2026 (the record route)",
    "disposition": "KEPT_ENFORCED",
    "reported": null,
    "authority": "Christian's 14 and 15 October rulings (constraints only from the goal's authorized set)",
@@ -1369,7 +1369,7 @@
    "id": "FOUNDATION_CLAUSE",
    "check": "the foundation clause (with its keyword threshold)",
    "where": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-   "origin": "e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
+   "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
    "disposition": "KEPT_ENFORCED",
    "reported": "reported with its source and authority (the authorization's section 5)",
    "authority": "none found; engine rule (our own comment calls it not ruled)",
@@ -1495,7 +1495,7 @@
     "categories": [
      1
     ],
-    "why": "A02 has no authorization record evaluating its manipulations, so its candidates are the vocabulary pool, which cannot be combined on any of RPC-002's declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); passed only by our TEST-ONLY DRAFT record (an empty set, the finding OURS, no ruling), never by the consumption",
+    "why": "A02 has no authorization record evaluating its manipulations, so its candidates are the vocabulary pool, which cannot be combined on any of RPC-002's declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); passed only by our TEST-ONLY DRAFT record (an empty set, or on item 4's runs a TEST-ONLY copy holding the stand-in manipulations; the finding OURS, no ruling), never by the consumption",
     "passed": true,
     "passedBy": "L2"
    },
@@ -2997,12 +2997,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327; origin e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "FOUNDATION_CLAUSE",
       "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
+      "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
       "readsLenses": true
      }
     },
@@ -3182,12 +3182,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327; origin e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "FOUNDATION_CLAUSE",
       "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
+      "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
       "readsLenses": true
      }
     },
@@ -3367,7 +3367,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
@@ -3947,7 +3947,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
@@ -8630,12 +8630,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327; origin e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "FOUNDATION_CLAUSE",
       "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
+      "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
       "readsLenses": true
      }
     },
@@ -8815,12 +8815,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327; origin e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "FOUNDATION_CLAUSE",
       "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
+      "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
       "readsLenses": true
      }
     },
@@ -9000,7 +9000,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
@@ -9393,7 +9393,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: each member supports the selected affordance tag group (row k)); source validate-constraint-package.ts:356-367, e60a740, 18 April 2026; authority UNCONFIRMED (the tag-group data); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: each member supports the selected affordance tag group (row k)); source validate-constraint-package.ts:356-367; origin e60a740, 18 April 2026; authority UNCONFIRMED (the tag-group data); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_K",
@@ -9580,7 +9580,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
@@ -10696,12 +10696,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327; origin e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "FOUNDATION_CLAUSE",
       "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
+      "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
       "readsLenses": true
      }
     },
@@ -10881,12 +10881,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327; origin e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "FOUNDATION_CLAUSE",
       "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
+      "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
       "readsLenses": true
      }
     },
@@ -11066,7 +11066,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
@@ -11459,7 +11459,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: each member supports the selected affordance tag group (row k)); source validate-constraint-package.ts:356-367, e60a740, 18 April 2026; authority UNCONFIRMED (the tag-group data); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: each member supports the selected affordance tag group (row k)); source validate-constraint-package.ts:356-367; origin e60a740, 18 April 2026; authority UNCONFIRMED (the tag-group data); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_K",
@@ -11646,7 +11646,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
@@ -12345,6 +12345,8 @@
       "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -12357,6 +12359,8 @@
       "Missing knowledge or unsupported relationships should remain explicitly unresolved."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -12374,6 +12378,8 @@
       "Please distinguish demonstrated structural compatibility from demonstrated representative sufficiency."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -12387,6 +12393,8 @@
       "The CAR Matrix's Essential affordance requirements are also relevant, but they are not interchangeable with the context's identity and scoring conditions."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -12400,6 +12408,8 @@
       "I don't want those details to create another extended investigation unless they materially prevent us from demonstrating the foundational reasoning connection."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -12411,6 +12421,8 @@
       "For missing knowledge documents, please identify the smallest specific source material required to resolve the next consequential gap."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -12882,6 +12894,8 @@
       "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -12894,6 +12908,8 @@
       "Missing knowledge or unsupported relationships should remain explicitly unresolved."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -12911,6 +12927,8 @@
       "Please distinguish demonstrated structural compatibility from demonstrated representative sufficiency."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -12924,6 +12942,8 @@
       "The CAR Matrix's Essential affordance requirements are also relevant, but they are not interchangeable with the context's identity and scoring conditions."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -12937,6 +12957,8 @@
       "I don't want those details to create another extended investigation unless they materially prevent us from demonstrating the foundational reasoning connection."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -12948,6 +12970,8 @@
       "For missing knowledge documents, please identify the smallest specific source material required to resolve the next consequential gap."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -13416,6 +13440,8 @@
       "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -13428,6 +13454,8 @@
       "Missing knowledge or unsupported relationships should remain explicitly unresolved."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -13445,6 +13473,8 @@
       "Please distinguish demonstrated structural compatibility from demonstrated representative sufficiency."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -13458,6 +13488,8 @@
       "The CAR Matrix's Essential affordance requirements are also relevant, but they are not interchangeable with the context's identity and scoring conditions."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -13471,6 +13503,8 @@
       "I don't want those details to create another extended investigation unless they materially prevent us from demonstrating the foundational reasoning connection."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -13482,6 +13516,8 @@
       "For missing knowledge documents, please identify the smallest specific source material required to resolve the next consequential gap."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -15234,6 +15270,8 @@
       "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -15246,6 +15284,8 @@
       "Missing knowledge or unsupported relationships should remain explicitly unresolved."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -15263,6 +15303,8 @@
       "Please distinguish demonstrated structural compatibility from demonstrated representative sufficiency."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -15276,6 +15318,8 @@
       "The CAR Matrix's Essential affordance requirements are also relevant, but they are not interchangeable with the context's identity and scoring conditions."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -15289,6 +15333,8 @@
       "I don't want those details to create another extended investigation unless they materially prevent us from demonstrating the foundational reasoning connection."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -15300,6 +15346,8 @@
       "For missing knowledge documents, please identify the smallest specific source material required to resolve the next consequential gap."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -17060,6 +17108,8 @@
       "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -17072,6 +17122,8 @@
       "Missing knowledge or unsupported relationships should remain explicitly unresolved."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -17089,6 +17141,8 @@
       "Please distinguish demonstrated structural compatibility from demonstrated representative sufficiency."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -17102,6 +17156,8 @@
       "The CAR Matrix's Essential affordance requirements are also relevant, but they are not interchangeable with the context's identity and scoring conditions."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -17115,6 +17171,8 @@
       "I don't want those details to create another extended investigation unless they materially prevent us from demonstrating the foundational reasoning connection."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -17126,6 +17184,8 @@
       "For missing knowledge documents, please identify the smallest specific source material required to resolve the next consequential gap."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -17396,7 +17456,9 @@
       {
        "ref": "A02-10NOV-GF2",
        "words": "Please distinguish demonstrated structural compatibility from demonstrated representative sufficiency.",
-       "received": "10 November 2026"
+       "received": "10 November 2026",
+       "dateBasis": "PASTED_WITHOUT_HEADER",
+       "citedAs": "reply about A02"
       }
      ]
     }
@@ -18928,6 +18990,8 @@
       "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -18944,6 +19008,8 @@
       "Do not begin a broad A02/TA02 family analysis or additional library development as part of this assignment. A brief reuse feasibility finding is sufficient for now."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -18979,6 +19045,8 @@
       "I don't want those details to create another extended investigation unless they materially prevent us from demonstrating the foundational reasoning connection."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -18996,6 +19064,8 @@
       "Please distinguish demonstrated structural compatibility from demonstrated representative sufficiency."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -19394,6 +19464,8 @@
       "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -19410,6 +19482,8 @@
       "Do not begin a broad A02/TA02 family analysis or additional library development as part of this assignment. A brief reuse feasibility finding is sufficient for now."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -19445,6 +19519,8 @@
       "I don't want those details to create another extended investigation unless they materially prevent us from demonstrating the foundational reasoning connection."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -19462,6 +19538,8 @@
       "Please distinguish demonstrated structural compatibility from demonstrated representative sufficiency."
      ],
      "received": "10 November 2026",
+     "dateBasis": "PASTED_WITHOUT_HEADER",
+     "citedAs": "reply about A02",
      "provisional": false,
      "scope": null
     },
@@ -19653,7 +19731,9 @@
       {
        "ref": "A02-10NOV-GF2",
        "words": "Please distinguish demonstrated structural compatibility from demonstrated representative sufficiency.",
-       "received": "10 November 2026"
+       "received": "10 November 2026",
+       "dateBasis": "PASTED_WITHOUT_HEADER",
+       "citedAs": "reply about A02"
       }
      ]
     }

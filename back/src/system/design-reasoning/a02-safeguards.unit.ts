@@ -787,7 +787,8 @@ test('1. every experiment run: the Game Form and the constraints CONSUMED, the G
     )
     // No clause is CITED_NOT_CARRIED on the experiment path (only the display is, listed above).
     assert.equal(experimentFindings.filter((f) => f.row === 'SCORING' && f.verdict === 'CITED_NOT_CARRIED').length, 0)
-    // Per decision, how many experiment runs reach it (NOT_REACHED comes from the stage order only; a reached stage without its field is MISSING).
+    // Per decision, how many experiment runs reach it (NOT_REACHED where the run stopped before the decision and its refusal cites none of the
+    // clause's own lines, the realizer's own refusal reaching realization; a reached stage without its field is MISSING).
     assert.deepEqual(reachCounts(), REACH)
     for (const [row, n] of Object.entries(REACH)) assert.ok(n >= 1, `${row} is reached by at least one run`)
     assert.equal(experimentFindings.filter((f) => f.verdict === 'MISSING').length, 0)
@@ -1217,7 +1218,7 @@ export function stopsOf(): Stop[] {
             reason: reason('L1'),
             kind: 'PATH',
             categories: [1],
-            why: 'A02 has no authorization record evaluating its manipulations, so its candidates are the vocabulary pool, which cannot be combined on any of RPC-002\'s declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); passed only by our TEST-ONLY DRAFT record (an empty set, the finding OURS, no ruling), never by the consumption',
+            why: 'A02 has no authorization record evaluating its manipulations, so its candidates are the vocabulary pool, which cannot be combined on any of RPC-002\'s declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); passed only by our TEST-ONLY DRAFT record (an empty set, or on item 4\'s runs a TEST-ONLY copy holding the stand-in manipulations; the finding OURS, no ruling), never by the consumption',
         },
         {
             id: 'L2',
@@ -1291,7 +1292,13 @@ export const GROUP_OF: Record<Kind, string> = {
     CONTROL: 'the controls (runs built beside the experiment to show whether a check bites; not held to that assertion)',
     LEGACY: 'the legacy route (reported only)',
 }
-export const groupedRuns = () => [...runs.values()].map((r) => ({ run: r.run, findings: r.findings, label: `${r.kind}: ${r.label}`, group: GROUP_OF[r.kind] }))
+/** The tag each run's line prints for its group (NF-03): a control is tagged a control, never the experiment path it is not held to. */
+export const TAG_OF: Record<Kind, string> = {
+    EXPERIMENT: 'experiment path',
+    CONTROL: 'control, not held to the assertion',
+    LEGACY: 'legacy route',
+}
+export const groupedRuns = () => [...runs.values()].map((r) => ({ run: r.run, findings: r.findings, label: `${r.kind}: ${r.label}`, group: GROUP_OF[r.kind], tag: TAG_OF[r.kind] }))
 
 test('the report: the ownership table, every run decision by decision with its checks, the disposition table, the open disconnections (counted, never a pass), safeguard B\'s failures, the blocker sequence; no double quotation mark, no gendered pronoun; the check is deterministic over a second build of the five cases', () => {
     const lines = reportLines()
@@ -1308,6 +1315,10 @@ test('the report: the ownership table, every run decision by decision with its c
     assert.deepEqual(byGroup.map((g) => [g.runs, g.violations, g.detected]), COUNTS_BY_GROUP)
     assert.deepEqual([byGroup.reduce((n, g) => n + g.violations, 0), byGroup.reduce((n, g) => n + g.detected, 0)], REPORT_COUNTS, 'the groups add up to the total')
     has(`by group (a total never read alone): ${byGroup.map((g) => `${g.group}: ${g.violations} violation verdicts and ${g.detected} detected disconnections over ${g.runs} runs`).join('; ')}`)
+    // Each run's line is tagged with its own group (NF-03): the tags count as the groups do, so no control reads as the experiment path.
+    const tagged = (tag: string) => lines.filter((l) => l.startsWith('- ') && / \[[^\]]+\] (EXPERIMENT|CONTROL|LEGACY): /.test(l) && l.indexOf(` [${tag}] `) > 0).length
+    assert.deepEqual((['EXPERIMENT', 'CONTROL', 'LEGACY'] as Kind[]).map((kind) => tagged(TAG_OF[kind])), COUNTS_BY_GROUP.map((g) => g[0]), 'the run lines tagged by group')
+    for (const r of runs.values()) has(`- ${r.id} [${TAG_OF[r.kind]}] ${`${r.kind}: ${r.label}`.split(Q).join(String.fromCharCode(39))}`)
     has('safeguard B fails on: OD-WORDING-FLIP, OD-WORDING-LENSES')
     has(`OPEN DISCONNECTIONS (${OPEN_DISCONNECTIONS.length}; printed as open disconnections, never as safeguards passing)`)
     assert.equal(lines.filter((l) => l.startsWith('- ') && OWNERSHIP_TABLE.some((o) => l.startsWith(`- ${o.decision}: owner `))).length, OWNERSHIP_TABLE.length)

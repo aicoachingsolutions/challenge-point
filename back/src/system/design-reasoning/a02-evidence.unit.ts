@@ -70,6 +70,30 @@ const ruling = (id: string) => {
 }
 const cite = (id: string, n: number): string => `${quoted(ruling(id).words[n])} (${citedDateOf(ruling(id))})`
 
+/**
+ * RC3-N4: how the report and the README speak of the regression record follows the record's own status: while it is the placeholder, 'a
+ * placeholder until that regression is run'; once the lead fills it, 'recorded on <its build>'. Filling it then changes only the record, the
+ * regenerated evidence and the README's lines about it, never this file.
+ */
+const RECORD_PENDING = 'NOT YET RECORDED for this build'
+interface RecordState {
+    status: string
+    build: string | null
+}
+const recordWords = (record: RecordState) => {
+    const pending = record.status === RECORD_PENDING
+    assert.ok(pending || (typeof record.build === 'string' && record.build.length > 0), 'a filled regression record names the build it was run on')
+    return {
+        disclosure: pending ? 'which the evidence folder\'s regression record holds once the regression is run on the committed tree' : `which the evidence folder's regression record holds (recorded on ${record.build})`,
+        item7: pending ? 'a placeholder until that regression is run on the committed tree' : `recorded on ${record.build}`,
+        /** What the README's lines about the record must hold, and must not, for this status. */
+        readmeHolds: pending ? [`PLACEHOLDER: ${RECORD_PENDING}.`, '(a placeholder until then)'] : [`recorded on ${record.build}`],
+        readmeOmits: pending ? [] : ['PLACEHOLDER', 'a placeholder until', RECORD_PENDING],
+    }
+}
+const RECORD = JSON.parse(fs.readFileSync(path.join(EVIDENCE, 'regression-record.json'), 'utf8')) as RecordState
+const RECORD_WORDS = recordWords(RECORD)
+
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // S5: TA02 through the same consumption, over our DRAFT restatement of RPC-003 (TA02's context pending)
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -394,12 +418,13 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'A02-1', means: 'the A02 run with the origin and progression items withheld (TEST-ONLY)' },
     { id: 'A02-1b', means: 'A02-1 with the control referent declared to need no further value (TEST-ONLY, not ruled) and the Laws held to our DRAFT classification' },
     { id: 'A02-2', means: 'A02-1b with the TEST-ONLY stand-in that reads the offside law procedural' },
+    { id: 'A02-2~', family: true, means: 'A02-2 under a reworded goal (~reversed, ~neutral: the goal\'s wording rewritten in the knowledge copy and in the row the chain reads, as in item 1)' },
     { id: 'A02-D', means: 'the A02 diagnostic: every condition item withheld (TEST-ONLY), the offside stand-in: plain GF2' },
     { id: 'TA02-0', means: 'the TA02 run of the knowledge as it stands, with our DRAFT restatement of Attack Development (the reuse comparison)' },
     { id: 'TA02-D', means: 'the TA02 diagnostic, as A02-D (the reuse comparison)' },
     { id: 'L1', means: 'the legacy route: A02 on the production records, nothing consumed (the route the production chain takes)' },
     { id: 'L2', means: 'the chain\'s own route: A02 with our TEST-ONLY draft store (our DRAFT record and our restatement), nothing consumed, nothing placed' },
-    { id: 'S4-', family: true, means: 'a run of item 4: manipulations entered only through the DRAFT record\'s authorized set (NP Neutral Player, WZA Wide Zone Advantage, TR Turnover Reward, CDC Central Density Condition, IR Interception Reward; /no-bypass: without the size-rule bypass)' },
+    { id: 'S4-', family: true, means: 'a run of item 4: manipulations entered only through the DRAFT record\'s authorized set (NP Neutral Player, WZA Wide Zone Advantage, TR Turnover Reward, CDC Central Density Condition, IR Interception Reward; /no-bypass: without the size-rule bypass; @A02-D: on the diagnostic base A02-D; ~reversed, ~neutral: under a reworded goal, as A02-2~)' },
     { id: 'OD-', family: true, means: 'an open disconnection the safeguards detect, listed with its measured evidence in appendix B; printed as open, never as a pass' },
     { id: 'TT-', family: true, means: 'a TEST-ONLY treatment, labelled where it enters (appendix A and appendix D)' },
     { id: 'W-DROPS-UPSTREAM', means: 'a control of item 3: A02-0 under a reworded goal, with a TEST-ONLY wrapper that drops the decisions handed to the chain' },
@@ -411,7 +436,7 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'D3', means: 'Christian\'s decision D3 (received 4 November 2026): Game Form relationships are compatibility information unless approved knowledge establishes a preference' },
     { id: 'M6', means: 'one of the eight A01 safeguards Christian approved: no further value required, explicitly unrestricted, and a necessary value missing stay three distinct states' },
     { id: 'RC1.1', means: 'the version of the Representative Performance Context Library the program holds (its rows\' last verified version)' },
-    { id: SELECTOR_FILE, family: true, means: 'the constraint selector\'s source file, with line numbers; any other name ending .ts is an engine source file, with line numbers, and a short hexadecimal string after one is the commit that introduced the rule' },
+    { id: SELECTOR_FILE, family: true, means: 'the constraint selector\'s source file, with line numbers; any other name ending .ts is an engine source file, with line numbers, and a short hexadecimal string after one (its origin) is a commit, found by git blame, that introduced the rule or the part of it named beside it' },
     { id: 'TEST-ONLY', means: 'code, data or a treatment no route, controller or service reaches' },
     { id: 'RESTATEMENT-ONLY', means: 'a refusal whose cited items are all ours and unreviewed (Christian\'s second reply of 7 November, section 2)' },
     { id: 'APPROVED_TRANSLATION', means: 'Step 1\'s basis: the goal\'s approved translation row in the planning model' },
@@ -431,7 +456,7 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'CARRIED_UNDER_TREATMENT', means: 'a verdict: the clause is carried only with a declaration replaced by a TEST-ONLY treatment (a detected disconnection, never a pass)' },
     { id: 'CITED_NOT_CARRIED', means: 'a verdict: an approved row is cited (or displayed) while nothing carries it, or only part of it' },
     { id: 'WITHHELD_BY_TREATMENT', means: 'a verdict: a declared TEST-ONLY treatment withheld it (a detected disconnection, never a pass)' },
-    { id: 'REFUSED_ON_CLAUSE_LINE', means: 'a verdict: the run\'s refusal cites a line of the clause\'s own items, so the clause was decided and stays explicitly unresolved (a detected disconnection, never a pass)' },
+    { id: 'REFUSED_ON_CLAUSE_LINE', means: 'a verdict: the run\'s refusal cites a line of the clause\'s own items, so the clause was decided and stays explicitly unresolved (a detected disconnection, never a pass); read from the lines a refusal cites as c:<contract>:<item>::<row>; a later refusal naming the item by its value path leaves the clause\'s carriage verdict in place (item 2 says where)' },
     { id: 'NOT_REACHED', means: 'a verdict: the run stopped before the decision' },
     { id: 'NOT_CLASSIFIED', means: 'the requirement account\'s state for a scoring condition with no requirement bindings: never a pass' },
     { id: 'NOT_AUTHORED', means: 'a restatement declaration: nothing authored the value' },
@@ -517,6 +542,20 @@ const disposition = (id: string) => {
     return d
 }
 const verdictsOf = (findings: Finding[], row: string) => findings.filter((f) => f.row === row).map((f) => f.verdict)
+/** The experiment runs that commit a lone set of one manipulation under the size-rule bypass: those the switch's removal would refuse (NF-02). */
+const LONE_RUNS = S.EXPERIMENT_RUNS.filter((id) => S.at(id).result.consumption?.sizeRuleBypassed === true && (S.at(id).run.chain?.constraints ?? []).length === 1)
+/** The lone runs item 4's floor rests on: the reworded runs' Neutral Player alone (OD-WORDING-FLIP's runs without Turnover Reward). */
+const FLOOR_RUNS = (S.OPEN_DISCONNECTIONS.find((e) => e.id === 'OD-WORDING-FLIP')?.runs ?? []).map((id) => id.split('+TR').join(''))
+/**
+ * RC1-N3: the runs whose clause reads CARRIED_UNDER_TREATMENT and whose later refusal names one of that clause's items by its value path
+ * (conditions[c:<contract>:<item>]), not as a cited line: the verdict, read from the lines a refusal cites, keeps the carriage verdict.
+ */
+const valuePathRefusals = (clause: string) => {
+    const items = S.SCORING.clauses.find((c) => c.clause === clause)?.items ?? []
+    return S.EXPERIMENT_RUNS.filter((id) => S.verdictOf(id, 'SCORING', clause) === 'CARRIED_UNDER_TREATMENT')
+        .map((id) => ({ id, stage: S.at(id).result.chain?.stage ?? null, reasons: (S.at(id).result.chain?.reasons ?? []).filter((x) => items.some((i) => x.indexOf(`[c:${S.SCORING.contractId}:${i}]`) >= 0)) }))
+        .filter((x) => x.reasons.length > 0)
+}
 
 function bodyLines(): string[] {
     const out: string[] = []
@@ -544,11 +583,11 @@ function bodyLines(): string[] {
     add('FIRST, FOR CHRISTIAN\'S DECISION: THE CONSTRAINT SELECTOR')
     add(`- To bypass the numerical quota in the isolated experiment, the constraint selector's source file (${SELECTOR_FILE}) gained one TEST-ONLY parameter, a switch that is off unless a caller passes it, in ${SELECTOR_HUNKS.length} places (each held to the file's text by this report's test):`)
     for (const h of SELECTOR_HUNKS) add(`   ${SELECTOR_FILE}:${h.lines}: ${h.what}`)
-    add('- No route, controller or service passes it (a registered static test reads every non-test source file). With it off, the selector\'s behaviour is compared with main\'s by the behaviour snapshot, which the evidence folder\'s regression record holds once the regression is run on the committed tree.')
+    add(`- No route, controller or service passes it (a registered static test reads every non-test source file). With it off, the selector's behaviour is compared with main's by the behaviour snapshot, ${RECORD_WORDS.disclosure}.`)
     const npWza = S.at('S4-NP+WZA/no-bypass').result.chain
     const npWzaSame = json([npWza?.outcome, npWza?.stage, npWza?.reasons, S.at('S4-NP+WZA/no-bypass').run.chain?.constraints]) === json([S.at('S4-NP+WZA').result.chain?.outcome, S.at('S4-NP+WZA').result.chain?.stage, S.at('S4-NP+WZA').result.chain?.reasons, S.at('S4-NP+WZA').run.chain?.constraints])
     add(
-        `- Question: is a TEST-ONLY parameter that no route passes within ${cite('A02-10NOV-SELECTOR', 0)}? It is removable: deleting the ${SELECTOR_HUNKS.length} places returns the file to main's text. Only the lone Neutral Player run of item 4 would then change outcome, refused by the size rule as before (S4-NP/no-bypass: refused at ${S.at('S4-NP/no-bypass').result.chain?.stage}); the other lone sets would be refused by the size rule instead of by the kept checks; and a set of two lies inside 2 to 4, so it selects the same with or without the switch (read from the code, ${SELECTOR_FILE}:1037, and measured on Neutral Player with Wide Zone Advantage: without the switch it is ${npWzaSame ? `selected the same and refused at ${npWza?.stage}, as with it` : 'NOT the same'}).`,
+        `- Question: is a TEST-ONLY parameter that no route passes within ${cite('A02-10NOV-SELECTOR', 0)}? It is removable: deleting the ${SELECTOR_HUNKS.length} places returns the file to main's text. Only the lone Neutral Player runs of item 4 (${LONE_RUNS.join(', ')}) would then change outcome, refused by the size rule as before (S4-NP/no-bypass: refused at ${S.at('S4-NP/no-bypass').result.chain?.stage})${FLOOR_RUNS.length && FLOOR_RUNS.every((id) => LONE_RUNS.indexOf(id) >= 0) ? `, and with ${FLOOR_RUNS.join(' and ')} the measurement behind item 4's floor for subsets would go` : ''}; the other lone sets would be refused by the size rule instead of by the kept checks; and a set of two lies inside 2 to 4, so it selects the same with or without the switch (read from the code, ${SELECTOR_FILE}:1037, and measured on Neutral Player with Wide Zone Advantage: without the switch it is ${npWzaSame ? `selected the same and refused at ${npWza?.stage}, as with it` : 'NOT the same'}).`,
     )
     add('')
     add('KEY (the identifiers the frame and the seven items use; names read from the knowledge files)')
@@ -596,9 +635,15 @@ function bodyLines(): string[] {
     add(`- A02-0, the knowledge as it stands: refused at ${a0.refusal?.stage} on ${(a0.refusalBasis?.cited ?? []).map((c) => c.ref).join(' (the control clause\'s referent) and ')} (the origin clause's value): ${plain(experiment.restatementOnlyWords)}.`)
     for (const clause of ['origin', 'progression', 'control']) {
         const c = clauseCounts(clause)
+        // RC1-N3, documented, not widened: where such a run is later refused on this clause's item named by its value path, say so (measured).
+        const later = valuePathRefusals(clause)
+        const stages = [...new Set(later.map((x) => x.stage))]
+        const laterWords = later.length
+            ? `; on ${later.length} of them (${later.map((x) => x.id).join(', ')}) the run is then refused at ${stages.join(' or ')} on this clause's own item, named by its value path${later.every((x) => x.reasons.some((r) => r.indexOf('awaiting approved wording') === 0)) ? ', for want of approved wording' : ''}; the verdict reads only the lines a refusal cites, so the clause keeps CARRIED_UNDER_TREATMENT`
+            : ''
         add(
             `- The ${clause} clause over the ${S.EXPERIMENT_RUNS.length} experiment runs: ${Object.entries(c)
-                .map(([v, n]) => `${v} on ${n}${v === 'CARRIED_UNDER_TREATMENT' ? ' (carried only under the TEST-ONLY declaration that its referent needs no further value, which Christian has not ruled; its referent line holds no value)' : ''}`)
+                .map(([v, n]) => `${v} on ${n}${v === 'CARRIED_UNDER_TREATMENT' ? ` (carried only under the TEST-ONLY declaration that its referent needs no further value, which Christian has not ruled; its referent line holds no value${laterWords})` : ''}`)
                 .join(', ')}.`,
         )
     }
@@ -675,7 +720,7 @@ function bodyLines(): string[] {
     add(`- Of the ${DISPOSITION.length} selection checks only the numerical size rule is bypassed; every other check runs and enforces wherever its path is reached. On the empty-set runs the role mix, the package checks and the size rule are not run at all: the zero branch commits the empty set first, and its authority is ${plain(disposition('ZERO_BRANCH').authority)}.`)
     for (const id of ['ROLE_MIX', 'FOUNDATION_CLAUSE']) {
         const d = disposition(id)
-        add(`- Reported with source and authority, as Christian asked: ${plain(d.check)}: source ${d.where}, ${plain(d.origin)}; authority ${plain(d.authority)}; kept and enforced, not treated as canonical.`)
+        add(`- Reported with source and authority, as Christian asked: ${plain(d.check)}: source ${d.where}; origin ${plain(d.origin)}; authority ${plain(d.authority)}; kept and enforced, not treated as canonical.`)
     }
     add('- The role mix refuses no set run here (read from the code, not observed: a set of 1 or 2 is enumerated only whole, and its needs are read over the pool: generateSelection.ts:827, :835-836, :590-612).')
     add('Open: the wording decides one two-manipulation selection (item 3); the floor of 2 for subsets decides it together with row k (above).')
@@ -693,7 +738,7 @@ function bodyLines(): string[] {
     add('Implemented and tested (computed from the runs, in chain order):')
     for (const s of seq.sequence) add(`- ${plain(s.path)}: ${s.stage}: ${plain(s.reason)} [${cats(s.categories)}] ${s.passed ? `(passed by ${s.passedBy})` : '(remains)'}`)
     add(`- The first stop: ${plain(first.why)}.`)
-    add(`- Every experiment path past the first stop, and the zero-manipulation base of every A02 run, stands on our TEST-ONLY DRAFT A02 record (an empty set, the finding ours, no ruling), in place of Christian's evaluation of A02's manipulations, which no record holds.`)
+    add(`- Every experiment path past the first stop, and the zero-manipulation base of every A02 run, stands on our TEST-ONLY DRAFT A02 record (an empty set, or on item 4's runs a TEST-ONLY copy holding the stand-in manipulations; the finding ours, no ruling), in place of Christian's evaluation of A02's manipulations, which no record holds.`)
     add(`- Earliest remaining: ${plain(seq.earliest.path)}: ${plain(seq.earliest.why)}.`)
     add('- Downstream, recorded and not investigated:')
     for (const s of seq.downstream) add(`   ${plain(s.path)}: ${s.stage} [${cats(s.categories)}]`)
@@ -708,14 +753,14 @@ function bodyLines(): string[] {
     const shared = COMPARISON.rows.filter((r) => r.kind === 'SHARED')
     const differs = COMPARISON.rows.filter((r) => r.kind === 'DIFFERS')
     add(`Answer (OURS): ${REUSE_FINDING}`)
-    add(`Implemented and tested: TA02 run through the same consumption (TA02-0, the knowledge as it stands; TA02-D, the diagnostic), over our DRAFT restatement of RPC-003 and the DRAFT TA02 record (TEST-ONLY draft store): ${[['its Game Problem', 'GAME_PROBLEM'], ['its Game Form', 'GAME_FORM'], ['its constraints', 'CONSTRAINTS']].map(([what, row]) => `${what} reads ${[...new Set(TA02_IDS.flatMap((id) => verdictsOf(ta02Safeguard(id).findings, row)))].join(', ')}`).join(', ')}. Measured from both goals' results (appendix C):`)
+    add(`Implemented and tested: TA02 run through the same consumption (TA02-0, the knowledge as it stands; TA02-D, the diagnostic), over our DRAFT restatement of RPC-003 and the DRAFT TA02 record (TEST-ONLY draft store): ${[['its Game Problem', 'GAME_PROBLEM', 'reads'], ['its Game Form', 'GAME_FORM', 'reads'], ['its constraints', 'CONSTRAINTS', 'read']].map(([what, row, verb]) => `${what} ${verb} ${[...new Set(TA02_IDS.flatMap((id) => verdictsOf(ta02Safeguard(id).findings, row)))].join(', ')}`).join(', ')}. Measured from both goals' results (appendix C):`)
     add(`- shared (${shared.length}): ${shared.map((r) => r.aspect).join('; ')}.`)
     add(`- differing (${differs.length}): ${differs.map((r) => r.aspect).join('; ')}.`)
     for (const r of differs.filter((x) => x.aspect === 'the context' || x.aspect.indexOf('the condition\'s') === 0)) add(`   ${r.aspect}: A02 ${plain(r.a02)} | TA02 ${plain(r.ta02)}`)
     add(`- the two diagnostic builds: ${COMPARISON.sentencesIdentical ? 'identical coach text' : 'different coach text'}, and configuration lines identical but ${COMPARISON.differingLines.length} (${COMPARISON.differingLines.map((l) => l.split(': ')[0]).join(', ')}: the same transition value, from a different source).`)
     add(`Open: TA02's context is pending. ${cite('TA02-27OCT-CONTEXT', 0)} ${cite('TA02-28OCT-DEFERRED', 0)} The TA02 runs measure the reuse on the planning model's routing as it stands; neither is a TA02 configuration.`)
     add(
-        `Open: the 13 September correction of Attack Development's approved scoring condition (RPC-PROP-134, restoring the words that make its final clause an example) is outside this experiment and not applied: its verification against the original 13 September email is still pending, as Christian asked, ${cite('HO-07NOV-SCORING-ROW', 0)}; nothing here changes the offline record, the canonical workbook or the live application, and the TA02 runs read RPC-PROP-134 as the program holds it, without the restored words.`,
+        `Open: the 13 September correction of Attack Development's approved scoring condition (RPC-PROP-134, restoring the words that make its final clause an example) is outside this experiment and not applied. Christian asked for its verification against the original 13 September email, ${cite('HO-07NOV-SCORING-ROW', 0)}; that verification is still pending; nothing here changes the offline record, the canonical workbook or the live application, and the TA02 runs read RPC-PROP-134 as the program holds it, without the restored words.`,
     )
     add(`Proposals: none; no new structure is proposed (${cite('A02-10NOV-REUSE', 5)}).`)
     add('Assumptions (OURS): our restatement of RPC-003 (DRAFT, 27 October, unreviewed; its control item stands against Christian\'s first reply of 7 November, section 4, as said above); the same illustrative session for both goals, so that they differ only in their knowledge.')
@@ -732,7 +777,7 @@ function bodyLines(): string[] {
     add(`- A01, built by the production entry before and after every run of the safeguard test and after the TA02 runs: the same build each time (sha-256 ${S.A01_BEFORE === S.A01_AFTER && S.A01_AFTER === A01_END ? S.A01_BEFORE : 'CHANGED'}), ${a01Main ? 'equal to main\'s build measured at 0b60f26, the base this branch starts from (main 9919ea3 merged), with the same request' : 'NOT equal to main\'s build measured at 0b60f26'} (a registered test pins main's value).`)
     add('- The TEST-ONLY option is passed by no route, controller or service (a registered static test reads every non-test source file); with it absent, every one of the 13 Learning Goals builds exactly as the production entry builds it, and A01 with it is identical once its two TEST-ONLY account fields are set aside (registered tests).')
     add('- No production knowledge file holds our restatement of RPC-002 or the DRAFT A02 record, and A02 has no production record (tested).')
-    add('Recorded apart, not in this report: the regression on the committed tree (the type check, the whole suite, the behaviour snapshot against main\'s baseline, the bundle compared with main), in the evidence folder\'s regression record (a placeholder until that regression is run on the committed tree).')
+    add(`Recorded apart, not in this report: the regression on the committed tree (the type check, the whole suite, the behaviour snapshot against main's baseline, the bundle compared with main), in the evidence folder's regression record (${RECORD_WORDS.item7}).`)
     add('Open: three bundled files differ from main by TEST-ONLY additions no route passes (the selector\'s are disclosed first, above); isolation rests on the branch staying unmerged and undeployed.')
     add('Proposals: none.')
     add('Assumptions (OURS): none beyond the TEST-ONLY option itself, which no route passes.')
@@ -918,6 +963,25 @@ test(`S5. reuse, brief: TA02 through the same consumption over our DRAFT restate
     assert.deepEqual([S.A01_BEFORE, S.A01_AFTER], [A01_END, A01_END])
 })
 
+/** Every object of the results with a ruling's `ref` and a `received` date (a ruling's serialized entry), wherever it sits. */
+function datedEntries(value: unknown, out: Array<{ ref: string; entry: Record<string, unknown> }> = []): Array<{ ref: string; entry: Record<string, unknown> }> {
+    if (Array.isArray(value)) for (const v of value) datedEntries(v, out)
+    else if (value && typeof value === 'object') {
+        const o = value as Record<string, unknown>
+        if (typeof o.ref === 'string' && typeof o.received === 'string') out.push({ ref: o.ref, entry: o })
+        for (const v of Object.values(o)) datedEntries(v, out)
+    }
+    return out
+}
+/** The entries whose date basis disagrees with their ruling's (RC3-N1): an entry of a marked ruling must carry its marker and name; no other may. */
+const undatedEntries = (results: unknown): string[] =>
+    datedEntries(results).flatMap(({ ref, entry }) => {
+        const r = inputs.rulings.find((x) => x.id === ref)
+        if (!r) return [`${ref}: no such ruling`]
+        if (r.dateBasis) return entry.dateBasis === r.dateBasis && entry.citedAs === r.citedAs ? [] : [`${ref}: dateBasis ${String(entry.dateBasis)}, citedAs ${String(entry.citedAs)}`]
+        return 'dateBasis' in entry || 'citedAs' in entry ? [`${ref}: a date basis on an unmarked ruling`] : []
+    })
+
 const APPENDIX_A = 'APPENDIX A: THE A02 CASES IN DETAIL (the runs, what each refusal rests on, the restatement item by item, UNRESOLVED, the questions, the Essential Representative Relationships)'
 const HEADINGS = [
     '1. CONSUMPTION OF STEP 1 AND STEP 2',
@@ -980,6 +1044,25 @@ test(`the report: the constraint selector disclosed first, each of its places he
     for (const s of spans) assert.ok(words.has(s), `a double-quoted span that is not Christian's words: ${s}`)
     // The reply about A02 is cited by its paste date, never a received date (its mail header was not kept).
     assert.equal(FIRST.report.split('received 10 November 2026').length - 1, 0, 'no received date for the reply about A02')
+    // RC3-N1: in the results too, every serialized entry of the reply about A02 carries its date basis and the name a citation gives it beside
+    // the paste date its `received` field holds; no entry of another reply carries either (measured: 40 entries, all of A02-10NOV-* rulings).
+    const results = JSON.parse(FIRST.json)
+    const dated = datedEntries(results)
+    assert.equal(dated.filter((e) => e.ref.indexOf('A02-10NOV-') === 0).length, 40, 'the serialized entries of the reply about A02 (measured)')
+    assert.deepEqual([...new Set(dated.filter((e) => e.ref.indexOf('A02-10NOV-') === 0).map((e) => `${String(e.entry.dateBasis)} ${String(e.entry.citedAs)}`))], ['PASTED_WITHOUT_HEADER reply about A02'])
+    assert.deepEqual(undatedEntries(results), [], 'every A02-10NOV-* entry carries dateBasis PASTED_WITHOUT_HEADER, and no other entry a date basis')
+    const doctored = copy(results)
+    delete datedEntries(doctored).find((e) => e.ref.indexOf('A02-10NOV-') === 0)!.entry.dateBasis
+    assert.equal(undatedEntries(doctored).length, 1, 'bite: an A02-10NOV-* entry without its date basis is found')
+    // NF-02: the runs the switch's removal would refuse are the lone Neutral Player runs, each committing S4-NP's set (measured), and they hold
+    // item 4's floor measurement.
+    assert.deepEqual(LONE_RUNS, ['S4-NP', 'S4-NP@A02-D', 'S4-NP~reversed', 'S4-NP~neutral'])
+    for (const id of LONE_RUNS) assert.deepEqual(S.at(id).run.chain?.constraints, S.at('S4-NP').run.chain?.constraints, id)
+    assert.deepEqual(FLOOR_RUNS, ['S4-NP~reversed', 'S4-NP~neutral'])
+    // RC1-N3 (documented, not widened): the control clause carried under the treatment and then refused on its item named by its value path
+    // (measured), said in item 2; no other clause has such a run.
+    assert.deepEqual(['origin', 'progression', 'control'].map((c) => valuePathRefusals(c).map((x) => `${x.id} ${x.stage}`)), [[], [], ['A02-2 communication', 'A02-2~reversed communication', 'A02-2~neutral communication']])
+    assert.ok(lines.some((l) => l.indexOf('- The control clause over the ') === 0 && l.includes('on 3 of them (A02-2, A02-2~reversed, A02-2~neutral) the run is then refused at communication on this clause\'s own item, named by its value path, for want of approved wording; the verdict reads only the lines a refusal cites, so the clause keeps CARRIED_UNDER_TREATMENT')), 'item 2 says which carried runs are then refused on the clause\'s item')
     // The experiment path's violation verdicts, as item 3 splits them: each listed by exactly one open disconnection (so the split adds up).
     const experimentViolations = S.EXPERIMENT_RUNS.flatMap((id) => S.at(id).findings).filter((f) => classOf(f) === 'VIOLATION')
     const listedBy = (f: Finding) => S.OPEN_DISCONNECTIONS.filter((e) => e.scope === 'EXPERIMENT' && unlisted([f], [e], ['EXPERIMENT']).length === 0).length
@@ -1013,11 +1096,38 @@ test('the evidence equals what this file generates, generated twice and identica
     const record = JSON.parse(fs.readFileSync(path.join(EVIDENCE, 'regression-record.json'), 'utf8'))
     assert.ok(typeof record.status === 'string' && record.status.length > 0, 'the regression record says its status')
     const readme = fs.readFileSync(path.join(FOLDER, 'README.md'), 'utf8')
+    // RC3-N4: the report and the README speak of the record as its status says (the record itself stays the lead's to fill).
+    assert.equal(record.status, RECORD.status)
+    for (const phrase of RECORD_WORDS.readmeHolds) assert.ok(readme.includes(phrase), `the README says ${phrase} (the record: ${record.status})`)
+    for (const phrase of RECORD_WORDS.readmeOmits) assert.ok(!readme.includes(phrase), `the README no longer says ${phrase} (the record: ${record.status})`)
+    assert.ok(FIRST.report.includes(`(${RECORD_WORDS.item7})`) && FIRST.report.includes(`${RECORD_WORDS.disclosure}.`), 'the report speaks of the record as its status says')
+    // Bites, whatever the record's status (so filling it needs no change here): a filled record (doctored in memory) switches the wording to its
+    // build; the README as it stands fails the other status; a filled record without its build is refused.
+    const filled = recordWords({ status: 'RECORDED', build: 'abc1234' })
+    assert.deepEqual([filled.item7, filled.disclosure.endsWith('(recorded on abc1234)')], ['recorded on abc1234', true])
+    const other = RECORD.status === RECORD_PENDING ? filled : recordWords({ status: RECORD_PENDING, build: null })
+    assert.ok(other.readmeOmits.some((phrase) => readme.includes(phrase)) || !other.readmeHolds.every((phrase) => readme.includes(phrase)), 'bite: the README as it stands fails the other status')
+    assert.throws(() => recordWords({ status: 'RECORDED', build: null }), /a filled regression record names the build/)
     for (const d of DISPOSITION) assert.ok(readme.includes(`| ${d.id} | ${d.disposition} |`), `the README's disposition table holds ${d.id}`)
     for (const e of S.OPEN_DISCONNECTIONS) assert.ok(readme.includes(`| ${e.id} |`), `the README lists ${e.id}`)
     for (const h of SELECTOR_HUNKS) assert.ok(readme.includes(`${SELECTOR_FILE}:${h.lines}`), `the README discloses ${SELECTOR_FILE}:${h.lines}`)
     // The README's counts are held to the runs (batch A2): the safeguard runs, the restatement's items, and the date of the reply about A02.
-    for (const phrase of [`over ${S.runs.size} runs`, `The ${S.runs.size} runs,`, `the ${S.runs.size} safeguard runs`, `${a02Items.length} items, each quoting its approved row verbatim`, `'reply about A02, pasted 10 November 2026'`])
+    // Batch A3: the lone runs the switch's removal would refuse (NF-02); the first stop and the DRAFT record standing in for Christian's
+    // evaluation (RC3-N2); the TA02 stop's parallel as the report words it (NF-05).
+    const firstStop = blockerSequence(S.stopsOf()).sequence[0]
+    assert.equal(firstStop.id, 'L1', 'the first stop is the legacy route\'s (A02 has no authorization record)')
+    for (const phrase of [
+        `over ${S.runs.size} runs`,
+        `The ${S.runs.size} runs,`,
+        `the ${S.runs.size} safeguard runs`,
+        `${a02Items.length} items, each quoting its approved row verbatim`,
+        `'reply about A02, pasted 10 November 2026'`,
+        `the lone Neutral Player runs of item 4 (${LONE_RUNS.join(', ')})`,
+        'A02 has no authorization record, and that is the first stop',
+        'in place of Christian\'s evaluation of A02\'s manipulations',
+        'never by the consumption (report item 5)',
+        'not a like-for-like parallel',
+    ])
         assert.ok(readme.includes(phrase), `the README says ${phrase}`)
     assert.equal(readme.split('received 10 November').length - 1, 0, 'the README gives the reply about A02 no received date')
     assert.ok(holdsGenderedPronoun(`as quoted in ${[...'sih'].reverse().join('')} reply`) && !holdsGenderedPronoun('whether the heron'), 'bite: the scan sees one, and not inside a word')

@@ -358,8 +358,9 @@ test('statically: production cannot reach the option (identifiers, positional ar
     const references: string[] = []
     const callersOfTheEntry: string[] = []
     // Forms the name-based checks above cannot follow: an import or export that renames selectFor or generateSelection
-    // or names the TEST-ONLY entry, a call through element access with a string key naming one of the three, and any reference to the entry
-    // outside its declaration. None may appear outside build-activity.ts and run-bounded-selection.ts.
+    // or names the TEST-ONLY entry, an element access with a string key naming one of the three (called, or read and called later), a
+    // destructuring or object property keyed by such a string, and any reference to the entry outside its declaration. None may appear outside
+    // build-activity.ts and run-bounded-selection.ts.
     const WATCHED = new Set(['selectFor', 'generateSelection', 'buildActivityUnderAuthorizationRecords'])
     const ENTRY = 'buildActivityUnderAuthorizationRecords'
     const evasions: string[] = []
@@ -402,8 +403,17 @@ test('statically: production cannot reach the option (identifiers, positional ar
                 if (imported === ENTRY || node.name.text === ENTRY) evasions.push(`${name} specifier naming the entry`)
                 else if (node.propertyName && WATCHED.has(imported) && node.name.text !== imported) evasions.push(`${name} specifier renaming ${imported} as ${node.name.text}`)
             }
-            if (ts.isCallExpression(node) && ts.isElementAccessExpression(node.expression) && ts.isStringLiteralLike(node.expression.argumentExpression) && WATCHED.has(node.expression.argumentExpression.text))
-                evasions.push(`${name} element-access call of ${node.expression.argumentExpression.text}`)
+            // Any element access with a string key naming one of the three, called or read and called later (RC3-N5).
+            if (ts.isElementAccessExpression(node) && ts.isStringLiteralLike(node.argumentExpression) && WATCHED.has(node.argumentExpression.text)) {
+                const called = ts.isCallExpression(node.parent) && node.parent.expression === node
+                evasions.push(`${name} element-access ${called ? 'call' : 'read'} of ${node.argumentExpression.text}`)
+            }
+            // A destructuring or an object property keyed by a string (or a computed string) naming one of the three (RC3-N5).
+            if (ts.isBindingElement(node) || ts.isPropertyAssignment(node)) {
+                const key = ts.isBindingElement(node) ? node.propertyName : node.name
+                const keyText = key && ts.isStringLiteralLike(key) ? key.text : key && ts.isComputedPropertyName(key) && ts.isStringLiteralLike(key.expression) ? key.expression.text : null
+                if (keyText !== null && WATCHED.has(keyText)) evasions.push(`${name} string-keyed ${ts.isBindingElement(node) ? 'binding' : 'property'} of ${keyText}`)
+            }
             if (ts.isIdentifier(node) && node.text === ENTRY && !(ts.isFunctionDeclaration(node.parent) && node.parent.name === node) && !ts.isImportSpecifier(node.parent) && !ts.isExportSpecifier(node.parent))
                 evasions.push(`${name} reference to the entry`)
             ts.forEachChild(node, visit)
@@ -423,6 +433,11 @@ test('statically: production cannot reach the option (identifiers, positional ar
             `import { ${ENTRY} } from '../rendering/build-activity'`,
             `rbs['selectFor'](a, b, c, d, e, f)`,
             `const run = ${ENTRY}`,
+            `const later = ba['${ENTRY}']`,
+            `later(r, o)`,
+            `const { '${ENTRY}': taken } = ba`,
+            `const { ['selectFor']: chosen } = rbs`,
+            `const table = { 'generateSelection': g }`,
         ].join('\n'),
     )
     assert.deepEqual(evasions.splice(0), [
@@ -431,6 +446,10 @@ test('statically: production cannot reach the option (identifiers, positional ar
         'probe2.ts specifier naming the entry',
         'probe2.ts element-access call of selectFor',
         'probe2.ts reference to the entry',
+        `probe2.ts element-access read of ${ENTRY}`,
+        `probe2.ts string-keyed binding of ${ENTRY}`,
+        'probe2.ts string-keyed binding of selectFor',
+        'probe2.ts string-keyed property of generateSelection',
     ])
     assert.deepEqual([calls.splice(0), references.splice(0)], [[], []], 'the name-based checks do not see those forms (which is why these exist)')
     named.clear()
