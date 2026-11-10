@@ -46,6 +46,7 @@ import { roleHolderNames, roleOfHolder } from '../derivation/designation'
 import { MissingParticipant, missingParticipantsIn, PARTICIPANTS_CHECK } from '../derivation/gates'
 import { roleBlocksOf } from '../derivation/role-blocks'
 import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, DraftStoreContents, GoalSelectionGap, knowledgeKey, KnowledgeSelection, realizationOf, selectFor } from '../derivation/run-bounded-selection'
+import type { ConsumedGameProblem, ConsumedRecord, UpstreamDecisions } from '../derivation/run-bounded-selection'
 import { DRAFT_KNOWLEDGE, DRAFT_KNOWLEDGE_VERSION, LoadedContract, RoleBlock } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, ObjectAvailabilityRefusal, objectAvailabilityRefusal, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
@@ -230,6 +231,14 @@ export interface ActivityAccount {
      * (`realizationOutcomes`), never restated; the review evidence names the same entries. Absent for every other activity.
      */
     realizationSelection?: RealizationSelectionEntry[]
+    /**
+     * TEST-ONLY (the isolated A02 experiment, S1(a)): Step 1's Game Problem as the build consumed it, labelled with its basis, the case's label
+     * and its source, beside `gameProblem` (the chain's own reading, which it never replaces and `provisional` never reads). Present only on a
+     * build given `upstream` (`buildActivityUnderAuthorizationRecords`), on the served and the refused path; absent on every production build.
+     */
+    consumedGameProblem?: ConsumedGameProblem
+    /** TEST-ONLY (the isolated A02 experiment, S1(e)): what the selection consumed from upstream, read from its run (`ConsumedRecord`). Same presence rule. */
+    consumed?: ConsumedRecord
 }
 
 /**
@@ -713,6 +722,9 @@ function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null,
         authorizationLists: goal?.authorization ? authorizationLists(goal.authorization, preferred) : null,
         selectedWithoutContract: selection.missing.filter(id => !contexts.has(id)),
         ...provisionalOf(goal ? goal.gameProblem : null),
+        // TEST-ONLY (A02 experiment): copied from a selection that consumed upstream decisions; absent on every production selection.
+        ...(goal?.consumedGameProblem ? { consumedGameProblem: JSON.parse(JSON.stringify(goal.consumedGameProblem)) as ConsumedGameProblem } : {}),
+        ...(goal?.consumed ? { consumed: JSON.parse(JSON.stringify(goal.consumed)) as ConsumedRecord } : {}),
     }
     if (form) account.gameForm = gameFormOf(form.id, contracted.has(form.id))
     return account
@@ -738,6 +750,9 @@ function gapAccountOf(gap: GoalSelectionGap, preferred: ProvisionalRealization |
         selectedWithoutContract: [],
         ...provisionalOf(gap.gameProblem),
         ...(gap.gap.archetypeId ? { gameForm: gameFormOf(gap.gap.archetypeId, contracted.has(gap.gap.archetypeId)) } : {}),
+        // TEST-ONLY (A02 experiment): copied from a gap met while consuming upstream decisions; absent on every production gap.
+        ...(gap.consumedGameProblem ? { consumedGameProblem: JSON.parse(JSON.stringify(gap.consumedGameProblem)) as ConsumedGameProblem } : {}),
+        ...(gap.consumed ? { consumed: JSON.parse(JSON.stringify(gap.consumed)) as ConsumedRecord } : {}),
     }
 }
 
@@ -1270,6 +1285,13 @@ export function buildActivityUnderAuthorizationRecords(
          * Absent: the renderer's rendering alone.
          */
         communicationSupplement?: (fixture: Record<string, unknown>, rendered: RenderedActivity) => RenderedActivity
+        /**
+         * TEST-ONLY, the isolated A02 experiment (Christian's A02 authorization, received 10 November 2026; `UpstreamDecisions` in
+         * run-bounded-selection.ts): Step 1's Game Problem and Step 2's form, consumed by the goal's selection, and the boolean that bypasses
+         * the size rule for an evaluated, record-backed set. Threaded to `build` and from there to `selectFor` only. With it, an
+         * `alterSelection` may only observe: one that changes the selection makes the build throw. Absent: the build is exactly what it was.
+         */
+        upstream?: UpstreamDecisions
     } = {},
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     // Round 2, R3 NIT 12: a TEST-ONLY option the build would ignore throws, as a refused copy does: only an administrator's review computes the
@@ -1328,6 +1350,7 @@ export function buildActivityUnderAuthorizationRecords(
         options.requirementBindingsRefused ? [...options.requirementBindingsRefused] : null,
         options.requirementBindingsFile ?? null,
         options.communicationSupplement ?? null,
+        options.upstream ? (JSON.parse(JSON.stringify(options.upstream)) as UpstreamDecisions) : null,
     )
     if (drafts) built.activity.draftKnowledge = draftKnowledgeAccountOf(drafts.store, built, drafts.seen.contracts)
     if (options.relevance && observed) built.activity.relevance = relevanceOfBuilt(built, observed.contracts, request.goalId, options.relevance)
@@ -1464,6 +1487,8 @@ function build(
     requirementBindingsFileGiven: string | null = null,
     /** 7 November 2026, tests only (`buildActivityUnderAuthorizationRecords`): the review-only supplement each game's rendering is handed to. */
     supplement: GameContext['supplement'] = null,
+    /** TEST-ONLY, the isolated A02 experiment (`buildActivityUnderAuthorizationRecords` `upstream`): handed to the goal's `selectFor`. Null: nothing is. */
+    upstream: UpstreamDecisions | null = null,
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const boundRegions: SportBoundRegions | null = boundRegionsGiven === undefined ? loadSportBoundRegions() : boundRegionsGiven
     // B2 (28 October 2026): the playing environment's elements, read once for every game of this build (the guard in `buildOneGame`).
@@ -1540,6 +1565,7 @@ function build(
                 records,
                 realizations ? realizations.map(realization => realization.provisionalId) : undefined,
                 drafts ? { contracts: drafts.store.contracts, draftsAdmitted: true } : undefined,
+                upstream ?? undefined,
             )
         } catch (error) {
             /**
@@ -1562,7 +1588,12 @@ function build(
         }
         if (alterSelection) {
             goalSelection = JSON.parse(JSON.stringify(goalSelection)) as BoundedSelection
+            // TEST-ONLY (A02 experiment, S1(f)): on a build that consumed upstream decisions an alteration may only observe the selection.
+            const observedOnly = upstream ? JSON.stringify(goalSelection) : null
             alterSelection(goalSelection)
+            if (observedOnly !== null && JSON.stringify(goalSelection) !== observedOnly) {
+                throw new Error('a TEST-ONLY alterSelection changed a selection that consumed upstream decisions: with upstream it may only observe')
+            }
             Object.assign(goalSelection, contractCoverage(goalSelection.selected, goalSelection.draftContracts ?? []))
         }
         selection = goalSelection

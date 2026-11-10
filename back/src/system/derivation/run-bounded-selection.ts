@@ -155,6 +155,68 @@ export interface BoundedSelection extends KnowledgeSelection {
     constraintAuthority: ConstraintAuthority
     /** The authorization record selection used, as a copy, or null where the goal has none. */
     authorization: LearningGoalAuthorization | null
+    /** TEST-ONLY (A02 experiment, S1(a)): Step 1's Game Problem as handed in (`UpstreamDecisions`). Absent on every production selection. */
+    consumedGameProblem?: ConsumedGameProblem
+    /** TEST-ONLY (A02 experiment, S1(e)): what this selection consumed from upstream, read from the run. Absent on every production selection. */
+    consumed?: ConsumedRecord
+}
+
+/**
+ * **TEST-ONLY: the upstream decisions a selection consumes** — the isolated A02 experiment. Christian's A02 authorization, received 10 November 2026:
+ *   "The downstream pathway should consume Step 1's resolved Game Problem and Step 2's Game Form evaluation rather than independently selecting them from Learning Goal wording."
+ *   "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."
+ * Handed only by `buildActivityUnderAuthorizationRecords`'s `upstream` option, which no route passes (a static test pins it:
+ * `rendering/upstream-consumption.unit.ts`). Plain data: no module of the review pathway is imported to read it.
+ *   - `gameProblem`: Step 1's resolved primary Game Problem and its basis, with the case's own label (TEST ASSUMPTION for a swap). Carried into
+ *     the selection and the account as `consumedGameProblem`; never written to `gameProblem` (the planning model's reading, which still governs
+ *     the lens hints and the matched signals in `guidedSelectionHints`) and never read by `provisionalOf`.
+ *   - `gameForm`: Step 2's form, its standing words and the grade of every cell its selection rests on (GF2's GP-015 cell is CANDIDATE, our
+ *     restatement of a DRAFT sport-module row): carried, never upgraded. The candidate forms become the context-gated list filtered to it
+ *     (an intersection, never a replacement).
+ *   - The constraints are not handed in: they come only from the goal's authorization record (the record route), held to the record gate.
+ *   - `quotaBypass`: the one numerical rule the authorization lets us bypass, in its words:
+ *     "For the isolated A02 experiment, you may remove or bypass this unsupported numerical quota where necessary to test legitimate zero-, one-, or multiple-manipulation configurations."
+ *     `generateSelection` receives this boolean and nothing else of the upstream decisions, and honours it only for an evaluated, record-backed set.
+ */
+export interface UpstreamDecisions {
+    gameProblem: { gameProblemId: string; step1Basis: 'APPROVED_TRANSLATION' | 'SCOPED_RULING'; label: string }
+    gameForm: { formId: string; standing: string; cells: { cell: string; grade: string }[] }
+    quotaBypass?: boolean
+}
+
+/** TEST-ONLY: Step 1's Game Problem as a selection and an account carry it, beside (never in place of) the chain's own reading. */
+export interface ConsumedGameProblem {
+    gameProblemId: string
+    step1Basis: 'APPROVED_TRANSLATION' | 'SCOPED_RULING'
+    label: string
+    source: 'Step 1 (review pathway)'
+}
+
+/**
+ * TEST-ONLY: what a selection consumed from upstream, read from its own run (S1(e)). `formCandidatesScored`: the forms the keyword scorer
+ * ranked, read from the selection trace's ranking (`SELECTION_TRACE_RANKING`); where the selector refused before it returned a trace, the
+ * candidate list selectFor handed it (`CANDIDATES_HANDED_TO_SELECTOR`), which is the list it scores. `constraintAuthority` and
+ * `constraintCandidateIds`: the pool account's, from the trace or from the gap. `form`: Step 2's form as handed in, standing and grades kept.
+ */
+export interface ConsumedRecord {
+    formCandidatesScored: string[]
+    formCandidatesFrom: 'SELECTION_TRACE_RANKING' | 'CANDIDATES_HANDED_TO_SELECTOR'
+    form: UpstreamDecisions['gameForm']
+    constraintAuthority: ConstraintAuthority
+    constraintCandidateIds: string[]
+    quotaBypass: boolean
+}
+
+/** TEST-ONLY: an upstream object missing what the consumption reads is refused, never read partly. */
+function upstreamRefusals(upstream: UpstreamDecisions): string[] {
+    const filled = (value: unknown) => typeof value === 'string' && value.trim().length > 0
+    const errors: string[] = []
+    if (!filled(upstream?.gameProblem?.gameProblemId) || !filled(upstream?.gameProblem?.label)) errors.push(`Step 1's Game Problem and its label`)
+    if (!['APPROVED_TRANSLATION', 'SCOPED_RULING'].includes(upstream?.gameProblem?.step1Basis as string)) errors.push(`Step 1's basis (APPROVED_TRANSLATION or SCOPED_RULING)`)
+    if (!filled(upstream?.gameForm?.formId) || !filled(upstream?.gameForm?.standing)) errors.push(`Step 2's form and its standing words`)
+    if (!Array.isArray(upstream?.gameForm?.cells) || !upstream.gameForm.cells.length || !upstream.gameForm.cells.every(c => filled(c?.cell) && filled(c?.grade))) errors.push('the grade of every cell the form rests on')
+    if (upstream?.quotaBypass !== undefined && typeof upstream.quotaBypass !== 'boolean') errors.push('quotaBypass as a boolean')
+    return errors
 }
 
 /**
@@ -193,6 +255,9 @@ export const CONTEXT_ROLE = 'representative performance context'
  * `selectFor` so the builder can refuse at `selection` with a filled account.
  */
 export class GoalSelectionGap extends Error {
+    /** TEST-ONLY (A02 experiment, S1(a) and S1(e)): set only where selection consumed upstream decisions; never set on a production gap. */
+    declare readonly consumedGameProblem?: ConsumedGameProblem
+    declare readonly consumed?: ConsumedRecord
     constructor(
         readonly gap: SelectionKnowledgeGap,
         readonly goalName: string,
@@ -200,9 +265,12 @@ export class GoalSelectionGap extends Error {
         readonly contextId: string | null,
         /** The authorization record selection consulted (15 October 2026), or null where the goal has none. */
         readonly authorization: LearningGoalAuthorization | null = null,
+        /** TEST-ONLY (A02 experiment): what selection consumed from upstream; absent on every production call. */
+        upstreamConsumed?: { consumedGameProblem: ConsumedGameProblem; consumed: ConsumedRecord },
     ) {
         super(gap.message)
         this.name = 'GoalSelectionGap'
+        if (upstreamConsumed) Object.assign(this, { consumedGameProblem: upstreamConsumed.consumedGameProblem, consumed: upstreamConsumed.consumed })
     }
 }
 
@@ -221,9 +289,19 @@ export function selectFor(
      * `draftsAdmitted`). Absent on every production call, which selects exactly as before.
      */
     drafts?: { contracts: LoadedContract[]; draftsAdmitted: true },
+    /**
+     * TEST-ONLY (the isolated A02 experiment, `UpstreamDecisions`): Step 1's Game Problem and Step 2's form, consumed; and the boolean that
+     * bypasses the size rule. Handed only by `buildActivityUnderAuthorizationRecords`'s `upstream` option. Absent on every production call,
+     * which selects exactly as before.
+     */
+    upstream?: UpstreamDecisions,
 ): BoundedSelection {
     const goal: any = sessionPlanningModel.learningGoal(goalId)
     if (!goal) throw new Error(`no such learning goal: ${goalId}`)
+    if (upstream) {
+        const refusals = upstreamRefusals(upstream)
+        if (refusals.length) throw new Error(`${goalId}: the TEST-ONLY upstream decisions are refused, they lack ${refusals.join('; ')}`)
+    }
     // The one canonical text, from the same function the application route uses (stage S-C2, 14 October 2026).
     const text = guidedGoalText(goalId)
     /**
@@ -235,13 +313,51 @@ export function selectFor(
      * an authored field dropped by a projection; it is closed the same way, by having one source.
      */
     const guided = guidedSelectionHints(goalId, text, records, provisionalIds, drafts ? { draftsAdmitted: true } : {})
+    /**
+     * TEST-ONLY (A02 experiment, S1(b) and S1(c)): with upstream decisions, the candidate forms are the context-gated list FILTERED to Step 2's
+     * form, an intersection and never a replacement, so a form the routed context does not declare is refused here in its own words; and the
+     * constraints come only from the goal's authorization record (the record route, held to the record gate above), never from the
+     * vocabulary pool. Without upstream decisions the hints are the guided hints, unchanged.
+     */
+    let hints = guided.hints
+    if (upstream) {
+        const formId = upstream.gameForm.formId
+        if (!guided.contextId) throw new Error(`${goalId}: Step 2's form ${formId} is filtered to the routed context's declared forms, and the goal routes to no context`)
+        const gated: string[] = [...(guided.hints.candidateArchetypeIds ?? [])]
+        const kept = gated.filter(id => id === formId)
+        if (!kept.length) throw new Error(`${goalId}: Step 2's form ${formId} is not among the routed context's declared forms ${gated.join(', ')}`)
+        if (guided.hints.constraintAuthority?.authority !== 'AUTHORIZATION_RECORD' || !guided.authorization) {
+            throw new Error(`${goalId}: with upstream decisions the constraints come only from the goal's authorization record (the record route), and no record governs this goal, so its pool would be vocabulary-derived`)
+        }
+        hints = { ...guided.hints, candidateArchetypeIds: kept }
+    }
+    const consumedGameProblem: ConsumedGameProblem | null = upstream
+        ? { gameProblemId: upstream.gameProblem.gameProblemId, step1Basis: upstream.gameProblem.step1Basis, label: upstream.gameProblem.label, source: 'Step 1 (review pathway)' }
+        : null
+    const consumedFrom = (formCandidatesScored: string[], formCandidatesFrom: ConsumedRecord['formCandidatesFrom'], pool: ConstraintPoolAccount): ConsumedRecord => ({
+        formCandidatesScored: [...formCandidatesScored],
+        formCandidatesFrom,
+        form: JSON.parse(JSON.stringify(upstream!.gameForm)),
+        constraintAuthority: pool.constraintAuthority,
+        constraintCandidateIds: [...pool.candidateIds],
+        quotaBypass: upstream!.quotaBypass === true,
+    })
     let result: any
     try {
-        result = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, guided.hints)
+        result = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, hints, upstream?.quotaBypass === true)
     } catch (error) {
         // A knowledge gap is reported WITH what this boundary alone knows — the goal's Game Problem authority
         // and its context — so the account of the refusal is filled from the same computation, not a second one.
-        if (isSelectionKnowledgeGap(error)) throw new GoalSelectionGap(error, String(goal['Learning Goal']), guided.gameProblem, guided.contextId, guided.authorization)
+        if (isSelectionKnowledgeGap(error)) {
+            throw new GoalSelectionGap(
+                error,
+                String(goal['Learning Goal']),
+                guided.gameProblem,
+                guided.contextId,
+                guided.authorization,
+                consumedGameProblem ? { consumedGameProblem, consumed: consumedFrom(hints.candidateArchetypeIds ?? [], 'CANDIDATES_HANDED_TO_SELECTOR', error.pool) } : undefined,
+            )
+        }
         throw error
     }
 
@@ -321,6 +437,17 @@ export function selectFor(
         constraintPool: result.selectionTrace.constraintPool as ConstraintPoolAccount,
         constraintAuthority: (result.selectionTrace.constraintPool as ConstraintPoolAccount).constraintAuthority,
         authorization: guided.authorization,
+        // TEST-ONLY (A02 experiment, S1(a) and S1(e)): only where upstream decisions were consumed; absent on every production selection.
+        ...(consumedGameProblem
+            ? {
+                  consumedGameProblem,
+                  consumed: consumedFrom(
+                      ((result.selectionTrace.ranking?.archetypes ?? []) as { id: string }[]).map(entry => String(entry.id)),
+                      'SELECTION_TRACE_RANKING',
+                      result.selectionTrace.constraintPool as ConstraintPoolAccount,
+                  ),
+              }
+            : {}),
     }
 }
 

@@ -152,5 +152,6 @@
     "./src/system/activity/fixed-response-pathway.unit.ts",
     "./src/system/design-reasoning/stage2.unit.ts",
     "./src/system/design-reasoning/assembly.unit.ts",
-    "./src/system/design-reasoning/handoff.unit.ts"
+    "./src/system/design-reasoning/handoff.unit.ts",
+    "./src/system/rendering/upstream-consumption.unit.ts"
 ]

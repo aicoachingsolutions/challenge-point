@@ -697,7 +697,9 @@ function boundedConstraintCandidates(
 function assertSelectionContract(
     affordanceLenses: TestLibraryV0AffordanceLens[],
     constraints: TestLibraryV0Constraint[],
-    zeroConstraintCommitment = false
+    zeroConstraintCommitment = false,
+    /** TEST-ONLY (the isolated A02 experiment): under `quotaBypass`, the authorized set's own size n, admitting 1 to n. Null in production. */
+    quotaBypassOwnSize: number | null = null
 ): void {
     const nl = affordanceLenses.length
     if (nl < 2 || nl > 3) {
@@ -708,6 +710,10 @@ function assertSelectionContract(
     const nc = constraints.length
     if (zeroConstraintCommitment) {
         if (nc !== 0) throw new Error(`Test Library selection contract violated: a zero-constraint commitment carries ${nc} constraints.`)
+        return
+    }
+    if (quotaBypassOwnSize !== null) {
+        if (nc < 1 || nc > quotaBypassOwnSize) throw new Error(`Test Library selection contract violated: under the TEST-ONLY quota bypass expected 1–${quotaBypassOwnSize} constraints, got ${nc}.`)
         return
     }
     if (nc < 2 || nc > 4) {
@@ -775,6 +781,8 @@ interface DesignEnumerationContext {
     roleNeedsFromPool: boolean
     /** Commit lenses with NO constraint: set only for a record-backed goal whose evaluated authorized set is empty. */
     zeroConstraintCommitment: boolean
+    /** The constraint sizes tried: [2, 3, 4], and under the TEST-ONLY quota bypass also the authorized set's own size. */
+    constraintSizes: number[]
 }
 
 function comboKey(lenses: TestLibraryV0AffordanceLens[], cons: TestLibraryV0Constraint[]): string {
@@ -787,7 +795,7 @@ function comboKey(lenses: TestLibraryV0AffordanceLens[], cons: TestLibraryV0Cons
  * pre-assembly compatibility, scoring each. It does NOT choose; that is commitDesignChoice's job.
  */
 function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPossibility[] {
-    const { tokens, archetype, archeAffordances, informationIntent, lensCandidatePool, lensScoreById, allConstraints, roleNeedsFromPool, zeroConstraintCommitment } = ctx
+    const { tokens, archetype, archeAffordances, informationIntent, lensCandidatePool, lensScoreById, allConstraints, roleNeedsFromPool, zeroConstraintCommitment, constraintSizes } = ctx
     const poolIds = new Set(allConstraints.map((c) => c.id))
     const possibilities: DesignPossibility[] = []
     for (const lensSize of [2, 3]) {
@@ -824,7 +832,7 @@ function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPoss
 
             const lensSum = lensCombo.reduce((s, l) => s + (lensScoreById.get(l.id)?.score ?? 0), 0)
 
-            for (const conSize of [2, 3, 4]) {
+            for (const conSize of constraintSizes) {
                 if (constraintCandidatePool.length < conSize) continue
 
                 for (const conCombo of combinations(constraintCandidatePool, conSize)) {
@@ -874,7 +882,17 @@ export function commitDesignChoice(possibilities: DesignPossibility[]): DesignPo
  */
 export function generateSelection(
     input: TestLibrarySelectionInput,
-    inputConstraints?: InputConstraintHints | null
+    inputConstraints?: InputConstraintHints | null,
+    /**
+     * TEST-ONLY, the isolated A02 experiment. Christian's A02 authorization, received 10 November 2026:
+     *   "For the isolated A02 experiment, you may remove or bypass this unsupported numerical quota where necessary to test legitimate zero-, one-, or multiple-manipulation configurations."
+     *   "I am not authorizing a production change to the constraint selector at this stage."
+     * Bypass the size rule only, at its two places (the sizes enumerated and `assertSelectionContract`), for an evaluated, record-backed authorized set, and throw for any
+     * other pool. Passed only by `selectFor` under `buildActivityUnderAuthorizationRecords`'s `upstream` option, which no route passes; every
+     * production caller passes at most two arguments (a static test pins both). The role mix, the package checks, the zero branch and the lens
+     * rule are untouched.
+     */
+    quotaBypass = false
 ): TestLibrarySelectionResult {
     if (!input.learningGoals || !Array.isArray(input.learningGoals) || input.learningGoals.length === 0) {
         throw new Error('Test Library selection requires at least one learning goal.')
@@ -1010,6 +1028,13 @@ export function generateSelection(
     const recordBacked = constraintPool.source === 'AUTHORIZATION_RECORD'
     const authorizesNone = recordBacked && constraintPool.candidateIds.length === 0
     const zeroConstraintCommitment = authorizesNone && constraintPool.constraintPrinciple !== null
+    // TEST-ONLY (the isolated A02 experiment): the quota bypass is honoured only for an evaluated, record-backed authorized set; requested for
+    // any other pool it throws. Under it the sizes also try the set's own size n, and `assertSelectionContract` admits 1 to n.
+    if (quotaBypass && !(recordBacked && constraintPool.constraintPrinciple !== null)) {
+        throw new Error(`TEST-ONLY quota bypass requested for a selection whose constraints are not an evaluated authorization record (${constraintPool.source}): it is honoured only there`)
+    }
+    const quotaBypassOwnSize = quotaBypass ? constraintPool.candidateIds.length : null
+    const constraintSizes = quotaBypassOwnSize !== null && quotaBypassOwnSize >= 1 && ![2, 3, 4].includes(quotaBypassOwnSize) ? [quotaBypassOwnSize, 2, 3, 4] : [2, 3, 4]
     if (authorizesNone && !zeroConstraintCommitment) gapFor(archetype.game_form_id)('NO_AUTHORIZED_CONSTRAINTS')
 
     const lensScored = scoreAllLenses(tokens, archetype, archeAffordances)
@@ -1033,6 +1058,7 @@ export function generateSelection(
         allConstraints,
         roleNeedsFromPool: forGoal,
         zeroConstraintCommitment,
+        constraintSizes,
     })
     const committed = commitDesignChoice(designPossibilities)
     const bestLensCombo = committed?.lenses ?? null
@@ -1054,7 +1080,7 @@ export function generateSelection(
         )
     }
 
-    assertSelectionContract(bestLensCombo, bestConCombo, zeroConstraintCommitment)
+    assertSelectionContract(bestLensCombo, bestConCombo, zeroConstraintCommitment, quotaBypassOwnSize)
 
     const selectedLenses = bestLensCombo
     const picked = bestConCombo
