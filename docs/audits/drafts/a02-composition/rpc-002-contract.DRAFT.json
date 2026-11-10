@@ -1,0 +1,546 @@
+{
+  "standing": "DRAFT - TEST-ONLY, NOT APPROVED. A CANDIDATE restatement (ours, unreviewed) of the APPROVED rows of RPC-002 High Press Escape that state its primary scoring events (RPC-REL-075..078) and its primary scoring condition (RPC-PROP-133), with two of its REQUIRED identity rows recorded outside the boundary (RPC-ID-006, RPC-ID-008), written for the isolated A02 experiment Christian authorized on 10 November 2026. Every item quotes the approved row it restates verbatim; the restatement into items, every ASSUMED value and the WHOLE_GAME scope are ours. Nothing here is in the engine's knowledge: only the TEST-ONLY draft store (back/src/system/derivation/draft-store.ts) reads it, in unit tests; it is not in contracts.json or corpus-restatements.json, and no route reads it. The build labels what it reads from here DRAFT, DRAFT_KNOWLEDGE and BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED: read each of those labels as CANDIDATE restatement of an APPROVED row.",
+  "about": "The smallest restatement the item grammar expresses (stage 9 understanding, V2): the events, the count (ASSUMED), the three clauses of the approved condition as conditions of type origin, progression and control with their verbatim values, and the expressible identity rows recorded only. What the grammar cannot carry stays UNRESOLVED and is declared so: the origin clause has no carrier (V6 origin NOT_AUTHORED; V5 origin open text), the pressing line is open text, the control referent is UNDECLARED. The draft store refuses a drafted context whose primary scoring condition no constituting item cites, so the three condition items are the smallest admissible.",
+  "contractEntry": {
+    "kind": "restated",
+    "name": "RPC-002 High Press Escape",
+    "standing": "DRAFT",
+    "result": {
+      "object": "RPC-002 High Press Escape - a CANDIDATE restatement (OURS, unreviewed) of its approved scoring events, primary scoring condition and two identity rows, for the isolated A02 experiment. NOT APPROVED. Not in contracts.json. The engine loads none of it.",
+      "items": [
+        {
+          "origId": "RPC-002-01",
+          "strictness": "REQUIRED",
+          "scope": "WHOLE_GAME",
+          "structuralClause": "—",
+          "standing": "DRAFT",
+          "id": "RPC-002-01.a",
+          "row": "V1",
+          "selector": "*",
+          "requirement": "EQUALS",
+          "value": [
+            "line_crossed",
+            "target_zone_entered",
+            "gate",
+            "target_player"
+          ],
+          "valueStatus": "REQUIRED_RANGE",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"Valid primary scoring event 1 of 4, in the approved order.\" (RPC-REL-075, line_crossed; RPC-REL-076..078 carry target_zone_entered, gate and target_player as 2 to 4; provenance \"Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)\")",
+          "checkability": "STRUCTURAL",
+          "authoredOrder": true,
+          "fitNote": "CANDIDATE, OURS, unreviewed: the four approved primary scoring events in the approved order, the analog of RPC-001-08.a and RPC-003-03.a. The permitted set a game realizes is this set intersected with the form's own (with GF2-19, line_crossed and target_zone_entered), at realization; the intersection is never written here.",
+          "source": [
+            {
+              "rowId": "RPC-REL-075",
+              "table": "relationships",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1232,
+              "text": "SCORING_EVENT line_crossed (COMPATIBLE, strength PRIMARY); notes: \"Valid primary scoring event 1 of 4, in the approved order.\"; provenance: \"Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)\""
+            },
+            {
+              "rowId": "RPC-REL-076",
+              "table": "relationships",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1243,
+              "text": "SCORING_EVENT target_zone_entered (COMPATIBLE, strength PRIMARY); notes: \"Valid primary scoring event 2 of 4, in the approved order.\"; provenance: \"Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)\""
+            },
+            {
+              "rowId": "RPC-REL-077",
+              "table": "relationships",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1254,
+              "text": "SCORING_EVENT gate (COMPATIBLE, strength PRIMARY); notes: \"Valid primary scoring event 3 of 4, in the approved order.\"; provenance: \"Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)\""
+            },
+            {
+              "rowId": "RPC-REL-078",
+              "table": "relationships",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1265,
+              "text": "SCORING_EVENT target_player (COMPATIBLE, strength PRIMARY); notes: \"Valid primary scoring event 4 of 4, in the approved order.\"; provenance: \"Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)\""
+            }
+          ]
+        },
+        {
+          "origId": "RPC-002-01",
+          "strictness": "REQUIRED",
+          "scope": "WHOLE_GAME",
+          "structuralClause": "—",
+          "standing": "DRAFT",
+          "id": "RPC-002-01.b",
+          "row": "V0",
+          "selector": "*",
+          "requirement": "COUNT",
+          "value": "1",
+          "valueStatus": "REQUIRED_RANGE",
+          "basis": "ASSUMED",
+          "basisEvidence": "'Exactly one' comes from SD-06 (register citableStandingDecisions). RPC-002 authors a valid set of four events, not a count.",
+          "checkability": "STRUCTURAL",
+          "fitNote": "ASSUMED, OURS: the count is not authored for RPC-002; the analog of RPC-001-08.b.",
+          "source": []
+        },
+        {
+          "origId": "RPC-002-02",
+          "strictness": "REQUIRED",
+          "scope": "WHOLE_GAME",
+          "structuralClause": "—",
+          "standing": "DRAFT",
+          "id": "RPC-002-02.a",
+          "row": "V3",
+          "selector": "type=origin",
+          "requirement": "EXISTS",
+          "value": "N/A",
+          "valueStatus": "N/A",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"The sequence begins under established coordinated pressure\" (RPC-PROP-133)",
+          "checkability": "STRUCTURAL",
+          "fitNote": "CANDIDATE, OURS, unreviewed: the origin clause of the approved condition as a condition of type origin, the analog of RPC-001-18.a. SCOPE WHOLE_GAME (OURS, over-applying; the scope stays UNRESOLVED): the approved condition says the sequence begins under established coordinated pressure, so the faithful scope is a High Press Escape sequence; the only episode scope the register holds, BUILD_OUT_EPISODE, belongs to RPC-001 (SD-36) and is not borrowed; WHOLE_GAME holds every score of the game to the condition.",
+          "source": [
+            {
+              "rowId": "RPC-PROP-133",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2642,
+              "text": "The sequence begins under established coordinated pressure, the event occurs beyond the pressing line, and the attacking team retains possession through the next action.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-ID-006",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2747,
+              "text": "Established coordinated high pressure is the defining condition.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-018",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1607,
+              "text": "Coordinated defensive high pressure becomes the dominant influence on possession.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            }
+          ]
+        },
+        {
+          "origId": "RPC-002-02",
+          "strictness": "REQUIRED",
+          "scope": "WHOLE_GAME",
+          "structuralClause": "Structural: none. No typed carrier exists: register V5 admits regions, objects or placements (never a player's position during play), the relational form and the begin condition of a restart (C58); established pressure is none of these. Outside: whether pressure is established and coordinated, judged in play.",
+          "standing": "DRAFT",
+          "id": "RPC-002-02.b",
+          "row": "V5",
+          "selector": "type=origin",
+          "requirement": "EQUALS",
+          "value": "established coordinated pressure",
+          "valueStatus": "REQUIRED_RANGE",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"under established coordinated pressure\" (RPC-PROP-133)",
+          "checkability": "PARTLY_STRUCTURAL",
+          "fitNote": "CANDIDATE, OURS, unreviewed: the referent as authored, kept as open text and never typed by us. SCOPE WHOLE_GAME (OURS, over-applying; the scope stays UNRESOLVED): the approved condition says the sequence begins under established coordinated pressure, so the faithful scope is a High Press Escape sequence; the only episode scope the register holds, BUILD_OUT_EPISODE, belongs to RPC-001 (SD-36) and is not borrowed; WHOLE_GAME holds every score of the game to the condition.",
+          "source": [
+            {
+              "rowId": "RPC-PROP-133",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2642,
+              "text": "The sequence begins under established coordinated pressure, the event occurs beyond the pressing line, and the attacking team retains possession through the next action.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-ID-006",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2747,
+              "text": "Established coordinated high pressure is the defining condition.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-018",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1607,
+              "text": "Coordinated defensive high pressure becomes the dominant influence on possession.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            }
+          ]
+        },
+        {
+          "origId": "RPC-002-03",
+          "strictness": "REQUIRED",
+          "scope": "WHOLE_GAME",
+          "structuralClause": "—",
+          "standing": "DRAFT",
+          "id": "RPC-002-03.a",
+          "row": "V3",
+          "selector": "type=progression",
+          "requirement": "EXISTS",
+          "value": "N/A",
+          "valueStatus": "N/A",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"the event occurs beyond the pressing line\" (RPC-PROP-133)",
+          "checkability": "STRUCTURAL",
+          "fitNote": "CANDIDATE, OURS, unreviewed: the progression clause as a condition of type progression, the analog of RPC-001-18.c. SCOPE WHOLE_GAME (OURS, over-applying; the scope stays UNRESOLVED): the approved condition says the sequence begins under established coordinated pressure, so the faithful scope is a High Press Escape sequence; the only episode scope the register holds, BUILD_OUT_EPISODE, belongs to RPC-001 (SD-36) and is not borrowed; WHOLE_GAME holds every score of the game to the condition.",
+          "source": [
+            {
+              "rowId": "RPC-PROP-133",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2642,
+              "text": "The sequence begins under established coordinated pressure, the event occurs beyond the pressing line, and the attacking team retains possession through the next action.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-ID-006",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2747,
+              "text": "Established coordinated high pressure is the defining condition.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-018",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1607,
+              "text": "Coordinated defensive high pressure becomes the dominant influence on possession.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            }
+          ]
+        },
+        {
+          "origId": "RPC-002-03",
+          "strictness": "REQUIRED",
+          "scope": "WHOLE_GAME",
+          "structuralClause": "Structural: none until typed. RPC-002 authors no marked pressing line; the defenders' line in play is a player position, which V5 excludes; typing it as the target the scoring team attacks would replace the pressing line by the target (the C54 distinction between the pressure reference and the progression reference). Outside: where the pressing line is, judged in play.",
+          "standing": "DRAFT",
+          "id": "RPC-002-03.b",
+          "row": "V5",
+          "selector": "type=progression",
+          "requirement": "EQUALS",
+          "value": "the pressing line",
+          "valueStatus": "REQUIRED_RANGE",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"beyond the pressing line\" (RPC-PROP-133)",
+          "checkability": "PARTLY_STRUCTURAL",
+          "fitNote": "CANDIDATE, OURS, unreviewed: the referent as authored, kept as open text and never typed by us. SCOPE WHOLE_GAME (OURS, over-applying; the scope stays UNRESOLVED): the approved condition says the sequence begins under established coordinated pressure, so the faithful scope is a High Press Escape sequence; the only episode scope the register holds, BUILD_OUT_EPISODE, belongs to RPC-001 (SD-36) and is not borrowed; WHOLE_GAME holds every score of the game to the condition.",
+          "source": [
+            {
+              "rowId": "RPC-PROP-133",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2642,
+              "text": "The sequence begins under established coordinated pressure, the event occurs beyond the pressing line, and the attacking team retains possession through the next action.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-ID-006",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2747,
+              "text": "Established coordinated high pressure is the defining condition.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-018",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1607,
+              "text": "Coordinated defensive high pressure becomes the dominant influence on possession.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            }
+          ]
+        },
+        {
+          "origId": "RPC-002-03",
+          "strictness": "REQUIRED",
+          "scope": "WHOLE_GAME",
+          "structuralClause": "—",
+          "standing": "DRAFT",
+          "id": "RPC-002-03.c",
+          "row": "V6",
+          "selector": "type=progression",
+          "requirement": "EQUALS",
+          "value": "beyond",
+          "valueStatus": "REQUIRED_RANGE",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"beyond the pressing line\" (RPC-PROP-133)",
+          "checkability": "STRUCTURAL",
+          "fitNote": "CANDIDATE, OURS, unreviewed: the verbatim value, the analog of RPC-001-18.e. SCOPE WHOLE_GAME (OURS, over-applying; the scope stays UNRESOLVED): the approved condition says the sequence begins under established coordinated pressure, so the faithful scope is a High Press Escape sequence; the only episode scope the register holds, BUILD_OUT_EPISODE, belongs to RPC-001 (SD-36) and is not borrowed; WHOLE_GAME holds every score of the game to the condition.",
+          "source": [
+            {
+              "rowId": "RPC-PROP-133",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2642,
+              "text": "The sequence begins under established coordinated pressure, the event occurs beyond the pressing line, and the attacking team retains possession through the next action.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-ID-006",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2747,
+              "text": "Established coordinated high pressure is the defining condition.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-018",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1607,
+              "text": "Coordinated defensive high pressure becomes the dominant influence on possession.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            }
+          ]
+        },
+        {
+          "origId": "RPC-002-04",
+          "strictness": "REQUIRED",
+          "scope": "WHOLE_GAME",
+          "structuralClause": "—",
+          "standing": "DRAFT",
+          "id": "RPC-002-04.a",
+          "row": "V3",
+          "selector": "type=control",
+          "requirement": "EXISTS",
+          "value": "N/A",
+          "valueStatus": "N/A",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"the attacking team retains possession through the next action\" (RPC-PROP-133)",
+          "checkability": "STRUCTURAL",
+          "fitNote": "CANDIDATE, OURS, unreviewed: the control clause as a condition of type control, the analog of RPC-001-18.f. SCOPE WHOLE_GAME (OURS, over-applying; the scope stays UNRESOLVED): the approved condition says the sequence begins under established coordinated pressure, so the faithful scope is a High Press Escape sequence; the only episode scope the register holds, BUILD_OUT_EPISODE, belongs to RPC-001 (SD-36) and is not borrowed; WHOLE_GAME holds every score of the game to the condition.",
+          "source": [
+            {
+              "rowId": "RPC-PROP-133",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2642,
+              "text": "The sequence begins under established coordinated pressure, the event occurs beyond the pressing line, and the attacking team retains possession through the next action.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-ID-006",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2747,
+              "text": "Established coordinated high pressure is the defining condition.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-018",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1607,
+              "text": "Coordinated defensive high pressure becomes the dominant influence on possession.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            }
+          ]
+        },
+        {
+          "origId": "RPC-002-04",
+          "strictness": "REQUIRED",
+          "scope": "WHOLE_GAME",
+          "structuralClause": "—",
+          "standing": "DRAFT",
+          "id": "RPC-002-04.b",
+          "row": "V6",
+          "selector": "type=control",
+          "requirement": "EQUALS",
+          "value": "retains possession through the next action",
+          "valueStatus": "REQUIRED_RANGE",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"retains possession through the next action\" (RPC-PROP-133)",
+          "checkability": "STRUCTURAL",
+          "fitNote": "CANDIDATE, OURS, unreviewed: the verbatim value, the analog of RPC-001-18.g with a different predicate (retention through the next action, not control on arrival). SCOPE WHOLE_GAME (OURS, over-applying; the scope stays UNRESOLVED): the approved condition says the sequence begins under established coordinated pressure, so the faithful scope is a High Press Escape sequence; the only episode scope the register holds, BUILD_OUT_EPISODE, belongs to RPC-001 (SD-36) and is not borrowed; WHOLE_GAME holds every score of the game to the condition.",
+          "source": [
+            {
+              "rowId": "RPC-PROP-133",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2642,
+              "text": "The sequence begins under established coordinated pressure, the event occurs beyond the pressing line, and the attacking team retains possession through the next action.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-ID-006",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2747,
+              "text": "Established coordinated high pressure is the defining condition.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-018",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1607,
+              "text": "Coordinated defensive high pressure becomes the dominant influence on possession.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            }
+          ]
+        },
+        {
+          "origId": "RPC-002-05",
+          "strictness": "REQUIRED",
+          "scope": "WHOLE_GAME",
+          "structuralClause": "—",
+          "standing": "DRAFT",
+          "id": "RPC-002-05",
+          "row": "P1",
+          "selector": "*",
+          "requirement": "EXISTS",
+          "value": "an opposing team applying established coordinated high pressure, the defining condition (play)",
+          "valueStatus": "N/A",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"Established coordinated high pressure is the defining condition.\" (RPC-ID-006, REQUIRED)",
+          "checkability": "OUTSIDE_BOUNDARY",
+          "fitNote": "CANDIDATE, OURS, unreviewed: about play; recorded on the nearest row, as RPC-001-01.b is; it establishes nothing and nothing enforces it (RPC-002 has no requirement bindings).",
+          "source": [
+            {
+              "rowId": "RPC-ID-006",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2747,
+              "text": "Established coordinated high pressure is the defining condition.",
+              "identityRole": "REQUIRED"
+            }
+          ]
+        },
+        {
+          "origId": "RPC-002-06",
+          "strictness": "REQUIRED",
+          "scope": "WHOLE_GAME",
+          "structuralClause": "—",
+          "standing": "DRAFT",
+          "id": "RPC-002-06",
+          "row": "P1",
+          "selector": "*",
+          "requirement": "EXISTS",
+          "value": "pressure that meaningfully compresses time, space and available action (play)",
+          "valueStatus": "N/A",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"Pressure meaningfully compresses time, space, and available action.\" (RPC-ID-008, REQUIRED)",
+          "checkability": "OUTSIDE_BOUNDARY",
+          "fitNote": "CANDIDATE, OURS, unreviewed: recorded on the nearest row; no value for numbers, area or time is authored for RPC-002, so nothing structural carries it, and nothing enforces it.",
+          "source": [
+            {
+              "rowId": "RPC-ID-008",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2763,
+              "text": "Pressure meaningfully compresses time, space, and available action.",
+              "identityRole": "REQUIRED"
+            }
+          ]
+        }
+      ],
+      "originalPlacement": [],
+      "declarations": [
+        {
+          "row": "P1",
+          "declaration": "CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-002-05, RPC-002-06 (both outside the boundary: they establish nothing)."
+        },
+        {
+          "row": "V0",
+          "declaration": "CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-002-01.b (ASSUMED; SD-06)."
+        },
+        {
+          "row": "V1",
+          "declaration": "CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-002-01.a."
+        },
+        {
+          "row": "V3",
+          "declaration": "CLAIMED",
+          "selector": "type ∈ {origin, progression, control}",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-002-02.a, 03.a, 04.a."
+        },
+        {
+          "row": "V3",
+          "declaration": "NON_CLAIMED",
+          "selector": "type ∈ {eligibility, exclusion}",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-002 authors no eligibility or exclusion condition (OUR reading of silence)."
+        },
+        {
+          "row": "V4",
+          "declaration": "UNDECLARED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Types are fixed only through V3 selectors."
+        },
+        {
+          "row": "V5",
+          "declaration": "CLAIMED",
+          "selector": "type ∈ {origin, progression}",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-002-02.b, 03.b (open text, never typed by us)."
+        },
+        {
+          "row": "V6",
+          "declaration": "CLAIMED",
+          "selector": "type ∈ {progression, control}",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-002-03.c, 04.b."
+        },
+        {
+          "row": "V5",
+          "declaration": "UNDECLARED",
+          "selector": "type=control",
+          "scope": "WHOLE_GAME",
+          "note": "The control clause names no place: its referent is not stated (UNRESOLVED)."
+        },
+        {
+          "row": "V6",
+          "declaration": "NOT_AUTHORED",
+          "selector": "type=origin",
+          "scope": "WHOLE_GAME",
+          "note": "What makes pressure established is not authored (UNRESOLVED)."
+        }
+      ],
+      "relationshipRules": [],
+      "ledger": [],
+      "engineWordingDependedOn": [],
+      "conventionsUsed": [],
+      "difficulties": []
+    }
+  }
+}

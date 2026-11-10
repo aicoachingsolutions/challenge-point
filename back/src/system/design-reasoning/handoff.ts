@@ -31,6 +31,11 @@
  *   - Since the review's second round: a gap is a cited owed line no requirement declaration reaches by the chain's own reach of its element;
  *     an open line refused for being outside its permitted set is read through the bounding items the chain names; each cited item prints its
  *     class; a communication refusal is a renderer capability gap only where every code is Q3.
+ *   - Since the isolated foundational test (stage 9; Christian's authorization received 10 November 2026): a case may declare that the chain
+ *     CONSUMES Step 1's resolved Game Problem and Step 2's SELECTED form (`ChainRequest.consume`; the form is then consumed, never placed, and
+ *     nothing is placed), and the result carries what the chain's own account recorded it consumed (`consumption`), apart from the chain's own
+ *     reading; a TEST-ONLY treatment may replace one declaration of a contract on the chain's copy, or name the classification of the laws the
+ *     chain's own check reads. Every other case runs exactly as before, and its result carries no new field.
  *
  * WHAT IT IS NOT. Not a configuration step of the live engine, not served, not an authorization, not a selection input. It imports no
  * module of the checked chain: the chain arrives as an injected, structurally typed interface (`HandoffChain`), wired only by the unit test.
@@ -110,9 +115,13 @@ export interface StandInInput {
 
 /**
  * The kinds of TEST-ONLY treatment the cases use (a closed list, so a misspelled kind is refused rather than printed as a treatment that does
- * nothing). Only WITHHOLD_ITEMS acts on the chain request; the others say what the case's chain wiring does, for the report.
+ * nothing). WITHHOLD_ITEMS acts on the chain request; the others say what the case's chain wiring does, for the report. Since the isolated
+ * foundational test (stage 9), three more act on the chain request, each only where a case declares it: REPLACE_DECLARATION (one declaration
+ * of a contract replaced on the chain's copy, `declaration`), CONSUMED_STEPS (Step 1's resolved Game Problem and Step 2's SELECTED form handed
+ * to the chain for its TEST-ONLY consumption, `ChainRequest.consume`) and LAWS_CLASSIFICATION (the classification of the laws the chain's own
+ * check reads: our DRAFT classification, with the treatment's labelled stand-in for one law where it names one, `standIn`).
  */
-export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE'] as const
+export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION'] as const
 
 export interface TreatmentInput {
     id: string
@@ -124,6 +133,10 @@ export interface TreatmentInput {
     contractId?: string
     itemIds?: string[]
     rulingRefs?: string[]
+    /** REPLACE_DECLARATION only: the one declaration of `contractId` replaced (its row, selector and declaration) and what replaces it. */
+    declaration?: { row: string; selector: string; from: string; to: string; qualifier?: string }
+    /** LAWS_CLASSIFICATION only, optional: one law read with another materiality, a labelled TEST-ONLY stand-in (neither our reading nor a ruling). */
+    standIn?: { law: string; materiality: string }
 }
 
 export interface ProposedManipulation {
@@ -374,8 +387,26 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
             if (!isObject(t) || !filled(t.id) || !filled(t.what) || !filled(t.effect) || !filled(t.why) || !filled(t.label)) errors.push(`${at}: a TEST-ONLY treatment must say what, its effect, why and its label`)
             else if ((TREATMENT_KINDS as readonly string[]).indexOf(String(t.kind)) < 0) errors.push(`${at}: treatment ${t.id}: the kind ${JSON.stringify(t.kind)} is none of ${TREATMENT_KINDS.join(', ')}`)
             else if (t.kind === 'WITHHOLD_ITEMS' && (!filled(t.contractId) || !Array.isArray(t.itemIds) || !t.itemIds.length)) errors.push(`${at}: treatment ${t.id} withholds items and names none`)
-            else if (t.kind !== 'WITHHOLD_ITEMS' && (t.contractId !== undefined || t.itemIds !== undefined)) errors.push(`${at}: treatment ${t.id} names a contract or items, and only WITHHOLD_ITEMS acts on them`)
+            else if (t.kind === 'REPLACE_DECLARATION') {
+                const d = t.declaration
+                if (!filled(t.contractId) || t.itemIds !== undefined || !isObject(d) || !filled(d.row) || !filled(d.selector) || !filled(d.from) || !filled(d.to) || (d.qualifier !== undefined && !filled(d.qualifier)))
+                    errors.push(`${at}: treatment ${t.id} replaces a declaration: it names its contract and the declaration (row, selector, from, to; a qualifier only as words), and no items`)
+            } else if (t.kind !== 'WITHHOLD_ITEMS' && (t.contractId !== undefined || t.itemIds !== undefined)) errors.push(`${at}: treatment ${t.id} names a contract or items, and only WITHHOLD_ITEMS acts on them (REPLACE_DECLARATION names a contract and one of its declarations)`)
+            if (isObject(t) && t.declaration !== undefined && t.kind !== 'REPLACE_DECLARATION') errors.push(`${at}: treatment ${String(t.id)} names a declaration, and only REPLACE_DECLARATION replaces one`)
+            if (isObject(t) && t.standIn !== undefined && (t.kind !== 'LAWS_CLASSIFICATION' || !isObject(t.standIn) || !filled(t.standIn.law) || (t.standIn.materiality !== 'PROCEDURAL' && t.standIn.materiality !== 'MATERIAL')))
+                errors.push(`${at}: treatment ${String(t.id)}: a stand-in for one law's materiality belongs only to LAWS_CLASSIFICATION and names the law and PROCEDURAL or MATERIAL`)
         }
+        // The kinds that act on the chain request once per case, and what each needs (stage 9).
+        const treatments = (Array.isArray(merged.testOnlyTreatments) ? (merged.testOnlyTreatments as unknown[]) : []).filter(isObject)
+        const ofKind = (kind: string) => treatments.filter((t) => t.kind === kind)
+        if (ofKind('CONSUMED_STEPS').length > 1 || ofKind('LAWS_CLASSIFICATION').length > 1) errors.push(`${at}: CONSUMED_STEPS and LAWS_CLASSIFICATION are each declared at most once`)
+        if (ofKind('CONSUMED_STEPS').length) {
+            if (!isObject(merged.form) || merged.form.fromStep2 !== true || merged.goalId === null) errors.push(`${at}: CONSUMED_STEPS consumes Step 2's SELECTED form: the case has a Learning Goal and takes its form from Step 2`)
+            // No manipulation enters by placement on a consuming run (the design of stage 9: the place route is not used).
+            if ((Array.isArray(merged.proposedManipulations) ? (merged.proposedManipulations as unknown[]) : []).some((m) => isObject(m) && m.relationship !== undefined)) errors.push(`${at}: a case that consumes Steps 1 and 2 places no manipulation (no relationship stand-in)`)
+        }
+        if (ofKind('LAWS_CLASSIFICATION').length && (isObject(merged.realization) || (isObject(merged.chain) && isObject(merged.chain.vehicle) && isObject(merged.chain.vehicle.lawsStandIn))))
+            errors.push(`${at}: LAWS_CLASSIFICATION is not declared beside a TEST-ONLY realization's check or a vehicle's stand-in`)
         for (const i of Array.isArray(merged.illustrative) ? (merged.illustrative as unknown[]) : []) {
             if (isObject(i) && i.onDiagram !== undefined && (DIAGRAM_KEYS as readonly string[]).indexOf(String(i.onDiagram)) < 0) errors.push(`${at}: illustrative ${String(i.id)} is drawn as ${JSON.stringify(i.onDiagram)}, none of ${DIAGRAM_KEYS.join(', ')}`)
         }
@@ -494,6 +525,20 @@ export interface ChainRequest {
     supplement: boolean
     /** True where the case's realization declares REPORT: the harness then holds each owed law to the DRAFT materiality reading. */
     holdReportedLawsToMateriality: boolean
+    /**
+     * Present only where the case declares CONSUMED_STEPS (the isolated foundational test, stage 9; Christian's authorization received 10
+     * November 2026, section 1): Step 1's resolved primary Game Problem with its basis, and Step 2's SELECTED form with its standing words and the
+     * grade of every cell it rests on, as Steps 1 and 2 returned them in this run, for the chain to consume rather than select from wording.
+     * `place` is then empty (the wiring refuses otherwise): the form is consumed, never placed, and no manipulation is placed.
+     */
+    consume?: {
+        gameProblem: { gameProblemId: string; basis: string; label: string }
+        gameForm: { formId: string; standing: string; cells: Array<{ cell: string; grade: string }> }
+    }
+    /** Present only where the case declares REPLACE_DECLARATION treatments: each replaces one declaration of a contract, on the chain's copy. */
+    replaceDeclarations?: Array<{ contractId: string; row: string; selector: string; from: string; to: string; qualifier: string | null; treatmentId: string }>
+    /** Present only where the case declares LAWS_CLASSIFICATION: the chain's laws check reads our DRAFT classification, with the stand-in where one is named. */
+    laws?: { standIn: { law: string; materiality: string } | null; treatmentId: string }
 }
 
 /** One configuration line as the chain answered it (from the realized game's fixture), in the chain's own words. */
@@ -513,6 +558,11 @@ export interface ChainLine {
     permitted?: unknown[] | null
     /** CHOICE: where the value came from: the case's supplied choice, or a realization-choices file (named). */
     chosenBy?: { case: true } | { file: string }
+    /**
+     * CHOICE, since stage 9, where the chain records it: each item of the TEST-ONLY draft store that shaped the line, as the chain names it on
+     * the line (its contract, item and relation, e.g. NARROWS). Read only by a consuming run's account of the draft items (never graded here).
+     */
+    draftShapedBy?: Array<{ contractId: string; itemId: string; relation: string }>
     /** NOT_ESTABLISHED */
     reason?: string
     /** ENTAILED / INSTANTIATION: the element class it belongs to. */
@@ -590,6 +640,28 @@ export interface ChainAnswer {
         owedLines: Array<{ lineId: string; verdict: string; reason: string | null; declared: string[]; governedBy: Array<{ contractId: string; declaration: string; selector: string | null; reach: string | null; scope: string | null; scopeReaches: boolean | null }>; rowWide: boolean; elementClass: string | null; establishing: string[] }>
         /** Each open line's permitted alternatives and the items bounding it as the chain names them (its narrowing items, its bounding items). */
         openLines: Array<{ lineId: string; permitted: unknown[] | null; boundedBy: Array<{ contractId: string; itemId: string; how: 'NARROWING' | 'BOUNDING' }> }>
+    } | null
+    /**
+     * Present only on a run whose request carried `consume`: what the chain's own account recorded it consumed (read by the wiring from the
+     * build's account, never from the request), so a report can tell consumption from agreement. `gameProblem`: Step 1's Game Problem as the
+     * selection carried it, beside (never in place of) the chain's own reading, which `account.gameProblem` still holds. `form`: Step 2's form as
+     * carried, standing and grades kept. `formCandidatesScored`: the forms the chain's scorer ranked, and where that list was read
+     * (`formCandidatesFrom`: the selection trace's ranking, or, where the selector refused before it returned a trace, the list it was handed).
+     * `constraintAuthority` and `constraintCandidateIds`: whose authority the candidate constraints carried, and which they were.
+     * `sizeRuleBypassed`: whether the TEST-ONLY bypass of the numerical size rule was in force. `selectionObservedOnly`: the wiring's
+     * selection hook only observed (the build throws on a change). `draftStatus`: the build's own label for a build made from the draft store.
+     */
+    consumption?: {
+        gameProblem: { gameProblemId: string; basis: string; label: string; source: string } | null
+        form: { formId: string; standing: string; cells: Array<{ cell: string; grade: string }> } | null
+        formCandidatesScored: string[]
+        formCandidatesFrom: string
+        constraintAuthority: string
+        constraintCandidateIds: string[]
+        sizeRuleBypassed: boolean
+        /** True where the hook ran and only observed; null where it never ran (the selection returned nothing). */
+        selectionObservedOnly: boolean | null
+        draftStatus: string | null
     } | null
 }
 
@@ -870,6 +942,14 @@ export interface HandoffResult {
     reportNotes: Array<{ section: CaseNote['section']; text: string; quotes: Array<{ ref: string; words: string; received: string }> }>
     opportunities: string
     counts: { lines: number; byClass: Record<string, number>; byKind: Record<string, number>; sentences: number }
+    /**
+     * Present only on a run whose case declares CONSUMED_STEPS (stage 9): what the chain recorded it consumed (`ChainAnswer.consumption`), the
+     * items of the TEST-ONLY draft store that entered derivation (`draftItemsDerived`, each 'contract item', read from the contracts the chain
+     * derived from; empty where the run stopped before derivation), and each line of the built game that the chain records a draft item as
+     * shaping (`draftShaped`: the line, its value, and each 'contract item relation'). Null where the chain's account recorded no consumption
+     * (a refusal before the selection returned anything): that absence is itself printed.
+     */
+    consumption?: (NonNullable<ChainAnswer['consumption']> & { draftItemsDerived: string[]; draftShaped: Array<{ lineId: string; value: unknown; by: string[] }> }) | null
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -994,6 +1074,25 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
         }
     }
     const withhold = c.testOnlyTreatments.filter((t) => t.kind === 'WITHHOLD_ITEMS').map((t) => ({ contractId: t.contractId as string, itemIds: [...(t.itemIds as string[])], treatmentId: t.id }))
+    // Stage 9: the treatments that act on the request, each only where the case declares it.
+    const replaceDeclarations = c.testOnlyTreatments
+        .filter((t) => t.kind === 'REPLACE_DECLARATION' && t.declaration)
+        .map((t) => {
+            const d = t.declaration as NonNullable<TreatmentInput['declaration']>
+            return { contractId: t.contractId as string, row: d.row, selector: d.selector, from: d.from, to: d.to, qualifier: d.qualifier ?? null, treatmentId: t.id }
+        })
+    const lawsTreatment = c.testOnlyTreatments.find((t) => t.kind === 'LAWS_CLASSIFICATION')
+    let consume: ChainRequest['consume'] | undefined
+    if (c.testOnlyTreatments.some((t) => t.kind === 'CONSUMED_STEPS')) {
+        const g = s1?.gameForm
+        const gp = s1?.resolution.gameProblems
+        if (!s1 || !g || !gp || g.status !== 'SELECTED' || g.selected !== formId || !gp.primary.length || !gp.basis)
+            throw new Error(`case ${c.id}: CONSUMED_STEPS hands the chain Step 1's resolved primary Game Problem and Step 2's SELECTED form, and this run has not both (Step 2 ${g ? g.status : 'not run'})`)
+        consume = {
+            gameProblem: { gameProblemId: gp.primary[0], basis: gp.basis, label: 'as resolved by Step 1 (review pathway)' },
+            gameForm: { formId, standing: g.statement, cells: g.trace.influencedBy.map((i) => ({ cell: i.ref, grade: i.standing })) },
+        }
+    }
     const choices = c.suppliedChoices.map((ch) => ({
         lineId: ch.lineId,
         value: ch.value,
@@ -1015,6 +1114,9 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
         place: place.map((p) => ({ ...p })),
         supplement: c.chain.supplement,
         holdReportedLawsToMateriality: c.realization?.lawsCheck.mode === 'REPORT',
+        ...(consume ? { consume } : {}),
+        ...(replaceDeclarations.length ? { replaceDeclarations } : {}),
+        ...(lawsTreatment ? { laws: { standIn: lawsTreatment.standIn ? { ...lawsTreatment.standIn } : null, treatmentId: lawsTreatment.id } } : {}),
     }
 }
 
@@ -1631,6 +1733,16 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
     })
     const sentences = answer.sentences.map((s) => gradeSentence(ctx, s, lines))
     const scorer = answer.scorerPick
+    // Stage 9: on a consuming run the form was consumed, never placed, so the scorer line says what the chain's own account recorded.
+    const consuming = request.consume !== undefined
+    const recorded = consuming ? (answer.consumption ?? null) : null
+    const scorerWords = consuming
+        ? recorded
+            ? `consumption run: the chain's scorer ranked only ${recorded.formCandidatesScored.join(', ') || 'no form'} (read from ${recorded.formCandidatesFrom}), its candidate forms filtered to Step 2's ${form.formId}; the handoff placed no form`
+            : `consumption run: the chain's account recorded no consumption (its selection ${scorer === null ? 'returned nothing' : `picked ${scorer.join(', ') || 'none'}`}); the handoff placed no form`
+        : scorer === null
+          ? null
+          : `${scorer.join(', ') || 'none'} (the chain's own keyword-scorer pick: not used; the handoff placed ${form.formId})`
     const step1Context = receive.step1?.contextId ?? null
     const chainContext = answer.account?.contextId ?? null
     const gp = answer.account?.gameProblem ?? null
@@ -1664,7 +1776,7 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
             stage: answer.stage,
             summary: answer.summary,
             reasons: [...answer.reasons],
-            scorerPick: scorer === null ? null : `${scorer.join(', ') || 'none'} (the chain's own keyword-scorer pick: not used; the handoff placed ${form.formId})`,
+            scorerPick: scorerWords,
             contextComparison:
                 step1Context === null
                     ? `structural case: no Step 1 context; the chain's account reads ${chainContext ?? 'none'}`
@@ -1698,6 +1810,18 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
         gaps,
         standIns: c.standIns.map((x) => ({ id: x.id, label: x.label, why: x.why, determines: lines.filter((l) => l.premises.some((p) => p.kind === 'STAND_IN' && p.ref.indexOf(x.id) >= 0)).map((l) => l.lineId) })),
         counts: { lines: lines.length, byClass, byKind, sentences: sentences.length },
+        // Stage 9, only on a consuming run (so no other case's result changes): what the chain recorded it consumed, and the draft items derived.
+        ...(consuming
+            ? {
+                  consumption: recorded
+                      ? {
+                            ...deepCopy(recorded),
+                            draftItemsDerived: answer.contracts.filter((x) => x.origin === 'DRAFT_STORE').flatMap((x) => x.items.map((i) => `${x.contractId} ${i.itemId}`)),
+                            draftShaped: answer.lines.filter((l) => l.draftShapedBy && l.draftShapedBy.length).map((l) => ({ lineId: l.lineId, value: deepCopy(l.value), by: (l.draftShapedBy ?? []).map((d) => `${d.contractId} ${d.itemId} ${d.relation}`) })),
+                        }
+                      : null,
+              }
+            : {}),
     }
 }
 

@@ -175,6 +175,18 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
         push(`   affordance lenses: ${plain(r.chain.affordanceLenses)}`)
         push(`   constraints in the selection: ${r.chain.constraints.join(', ') || 'none'}`)
         if (r.chain.fidelityViolations !== null) push(`   fidelity violations on the text: ${r.chain.fidelityViolations}`)
+        // Stage 9, only on a consuming run: what the chain's own account recorded it consumed (never read from the request).
+        if (r.consumption === null) push(`   consumption (what the chain's own account recorded): none recorded`)
+        else if (r.consumption) {
+            const x = r.consumption
+            push(`   consumption (what the chain's own account recorded, read from the build, never from the request):`)
+            push(`     Game Problem carried from Step 1: ${x.gameProblem ? `${x.gameProblem.gameProblemId} (basis ${x.gameProblem.basis}; ${plain(x.gameProblem.label)}; source ${plain(x.gameProblem.source)}), beside the chain's own reading above, never in its place` : 'none'}`)
+            push(`     form carried from Step 2: ${x.form ? `${x.form.formId} (${plain(x.form.standing)}); the cells it rests on: ${x.form.cells.map((c) => `${plain(c.cell)} ${c.grade}`).join('; ')}` : 'none'}`)
+            push(`     forms the chain's scorer ranked: ${x.formCandidatesScored.join(', ') || 'none'} (read from ${x.formCandidatesFrom})`)
+            push(`     constraints: authority ${x.constraintAuthority}; candidates ${x.constraintCandidateIds.join(', ') || 'none'}; the TEST-ONLY size-rule bypass ${x.sizeRuleBypassed ? 'in force' : 'not in force'}`)
+            push(`     the selection hook only observed: ${x.selectionObservedOnly === null ? 'it never ran (no selection was returned)' : x.selectionObservedOnly ? 'yes' : 'NO'}; the build's own label for a build from the draft store: ${x.draftStatus ?? 'none'}`)
+            push(`     draft store items that entered derivation (${x.draftItemsDerived.length}): ${x.draftItemsDerived.join(', ') || 'none'}`)
+        }
     }
     push()
     push(`7. Configuration lines (${r.lines.length})`)
@@ -252,7 +264,12 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
     for (const s of r.standIns) push(`   - ${s.id} (${s.label}): determines ${s.determines.join(', ') || 'no line'}; ${plain(s.why)}`)
     push()
     push(`15. TEST-ONLY treatments (${r.testOnlyTreatments.length})`)
-    for (const t of r.testOnlyTreatments) push(`   - ${t.id} [${t.label}] ${plain(t.what)}. Effect: ${plain(t.effect)}. Why: ${plain(t.why)}${t.itemIds ? ` (items ${t.itemIds.join(', ')})` : ''}`)
+    for (const t of r.testOnlyTreatments) {
+        // Stage 9: a replaced declaration and a law's stand-in are printed where a treatment names them (no earlier treatment does).
+        const declaration = t.declaration ? ` (declaration ${t.contractId} ${t.declaration.row} ${t.declaration.selector}: ${t.declaration.from} -> ${t.declaration.to}${t.declaration.qualifier ? ` ${t.declaration.qualifier}` : ''})` : ''
+        const standIn = t.standIn ? ` (stand-in: ${t.standIn.law} ${t.standIn.materiality})` : ''
+        push(`   - ${t.id} [${t.label}] ${plain(t.what)}. Effect: ${plain(t.effect)}. Why: ${plain(t.why)}${t.itemIds ? ` (items ${t.itemIds.join(', ')})` : ''}${declaration}${standIn}`)
+    }
     push()
     push(`16. Not carried by the chain (${r.notCarried.length})`)
     for (const n of r.notCarried) push(`   - ${n.id} [${n.label}] ${plain(n.what)}: ${plain(n.where)}`)

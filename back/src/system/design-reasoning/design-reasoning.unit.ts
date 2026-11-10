@@ -278,6 +278,10 @@ function testTheStageReachesNoKeywordParserOrTokenScorer(): void {
     // behavior."): the handoff's two stage files join the closure (14 files become 16); they import only assembly.ts, knowledge.ts,
     // stage1.ts, trace.ts and each other, all already in it or added here, and receive the checked chain as an injected interface (no import
     // of rendering, derivation or realization), so the closure still reaches no loader beyond the two below.
+    // FOUNDATIONAL TEST AMENDMENT (stage 9, Christian's authorization received 10 November 2026, section 1: "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."):
+    // the test's report file joins the closure (16 files become 17, measured before and after); it imports only assembly.ts, handoff.ts and
+    // handoff-report.ts, all already in it, and receives the restated items and the results as plain data, so the closure still reaches no
+    // loader beyond the two below.
     assert.deepEqual(
         closure.filter((f) => f.endsWith('.ts')),
         [
@@ -286,6 +290,7 @@ function testTheStageReachesNoKeywordParserOrTokenScorer(): void {
             'system/design-reasoning/assembly-review.ts',
             'system/design-reasoning/assembly.ts',
             'system/design-reasoning/forms.ts',
+            'system/design-reasoning/foundational-test.ts',
             'system/design-reasoning/handoff-report.ts',
             'system/design-reasoning/handoff.ts',
             'system/design-reasoning/knowledge.ts',
