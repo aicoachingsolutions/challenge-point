@@ -36,6 +36,10 @@
  *     nothing is placed), and the result carries what the chain's own account recorded it consumed (`consumption`), apart from the chain's own
  *     reading; a TEST-ONLY treatment may replace one declaration of a contract on the chain's copy, or name the classification of the laws the
  *     chain's own check reads. Every other case runs exactly as before, and its result carries no new field.
+ *   - Since the safeguards slice of stage 9 (DESIGN-9 sections 3 and 4): a consuming case may declare the TEST-ONLY bypass of the numerical
+ *     size rule (SIZE_RULE_BYPASS) and manipulations that enter only through the record's authorized set (`entersBy: 'RECORD'`, never placed),
+ *     each line they bring resting on its relationship stand-in (class 4 at best); the chain's answer may carry what the safeguards read
+ *     (`observed`, `recordSet`), never copied into a result. The safeguards' pure check is `safeguards.ts`.
  *
  * WHAT IT IS NOT. Not a configuration step of the live engine, not served, not an authorization, not a selection input. It imports no
  * module of the checked chain: the chain arrives as an injected, structurally typed interface (`HandoffChain`), wired only by the unit test.
@@ -119,9 +123,11 @@ export interface StandInInput {
  * foundational test (stage 9), three more act on the chain request, each only where a case declares it: REPLACE_DECLARATION (one declaration
  * of a contract replaced on the chain's copy, `declaration`), CONSUMED_STEPS (Step 1's resolved Game Problem and Step 2's SELECTED form handed
  * to the chain for its TEST-ONLY consumption, `ChainRequest.consume`) and LAWS_CLASSIFICATION (the classification of the laws the chain's own
- * check reads: our DRAFT classification, with the treatment's labelled stand-in for one law where it names one, `standIn`).
+ * check reads: our DRAFT classification, with the treatment's labelled stand-in for one law where it names one, `standIn`). Since the
+ * safeguards slice of stage 9 (DESIGN-9 section 4), SIZE_RULE_BYPASS also acts on the request, only beside CONSUMED_STEPS: the chain's TEST-ONLY
+ * bypass of the numerical size rule (and of nothing else) for the record route's authorized set (`ChainRequest.consume.sizeRuleBypass`).
  */
-export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION'] as const
+export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION', 'SIZE_RULE_BYPASS'] as const
 
 export interface TreatmentInput {
     id: string
@@ -145,6 +151,13 @@ export interface ProposedManipulation {
     manipulation: string
     /** A TEST-ONLY stand-in for an authorized relationship (class 4, never knowledge), or absent. */
     relationship?: { ref: string; label: 'TEST ASSUMPTION'; why: string }
+    /**
+     * Since the safeguards slice of stage 9 (DESIGN-9 section 4), optional: RECORD where the manipulation enters ONLY through the TEST-ONLY
+     * record's authorized set (the record route, on a run that consumes Steps 1 and 2), never placed, so the chain's own selection checks
+     * examine it; the record is the draft store's, and the wiring holds the set the chain consulted to the case's record-route manipulations.
+     * Every line it brings still rests on its relationship stand-in (class 4 at best). Absent: the placement route, as before.
+     */
+    entersBy?: 'RECORD'
 }
 
 /**
@@ -400,10 +413,17 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
         const treatments = (Array.isArray(merged.testOnlyTreatments) ? (merged.testOnlyTreatments as unknown[]) : []).filter(isObject)
         const ofKind = (kind: string) => treatments.filter((t) => t.kind === kind)
         if (ofKind('CONSUMED_STEPS').length > 1 || ofKind('LAWS_CLASSIFICATION').length > 1) errors.push(`${at}: CONSUMED_STEPS and LAWS_CLASSIFICATION are each declared at most once`)
+        const manipulations = (Array.isArray(merged.proposedManipulations) ? (merged.proposedManipulations as unknown[]) : []).filter(isObject)
         if (ofKind('CONSUMED_STEPS').length) {
             if (!isObject(merged.form) || merged.form.fromStep2 !== true || merged.goalId === null) errors.push(`${at}: CONSUMED_STEPS consumes Step 2's SELECTED form: the case has a Learning Goal and takes its form from Step 2`)
-            // No manipulation enters by placement on a consuming run (the design of stage 9: the place route is not used).
-            if ((Array.isArray(merged.proposedManipulations) ? (merged.proposedManipulations as unknown[]) : []).some((m) => isObject(m) && m.relationship !== undefined)) errors.push(`${at}: a case that consumes Steps 1 and 2 places no manipulation (no relationship stand-in)`)
+            // No manipulation enters by placement on a consuming run (the design of stage 9: the place route is not used); one may enter only
+            // through the record's authorized set (entersBy RECORD).
+            if (manipulations.some((m) => m.relationship !== undefined && m.entersBy !== 'RECORD')) errors.push(`${at}: a case that consumes Steps 1 and 2 places no manipulation (no relationship stand-in outside the record route)`)
+        }
+        // The safeguards slice (DESIGN-9 section 4): the size-rule bypass and the record route exist only on a consuming run.
+        if (ofKind('SIZE_RULE_BYPASS').length > 1 || (ofKind('SIZE_RULE_BYPASS').length && !ofKind('CONSUMED_STEPS').length)) errors.push(`${at}: SIZE_RULE_BYPASS is declared at most once, and only beside CONSUMED_STEPS (the record route)`)
+        for (const m of manipulations.filter((x) => x.entersBy !== undefined)) {
+            if (m.entersBy !== 'RECORD' || !ofKind('CONSUMED_STEPS').length || !isObject(m.relationship)) errors.push(`${at}: manipulation ${String(m.id)} enters by the record route (entersBy RECORD) only on a run that consumes Steps 1 and 2, on a TEST-ONLY relationship stand-in`)
         }
         if (ofKind('LAWS_CLASSIFICATION').length && (isObject(merged.realization) || (isObject(merged.chain) && isObject(merged.chain.vehicle) && isObject(merged.chain.vehicle.lawsStandIn))))
             errors.push(`${at}: LAWS_CLASSIFICATION is not declared beside a TEST-ONLY realization's check or a vehicle's stand-in`)
@@ -534,7 +554,14 @@ export interface ChainRequest {
     consume?: {
         gameProblem: { gameProblemId: string; basis: string; label: string }
         gameForm: { formId: string; standing: string; cells: Array<{ cell: string; grade: string }> }
+        /** Present (true) only where the case declares SIZE_RULE_BYPASS: the chain's TEST-ONLY bypass of the numerical size rule, and of nothing else. */
+        sizeRuleBypass?: true
     }
+    /**
+     * Present only where a consuming case names manipulations that enter by the record route (`ProposedManipulation.entersBy`): their ids. The
+     * wiring holds the authorized set of the record the chain consulted to exactly these (fail closed); nothing is placed.
+     */
+    recordRoute?: string[]
     /** Present only where the case declares REPLACE_DECLARATION treatments: each replaces one declaration of a contract, on the chain's copy. */
     replaceDeclarations?: Array<{ contractId: string; row: string; selector: string; from: string; to: string; qualifier: string | null; treatmentId: string }>
     /** Present only where the case declares LAWS_CLASSIFICATION: the chain's laws check reads our DRAFT classification, with the stand-in where one is named. */
@@ -663,6 +690,26 @@ export interface ChainAnswer {
         selectionObservedOnly: boolean | null
         draftStatus: string | null
     } | null
+    /**
+     * Present only on a run whose request carried `recordRoute` (the safeguards slice of stage 9): each constraint the chain built from the
+     * record's authorized set, with the contracts it derived for it (matched by the chain's own knowledge key), so the lines a record-route
+     * manipulation brings rest on its relationship stand-in. Empty where nothing was built.
+     */
+    recordSet?: Array<{ id: string; contractIds: string[] }>
+    /**
+     * What the reasoning-disconnection safeguards read beside the account (the safeguards slice of stage 9, DESIGN-9 section 3), read by the
+     * wiring from the build on every request; never copied into the handoff's result, so no case's result or evidence changes. Null fields
+     * where the build carries none: `constraintAuthority` (whose authority the candidate constraints carried) and `constraintGap` (the selection
+     * gap), from the account's constraint source; `lensIds`, the engine's lenses by id; `contextInThisActivity`, the account's display of the
+     * context's approved condition; `scoringCondition`, the requirement account's state for the approved condition (review builds only).
+     */
+    observed?: {
+        constraintAuthority: string | null
+        constraintGap: string | null
+        lensIds: string[]
+        contextInThisActivity: boolean | null
+        scoringCondition: { state: string; rowId: string | null; carried: boolean } | null
+    }
 }
 
 export interface HandoffChain {
@@ -1091,8 +1138,12 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
         consume = {
             gameProblem: { gameProblemId: gp.primary[0], basis: gp.basis, label: 'as resolved by Step 1 (review pathway)' },
             gameForm: { formId, standing: g.statement, cells: g.trace.influencedBy.map((i) => ({ cell: i.ref, grade: i.standing })) },
+            // The safeguards slice: the numerical size rule bypassed, only where the case declares it.
+            ...(c.testOnlyTreatments.some((t) => t.kind === 'SIZE_RULE_BYPASS') ? { sizeRuleBypass: true as const } : {}),
         }
     }
+    // The safeguards slice: the manipulations that enter by the record route (never placed), held by the wiring to the record consulted.
+    const recordRoute = c.proposedManipulations.filter((m) => m.entersBy === 'RECORD').map((m) => m.manipulation)
     const choices = c.suppliedChoices.map((ch) => ({
         lineId: ch.lineId,
         value: ch.value,
@@ -1115,6 +1166,7 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
         supplement: c.chain.supplement,
         holdReportedLawsToMateriality: c.realization?.lawsCheck.mode === 'REPORT',
         ...(consume ? { consume } : {}),
+        ...(recordRoute.length ? { recordRoute } : {}),
         ...(replaceDeclarations.length ? { replaceDeclarations } : {}),
         ...(lawsTreatment ? { laws: { standIn: lawsTreatment.standIn ? { ...lawsTreatment.standIn } : null, treatmentId: lawsTreatment.id } } : {}),
     }
@@ -1637,6 +1689,10 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
     // manipulation is placed in the selection explicitly, as the form is; the record's own authorized set is never widened.
     const place: ChainRequest['place'] = []
     const manipulationEntries = c.proposedManipulations.map((m) => {
+        // The safeguards slice: a manipulation entering by the record route is never placed; the chain's selection examines it in the record's set.
+        if (m.entersBy === 'RECORD' && m.relationship) {
+            return { id: m.id, purpose: m.purpose, manipulation: m.manipulation, outcome: `enters through the TEST-ONLY record's authorized set (the record route), never placed; it rests on a TEST-ONLY stand-in relationship (${m.relationship.ref}), never knowledge`, premise: premise('STAND_IN', m.relationship.ref, { standing: 'TEST ASSUMPTION', label: 'TEST ASSUMPTION', note: m.relationship.why }) }
+        }
         if (m.relationship && m.relationship.label === 'TEST ASSUMPTION') {
             place.push({ id: m.manipulation, manipulationId: m.id, relationshipRef: m.relationship.ref })
             return { id: m.id, purpose: m.purpose, manipulation: m.manipulation, outcome: `applied on a TEST-ONLY stand-in relationship (${m.relationship.ref}), never knowledge: placed in the selection explicitly; the record's authorized set is unchanged`, premise: premise('STAND_IN', m.relationship.ref, { standing: 'TEST ASSUMPTION', label: 'TEST ASSUMPTION', note: m.relationship.why }) }
@@ -1713,8 +1769,13 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
     const answer = chain.build(request)
     const relationshipByContract: GradingContext['relationshipByContract'] = new Map()
     for (const p of answer.placed) {
-        const m = c.proposedManipulations.find((x) => x.manipulation === p.id && x.relationship)
+        const m = c.proposedManipulations.find((x) => x.manipulation === p.id && x.relationship && x.entersBy !== 'RECORD')
         if (m && m.relationship) for (const contractId of p.contractIds) relationshipByContract.set(contractId, { ...m, relationship: m.relationship })
+    }
+    // The safeguards slice: the record-route manipulations the chain built, with the contracts it derived for each (the wiring's `recordSet`).
+    for (const b of answer.recordSet ?? []) {
+        const m = c.proposedManipulations.find((x) => x.manipulation === b.id && x.relationship && x.entersBy === 'RECORD')
+        if (m && m.relationship) for (const contractId of b.contractIds) relationshipByContract.set(contractId, { ...m, relationship: m.relationship })
     }
     const ctx: GradingContext = {
         c: effective,
@@ -1796,7 +1857,13 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
             constraints: answer.account ? [...answer.account.constraints] : [],
             fidelityViolations: answer.fidelityViolations,
         },
-        manipulations: manipulationEntries.map((m) => ({ ...m, placedContracts: [...(answer.placed.find((p) => p.id === m.manipulation && m.premise !== null)?.contractIds ?? [])] })),
+        manipulations: manipulationEntries.map((m) => {
+            // The safeguards slice: a record-route manipulation says whether the chain built it, and from which contracts; it is never placed.
+            const viaRecord = c.proposedManipulations.find((x) => x.id === m.id)?.entersBy === 'RECORD'
+            const built = viaRecord ? (answer.recordSet ?? []).find((b) => b.id === m.manipulation) : undefined
+            const outcome = viaRecord ? `${m.outcome}; ${built ? `the chain built it from ${built.contractIds.join(', ') || 'no contract'}` : 'the chain did not build it'}` : m.outcome
+            return { ...m, outcome, placedContracts: viaRecord ? [] : [...(answer.placed.find((p) => p.id === m.manipulation && m.premise !== null)?.contractIds ?? [])] }
+        }),
         lines,
         sentences,
         sentencesServed: answer.sentencesServed,

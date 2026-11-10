@@ -101,6 +101,34 @@
       "replyOfDay": "second reply",
       "provisional": false,
       "scope": null
+    },
+    {
+      "id": "A02-10NOV-QUOTA",
+      "words": [
+        "For the isolated A02 experiment, you may remove or bypass this unsupported numerical quota where necessary to test legitimate zero-, one-, or multiple-manipulation configurations.",
+        "Please preserve all independently justified structural, compatibility, and representative-integrity checks.",
+        "I am not authorizing a production change to the constraint selector at this stage.",
+        "The separate foundation-constraint and role-mix requirements should be reported with their source and authority rather than automatically treated as canonical."
+      ],
+      "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
+      "received": "2026-11-10",
+      "provisional": false,
+      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+    },
+    {
+      "id": "A02-10NOV-FAILURE-SOURCES",
+      "words": [
+        "When a problem appears, please identify the earliest consequential failure and determine whether it originates in:",
+        "Missing knowledge.",
+        "An unapproved or inaccurate interpretation.",
+        "A broken relationship between existing knowledge components.",
+        "Incorrect reasoning chronology or decision authority.",
+        "A configuration or rendering implementation limitation."
+      ],
+      "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
+      "received": "2026-11-10",
+      "provisional": false,
+      "scope": null
     }
   ],
   "cases": [

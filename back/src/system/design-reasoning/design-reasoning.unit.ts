@@ -282,6 +282,9 @@ function testTheStageReachesNoKeywordParserOrTokenScorer(): void {
     // the test's report file joins the closure (16 files become 17, measured before and after); it imports only assembly.ts, handoff.ts and
     // handoff-report.ts, all already in it, and receives the restated items and the results as plain data, so the closure still reaches no
     // loader beyond the two below.
+    // SAFEGUARDS AMENDMENT (stage 9, Christian's authorization received 10 November 2026, section 3: "I am not requesting another library, reasoning layer, or monitoring system."):
+    // the safeguards' pure check joins the closure (17 files become 18, measured before and after: 17 at f7a2b40, 18 with safeguards.ts); it
+    // imports only handoff.ts (types), already in it, and receives the runs as plain data, so the closure still reaches no loader beyond the two below.
     assert.deepEqual(
         closure.filter((f) => f.endsWith('.ts')),
         [
@@ -295,6 +298,7 @@ function testTheStageReachesNoKeywordParserOrTokenScorer(): void {
             'system/design-reasoning/handoff.ts',
             'system/design-reasoning/knowledge.ts',
             'system/design-reasoning/resolve.ts',
+            'system/design-reasoning/safeguards.ts',
             'system/design-reasoning/stage1.ts',
             'system/design-reasoning/stage2.ts',
             'system/design-reasoning/structural.ts',

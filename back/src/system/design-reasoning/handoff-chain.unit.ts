@@ -21,6 +21,12 @@
  * carries the draft items the chain records as shaping it (`draftShapedBy`, never graded), and the chain's own sentences are printed without
  * a gendered pronoun (`withoutGenderedPronouns`); neither changes the handoff's evidence (measured: its test compares it whole).
  *
+ * Added in the safeguards slice of stage 9 (DESIGN-9 sections 3 and 4): a consuming request's `consume.sizeRuleBypass` is handed on as the
+ * upstream option's boolean; a request's `recordRoute` is held to the authorized set of the record the chain consulted (fail closed) and its
+ * answer names each constraint built from it with its contracts (`recordSet`); every answer carries `observed` (the constraint authority and
+ * gap, the lens ids, the context display, the requirement account's state), which the safeguards read and the handoff never copies into a
+ * result; `chainWith({ observeOnly: true })` runs the chain's own route (the hook places nothing on any request).
+ *
  * Run alone: node node_modules/ts-node/dist/bin.js --files -r tsconfig-paths/register ./src/system/design-reasoning/handoff-chain.unit.ts
  */
 import assert from 'node:assert/strict'
@@ -370,7 +376,7 @@ function classificationWith(s: { law: string; materiality: string }): LawsMateri
  * The chain wired for the handoff. `heldTo` is the classification the harness holds a REPORT check to: our DRAFT classification, except in
  * test E3, which holds it to a labelled TEST-ONLY stand-in to show the hold's refusing branch.
  */
-export function chainWith(opts: { heldTo?: LawsMateriality } = {}): HandoffChain {
+export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolean } = {}): HandoffChain {
     return {
     build(request: ChainRequest): ChainAnswer {
         const vehicle = request.vehicle
@@ -381,9 +387,15 @@ export function chainWith(opts: { heldTo?: LawsMateriality } = {}): HandoffChain
         if (consume && request.place.length) throw new Error(`case ${request.caseId}: a request that consumes Steps 1 and 2 places nothing, and this one places ${request.place.map((p) => p.id).join(', ')}`)
         if (request.laws && vehicle?.lawsStandIn) throw new Error(`case ${request.caseId}: a classification of the laws is given either by the vehicle or by the request, not both`)
         // Handed to the entry's TEST-ONLY option as Steps 1 and 2 returned them in this run (the selection refuses a malformed one, fail closed).
+        // The safeguards slice: the size-rule bypass is handed on only where the case declares it (the option's boolean, and nothing else).
         const upstream: UpstreamDecisions | undefined = consume
-            ? { gameProblem: { gameProblemId: consume.gameProblem.gameProblemId, step1Basis: consume.gameProblem.basis as UpstreamDecisions['gameProblem']['step1Basis'], label: consume.gameProblem.label }, gameForm: copy(consume.gameForm) }
+            ? {
+                  gameProblem: { gameProblemId: consume.gameProblem.gameProblemId, step1Basis: consume.gameProblem.basis as UpstreamDecisions['gameProblem']['step1Basis'], label: consume.gameProblem.label },
+                  gameForm: { formId: consume.gameForm.formId, standing: consume.gameForm.standing, cells: copy(consume.gameForm.cells) },
+                  ...(consume.sizeRuleBypass === true ? { quotaBypass: true } : {}),
+              }
             : undefined
+        if (request.recordRoute && !consume) throw new Error(`case ${request.caseId}: a manipulation enters by the record route only on a request that consumes Steps 1 and 2`)
         let records = productionRecords
         if (request.records !== 'PRODUCTION') {
             // The TEST-ONLY record, in memory, in the production shape (held to the record gate by the build; never written to the file).
@@ -407,7 +419,8 @@ export function chainWith(opts: { heldTo?: LawsMateriality } = {}): HandoffChain
         let observedOnly: boolean | null = null
         const alterSelection = (selection: any) => {
             scorerPick = selection.selected.filter((e: any) => e.role === 'game form').map((e: any) => String(e.id))
-            if (consume) {
+            // The safeguards slice: `observeOnly` runs the chain's own route (S3 test 2's legacy arm): the hook places nothing on any request.
+            if (consume || opts.observeOnly) {
                 selected = selection
                 observedOnly = true
                 return
@@ -520,6 +533,21 @@ export function chainWith(opts: { heldTo?: LawsMateriality } = {}): HandoffChain
                   draftStatus: activity.draftKnowledge?.status ?? null,
               }
             : null
+        // The safeguards slice: the record the chain consulted holds exactly the case's record-route manipulations (fail closed), and each one
+        // the chain built is named with the contracts it derived for it.
+        if (request.recordRoute) {
+            const consulted = [...((account?.authorization?.authorizedConstraints ?? []) as string[])].sort()
+            if (JSON.stringify(consulted) !== JSON.stringify([...request.recordRoute].sort())) throw new Error(`case ${request.caseId}: the record the chain consulted authorizes ${consulted.join(', ') || 'nothing'}, and the case's record-route manipulations are ${request.recordRoute.join(', ')}`)
+        }
+        const recordSet: ChainAnswer['recordSet'] = request.recordRoute ? (account?.constraints ?? []).map((c) => ({ id: c.id, contractIds: seen.filter((x) => knowledgeKey(x.contractId) === knowledgeKey(c.id)).map((x) => x.contractId) })) : undefined
+        const summaryOf = (activity.requirementAccount as any)?.summary
+        const observed: NonNullable<ChainAnswer['observed']> = {
+            constraintAuthority: account?.constraintSource?.constraintAuthority ? String(account.constraintSource.constraintAuthority) : null,
+            constraintGap: account?.constraintSource?.gap ? String(account.constraintSource.gap) : null,
+            lensIds: selected ? ((selected.selected ?? []) as any[]).filter((e) => String(e.role).startsWith('affordance lens')).map((e) => String(e.id)) : [],
+            contextInThisActivity: account?.context ? account.context.inThisActivity === true : null,
+            scoringCondition: summaryOf ? { state: String(summaryOf.scoringCondition?.state ?? 'NONE'), rowId: summaryOf.scoringCondition?.rowId ?? null, carried: summaryOf.scoringConditionCarried === true } : null,
+        }
         return {
             outcome,
             stage,
@@ -571,6 +599,8 @@ export function chainWith(opts: { heldTo?: LawsMateriality } = {}): HandoffChain
             fidelityViolations: activity.outcome === 'served' ? (activity as ServedActivity).integrity.fidelityViolations : stage === 'communication' && activity.outcome === 'refused' ? reasons.filter((x) => x.startsWith('fidelity ')).length : null,
             refusalDetail,
             ...(consume ? { consumption } : {}),
+            ...(recordSet ? { recordSet } : {}),
+            observed,
         }
     },
     }
