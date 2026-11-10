@@ -18,9 +18,10 @@
  * is read from the record, every value from the game.
  *
  * **Layers and standings.** Each element of the game and each sentence is tagged by the layers its sources lie in (his three, read
- * from the record, plus the session, which is none of them: the coach's numbers) and by a standing — APPROVED (an item he authored or
- * ruled, or an engine rule he adopted), PROVISIONAL (his provisional realization choice), GAP (a field awaiting approved wording, or a
- * case he asked to see flagged), OUR_READING (an item whose basis is ours, a bound assumed, a choice not labelled his), SESSION.
+ * from the record, plus the session, which is none of them: the coach's numbers) and by a standing — APPROVED (an item he ruled, a
+ * relationship he confirmed, or an engine rule he adopted), PROVISIONAL (his provisional realization choice), CANDIDATE (our restatement
+ * of a source's quoted words, its interpretation not approved), GAP (a field awaiting approved wording, or a case he asked to see
+ * flagged), OUR_READING (an item whose basis is ours, a bound assumed, a choice not labelled his), SESSION.
  *
  * Sport-neutral: role names, nouns, rows and the items he asked for are data; no goal, sport term or knowledge id is written here.
  */
@@ -156,8 +157,10 @@ export type Layer = ReviewLayer | 'SESSION_INPUT'
 /**
  * B2 (28 October 2026): `DRAFT`, knowledge drafted by us and awaiting his review (category DRAFT_KNOWLEDGE, written only by the TEST-ONLY
  * draft store). Never APPROVED, whatever basis the draft was written with; first in `STANDING_ORDER`, so it is never silently dropped.
+ *
+ * `CANDIDATE` (7 November 2026): an item with basis AUTHORED, our restatement of a source's quoted words. See `itemSource`.
  */
-export type Standing = 'DRAFT' | 'APPROVED' | 'PROVISIONAL' | 'GAP' | 'OUR_READING' | 'SESSION'
+export type Standing = 'DRAFT' | 'APPROVED' | 'PROVISIONAL' | 'CANDIDATE' | 'GAP' | 'OUR_READING' | 'SESSION'
 
 /** One source of an element: its layer, its standing and what it is. */
 export interface EvidenceSource {
@@ -393,6 +396,19 @@ const overlaps = (a: { from: number; to: number } | null, b: { from: number; to:
 /**
  * The source an item is, by what crossed with it: his provisional choice, or knowledge whose standing its basis gives. (B3: exported, so the
  * relevance trace grades an element's establishing item by exactly this reading.)
+ *
+ * **Basis AUTHORED is CANDIDATE, never APPROVED** (7 November 2026). AUTHORED records only that the item's quoted words are the cited
+ * source's; turning them into the item is our work. This reader graded such items APPROVED, the same as his rulings. Christian, his reply
+ * received 7 November 2026 on the correction, item 1: *"Please remove the incorrect APPROVED classifications and use option (a): CANDIDATE
+ * for restatements whose executable interpretation has not been explicitly authorized."* and *"A restatement may ultimately be correct, but
+ * its correctness and authority must be established rather than assumed."* The three things he asked to keep apart stay apart: the source,
+ * quoted from the item's own evidence in the detail; the restatement, its ref, CANDIDATE because it is ours and not approved; and what it
+ * decides, reported where it always was, by the gates and the requirement account.
+ *
+ * Labels only. Whether an item may establish an element or refuse a build is decided elsewhere (`derivation/comparison.ts`,
+ * `derivation/resolved-game.ts`, `requirement-bindings.ts` ELIGIBLE_BASES), and AUTHORED keeps that authority there. The same reply,
+ * item 2: *"For this correction, please preserve the existing validation behavior as proposed."* and *"No changes to validation behavior are
+ * authorized by this email."*
  */
 export function itemSource(ref: { contractId: string; itemId: string }, items: Map<string, any>, category: unknown): EvidenceSource {
     const item = items.get(`${ref.contractId}::${ref.itemId}`)
@@ -404,8 +420,16 @@ export function itemSource(ref: { contractId: string; itemId: string }, items: M
     if (category === 'PROVISIONAL_REALIZATION_CHOICE' || item?.category === 'PROVISIONAL_REALIZATION_CHOICE') {
         return { layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: `${ref.contractId}::${ref.itemId}`, detail: basis ? `basis ${basis}` : null }
     }
-    const approved = basis === 'AUTHORED' || basis === 'OWNER_RULING'
-    return { layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: approved ? 'APPROVED' : 'OUR_READING', ref: `${ref.contractId}::${ref.itemId}`, detail: basis ? `basis ${basis}` : 'basis not found in the contracts the block was derived from' }
+    if (basis === 'AUTHORED') {
+        const evidence = typeof item?.basisEvidence === 'string' && item.basisEvidence.length ? item.basisEvidence : null
+        return {
+            layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS',
+            standing: 'CANDIDATE',
+            ref: `${ref.contractId}::${ref.itemId}`,
+            detail: `basis AUTHORED: our restatement of the source's quoted words, not approved; source: ${evidence ?? 'none recorded on the item'}`,
+        }
+    }
+    return { layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: basis === 'OWNER_RULING' ? 'APPROVED' : 'OUR_READING', ref: `${ref.contractId}::${ref.itemId}`, detail: basis ? `basis ${basis}` : 'basis not found in the contracts the block was derived from' }
 }
 
 /** A knowledge-authorized relationship as a source: CONFIRMED by him is approved; any other status, or one the record file lacks, is not. */
@@ -677,7 +701,8 @@ const dedupe = (sources: EvidenceSource[]): EvidenceSource[] => {
 const LAYER_ORDER: Layer[] = ['GENERAL_ENGINE_MECHANISM', 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', 'ACTIVITY_REALIZATION_CHOICE', 'SESSION_INPUT']
 // B2 (28 October 2026; the review's M1): DRAFT first, so an element or sentence resting on a draft says so before anything else, and a
 // standing missing here can never be dropped silently (`standingsOf` keeps only the standings listed).
-const STANDING_ORDER: Standing[] = ['DRAFT', 'APPROVED', 'PROVISIONAL', 'OUR_READING', 'SESSION', 'GAP']
+// CANDIDATE (7 November 2026) is listed for the same reason.
+const STANDING_ORDER: Standing[] = ['DRAFT', 'APPROVED', 'PROVISIONAL', 'CANDIDATE', 'OUR_READING', 'SESSION', 'GAP']
 const layersOf = (sources: EvidenceSource[]): Layer[] => LAYER_ORDER.filter(layer => sources.some(s => s.layer === layer))
 const standingsOf = (sources: EvidenceSource[]): Standing[] => STANDING_ORDER.filter(standing => sources.some(s => s.standing === standing))
 
