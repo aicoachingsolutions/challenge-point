@@ -25,15 +25,15 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { loadDraftStore } from '../derivation/draft-store'
-import { experiment, inputs, items as a02Items } from './a02.unit'
+import { experiment, inputs, items as a02Items, quotedSpans } from './a02.unit'
 import * as S from './a02-safeguards.unit'
-import { receivedOf } from './assembly'
+import { citedDateOf } from './assembly'
 import { foundationalTestText } from './foundational-test'
 import { CaseInput, ChainAnswer, ChainRequest, HandoffChain, HandoffResult, runHandoff, runHandoffCases, validateHandoffInputs } from './handoff'
 import { holdsGenderedPronoun, realChain } from './handoff-chain.unit'
 import { handoffReportText, plain, quoted, show } from './handoff-report'
 import { carRequirementNames, cell, committedKnowledge } from './knowledge'
-import { blockerSequence, classOf, detectedByVerdict, DISPOSITION, Finding, OpenDisconnection, ownershipMessage, ownershipOf, OWNERSHIP_TABLE, SafeguardRun, safeguardRunOf, stale, unlisted } from './safeguards'
+import { blockerSequence, classOf, detectedByVerdict, DISPOSITION, Finding, OpenDisconnection, ownershipMessage, ownershipOf, OWNERSHIP_TABLE, SafeguardRun, safeguardRunOf, stale, unlisted, DETECTED_VERDICTS, VIOLATION_VERDICTS } from './safeguards'
 import { runStage1 } from './stage1'
 
 const quiet = console.log
@@ -59,13 +59,16 @@ const json = (v: unknown) => JSON.stringify(v)
 const k = committedKnowledge()
 const Q = String.fromCharCode(34)
 
-/** Christian's words with the reply's date, as every report of this branch cites them. */
+/**
+ * Christian's words with the reply's date, as every report of this branch cites them: the received date, or, for the reply about A02 (pasted
+ * without its mail header, so its received date is not recorded), its paste date (assembly.ts citedDateOf).
+ */
 const ruling = (id: string) => {
     const r = inputs.rulings.find((x) => x.id === id)
     assert.ok(r, `the inputs hold the ruling ${id}`)
     return r
 }
-const cite = (id: string, n: number): string => `${quoted(ruling(id).words[n])} (received ${receivedOf(ruling(id))})`
+const cite = (id: string, n: number): string => `${quoted(ruling(id).words[n])} (${citedDateOf(ruling(id))})`
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // S5: TA02 through the same consumption, over our DRAFT restatement of RPC-003 (TA02's context pending)
@@ -126,7 +129,7 @@ const TA02_NOT_CARRIED: CaseInput['notCarried'] = [
         id: 'UN-TA02-CONDITION',
         what: 'the origin value and the control referent of RPC-003\'s approved scoring condition',
         rulingRefs: ['A02-10NOV-TREATMENTS'],
-        where: 'our DRAFT restatement of RPC-003 declares the origin value NOT_AUTHORED and leaves the control referent UNDECLARED, so TA02-0 is refused on those two lines, as A02-0 is on RPC-002\'s; TA02-D withholds every condition item',
+        where: 'our DRAFT restatement of RPC-003 declares the origin value NOT_AUTHORED and leaves the control referent UNDECLARED, so TA02-0 is refused on those two lines, as A02-0 is on RPC-002\'s; TA02-D withholds every condition item. Not like for like: TA02\'s progression and control items (RPC-003-11.a, RPC-003-12.a) restate the clause Christian wrote as an example on 13 September, which the pending 13 September correction is to restore as illustrative, and RPC-003-12.a makes its possession condition a required control clause, which Christian\'s first reply of 7 November, section 4, says not to do without an authoritative basis (quoted in item 6); the restatement is unchanged here',
         label: 'UNRESOLVED',
     },
 ]
@@ -287,10 +290,10 @@ function comparisonOf(a: Pair, t: Pair): { rows: ReuseRow[]; differingLines: str
     row('the approved scoring condition (its row, on the diagnostic runs)', condition(a), condition(t), 'the chain is handed no requirement bindings for either row on these runs (none exists for RPC-002; a DRAFT set of ours for RPC-003 sits outside the store and the handoff\'s wiring does not hand it), so the requirement account cannot classify the condition; nothing carries it')
     for (const clause of ['origin', 'progression', 'control']) {
         const vals = (p: Pair) => [...itemsOf(p, `type=${clause}`, 'V5'), ...itemsOf(p, `type=${clause}`, 'V6')].join(', ') || 'none'
-        row(`the condition's ${clause} clause (our restatement's values)`, vals(a), vals(t), clause === 'origin' ? 'the value is declared NOT_AUTHORED in both restatements; neither origin has a carrier' : clause === 'control' ? 'the referent is UNDECLARED in both restatements' : 'carried as open text and a value; not executed in either built game')
+        row(`the condition's ${clause} clause (our restatement's values)`, vals(a), vals(t), clause === 'origin' ? 'the value is declared NOT_AUTHORED in both restatements; neither origin has a carrier' : clause === 'control' ? 'the referent is UNDECLARED in both restatements; TA02\'s item (RPC-003-12.a) makes required the possession condition of a clause Christian wrote as an example (13 September), contrary to Christian\'s first reply of 7 November, section 4' : 'carried as open text and a value; not executed in either built game; TA02\'s item (RPC-003-11.a) restates the clause Christian wrote as an example (13 September), which the pending 13 September correction is to restore as illustrative')
     }
     const stop = (p: Pair) => `${p.zero.result.refusal?.stage}: ${(p.zero.result.refusalBasis?.cited ?? []).map((c) => c.ref).join(', ')} (${p.zero.result.refusalBasis?.verdict})`
-    row('where the knowledge as it stands stops', stop(a), stop(t), 'the same stage and the same two kinds of line, the control clause\'s referent and the origin clause\'s value, each on its own context\'s restatement')
+    row('where the knowledge as it stands stops', stop(a), stop(t), 'the same stage and the same two kinds of line, the control clause\'s referent and the origin clause\'s value, each on its own context\'s restatement; not like for like: on TA02\'s side the control line is our item RPC-003-12.a, which makes the illustrative clause\'s possession condition a required one, contrary to Christian\'s first reply of 7 November, section 4 (quoted in item 6)')
     const opposition = (p: Pair) => {
         const ps = p.items.filter((i) => String(i.row) === 'P1')
         const resting = p.diag.result.lines.filter((l) => l.premises.some((x) => ps.some((i) => x.ref === `${p.contractId} ${i.itemId}`))).length
@@ -380,6 +383,7 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'RPC-PROP-133', means: 'the approved primary scoring condition of High Press Escape (a row of the context library)' },
     { id: 'RPC-PROP-134', means: 'the approved primary scoring condition of Attack Development (a row of the context library)' },
     { id: 'RPC-PROP-018', means: 'a begin condition of High Press Escape (a row of the context library)' },
+    { id: 'RPC-PROP-030..033', means: 'the behaviour-adjustment rows of High Press Escape (the context library): support angles, pressing numbers, spacing and progression corridors, field dimensions' },
     { id: 'RPC-REL-', family: true, means: 'a relationship row of the context library (RPC-REL-075..078: the four approved primary scoring events of High Press Escape)' },
     { id: 'RPC-ID-', family: true, means: 'an identity row of the context library' },
     { id: 'RPC-MAP-', family: true, means: 'a mapping row of the context library staging a context\'s affordance target (each DEFERRED)' },
@@ -398,6 +402,7 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'S4-', family: true, means: 'a run of item 4: manipulations entered only through the DRAFT record\'s authorized set (NP Neutral Player, WZA Wide Zone Advantage, TR Turnover Reward, CDC Central Density Condition, IR Interception Reward; /no-bypass: without the size-rule bypass)' },
     { id: 'OD-', family: true, means: 'an open disconnection the safeguards detect, listed with its measured evidence in appendix B; printed as open, never as a pass' },
     { id: 'TT-', family: true, means: 'a TEST-ONLY treatment, labelled where it enters (appendix A and appendix D)' },
+    { id: 'W-DROPS-UPSTREAM', means: 'a control of item 3: A02-0 under a reworded goal, with a TEST-ONLY wrapper that drops the decisions handed to the chain' },
     { id: 'NO-RESTATEMENT', means: 'the A02 run consumed with the DRAFT record only, no restatement of High Press Escape in the store (item 5)' },
     { id: 'V5', means: 'the register row of a scoring condition\'s referent' },
     { id: 'V6', means: 'the register row of a scoring condition\'s value' },
@@ -434,6 +439,21 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'NO_FURTHER_VALUE', means: 'a declaration that a value needs no further referent: here only a TEST-ONLY treatment, not ruled' },
     { id: 'OUTSIDE_BOUNDARY', means: 'an item recorded outside what the engine can check: it establishes nothing' },
     { id: 'TEST ASSUMPTION', means: 'Christian\'s class 4: a stated test assumption, never knowledge' },
+    { id: 'UNAUTHORIZED_SOURCE', means: 'a verdict: constraints built from a source the authorization record does not authorize (a vocabulary pool, or a constraint outside the record\'s set)' },
+    { id: 'violation verdict', means: `a verdict that fails the assertion every experiment run must pass: ${VIOLATION_VERDICTS.map((v) => (v === 'MISSING' ? 'MISSING (a reached decision without its record)' : v)).join(', ')}, or ENGINE_RULE_DECIDED where no kept check is attributed; each one on the experiment path is listed as an open disconnection` },
+    { id: 'detected disconnection', means: `a verdict printed as an open finding, never a pass and never a violation: ${DETECTED_VERDICTS.join(', ')}, or ENGINE_RULE_DECIDED attributed to a kept check` },
+    // The chain's stages a run of this report stops at, in chain order (R4-11): a run is refused at the first stage whose check fails.
+    { id: 'selection', means: 'the chain\'s stage that chooses the engine lenses and the constraints on the candidate forms (on the legacy route also the form); refused where no combination passes its checks' },
+    { id: 'knowledge', means: 'the stage after selection that checks the knowledge the build needs; in these runs, that the form, the context and each authorized constraint have a contribution contract' },
+    { id: 'structure', means: 'the stage that derives the game\'s configuration lines from the contracts and checks them; in these runs, a line that must hold a value and holds none refuses the run' },
+    { id: 'realization', means: 'the stage that closes the open lines with the realization choices, within their authored bounds' },
+    { id: 'validation', means: 'the stage that checks the realized game; in these runs, the Laws check' },
+    { id: 'communication', means: 'the last stage, the coach text; in these runs, a line with no approved wording, or that no sentence carries, refuses the run' },
+    { id: 'contribution contract', means: 'the engine-readable form of a knowledge row (a form, a context or a constraint), without which the row cannot shape a game' },
+    { id: 'row k', means: 'the selection check that each member of a package supports the selected affordance tag group (a package check, beside row o)' },
+    { id: 'zero branch', means: 'the selector\'s commitment of an evaluated, empty authorized set, before the size, role-mix and package checks (which then do not run)' },
+    { id: 'passed by', means: 'printed after a stop as (passed by X): the later path X gets past that stop' },
+    { id: 'inThisActivity', means: 'the chain\'s account field saying whether the context\'s approved condition is in this activity' },
 ]
 /** The key entry for a token: exact, or a family the token begins with (a family's id without its last separator counts). */
 const keyOf = (token: string) =>
@@ -517,15 +537,19 @@ function bodyLines(): string[] {
     add('')
     add(`What this is: the isolated A02 engineering experiment Christian authorized, ${cite('A02-10NOV-AUTHORIZATION', 0)}: Steps 1 and 2 of the review pathway, run by the handoff and consumed by the checked configuration chain through a TEST-ONLY option no route passes; High Press Escape's approved identity and scoring rows restated by us as CANDIDATE; the reasoning-disconnection safeguards; the zero-, one- and two-manipulation runs; the earliest consequential blocker; a brief A02/TA02 comparison.`)
     add(`Standing: TEST-ONLY. Isolated: nothing a coach or an administrator can reach runs it. Not deployed. Not merged. Not an authorization, not approved wording, not a selection input. Engineering evidence only: no run here establishes ecological suitability or representative sufficiency. ${cite('A02-10NOV-AUTHORIZATION', 4)}`)
-    add(`Dates: Christian's reply about A02 is cited with 10 November 2026, the date it was pasted and filed in the sources repository; the date it was sent is not recorded there.`)
-    add(`Quotation marks: double, Christian's words, verbatim, with the reply's date; single, ours (values, labels, engine sentences).`)
+    add(`Dates: Christian's reply about A02 was pasted on 10 November 2026 without its mail header, so its received date is not recorded; every citation of it is dated 'reply about A02, pasted 10 November 2026', its paste date, never a received date. Every other reply is cited by its received date. The chain's own sentences cite one reply by our old filing date: 'reply filed 30 October 2026' is Christian's second reply received 27 October 2026.`)
+    add(`Quotation marks: double, Christian's words, verbatim, with the reply's date (typographic ones where the words themselves hold a straight one); single, ours (values, labels, engine sentences). Inside an engine line, the text after 'Christian, <date>:' is the knowledge item's stored evidence, close to Christian's words but not checked here as verbatim.`)
     add(`How each item is told, as Christian asked, ${cite('A02-10NOV-REPORT', 7)}: IMPLEMENTED AND TESTED (what the code does, measured by a registered test of this build); OPEN (unresolved, or detected as an open disconnection: never a pass); PROPOSALS (ours, for Christian's decision); ASSUMPTIONS (ours, each labelled where it enters); ECOLOGICAL SUITABILITY (not established by any run).`)
     add('')
     add('FIRST, FOR CHRISTIAN\'S DECISION: THE CONSTRAINT SELECTOR')
     add(`- To bypass the numerical quota in the isolated experiment, the constraint selector's source file (${SELECTOR_FILE}) gained one TEST-ONLY parameter, a switch that is off unless a caller passes it, in ${SELECTOR_HUNKS.length} places (each held to the file's text by this report's test):`)
     for (const h of SELECTOR_HUNKS) add(`   ${SELECTOR_FILE}:${h.lines}: ${h.what}`)
-    add('- No route, controller or service passes it (a registered static test reads every non-test source file); with it off, the selector is unchanged in behaviour (the behaviour snapshot against main, recorded apart in the regression record).')
-    add(`- Question: is a TEST-ONLY parameter that no route passes within ${cite('A02-10NOV-SELECTOR', 0)}? It is removable: deleting the ${SELECTOR_HUNKS.length} places returns the file to main's text, and the one- and two-manipulation runs of item 4 would then be refused by the size rule, as before.`)
+    add('- No route, controller or service passes it (a registered static test reads every non-test source file). With it off, the selector\'s behaviour is compared with main\'s by the behaviour snapshot, which the evidence folder\'s regression record holds once the regression is run on the committed tree.')
+    const npWza = S.at('S4-NP+WZA/no-bypass').result.chain
+    const npWzaSame = json([npWza?.outcome, npWza?.stage, npWza?.reasons, S.at('S4-NP+WZA/no-bypass').run.chain?.constraints]) === json([S.at('S4-NP+WZA').result.chain?.outcome, S.at('S4-NP+WZA').result.chain?.stage, S.at('S4-NP+WZA').result.chain?.reasons, S.at('S4-NP+WZA').run.chain?.constraints])
+    add(
+        `- Question: is a TEST-ONLY parameter that no route passes within ${cite('A02-10NOV-SELECTOR', 0)}? It is removable: deleting the ${SELECTOR_HUNKS.length} places returns the file to main's text. Only the lone Neutral Player run of item 4 would then change outcome, refused by the size rule as before (S4-NP/no-bypass: refused at ${S.at('S4-NP/no-bypass').result.chain?.stage}); the other lone sets would be refused by the size rule instead of by the kept checks; and a set of two lies inside 2 to 4, so it selects the same with or without the switch (read from the code, ${SELECTOR_FILE}:1037, and measured on Neutral Player with Wide Zone Advantage: without the switch it is ${npWzaSame ? `selected the same and refused at ${npWza?.stage}, as with it` : 'NOT the same'}).`,
+    )
     add('')
     add('KEY (the identifiers the frame and the seven items use; names read from the knowledge files)')
     for (const e of KEY) add(`- ${e.id}${e.family ? '...' : ''}: ${e.means}`)
@@ -536,16 +560,19 @@ function bodyLines(): string[] {
     add(`Christian asked: ${cite('A02-10NOV-REPORT', 0)}`)
     const gp2 = S.at('GP-002')
     add(
-        `Answer (OURS): on the isolated pathway, yes for the Game Form: the chain builds on Step 2's form, its scorer handed only that form. The Game Problem reaches the chain only through Step 2's form: Step 2 chooses the form from Step 1's Game Problem (with Step 1's primary swapped to ${gp2.result.receive.step1?.primary.join(', ')}, the chain builds on ${gp2.result.consumption?.form?.formId}). The chain also carries Step 1's Game Problem in its account, but no chain decision reads it (${S.verdictOf('A02-0', 'GAME_PROBLEM')}): its Game-Problem-dependent inputs (the lens hints and matched signals) still read the planning model (OD-HINT-GAME-PROBLEM; on ${gp2.id} they read ${gp2.run.chain?.gameProblemId} while the account carries ${gp2.result.consumption?.gameProblem?.gameProblemId}), and the context is read from the routing (open, below). The production route is unchanged and still picks A02's form from the wording.`,
+        `Answer (OURS): on the isolated pathway, yes for the Game Form: the chain takes Step 2's form as its form, its scorer handed only that form. The Game Problem reaches the chain only through Step 2's form: Step 2 chooses the form from Step 1's Game Problem (with Step 1's primary swapped to ${gp2.result.receive.step1?.primary.join(', ')}, the chain takes ${gp2.result.consumption?.form?.formId} as its form). The chain also carries Step 1's Game Problem in its account, but no chain decision reads it (${S.verdictOf('A02-0', 'GAME_PROBLEM')}): its Game-Problem-dependent inputs (the lens hints and matched signals) still read the planning model (OD-HINT-GAME-PROBLEM; on ${gp2.id} they read ${gp2.run.chain?.gameProblemId} while the account carries ${gp2.result.consumption?.gameProblem?.gameProblemId}), and the context is read from the routing (open, below). The production route is unchanged and still picks A02's form from the wording.`,
     )
     add('Implemented and tested:')
     add('- A TEST-ONLY option of the checked chain hands it Step 1\'s resolved Game Problem and Step 2\'s SELECTED form: its candidate forms become the routed context\'s declared forms filtered to Step 2\'s form (never replaced by it), a form outside them is refused, and its constraints come only from the authorization record.')
-    add(`- The ${A02_RUN_IDS.length} A02 runs (${A02_RUN_IDS.join(', ')}): Step 1 ${s1?.status} ${s1?.primary.join(', ')} at ${s1?.contextId} (${s1?.basis}); Step 2 ${s2?.status} ${s2?.selected} (compatible: ${s2?.compatible.join(', ')}); the chain built on ${a0.consumption?.form?.formId}, its scorer handed only ${a0.consumption?.formCandidatesScored.join(', ')}; the handoff placed nothing.`)
+    add(`- The ${A02_RUN_IDS.length} A02 runs (${A02_RUN_IDS.join(', ')}): Step 1 ${s1?.status} ${s1?.primary.join(', ')} at ${s1?.contextId} (${s1?.basis}); Step 2 ${s2?.status} ${s2?.selected} (compatible: ${s2?.compatible.join(', ')}); the chain took ${a0.consumption?.form?.formId} as its form, its scorer handed only ${a0.consumption?.formCandidatesScored.join(', ')}; the handoff placed nothing.`)
     add(
         `- On ${reachedChain.length} of the ${S.EXPERIMENT_RUNS.length} experiment runs (every one that reaches the chain): the Game Form reads CONSUMED (${verdictOn('GAME_FORM', 'CONSUMED')} runs), equal to Step 2's form, and the chain's own record shows its scorer was handed only it; the constraints read CONSUMED (${verdictOn('CONSTRAINTS', 'CONSUMED')} runs) against the authorized set of our TEST-ONLY DRAFT A02 record, or of a TEST-ONLY copy of it on the runs of item 4 (no ruling; the finding is ours), not against any decision of Step 1 or Step 2; Step 1's Game Problem is carried in the account and read by no chain decision: CARRIED_NOT_READ (${verdictOn('GAME_PROBLEM', 'CARRIED_NOT_READ')} runs, a detected disconnection). The one other run (Step 1's primary swapped to GP-001) is reconsidered by Step 2, which retains ${S.at('GP-001').result.receive.step2?.compatible.join(', ')} with no basis to select, and stops before the chain.`,
     )
     const legacyPicks = [...new Set(['GP-002/legacy', 'GF7-CELL/legacy'].map((id) => S.at(id).run.chain?.ownPick?.join(', ')))]
-    add(`- Dependency: with Step 1's primary swapped to GP-002 in a test copy of the knowledge (TEST ASSUMPTION), Step 2 selects ${S.at('GP-002').result.receive.step2?.selected} and the chain builds on ${S.at('GP-002').result.consumption?.form?.formId} carrying ${S.at('GP-002').result.consumption?.gameProblem?.gameProblemId}; with GF2's GP-015 cell moved to GF7 there, Step 2 selects ${S.at('GF7-CELL').result.receive.step2?.selected} and the chain builds on ${S.at('GF7-CELL').result.consumption?.form?.formId}. The legacy route on the same two inputs stays on ${legacyPicks.join(' and ')}${legacyPicks.length === 1 ? ' in both' : ''}, its pick from the wording.`)
+    const refusedAs = (id: string) => `refused at ${S.at(id).result.chain?.stage} (${(S.at(id).result.chain?.reasons ?? []).map(plain).join('; ')})`
+    add(
+        `- Dependency: with Step 1's primary swapped to GP-002 in a test copy of the knowledge (TEST ASSUMPTION), Step 2 selects ${S.at('GP-002').result.receive.step2?.selected} and the chain takes ${S.at('GP-002').result.consumption?.form?.formId} as its form, carrying ${S.at('GP-002').result.consumption?.gameProblem?.gameProblemId}, and is ${refusedAs('GP-002')}; with GF2's GP-015 cell moved to GF7 there, Step 2 selects ${S.at('GF7-CELL').result.receive.step2?.selected} and the chain takes ${S.at('GF7-CELL').result.consumption?.form?.formId} as its form and is ${refusedAs('GF7-CELL')}. The legacy route on the same two inputs stays on ${legacyPicks.join(' and ')}${legacyPicks.length === 1 ? ' in both' : ''}, its pick from the wording, and is ${[...new Set(['GP-002/legacy', 'GF7-CELL/legacy'].map(refusedAs))].join(' or ')}.`,
+    )
     add(`- Wording: with the goal's wording rewritten twice (in the knowledge copy and in the row the chain reads; restored, the restore asserted), Steps 1 and 2 and the consumed form do not move (${json(S.at('A02-0~reversed').result.receive) === json(a0.receive) && json(S.at('A02-0~neutral').result.receive) === json(a0.receive) ? 'identical' : 'CHANGED'}), while the chain's own route moves from ${S.at('L2').run.chain?.ownPick?.join(', ')} to ${S.at('L2~reversed').run.chain?.ownPick?.join(', ')}, which proves the rewrite reached the chain.`)
     add('Open (detected and listed as open disconnections, never passes):')
     for (const id of ['OD-HINT-GAME-PROBLEM', 'OD-CONTEXT', 'OD-A02-LEGACY-FORM']) add(`- ${id}: ${plain(entry(id).what)}`)
@@ -557,10 +584,15 @@ function bodyLines(): string[] {
 
     add('2. HIGH PRESS ESCAPE\'S IDENTITY AND SCORING')
     add(`Christian asked: ${cite('A02-10NOV-REPORT', 1)}`)
-    add('Answer (OURS): partly. The approved scoring events are carried into the built game; the clauses of the approved scoring condition enter derivation through our CANDIDATE restatement, but as the knowledge stands the build stops on two of them, and nothing in a built game carries established pressure.')
+    const builtRuns = A02_RUN_IDS.filter((id) => S.at(id).result.lines.length > 0)
+    add(
+        `Answer (OURS): partly. As the knowledge stands no game is built: ${A02_RUN_IDS[0]} stops at ${a0.refusal?.stage} on two clauses of the approved scoring condition, which enter derivation through our CANDIDATE restatement. A game is built only under labelled TEST-ONLY treatments of the condition (${builtRuns.join(', ')}); there the approved scoring events bound the event line, and the value within them is our realization choice, not knowledge. Nothing in a built game carries established pressure.`,
+    )
     add('Implemented and tested:')
     add(`- Our CANDIDATE restatement of RPC-002 in the TEST-ONLY draft store: ${a02Items.length} items, each quoting its approved row verbatim (the store's gate refuses a copy that does not); none of it is in production knowledge. Rows restated: ${[...new Set(a02Items.flatMap((i) => i.sources.map((s) => s.rowId)))].join(', ')}.`)
-    add(`- Carried: the four approved events, narrowed with GF2's own to ${show(v1?.permitted ?? null)} on the built event line (the chain records our item as narrowing it); the values ${a02Items.filter((i) => i.row === 'V6').map((i) => show(i.value)).join(' and ')} enter derivation.`)
+    add(
+        `- Carried (only on ${builtRuns.join(', ')}, each with TEST-ONLY treatments): the four approved events, narrowed with GF2's own to ${show(v1?.permitted ?? null)} on the built event line (the chain records our item as narrowing it); the value ${show(v1?.value ?? null)} within that pair is a realization choice of ours (class ${aD.lines.find((l) => l.lineId === 'game::V1')?.sixClass ?? 'none'}), not knowledge. The values ${a02Items.filter((i) => i.row === 'V6').map((i) => show(i.value)).join(' and ')} enter derivation.`,
+    )
     add(`- A02-0, the knowledge as it stands: refused at ${a0.refusal?.stage} on ${(a0.refusalBasis?.cited ?? []).map((c) => c.ref).join(' (the control clause\'s referent) and ')} (the origin clause's value): ${plain(experiment.restatementOnlyWords)}.`)
     for (const clause of ['origin', 'progression', 'control']) {
         const c = clauseCounts(clause)
@@ -578,7 +610,7 @@ function bodyLines(): string[] {
     add('Essential Representative Relationships (each with what executes it in this run; appendix A gives the rows):')
     for (const r of experiment.relationships) add(`- ${plain(r.relationship)}: ${plain(r.executable)}`)
     add('Proposals: none; the questions above ask for Christian\'s source material and propose no knowledge.')
-    add('Assumptions (OURS): the restatement itself (CANDIDATE, unreviewed); every condition item scoped to the whole game; the count of scoring events ASSUMED.')
+    add('Assumptions (OURS): the restatement itself (CANDIDATE, unreviewed); every condition item scoped to the whole game.')
     add('Ecological suitability: not established: nothing in a built game carries established coordinated pressure.')
     add('')
 
@@ -593,7 +625,30 @@ function bodyLines(): string[] {
     add(`- Dependency verification: a changed Game Problem and a moved cell are reconsidered by Step 2, whose form the chain consumes (item 1); the planning model's hint-governing reading stays GP-015 when Step 1 says GP-002 (${S.verdictOf('GP-002', 'GAME_PROBLEM_HINTS')}, listed), and the GP-002 the chain carries is read by no chain decision (${S.verdictOf('GP-002', 'GAME_PROBLEM')}).`)
     for (const id of ['OD-WORDING-LENSES', 'OD-WORDING-FLIP']) add(`- Safeguard B fails on ${id}: ${plain(entry(id).what)}; before: ${plain(entry(id).measured?.before ?? '')}; after: ${plain(entry(id).measured?.after ?? '')}.`)
     add(`- Consumption tracing: with one cited event removed from our restatement, A02-2 moves from ${S.at('A02-2').result.chain?.stage} to ${S.at('A02-2/no-line-crossed').result.chain?.stage}, on the event line that item shaped; with A02-D's treatment declaration removed, its three clauses read ${[...new Set(doctoredA02D.filter((f) => f.row === 'SCORING').map((f) => f.verdict))].join(', ')} and ${fails(doctoredA02D)}; with GP-015's CAR ratings changed, the chain's result is identical (consulted, not determining).`)
-    add(`- Over the ${S.runs.size} runs: ${violations} violation verdicts and ${detected} detected disconnections (by verdict: ${detectedByVerdict(all)}), none of them a pass.`)
+    // The total is never read alone (R3-06, R4-09): it is split by where the runs run, each number counted from the runs.
+    const kindOf = (kind: S.Kind) => {
+        const rs = [...S.runs.values()].filter((r) => r.kind === kind)
+        const fs = rs.flatMap((r) => r.findings)
+        return { rs, v: fs.filter((f) => classOf(f) === 'VIOLATION'), d: fs.filter((f) => classOf(f) === 'DETECTED'), fs }
+    }
+    const [exp, ctl, leg] = [kindOf('EXPERIMENT'), kindOf('CONTROL'), kindOf('LEGACY')]
+    const listing = S.OPEN_DISCONNECTIONS.filter((e) => e.scope === 'EXPERIMENT')
+        .map((e) => ({ id: e.id, n: exp.v.filter((f) => unlisted([f], [e], ['EXPERIMENT']).length === 0).length }))
+        .filter((x) => x.n > 0)
+    add(`- Over the ${S.runs.size} runs: ${violations} violation verdicts and ${detected} detected disconnections, none of them a pass. Told apart by where the runs run:`)
+    add(`   the experiment path (${exp.rs.length} runs, each held to the assertion every experiment run must pass): ${exp.v.length} violation verdicts, every one a finding of an open disconnection listed below, counted once per run (${listing.map((x) => `${x.id} ${x.n}`).join(', ')}), and ${exp.d.length} detected disconnections (by verdict: ${detectedByVerdict(exp.fs)});`)
+    const CONTROL_WORDS: Record<string, string> = {
+        'S4-NP/no-bypass': 'the lone Neutral Player without the switch',
+        'S4-NP+WZA/no-bypass': 'two manipulations without the switch',
+        'A02-2/CAR': 'A02-2 with GP-015\'s CAR ratings changed',
+        'W-DROPS-UPSTREAM': 'the wrapper that drops the handed decisions',
+    }
+    const controlWords = (id: string) => {
+        assert.ok(CONTROL_WORDS[id], `the control ${id} is described`)
+        return CONTROL_WORDS[id]
+    }
+    add(`   the controls (${ctl.rs.length} runs built beside the experiment to show whether a check bites, not held to that assertion; violation verdicts per run: ${ctl.rs.map((r) => `${r.id}, ${controlWords(r.id)}, ${r.findings.filter((f) => classOf(f) === 'VIOLATION').length}`).join('; ')}): ${ctl.v.length} violation verdicts and ${ctl.d.length} detected disconnections;`)
+    add(`   the legacy route (${leg.rs.length} runs, the production route and its variants, reported only): ${leg.v.length} violation verdicts and ${leg.d.length} detected disconnections.`)
     add(`Open disconnections (${S.OPEN_DISCONNECTIONS.length}; each with its evidence and runs in appendix B):`)
     for (const e of S.OPEN_DISCONNECTIONS) add(`- ${e.id} [${e.scope === 'EXPERIMENT' ? 'experiment path' : 'legacy route, reported only'}]: ${plain(e.what)}`)
     add(`Proposals (OURS, for Christian's decision): whether the kept package checks that read the wording-derived lenses fall under ${cite('A02-10NOV-QUOTA', 1)}, or are a selection from wording the consumption is meant to remove; they are kept, enforced and reported here.`)
@@ -603,20 +658,28 @@ function bodyLines(): string[] {
 
     add('4. ZERO, ONE OR MORE MANIPULATIONS WITHOUT THE QUOTA')
     add(`Christian asked: ${cite('A02-10NOV-REPORT', 3)}`)
-    add('Answer (OURS): zero and one manipulation can be represented without the quota interfering; no manipulation is justified for A02 in anything we hold, so what is shown is the representation, not a justified configuration.')
+    const flipRuns = S.OPEN_DISCONNECTIONS.find((e) => e.id === 'OD-WORDING-FLIP')?.runs ?? []
+    add(
+        `Answer (OURS): zero and one manipulation can be represented without the quota interfering where the record authorizes exactly that many. Where it authorizes two and only one of them passes the kept checks, the floor of 2 that remains for subsets stops the run (${flipRuns.join(', ')}). No manipulation is justified for A02 in anything we hold, so what is shown is the representation, not a justified configuration.`,
+    )
     add('Implemented and tested:')
     add(`- Zero: the ${A02_RUN_IDS.length} A02 runs commit the DRAFT record's empty set (constraints ${[...new Set(A02_RUN_IDS.map((id) => S.verdictOf(id, 'CONSTRAINTS')))].join(', ')}, none built): representable, not shown to be justified; the record's finding is ours: no manipulation has an authorized relationship to RPC-002 and GP-015 in held knowledge.`)
-    add(`- One: a lone Neutral Player in the DRAFT record's set (a TEST-ONLY relationship stand-in, TEST ASSUMPTION) is selected with the TEST-ONLY size-rule bypass (S4-NP: next stop ${S.at('S4-NP').result.chain?.stage}) and refused without it (S4-NP/no-bypass: refused at ${S.at('S4-NP/no-bypass').result.chain?.stage}, attributed to the size rule): the quota interfered, and the bypass removed only it.`)
-    add(`- One, refused by kept checks: a lone Wide Zone Advantage or Turnover Reward is refused by the foundation clause; Central Density Condition, alone and with Interception Reward, by the package relationship check; each attributed by re-running the selector's own exported package check on GF2 and each lens combination (${S.QUOTA_REFUSED.map((id) => `${id} ${S.at(id).run.engineRule?.rule}`).join(', ')}).`)
-    add(`- Two: Neutral Player with Wide Zone Advantage is selected whole (next stop ${S.at('S4-NP+WZA').result.chain?.stage}); with Turnover Reward it is selected, then refused at ${S.at('S4-NP+TR').result.chain?.stage} (Turnover Reward has no contribution contract).`)
+    const sameAsA02 = json(S.at('S4-NP').result.chain?.reasons) === json(a0.chain?.reasons) ? `, on the same lines as ${A02_RUN_IDS[0]}` : ''
+    add(`- One: a lone Neutral Player in the DRAFT record's set (a TEST-ONLY relationship stand-in, TEST ASSUMPTION) is selected with the TEST-ONLY size-rule bypass (S4-NP: selected, then refused at ${S.at('S4-NP').result.chain?.stage}${sameAsA02}) and refused without it (S4-NP/no-bypass: refused at ${S.at('S4-NP/no-bypass').result.chain?.stage}, attributed to the size rule): the quota interfered, and the bypass removed only it.`)
+    add(`- One, refused by kept checks: a lone Wide Zone Advantage or Turnover Reward is first refused by the foundation clause; Central Density Condition, alone and with Interception Reward, first by the package relationship check (row o); each attributed by re-running the selector's own exported package check on GF2 and each lens combination, which returns the first reason it meets (${S.QUOTA_REFUSED.map((id) => `${id} ${S.at(id).run.engineRule?.rule}`).join(', ')}).`)
+    add(`- Two: Neutral Player with Wide Zone Advantage is selected whole, then refused at ${S.at('S4-NP+WZA').result.chain?.stage}, and without the switch it selects the same (S4-NP+WZA/no-bypass); with Turnover Reward it is selected, then refused at ${S.at('S4-NP+TR').result.chain?.stage} (Turnover Reward has no contribution contract).`)
+    add(
+        `- The floor that remains: under the bypass the sizes tried are the set's own size and 2 to 4 (${SELECTOR_FILE}:1037), so a one-manipulation subset of a set of 2 to 4 is never tried. Under the reworded wordings Neutral Player with Turnover Reward is refused at selection (row k on every lens combination), although a lone Neutral Player passes the package check on every one of those lens combinations and is selected as ${flipRuns.map((id) => id.split('+TR').join('')).join(' and ')} (measured).`,
+    )
     add(`- Every line a manipulation brings rests on its stand-in, class 4 (TEST ASSUMPTION) at best: ${standInLines('S4-NP@A02-D').length} lines for Neutral Player alone, ${standInLines('S4-NP+WZA@A02-D').length} with Wide Zone Advantage (on the diagnostic base, where a game is built).`)
     add(`- Of the ${DISPOSITION.length} selection checks only the numerical size rule is bypassed; every other check runs and enforces wherever its path is reached. On the empty-set runs the role mix, the package checks and the size rule are not run at all: the zero branch commits the empty set first, and its authority is ${plain(disposition('ZERO_BRANCH').authority)}.`)
     for (const id of ['ROLE_MIX', 'FOUNDATION_CLAUSE']) {
         const d = disposition(id)
         add(`- Reported with source and authority, as Christian asked: ${plain(d.check)}: source ${d.where}, ${plain(d.origin)}; authority ${plain(d.authority)}; kept and enforced, not treated as canonical.`)
     }
-    add('Open: the wording decides one two-manipulation selection (item 3); the role mix cannot be attributed without an observer inside the selector, and none was added.')
-    add('Proposals (OURS, for Christian\'s decision): whether the TEST-ONLY switch in the constraint selector may stay (the disclosure above); it is removable.')
+    add('- The role mix refuses no set run here (read from the code, not observed: a set of 1 or 2 is enumerated only whole, and its needs are read over the pool: generateSelection.ts:827, :835-836, :590-612).')
+    add('Open: the wording decides one two-manipulation selection (item 3); the floor of 2 for subsets decides it together with row k (above).')
+    add('Proposals (OURS, for Christian\'s decision): whether the TEST-ONLY switch in the constraint selector may stay (the disclosure above); it is removable. Whether a one-manipulation subset of an authorized set of 2 to 4 may be tried, put together with the commit rule\'s open question (commit the whole authorized set, or choose among it); the selector is not changed before that answer.')
     add('Assumptions (OURS): every manipulation here is a TEST-ONLY stand-in, never knowledge.')
     add('Ecological suitability: not established: selected means only that the kept checks did not refuse it.')
     add('')
@@ -651,19 +714,25 @@ function bodyLines(): string[] {
     for (const r of differs.filter((x) => x.aspect === 'the context' || x.aspect.indexOf('the condition\'s') === 0)) add(`   ${r.aspect}: A02 ${plain(r.a02)} | TA02 ${plain(r.ta02)}`)
     add(`- the two diagnostic builds: ${COMPARISON.sentencesIdentical ? 'identical coach text' : 'different coach text'}, and configuration lines identical but ${COMPARISON.differingLines.length} (${COMPARISON.differingLines.map((l) => l.split(': ')[0]).join(', ')}: the same transition value, from a different source).`)
     add(`Open: TA02's context is pending. ${cite('TA02-27OCT-CONTEXT', 0)} ${cite('TA02-28OCT-DEFERRED', 0)} The TA02 runs measure the reuse on the planning model's routing as it stands; neither is a TA02 configuration.`)
+    add(
+        `Open: the 13 September correction of Attack Development's approved scoring condition (RPC-PROP-134, restoring the words that make its final clause an example) is outside this experiment and not applied: its verification against the original 13 September email is still pending, as Christian asked, ${cite('HO-07NOV-SCORING-ROW', 0)}; nothing here changes the offline record, the canonical workbook or the live application, and the TA02 runs read RPC-PROP-134 as the program holds it, without the restored words.`,
+    )
     add(`Proposals: none; no new structure is proposed (${cite('A02-10NOV-REUSE', 5)}).`)
-    add('Assumptions (OURS): our restatement of RPC-003 (DRAFT, 27 October, unreviewed); the same illustrative session for both goals, so that they differ only in their knowledge.')
+    add('Assumptions (OURS): our restatement of RPC-003 (DRAFT, 27 October, unreviewed; its control item stands against Christian\'s first reply of 7 November, section 4, as said above); the same illustrative session for both goals, so that they differ only in their knowledge.')
     add('Ecological suitability: not established for either goal.')
     add('')
 
     add('7. THE EXISTING APPLICATION AND A01')
     add(`Christian asked: ${cite('A02-10NOV-REPORT', 6)}`)
-    add('Answer (OURS): unchanged in every behaviour this build measures; the full regression is recorded apart.')
+    const a01Main = S.A01_BEFORE === S.A01_MAIN_SHA256
+    add(
+        `Answer (OURS): unchanged where this build compares with main: A01 is built ${a01Main ? 'exactly as main builds it (measured on the commit this branch starts from)' : 'DIFFERENTLY from main'}; with the option absent, every goal builds as the same tree's production entry builds it. The rest of the comparison with main (the behaviour snapshot, the whole suite, the bundle) is the regression record's, run apart on the committed tree.`,
+    )
     add('Implemented and tested:')
-    add(`- A01, built by the production entry before and after every run of the safeguard test and after the TA02 runs: the same build each time (sha-256 ${S.A01_BEFORE === S.A01_AFTER && S.A01_AFTER === A01_END ? S.A01_BEFORE : 'CHANGED'}).`)
+    add(`- A01, built by the production entry before and after every run of the safeguard test and after the TA02 runs: the same build each time (sha-256 ${S.A01_BEFORE === S.A01_AFTER && S.A01_AFTER === A01_END ? S.A01_BEFORE : 'CHANGED'}), ${a01Main ? 'equal to main\'s build measured at 0b60f26, the base this branch starts from (main 9919ea3 merged), with the same request' : 'NOT equal to main\'s build measured at 0b60f26'} (a registered test pins main's value).`)
     add('- The TEST-ONLY option is passed by no route, controller or service (a registered static test reads every non-test source file); with it absent, every one of the 13 Learning Goals builds exactly as the production entry builds it, and A01 with it is identical once its two TEST-ONLY account fields are set aside (registered tests).')
     add('- No production knowledge file holds our restatement of RPC-002 or the DRAFT A02 record, and A02 has no production record (tested).')
-    add('Recorded apart: the regression on the committed tree (the type check, the whole suite, the behaviour snapshot against main\'s baseline, the bundle compared with main) in the evidence folder\'s regression record.')
+    add('Recorded apart, not in this report: the regression on the committed tree (the type check, the whole suite, the behaviour snapshot against main\'s baseline, the bundle compared with main), in the evidence folder\'s regression record (a placeholder until that regression is run on the committed tree).')
     add('Open: three bundled files differ from main by TEST-ONLY additions no route passes (the selector\'s are disclosed first, above); isolation rests on the branch staying unmerged and undeployed.')
     add('Proposals: none.')
     add('Assumptions (OURS): none beyond the TEST-ONLY option itself, which no route passes.')
@@ -673,10 +742,11 @@ function bodyLines(): string[] {
 }
 
 const REUSE_FINDING = [
-    `Measured, the Game Problem, affordance and Game Form reasoning is shared without any new structure: both goals resolve to GP-015 through their own approved translation rows, Step 1 consults the same CAR profile, Step 2 selects GF2 from the same relationship (its GP-015 cell graded CANDIDATE in both), and the same TEST-ONLY consumption carries both results to the chain.`,
+    `Measured, the Game Problem and Game Form reasoning is shared without any new structure: both goals resolve to GP-015 through their own approved translation rows, and Step 2 selects GF2 through GF2's same GP-015 cell (graded CANDIDATE in both), each over its own context's declared-form rows; the same TEST-ONLY consumption carries both results to the chain. On the affordance side only the CAR profile Step 1 consults is shared, and it determines nothing downstream; the engine lenses, scored from each goal's wording, differ, and each context's affordance targets stay deferred.`,
     `What would set the two contexts apart lives in each context's own rows (its identity, its opposition and its scoring condition), which the chain applies after the shared reasoning, through each context's restatement: the existing architecture already has that place.`,
-    `It does not execute yet: as the knowledge stands both goals stop at structure on the same two kinds of line of their own restatements, and with every condition item withheld the two built activities collapse into one plain GF2 activity (identical coach text; identical configuration lines but one transition value's source).`,
-    `So the existing relationships appear capable of the reuse Christian describes; what keeps the two contexts from collapsing is the missing operational interpretation and carrier of each context's condition, not a missing goal-family structure; each context's affordance targets stay deferred.`,
+    `It does not execute yet: as the knowledge stands both goals stop at structure on the same two kinds of line of their own restatements, but not like for like: on TA02's side the control line is our item RPC-003-12.a, which makes the possession condition of a clause Christian wrote as an example a required one, contrary to Christian's first reply of 7 November, section 4: ${cite('HO-07NOV-SCORING-ROW', 4)}.`,
+    `With every condition item withheld the two built activities collapse into one plain GF2 activity (identical coach text; identical configuration lines but one transition value's source).`,
+    `So the existing relationships appear capable of the reuse Christian describes; what keeps the two contexts from collapsing is the missing operational interpretation and carrier of each context's condition, not a missing goal-family structure.`,
 ].join(' ')
 
 function appendixC(): string[] {
@@ -903,11 +973,17 @@ test(`the report: the constraint selector disclosed first, each of its places he
     assert.ok(lines.some((l) => l.includes(cite('A02-10NOV-REPORT', 7))), 'the distinction Christian asked for is quoted')
     const appendices = ['APPENDIX A:', 'APPENDIX B:', 'APPENDIX C:', 'APPENDIX D:'].map(first)
     assert.ok(appendices.every((s, n) => s > starts[6] && (n === 0 || s > appendices[n - 1])), 'the appendices, in order, after the seven items')
-    // Quotation marks: every double-quoted span is, verbatim, words of a ruling the inputs hold.
+    // Quotation marks: every double-quoted span (typographic ones read whole first) is, verbatim, words of a ruling the inputs hold.
     const words = new Set(inputs.rulings.flatMap((r) => r.words))
-    const parts = FIRST.report.split(Q)
-    assert.ok(parts.length > 1 && parts.length % 2 === 1, 'quotation marks pair')
-    for (const s of parts.filter((_, n) => n % 2 === 1)) assert.ok(words.has(s), `a double-quoted span that is not Christian's words: ${s}`)
+    const spans = quotedSpans(FIRST.report)
+    assert.ok(spans.length > 1, 'quotation marks pair')
+    for (const s of spans) assert.ok(words.has(s), `a double-quoted span that is not Christian's words: ${s}`)
+    // The reply about A02 is cited by its paste date, never a received date (its mail header was not kept).
+    assert.equal(FIRST.report.split('received 10 November 2026').length - 1, 0, 'no received date for the reply about A02')
+    // The experiment path's violation verdicts, as item 3 splits them: each listed by exactly one open disconnection (so the split adds up).
+    const experimentViolations = S.EXPERIMENT_RUNS.flatMap((id) => S.at(id).findings).filter((f) => classOf(f) === 'VIOLATION')
+    const listedBy = (f: Finding) => S.OPEN_DISCONNECTIONS.filter((e) => e.scope === 'EXPERIMENT' && unlisted([f], [e], ['EXPERIMENT']).length === 0).length
+    assert.deepEqual([...new Set(experimentViolations.map(listedBy))], [1], 'every experiment violation is listed by exactly one open disconnection')
     // No gendered pronoun in the evidence.
     for (const [file, text] of [['a02-report.txt', FIRST.report], ['a02-results.json', FIRST.json]]) {
         const hit = text.split('\n').findIndex((l) => holdsGenderedPronoun(l))
@@ -940,6 +1016,10 @@ test('the evidence equals what this file generates, generated twice and identica
     for (const d of DISPOSITION) assert.ok(readme.includes(`| ${d.id} | ${d.disposition} |`), `the README's disposition table holds ${d.id}`)
     for (const e of S.OPEN_DISCONNECTIONS) assert.ok(readme.includes(`| ${e.id} |`), `the README lists ${e.id}`)
     for (const h of SELECTOR_HUNKS) assert.ok(readme.includes(`${SELECTOR_FILE}:${h.lines}`), `the README discloses ${SELECTOR_FILE}:${h.lines}`)
+    // The README's counts are held to the runs (batch A2): the safeguard runs, the restatement's items, and the date of the reply about A02.
+    for (const phrase of [`over ${S.runs.size} runs`, `The ${S.runs.size} runs,`, `the ${S.runs.size} safeguard runs`, `${a02Items.length} items, each quoting its approved row verbatim`, `'reply about A02, pasted 10 November 2026'`])
+        assert.ok(readme.includes(phrase), `the README says ${phrase}`)
+    assert.equal(readme.split('received 10 November').length - 1, 0, 'the README gives the reply about A02 no received date')
     assert.ok(holdsGenderedPronoun(`as quoted in ${[...'sih'].reverse().join('')} reply`) && !holdsGenderedPronoun('whether the heron'), 'bite: the scan sees one, and not inside a word')
 })
 

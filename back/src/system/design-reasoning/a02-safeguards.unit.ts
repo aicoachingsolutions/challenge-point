@@ -1,6 +1,6 @@
 /**
  * **The isolated A02 foundational test, slices S3, S4 and S6: the reasoning-disconnection safeguards, the quota runs and the earliest
- * consequential blocker** (stage 9; DESIGN-9 sections 3, 4 and 6; Christian's authorization received 10 November 2026, sections 3, 5 and 9).
+ * consequential blocker** (stage 9; DESIGN-9 sections 3, 4 and 6; Christian's authorization, the reply about A02 pasted 10 November 2026, sections 3, 5 and 9).
  * TEST-ONLY review evidence: nothing here is served, written to production knowledge, or an authorization.
  *
  * Every run goes through the handoff (`runHandoff`) and the real chain wiring (`handoff-chain.unit.ts`); the safeguard check is the pure
@@ -13,7 +13,8 @@
  *     dependency arms (Step 1's primary swapped to GP-002 in a TEST copy of the design knowledge; GF2's GP-015 cell moved to GF7 there; RPC-002's
  *     restatement mutated through a TEST-ONLY copy of its draft-store folder); the run consumed without the restatement; the same runs under
  *     reworded goal wording (test 5);
- *   - the controls: the lone manipulation without the bypass (the size rule refuses it), and a TEST-ONLY selectFor wrapper that drops the
+ *   - the controls: the lone manipulation without the bypass (the size rule refuses it), a set of two without the bypass (inside 2 to 4, so
+ *     the switch changes nothing for it: measured, R4-02), the CAR converse of test 6, and a TEST-ONLY selectFor wrapper that drops the
  *     upstream decisions (test 2);
  *   - the legacy route (nothing consumed), reported only: A02 with the production records (the known failure), A02 on the chain's own route
  *     with the TEST-ONLY empty record, A02 placed, the dependency arms' legacy bites, and the census of the 13 goals through the handoff's own
@@ -51,6 +52,7 @@ import { runStage1 } from './stage1'
 import {
     blockerSequence,
     classOf,
+    countsByGroup,
     DECISION_ROWS,
     detectedByVerdict,
     DISPOSITION,
@@ -90,7 +92,7 @@ function test(name: string, run: () => void): void {
         process.exitCode = 1
     }
 }
-if (MAIN) quiet(`the isolated A02 foundational test, slices S3, S4 and S6 (Christian's authorization received 10 November 2026)`)
+if (MAIN) quiet(`the isolated A02 foundational test, slices S3, S4 and S6 (Christian's authorization: the reply about A02, pasted 10 November 2026)`)
 
 const HERE = __dirname
 const WT = path.resolve(HERE, '..', '..', '..', '..')
@@ -302,6 +304,11 @@ function subsets<T>(items: T[], size: number): T[][] {
     return out
 }
 export const attributions = new Map<string, { pool: string[]; perCombo: string[] }>()
+/**
+ * The role mix on these runs, read from the code (R3-09): a set of 1 or 2 is enumerated only whole (generateSelection.ts:835-836 skips every
+ * size larger than the pool), its role needs are read over the pool (:827), and the whole pool holds every role it needs (:590-612).
+ */
+const ROLE_MIX_PASSES = 'the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612)'
 function attributeWith(pool: () => string[], set: string[], bypass: boolean) {
     return (r: HandoffResult): EngineRuleAttribution | null => {
         if (!r.chain || r.chain.stage !== 'selection') return null
@@ -310,9 +317,9 @@ function attributeWith(pool: () => string[], set: string[], bypass: boolean) {
         const combos = [...subsets(lenses, 2), ...subsets(lenses, 3)]
         const results = combos.map((lc) => isSelectionPackageCompatible({ archetype: archetypeOf(String(r.form.formId)), affordanceLenses: lc.map(lensOf), constraints: set.map(constraintOf), requireShaping: false }))
         attributions.set(r.caseId, { pool: lenses, perCombo: results.map((x, n) => `${combos[n].map((l) => l.replace('tl-v0-lens-', '')).join('+')}: ${x.compatible ? 'compatible' : x.reasons.join(' | ')}`) })
-        if (results.some((x) => x.compatible)) return { rule: null, how: `the package check admits ${results.filter((x) => x.compatible).length} of ${combos.length} lens combinations, so it is not what refused (the role mix is not attributable without an observer)` }
+        if (results.some((x) => x.compatible)) return { rule: null, how: `the package check admits ${results.filter((x) => x.compatible).length} of ${combos.length} lens combinations, so it is not what refused (${ROLE_MIX_PASSES})` }
         const rule = ruleOfReasons(results.flatMap((x) => x.reasons))
-        return { rule: rule ? rule.id : null, how: `the exported package check re-run on ${r.form.formId} and each of the ${combos.length} lens combinations of the run's lens pool with the set: every one refused with ${rule ? `the ${rule.id} reason` : 'reasons no single check owns'} (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)` }
+        return { rule: rule ? rule.id : null, how: `the exported package check re-run on ${r.form.formId} and each of the ${combos.length} lens combinations of the run's lens pool with the set: every one first refused with ${rule ? `the ${rule.id} reason` : 'reasons no single check owns'} (the check returns the first reason it meets, selection-compatibility.ts:89-106; ${ROLE_MIX_PASSES}; the gap's unfilled roles are the pool's, never the cause)` }
     }
 }
 const lensPoolOf = (id: string) => () => {
@@ -345,6 +352,8 @@ function buildAll(): void {
     // The quota runs (S4), on A02-0 and on A02-D; the lone manipulation also without the bypass (a control).
     for (const [name, set] of QUOTA_SETS) runCase(quotaCase(name, true), 'EXPERIMENT', `quota run ${name}`, { authorizedSet: set, attribute: attributeWith(lensPoolOf('A02-0'), set, true) })
     runCase(quotaCase('NP', false), 'CONTROL', 'quota control: the lone manipulation without the bypass', { authorizedSet: setOf('NP'), attribute: attributeWith(lensPoolOf('A02-0'), setOf('NP'), false) })
+    // R4-02 (review, batch A2): a set of two lies inside the 2-to-4 quota, so the switch should change nothing for it; measured, not assumed.
+    runCase(quotaCase('NP+WZA', false), 'CONTROL', 'quota control: two manipulations without the bypass (a set inside 2 to 4)', { authorizedSet: setOf('NP+WZA'), attribute: attributeWith(lensPoolOf('A02-0'), setOf('NP+WZA'), false) })
     for (const name of ['NP', 'NP+WZA']) runCase(quotaCase(name, true, 'A02-D'), 'EXPERIMENT', `quota run ${name} on A02-D`, { authorizedSet: setOf(name) })
     // Dependency arms (tests 3 and 4) and the stop sequence's middle path (S6).
     const swapped = (gp: string): DesignKnowledge => {
@@ -462,6 +471,13 @@ const none = Object.fromEntries(specializedRoleNames().map((role) => [role, 0]))
 const A01_REQUEST: any = { kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [specializedRoleNames()[0]]: 1 }, objects: { goal: { count: 0 } } } }
 const a01Build = () => buildActivity(A01_REQUEST)
 export const a01Hash = () => crypto.createHash('sha256').update(json(a01Build())).digest('hex')
+/**
+ * A01's build as main builds it, measured at 0b60f26, the commit this branch starts from (main 9919ea3 merged into the isolated handoff branch,
+ * whose own regression found its behaviour equal to main's; its behaviour snapshot is this branch's baseline): that commit's back/ and docs/
+ * trees extracted by git archive into scratch, the worktree's node_modules linked in, and the same request (A01_REQUEST) built by the
+ * production entry and hashed the same way (batch A2 of the review, 10 November 2026). The build of this tree must equal it (S4).
+ */
+export const A01_MAIN_SHA256 = 'e526ec8000a968e5d17302c7a15096cec66746ef6ea339a9cfda3f923ecd8a97'
 export const A01_BEFORE = a01Hash()
 buildAll()
 export const A01_AFTER = a01Hash()
@@ -553,7 +569,7 @@ export const OPEN_DISCONNECTIONS: OpenDisconnection[] = [
         verdicts: ['ENGINE_RULE_DECIDED'],
         runs: [...QUOTA_REFUSED, ...WORDED(QUOTA_REFUSED)],
         pairs: [...QUOTA_REFUSED, ...WORDED(QUOTA_REFUSED)].map((run) => ({ run, verdict: 'ENGINE_RULE_DECIDED' as const, rule: QUOTA_RULES[baseOf(run)] })),
-        evidence: 'attributed by re-running the exported isSelectionPackageCompatible on GF2 and each of the 4 lens combinations: a lone Wide Zone Advantage or Turnover Reward is refused by the foundation clause on every combination, Central Density Condition alone and with Interception Reward by row o; the role mix is not attributable without an observer',
+        evidence: `attributed by re-running the exported isSelectionPackageCompatible on GF2 and each of the 4 lens combinations: a lone Wide Zone Advantage or Turnover Reward is first refused by the foundation clause on every combination, Central Density Condition alone and with Interception Reward first by row o (the check returns the first reason it meets; the foundation clause runs before every package row); ${ROLE_MIX_PASSES}`,
     },
     {
         id: 'OD-WORDING-FLIP',
@@ -566,7 +582,7 @@ export const OPEN_DISCONNECTIONS: OpenDisconnection[] = [
         evidence: 'the reworded lenses are Line-Breaking, Possession Stability and Space Creation; row k (Turnover Reward does not support the selected affordance tag group) refuses all 4 lens combinations there, 1 of 4 on the goal\'s own lenses',
         measured: {
             before: 'the goal\'s wording: selected on GF2 with Neutral Player and Turnover Reward, then refused at knowledge (the authorized constraint Turnover Reward has no contribution contract)',
-            after: 'the reversed and the neutral wording: refused at selection, NO_COMPATIBLE_COMBINATION on GF2 (row k on every lens combination); lenses none',
+            after: 'the reversed and the neutral wording: refused at selection, NO_COMPATIBLE_COMBINATION on GF2 (row k on every lens combination); lenses none; a lone Neutral Player, which the package check admits on every lens combination of the reworded pool and which commits as S4-NP~reversed and S4-NP~neutral, is never tried: under the bypass the sizes enumerated for a set of 2 are 2 to 4, so the refusal rests on row k together with that floor for subsets',
         },
     },
     {
@@ -665,8 +681,14 @@ const STAND_IN_COUNTS: Array<[string, number]> = [
     ['S4-NP+WZA@A02-D', 25],
 ]
 /** The report's counts over all runs: violation verdicts and detected disconnections (measured), and the detected ones by verdict. */
-const REPORT_COUNTS: number[] = [168, 115]
-const DETECTED_BY_VERDICT = 'CARRIED_NOT_READ 42, ENGINE_RULE_DECIDED 14, CARRIED_UNDER_TREATMENT 5, WITHHELD_BY_TREATMENT 29, REFUSED_ON_CLAUSE_LINE 25'
+const REPORT_COUNTS: number[] = [171, 118]
+const DETECTED_BY_VERDICT = 'CARRIED_NOT_READ 43, ENGINE_RULE_DECIDED 14, CARRIED_UNDER_TREATMENT 5, WITHHELD_BY_TREATMENT 29, REFUSED_ON_CLAUSE_LINE 27'
+/** The same counts per group, in the order the runs are built: the experiment path, the controls, the legacy route (runs, violations, detected). */
+const COUNTS_BY_GROUP: number[][] = [
+    [41, 105, 108],
+    [4, 15, 10],
+    [21, 51, 0],
+]
 const Q = String.fromCharCode(34)
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -895,6 +917,18 @@ test('5. wording only: the goal\'s wording rewritten (reversed, neutral) in the 
         const f = at(`S4-NP+TR~${w}`)
         assert.deepEqual([f.result.chain?.stage, verdictOf(`S4-NP+TR~${w}`, 'SELECTION_OUTCOME'), f.run.engineRule?.rule], ['selection', 'ENGINE_RULE_DECIDED', 'PACKAGE_ROW_K'])
     }
+    // R1-05 (review, batch A2): the after arm rests on row k together with the floor of 2 for subsets. Under the bypass the sizes enumerated for
+    // a set of 2 are 2 to 4 (the set's own size is added only outside 2 to 4), so a lone Neutral Player is never tried there, although the
+    // package check admits it on every lens combination of the reworded pool and the lone run commits.
+    const sizesLine = fs.readFileSync(path.resolve(HERE, '..', 'test-library', 'generateSelection.ts'), 'utf8').split('\n')[1037 - 1]
+    assert.ok(sizesLine.includes('![2, 3, 4].includes(quotaBypassOwnSize) ? [quotaBypassOwnSize, 2, 3, 4] : [2, 3, 4]'), 'generateSelection.ts:1037: the sizes enumerated')
+    for (const w of ['reversed', 'neutral']) {
+        const pool = lensPoolOf(`A02-0~${w}`)()
+        const lone = [...subsets(pool, 2), ...subsets(pool, 3)].map((lc) => isSelectionPackageCompatible({ archetype: archetypeOf('GF2'), affordanceLenses: lc.map(lensOf), constraints: setOf('NP').map(constraintOf), requireShaping: false }).compatible)
+        assert.deepEqual(lone, [true, true, true, true], `${w}: the package check admits a lone Neutral Player on every lens combination`)
+        assert.deepEqual([at(`S4-NP~${w}`).result.chain?.stage, at(`S4-NP~${w}`).run.chain?.constraints], ['structure', setOf('NP')], `${w}: the lone run commits`)
+        assert.deepEqual(at(`S4-NP+TR~${w}`).run.chain?.constraints, [], `${w}: the pair commits nothing`)
+    }
 })
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -1022,12 +1056,12 @@ test('7. the pure check returns each verdict on a minimal doctored fixture', () 
 // S4: the quota runs
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-const QUOTA_RUNS = [...QUOTA_SETS.map(([name]) => `S4-${name}`), 'S4-NP/no-bypass', 'S4-NP@A02-D', 'S4-NP+WZA@A02-D']
+const QUOTA_RUNS = [...QUOTA_SETS.map(([name]) => `S4-${name}`), 'S4-NP/no-bypass', 'S4-NP+WZA/no-bypass', 'S4-NP@A02-D', 'S4-NP+WZA@A02-D']
 const setOfRun = (id: string): string[] => setOf(id.slice(3).split('/')[0].split('@')[0].split('~')[0])
 
 test('S4. one and two manipulations only through the DRAFT record\'s authorized set (the record route, never placed), with the TEST-ONLY size-rule bypass: the pool is the authorized set; the triples (a lone Neutral Player selected with the bypass and refused without it; each refusal attributed by re-running the exported package check; the run\'s own refusal); the lines a manipulation brings rest on its stand-in (class 4 at best); A01 unchanged', () => {
     // The quota cases are held to the handoff's own validator.
-    const quotaCases = [...QUOTA_SETS.map(([name]) => quotaCase(name, true)), quotaCase('NP', false), quotaCase('NP', true, 'A02-D'), quotaCase('NP+WZA', true, 'A02-D')]
+    const quotaCases = [...QUOTA_SETS.map(([name]) => quotaCase(name, true)), quotaCase('NP', false), quotaCase('NP+WZA', false), quotaCase('NP', true, 'A02-D'), quotaCase('NP+WZA', true, 'A02-D')]
     assert.deepEqual(quotaCases.map((c) => c.id), QUOTA_RUNS)
     assert.doesNotThrow(() => validateHandoffInputs(composed([...raw.cases, ...quotaCases])))
     for (const id of QUOTA_RUNS) {
@@ -1067,6 +1101,12 @@ test('S4. one and two manipulations only through the DRAFT record\'s authorized 
     }
     // Two: the whole authorized set is committed where selection passes.
     assert.deepEqual([at('S4-NP+WZA').result.chain?.stage, at('S4-NP+WZA').run.chain?.constraints], ['structure', setOf('NP+WZA')])
+    // R4-02 (review, batch A2): a set of two lies inside 2 to 4, so the switch changes nothing for it: without the bypass the same set selects
+    // the same form, lenses and constraints and stops at the same stage, for the same reasons; only the lone set depends on the switch.
+    const same = (id: string) => json([at(id).result.chain?.outcome, at(id).result.chain?.stage, at(id).result.chain?.reasons, at(id).run.chain?.form, at(id).run.chain?.lenses, at(id).run.chain?.constraints])
+    assert.equal(same('S4-NP+WZA/no-bypass'), same('S4-NP+WZA'), 'two manipulations select the same with or without the switch')
+    assert.deepEqual([at('S4-NP+WZA/no-bypass').result.consumption?.sizeRuleBypassed, dispositionOf(at('S4-NP+WZA/no-bypass').run).find((d) => d.id === 'SIZE_RULE')?.ran], [false, 'ran'])
+    assert.notEqual(same('S4-NP/no-bypass'), same('S4-NP'), 'bite: the lone manipulation does not select the same without the switch')
     assert.deepEqual([at('S4-NP+TR').result.chain?.stage, at('S4-NP+TR').result.chain?.reasons], ['knowledge', ['the authorized constraint tl-v0-constraint-turnover-reward has no contribution contract, so it cannot shape the game, and it is not dropped silently']])
     // The lines a manipulation brings rest on its relationship stand-in: TEST ASSUMPTION, class 4, the line's ceiling (on the A02-D base, served).
     for (const id of ['S4-NP@A02-D', 'S4-NP+WZA@A02-D']) {
@@ -1084,8 +1124,9 @@ test('S4. one and two manipulations only through the DRAFT record\'s authorized 
     assert.deepEqual(STAND_IN_COUNTS, ['S4-NP@A02-D', 'S4-NP+WZA@A02-D'].map((id) => [id, at(id).result.lines.filter((l) => l.premises.some((p) => p.kind === 'STAND_IN')).length]))
     assert.ok(at('S4-NP').result.manipulations[0].outcome.endsWith('the chain built it from restated:NEUTRAL-PLAYER-CONDITION'))
     assert.ok(at('S4-WZA').result.manipulations[0].outcome.endsWith('the chain did not build it'))
-    // A01 unchanged by every run of this file (the production entry, before and after).
+    // A01 unchanged by every run of this file (the production entry, before and after), and equal to main's build measured at 0b60f26.
     assert.equal(A01_BEFORE, A01_AFTER)
+    assert.equal(A01_BEFORE, A01_MAIN_SHA256, 'A01 is built as main builds it (measured at 0b60f26)')
     assert.equal(a01Build().outcome, 'served')
     // Zero: the base cases commit the empty authorized set through the zero branch: representable, not shown to be justified.
     for (const id of ['A02-0', 'A02-1', 'A02-1b', 'A02-2', 'A02-D']) assert.deepEqual([verdictOf(id, 'CONSTRAINTS'), at(id).run.chain?.constraints], ['CONSUMED', []], id)
@@ -1143,7 +1184,7 @@ test('the disposition table: every selection check kept and enforced except the 
         for (const check of ['ROLE_MIX', 'FOUNDATION_CLAUSE', 'PACKAGE_ROW_O', 'PACKAGE_ROW_K', 'PACKAGE_OTHER', 'SIZE_RULE', 'BOUNDED_SEARCH']) assert.equal(r[check], zero, `${id} ${check}`)
         assert.deepEqual([r.ZERO_BRANCH, r.LENS_RULE, r.TOKEN_CHECK], ['ran', 'ran', 'ran'], id)
     }
-    for (const id of ['S4-NP', 'S4-WZA', 'S4-NP+WZA']) assert.deepEqual([ran(id).SIZE_RULE, ran(id).ROLE_MIX, ran(id).FOUNDATION_CLAUSE], ['bypassed (TEST-ONLY): the set\'s own size tried, and the contract admits 1 to its size', 'ran', 'ran'], id)
+    for (const id of ['S4-NP', 'S4-WZA', 'S4-NP+WZA']) assert.deepEqual([ran(id).SIZE_RULE, ran(id).ROLE_MIX, ran(id).FOUNDATION_CLAUSE], ['bypassed (TEST-ONLY): the set\'s own size tried, and the contract admits 1 to its size (a one-manipulation subset of a set of 2 to 4 is not tried)', 'ran', 'ran'], id)
     assert.deepEqual([ran('S4-NP/no-bypass').SIZE_RULE, ran('S4-WZA').LENS_RULE], ['ran', 'not reached (no selection was committed)'])
     // The lone manipulation without the bypass: no combination is enumerated, so the role mix and the package checks never run.
     const noBypass = ran('S4-NP/no-bypass')
@@ -1159,7 +1200,12 @@ test('the disposition table: every selection check kept and enforced except the 
 
 const firstNext = (raw.experiment.questions as Array<{ order: number; question: string; next: boolean }>).find((q) => q.next)!
 export function stopsOf(): Stop[] {
-    const reason = (id: string, n = 0) => String(at(id).result.chain?.reasons[n] ?? at(id).result.form.stop)
+    // A reason that already begins with its stage's name is printed without it (the renderers print the stage before the reason: R4-10).
+    const reason = (id: string, n = 0) => {
+        const text = String(at(id).result.chain?.reasons[n] ?? at(id).result.form.stop)
+        const stage = `${String(at(id).result.chain?.stage)}: `
+        return text.indexOf(stage) === 0 ? text.slice(stage.length) : text
+    }
     // Each path's text names what it holds; a later path passes an earlier stop by what it adds (L1 to L2 our TEST-ONLY draft
     // store; L2 to NO-RESTATEMENT the consumption, NO-RESTATEMENT setting our restatement aside so its own stop shows what the restatement
     // closes; NO-RESTATEMENT to A02-0 the restatement). L2 and NO-RESTATEMENT stop in one stage, at two checks held to the source in S6.
@@ -1184,7 +1230,7 @@ export function stopsOf(): Stop[] {
             why: 'the chain selects its own GF3 from the wording against Step 2\'s SELECTED form (GAME_FORM CONTRADICTED); the consumption (S1) closes it',
         },
         { id: 'NO-RESTATEMENT', path: 'consumed, with our DRAFT record and without the restatement', stage: String(at('NO-RESTATEMENT').result.chain?.stage), reason: reason('NO-RESTATEMENT'), kind: 'PATH', within: 1684, categories: [3, 5], why: 'the context\'s approved rows have no executable form in the engine: no contribution contract joins them to the configuration' },
-        { id: 'A02-0', path: 'consumed, with our CANDIDATE restatement (the knowledge as it stands)', stage: String(at('A02-0').result.chain?.stage), reason: reason('A02-0', 2), kind: 'PATH', categories: [1, 5], why: `the origin clause first: no operational interpretation of the clause is held (question ${firstNext.order} of the smallest source material, the next consequential gap), and no carrier exists for it (the only typed begin condition is a restart, the only episode scope the build-out one)` },
+        { id: 'A02-0', path: 'consumed, with our CANDIDATE restatement (the knowledge as it stands)', stage: String(at('A02-0').result.chain?.stage), reason: reason('A02-0', 2), kind: 'PATH', categories: [1, 5], why: `of the two lines this stop cites together, the origin clause, placed first by us (OURS: the condition is what distinguishes High Press Escape from the contexts sharing its events): no operational interpretation of the clause is held (question ${firstNext.order} of the smallest source material, the next consequential gap), and no carrier exists for it (the only typed begin condition is a restart, the only episode scope the build-out one)` },
         { id: 'A02-1', path: 'A02-1 (origin and progression withheld, TEST-ONLY)', stage: String(at('A02-1').result.chain?.stage), reason: reason('A02-1', 2), kind: 'DOWNSTREAM', categories: [1], why: 'the control referent is not stated' },
         { id: 'A02-1b', path: 'A02-1b (+ the control referent declared NO_FURTHER_VALUE, TEST-ONLY)', stage: String(at('A02-1b').result.chain?.stage), reason: reason('A02-1b', 1), kind: 'DOWNSTREAM', categories: [2, 1], why: 'the refusal rests on our DRAFT classification of the laws; no ruling settles the Laws for A02' },
         { id: 'A02-2', path: 'A02-2 (+ the LAW-11 stand-in, TEST-ONLY)', stage: String(at('A02-2').result.chain?.stage), reason: reason('A02-2'), kind: 'DOWNSTREAM', categories: [1, 5], why: 'no approved coach wording for the condition, and the checked renderer has no sentence for it' },
@@ -1237,8 +1283,15 @@ export function reportLines(): string[] {
         'QUOTA (S4): no manipulation is justified for A02 in anything we hold; every manipulation here rests on a TEST-ONLY relationship stand-in (TEST ASSUMPTION), never knowledge, and every line it brings is graded class 4 at best.',
         `WORDING (test 5): the lens list moves from ${LENSES_BEFORE} to ${LENSES_AFTER} under both rewordings; the owned decisions do not move; the selection of Neutral Player with Turnover Reward flips (OD-WORDING-FLIP).`,
     ]
-    return safeguardsText({ runs: [...runs.values()].map((r) => ({ run: r.run, findings: r.findings, label: `${r.kind}: ${r.label}` })), entries: OPEN_DISCONNECTIONS, categories: CATEGORIES, stops: stopsOf(), notes })
+    return safeguardsText({ runs: groupedRuns(), entries: OPEN_DISCONNECTIONS, categories: CATEGORIES, stops: stopsOf(), notes })
 }
+/** The groups the report counts apart (R3-06, R4-09): the experiment path, the controls, the legacy route. */
+export const GROUP_OF: Record<Kind, string> = {
+    EXPERIMENT: 'the experiment path (each run held to the assertion every experiment run must pass, test 1)',
+    CONTROL: 'the controls (runs built beside the experiment to show whether a check bites; not held to that assertion)',
+    LEGACY: 'the legacy route (reported only)',
+}
+export const groupedRuns = () => [...runs.values()].map((r) => ({ run: r.run, findings: r.findings, label: `${r.kind}: ${r.label}`, group: GROUP_OF[r.kind] }))
 
 test('the report: the ownership table, every run decision by decision with its checks, the disposition table, the open disconnections (counted, never a pass), safeguard B\'s failures, the blocker sequence; no double quotation mark, no gendered pronoun; the check is deterministic over a second build of the five cases', () => {
     const lines = reportLines()
@@ -1250,6 +1303,11 @@ test('the report: the ownership table, every run decision by decision with its c
     has(`open disconnections detected: ${violations} violation verdicts and ${detected} detected disconnections over ${runs.size} runs (none of them a pass; the detected, by verdict: ${detectedByVerdict(all)})`)
     assert.deepEqual([violations, detected], REPORT_COUNTS)
     assert.equal(detectedByVerdict(all), DETECTED_BY_VERDICT)
+    // The total is never read alone (R3-06, R4-09): per group, the runs, the violation verdicts and the detected disconnections (measured).
+    const byGroup = countsByGroup(groupedRuns())
+    assert.deepEqual(byGroup.map((g) => [g.runs, g.violations, g.detected]), COUNTS_BY_GROUP)
+    assert.deepEqual([byGroup.reduce((n, g) => n + g.violations, 0), byGroup.reduce((n, g) => n + g.detected, 0)], REPORT_COUNTS, 'the groups add up to the total')
+    has(`by group (a total never read alone): ${byGroup.map((g) => `${g.group}: ${g.violations} violation verdicts and ${g.detected} detected disconnections over ${g.runs} runs`).join('; ')}`)
     has('safeguard B fails on: OD-WORDING-FLIP, OD-WORDING-LENSES')
     has(`OPEN DISCONNECTIONS (${OPEN_DISCONNECTIONS.length}; printed as open disconnections, never as safeguards passing)`)
     assert.equal(lines.filter((l) => l.startsWith('- ') && OWNERSHIP_TABLE.some((o) => l.startsWith(`- ${o.decision}: owner `))).length, OWNERSHIP_TABLE.length)

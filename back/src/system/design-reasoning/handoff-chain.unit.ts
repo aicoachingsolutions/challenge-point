@@ -1,7 +1,7 @@
 /**
  * **The handoff's chain wiring, shared by the unit tests that run the review pathway's handoff through the real checked chain** (TEST-ONLY).
  *
- * Moved here from `handoff.unit.ts` in stage 9 (the isolated A02 foundational test, Christian's authorization received 10 November 2026),
+ * Moved here from `handoff.unit.ts` in stage 9 (the isolated A02 foundational test, Christian's authorization pasted 10 November 2026),
  * its code unchanged apart from the exports, the scope rule's literal written in backticks (the same text), the vehicle's stand-in
  * classification built by `classificationWith` (the same object) and the stage-9 additions listed below, so that `handoff.unit.ts` and
  * `a02.unit.ts` run the SAME wiring rather than two copies that could drift (the handoff's evidence is unchanged: its test compares it whole): `HandoffChain` over

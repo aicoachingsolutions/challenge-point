@@ -1,6 +1,6 @@
 {
-  "standing": "DRAFT - TEST-ONLY, NOT APPROVED. A CANDIDATE restatement (ours, unreviewed) of the APPROVED rows of RPC-002 High Press Escape that state its primary scoring events (RPC-REL-075..078) and its primary scoring condition (RPC-PROP-133), with two of its REQUIRED identity rows recorded outside the boundary (RPC-ID-006, RPC-ID-008), written for the isolated A02 experiment Christian authorized on 10 November 2026. Every item quotes the approved row it restates verbatim; the restatement into items, every ASSUMED value and the WHOLE_GAME scope are ours. Nothing here is in the engine's knowledge: only the TEST-ONLY draft store (back/src/system/derivation/draft-store.ts) reads it, in unit tests; it is not in contracts.json or corpus-restatements.json, and no route reads it. The build labels what it reads from here DRAFT, DRAFT_KNOWLEDGE and BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED: read each of those labels as CANDIDATE restatement of an APPROVED row.",
-  "about": "The smallest restatement the item grammar expresses (stage 9 understanding, V2): the events, the count (ASSUMED), the three clauses of the approved condition as conditions of type origin, progression and control with their verbatim values, and the expressible identity rows recorded only. What the grammar cannot carry stays UNRESOLVED and is declared so: the origin clause has no carrier (V6 origin NOT_AUTHORED; V5 origin open text), the pressing line is open text, the control referent is UNDECLARED. The draft store refuses a drafted context whose primary scoring condition no constituting item cites, so the three condition items are the smallest admissible.",
+  "standing": "DRAFT - TEST-ONLY, NOT APPROVED. A CANDIDATE restatement (ours, unreviewed) of the APPROVED rows of RPC-002 High Press Escape that state its primary scoring events (RPC-REL-075..078) and its primary scoring condition (RPC-PROP-133), with two of its REQUIRED identity rows recorded outside the boundary (RPC-ID-006, RPC-ID-008), written for the isolated A02 experiment Christian authorized in the reply about A02, pasted 10 November 2026. Every item quotes the approved row it restates verbatim; the restatement into items and the WHOLE_GAME scope are ours. The count of primary events (V0, ASSUMED from SD-06) was dropped in review: measured, no run differs without it but for the item's own presence (stage 9, batch A2). Nothing here is in the engine's knowledge: only the TEST-ONLY draft store (back/src/system/derivation/draft-store.ts) reads it, in unit tests; it is not in contracts.json or corpus-restatements.json, and no route reads it. The build labels what it reads from here DRAFT, DRAFT_KNOWLEDGE and BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED: read each of those labels as CANDIDATE restatement of an APPROVED row.",
+  "about": "The smallest restatement the item grammar expresses (stage 9 understanding, V2): the events, the three clauses of the approved condition as conditions of type origin, progression and control with their verbatim values, and the expressible identity rows recorded only. What the grammar cannot carry stays UNRESOLVED and is declared so: the origin clause has no carrier (V6 origin NOT_AUTHORED; V5 origin open text), the pressing line is open text, the control referent is UNDECLARED. The draft store refuses a drafted context whose primary scoring condition no constituting item cites, so the three condition items are the smallest admissible.",
   "contractEntry": {
     "kind": "restated",
     "name": "RPC-002 High Press Escape",
@@ -60,24 +60,6 @@
               "text": "SCORING_EVENT target_player (COMPATIBLE, strength PRIMARY); notes: \"Valid primary scoring event 4 of 4, in the approved order.\"; provenance: \"Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)\""
             }
           ]
-        },
-        {
-          "origId": "RPC-002-01",
-          "strictness": "REQUIRED",
-          "scope": "WHOLE_GAME",
-          "structuralClause": "—",
-          "standing": "DRAFT",
-          "id": "RPC-002-01.b",
-          "row": "V0",
-          "selector": "*",
-          "requirement": "COUNT",
-          "value": "1",
-          "valueStatus": "REQUIRED_RANGE",
-          "basis": "ASSUMED",
-          "basisEvidence": "'Exactly one' comes from SD-06 (register citableStandingDecisions). RPC-002 authors a valid set of four events, not a count.",
-          "checkability": "STRUCTURAL",
-          "fitNote": "ASSUMED, OURS: the count is not authored for RPC-002; the analog of RPC-001-08.b.",
-          "source": []
         },
         {
           "origId": "RPC-002-02",
@@ -471,13 +453,6 @@
           "selector": "*",
           "scope": "WHOLE_GAME",
           "note": "RPC-002-05, RPC-002-06 (both outside the boundary: they establish nothing)."
-        },
-        {
-          "row": "V0",
-          "declaration": "CLAIMED",
-          "selector": "*",
-          "scope": "WHOLE_GAME",
-          "note": "RPC-002-01.b (ASSUMED; SD-06)."
         },
         {
           "row": "V1",

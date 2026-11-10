@@ -1,8 +1,8 @@
 {
-  "standing": "TEST-ONLY review data for the isolated A02 foundational test Christian authorized in the reply received 10 November 2026 (stage 9; its slice S2). Per case it holds what the handoff RECEIVES beside Steps 1 and 2, in the shape of the handoff's own review data (handoff-inputs.review.json), held to the same validator: the Learning Goal, that the form is Step 2's, the session (illustrative), Christian's words that bear on the case (verbatim, with file and received date) and how each enters the checked chain, and the TEST-ONLY treatments, each labelled. Steps 1 and 2 are run by the handoff and consumed by the chain, never copied from here. The context's CANDIDATE restatement and the DRAFT A02 record live only in the TEST-ONLY draft store docs/audits/drafts/a02-composition. Nothing on the live route or the checked pathway reads this file; only the A02 unit tests do (a02.unit.ts, a02-safeguards.unit.ts and a02-evidence.unit.ts, which also builds the two TA02 runs of the reuse comparison from these cases and rulings).",
+  "standing": "TEST-ONLY review data for the isolated A02 foundational test Christian authorized in the reply about A02, pasted 10 November 2026 without its mail header, so its received date is not recorded (stage 9; its slice S2). Per case it holds what the handoff RECEIVES beside Steps 1 and 2, in the shape of the handoff's own review data (handoff-inputs.review.json), held to the same validator: the Learning Goal, that the form is Step 2's, the session (illustrative), Christian's words that bear on the case (verbatim, with file and date: the received date, or, for the reply about A02, marked PASTED_WITHOUT_HEADER, the date it was pasted and filed) and how each enters the checked chain, and the TEST-ONLY treatments, each labelled. Steps 1 and 2 are run by the handoff and consumed by the chain, never copied from here. The context's CANDIDATE restatement and the DRAFT A02 record live only in the TEST-ONLY draft store docs/audits/drafts/a02-composition. Nothing on the live route or the checked pathway reads this file; only the A02 unit tests do (a02.unit.ts, a02-safeguards.unit.ts and a02-evidence.unit.ts, which also builds the two TA02 runs of the reuse comparison from these cases and rulings).",
   "borrowed": {
     "file": "handoff-inputs.review.json",
-    "rulings": ["HO-07NOV-ILLUSTRATIVE", "HO-07NOV-PURPOSE", "HO-23OCT-LAWS", "HO-07NOV-OFFSIDE-SCOPE"],
+    "rulings": ["HO-07NOV-ILLUSTRATIVE", "HO-07NOV-PURPOSE", "HO-23OCT-LAWS", "HO-07NOV-OFFSIDE-SCOPE", "HO-07NOV-SCORING-ROW"],
     "grading": "the handoff's grading tables, unchanged (held to their sources by handoff.unit.ts test P7), so a line of these runs is graded exactly as a line of the handoff's cases"
   },
   "rulings": [
@@ -17,6 +17,8 @@
       ],
       "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
       "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
       "provisional": false,
       "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -28,6 +30,8 @@
       ],
       "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
       "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
       "provisional": false,
       "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -44,6 +48,8 @@
       ],
       "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
       "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
       "provisional": false,
       "scope": null
     },
@@ -56,6 +62,8 @@
       ],
       "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
       "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
       "provisional": false,
       "scope": null
     },
@@ -68,6 +76,8 @@
       ],
       "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
       "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
       "provisional": false,
       "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -78,6 +88,8 @@
       ],
       "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
       "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
       "provisional": false,
       "scope": null
     },
@@ -112,6 +124,8 @@
       ],
       "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
       "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
       "provisional": false,
       "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -127,6 +141,8 @@
       ],
       "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
       "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
       "provisional": false,
       "scope": null
     },
@@ -142,6 +158,8 @@
       ],
       "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
       "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
       "provisional": false,
       "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -159,6 +177,8 @@
       ],
       "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
       "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
       "provisional": false,
       "scope": null
     },
@@ -169,6 +189,8 @@
       ],
       "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
       "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
       "provisional": false,
       "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
     },
@@ -259,28 +281,28 @@
           "id": "UN-ORIGIN",
           "what": "the origin clause of the approved condition (RPC-PROP-133): the sequence begins under established coordinated pressure",
           "rulingRefs": ["A02-10NOV-CANDIDATE"],
-          "where": "no carrier: the only typed begin condition is a restart (register V5: the begin condition of a restart, a STOP_RESUME transition), the only episode scope is BUILD_OUT_EPISODE, RPC-001's (SD-36), and V5 excludes a player's position during play; our restatement carries the clause as RPC-002-02.a with its referent as open text (RPC-002-02.b) and its value declared NOT_AUTHORED, and the knowledge run is refused on that line (c:restated:RPC-002:RPC-002-02.a::V6)",
+          "where": "no carrier: the only typed begin condition is a restart (register V5: the begin condition of a restart, a STOP_RESUME transition), the only episode scope is BUILD_OUT_EPISODE, RPC-001's (SD-36: Christian's approval of 20 September of that scope, the attacking episode that begins with RPC-001's build-out), and V5 excludes a player's position during play; our restatement carries the clause as RPC-002-02.a with its referent as open text (RPC-002-02.b) and its value declared NOT_AUTHORED, and the knowledge run is refused on that line (c:restated:RPC-002:RPC-002-02.a::V6)",
           "label": "UNRESOLVED"
         },
         {
           "id": "UN-PRESSING-LINE",
           "what": "the referent of the progression clause: the pressing line",
           "rulingRefs": ["A02-10NOV-CANDIDATE"],
-          "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart; not typed by us. The value 'beyond' is carried (RPC-002-03.c)",
+          "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart (C54: Christian's ruling that A01's progression reference and its pressure reference are two distinct references); not typed by us. The value 'beyond' is carried (RPC-002-03.c)",
           "label": "UNRESOLVED"
         },
         {
           "id": "UN-CONTROL-REFERENT",
           "what": "the referent of the control clause: retains possession through the next action",
           "rulingRefs": ["A02-10NOV-CANDIDATE"],
-          "where": "not stated: UNDECLARED in our restatement, so the knowledge run and A02-1 are refused on c:restated:RPC-002:RPC-002-04.a::V5; A02-1b and A02-2 pass that line only under the TEST-ONLY declaration NO_FURTHER_VALUE (TT-CONTROL-NO-FURTHER-VALUE: the C55 analog; not ruled; would need Christian's approval under M6). The value is carried (RPC-002-04.b)",
+          "where": "not stated: UNDECLARED in our restatement, so the knowledge run and A02-1 are refused on c:restated:RPC-002:RPC-002-04.a::V5; A02-1b and A02-2 pass that line only under the TEST-ONLY declaration NO_FURTHER_VALUE (TT-CONTROL-NO-FURTHER-VALUE: the analog of C55, Christian's ruling that an A01 build-out's origin needs no further value; not ruled for A02; would need Christian's approval under M6). The value is carried (RPC-002-04.b)",
           "label": "UNRESOLVED"
         },
         {
           "id": "UN-SCOPE",
           "what": "the scope of the condition",
           "rulingRefs": ["A02-10NOV-CANDIDATE"],
-          "where": "every condition item is scoped WHOLE_GAME (OURS), which holds every score of the game to the condition; the faithful scope is a High Press Escape sequence, which no vocabulary holds (an episode scope is added only by Christian's approval, as SD-36 added BUILD_OUT_EPISODE)",
+          "where": "every condition item is scoped WHOLE_GAME (OURS), which holds every score of the game to the condition; the faithful scope is a High Press Escape sequence, which no vocabulary holds (an episode scope is added only by Christian's approval, as SD-36, Christian's approval of 20 September, added BUILD_OUT_EPISODE)",
           "label": "UNRESOLVED"
         },
         {
@@ -294,7 +316,7 @@
           "id": "UN-RESTART-POSSESSION",
           "what": "the restart and change-of-possession half of the starting state",
           "rulingRefs": ["A02-08NOV-RESTART", "A02-10NOV-TREATMENTS"],
-          "where": "SD-14 (Christian's decision of 18 September) makes a change of possession begin a new attacking episode, and defines episode boundaries only; Christian's caution of 8 November says a restart, a change of possession and a new attack are not automatically equivalent; GF2-17 makes play continue on a change of possession. Features of GF2 bearing on established pressure (OURS, no ruling): possession changes continue (GF2-17), and one shared target is attacked by both teams (GF2-12.a), so nothing makes one team the pressing team. Not closed here",
+          "where": "SD-14 (Christian's decision of 18 September) makes a change of possession begin a new attacking episode, and defines episode boundaries only; Christian's caution of 8 November says a restart, a change of possession and a new attack are not automatically equivalent; GF2-17 makes play continue on a change of possession. Features of GF2 bearing on established pressure: possession changes continue (GF2-17), and each team attacks the end opposite its own (GF2-08.c, GF2-08.e: the per-team directional arrangement, by Christian's ruling of 9 October), the same for both teams; so nothing in GF2 makes one team the pressing team (OURS: no ruling we hold addresses pressing in GF2). Not closed here",
           "label": "UNRESOLVED"
         },
         {
@@ -347,7 +369,7 @@
         { "id": "TT-CONSUMED-STEPS", "kind": "CONSUMED_STEPS", "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)", "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route; Step 1's Game Problem is carried beside the chain's own reading, never in its place; nothing is placed", "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-AUTHORIZATION"] },
         { "id": "TT-DRAFT-STORE", "kind": "DRAFT_STORE", "what": "the context's CANDIDATE restatement and the DRAFT A02 record (no ruling field filled, an empty set, our finding) read from the TEST-ONLY draft store a02-composition", "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the record route governs the constraints with an empty authorized set", "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-CANDIDATE"] },
         { "id": "TT-WITHHOLD-ORIGIN-PROGRESSION", "kind": "WITHHOLD_ITEMS", "contractId": "restated:RPC-002", "itemIds": ["RPC-002-02.a", "RPC-002-02.b", "RPC-002-03.a", "RPC-002-03.b", "RPC-002-03.c"], "what": "the origin and progression items of our restatement withheld from derivation, on the chain's copy", "effect": "only the control clause of the condition reaches derivation", "why": "to find the next stop behind the origin clause, which has no carrier; a diagnostic, never the A02 configuration", "label": "TEST-ONLY: withheld, not removed from the restatement", "rulingRefs": ["A02-10NOV-TREATMENTS"] },
-        { "id": "TT-CONTROL-NO-FURTHER-VALUE", "kind": "REPLACE_DECLARATION", "contractId": "restated:RPC-002", "declaration": { "row": "V5", "selector": "type=control", "from": "UNDECLARED", "to": "NON_CLAIMED", "qualifier": "NO_FURTHER_VALUE" }, "what": "the control clause's referent declared to need no further value, on the chain's copy of our restatement", "effect": "the control line's referent is no longer owed, so the run passes structure", "why": "to find the next stop behind the control referent; nothing authorizes it", "label": "TEST-ONLY: the C55 analog; not ruled; would need Christian's approval under M6", "rulingRefs": ["A02-10NOV-TREATMENTS"] },
+        { "id": "TT-CONTROL-NO-FURTHER-VALUE", "kind": "REPLACE_DECLARATION", "contractId": "restated:RPC-002", "declaration": { "row": "V5", "selector": "type=control", "from": "UNDECLARED", "to": "NON_CLAIMED", "qualifier": "NO_FURTHER_VALUE" }, "what": "the control clause's referent declared to need no further value, on the chain's copy of our restatement", "effect": "the control line's referent is no longer owed, so the run passes structure", "why": "to find the next stop behind the control referent; nothing authorizes it", "label": "TEST-ONLY: the analog of C55 (Christian's ruling that an A01 build-out's origin needs no further value); not ruled for A02; would need Christian's approval under M6", "rulingRefs": ["A02-10NOV-TREATMENTS"] },
         { "id": "TT-LAWS-DRAFT", "kind": "LAWS_CLASSIFICATION", "what": "the chain's own laws check reads our DRAFT classification of the laws (docs/audits/drafts/laws-materiality.DRAFT.json)", "effect": "each owed adaptation is classified by our reading, not counted material by the fail safe", "why": "to see which law our reading holds material for A02; a reading of ours for Christian's review, not a ruling", "label": "DRAFT: our classification, not a ruling", "rulingRefs": ["A02-10NOV-TREATMENTS"] }
       ]
     },
@@ -360,7 +382,7 @@
         { "id": "TT-CONSUMED-STEPS", "kind": "CONSUMED_STEPS", "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)", "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route; Step 1's Game Problem is carried beside the chain's own reading, never in its place; nothing is placed", "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-AUTHORIZATION"] },
         { "id": "TT-DRAFT-STORE", "kind": "DRAFT_STORE", "what": "the context's CANDIDATE restatement and the DRAFT A02 record (no ruling field filled, an empty set, our finding) read from the TEST-ONLY draft store a02-composition", "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the record route governs the constraints with an empty authorized set", "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-CANDIDATE"] },
         { "id": "TT-WITHHOLD-ORIGIN-PROGRESSION", "kind": "WITHHOLD_ITEMS", "contractId": "restated:RPC-002", "itemIds": ["RPC-002-02.a", "RPC-002-02.b", "RPC-002-03.a", "RPC-002-03.b", "RPC-002-03.c"], "what": "the origin and progression items of our restatement withheld from derivation, on the chain's copy", "effect": "only the control clause of the condition reaches derivation", "why": "to find the next stop behind the origin clause, which has no carrier; a diagnostic, never the A02 configuration", "label": "TEST-ONLY: withheld, not removed from the restatement", "rulingRefs": ["A02-10NOV-TREATMENTS"] },
-        { "id": "TT-CONTROL-NO-FURTHER-VALUE", "kind": "REPLACE_DECLARATION", "contractId": "restated:RPC-002", "declaration": { "row": "V5", "selector": "type=control", "from": "UNDECLARED", "to": "NON_CLAIMED", "qualifier": "NO_FURTHER_VALUE" }, "what": "the control clause's referent declared to need no further value, on the chain's copy of our restatement", "effect": "the control line's referent is no longer owed, so the run passes structure", "why": "to find the next stop behind the control referent; nothing authorizes it", "label": "TEST-ONLY: the C55 analog; not ruled; would need Christian's approval under M6", "rulingRefs": ["A02-10NOV-TREATMENTS"] },
+        { "id": "TT-CONTROL-NO-FURTHER-VALUE", "kind": "REPLACE_DECLARATION", "contractId": "restated:RPC-002", "declaration": { "row": "V5", "selector": "type=control", "from": "UNDECLARED", "to": "NON_CLAIMED", "qualifier": "NO_FURTHER_VALUE" }, "what": "the control clause's referent declared to need no further value, on the chain's copy of our restatement", "effect": "the control line's referent is no longer owed, so the run passes structure", "why": "to find the next stop behind the control referent; nothing authorizes it", "label": "TEST-ONLY: the analog of C55 (Christian's ruling that an A01 build-out's origin needs no further value); not ruled for A02; would need Christian's approval under M6", "rulingRefs": ["A02-10NOV-TREATMENTS"] },
         { "id": "TT-LAW-11-STAND-IN", "kind": "LAWS_CLASSIFICATION", "standIn": { "law": "LAW-11", "materiality": "PROCEDURAL" }, "what": "the chain's own laws check reads our DRAFT classification with LAW-11 read PROCEDURAL", "effect": "the owed offside adaptation is reported, not refused", "why": "to find the next stop behind the Laws question, which stays UNRESOLVED", "label": "TEST-ONLY stand-in: removes offside in a context defined by pressure; not a generalization of the no-offside ruling (Christian's first reply of 7 November, section 9)", "rulingRefs": ["A02-10NOV-TREATMENTS", "HO-07NOV-OFFSIDE-SCOPE"] }
       ]
     },
@@ -372,7 +394,7 @@
       "testOnlyTreatments": [
         { "id": "TT-CONSUMED-STEPS", "kind": "CONSUMED_STEPS", "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)", "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route; Step 1's Game Problem is carried beside the chain's own reading, never in its place; nothing is placed", "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-AUTHORIZATION"] },
         { "id": "TT-DRAFT-STORE", "kind": "DRAFT_STORE", "what": "the context's CANDIDATE restatement and the DRAFT A02 record (no ruling field filled, an empty set, our finding) read from the TEST-ONLY draft store a02-composition", "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the record route governs the constraints with an empty authorized set", "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-CANDIDATE"] },
-        { "id": "TT-WITHHOLD-CONDITION", "kind": "WITHHOLD_ITEMS", "contractId": "restated:RPC-002", "itemIds": ["RPC-002-02.a", "RPC-002-02.b", "RPC-002-03.a", "RPC-002-03.b", "RPC-002-03.c", "RPC-002-04.a", "RPC-002-04.b"], "what": "every condition item of our restatement withheld from derivation, on the chain's copy (after the draft store's own gate admitted the restatement whole)", "effect": "only the approved events (with the form's own) and the count reach derivation: plain GF2", "why": "a diagnostic of structural compatibility only; the draft store refuses a restatement with no condition item, so the items are withheld after its gate, never dropped from it", "label": "TEST-ONLY diagnostic: structural compatibility only, not representative sufficiency", "rulingRefs": ["A02-10NOV-TREATMENTS", "A02-10NOV-GF2"] },
+        { "id": "TT-WITHHOLD-CONDITION", "kind": "WITHHOLD_ITEMS", "contractId": "restated:RPC-002", "itemIds": ["RPC-002-02.a", "RPC-002-02.b", "RPC-002-03.a", "RPC-002-03.b", "RPC-002-03.c", "RPC-002-04.a", "RPC-002-04.b"], "what": "every condition item of our restatement withheld from derivation, on the chain's copy (after the draft store's own gate admitted the restatement whole)", "effect": "only the approved events (with the form's own) and the two identity items recorded outside the boundary (which establish nothing) reach derivation: plain GF2", "why": "a diagnostic of structural compatibility only; the draft store refuses a restatement with no condition item, so the items are withheld after its gate, never dropped from it", "label": "TEST-ONLY diagnostic: structural compatibility only, not representative sufficiency", "rulingRefs": ["A02-10NOV-TREATMENTS", "A02-10NOV-GF2"] },
         { "id": "TT-LAW-11-STAND-IN", "kind": "LAWS_CLASSIFICATION", "standIn": { "law": "LAW-11", "materiality": "PROCEDURAL" }, "what": "the chain's own laws check reads our DRAFT classification with LAW-11 read PROCEDURAL", "effect": "the owed offside adaptation is reported, not refused", "why": "to find the next stop behind the Laws question, which stays UNRESOLVED", "label": "TEST-ONLY stand-in: removes offside in a context defined by pressure; not a generalization of the no-offside ruling (Christian's first reply of 7 November, section 9)", "rulingRefs": ["A02-10NOV-TREATMENTS", "HO-07NOV-OFFSIDE-SCOPE"] }
       ],
       "reportNotes": [
@@ -401,11 +423,11 @@
     "treatmentRunWords": "a run with a TEST-ONLY treatment: never the A02 configuration; it measures what remains unsupported behind the earliest stop, and is reported after it, not investigated further",
     "restatementOnlyWords": "RESTATEMENT-ONLY: a conservative refusal by our CANDIDATE interpretation, not a finding that the configuration violates approved knowledge (Christian's second reply of 7 November, section 2)",
     "questions": [
-      { "order": 1, "question": "Christian's observable start, for an activity, of the origin clause: the sequence begins under established coordinated pressure", "why": "the knowledge run stops on it first (c:restated:RPC-002:RPC-002-02.a::V6), and the condition is what distinguishes High Press Escape from the contexts sharing its events; the begin-condition referent types restarts only", "next": true },
+      { "order": 1, "question": "Christian's observable start, for an activity, of the origin clause: the sequence begins under established coordinated pressure", "why": "the knowledge run stops on it together with the control referent, in one refusal (c:restated:RPC-002:RPC-002-02.a::V6 beside c:restated:RPC-002:RPC-002-04.a::V5); we place it first (OURS) because the condition is what distinguishes High Press Escape from the contexts sharing its events; the begin-condition referent types restarts only", "next": true },
       { "order": 2, "question": "whether the pressing line may be realized as a designated pressure reference, and how it is placed", "why": "the progression clause's referent is open text; the A01 pressure reference exists only in A01's provisional realization", "next": false },
       { "order": 3, "question": "whether through the next action needs a referent or no further value (the M6 form), and the coach wording for the condition", "why": "the control line is refused while its referent is undeclared, and no approved wording exists for the condition (A02-2 stops at communication)", "next": false },
       { "order": 4, "question": "LAW-11 for A02", "why": "our DRAFT classification reads it MATERIAL for a context defined by pressure; no ruling settles it here", "next": false },
-      { "order": 5, "question": "later, not the next consequential gap: a source for a justified manipulation, the context's typical environmental manipulations (RC1.1 Library), which the program holds as no row", "why": "no manipulation is justified for A02 in anything held; the quota slice (S4) represents manipulations only on labelled TEST-ONLY stand-ins", "next": false }
+      { "order": 5, "question": "later, not the next consequential gap: whether any of High Press Escape's typical environmental manipulations (held: the RC1.1 Library text, Core: coordinated pressing numbers, compressed playing space, progression corridors; and the context library's adjustment rows RPC-PROP-030..033) relates to a library constraint for A02; no held ruling relates them to one", "why": "no manipulation is justified for A02 in anything held; the quota slice (S4) represents manipulations only on labelled TEST-ONLY stand-ins", "next": false }
     ],
     "relationships": [
       {
@@ -448,9 +470,9 @@
         "word": 1,
         "rows": ["RPC-REL-075..078 (events)", "RPC-PROP-133 (condition)", "RPC-STMT-009", "RPC-VAL-007", "RPC-PROP-020, RPC-PROP-021 (END)", "RPC-PROP-026..029 (degenerate solutions)", "RPC-TR-005"],
         "car": "none: no CAR dimension speaks of scoring or consequence",
-        "items": ["RPC-002-01.a", "RPC-002-01.b", "RPC-002-02.a", "RPC-002-03.a", "RPC-002-03.c", "RPC-002-04.a", "RPC-002-04.b"],
-        "executable": "the events: carried (intersected with the form's own at realization); the condition: its origin and its progression referent have no carrier, and its control value passes structure only under a TEST-ONLY declaration",
-        "engineUse": "consumed: the events item governs the realized event line, and the condition items refuse the knowledge run at structure"
+        "items": ["RPC-002-01.a", "RPC-002-02.a", "RPC-002-03.a", "RPC-002-03.c", "RPC-002-04.a", "RPC-002-04.b"],
+        "executable": "the events: bound the event line where a game is built (only on TEST-ONLY runs; intersected with the form's own; the value within them is our realization choice); the condition: its origin and its progression referent have no carrier, and its control value passes structure only under a TEST-ONLY declaration",
+        "engineUse": "consumed: the events item bounds the realized event line (the value within it is our realization choice, not knowledge), and the condition items refuse the knowledge run at structure"
       }
     ],
     "car": [

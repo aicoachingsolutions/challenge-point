@@ -1286,7 +1286,7 @@ export function buildActivityUnderAuthorizationRecords(
          */
         communicationSupplement?: (fixture: Record<string, unknown>, rendered: RenderedActivity) => RenderedActivity
         /**
-         * TEST-ONLY, the isolated A02 experiment (Christian's A02 authorization, received 10 November 2026; `UpstreamDecisions` in
+         * TEST-ONLY, the isolated A02 experiment (Christian's A02 authorization, pasted 10 November 2026; `UpstreamDecisions` in
          * run-bounded-selection.ts): Step 1's Game Problem and Step 2's form, consumed by the goal's selection, and the boolean that bypasses
          * the size rule for an evaluated, record-backed set. Threaded to `build` and from there to `selectFor` only. With it, an
          * `alterSelection` may only observe: one that changes the selection makes the build throw. Absent: the build is exactly what it was.

@@ -1,6 +1,6 @@
 /**
  * **The reasoning-disconnection safeguards, the per-run disposition of the selection checks, and the earliest consequential blocker** —
- * review pathway only, TEST-ONLY review evidence (stage 9, DESIGN-9 sections 3, 4 and 6; Christian's authorization received 10 November 2026,
+ * review pathway only, TEST-ONLY review evidence (stage 9, DESIGN-9 sections 3, 4 and 6; Christian's authorization, pasted 10 November 2026,
  * section 3):
  *   "I would like a test to fail when a downstream decision contradicts its authorized input or relies on an unsupported replacement."
  *
@@ -617,10 +617,10 @@ export const DISPOSITION: DispositionRow[] = [
     { id: 'RECORD_POOL', check: 'the pool: the record\'s authorized set replaces the vocabulary pool, minus holds', where: 'generateSelection.ts:135-190; guided-selection.ts (the record route)', origin: 'dc98ecb, 14-15 October 2026', disposition: 'KEPT_ENFORCED', reported: null, authority: 'Christian\'s 14 and 15 October rulings (constraints only from the goal\'s authorized set)', readsLenses: false, reads: 'nothing of the wording', path: 'EVERY_SELECTION', marks: [], control: 'the quota runs: the pool equals the authorized set (asserted)' },
     { id: 'TOKEN_CHECK', check: 'the token check: the wording must hold a non-stopword token', where: 'generateSelection.ts:931-937', origin: '3980188, 3 May 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed: a wording-only change can trigger it', authority: 'none found; engine rule', readsLenses: false, reads: 'the wording\'s tokens', path: 'EVERY_SELECTION', marks: [], control: 'none run here (no wording without a token is used)' },
     { id: 'LENS_HINTS', check: 'the lens hints and matched signals of the guided selection', where: 'guided-selection.ts:212-228 (governByApprovedGameProblem, :125)', origin: 'c725117, 13 October 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed: the engine lenses (ENGINE_LENS) follow the wording', authority: 'none over an owned decision (the lenses are engine inputs; the context\'s affordance targets were deferred by Christian on 13 September)', readsLenses: true, reads: 'the wording, and the planning model\'s Game Problem', path: 'EVERY_SELECTION', marks: [], control: 'the wording test: the lens list changes under every rewording (an open disconnection)' },
-    { id: 'ZERO_BRANCH', check: 'the zero branch: an evaluated empty set commits lenses with no constraint', where: 'generateSelection.ts:811-815, :1030', origin: '1f18a02, 15 October 2026', disposition: 'KEPT_ENFORCED', reported: null, authority: 'Christian\'s general principle of 15 October 2026 (a constraint is not mandatory unless justified)', readsLenses: false, reads: 'nothing of the wording', path: 'EMPTY_SET', marks: [], control: 'the base cases (empty set) commit through it' },
-    { id: 'SIZE_RULE', check: 'the numerical size rule: 2 to 4 constraints', where: 'generateSelection.ts:719-721 (assertSelectionContract), :835 (the sizes enumerated)', origin: '3980188, 3 May 2026', disposition: 'BYPASSED_SIZE_RULE_ONLY', reported: 'bypassed only under the TEST-ONLY SIZE_RULE_BYPASS treatment (the authorization\'s section 5)', authority: 'none found; engine rule', readsLenses: false, reads: 'nothing of the wording', path: 'NON_EMPTY_SET', marks: [], control: 'a lone manipulation is refused without the bypass and selected with it' },
-    { id: 'ROLE_MIX', check: 'the role mix', where: 'generateSelection.ts:590-612, applied :839', origin: '3980188, 3 May 2026', disposition: 'KEPT_ENFORCED', reported: 'reported with its source and authority (the authorization\'s section 5); not attributable without an observer', authority: 'none found; engine rule', readsLenses: true, reads: 'the constraint scores of each lens combination (the wording\'s tokens and the lens slugs, generateSelection.ts:572-580, :817-827)', path: 'NON_EMPTY_SET', marks: [], control: 'not attributable without an observer (no observer is added to the selector)' },
-    { id: 'FOUNDATION_CLAUSE', check: 'the foundation clause (with its keyword threshold)', where: 'build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327', origin: 'e60a740, 18 April 2026', disposition: 'KEPT_ENFORCED', reported: 'reported with its source and authority (the authorization\'s section 5)', authority: 'none found; engine rule (our own comment calls it not ruled)', readsLenses: true, reads: 'the primary lens title (the keyword threshold)', path: 'NON_EMPTY_SET', marks: ['No compatible foundation constraint was found for archetype'], control: 'a lone shaping or consequence manipulation is refused on every lens combination (attribution)' },
+    { id: 'ZERO_BRANCH', check: 'the zero branch: an evaluated empty set commits lenses with no constraint', where: 'generateSelection.ts:811-815, :1030', origin: '1f18a02 (the branch, then switched by a per-record zeroConstraintRuling) and 487dc32 (the general-principle switch, :1030), 15 October 2026', disposition: 'KEPT_ENFORCED', reported: null, authority: 'Christian\'s general principle of 15 October 2026 (a constraint is not mandatory unless justified)', readsLenses: false, reads: 'nothing of the wording', path: 'EMPTY_SET', marks: [], control: 'the base cases (empty set) commit through it' },
+    { id: 'SIZE_RULE', check: 'the numerical size rule: 2 to 4 constraints', where: 'generateSelection.ts:719-721 (assertSelectionContract), :835 (the sizes enumerated)', origin: '3980188, 3 May 2026', disposition: 'BYPASSED_SIZE_RULE_ONLY', reported: 'bypassed only under the TEST-ONLY SIZE_RULE_BYPASS treatment (the authorization\'s section 5); under the bypass the sizes enumerated are the set\'s own size and 2 to 4, so for a set of 2 to 4 a one-manipulation subset is never tried (the floor of 2 remains for subsets)', authority: 'none found; engine rule', readsLenses: false, reads: 'nothing of the wording', path: 'NON_EMPTY_SET', marks: [], control: 'a lone manipulation is refused without the bypass and selected with it' },
+    { id: 'ROLE_MIX', check: 'the role mix', where: 'generateSelection.ts:590-612, applied :839', origin: '3980188, 3 May 2026 (the rule, :590-612); dc98ecb, 14 October 2026 (its needs read over the goal\'s pool, :819-827, applied :839)', disposition: 'KEPT_ENFORCED', reported: 'reported with its source and authority (the authorization\'s section 5); it refuses no set run here: a set of 1 or 2 is enumerated only whole, and its needs are read over the pool (generateSelection.ts:827, :835-836, :590-612)', authority: 'none found for the rule; the pool-relative reading of its needs is our reading of Christian\'s 14 October ruling (constraints only from the goal\'s designated candidates), not a ruling on the role mix', readsLenses: true, reads: 'the constraint scores of each lens combination (the wording\'s tokens and the lens slugs, generateSelection.ts:572-580, :817-827)', path: 'NON_EMPTY_SET', marks: [], control: 'none needed: read from the code, it refuses no set run here (no observer is added to the selector)' },
+    { id: 'FOUNDATION_CLAUSE', check: 'the foundation clause (with its keyword threshold)', where: 'build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327', origin: 'e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian\'s 14 October ruling, the foundation half kept, not ruled)', disposition: 'KEPT_ENFORCED', reported: 'reported with its source and authority (the authorization\'s section 5)', authority: 'none found; engine rule (our own comment calls it not ruled)', readsLenses: true, reads: 'the primary lens title (the keyword threshold)', path: 'NON_EMPTY_SET', marks: ['No compatible foundation constraint was found for archetype'], control: 'a lone shaping or consequence manipulation is refused on every lens combination (attribution)' },
     { id: 'PACKAGE_ROW_O', check: 'the package check: a clear relationship to the selected affordance (row o)', where: 'validate-constraint-package.ts:484-493', origin: 'e60a740, 18 April 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine keyword heuristic, reported', authority: 'none found; engine heuristic', readsLenses: true, reads: 'the primary lens title and tag group, and ten words in the members\' own text', path: 'NON_EMPTY_SET', marks: ['does not show a clear relationship to the selected affordance or open problem space'], control: 'the goal\'s own pool members are refused on every lens combination (attribution)' },
     { id: 'PACKAGE_ROW_K', check: 'the package check: each member supports the selected affordance tag group (row k)', where: 'validate-constraint-package.ts:356-367', origin: 'e60a740, 18 April 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine compatibility check, reported', authority: 'UNCONFIRMED (the tag-group data)', readsLenses: true, reads: 'the lens tag group', path: 'NON_EMPTY_SET', marks: ['does not support the selected affordance tag group'], control: 'a consequence member is refused on the reworded lenses (attribution)' },
     { id: 'PACKAGE_OTHER', check: 'the other package checks (rows h-j, l-n, p)', where: 'validate-constraint-package.ts:306-555', origin: 'e60a740, 02adc8b, 5222486', disposition: 'KEPT_ENFORCED', reported: 'engine checks and heuristics, reported', authority: 'none found', readsLenses: true, reads: 'the lenses and the members\' own text', path: 'NON_EMPTY_SET', marks: [], control: 'none refused in these runs' },
@@ -658,7 +658,7 @@ export function dispositionOf(run: SafeguardRun): Array<{ id: string; ran: strin
         if (d.path === 'COMMITTED_SELECTION') return { id: d.id, ran: committed ? 'ran' : 'not reached (no selection was committed)' }
         if (zero) return { id: d.id, ran: zeroWords }
         if (unenumerated && ENUMERATED_ONLY.indexOf(d.id) >= 0) return { id: d.id, ran: unenumeratedWords }
-        if (d.id === 'SIZE_RULE' && x && x.sizeRuleBypassed) return { id: d.id, ran: 'bypassed (TEST-ONLY): the set\'s own size tried, and the contract admits 1 to its size' }
+        if (d.id === 'SIZE_RULE' && x && x.sizeRuleBypassed) return { id: d.id, ran: 'bypassed (TEST-ONLY): the set\'s own size tried, and the contract admits 1 to its size (a one-manipulation subset of a set of 2 to 4 is not tried)' }
         return { id: d.id, ran: 'ran' }
     })
 }
@@ -706,13 +706,23 @@ export function blockerSequence(stops: Stop[]): { sequence: Array<Stop & { passe
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
 export interface SafeguardsReport {
-    runs: Array<{ run: SafeguardRun; findings: Finding[]; label: string }>
+    /** Each run with its findings, its label and the group it is counted in (data: e.g. the experiment path, the controls, the legacy route). */
+    runs: Array<{ run: SafeguardRun; findings: Finding[]; label: string; group: string }>
     entries: OpenDisconnection[]
     /** Christian's failure-source categories: Christian's words, in Christian's order. */
     categories: string[]
     stops: Stop[]
     /** Lines the test adds (the quota runs' triples, the wording test's measurements), printed as given. */
     notes: string[]
+}
+
+/** The violation verdicts and detected disconnections of each group of runs, in the order the groups first appear (so a total is never read alone). */
+export function countsByGroup(runs: SafeguardsReport['runs']): Array<{ group: string; runs: number; violations: number; detected: number }> {
+    const groups = [...new Set(runs.map((r) => r.group))]
+    return groups.map((group) => {
+        const findings = runs.filter((r) => r.group === group).flatMap((r) => r.findings)
+        return { group, runs: runs.filter((r) => r.group === group).length, violations: findings.filter((f) => classOf(f) === 'VIOLATION').length, detected: findings.filter((f) => classOf(f) === 'DETECTED').length }
+    })
 }
 
 const plainText = (s: string): string => s.split(String.fromCharCode(34)).join(String.fromCharCode(39))
@@ -729,6 +739,7 @@ export function safeguardsText(rep: SafeguardsReport): string[] {
     const violations = all.filter((f) => classOf(f) === 'VIOLATION')
     const detected = all.filter((f) => classOf(f) === 'DETECTED')
     out.push(`open disconnections detected: ${violations.length} violation verdicts and ${detected.length} detected disconnections over ${rep.runs.length} runs (none of them a pass; the detected, by verdict: ${detectedByVerdict(all)})`)
+    out.push(`by group (a total never read alone): ${countsByGroup(rep.runs).map((g) => `${g.group}: ${g.violations} violation verdicts and ${g.detected} detected disconnections over ${g.runs} runs`).join('; ')}`)
     out.push('')
     out.push('THE RUNS, DECISION BY DECISION')
     for (const r of rep.runs) {

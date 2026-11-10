@@ -162,7 +162,7 @@ export interface BoundedSelection extends KnowledgeSelection {
 }
 
 /**
- * **TEST-ONLY: the upstream decisions a selection consumes** — the isolated A02 experiment. Christian's A02 authorization, received 10 November 2026:
+ * **TEST-ONLY: the upstream decisions a selection consumes** — the isolated A02 experiment. Christian's A02 authorization (the reply about A02, pasted 10 November 2026):
  *   "The downstream pathway should consume Step 1's resolved Game Problem and Step 2's Game Form evaluation rather than independently selecting them from Learning Goal wording."
  *   "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."
  * Handed only by `buildActivityUnderAuthorizationRecords`'s `upstream` option, which no route passes (a static test pins it:

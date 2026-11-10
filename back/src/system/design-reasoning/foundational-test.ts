@@ -1,6 +1,6 @@
 /**
  * **The isolated foundational test: what its report prints beside the handoff's cases** — review pathway only, TEST-ONLY review evidence
- * (stage 9; Christian's authorization received 10 November 2026, sections 1, 6 and 7):
+ * (stage 9; Christian's authorization, pasted 10 November 2026, sections 1, 6 and 7):
  *   "High Press Escape's existing identity and scoring conditions should be represented through the smallest necessary executable interpretation, clearly identified as CANDIDATE until reviewed."
  *
  * Pure. It reads three things handed to it: the test's own data (`FoundationalTestData`, validated here by hand), the restated context's items
@@ -18,10 +18,10 @@
  *   - the smallest specific source material, as questions only, in order of consequence;
  *   - the Essential Representative Relationships, one row each: the rows that state it, the CAR rating if any, whether it is executable, what
  *     the engine does with it, and, per run, the effect of the restated items that bear on it.
- * Double quotation marks are printed only around Christian's words, verbatim, with their received date (`quoted`); every other text through
+ * Double quotation marks are printed only around Christian's words, verbatim, with their date (`quoted`, `citedDateOf`); every other text through
  * `plain`, so a double quotation mark in the data is printed as a single one.
  */
-import { receivedOf } from './assembly'
+import { citedDateOf } from './assembly'
 import { HandoffInputs, HandoffResult } from './handoff'
 import { plain, quoted, show } from './handoff-report'
 
@@ -221,7 +221,7 @@ export function foundationalTestText(results: HandoffResult[], inputs: HandoffIn
     out.push('')
     const first = data.relationships[0]
     const ruling = inputs.rulings.find((x) => x.id === first.rulingRef)
-    out.push(`ESSENTIAL REPRESENTATIVE RELATIONSHIPS (${data.relationships.length})${ruling ? `, as Christian names them: ${quoted(ruling.words[first.word])} (received ${receivedOf(ruling).split(',')[0]})` : ''}`)
+    out.push(`ESSENTIAL REPRESENTATIVE RELATIONSHIPS (${data.relationships.length})${ruling ? `, as Christian names them: ${quoted(ruling.words[first.word])} (${citedDateOf(ruling, true)})` : ''}`)
     for (const rel of data.relationships) {
         out.push(`- ${rel.relationship}`)
         out.push(`   rows that state it: ${rel.rows.map(plain).join('; ')}`)

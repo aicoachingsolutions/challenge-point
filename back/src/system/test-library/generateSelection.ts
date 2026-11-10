@@ -884,7 +884,7 @@ export function generateSelection(
     input: TestLibrarySelectionInput,
     inputConstraints?: InputConstraintHints | null,
     /**
-     * TEST-ONLY, the isolated A02 experiment. Christian's A02 authorization, received 10 November 2026:
+     * TEST-ONLY, the isolated A02 experiment. Christian's A02 authorization, pasted 10 November 2026:
      *   "For the isolated A02 experiment, you may remove or bypass this unsupported numerical quota where necessary to test legitimate zero-, one-, or multiple-manipulation configurations."
      *   "I am not authorizing a production change to the constraint selector at this stage."
      * Bypass the size rule only, at its two places (the sizes enumerated and `assertSelectionContract`), for an evaluated, record-backed authorized set, and throw for any

@@ -1,6 +1,6 @@
 /**
  * **The TEST-ONLY `upstream` option: consumption of Step 1's Game Problem and Step 2's Game Form by the checked pathway** — the isolated A02
- * experiment, slice S1. Christian's A02 authorization, received 10 November 2026:
+ * experiment, slice S1. Christian's A02 authorization, pasted 10 November 2026:
  *   "The downstream pathway should consume Step 1's resolved Game Problem and Step 2's Game Form evaluation rather than independently selecting them from Learning Goal wording."
  *   "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."
  *

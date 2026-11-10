@@ -9,7 +9,7 @@
  * established. Double quotation marks are printed only around Christian's words, verbatim; every value, label and engine sentence is printed
  * in single quotation marks or bare (a double quotation mark inside an engine sentence is printed as a single one).
  */
-import { classLabel, receivedOf } from './assembly'
+import { citedDateOf, classLabel } from './assembly'
 import {
     CLASS_WORDS,
     DECISION_KIND_EXAMINATION,
@@ -103,9 +103,18 @@ function premiseLine(p: Premise): string {
     return parts.join(' | ')
 }
 
+/**
+ * How a citation dates the ruling a result's entry names: the inputs' own ruling, through citedDateOf (a reply pasted without its mail header
+ * prints its paste date, never a received date); a ruling the inputs do not hold, the entry's own received words.
+ */
+function datedRef(inputs: HandoffInputs, ref: string, received: string, dateOnly: boolean): string {
+    const r = inputs.rulings.find((x) => x.id === ref)
+    return r ? citedDateOf(r, dateOnly) : `received ${dateOnly ? received.split(',')[0] : received}`
+}
+
 /** The case's notes for one section, in the data's words, each quotation of Christian's printed verbatim with its received date. */
-function noteLines(r: HandoffResult, section: HandoffResult['reportNotes'][number]['section']): string[] {
-    return r.reportNotes.filter((n) => n.section === section).map((n) => `${plain(n.text)}${n.quotes.map((q) => ` ${quoted(q.words)} (received ${q.received.split(',')[0]})`).join('')}`)
+function noteLines(r: HandoffResult, section: HandoffResult['reportNotes'][number]['section'], inputs: HandoffInputs): string[] {
+    return r.reportNotes.filter((n) => n.section === section).map((n) => `${plain(n.text)}${n.quotes.map((q) => ` ${quoted(q.words)} (${datedRef(inputs, q.ref, q.received, true)})`).join('')}`)
 }
 
 function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
@@ -113,7 +122,7 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
     const push = (s = '') => out.push(s)
     push(`== CASE ${r.caseId}: ${plain(r.label)}`)
     push(`Result standing: ${r.resultStanding}`)
-    for (const line of noteLines(r, 'standing')) push(`   ${line}`)
+    for (const line of noteLines(r, 'standing', inputs)) push(`   ${line}`)
     push()
     push('1. Inputs')
     push(`   Learning Goal: ${r.goalId ?? 'none (structural case, no Learning Goal)'}`)
@@ -127,14 +136,14 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
         push(`   Purpose, approval evidence (kept apart): ${plain(r.purpose.approvalEvidence)}`)
     }
     push(`   Christian's rulings, and how each enters the checked chain (${r.rulings.length}; the words are printed once, under 'Christian's words cited'):`)
-    for (const ruling of r.rulings) push(`   - ${ruling.ref} (received ${ruling.received}; ${ruling.provisional ? 'provisional' : 'not provisional'}; scope ${ruling.scope ?? 'none stated'}) enters as ${ruling.entersAs}: ${plain(ruling.how)}`)
+    for (const ruling of r.rulings) push(`   - ${ruling.ref} (${datedRef(inputs, ruling.ref, ruling.received, false)}; ${ruling.provisional ? 'provisional' : 'not provisional'}; scope ${ruling.scope ?? 'none stated'}) enters as ${ruling.entersAs}: ${plain(ruling.how)}`)
     push()
     push('2. Step 1 (run by the handoff)')
     const s1 = r.receive.step1
     if (!s1) push('   none: a structural case has no Learning Goal')
     else {
         push(`   status ${s1.status}; basis ${s1.basis ?? 'none'}; primary ${s1.primary.join(', ') || 'none'}; secondary ${s1.secondary.join(', ') || 'none'}; context ${s1.contextId ?? 'none'}`)
-        const qualifier = !s1.qualifier ? 'none' : s1.qualifierRuling ? `${quoted(s1.qualifier)} (received ${s1.qualifierRuling.received.split(',')[0]}; Christian's words, ${s1.qualifierRuling.ref})` : `'${plain(s1.qualifier)}'`
+        const qualifier = !s1.qualifier ? 'none' : s1.qualifierRuling ? `${quoted(s1.qualifier)} (${datedRef(inputs, s1.qualifierRuling.ref, s1.qualifierRuling.received, true)}; Christian's words, ${s1.qualifierRuling.ref})` : `'${plain(s1.qualifier)}'`
         push(`   filed scope ${s1.scope ?? 'none'}; qualifier ${qualifier}; established by ${s1.establishedBy}`)
         for (const x of r.receive.scopeSetBy) push(`   scope set by ${plain(x)}`)
         if (s1.missing.length) push(`   missing: ${s1.missing.map(plain).join('; ')}`)
@@ -198,7 +207,7 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
     push()
     const served = r.sentencesServed
     push(`8. Coach text (${r.sentences.length} sentences; ${served === null ? 'none' : served ? 'the text the chain would serve, in a TEST-ONLY run' : 'the review draft of a communication refusal: DRAFT, NOT SERVED'})`)
-    for (const line of noteLines(r, 'text')) push(`   note: ${line}`)
+    for (const line of noteLines(r, 'text', inputs)) push(`   note: ${line}`)
     for (const s of r.sentences) {
         push(`   [${s.section}${s.block ? ` | ${s.block}` : ''}] ${plain(s.text)}`)
         push(`     wording ${s.wording}${s.reviewOnly ? ' (review-only, DRAFT, not served to any coach)' : ''}; status ${s.status}; ${classWords(s.sixClass)}; ${plain(s.label)}`)
@@ -227,7 +236,7 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
             return Array.isArray(v) ? v.length > 0 : v !== null && v !== undefined
         })
         push(`   illustrative values on this diagram: ${drawn.map((i) => `${plain(i.what)} ${show(i.value)} (${i.id})`).join('; ') || 'none'}${drawn.length ? ' (see 14. Illustrative values)' : ''}`)
-        for (const line of noteLines(r, 'diagram')) push(`   ${line}`)
+        for (const line of noteLines(r, 'diagram', inputs)) push(`   ${line}`)
     }
     push()
     push('10. Laws account')
@@ -364,7 +373,9 @@ export function handoffReportText(results: HandoffResult[], inputs: HandoffInput
     out.push('')
     out.push('What this is: the review pathway\'s Steps 1 and 2 handed to the checked configuration and rendering chain, case by case, with every line and sentence graded by what determined it. Engineering evidence only: passing these tests is not evidence of ecological suitability or of representative learning quality in the field. Nothing here is served to a coach, written to production knowledge, or an authorization.')
     out.push(`Every configuration below: ${OPPORTUNITIES_NOT_ESTABLISHED}.`)
-    for (const line of READING_KEY) out.push(line)
+    // Where a reply pasted without its mail header is cited, the quotation key says it is dated by its paste date (otherwise unchanged).
+    const pastedKey = inputs.rulings.some((r) => r.dateBasis) ? ' (or, for a reply pasted without its mail header, its paste date)' : ''
+    for (const line of READING_KEY) out.push(line.indexOf('Quotation marks:') === 0 ? line.split('with their received date').join(`with their received date${pastedKey}`) : line)
     out.push('')
     out.push('Christian\'s six classes:')
     for (const w of CLASS_WORDS) out.push(`   ${w}`)
@@ -392,10 +403,12 @@ export function handoffReportText(results: HandoffResult[], inputs: HandoffInput
         out.push(...refusalsText(refusals, refusalNotes))
         out.push('')
     }
-    out.push(`Christian's words cited (${inputs.rulings.length} entries, verbatim, each with its received date and the file it is filed in):`)
+    // A reply pasted without its mail header is cited by its paste date, and the header says so only where such a reply is cited.
+    const pasted = inputs.rulings.some((r) => r.dateBasis)
+    out.push(`Christian's words cited (${inputs.rulings.length} entries, verbatim, each with its received date${pasted ? ', or its paste date where no mail header was kept,' : ''} and the file it is filed in):`)
     for (const ruling of inputs.rulings) {
-        out.push(`   ${ruling.id}, received ${receivedOf(ruling)}${ruling.provisional ? ', provisional' : ''}; scope ${ruling.scope ?? 'none stated'}; filed in ${plain(ruling.file)}`)
-        for (const w of ruling.words) out.push(`       ${quoted(w)} (received ${receivedOf(ruling).split(',')[0]})`)
+        out.push(`   ${ruling.id}, ${citedDateOf(ruling)}${ruling.provisional ? ', provisional' : ''}; scope ${ruling.scope ?? 'none stated'}; filed in ${plain(ruling.file)}`)
+        for (const w of ruling.words) out.push(`       ${quoted(w)} (${citedDateOf(ruling, true)})`)
     }
     out.push('')
     for (const r of results) out.push(...caseText(r, inputs))

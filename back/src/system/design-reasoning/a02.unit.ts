@@ -1,7 +1,7 @@
 /**
  * **The isolated A02 foundational test, slice S2: High Press Escape's CANDIDATE executable interpretation and the A02 cases**, run through
- * the review pathway's handoff with Steps 1 and 2 consumed by the checked chain (slice S1) — Christian's authorization received 10 November
- * 2026 (stage 9; DESIGN-9 section 2). TEST-ONLY review evidence: nothing here is served, written to production knowledge, or an authorization.
+ * the review pathway's handoff with Steps 1 and 2 consumed by the checked chain (slice S1) — Christian's authorization, the reply about A02
+ * pasted 10 November 2026 (stage 9; DESIGN-9 section 2). TEST-ONLY review evidence: nothing here is served, written to production knowledge, or an authorization.
  *
  * The data: the review data file `a02-inputs.review.json` (held to the handoff's own validator; its borrowed rulings and grading tables are
  * read from the handoff's data file, unchanged), the TEST-ONLY draft store folder `docs/audits/drafts/a02-composition` (our CANDIDATE
@@ -63,7 +63,7 @@ function test(name: string, run: () => void): void {
         process.exitCode = 1
     }
 }
-if (MAIN) quiet(`the isolated A02 foundational test, slice S2 (Christian's authorization received 10 November 2026)`)
+if (MAIN) quiet(`the isolated A02 foundational test, slice S2 (Christian's authorization: the reply about A02, pasted 10 November 2026)`)
 
 const HERE = __dirname
 const WT = path.resolve(HERE, '..', '..', '..', '..')
@@ -122,7 +122,31 @@ const byCase = (id: string): HandoffResult => {
     assert.ok(r, id)
     return r
 }
-const reportOf = (results: HandoffResult[]): string => `${[...foundationalTestText(results, inputs, experiment, items), handoffReportText(results, inputs, [])].join('\n')}`
+/**
+ * The double-quoted spans of a text: Christian's words holding a straight quotation mark are printed in typographic ones (handoff-report.ts
+ * `quoted`), so each typographic span is read whole and set aside first; the straight ones must then pair. Throws where either does not pair.
+ */
+export function quotedSpans(text: string): string[] {
+    const OPEN = String.fromCharCode(0x201c)
+    const CLOSE = String.fromCharCode(0x201d)
+    const STRAIGHT = String.fromCharCode(34)
+    const typographic: string[] = []
+    const rest = text
+        .split(OPEN)
+        .map((part, n) => {
+            if (n === 0) return part
+            const end = part.indexOf(CLOSE)
+            assert.ok(end >= 0, 'typographic quotation marks pair')
+            typographic.push(part.slice(0, end))
+            return part.slice(end + 1)
+        })
+        .join('')
+    assert.equal(rest.indexOf(CLOSE), -1, 'typographic quotation marks pair')
+    const parts = rest.split(STRAIGHT)
+    assert.ok(parts.length % 2 === 1, 'quotation marks pair')
+    return [...typographic, ...parts.filter((_, n) => n % 2 === 1)]
+}
+const reportOf = (results: HandoffResult[]): string =>`${[...foundationalTestText(results, inputs, experiment, items), handoffReportText(results, inputs, [])].join('\n')}`
 
 const STRUCTURE = ['Gate A is FAIL', 'a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE']
 const CONTROL_LINE = 'c:restated:RPC-002:RPC-002-04.a::V5'
@@ -143,14 +167,15 @@ test('the TEST-ONLY draft store folder: admitted whole by its own gate; every it
         ['A02', 'RPC-002', 'GP-015', 'DRAFT', '', '', [], [], FINDING],
     )
     // The restatement, item by item (measured): the four approved events in the approved order (the intersection with the form's own is made at
-    // realization, never written here); the count ASSUMED; the three clauses as conditions of type origin, progression and control with the
-    // verbatim values; the two expressible identity rows outside the boundary. No item restates RPC-REL-002 as a team count: measured, every
-    // run's outcome is identical with and without it, so it is dropped (D1-12).
+    // realization, never written here); the three clauses as conditions of type origin, progression and control with the verbatim values; the
+    // two expressible identity rows outside the boundary. No item restates RPC-REL-002 as a team count: measured, every run's outcome is
+    // identical with and without it, so it is dropped (D1-12). No item holds the count of primary events (RPC-002-01.b, V0 COUNT 1, ASSUMED from
+    // SD-06): measured in review (batch A2), the five cases, every quota run and every safeguard run are identical without it but for the item's
+    // own presence, so it is dropped by the same rule (the smallest interpretation Christian asked for); every item now quotes the row it restates.
     assert.deepEqual(
         contract!.items.map((i: any) => [i.itemId, i.row, i.selector, i.requirement, i.value, i.basis, i.category]),
         [
             ['RPC-002-01.a', 'V1', '*', 'EQUALS', ['line_crossed', 'target_zone_entered', 'gate', 'target_player'], 'AUTHORED', 'DRAFT_KNOWLEDGE'],
-            ['RPC-002-01.b', 'V0', '*', 'COUNT', '1', 'ASSUMED', 'DRAFT_KNOWLEDGE'],
             ['RPC-002-02.a', 'V3', 'type=origin', 'EXISTS', 'N/A', 'AUTHORED', 'DRAFT_KNOWLEDGE'],
             ['RPC-002-02.b', 'V5', 'type=origin', 'EQUALS', 'established coordinated pressure', 'AUTHORED', 'DRAFT_KNOWLEDGE'],
             ['RPC-002-03.a', 'V3', 'type=progression', 'EXISTS', 'N/A', 'AUTHORED', 'DRAFT_KNOWLEDGE'],
@@ -223,6 +248,15 @@ test(`the review data: held to the handoff's own validator with its borrowed rul
         alter(x)
         assert.throws(() => validateHandoffInputs(composed(x)), pattern)
     }
+    // The reply about A02 was pasted without its mail header: each of its rulings keeps the ISO date (the paste date) and is marked so, with the
+    // name a citation gives it; the marker is closed, and it and the name come together (each defect refuses the file).
+    assert.deepEqual(inputs.rulings.filter((r) => r.dateBasis).map((r) => [r.id.split('-').slice(0, 2).join('-'), r.dateBasis, r.citedAs, r.received]), inputs.rulings.filter((r) => r.id.indexOf('A02-10NOV-') === 0).map(() => ['A02-10NOV', 'PASTED_WITHOUT_HEADER', 'reply about A02', '2026-11-10']))
+    assert.equal(inputs.rulings.filter((r) => r.dateBasis).length, 11)
+    const authorization = (x: any) => x.rulings.find((r: any) => r.id === 'A02-10NOV-AUTHORIZATION')
+    refuses((x) => (authorization(x).dateBasis = 'RECEIVED'), /dateBasis is PASTED_WITHOUT_HEADER or absent/)
+    refuses((x) => delete authorization(x).citedAs, /a dateBasis and the name a citation gives the reply \(citedAs\) come together/)
+    refuses((x) => delete authorization(x).dateBasis, /a dateBasis and the name a citation gives the reply \(citedAs\) come together/)
+    refuses((x) => (authorization(x).citedAs = ' '), /a dateBasis and the name a citation gives the reply \(citedAs\) come together/)
     const treatment = (x: any, caseIndex: number, id: string) => x.cases[caseIndex].testOnlyTreatments.find((t: any) => t.id === id)
     refuses((x) => delete treatment(x, 2, 'TT-CONTROL-NO-FURTHER-VALUE').declaration, /replaces a declaration: it names its contract and the declaration/)
     refuses((x) => (treatment(x, 2, 'TT-CONTROL-NO-FURTHER-VALUE').itemIds = ['RPC-002-04.a']), /replaces a declaration: it names its contract and the declaration/)
@@ -254,8 +288,8 @@ function sharedOf(r: HandoffResult): void {
     assert.deepEqual([x.form?.formId, x.form?.cells.find((c) => c.cell.endsWith('game_forms GF2'))?.grade, x.formCandidatesScored, x.formCandidatesFrom, x.constraintAuthority, x.constraintCandidateIds, x.sizeRuleBypassed, x.selectionObservedOnly, x.draftStatus], ['GF2', 'CANDIDATE', ['GF2'], 'SELECTION_TRACE_RANKING', 'AUTHORIZATION_RECORD', [], false, true, 'BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED'], r.caseId)
     assert.deepEqual(r.notCarried.map((n) => n.id), ['UN-ORIGIN', 'UN-PRESSING-LINE', 'UN-CONTROL-REFERENT', 'UN-SCOPE', 'UN-WORDING', 'UN-RESTART-POSSESSION', 'UN-LAWS', 'UN-IDENTITY', 'UN-PRESSURE-CARRIER', 'UN-AFFORDANCE-TARGETS'], r.caseId)
 }
-const items11 = items.map((i) => `${CONTRACT} ${i.itemId}`)
-const withoutOriginProgression = items11.filter((x) => ['02.a', '02.b', '03.a', '03.b', '03.c'].every((s) => !x.endsWith(`RPC-002-${s}`)))
+const itemRefs = items.map((i) => `${CONTRACT} ${i.itemId}`)
+const withoutOriginProgression = itemRefs.filter((x) => ['02.a', '02.b', '03.a', '03.b', '03.c'].every((s) => !x.endsWith(`RPC-002-${s}`)))
 
 test(`A02-0, the knowledge as it stands: Steps 1 and 2 by the handoff and consumed by the chain; refused at structure on our restatement's own two lines (origin value, control referent); RESTATEMENT-ONLY; placed instead of consumed, the same refusal over the chain's own GF3`, () => {
     const r = byCase('A02-0')
@@ -268,7 +302,7 @@ test(`A02-0, the knowledge as it stands: Steps 1 and 2 by the handoff and consum
     assert.match(r.refusalBasis?.cited[0].owedBy ?? '', /^the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED \(\*\), a declaration of another contract; applied row-wide/)
     assert.equal(r.refusalBasis?.cited[1].owedBy, 'the requirement declaration reaching the element: restated:RPC-002 NOT_AUTHORED (type=origin), a declaration of the contract establishing the element')
     assert.deepEqual([r.lines.length, r.sentences.length, r.requirementAccount, r.laws], [0, 0, null, null])
-    assert.deepEqual(r.consumption?.draftItemsDerived, items11)
+    assert.deepEqual(r.consumption?.draftItemsDerived, itemRefs)
     assert.deepEqual(r.consumption?.draftShaped, [])
     // The bite: the same case without its consumption treatment goes the handoff's earlier way: the chain selects on its own (GF3, by its
     // keyword scorer) and the handoff PLACES Step 2's form over it; the refusal is the same, the provenance is not.
@@ -356,7 +390,7 @@ test('A02-D (diagnostic, TEST-ONLY: every condition item withheld, the LAW-11 st
     assert.deepEqual(r.consumption?.draftShaped, [{ lineId: 'game::V1', value: 'line_crossed', by: ['restated:RPC-002 RPC-002-01.a NARROWS'] }])
     assert.deepEqual(r.requirementAccount, { status: 'REPORT_ONLY', contract: 'DRAFT', components: [] })
     assert.deepEqual(r.reportNotes.map((n) => [n.section, n.quotes.map((q) => q.words)]), [['standing', ['Please distinguish demonstrated structural compatibility from demonstrated representative sufficiency.']]])
-    assert.deepEqual(r.consumption?.draftItemsDerived, items11.filter((x) => ['01.a', '01.b', '05', '06'].some((s) => x.endsWith(`RPC-002-${s}`))))
+    assert.deepEqual(r.consumption?.draftItemsDerived, itemRefs.filter((x) => ['01.a', '05', '06'].some((s) => x.endsWith(`RPC-002-${s}`))))
 })
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -430,7 +464,8 @@ test(`the report: the runs and what each refusal rests on, the CANDIDATE mapping
     assert.equal(effect('RPC-002-04.a', 'A02-1'), `   effect in A02-1: refused on ${CONTROL_LINE} (at structure)`)
     assert.equal(effect('RPC-002-04.a', 'A02-1b'), '   effect in A02-1b: carried: c:restated:RPC-002:RPC-002-04.a::V4 rest on it (the run then stopped: refused at validation) (its V5 line declared NON_CLAIMED NO_FURTHER_VALUE by treatment TT-CONTROL-NO-FURTHER-VALUE)')
     assert.equal(effect('RPC-002-03.c', 'A02-D'), '   effect in A02-D: withheld by treatment TT-WITHHOLD-CONDITION')
-    assert.ok(lines[lines.indexOf('- RPC-002-01.b') + 2].includes('ASSUMED, OURS'), 'the ASSUMED count is marked OURS')
+    assert.equal(lines.indexOf('- RPC-002-01.b'), -1, 'the ASSUMED count is dropped (measured: no run needs it)')
+    assert.equal(items.filter((i) => i.basis === 'ASSUMED' || !i.sources.length).length, 0, 'every item restates a row it quotes')
     assert.ok(lines[lines.indexOf('- RPC-002-01.a') + 1].startsWith('   source row and its standing: RPC-REL-075 (relationships, line 1232): APPROVED: '), 'the source row and its standing come first')
     // UNRESOLVED, the questions, the relationships.
     has('UNRESOLVED (10; kept explicit, never closed by an assumption; the same list stands on every run)')
@@ -439,7 +474,10 @@ test(`the report: the runs and what each refusal rests on, the CANDIDATE mapping
     assert.equal(lines.filter((l) => l.includes('[the next consequential gap]')).length, 1)
     const Q = String.fromCharCode(34)
     const named = inputs.rulings.find((r) => r.id === 'A02-10NOV-ERR')!.words[1]
-    has(`ESSENTIAL REPRESENTATIVE RELATIONSHIPS (4), as Christian names them: ${Q}${named}${Q} (received 10 November 2026)`)
+    has(`ESSENTIAL REPRESENTATIVE RELATIONSHIPS (4), as Christian names them: ${Q}${named}${Q} (reply about A02, pasted 10 November 2026)`)
+    // The reply about A02 was pasted without its mail header: no citation of it prints a received date (each prints its paste date).
+    assert.equal(text.split('received 10 November 2026').length - 1, 0, 'no received date is printed for the reply about A02')
+    assert.ok(text.split('(reply about A02, pasted 10 November 2026)').length - 1 > 1, 'its citations print the paste date')
     for (const rel of ['defining context', 'established opposition pressure', 'relevant attacking opportunities', 'representative consequences and scoring']) has(`- ${rel}`)
     // The CAR notes rest on Step 1's own composite profile (measured): GP-015's row, every requirement Essential, SA flagged.
     const profile = runStage1('A02', k).resolution.profile
@@ -449,9 +487,10 @@ test(`the report: the runs and what each refusal rests on, the CANDIDATE mapping
     assert.equal(selector.split('SHADOW MODE: resolved for inspection only').length - 1, 1, 'the selector resolves the CAR profile in shadow mode, once')
     // Quotation marks: every double-quoted span is, verbatim, words of a ruling the inputs hold; no gendered pronoun anywhere.
     const words = new Set(inputs.rulings.flatMap((r) => r.words))
-    const spans = text.split(Q).filter((_, n) => n % 2 === 1)
-    assert.ok(spans.length > 0 && text.split(Q).length % 2 === 1, 'quotation marks pair')
+    const spans = quotedSpans(text)
+    assert.ok(spans.length > 0, 'quotation marks pair')
     for (const s of spans) assert.ok(words.has(s), `a double-quoted span that is not Christian's words: ${s}`)
+    assert.deepEqual(quotedSpans(`a ${String.fromCharCode(0x201c)}b ${Q}c${Q} d${String.fromCharCode(0x201d)} and ${Q}e${Q}`), [`b ${Q}c${Q} d`, 'e'], 'bite: a typographic span is read whole')
     const hit = lines.findIndex((l) => holdsGenderedPronoun(l))
     assert.equal(hit, -1, `a gendered pronoun at line ${hit + 1}: ${lines[hit]}`)
     // Generated twice, identical (a second run of every case through the chain).

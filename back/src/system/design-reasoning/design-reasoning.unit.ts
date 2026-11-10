@@ -278,11 +278,11 @@ function testTheStageReachesNoKeywordParserOrTokenScorer(): void {
     // behavior."): the handoff's two stage files join the closure (14 files become 16); they import only assembly.ts, knowledge.ts,
     // stage1.ts, trace.ts and each other, all already in it or added here, and receive the checked chain as an injected interface (no import
     // of rendering, derivation or realization), so the closure still reaches no loader beyond the two below.
-    // FOUNDATIONAL TEST AMENDMENT (stage 9, Christian's authorization received 10 November 2026, section 1: "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."):
+    // FOUNDATIONAL TEST AMENDMENT (stage 9, Christian's authorization pasted 10 November 2026, section 1: "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."):
     // the test's report file joins the closure (16 files become 17, measured before and after); it imports only assembly.ts, handoff.ts and
     // handoff-report.ts, all already in it, and receives the restated items and the results as plain data, so the closure still reaches no
     // loader beyond the two below.
-    // SAFEGUARDS AMENDMENT (stage 9, Christian's authorization received 10 November 2026, section 3: "I am not requesting another library, reasoning layer, or monitoring system."):
+    // SAFEGUARDS AMENDMENT (stage 9, Christian's authorization pasted 10 November 2026, section 3: "I am not requesting another library, reasoning layer, or monitoring system."):
     // the safeguards' pure check joins the closure (17 files become 18, measured before and after: 17 at f7a2b40, 18 with safeguards.ts); it
     // imports only handoff.ts (types), already in it, and receives the runs as plain data, so the closure still reaches no loader beyond the two below.
     assert.deepEqual(

@@ -31,7 +31,7 @@
  *   - Since the review's second round: a gap is a cited owed line no requirement declaration reaches by the chain's own reach of its element;
  *     an open line refused for being outside its permitted set is read through the bounding items the chain names; each cited item prints its
  *     class; a communication refusal is a renderer capability gap only where every code is Q3.
- *   - Since the isolated foundational test (stage 9; Christian's authorization received 10 November 2026): a case may declare that the chain
+ *   - Since the isolated foundational test (stage 9; Christian's authorization, pasted 10 November 2026): a case may declare that the chain
  *     CONSUMES Step 1's resolved Game Problem and Step 2's SELECTED form (`ChainRequest.consume`; the form is then consumed, never placed, and
  *     nothing is placed), and the result carries what the chain's own account recorded it consumed (`consumption`), apart from the chain's own
  *     reading; a TEST-ONLY treatment may replace one declaration of a contract on the chain's copy, or name the classification of the laws the
@@ -45,7 +45,7 @@
  * module of the checked chain: the chain arrives as an injected, structurally typed interface (`HandoffChain`), wired only by the unit test.
  * It names no goal, Game Problem, context, Game Form, law or data id, and no sport word: every such value lives in its data file and test.
  */
-import { classLabel, longDate, premiseStandingLabel, receivedOf, SIX_CLASSES, SixClass, sixClassOf, VALUE_LABELS } from './assembly'
+import { citedDateOf, classLabel, premiseStandingLabel, receivedOf, SIX_CLASSES, SixClass, sixClassOf, VALUE_LABELS } from './assembly'
 import { committedKnowledge, DesignKnowledge, isStanding, Standing } from './knowledge'
 import { runStage1, Stage1Result } from './stage1'
 import { weakestStanding } from './trace'
@@ -58,8 +58,13 @@ export interface HandoffRuling {
     id: string
     words: string[]
     file: string
+    /** The received date (ISO); for a reply whose received date is not recorded (`dateBasis`), the date it was pasted and filed. */
     received: string
     replyOfDay?: string
+    /** Optional: PASTED_WITHOUT_HEADER where the reply was pasted without its mail header, so `received` holds the paste date (stage 9 review). */
+    dateBasis?: 'PASTED_WITHOUT_HEADER'
+    /** With `dateBasis` only: how a citation names the reply in place of a received date (data, never the stage's own words). */
+    citedAs?: string
     provisional: boolean
     scope: string | null
 }
@@ -300,7 +305,7 @@ function citedRefs(c: Record<string, unknown>): string[] {
 
 const CASE_KEYS = ['id', 'basedOn', 'label', 'resultStanding', 'goalId', 'form', 'session', 'purpose', 'chain', 'record', 'realization', 'rulings', 'suppliedChoices', 'standIns', 'illustrative', 'testOnlyTreatments', 'proposedManipulations', 'decisionKindOverrides', 'notCarried', 'proposedChoices', 'gameProblemOverride', 'reportNotes', 'qualifierRulingRef']
 const NOTE_SECTIONS = ['standing', 'text', 'diagram']
-const RULING_KEYS = ['id', 'words', 'file', 'received', 'replyOfDay', 'provisional', 'scope']
+const RULING_KEYS = ['id', 'words', 'file', 'received', 'replyOfDay', 'dateBasis', 'citedAs', 'provisional', 'scope']
 
 /**
  * The review data, checked by hand and returned as a deep copy with every case's `basedOn` resolved (a case states only what differs from its
@@ -330,6 +335,9 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
         if (!Array.isArray(r.words) || !r.words.length || !(r.words as unknown[]).every(filled)) errors.push(`ruling ${String(r.id)} quotes no words`)
         if (!filled(r.file)) errors.push(`ruling ${String(r.id)} names no file`)
         if (!isDate(r.received)) errors.push(`ruling ${String(r.id)}: the received date is not a real date`)
+        // A reply pasted without its mail header keeps its paste date in `received`, marked, and names itself for citations (both or neither).
+        if (r.dateBasis !== undefined && r.dateBasis !== 'PASTED_WITHOUT_HEADER') errors.push(`ruling ${String(r.id)}: dateBasis is PASTED_WITHOUT_HEADER or absent`)
+        if ((r.dateBasis === undefined) !== (r.citedAs === undefined) || (r.citedAs !== undefined && !filled(r.citedAs))) errors.push(`ruling ${String(r.id)}: a dateBasis and the name a citation gives the reply (citedAs) come together`)
         if (typeof r.provisional !== 'boolean') errors.push(`ruling ${String(r.id)} does not say whether it is provisional`)
     }
     const known = (ref: unknown, where: string) => {
@@ -548,7 +556,7 @@ export interface ChainRequest {
     /** True where the case's realization declares REPORT: the harness then holds each owed law to the DRAFT materiality reading. */
     holdReportedLawsToMateriality: boolean
     /**
-     * Present only where the case declares CONSUMED_STEPS (the isolated foundational test, stage 9; Christian's authorization received 10
+     * Present only where the case declares CONSUMED_STEPS (the isolated foundational test, stage 9; Christian's authorization, pasted 10
      * November 2026, section 1): Step 1's resolved primary Game Problem with its basis, and Step 2's SELECTED form with its standing words and the
      * grade of every cell it rests on, as Steps 1 and 2 returned them in this run, for the chain to consume rather than select from wording.
      * `place` is then empty (the wiring refuses otherwise): the form is consumed, never placed, and no manipulation is placed.
@@ -1011,8 +1019,8 @@ const rulingOf = (inputs: HandoffInputs, id: string): HandoffRuling => {
     return r
 }
 /** Christian's words with their received date, as a `because` or a citation reads them. */
-const citedWords = (r: HandoffRuling): string => `Christian, received ${receivedOf(r)}${r.provisional ? ' (provisional)' : ''}: ${r.words.map((w) => `"${w}"`).join(' ')}`
-const citedAs = (r: HandoffRuling): string => `Christian's reply received ${receivedOf(r)}`
+const citedWords = (r: HandoffRuling): string => `Christian, ${citedDateOf(r)}${r.provisional ? ' (provisional)' : ''}: ${r.words.map((w) => `"${w}"`).join(' ')}`
+const citedAs = (r: HandoffRuling): string => (r.dateBasis ? `Christian's ${citedDateOf(r)}` : `Christian's reply received ${receivedOf(r)}`)
 
 function receiveStep1(result: Stage1Result | null, c: CaseInput, inputs: HandoffInputs): HandoffResult['receive'] {
     if (!result) return { step1: null, step2: null, scopeSetBy: [] }
@@ -1231,7 +1239,7 @@ function itemPremise(ctx: GradingContext, contractId: string, itemId: string): P
         return premise('REALIZATION_ITEM', ref, {
             standing: 'ILLUSTRATIVE',
             label: VALUE_LABELS.ILLUSTRATIVE,
-            note: `Christian's own label for what these items type is illustrative (${r.id}, received ${receivedOf(r)}); ${labelled.why}; the realization gate types such items ${item.basis} only because a provisional realization's items must carry that basis, and that typing is not changed`,
+            note: `Christian's own label for what these items type is illustrative (${r.id}, ${citedDateOf(r)}); ${labelled.why}; the realization gate types such items ${item.basis} only because a provisional realization's items must carry that basis, and that typing is not changed`,
         })
     }
     if (contract.origin === 'REALIZATION') {
@@ -1328,7 +1336,7 @@ function linePremises(ctx: GradingContext, line: ChainLine): { premises: Premise
         } else if (line.lawStatus === 'ADAPTATION_OWED') {
             premises.push(premise('UNRESOLVED', `${line.law}: an adaptation is owed (the laws account names why)`))
         } else {
-            premises.push(premise('LAWS_DEFAULT_PRINCIPLE', `the Laws apply by default (${principle.id}, received ${longDate(principle.received)})`))
+            premises.push(premise('LAWS_DEFAULT_PRINCIPLE', `the Laws apply by default (${principle.id}, ${citedDateOf(principle, true)})`))
             premises.push(premise('LAWS_ENCODING', `${line.law} ${line.lawStatus}: ${ctx.inputs.grading.lawsDefault.encoding}`))
         }
     }
@@ -1680,7 +1688,7 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
     const receive = receiveStep1(s1, c, inputs)
     if (c.record) receive.scopeSetBy = c.record.gameProblemScopeRefs.map((ref) => {
         const r = rulingOf(inputs, ref)
-        return `${r.id} (received ${receivedOf(r)}; scope ${r.scope ?? 'none stated'}): sets the scope only, decides nothing`
+        return `${r.id} (${citedDateOf(r)}; scope ${r.scope ?? 'none stated'}): sets the scope only, decides nothing`
     })
     const form = determineForm(c, s1, inputs)
     const rulings = c.rulings.map((entry) => {
@@ -1714,8 +1722,8 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
                 value: deepCopy(p.value),
                 applied: false,
                 outcome: same
-                    ? `already the value Christian's ruling ${r.id} (received ${receivedOf(r)}${r.provisional ? ', provisional' : ''}) gives the line; nothing changes`
-                    : `contrary to Christian's ruling ${r.id} (received ${receivedOf(r)}${r.provisional ? ', provisional' : ''}), which closes the line as ${valueWords(ruled.value)}: not applied; the line keeps the ruling's value`,
+                    ? `already the value Christian's ruling ${r.id} (${citedDateOf(r)}${r.provisional ? ', provisional' : ''}) gives the line; nothing changes`
+                    : `contrary to Christian's ruling ${r.id} (${citedDateOf(r)}${r.provisional ? ', provisional' : ''}), which closes the line as ${valueWords(ruled.value)}: not applied; the line keeps the ruling's value`,
             }
         }
         const existing = effective.suppliedChoices.findIndex((x) => x.lineId === p.lineId)

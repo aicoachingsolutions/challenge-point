@@ -520,6 +520,13 @@ export const longDate = (iso: string): string => `${Number(iso.slice(8, 10))} ${
  * ('5 November 2026, second reply'), so two replies of one day are never cited alike. The date stays first (the quote check reads it).
  */
 export const receivedOf = (r: { received: string; replyOfDay?: string }): string => `${longDate(r.received)}${r.replyOfDay ? `, ${r.replyOfDay}` : ''}`
+/**
+ * How a citation dates a ruling: 'received <date>' (with the reply of the day, unless `dateOnly`), or, for a reply pasted without its mail
+ * header (dateBasis PASTED_WITHOUT_HEADER: its received date is not recorded and `received` holds the paste date), the name the data gives
+ * the reply (`citedAs`) and 'pasted <date>'. The date stays in the parenthesis (the quote check reads it).
+ */
+export const citedDateOf = (r: { received: string; replyOfDay?: string; dateBasis?: string; citedAs?: string }, dateOnly = false): string =>
+    r.dateBasis === 'PASTED_WITHOUT_HEADER' ? `${r.citedAs ?? 'reply'}, pasted ${longDate(r.received)}` : `received ${dateOnly ? longDate(r.received) : receivedOf(r)}`
 /** A reply named in a sentence: 'the second reply of 5 November' where several arrived that day, otherwise 'the reply of 6 November'. */
 export const replyName = (r: { received: string; replyOfDay?: string }): string => `the ${r.replyOfDay ?? 'reply'} of ${longDate(r.received).split(' ').slice(0, 2).join(' ')}`
 

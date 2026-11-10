@@ -137,21 +137,21 @@
     "kind": "DIFFERS",
     "a02": "'the pressing line', 'beyond'",
     "ta02": "'a more advanced representative area', 'more advanced'",
-    "note": "carried as open text and a value; not executed in either built game"
+    "note": "carried as open text and a value; not executed in either built game; TA02's item (RPC-003-11.a) restates the clause Christian wrote as an example (13 September), which the pending 13 September correction is to restore as illustrative"
    },
    {
     "aspect": "the condition's control clause (our restatement's values)",
     "kind": "DIFFERS",
     "a02": "'retains possession through the next action'",
     "ta02": "'while maintaining attacking possession'",
-    "note": "the referent is UNDECLARED in both restatements"
+    "note": "the referent is UNDECLARED in both restatements; TA02's item (RPC-003-12.a) makes required the possession condition of a clause Christian wrote as an example (13 September), contrary to Christian's first reply of 7 November, section 4"
    },
    {
     "aspect": "where the knowledge as it stands stops",
     "kind": "DIFFERS",
     "a02": "structure: c:restated:RPC-002:RPC-002-04.a::V5, c:restated:RPC-002:RPC-002-02.a::V6 (RESTATEMENT-ONLY)",
     "ta02": "structure: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6 (RESTATEMENT-ONLY)",
-    "note": "the same stage and the same two kinds of line, the control clause's referent and the origin clause's value, each on its own context's restatement"
+    "note": "the same stage and the same two kinds of line, the control clause's referent and the origin clause's value, each on its own context's restatement; not like for like: on TA02's side the control line is our item RPC-003-12.a, which makes the illustrative clause's possession condition a required one, contrary to Christian's first reply of 7 November, section 4 (quoted in item 6)"
    },
    {
     "aspect": "opposition (our restatement's participant rows)",
@@ -201,7 +201,7 @@
   ],
   "sentencesIdentical": true
  },
- "reuseFinding": "Measured, the Game Problem, affordance and Game Form reasoning is shared without any new structure: both goals resolve to GP-015 through their own approved translation rows, Step 1 consults the same CAR profile, Step 2 selects GF2 from the same relationship (its GP-015 cell graded CANDIDATE in both), and the same TEST-ONLY consumption carries both results to the chain. What would set the two contexts apart lives in each context's own rows (its identity, its opposition and its scoring condition), which the chain applies after the shared reasoning, through each context's restatement: the existing architecture already has that place. It does not execute yet: as the knowledge stands both goals stop at structure on the same two kinds of line of their own restatements, and with every condition item withheld the two built activities collapse into one plain GF2 activity (identical coach text; identical configuration lines but one transition value's source). So the existing relationships appear capable of the reuse Christian describes; what keeps the two contexts from collapsing is the missing operational interpretation and carrier of each context's condition, not a missing goal-family structure; each context's affordance targets stay deferred.",
+ "reuseFinding": "Measured, the Game Problem and Game Form reasoning is shared without any new structure: both goals resolve to GP-015 through their own approved translation rows, and Step 2 selects GF2 through GF2's same GP-015 cell (graded CANDIDATE in both), each over its own context's declared-form rows; the same TEST-ONLY consumption carries both results to the chain. On the affordance side only the CAR profile Step 1 consults is shared, and it determines nothing downstream; the engine lenses, scored from each goal's wording, differ, and each context's affordance targets stay deferred. What would set the two contexts apart lives in each context's own rows (its identity, its opposition and its scoring condition), which the chain applies after the shared reasoning, through each context's restatement: the existing architecture already has that place. It does not execute yet: as the knowledge stands both goals stop at structure on the same two kinds of line of their own restatements, but not like for like: on TA02's side the control line is our item RPC-003-12.a, which makes the possession condition of a clause Christian wrote as an example a required one, contrary to Christian's first reply of 7 November, section 4: “Similarly, do not convert \"maintaining attacking possession\" into a separate mandatory scoring requirement without identifying an authoritative basis.” (received 7 November 2026, first reply). With every condition item withheld the two built activities collapse into one plain GF2 activity (identical coach text; identical configuration lines but one transition value's source). So the existing relationships appear capable of the reuse Christian describes; what keeps the two contexts from collapsing is the missing operational interpretation and carrier of each context's condition, not a missing goal-family structure.",
  "ta02Safeguards": [
   {
    "id": "TA02-0",
@@ -1003,7 +1003,7 @@
      "rule": "PACKAGE_ROW_O"
     }
    ],
-   "evidence": "attributed by re-running the exported isSelectionPackageCompatible on GF2 and each of the 4 lens combinations: a lone Wide Zone Advantage or Turnover Reward is refused by the foundation clause on every combination, Central Density Condition alone and with Interception Reward by row o; the role mix is not attributable without an observer"
+   "evidence": "attributed by re-running the exported isSelectionPackageCompatible on GF2 and each of the 4 lens combinations: a lone Wide Zone Advantage or Turnover Reward is first refused by the foundation clause on every combination, Central Density Condition alone and with Interception Reward first by row o (the check returns the first reason it meets; the foundation clause runs before every package row); the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612)"
   },
   {
    "id": "OD-WORDING-FLIP",
@@ -1034,7 +1034,7 @@
    "evidence": "the reworded lenses are Line-Breaking, Possession Stability and Space Creation; row k (Turnover Reward does not support the selected affordance tag group) refuses all 4 lens combinations there, 1 of 4 on the goal's own lenses",
    "measured": {
     "before": "the goal's wording: selected on GF2 with Neutral Player and Turnover Reward, then refused at knowledge (the authorized constraint Turnover Reward has no contribution contract)",
-    "after": "the reversed and the neutral wording: refused at selection, NO_COMPATIBLE_COMBINATION on GF2 (row k on every lens combination); lenses none"
+    "after": "the reversed and the neutral wording: refused at selection, NO_COMPATIBLE_COMBINATION on GF2 (row k on every lens combination); lenses none; a lone Neutral Player, which the package check admits on every lens combination of the reworded pool and which commits as S4-NP~reversed and S4-NP~neutral, is never tried: under the bypass the sizes enumerated for a set of 2 are 2 to 4, so the refusal rests on row k together with that floor for subsets"
    }
   },
   {
@@ -1327,7 +1327,7 @@
    "id": "ZERO_BRANCH",
    "check": "the zero branch: an evaluated empty set commits lenses with no constraint",
    "where": "generateSelection.ts:811-815, :1030",
-   "origin": "1f18a02, 15 October 2026",
+   "origin": "1f18a02 (the branch, then switched by a per-record zeroConstraintRuling) and 487dc32 (the general-principle switch, :1030), 15 October 2026",
    "disposition": "KEPT_ENFORCED",
    "reported": null,
    "authority": "Christian's general principle of 15 October 2026 (a constraint is not mandatory unless justified)",
@@ -1343,7 +1343,7 @@
    "where": "generateSelection.ts:719-721 (assertSelectionContract), :835 (the sizes enumerated)",
    "origin": "3980188, 3 May 2026",
    "disposition": "BYPASSED_SIZE_RULE_ONLY",
-   "reported": "bypassed only under the TEST-ONLY SIZE_RULE_BYPASS treatment (the authorization's section 5)",
+   "reported": "bypassed only under the TEST-ONLY SIZE_RULE_BYPASS treatment (the authorization's section 5); under the bypass the sizes enumerated are the set's own size and 2 to 4, so for a set of 2 to 4 a one-manipulation subset is never tried (the floor of 2 remains for subsets)",
    "authority": "none found; engine rule",
    "readsLenses": false,
    "reads": "nothing of the wording",
@@ -1355,21 +1355,21 @@
    "id": "ROLE_MIX",
    "check": "the role mix",
    "where": "generateSelection.ts:590-612, applied :839",
-   "origin": "3980188, 3 May 2026",
+   "origin": "3980188, 3 May 2026 (the rule, :590-612); dc98ecb, 14 October 2026 (its needs read over the goal's pool, :819-827, applied :839)",
    "disposition": "KEPT_ENFORCED",
-   "reported": "reported with its source and authority (the authorization's section 5); not attributable without an observer",
-   "authority": "none found; engine rule",
+   "reported": "reported with its source and authority (the authorization's section 5); it refuses no set run here: a set of 1 or 2 is enumerated only whole, and its needs are read over the pool (generateSelection.ts:827, :835-836, :590-612)",
+   "authority": "none found for the rule; the pool-relative reading of its needs is our reading of Christian's 14 October ruling (constraints only from the goal's designated candidates), not a ruling on the role mix",
    "readsLenses": true,
    "reads": "the constraint scores of each lens combination (the wording's tokens and the lens slugs, generateSelection.ts:572-580, :817-827)",
    "path": "NON_EMPTY_SET",
    "marks": [],
-   "control": "not attributable without an observer (no observer is added to the selector)"
+   "control": "none needed: read from the code, it refuses no set run here (no observer is added to the selector)"
   },
   {
    "id": "FOUNDATION_CLAUSE",
    "check": "the foundation clause (with its keyword threshold)",
    "where": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-   "origin": "e60a740, 18 April 2026",
+   "origin": "e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
    "disposition": "KEPT_ENFORCED",
    "reported": "reported with its source and authority (the authorization's section 5)",
    "authority": "none found; engine rule (our own comment calls it not ruled)",
@@ -1490,7 +1490,7 @@
     "id": "L1",
     "path": "the legacy route (nothing consumed, the production records: no A02 authorization record)",
     "stage": "selection",
-    "reason": "selection: A02: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF3; unfilled roles: shaping; held by ruling: none. Nothing was drawn from outside the goal's candidates.",
+    "reason": "A02: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF3; unfilled roles: shaping; held by ruling: none. Nothing was drawn from outside the goal's candidates.",
     "kind": "PATH",
     "categories": [
      1
@@ -1538,7 +1538,7 @@
      1,
      5
     ],
-    "why": "the origin clause first: no operational interpretation of the clause is held (question 1 of the smallest source material, the next consequential gap), and no carrier exists for it (the only typed begin condition is a restart, the only episode scope the build-out one)",
+    "why": "of the two lines this stop cites together, the origin clause, placed first by us (OURS: the condition is what distinguishes High Press Escape from the contexts sharing its events): no operational interpretation of the clause is held (question 1 of the smallest source material, the next consequential gap), and no carrier exists for it (the only typed begin condition is a restart, the only episode scope the build-out one)",
     "passed": false,
     "passedBy": null
    }
@@ -1553,7 +1553,7 @@
     1,
     5
    ],
-   "why": "the origin clause first: no operational interpretation of the clause is held (question 1 of the smallest source material, the next consequential gap), and no carrier exists for it (the only typed begin condition is a restart, the only episode scope the build-out one)",
+   "why": "of the two lines this stop cites together, the origin clause, placed first by us (OURS: the condition is what distinguishes High Press Escape from the contexts sharing its events): no operational interpretation of the clause is held (question 1 of the smallest source material, the next consequential gap), and no carrier exists for it (the only typed begin condition is a restart, the only episode scope the build-out one)",
    "passed": false,
    "passedBy": null
   },
@@ -2948,7 +2948,7 @@
     },
     "engineRule": {
      "rule": "FOUNDATION_CLAUSE",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the FOUNDATION_CLAUSE reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -2997,12 +2997,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026; authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the FOUNDATION_CLAUSE reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "FOUNDATION_CLAUSE",
       "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026",
+      "origin": "e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
       "readsLenses": true
      }
     },
@@ -3133,7 +3133,7 @@
     },
     "engineRule": {
      "rule": "FOUNDATION_CLAUSE",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the FOUNDATION_CLAUSE reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -3182,12 +3182,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026; authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the FOUNDATION_CLAUSE reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "FOUNDATION_CLAUSE",
       "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026",
+      "origin": "e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
       "readsLenses": true
      }
     },
@@ -3318,7 +3318,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_O reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -3367,7 +3367,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_O reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
@@ -3898,7 +3898,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_O reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -3947,7 +3947,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_O reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
@@ -4174,6 +4174,212 @@
      "clause": null,
      "verdict": "NOT_REACHED",
      "why": "no game was built (the run stopped at selection)",
+     "consulted": null
+    }
+   ]
+  },
+  {
+   "id": "S4-NP+WZA/no-bypass",
+   "kind": "CONTROL",
+   "label": "quota control: two manipulations without the bypass (a set inside 2 to 4)",
+   "run": {
+    "runId": "S4-NP+WZA/no-bypass",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-wide-zone-advantage"
+     ],
+     "recordKind": "TEST_ONLY_RECORD",
+     "standIns": []
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "structure",
+     "reasons": [
+      "Gate A is FAIL",
+      "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+      "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-002:RPC-002-04.a::V5, c:restated:RPC-002:RPC-002-02.a::V6"
+     ],
+     "refusalVerdict": "RESTATEMENT-ONLY",
+     "ownPick": [
+      "GF2"
+     ],
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-wide-zone-advantage"
+     ],
+     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "lenses": [
+      "Possession Stability Opportunity",
+      "Space Creation Opportunity",
+      "Regain Opportunity"
+     ],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "SELECTION_TRACE_RANKING",
+      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintCandidateIds": [
+       "tl-v0-constraint-neutral-player-condition",
+       "tl-v0-constraint-wide-zone-advantage"
+      ],
+      "sizeRuleBypassed": false
+     },
+     "contextInThisActivity": true,
+     "scoringCondition": null
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [
+      "RPC-002-02.a",
+      "RPC-002-02.b",
+      "RPC-002-03.a",
+      "RPC-002-03.b",
+      "RPC-002-03.c",
+      "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "resting": [],
+     "unestablished": [],
+     "resolved": [],
+     "withheld": [],
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
+    },
+    "engineRule": null
+   },
+   "findings": [
+    {
+     "runId": "S4-NP+WZA/no-bypass",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CARRIED_NOT_READ",
+     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "S4-NP+WZA/no-bypass",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA/no-bypass",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA/no-bypass",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+     "consulted": "the chain's own pick: GF2"
+    },
+    {
+     "runId": "S4-NP+WZA/no-bypass",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (tl-v0-constraint-neutral-player-condition, tl-v0-constraint-wide-zone-advantage); built tl-v0-constraint-neutral-player-condition, tl-v0-constraint-wide-zone-advantage",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA/no-bypass",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the selection committed; the chain's own checks then stopped the run at structure",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA/no-bypass",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA/no-bypass",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA/no-bypass",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA/no-bypass",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "CITED_NOT_CARRIED",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried",
+     "consulted": "the requirement account is not on this run"
+    },
+    {
+     "runId": "S4-NP+WZA/no-bypass",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at structure)",
      "consulted": null
     }
    ]
@@ -8375,7 +8581,7 @@
     },
     "engineRule": {
      "rule": "FOUNDATION_CLAUSE",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the FOUNDATION_CLAUSE reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -8424,12 +8630,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026; authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the FOUNDATION_CLAUSE reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "FOUNDATION_CLAUSE",
       "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026",
+      "origin": "e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
       "readsLenses": true
      }
     },
@@ -8560,7 +8766,7 @@
     },
     "engineRule": {
      "rule": "FOUNDATION_CLAUSE",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the FOUNDATION_CLAUSE reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -8609,12 +8815,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026; authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the FOUNDATION_CLAUSE reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "FOUNDATION_CLAUSE",
       "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026",
+      "origin": "e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
       "readsLenses": true
      }
     },
@@ -8745,7 +8951,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_O reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -8794,7 +9000,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_O reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
@@ -9138,7 +9344,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_K",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_K reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -9187,7 +9393,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: each member supports the selected affordance tag group (row k)); source validate-constraint-package.ts:356-367, e60a740, 18 April 2026; authority UNCONFIRMED (the tag-group data); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_K reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: each member supports the selected affordance tag group (row k)); source validate-constraint-package.ts:356-367, e60a740, 18 April 2026; authority UNCONFIRMED (the tag-group data); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_K",
@@ -9325,7 +9531,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_O reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -9374,7 +9580,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_O reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
@@ -10441,7 +10647,7 @@
     },
     "engineRule": {
      "rule": "FOUNDATION_CLAUSE",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the FOUNDATION_CLAUSE reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -10490,12 +10696,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026; authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the FOUNDATION_CLAUSE reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "FOUNDATION_CLAUSE",
       "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026",
+      "origin": "e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
       "readsLenses": true
      }
     },
@@ -10626,7 +10832,7 @@
     },
     "engineRule": {
      "rule": "FOUNDATION_CLAUSE",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the FOUNDATION_CLAUSE reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -10675,12 +10881,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026; authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the FOUNDATION_CLAUSE reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327, e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "FOUNDATION_CLAUSE",
       "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026",
+      "origin": "e60a740, 18 April 2026 (build-constraint-package.ts:614-621, threshold :147-153); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
       "readsLenses": true
      }
     },
@@ -10811,7 +11017,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_O reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -10860,7 +11066,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_O reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
@@ -11204,7 +11410,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_K",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_K reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -11253,7 +11459,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: each member supports the selected affordance tag group (row k)); source validate-constraint-package.ts:356-367, e60a740, 18 April 2026; authority UNCONFIRMED (the tag-group data); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_K reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: each member supports the selected affordance tag group (row k)); source validate-constraint-package.ts:356-367, e60a740, 18 April 2026; authority UNCONFIRMED (the tag-group data); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_K",
@@ -11391,7 +11597,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_O reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -11440,7 +11646,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one refused with the PACKAGE_ROW_O reason (the role mix is not attributable without an observer; the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493, e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
@@ -12342,7 +12548,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "no carrier: the only typed begin condition is a restart (register V5: the begin condition of a restart, a STOP_RESUME transition), the only episode scope is BUILD_OUT_EPISODE, RPC-001's (SD-36), and V5 excludes a player's position during play; our restatement carries the clause as RPC-002-02.a with its referent as open text (RPC-002-02.b) and its value declared NOT_AUTHORED, and the knowledge run is refused on that line (c:restated:RPC-002:RPC-002-02.a::V6)",
+     "where": "no carrier: the only typed begin condition is a restart (register V5: the begin condition of a restart, a STOP_RESUME transition), the only episode scope is BUILD_OUT_EPISODE, RPC-001's (SD-36: Christian's approval of 20 September of that scope, the attacking episode that begins with RPC-001's build-out), and V5 excludes a player's position during play; our restatement carries the clause as RPC-002-02.a with its referent as open text (RPC-002-02.b) and its value declared NOT_AUTHORED, and the knowledge run is refused on that line (c:restated:RPC-002:RPC-002-02.a::V6)",
      "label": "UNRESOLVED"
     },
     {
@@ -12351,7 +12557,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart; not typed by us. The value 'beyond' is carried (RPC-002-03.c)",
+     "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart (C54: Christian's ruling that A01's progression reference and its pressure reference are two distinct references); not typed by us. The value 'beyond' is carried (RPC-002-03.c)",
      "label": "UNRESOLVED"
     },
     {
@@ -12360,7 +12566,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "not stated: UNDECLARED in our restatement, so the knowledge run and A02-1 are refused on c:restated:RPC-002:RPC-002-04.a::V5; A02-1b and A02-2 pass that line only under the TEST-ONLY declaration NO_FURTHER_VALUE (TT-CONTROL-NO-FURTHER-VALUE: the C55 analog; not ruled; would need Christian's approval under M6). The value is carried (RPC-002-04.b)",
+     "where": "not stated: UNDECLARED in our restatement, so the knowledge run and A02-1 are refused on c:restated:RPC-002:RPC-002-04.a::V5; A02-1b and A02-2 pass that line only under the TEST-ONLY declaration NO_FURTHER_VALUE (TT-CONTROL-NO-FURTHER-VALUE: the analog of C55, Christian's ruling that an A01 build-out's origin needs no further value; not ruled for A02; would need Christian's approval under M6). The value is carried (RPC-002-04.b)",
      "label": "UNRESOLVED"
     },
     {
@@ -12369,7 +12575,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "every condition item is scoped WHOLE_GAME (OURS), which holds every score of the game to the condition; the faithful scope is a High Press Escape sequence, which no vocabulary holds (an episode scope is added only by Christian's approval, as SD-36 added BUILD_OUT_EPISODE)",
+     "where": "every condition item is scoped WHOLE_GAME (OURS), which holds every score of the game to the condition; the faithful scope is a High Press Escape sequence, which no vocabulary holds (an episode scope is added only by Christian's approval, as SD-36, Christian's approval of 20 September, added BUILD_OUT_EPISODE)",
      "label": "UNRESOLVED"
     },
     {
@@ -12388,7 +12594,7 @@
       "A02-08NOV-RESTART",
       "A02-10NOV-TREATMENTS"
      ],
-     "where": "SD-14 (Christian's decision of 18 September) makes a change of possession begin a new attacking episode, and defines episode boundaries only; Christian's caution of 8 November says a restart, a change of possession and a new attack are not automatically equivalent; GF2-17 makes play continue on a change of possession. Features of GF2 bearing on established pressure (OURS, no ruling): possession changes continue (GF2-17), and one shared target is attacked by both teams (GF2-12.a), so nothing makes one team the pressing team. Not closed here",
+     "where": "SD-14 (Christian's decision of 18 September) makes a change of possession begin a new attacking episode, and defines episode boundaries only; Christian's caution of 8 November says a restart, a change of possession and a new attack are not automatically equivalent; GF2-17 makes play continue on a change of possession. Features of GF2 bearing on established pressure: possession changes continue (GF2-17), and each team attacks the end opposite its own (GF2-08.c, GF2-08.e: the per-team directional arrangement, by Christian's ruling of 9 October), the same for both teams; so nothing in GF2 makes one team the pressing team (OURS: no ruling we hold addresses pressing in GF2). Not closed here",
      "label": "UNRESOLVED"
     },
     {
@@ -12595,7 +12801,6 @@
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
      "restated:RPC-002 RPC-002-01.a",
-     "restated:RPC-002 RPC-002-01.b",
      "restated:RPC-002 RPC-002-02.a",
      "restated:RPC-002 RPC-002-02.b",
      "restated:RPC-002 RPC-002-03.a",
@@ -12899,7 +13104,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "no carrier: the only typed begin condition is a restart (register V5: the begin condition of a restart, a STOP_RESUME transition), the only episode scope is BUILD_OUT_EPISODE, RPC-001's (SD-36), and V5 excludes a player's position during play; our restatement carries the clause as RPC-002-02.a with its referent as open text (RPC-002-02.b) and its value declared NOT_AUTHORED, and the knowledge run is refused on that line (c:restated:RPC-002:RPC-002-02.a::V6)",
+     "where": "no carrier: the only typed begin condition is a restart (register V5: the begin condition of a restart, a STOP_RESUME transition), the only episode scope is BUILD_OUT_EPISODE, RPC-001's (SD-36: Christian's approval of 20 September of that scope, the attacking episode that begins with RPC-001's build-out), and V5 excludes a player's position during play; our restatement carries the clause as RPC-002-02.a with its referent as open text (RPC-002-02.b) and its value declared NOT_AUTHORED, and the knowledge run is refused on that line (c:restated:RPC-002:RPC-002-02.a::V6)",
      "label": "UNRESOLVED"
     },
     {
@@ -12908,7 +13113,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart; not typed by us. The value 'beyond' is carried (RPC-002-03.c)",
+     "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart (C54: Christian's ruling that A01's progression reference and its pressure reference are two distinct references); not typed by us. The value 'beyond' is carried (RPC-002-03.c)",
      "label": "UNRESOLVED"
     },
     {
@@ -12917,7 +13122,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "not stated: UNDECLARED in our restatement, so the knowledge run and A02-1 are refused on c:restated:RPC-002:RPC-002-04.a::V5; A02-1b and A02-2 pass that line only under the TEST-ONLY declaration NO_FURTHER_VALUE (TT-CONTROL-NO-FURTHER-VALUE: the C55 analog; not ruled; would need Christian's approval under M6). The value is carried (RPC-002-04.b)",
+     "where": "not stated: UNDECLARED in our restatement, so the knowledge run and A02-1 are refused on c:restated:RPC-002:RPC-002-04.a::V5; A02-1b and A02-2 pass that line only under the TEST-ONLY declaration NO_FURTHER_VALUE (TT-CONTROL-NO-FURTHER-VALUE: the analog of C55, Christian's ruling that an A01 build-out's origin needs no further value; not ruled for A02; would need Christian's approval under M6). The value is carried (RPC-002-04.b)",
      "label": "UNRESOLVED"
     },
     {
@@ -12926,7 +13131,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "every condition item is scoped WHOLE_GAME (OURS), which holds every score of the game to the condition; the faithful scope is a High Press Escape sequence, which no vocabulary holds (an episode scope is added only by Christian's approval, as SD-36 added BUILD_OUT_EPISODE)",
+     "where": "every condition item is scoped WHOLE_GAME (OURS), which holds every score of the game to the condition; the faithful scope is a High Press Escape sequence, which no vocabulary holds (an episode scope is added only by Christian's approval, as SD-36, Christian's approval of 20 September, added BUILD_OUT_EPISODE)",
      "label": "UNRESOLVED"
     },
     {
@@ -12945,7 +13150,7 @@
       "A02-08NOV-RESTART",
       "A02-10NOV-TREATMENTS"
      ],
-     "where": "SD-14 (Christian's decision of 18 September) makes a change of possession begin a new attacking episode, and defines episode boundaries only; Christian's caution of 8 November says a restart, a change of possession and a new attack are not automatically equivalent; GF2-17 makes play continue on a change of possession. Features of GF2 bearing on established pressure (OURS, no ruling): possession changes continue (GF2-17), and one shared target is attacked by both teams (GF2-12.a), so nothing makes one team the pressing team. Not closed here",
+     "where": "SD-14 (Christian's decision of 18 September) makes a change of possession begin a new attacking episode, and defines episode boundaries only; Christian's caution of 8 November says a restart, a change of possession and a new attack are not automatically equivalent; GF2-17 makes play continue on a change of possession. Features of GF2 bearing on established pressure: possession changes continue (GF2-17), and each team attacks the end opposite its own (GF2-08.c, GF2-08.e: the per-team directional arrangement, by Christian's ruling of 9 October), the same for both teams; so nothing in GF2 makes one team the pressing team (OURS: no ruling we hold addresses pressing in GF2). Not closed here",
      "label": "UNRESOLVED"
     },
     {
@@ -13135,7 +13340,6 @@
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
      "restated:RPC-002 RPC-002-01.a",
-     "restated:RPC-002 RPC-002-01.b",
      "restated:RPC-002 RPC-002-04.a",
      "restated:RPC-002 RPC-002-04.b",
      "restated:RPC-002 RPC-002-05",
@@ -13440,7 +13644,7 @@
      "what": "the control clause's referent declared to need no further value, on the chain's copy of our restatement",
      "effect": "the control line's referent is no longer owed, so the run passes structure",
      "why": "to find the next stop behind the control referent; nothing authorizes it",
-     "label": "TEST-ONLY: the C55 analog; not ruled; would need Christian's approval under M6",
+     "label": "TEST-ONLY: the analog of C55 (Christian's ruling that an A01 build-out's origin needs no further value); not ruled for A02; would need Christian's approval under M6",
      "rulingRefs": [
       "A02-10NOV-TREATMENTS"
      ]
@@ -13464,7 +13668,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "no carrier: the only typed begin condition is a restart (register V5: the begin condition of a restart, a STOP_RESUME transition), the only episode scope is BUILD_OUT_EPISODE, RPC-001's (SD-36), and V5 excludes a player's position during play; our restatement carries the clause as RPC-002-02.a with its referent as open text (RPC-002-02.b) and its value declared NOT_AUTHORED, and the knowledge run is refused on that line (c:restated:RPC-002:RPC-002-02.a::V6)",
+     "where": "no carrier: the only typed begin condition is a restart (register V5: the begin condition of a restart, a STOP_RESUME transition), the only episode scope is BUILD_OUT_EPISODE, RPC-001's (SD-36: Christian's approval of 20 September of that scope, the attacking episode that begins with RPC-001's build-out), and V5 excludes a player's position during play; our restatement carries the clause as RPC-002-02.a with its referent as open text (RPC-002-02.b) and its value declared NOT_AUTHORED, and the knowledge run is refused on that line (c:restated:RPC-002:RPC-002-02.a::V6)",
      "label": "UNRESOLVED"
     },
     {
@@ -13473,7 +13677,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart; not typed by us. The value 'beyond' is carried (RPC-002-03.c)",
+     "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart (C54: Christian's ruling that A01's progression reference and its pressure reference are two distinct references); not typed by us. The value 'beyond' is carried (RPC-002-03.c)",
      "label": "UNRESOLVED"
     },
     {
@@ -13482,7 +13686,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "not stated: UNDECLARED in our restatement, so the knowledge run and A02-1 are refused on c:restated:RPC-002:RPC-002-04.a::V5; A02-1b and A02-2 pass that line only under the TEST-ONLY declaration NO_FURTHER_VALUE (TT-CONTROL-NO-FURTHER-VALUE: the C55 analog; not ruled; would need Christian's approval under M6). The value is carried (RPC-002-04.b)",
+     "where": "not stated: UNDECLARED in our restatement, so the knowledge run and A02-1 are refused on c:restated:RPC-002:RPC-002-04.a::V5; A02-1b and A02-2 pass that line only under the TEST-ONLY declaration NO_FURTHER_VALUE (TT-CONTROL-NO-FURTHER-VALUE: the analog of C55, Christian's ruling that an A01 build-out's origin needs no further value; not ruled for A02; would need Christian's approval under M6). The value is carried (RPC-002-04.b)",
      "label": "UNRESOLVED"
     },
     {
@@ -13491,7 +13695,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "every condition item is scoped WHOLE_GAME (OURS), which holds every score of the game to the condition; the faithful scope is a High Press Escape sequence, which no vocabulary holds (an episode scope is added only by Christian's approval, as SD-36 added BUILD_OUT_EPISODE)",
+     "where": "every condition item is scoped WHOLE_GAME (OURS), which holds every score of the game to the condition; the faithful scope is a High Press Escape sequence, which no vocabulary holds (an episode scope is added only by Christian's approval, as SD-36, Christian's approval of 20 September, added BUILD_OUT_EPISODE)",
      "label": "UNRESOLVED"
     },
     {
@@ -13510,7 +13714,7 @@
       "A02-08NOV-RESTART",
       "A02-10NOV-TREATMENTS"
      ],
-     "where": "SD-14 (Christian's decision of 18 September) makes a change of possession begin a new attacking episode, and defines episode boundaries only; Christian's caution of 8 November says a restart, a change of possession and a new attack are not automatically equivalent; GF2-17 makes play continue on a change of possession. Features of GF2 bearing on established pressure (OURS, no ruling): possession changes continue (GF2-17), and one shared target is attacked by both teams (GF2-12.a), so nothing makes one team the pressing team. Not closed here",
+     "where": "SD-14 (Christian's decision of 18 September) makes a change of possession begin a new attacking episode, and defines episode boundaries only; Christian's caution of 8 November says a restart, a change of possession and a new attack are not automatically equivalent; GF2-17 makes play continue on a change of possession. Features of GF2 bearing on established pressure: possession changes continue (GF2-17), and each team attacks the end opposite its own (GF2-08.c, GF2-08.e: the per-team directional arrangement, by Christian's ruling of 9 October), the same for both teams; so nothing in GF2 makes one team the pressing team (OURS: no ruling we hold addresses pressing in GF2). Not closed here",
      "label": "UNRESOLVED"
     },
     {
@@ -14946,7 +15150,6 @@
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
      "restated:RPC-002 RPC-002-01.a",
-     "restated:RPC-002 RPC-002-01.b",
      "restated:RPC-002 RPC-002-04.a",
      "restated:RPC-002 RPC-002-04.b",
      "restated:RPC-002 RPC-002-05",
@@ -15259,7 +15462,7 @@
      "what": "the control clause's referent declared to need no further value, on the chain's copy of our restatement",
      "effect": "the control line's referent is no longer owed, so the run passes structure",
      "why": "to find the next stop behind the control referent; nothing authorizes it",
-     "label": "TEST-ONLY: the C55 analog; not ruled; would need Christian's approval under M6",
+     "label": "TEST-ONLY: the analog of C55 (Christian's ruling that an A01 build-out's origin needs no further value); not ruled for A02; would need Christian's approval under M6",
      "rulingRefs": [
       "A02-10NOV-TREATMENTS"
      ]
@@ -15288,7 +15491,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "no carrier: the only typed begin condition is a restart (register V5: the begin condition of a restart, a STOP_RESUME transition), the only episode scope is BUILD_OUT_EPISODE, RPC-001's (SD-36), and V5 excludes a player's position during play; our restatement carries the clause as RPC-002-02.a with its referent as open text (RPC-002-02.b) and its value declared NOT_AUTHORED, and the knowledge run is refused on that line (c:restated:RPC-002:RPC-002-02.a::V6)",
+     "where": "no carrier: the only typed begin condition is a restart (register V5: the begin condition of a restart, a STOP_RESUME transition), the only episode scope is BUILD_OUT_EPISODE, RPC-001's (SD-36: Christian's approval of 20 September of that scope, the attacking episode that begins with RPC-001's build-out), and V5 excludes a player's position during play; our restatement carries the clause as RPC-002-02.a with its referent as open text (RPC-002-02.b) and its value declared NOT_AUTHORED, and the knowledge run is refused on that line (c:restated:RPC-002:RPC-002-02.a::V6)",
      "label": "UNRESOLVED"
     },
     {
@@ -15297,7 +15500,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart; not typed by us. The value 'beyond' is carried (RPC-002-03.c)",
+     "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart (C54: Christian's ruling that A01's progression reference and its pressure reference are two distinct references); not typed by us. The value 'beyond' is carried (RPC-002-03.c)",
      "label": "UNRESOLVED"
     },
     {
@@ -15306,7 +15509,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "not stated: UNDECLARED in our restatement, so the knowledge run and A02-1 are refused on c:restated:RPC-002:RPC-002-04.a::V5; A02-1b and A02-2 pass that line only under the TEST-ONLY declaration NO_FURTHER_VALUE (TT-CONTROL-NO-FURTHER-VALUE: the C55 analog; not ruled; would need Christian's approval under M6). The value is carried (RPC-002-04.b)",
+     "where": "not stated: UNDECLARED in our restatement, so the knowledge run and A02-1 are refused on c:restated:RPC-002:RPC-002-04.a::V5; A02-1b and A02-2 pass that line only under the TEST-ONLY declaration NO_FURTHER_VALUE (TT-CONTROL-NO-FURTHER-VALUE: the analog of C55, Christian's ruling that an A01 build-out's origin needs no further value; not ruled for A02; would need Christian's approval under M6). The value is carried (RPC-002-04.b)",
      "label": "UNRESOLVED"
     },
     {
@@ -15315,7 +15518,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "every condition item is scoped WHOLE_GAME (OURS), which holds every score of the game to the condition; the faithful scope is a High Press Escape sequence, which no vocabulary holds (an episode scope is added only by Christian's approval, as SD-36 added BUILD_OUT_EPISODE)",
+     "where": "every condition item is scoped WHOLE_GAME (OURS), which holds every score of the game to the condition; the faithful scope is a High Press Escape sequence, which no vocabulary holds (an episode scope is added only by Christian's approval, as SD-36, Christian's approval of 20 September, added BUILD_OUT_EPISODE)",
      "label": "UNRESOLVED"
     },
     {
@@ -15334,7 +15537,7 @@
       "A02-08NOV-RESTART",
       "A02-10NOV-TREATMENTS"
      ],
-     "where": "SD-14 (Christian's decision of 18 September) makes a change of possession begin a new attacking episode, and defines episode boundaries only; Christian's caution of 8 November says a restart, a change of possession and a new attack are not automatically equivalent; GF2-17 makes play continue on a change of possession. Features of GF2 bearing on established pressure (OURS, no ruling): possession changes continue (GF2-17), and one shared target is attacked by both teams (GF2-12.a), so nothing makes one team the pressing team. Not closed here",
+     "where": "SD-14 (Christian's decision of 18 September) makes a change of possession begin a new attacking episode, and defines episode boundaries only; Christian's caution of 8 November says a restart, a change of possession and a new attack are not automatically equivalent; GF2-17 makes play continue on a change of possession. Features of GF2 bearing on established pressure: possession changes continue (GF2-17), and each team attacks the end opposite its own (GF2-08.c, GF2-08.e: the per-team directional arrangement, by Christian's ruling of 9 October), the same for both teams; so nothing in GF2 makes one team the pressing team (OURS: no ruling we hold addresses pressing in GF2). Not closed here",
      "label": "UNRESOLVED"
     },
     {
@@ -16773,7 +16976,6 @@
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
      "restated:RPC-002 RPC-002-01.a",
-     "restated:RPC-002 RPC-002-01.b",
      "restated:RPC-002 RPC-002-04.a",
      "restated:RPC-002 RPC-002-04.b",
      "restated:RPC-002 RPC-002-05",
@@ -17067,7 +17269,7 @@
       "RPC-002-04.b"
      ],
      "what": "every condition item of our restatement withheld from derivation, on the chain's copy (after the draft store's own gate admitted the restatement whole)",
-     "effect": "only the approved events (with the form's own) and the count reach derivation: plain GF2",
+     "effect": "only the approved events (with the form's own) and the two identity items recorded outside the boundary (which establish nothing) reach derivation: plain GF2",
      "why": "a diagnostic of structural compatibility only; the draft store refuses a restatement with no condition item, so the items are withheld after its gate, never dropped from it",
      "label": "TEST-ONLY diagnostic: structural compatibility only, not representative sufficiency",
      "rulingRefs": [
@@ -17099,7 +17301,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "no carrier: the only typed begin condition is a restart (register V5: the begin condition of a restart, a STOP_RESUME transition), the only episode scope is BUILD_OUT_EPISODE, RPC-001's (SD-36), and V5 excludes a player's position during play; our restatement carries the clause as RPC-002-02.a with its referent as open text (RPC-002-02.b) and its value declared NOT_AUTHORED, and the knowledge run is refused on that line (c:restated:RPC-002:RPC-002-02.a::V6)",
+     "where": "no carrier: the only typed begin condition is a restart (register V5: the begin condition of a restart, a STOP_RESUME transition), the only episode scope is BUILD_OUT_EPISODE, RPC-001's (SD-36: Christian's approval of 20 September of that scope, the attacking episode that begins with RPC-001's build-out), and V5 excludes a player's position during play; our restatement carries the clause as RPC-002-02.a with its referent as open text (RPC-002-02.b) and its value declared NOT_AUTHORED, and the knowledge run is refused on that line (c:restated:RPC-002:RPC-002-02.a::V6)",
      "label": "UNRESOLVED"
     },
     {
@@ -17108,7 +17310,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart; not typed by us. The value 'beyond' is carried (RPC-002-03.c)",
+     "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart (C54: Christian's ruling that A01's progression reference and its pressure reference are two distinct references); not typed by us. The value 'beyond' is carried (RPC-002-03.c)",
      "label": "UNRESOLVED"
     },
     {
@@ -17117,7 +17319,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "not stated: UNDECLARED in our restatement, so the knowledge run and A02-1 are refused on c:restated:RPC-002:RPC-002-04.a::V5; A02-1b and A02-2 pass that line only under the TEST-ONLY declaration NO_FURTHER_VALUE (TT-CONTROL-NO-FURTHER-VALUE: the C55 analog; not ruled; would need Christian's approval under M6). The value is carried (RPC-002-04.b)",
+     "where": "not stated: UNDECLARED in our restatement, so the knowledge run and A02-1 are refused on c:restated:RPC-002:RPC-002-04.a::V5; A02-1b and A02-2 pass that line only under the TEST-ONLY declaration NO_FURTHER_VALUE (TT-CONTROL-NO-FURTHER-VALUE: the analog of C55, Christian's ruling that an A01 build-out's origin needs no further value; not ruled for A02; would need Christian's approval under M6). The value is carried (RPC-002-04.b)",
      "label": "UNRESOLVED"
     },
     {
@@ -17126,7 +17328,7 @@
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ],
-     "where": "every condition item is scoped WHOLE_GAME (OURS), which holds every score of the game to the condition; the faithful scope is a High Press Escape sequence, which no vocabulary holds (an episode scope is added only by Christian's approval, as SD-36 added BUILD_OUT_EPISODE)",
+     "where": "every condition item is scoped WHOLE_GAME (OURS), which holds every score of the game to the condition; the faithful scope is a High Press Escape sequence, which no vocabulary holds (an episode scope is added only by Christian's approval, as SD-36, Christian's approval of 20 September, added BUILD_OUT_EPISODE)",
      "label": "UNRESOLVED"
     },
     {
@@ -17145,7 +17347,7 @@
       "A02-08NOV-RESTART",
       "A02-10NOV-TREATMENTS"
      ],
-     "where": "SD-14 (Christian's decision of 18 September) makes a change of possession begin a new attacking episode, and defines episode boundaries only; Christian's caution of 8 November says a restart, a change of possession and a new attack are not automatically equivalent; GF2-17 makes play continue on a change of possession. Features of GF2 bearing on established pressure (OURS, no ruling): possession changes continue (GF2-17), and one shared target is attacked by both teams (GF2-12.a), so nothing makes one team the pressing team. Not closed here",
+     "where": "SD-14 (Christian's decision of 18 September) makes a change of possession begin a new attacking episode, and defines episode boundaries only; Christian's caution of 8 November says a restart, a change of possession and a new attack are not automatically equivalent; GF2-17 makes play continue on a change of possession. Features of GF2 bearing on established pressure: possession changes continue (GF2-17), and each team attacks the end opposite its own (GF2-08.c, GF2-08.e: the per-team directional arrangement, by Christian's ruling of 9 October), the same for both teams; so nothing in GF2 makes one team the pressing team (OURS: no ruling we hold addresses pressing in GF2). Not closed here",
      "label": "UNRESOLVED"
     },
     {
@@ -18642,7 +18844,6 @@
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
      "restated:RPC-002 RPC-002-01.a",
-     "restated:RPC-002 RPC-002-01.b",
      "restated:RPC-002 RPC-002-05",
      "restated:RPC-002 RPC-002-06"
     ],
@@ -18920,7 +19121,7 @@
      "rulingRefs": [
       "A02-10NOV-TREATMENTS"
      ],
-     "where": "our DRAFT restatement of RPC-003 declares the origin value NOT_AUTHORED and leaves the control referent UNDECLARED, so TA02-0 is refused on those two lines, as A02-0 is on RPC-002's; TA02-D withholds every condition item",
+     "where": "our DRAFT restatement of RPC-003 declares the origin value NOT_AUTHORED and leaves the control referent UNDECLARED, so TA02-0 is refused on those two lines, as A02-0 is on RPC-002's; TA02-D withholds every condition item. Not like for like: TA02's progression and control items (RPC-003-11.a, RPC-003-12.a) restate the clause Christian wrote as an example on 13 September, which the pending 13 September correction is to restore as illustrative, and RPC-003-12.a makes its possession condition a required control clause, which Christian's first reply of 7 November, section 4, says not to do without an authoritative basis (quoted in item 6); the restatement is unchanged here",
      "label": "UNRESOLVED"
     }
    ],
@@ -19424,7 +19625,7 @@
      "rulingRefs": [
       "A02-10NOV-TREATMENTS"
      ],
-     "where": "our DRAFT restatement of RPC-003 declares the origin value NOT_AUTHORED and leaves the control referent UNDECLARED, so TA02-0 is refused on those two lines, as A02-0 is on RPC-002's; TA02-D withholds every condition item",
+     "where": "our DRAFT restatement of RPC-003 declares the origin value NOT_AUTHORED and leaves the control referent UNDECLARED, so TA02-0 is refused on those two lines, as A02-0 is on RPC-002's; TA02-D withholds every condition item. Not like for like: TA02's progression and control items (RPC-003-11.a, RPC-003-12.a) restate the clause Christian wrote as an example on 13 September, which the pending 13 September correction is to restore as illustrative, and RPC-003-12.a makes its possession condition a required control clause, which Christian's first reply of 7 November, section 4, says not to do without an authoritative basis (quoted in item 6); the restatement is unchanged here",
      "label": "UNRESOLVED"
     }
    ],
