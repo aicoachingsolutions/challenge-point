@@ -1,6 +1,6 @@
 /**
  * Records the 13 September 2026 primary scoring additions and the 11 November 2026 correction in the RPC workbook's two record
- * sheets, "RC1.1 Resolutions" and "RC1.1 Audit", on Christian's approval of 11 November 2026 (second reply), item 5.
+ * sheets, 'RC1.1 Resolutions' and 'RC1.1 Audit', on Christian's approval of 11 November 2026 (second reply), item 5.
  *
  * Run from back/:  npx ts-node --files -r tsconfig-paths/register ./src/scripts/apply-rpc-2026-11-11-rc11-record-sheets.ts
  *
@@ -25,8 +25,8 @@
  * Development scoring rules (program text in primary-scoring.ts, not workbook rows) are recorded as such, with 'None' as their
  * canonical change. Nothing else of Christian's second reply of 11 November 2026 is recorded here.
  *
- * THE TWO SHEETS ARE NOT PROJECTED. project-rpc-workbook.py declares ten sheets and leaves the README and these two out ("Both are
- * Christian's record of how the action items landed, written for people, so they are not projected either."), so the library,
+ * THE TWO SHEETS ARE NOT PROJECTED. project-rpc-workbook.py declares ten sheets and leaves the README and these two out ('Both are
+ * Christian's record of how the action items landed, written for people, so they are not projected either.'), so the library,
  * rpc-library.rc1.json, is not written. This script proves it: the library must equal the projection of the workbook, all ten
  * sheets and the derived metadata, byte for byte, before and after (the reader reads Metadata's boolean cells since 11 November
  * 2026; see workbook-projection.ts ReadOptions).
