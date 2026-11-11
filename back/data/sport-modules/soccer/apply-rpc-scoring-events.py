@@ -17,6 +17,11 @@ Where each lands, using only sheets the frozen schema already has (no new sheet 
                          his order (relationship ids preserve it).
   Properties             property_category PRIMARY_SCORING_CONDITION: one per context, his wording.
 
+Corrected 11 November 2026: the RPC-003 condition below was first transcribed with a colon where
+Christian's 13 September email reads "—for example,". It was restored in the workbook (Properties
+D135 only) and here on Christian's approval of that day ("I approve the canonical workbook
+correction." (received 11 November 2026)), by back/src/scripts/apply-rpc-2026-11-11-attack-development-condition.ts.
+
 Runtime status is NOT changed here. He made ACTIVE conditional on these changes being reflected
 AND validation passing, so ACTIVE is a separate, later edit.
 
@@ -68,7 +73,7 @@ CONDITIONS = {
                "happens to reach the target does not satisfy the event.",
     "RPC-002": "The sequence begins under established coordinated pressure, the event occurs beyond the pressing "
                "line, and the attacking team retains possession through the next action.",
-    "RPC-003": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching "
+    "RPC-003": "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching "
                "a more advanced representative area while maintaining attacking possession.",
     "RPC-004": "The finishing area is reached through the event and the ball is received under control, with live "
                "defensive opposition. The context ends when the meaningful scoring opportunity has been created.",

@@ -64,6 +64,10 @@
     {
       "finding": "his reply filed 30 October 2026, item 6 (applied 28 October 2026, B2)",
       "change": "One shared ball. RPC-003-04.a (O1 [kind=ball] EXISTS, the analog of RPC-001-10.a) is withdrawn from the items and kept whole under withdrawnItems: it was \"an additional ball introduced because two knowledge components refer to possession\", which his item 6 rules out. RPC-003-04.b stays (OUTSIDE_BOUNDARY, establishes nothing). The O1 [kind=ball] CLAIMED declaration now names 04.b and carries his item 6 words as its source; the RPC-PROP-037 and RPC-PROP-134 placement notes and ledger L-07 say 04.a is withdrawn; PR-4 is withdrawn. The Sport Profile records RPC-003 as referring to the environment's ball (environmentElements, beside RPC-001's existing identification, which is unchanged). No other item, declaration or proposed ruling changed. The notes file and README carry a dated note; their tables and ledger still show the 27 October draft."
+    },
+    {
+      "finding": "Christian's reply received 11 November 2026, item 1 (the canonical scoring correction; applied 11 November 2026)",
+      "change": "The 11 source quotations of RPC-PROP-134 (items 02, 04.b, 05, 10.a, 10.b, 11.a, 11.b, 11.c, 12.a and 12.b, and the withdrawn 04.a) are re-quoted to the corrected row: the colon after 'possession alone' becomes '—for example,'. Christian: \"I approve the canonical workbook correction.\" \"The correction should replace the erroneous colon with the dash and \"for example,\" without changing anything else in the canonical row.\" (received 11 November 2026). Re-quoted because the draft store requires each source's words verbatim in the row it cites (draft-store.ts, citedRowOf), and refuses the whole store otherwise. Nothing else changed: no item, strictness, value, valueStatus, basis, basisEvidence, declaration or proposed ruling. Reported, not changed here: 12.a and 12.b (and the DRAFT bindings' control component) still make \"while maintaining attacking possession\" REQUIRED, which Christian's same item reads as an example (\"The wording establishes an example of purposeful attacking advancement, not a mandatory condition requiring possession to be maintained in every qualifying scoring event.\" (received 11 November 2026)); and 02, 11.a, 11.b and 11.c (and the DRAFT bindings' progression component) rest only on words the corrected row places inside its example. Both are left for Christian's review with the A02 work, where this draft is used."
     }
   ],
   "about": "The contribution contract for RPC-003 Attack Development, in the shape of the RPC-001 entry of docs/audits/conformance/stage-b/contracts.json (entry 0) as corpus-restatements.json leaves it, built from the RPC-003 workbook rows. `contractEntry` is that shape exactly, with two annotation keys on every item and on the entry, `standing` (DRAFT) and `source` (the workbook rows quoted, each with file and line). corpus.ts loadCorpusContracts passes unknown item keys through untouched (corpus.ts:93-96) and neither key is one the engine reads by name (types.ts ENGINE_ITEM_KEYS), so the two keys change nothing a derivation does; they are for review and for the draft store (E1). kind \"restated\" is chosen because knowledgeKey strips only \"restated:\" and \"blind:\" (derivation/knowledge-key.ts:13-17): any other prefix would never match the context id RPC-003. setIndex is omitted, as for the two blind entries, because this contract was not derived from a contributions file. Added 28 October 2026 (B2 review): one declaration, O1 [kind=ball] CLAIMED, also carries `source`, and it is his words ({words, citedAs}), not workbook rows; the draft store checks no declaration's sources (it stamps every declaration DRAFT_KNOWLEDGE), and back/src/system/derivation/environment-elements.unit.ts pins those words to the Sport Profile's environment record, where the same ruling is recorded for RPC-003.",
@@ -178,7 +182,7 @@
               "table": "properties",
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
               "line": 2651,
-              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.",
               "category": "PRIMARY_SCORING_CONDITION",
               "importance": "CORE",
               "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
@@ -278,7 +282,7 @@
               "table": "properties",
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
               "line": 2651,
-              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.",
               "category": "PRIMARY_SCORING_CONDITION",
               "importance": "CORE",
               "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
@@ -333,7 +337,7 @@
               "table": "properties",
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
               "line": 2651,
-              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.",
               "category": "PRIMARY_SCORING_CONDITION",
               "importance": "CORE",
               "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
@@ -579,7 +583,7 @@
               "table": "properties",
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
               "line": 2651,
-              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.",
               "category": "PRIMARY_SCORING_CONDITION",
               "importance": "CORE",
               "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
@@ -665,7 +669,7 @@
               "table": "properties",
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
               "line": 2651,
-              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.",
               "category": "PRIMARY_SCORING_CONDITION",
               "importance": "CORE",
               "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
@@ -751,7 +755,7 @@
               "table": "properties",
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
               "line": 2651,
-              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.",
               "category": "PRIMARY_SCORING_CONDITION",
               "importance": "CORE",
               "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
@@ -837,7 +841,7 @@
               "table": "properties",
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
               "line": 2651,
-              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.",
               "category": "PRIMARY_SCORING_CONDITION",
               "importance": "CORE",
               "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
@@ -923,7 +927,7 @@
               "table": "properties",
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
               "line": 2651,
-              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.",
               "category": "PRIMARY_SCORING_CONDITION",
               "importance": "CORE",
               "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
@@ -1009,7 +1013,7 @@
               "table": "properties",
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
               "line": 2651,
-              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.",
               "category": "PRIMARY_SCORING_CONDITION",
               "importance": "CORE",
               "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
@@ -1095,7 +1099,7 @@
               "table": "properties",
               "file": "back/src/system/sport-module/rpc-library.rc1.json",
               "line": 2651,
-              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.",
               "category": "PRIMARY_SCORING_CONDITION",
               "importance": "CORE",
               "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
@@ -2326,7 +2330,7 @@
             "table": "properties",
             "file": "back/src/system/sport-module/rpc-library.rc1.json",
             "line": 2651,
-            "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+            "text": "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.",
             "category": "PRIMARY_SCORING_CONDITION",
             "importance": "CORE",
             "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"

@@ -14,6 +14,7 @@ import path from 'node:path'
 
 import { AUDITS_DIR } from '../derivation/knowledge-root'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
+import { CellValue, openWorkbook, projectSheet } from '../session-planning/workbook-projection'
 import rpcWorkbook from './rpc-library.rc1.json'
 import { rpcLibrary, validateRpcLibraryIntegrity, type PlanningRoute, type RpcWorkbook } from './rpc-library'
 
@@ -267,6 +268,184 @@ function testReconciliationRecordCitesOnlyRowsThatExist(): void {
     assert.ok(record.includes('**521 cells, 0 differences**'))
 }
 
+// ---- the canonical correction of 11 November 2026 -------------------------------------------------------------
+//
+// Christian's reply received 11 November 2026, item 1: "I approve the canonical workbook correction." (received 11 November
+// 2026). Item 3 asks for targeted checks; these four answer two of them: "The workbook now matches the verified September 13
+// source." and "The corrected clause remains illustrative rather than mandatory." (received 11 November 2026). The workbook
+// is canonical and the library its projection, so each is proved where a consumer reads it: the workbook cell itself, the
+// library the engine imports, the generator that would write the cell again, and Christian's own words of 13 September.
+
+const RPC_WORKBOOK = path.resolve(__dirname, '../../../data/sport-modules/soccer/rpc-workbook.rc1.1.xlsm')
+const SCORING_GENERATOR = path.resolve(__dirname, '../../../data/sport-modules/soccer/apply-rpc-scoring-events.py')
+
+/** RPC-PROP-134, Attack Development's PRIMARY_SCORING_CONDITION, as corrected on 11 November 2026 (Properties!D135). */
+const ATTACK_DEVELOPMENT_CONDITION =
+    "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession."
+
+/**
+ * The words that govern each PRIMARY_SCORING_CONDITION row: Christian's email of 13 September 2026 (received 13 September 2026),
+ * verbatim as filed in the sources repository (sources/2026-09-13-scoring-approval/originals/christian-scoring-approval-email.txt),
+ * each with its line there. Which sentences govern which row is our mapping, for review. Line 42 gives its first sentence only:
+ * its "such as:" opens Chance Creation's list of events, which the relationship rows carry, not RPC-PROP-135.
+ */
+const SEPTEMBER_13_GOVERNING_WORDS: Record<string, { line: number; words: string }[]> = {
+    'RPC-PROP-132': [
+        {
+            line: 19,
+            words: 'The qualifying condition should preserve the build-out identity: initiated from the goalkeeper or controlled defensive restart, progressing beyond the initial pressure/progression line, with possession controlled on arrival. A long clearance that happens to reach the target should not satisfy the event.',
+        },
+    ],
+    'RPC-PROP-133': [
+        {
+            line: 28,
+            words: 'The condition distinguishes the Context: the sequence begins under established coordinated pressure, the event occurs beyond the pressing line, and the attacking team retains possession through the next action.',
+        },
+    ],
+    'RPC-PROP-134': [
+        {
+            line: 38,
+            words: 'The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.',
+        },
+    ],
+    'RPC-PROP-135': [
+        { line: 39, words: 'Chance Creation — keep the proposed finishing-zone/controlled-arrival approach rather than adding shot on target.' },
+        { line: 42, words: 'Chance Creation should end when the meaningful scoring opportunity has been created.' },
+        { line: 48, words: 'with live defensive opposition as part of the qualifying condition.' },
+    ],
+    'RPC-PROP-136': [{ line: 55, words: 'Where the realization includes a goalkeeper, the goalkeeper should remain active as part of the representative condition.' }],
+    'RPC-PROP-137': [{ line: 65, words: 'These count only within the representative transition window following the regain.' }],
+    'RPC-PROP-138': [
+        { line: 71, words: 'Denial = a specified opponent progression event does not occur before the stated defensive condition is satisfied.' },
+        {
+            line: 73,
+            words: 'The opponent does not cross the specified progression line or enter the specified progression zone within the Counter-Press window following possession loss.',
+        },
+        {
+            line: 74,
+            words: 'I’m comfortable using the existing 5-second Counter-Press Window here since that timing already exists in the knowledge rather than being invented for this scoring layer.',
+        },
+    ],
+    'RPC-PROP-139': [
+        {
+            line: 85,
+            words: 'The opponent is prevented from crossing the specified progression line, entering the protected zone, or reaching the realized attacking objective during the attacking sequence.',
+        },
+        { line: 86, words: 'A particular realization can still use time where appropriate, but I would not make time intrinsic to the Attack Prevention Context.' },
+    ],
+}
+
+/** The sheets project-rpc-workbook.py projects, with their keys in the library; Metadata, the tenth, is read below. */
+const PROJECTED_TABLES: [string, string][] = [
+    ['Registry', 'registry'],
+    ['Statements', 'statements'],
+    ['Relationships', 'relationships'],
+    ['Properties', 'properties'],
+    ['Identity Rules', 'identity_rules'],
+    ['Context Transitions', 'transitions'],
+    ['Validation Rules', 'validation_rules'],
+    ['Controlled Vocabulary', 'controlled_vocabulary'],
+    ['Implementation Staging', 'implementation_staging'],
+]
+
+/**
+ * **C0. The committed library is the committed workbook's projection.** `project-rpc-workbook.py` writes the library from the
+ * workbook ("Never hand-edit the JSON — regenerate it."), and until 11 November 2026 nothing compared the two: an edit to either
+ * alone passed every check. Read by `workbook-projection.ts`'s reader under project-rpc-workbook.py's rules (header row 1, all-blank
+ * rows skipped, every headed column kept, strings stripped and blank ones null), each of the nine sheets equals the library's table.
+ * Metadata holds boolean cells, which that reader refuses rather than guesses; it is pinned as refused, so a reader that learns
+ * booleans brings it in.
+ */
+function testCommittedLibraryIsTheWorkbookProjection(): void {
+    const workbook = openWorkbook(fs.readFileSync(RPC_WORKBOOK))
+    const clean = (value: CellValue): CellValue => (typeof value === 'string' ? (value.trim() === '' ? null : value.trim()) : value)
+    for (const [sheet, key] of PROJECTED_TABLES) {
+        const projected = projectSheet(workbook.cells(sheet)).map((row) => Object.fromEntries(Object.entries(row).map(([column, value]) => [column, clean(value)])))
+        assert.deepEqual(projected, (REAL as unknown as Record<string, unknown>)[key], `the library's ${key} must be exactly the workbook's ${sheet} sheet projected`)
+    }
+    assert.throws(() => workbook.cells('Metadata'), /has cell type "b"/, 'Metadata: its boolean cells are refused by the reader, so it is not compared here')
+}
+
+/**
+ * **C1a. The workbook now holds the 13 September wording, and so does the library.** Properties!D135 (RPC-PROP-134) reads the
+ * corrected text, its provenance (G135) is unchanged, the library's getter returns it, and from "rather than" on it is Christian's
+ * 13 September sentence exactly, em dash and "for example," included.
+ */
+function testAttackDevelopmentConditionIsTheSeptember13Wording(): void {
+    const properties = openWorkbook(fs.readFileSync(RPC_WORKBOOK)).cells('Properties')
+    const rows = [...properties.entries()].filter(([, cells]) => cells.get(1) === 'RPC-PROP-134')
+    assert.deepEqual(rows.map(([row]) => row), [135], 'RPC-PROP-134 is row 135 of Properties, once')
+    const [[, cells]] = rows
+    assert.equal(cells.get(4), ATTACK_DEVELOPMENT_CONDITION, 'Properties!D135 holds the corrected wording')
+    assert.equal(cells.get(7), 'Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)', 'Properties!G135, the provenance, is unchanged')
+    assert.equal(rpcLibrary.primaryScoringCondition('RPC-003'), ATTACK_DEVELOPMENT_CONDITION, 'the library the engine imports carries it')
+    const tail = (text: string): string => text.slice(text.indexOf('rather than possession alone'))
+    assert.equal(tail(ATTACK_DEVELOPMENT_CONDITION), tail(SEPTEMBER_13_GOVERNING_WORDS['RPC-PROP-134'][0].words), 'from "rather than" on, the row is the 13 September sentence exactly')
+}
+
+const EXAMPLE_MARKERS = ['for example', 'for instance', 'e.g.', 'such as']
+
+/** Each example clause of a text: from the end of a marker to the end of its sentence ('.' then a space or the end, ';' or ')'). */
+function exampleClauses(text: string): { marker: string; clause: string }[] {
+    const t = text.replace(/\s+/g, ' ').trim()
+    const lower = t.toLowerCase()
+    const out: { marker: string; clause: string }[] = []
+    for (const marker of EXAMPLE_MARKERS) {
+        for (let at = lower.indexOf(marker); at >= 0; at = lower.indexOf(marker, at + marker.length)) {
+            const start = at + marker.length
+            let end = t.length
+            for (let i = start; i < t.length; i++) {
+                if (t[i] === ';' || t[i] === ')' || (t[i] === '.' && (i + 1 === t.length || t[i + 1] === ' '))) {
+                    end = i
+                    break
+                }
+            }
+            out.push({ marker, clause: t.slice(start, end) })
+        }
+    }
+    return out
+}
+
+/** Each example a text gives, as its marker and the first four words it introduces; curly apostrophes and quotation marks made straight. */
+function examplesGiven(text: string): string[] {
+    const straight = text.replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
+    return exampleClauses(straight)
+        .map(({ marker, clause }) => `${marker} | ${(clause.toLowerCase().match(/[a-z][a-z'-]*/g) ?? []).slice(0, 4).join(' ')}`)
+        .sort()
+}
+
+/**
+ * **C1b. An example Christian gave stays an example in the row, and the row gives none Christian did not.** The colon of
+ * 13 September turned "—for example, reaching …" into a definition; this compares, for each of the eight condition rows, the
+ * examples its governing words give (marker and the words it introduces) with the examples the row gives, both ways. The colon
+ * is never read as a marker: Christian's line 19 uses one to introduce required conditions.
+ */
+function testExamplesSurviveTranscription(): void {
+    const rows = REAL.properties.filter((row) => row['property_category'] === 'PRIMARY_SCORING_CONDITION')
+    assert.deepEqual(rows.map((row) => String(row['property_id'])).sort(), Object.keys(SEPTEMBER_13_GOVERNING_WORDS).sort(), 'the eight condition rows, each with its governing words')
+    const failures: string[] = []
+    for (const row of rows) {
+        const id = String(row['property_id'])
+        const governing = SEPTEMBER_13_GOVERNING_WORDS[id]
+        const given = examplesGiven(governing.map((entry) => entry.words).join(' '))
+        const transcribed = examplesGiven(String(row['property_text']))
+        if (JSON.stringify(given) !== JSON.stringify(transcribed)) {
+            failures.push(`${id}: the 13 September email (line ${governing.map((entry) => entry.line).join(', ')}) gives ${JSON.stringify(given)} as examples; the row gives ${JSON.stringify(transcribed)}`)
+        }
+    }
+    assert.deepEqual(failures, [], 'every example of the 13 September email survives in its row, and no row adds one')
+}
+
+/** **C1c. The generator would write the corrected wording again**, so a rerun cannot bring the colon back (and does not stop on the corrected cell). */
+function testGeneratorCarriesTheCorrectedCondition(): void {
+    const generator = fs.readFileSync(SCORING_GENERATOR, 'utf8')
+    assert.ok(generator.includes('possession alone—for example, reaching '), 'apply-rpc-scoring-events.py writes "—for example,"')
+    assert.ok(!generator.includes('possession alone: reaching'), 'apply-rpc-scoring-events.py no longer writes the colon')
+    const literal = generator.match(/"RPC-003": "([^"]*)"\s*\r?\n\s*"([^"]*)"/)
+    assert.ok(literal, 'the RPC-003 condition is two string literals in apply-rpc-scoring-events.py')
+    assert.equal(literal[1] + literal[2], ATTACK_DEVELOPMENT_CONDITION, 'its two literals join to the corrected row exactly')
+}
+
 testIntegrityGatePasses()
 testReconciliationRecordCitesOnlyRowsThatExist()
 testLibraryVersionIsRc11OnTheFrozenSchema()
@@ -276,6 +455,10 @@ testEveryGuidedGoalReachesTheContextPlanningNames()
 testEveryContextHasAPrimaryGameFormInStrengthOrder()
 testStagingIsResolvedOrDeferredAndAuthoredNotesSurvive()
 testPrimaryScoringMatchesTheApproval()
+testCommittedLibraryIsTheWorkbookProjection()
+testAttackDevelopmentConditionIsTheSeptember13Wording()
+testExamplesSurviveTranscription()
+testGeneratorCarriesTheCorrectedCondition()
 testGateFailsOnEachDefect()
 
 console.log('rpc-library unit tests: all cases passed.')
