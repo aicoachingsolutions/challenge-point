@@ -9,15 +9,22 @@
  *
  * What is pinned:
  *   - the store is the only door: without it TA02 is refused as in production (its context has no contract);
- *   - as drafted (probe-k1-final U1, now with RPC-003-04.a withdrawn): refused at structure on the same two lines, waiting on him;
- *   - with the proposed rulings PR-1 and PR-2 as TEST-ONLY stand-ins, the origin withheld and NO identification (probe-k1-final D9 on the
- *     goal's path): ONE ball in the game, the playing environment's, and refused only for want of his approved wording on the conditions; no
- *     longer for a second ball;
+ *   - as drafted (probe-k1-final U1, now with RPC-003-04.a withdrawn): refused at structure, since 11 November 2026 on one line, the
+ *     origin's value (RPC-003-10.a::V6, proposed ruling PR-3 and decision D1), waiting on Christian. The second line, the control referent
+ *     (RPC-003-12.a::V5), went when 12.a became an example: Christian, "Neither "maintaining attacking possession" nor "reaching a more
+ *     advanced representative area" should become a mandatory scoring requirement solely because those phrases appeared within an
+ *     illustrative example." (received 11 November 2026, second reply);
+ *   - with the origin withheld as a TEST-ONLY stand-in and NO identification (probe-k1-final D9 on the goal's path): ONE ball in the game,
+ *     the playing environment's. Until 11 November 2026 (with PR-1 and PR-2 as TEST-ONLY stand-ins) it was refused only for want of approved
+ *     wording on the progression and control conditions; both rested only on the example, are TYPICAL_EXAMPLE since then, and establish
+ *     nothing, and PR-1 and PR-2 are withdrawn. Under the TEST-ONLY LAW-11 PROCEDURAL stand-in it is now served, its primary event carrying
+ *     no condition of the context. A measurement of the engine, not TA02 composing: the origin is withheld only in a test;
  *   - the same over a TEST-ONLY copy with RPC-003-04.a reinstated: refused at validation, the second ball named (the guard);
  *   - the draft account: an element resting on a draft item shows DRAFT, never APPROVED alone; every draft item is a DRAFT source; the draft
- *     narrowing of the primary event's kind (an open line a choice closes) is a DRAFT source of that element; the draft declarations listed;
- *     the context's contract marked DRAFT; derivation's provenance stamp says `draft`; the review draft's sentences name their DRAFT sources,
- *     including (B2 review, on a constructed fixture) a count a draft item decided and an element instantiated to satisfy one;
+ *     narrowing of the primary event's kind (an open line a choice closes) is a DRAFT source of that element; no element rests on an example
+ *     item; the draft declarations listed; the context's contract marked DRAFT; derivation's provenance stamp says `draft`; the review draft's
+ *     sentences name their DRAFT sources (on a constructed fixture, B2 review: a count a draft item decided and an element instantiated to
+ *     satisfy one; the real build that showed it on the score sentence was refused at communication, and is now served, with no review draft);
  *   - a production build carries none of these keys.
  *
  * B4 (28 October 2026): the sport's Laws check now holds the draft composition. Under our DRAFT classification (LAW-11 MATERIAL, LAW-8
@@ -56,23 +63,18 @@ const environment = loadSportEnvironmentElements()!
 const ENVIRONMENT_ELEMENT = `c:${environment.contractId}:${environment.elements[0].item}`
 const draftItems = new Set(store.contracts.flatMap(contract => contract.items.map(item => `${contract.contractId}::${item.itemId}`)))
 
-/* TEST-ONLY stand-ins for his proposed rulings, applied to the derivation input's copy exactly as probe-k1-final applied them: NOT his. */
+/*
+ * A TEST-ONLY stand-in, applied to the derivation input's copy as probe-k1-final applied it: NOT Christian's. The origin withheld. The
+ * stand-ins for the proposed rulings PR-1 and PR-2 are gone (11 November 2026): both typed a referent of a condition that rested only on the
+ * corrected row's example, and both rulings are withdrawn (rpc-003-contract.DRAFT.json, proposedRulings, status).
+ */
 const rpc003 = (contracts: any[]) => contracts.find(contract => contract.contractId === 'restated:RPC-003')
-const PR1 = (contracts: any[]) => {
-    rpc003(contracts).items.find((item: any) => item.itemId === 'RPC-003-11.b').value = { objectiveReferenceOf: 'SCORING_TEAM', role: 'PRIMARY_SCORING', asAuthored: 'TEST-ONLY PR-1: not his ruling' }
-}
-const PR2 = (contracts: any[]) => {
-    rpc003(contracts).items.push({
-        itemId: 'RPC-003-12.c', origId: 'RPC-003-12', row: 'V5', selector: 'type=control', requirement: 'EQUALS',
-        value: { objectiveReferenceOf: 'SCORING_TEAM', role: 'PRIMARY_SCORING', asAuthored: 'TEST-ONLY PR-2: not his ruling' },
-        strictness: 'REQUIRED', valueStatus: 'REQUIRED_RANGE', scope: 'WHOLE_GAME', basis: 'OWNER_RULING', basisEvidence: 'TEST-ONLY PR-2: not his ruling',
-        checkability: 'PARTLY_STRUCTURAL', structuralClause: 'TEST-ONLY', fitNote: 'TEST-ONLY PR-2', category: DRAFT_KNOWLEDGE,
-    })
-}
 const withoutOrigin = (contracts: any[]) => {
     rpc003(contracts).items = rpc003(contracts).items.filter((item: any) => !['RPC-003-10.a', 'RPC-003-10.b'].includes(item.itemId))
 }
-const U2_NO_IDENTIFICATION = (contracts: any[]) => [PR1, PR2, withoutOrigin].forEach(step => step(contracts))
+const U2_NO_IDENTIFICATION = withoutOrigin
+/** The six items that rest only on the corrected row's example, TYPICAL_EXAMPLE since 11 November 2026 (requirement-bindings.unit.ts B13b). */
+const EXAMPLE_ITEMS = ['RPC-003-02', 'RPC-003-11.a', 'RPC-003-11.b', 'RPC-003-11.c', 'RPC-003-12.a', 'RPC-003-12.b'].map(id => `restated:RPC-003::${id}`)
 const build = (drafts: typeof store | undefined, alter?: (contracts: any[]) => void, lawsMateriality?: LawsMateriality) =>
     buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'TA02', session }, records, { ...(drafts ? { drafts } : {}), review: { includeDrafts: true }, ...(alter ? { alter } : {}), ...(lawsMateriality ? { lawsMateriality } : {}) })
 /**
@@ -97,13 +99,14 @@ const LAW_11_PROCEDURAL: LawsMateriality = {
     assert.equal(without.draftKnowledge, undefined)
 }
 
-/* ── As drafted: refused at structure, on the two lines that wait on him ─────────────────────────────────────────────────── */
+/* ── As drafted: refused at structure, on the one line that waits on Christian (the origin's value) ──────────────────────── */
 {
     const built = build(store)
     const activity = built.activity as RefusedActivity
     assert.equal(activity.outcome, 'refused')
     assert.equal(activity.stage, 'structure')
-    assert.ok(activity.reasons.includes('2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6'), activity.reasons.join(' | '))
+    assert.ok(activity.reasons.includes('1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6'), activity.reasons.join(' | '))
+    assert.ok(!activity.reasons.some(reason => reason.includes('RPC-003-12.a')), 'the control referent is no longer a line: 12.a is an example and establishes nothing')
     assert.deepEqual(activity.account.context?.contract, 'DRAFT', 'the draft context is marked so, beside inThisActivity')
     const account = activity.draftKnowledge!
     assert.equal(account.status, 'BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED')
@@ -135,23 +138,25 @@ const LAW_11_PROCEDURAL: LawsMateriality = {
     assert.deepEqual(activity.lawsCheck!.materiality!.classifiedBy, { file: ourMateriality.file, standing: ourMateriality.standing })
 }
 
-/* ── PR-1 + PR-2 as TEST-ONLY stand-ins, origin withheld, NO identification: one ball, refused only for his wording ───────── */
+/* ── Origin withheld (TEST-ONLY), NO identification: one ball; since 11 November 2026 served, no condition of the context ─── */
 {
     // B4: under the TEST-ONLY stand-in classifying LAW-11 PROCEDURAL, so the sport's check refuses nothing and reports both laws.
     const built = build(store, U2_NO_IDENTIFICATION, LAW_11_PROCEDURAL)
-    const activity = built.activity as RefusedActivity
-    assert.equal(activity.outcome, 'refused')
-    assert.equal(activity.stage, 'communication')
-    assert.deepEqual(activity.lawsCheck!.materiality!.reportedForReview.map(sentence => sentence.split(' ')[0]), ['LAW-8', 'LAW-11'])
+    const activity = built.activity as any
+    // Until 11 November 2026 refused at communication, on exactly the six fields of the progression and control conditions awaiting approved
+    // wording and fidelity's six on the same fields. Both conditions rested only on the corrected row's example; their items are
+    // TYPICAL_EXAMPLE and establish nothing, so no field of them is in the game and nothing awaits wording. Served: a measurement, not a
+    // demonstration (the origin is withheld only here).
+    assert.equal(activity.outcome, 'served', JSON.stringify(activity.reasons ?? []))
+    assert.deepEqual(activity.lawsCheck!.materiality!.reportedForReview.map((sentence: string) => sentence.split(' ')[0]), ['LAW-8', 'LAW-11'])
     assert.deepEqual(activity.lawsCheck!.materiality!.material, [])
-    // Exactly the six fields of the two conditions awaiting his approved wording, and fidelity's six on the same fields; nothing else.
-    const conditions = ['RPC-003-11.a', 'RPC-003-12.a'].flatMap(id => ['type', 'referents', 'value'].map(leaf => `value.primaryEvent.conditions[c:restated:RPC-003:${id}].${leaf}`))
-    assert.equal(activity.reasons.length, 12, activity.reasons.join(' | '))
-    for (const field of conditions) {
-        assert.ok(activity.reasons.some(reason => reason.startsWith(`awaiting approved wording: ${field} (`)), field)
-        assert.ok(activity.reasons.includes(`fidelity Q3: ${field} is established by the game and no instruction carries it`), field)
-    }
-    assert.ok(!activity.reasons.some(reason => reason.includes('objects[')), 'no longer refused for a second ball (probe-k1-final D9 named the environment ball, said by no instruction)')
+    const primaryEvent = (built.fixture as any).game.value.primaryEvent
+    assert.deepEqual(primaryEvent.conditions ?? [], [], 'no condition of the context on the primary event: the examples establish none')
+    assert.equal(
+        primaryEvent.kind,
+        'line_crossed',
+        "the game form's own target, which Christian allows: \"An advanced-area scoring event may be an appropriate realization of that principle when independently justified by the Game Form and its configuration.\" (received 11 November 2026, second reply)",
+    )
     // One ball: the playing environment's, and no element of the context's own in its collection.
     const objects: any[] = (built.fixture as any).game.objects
     const own = objects.find(object => object.elementId === ENVIRONMENT_ELEMENT)
@@ -161,27 +166,23 @@ const LAW_11_PROCEDURAL: LawsMateriality = {
     assert.equal((built.fixture as any).record.satisfiedByEstablished, undefined, 'and no identification was needed')
 
     // The draft account, graded as the review evidence grades it.
-    const elements = activity.draftKnowledge!.elements!
+    const elements: any[] = activity.draftKnowledge!.elements!
     assert.ok(elements.length > 0)
     for (const element of elements) {
         for (const source of element.sources) {
-            if (draftItems.has(source.ref) || source.ref === 'restated:RPC-003::RPC-003-12.c') assert.equal(source.standing, 'DRAFT', `${element.path}: ${source.ref} is a draft item`)
+            if (draftItems.has(source.ref)) assert.equal(source.standing, 'DRAFT', `${element.path}: ${source.ref} is a draft item`)
+            assert.ok(!EXAMPLE_ITEMS.includes(source.ref), `${element.path}: ${source.ref} is an example (TYPICAL_EXAMPLE) and supports nothing`)
         }
-        if (element.sources.some(source => source.standing === 'DRAFT')) assert.equal(element.standings[0], 'DRAFT', `${element.path}: DRAFT leads its standings`)
+        if (element.sources.some((source: any) => source.standing === 'DRAFT')) assert.equal(element.standings[0], 'DRAFT', `${element.path}: DRAFT leads its standings`)
     }
-    const condition = elements.find(element => element.path === 'value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type')!
-    assert.deepEqual(condition.standings, ['DRAFT', 'GAP'], 'an AUTHORED draft item is DRAFT, never APPROVED')
-    assert.ok(condition.sources.some(source => source.ref === 'restated:RPC-003::RPC-003-11.a' && source.detail === 'DRAFT knowledge awaiting his review (drafted with basis AUTHORED)'))
-    // The draft narrowing of an open line a choice closes (the primary event's kind, closed by the game form's choice under SD-39).
+    // An AUTHORED draft item is DRAFT, never APPROVED (until 11 November 2026 read on 11.a's condition type, now an example in no element):
+    // the primary event's kind, an open line a choice closes (closed by the game form's choice under SD-39), narrowed by draft items.
     const kind = elements.find(element => element.path === 'value.primaryEvent.kind')!
-    assert.ok(kind.standings.includes('DRAFT') && kind.standings.includes('APPROVED'), JSON.stringify(kind.standings))
-    assert.ok(kind.sources.some(source => source.standing === 'DRAFT' && source.ref === 'restated:RPC-003::RPC-003-03.a'), JSON.stringify(kind.sources))
+    assert.equal(kind.standings[0], 'DRAFT', JSON.stringify(kind.standings))
+    assert.ok(kind.standings.includes('APPROVED') && !kind.standings.every((standing: string) => standing === 'APPROVED'), JSON.stringify(kind.standings))
+    assert.ok(kind.sources.some((source: any) => source.standing === 'DRAFT' && source.ref === 'restated:RPC-003::RPC-003-03.a'), JSON.stringify(kind.sources))
     const choice = ((built.fixture as any).status.choices as any[]).find(entry => entry.path === 'value.primaryEvent.kind')
     assert.ok(choice.draftShapedBy.some((ref: any) => ref.itemId === 'RPC-003-03.a' && ref.category === DRAFT_KNOWLEDGE), 'carried from emit through realization onto the choice')
-    // The review draft: a sentence resting on draft knowledge names it, apart from his provisional choices.
-    const score = activity.draft!.instructions.find(instruction => instruction.section === 'How to score' && (instruction.draftSources ?? []).length)!
-    assert.ok(score.draftSources!.includes('restated:RPC-003::RPC-003-03.a'), JSON.stringify(score))
-    assert.ok(!score.provisionalSources.some(source => source.includes('RPC-003')))
 }
 
 /* ── RPC-003-04.a reinstated in a TEST-ONLY copy: a second ball, named before communication ───────────────────────────────── */

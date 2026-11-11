@@ -1,8 +1,8 @@
 {
   "about": "TEST-ONLY REQUIREMENT BINDINGS for the DRAFT Attack Development context contract (docs/audits/drafts/ta02-composition/rpc-003-contract.DRAFT.json). Read only by the TEST-ONLY draft-store loader (loadDraftRequirementBindings) and handed to a TEST-ONLY build; no production module reads this file. Held to the same gate as the production bindings, in its DRAFT mode, and in its MERGED mode once merged with them.",
-  "standing": "DRAFT - TEST-ONLY. OUR CLASSIFICATION OF A DRAFT CONTRACT, NOT HIS. The split of his Primary Scoring Condition into origin, progression and control is the draft contract's, ours and unreviewed; the meaning of \"from the attack's starting condition\" awaits his clarification (his reply filed 3 November 2026, section 3).",
+  "standing": "DRAFT - TEST-ONLY. OUR CLASSIFICATION OF A DRAFT CONTRACT, NOT CHRISTIAN'S. The split of Christian's Primary Scoring Condition into origin, progression and control is the draft contract's, ours and unreviewed; the meaning of \"from the attack's starting condition\" awaits Christian's clarification (Christian's reply filed 3 November 2026, section 3). Since 11 November 2026 (version 2026-11-11.1-draft) the progression and control components are not bound: their rowSpans, \"reaching a more advanced representative area\" and \"while maintaining attacking possession\" (RPC-PROP-134), are words the corrected row gives only inside its example, and Christian: \"Neither \"maintaining attacking possession\" nor \"reaching a more advanced representative area\" should become a mandatory scoring requirement solely because those phrases appeared within an illustrative example.\" (received 11 November 2026, second reply). The two parts are kept whole in the draft contract's corrections (withdrawnBindingParts); the draft contract keeps the items they bound as examples (TYPICAL_EXAMPLE).",
   "schemaVersion": 1,
-  "version": "2026-11-04.2-draft",
+  "version": "2026-11-11.1-draft",
   "applicability": {
     "standing": "DRAFT",
     "accounted": {
@@ -124,67 +124,6 @@
                 }
               ],
               "standingNote": "Its meaning awaits his clarification (his reply filed 3 November 2026, section 3: \"I'd like us to settle its meaning from the intended learning problem, rather than choose the interpretation the engine can already implement.\")."
-            },
-            {
-              "id": "progression",
-              "label": "Reaching a more advanced representative area",
-              "kind": "SCORING_CONDITION_COMPONENT",
-              "component": "progression",
-              "rowSpan": "reaching a more advanced representative area",
-              "standard": "STRUCTURAL_VALIDITY",
-              "facets": [
-                {
-                  "id": "condition",
-                  "label": "the progression condition on the realized primary event",
-                  "row": "V3",
-                  "requirement": ["EXISTS"],
-                  "strictness": ["REQUIRED"],
-                  "terms": [{ "attribute": "type", "value": "progression" }],
-                  "from": ["CONTEXT", "REALIZATION"]
-                },
-                {
-                  "id": "referents",
-                  "label": "the area reached",
-                  "row": "V5",
-                  "terms": [{ "attribute": "type", "value": "progression" }],
-                  "byConstructionWhen": "RELATIONAL_REFERENT",
-                  "from": ["CONTEXT", "REALIZATION"]
-                },
-                {
-                  "id": "value",
-                  "label": "more advanced",
-                  "row": "V6",
-                  "terms": [{ "attribute": "type", "value": "progression" }],
-                  "from": ["CONTEXT", "REALIZATION"]
-                }
-              ],
-              "standingNote": "Where its referent is the target the scoring team attacks, the condition holds whenever the scoring event occurs; his reply filed 3 November 2026, section 3: \"My concern is that an advanced end zone may recognize a useful outcome without necessarily demonstrating improvement from the attack's starting situation.\""
-            },
-            {
-              "id": "control",
-              "label": "While maintaining attacking possession",
-              "kind": "SCORING_CONDITION_COMPONENT",
-              "component": "control",
-              "rowSpan": "while maintaining attacking possession",
-              "standard": "STRUCTURAL_VALIDITY",
-              "facets": [
-                {
-                  "id": "condition",
-                  "label": "the control condition on the realized primary event",
-                  "row": "V3",
-                  "requirement": ["EXISTS"],
-                  "strictness": ["REQUIRED"],
-                  "terms": [{ "attribute": "type", "value": "control" }],
-                  "from": ["CONTEXT", "REALIZATION"]
-                },
-                {
-                  "id": "value",
-                  "label": "possession maintained",
-                  "row": "V6",
-                  "terms": [{ "attribute": "type", "value": "control" }],
-                  "from": ["CONTEXT", "REALIZATION"]
-                }
-              ]
             },
             {
               "id": "not-possession-alone",

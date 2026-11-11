@@ -24,7 +24,8 @@
  *   - S2: the start's element removed leaves the start unrepresented, whatever else its item reaches;
  *   - S1: an exclusion over a row the game populates is not vacuous;
  *   - S7: an item in a constraint's contract is considered, named so, never counted;
- *   - T7: the TEST-ONLY RPC-003 draft, merged with the production bindings, the origin withheld: origin missing, the rest on DRAFT knowledge.
+ *   - T7: the TEST-ONLY RPC-003 draft, merged with the production bindings, the origin withheld: origin missing; since 11 November 2026 no
+ *     progression or control component (they bound only the corrected row's example), and the example's words shown as uncovered.
  *   - Round 4 (his reply filed 5 November 2026, item 1: *"Both should prevent an activity from being served as checked, but the diagnostic
  *     report should clearly distinguish them."*): every control above asserts the class of what it refuses on; and "5 November 2026: the two
  *     classes" shows a check, an episode check or line verdicts missing, and a selector that does not normalise, each a verification failure
@@ -48,7 +49,7 @@ import { LawsMateriality } from '../derivation/default-laws'
 import { loadDraftRequirementBindings, loadDraftStore, loadLawsMateriality, mergeRequirementBindings } from '../derivation/draft-store'
 import { knowledgeKey } from '../derivation/knowledge-key'
 import { CONDITION_ROW } from '../derivation/resolved-game'
-import { DRAFT_KNOWLEDGE, LoadedContract } from '../derivation/types'
+import { LoadedContract } from '../derivation/types'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import { ActivityReviewBody, reviewRequestOf } from './activity-review'
 import { buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from './build-activity'
@@ -493,28 +494,20 @@ test('S7: an item matched in a constraint\'s contract is considered, named as a 
 })
 
 // ── T7: the TEST-ONLY RPC-003 draft ─────────────────────────────────────────────────────────────────────────────────────────────────────
-test('T7: the RPC-003 draft, merged bindings, origin withheld: origin missing, progression and control on DRAFT knowledge; as drafted, no account; over the production file alone, not classified', () => {
+test('T7: the RPC-003 draft, merged bindings, origin withheld: origin missing; since 11 November 2026 no progression or control component (the example), served; as drafted, no account; over the production file alone, not classified', () => {
     const store = loadDraftStore('ta02-composition')
     const merged = mergeRequirementBindings(bindings, loadDraftRequirementBindings(store), store.contracts)
     const roles = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
     const draftSession = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles }
-    /* TEST-ONLY stand-ins for his proposed rulings, exactly as draft-composition.unit.ts applies them: NOT his. */
+    /*
+     * A TEST-ONLY stand-in, exactly as draft-composition.unit.ts applies it: NOT Christian's. The origin withheld. The stand-ins for PR-1 and
+     * PR-2 are gone (11 November 2026): both rulings are withdrawn, since the conditions they typed rested only on the corrected row's example.
+     */
     const rpc003 = (contracts: any[]) => contracts.find(contract => contract.contractId === 'restated:RPC-003')
-    const PR1 = (contracts: any[]) => {
-        rpc003(contracts).items.find((item: any) => item.itemId === 'RPC-003-11.b').value = { objectiveReferenceOf: 'SCORING_TEAM', role: 'PRIMARY_SCORING', asAuthored: 'TEST-ONLY PR-1: not his ruling' }
-    }
-    const PR2 = (contracts: any[]) => {
-        rpc003(contracts).items.push({
-            itemId: 'RPC-003-12.c', origId: 'RPC-003-12', row: 'V5', selector: 'type=control', requirement: 'EQUALS',
-            value: { objectiveReferenceOf: 'SCORING_TEAM', role: 'PRIMARY_SCORING', asAuthored: 'TEST-ONLY PR-2: not his ruling' },
-            strictness: 'REQUIRED', valueStatus: 'REQUIRED_RANGE', scope: 'WHOLE_GAME', basis: 'OWNER_RULING', basisEvidence: 'TEST-ONLY PR-2: not his ruling',
-            checkability: 'PARTLY_STRUCTURAL', structuralClause: 'TEST-ONLY', fitNote: 'TEST-ONLY PR-2', category: DRAFT_KNOWLEDGE,
-        })
-    }
     const withoutOrigin = (contracts: any[]) => {
         rpc003(contracts).items = rpc003(contracts).items.filter((item: any) => !['RPC-003-10.a', 'RPC-003-10.b'].includes(item.itemId))
     }
-    const U2 = (contracts: any[]) => [PR1, PR2, withoutOrigin].forEach(step => step(contracts))
+    const U2 = withoutOrigin
     const ours = loadLawsMateriality()
     const LAW_11_PROCEDURAL: LawsMateriality = {
         ...ours,
@@ -523,31 +516,40 @@ test('T7: the RPC-003 draft, merged bindings, origin withheld: origin missing, p
         classifications: ours.classifications.map(entry => (entry.law === 'LAW-11' ? { ...entry, materiality: 'PROCEDURAL' as const, ourReading: 'TEST-ONLY stand-in.' } : entry)),
     }
     const build = (options: Record<string, unknown>) => silently(() => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'TA02', session: draftSession }, records, { drafts: store, review: { includeDrafts: true }, ...options }).activity) as RefusedActivity
-    const withdrawn = build({ alter: U2, lawsMateriality: LAW_11_PROCEDURAL, requirementBindings: merged })
-    assert.deepEqual([withdrawn.outcome, withdrawn.stage], ['refused', 'communication'])
+    const withdrawn = build({ alter: U2, lawsMateriality: LAW_11_PROCEDURAL, requirementBindings: merged }) as unknown as ServedActivity
+    // Until 11 November 2026 refused at communication, on the wording of the progression and control conditions; both rested only on the
+    // corrected row's example, and their items are TYPICAL_EXAMPLE since then (rpc-003-contract.DRAFT.json, corrections). A measurement only.
+    assert.deepEqual([withdrawn.outcome, (withdrawn as any).stage], ['served', undefined])
     const account = withdrawn.requirementAccount!
     assert.deepEqual([account.status, account.contract, account.bindings.mode], ['REPORT_ONLY', 'DRAFT', 'MERGED'])
-    // Round 3: a TEST-ONLY draft contract is reported only — not enforced, so the origin's absence is not what refused it (communication did).
+    // Round 3: a TEST-ONLY draft contract is reported only — not enforced, so the origin's absence refuses nothing.
     assert.deepEqual([account.enforcement.applied, account.enforcement.findings, account.enforcement.failures, account.enforcement.counts], [false, [], [], { MISSING_OR_ALTERED: 0, VERIFICATION_FAILURE: 0 }])
     const scoring = account.summary.scoringCondition!
     assert.deepEqual(scoring.missing.map(entry => [entry.component, entry.cause.kind]), [['origin', 'NOT_CARRIED']])
-    assert.deepEqual(scoring.components.map(entry => [entry.component, entry.account]), [['origin', 4], ['progression', 1], ['control', 1], ['not-possession-alone', 1]])
-    assert.equal(scoring.uncoveredWords, 'Purposeful advancement', 'the words of his row no component stands for (S1)')
-    const partOf = (partId: string) => account.parts.find(entry => entry.rowId === 'RPC-PROP-134' && entry.partId === partId)!
-    assert.deepEqual([partOf('progression').restsOnDraftKnowledge, partOf('control').restsOnDraftKnowledge], [true, true])
-    // S3: the progression referent under the TEST-ONLY PR-1 holds by construction, flagged, and its stand-in text is shown.
-    assert.equal(partOf('progression').byConstruction, true)
-    const referents = partOf('progression').facets.find(entry => entry.facetId === 'referents')!.carriers[0].value!
-    assert.deepEqual(referents.realized, [{ objectiveReferenceOf: 'SCORING_TEAM', role: 'PRIMARY_SCORING', asAuthored: 'TEST-ONLY PR-1: not his ruling' }])
+    // No progression or control component: the DRAFT bindings no longer bind the example (version 2026-11-11.1-draft), so its words are
+    // the row's words no component stands for, shown as such, and nothing requires them.
+    assert.deepEqual(scoring.components.map(entry => [entry.component, entry.account]), [['origin', 4], ['not-possession-alone', 1]])
+    assert.equal(
+        scoring.uncoveredWords,
+        'Purposeful advancement for example reaching a more advanced representative area while maintaining attacking possession',
+        'the words of the RPC-PROP-134 row no component stands for (S1)',
+    )
+    assert.deepEqual(
+        account.parts.filter(entry => entry.rowId === 'RPC-PROP-134').map(entry => [entry.partId, entry.kind, entry.account]),
+        [['origin', 'SCORING_CONDITION_COMPONENT', 4], ['not-possession-alone', 'GUARD_EVENT_KIND', 1], ['advancement-in-play', 'COACH_OBSERVED', 3]],
+        "the governing purpose stays: possession alone excluded, and the advancement's purpose judged in play",
+    )
+    // S3 (a referent holding by construction) was read here on the progression component under the PR-1 stand-in; it is read on RPC-001's
+    // production component (requirement-account.unit.ts).
     // S4/S7: coach observation with no observable is 4, never 3.
     const organized = account.parts.find(entry => entry.rowId === 'RPC-ID-011')!
     assert.deepEqual([organized.kind, organized.account, organized.cause!.kind, organized.countsAsSatisfied], ['COACH_OBSERVED', 4, 'OBSERVABLE_NOT_IDENTIFIED', false])
-    assert.ok(account.summary.headline.startsWith('Missing from the approved scoring condition: From the attack\'s starting condition. The activity was refused at the communication stage without it.'), account.summary.headline)
+    assert.equal(account.summary.headline, "Missing from the approved scoring condition: From the attack's starting condition. The activity was served without it. This account refuses nothing.")
     // As drafted (no stand-ins): refused at structure, nothing realized, so no account.
     const drafted = build({ requirementBindings: merged })
     assert.deepEqual([drafted.stage, 'requirementAccount' in drafted], ['structure', false])
     // Over the production file alone (as every existing draft build is made): every row unclassified, the scoring condition NOT_CLASSIFIED, never "carried" (M3).
-    const unbound = build({ alter: U2, lawsMateriality: LAW_11_PROCEDURAL }).requirementAccount!
+    const unbound = (build({ alter: U2, lawsMateriality: LAW_11_PROCEDURAL }) as unknown as ServedActivity).requirementAccount!
     assert.deepEqual([unbound.summary.scoringCondition!.state, unbound.summary.scoringConditionCarried, unbound.bindings.mode], ['NOT_CLASSIFIED', false, 'PRODUCTION'])
     assert.ok(unbound.parts.every(entry => entry.kind === 'NO_BINDING' && entry.account === 4))
 })

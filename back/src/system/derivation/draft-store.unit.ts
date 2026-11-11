@@ -345,18 +345,31 @@ function refused(dir: string, ...patterns: RegExp[]): string[] {
         }),
         /the workbook's PRIMARY_SCORING_CONDITION row RPC-PROP-134 for RPC-003 is cited by no item constituting a scoring condition/,
     )
-    // Only the constituting items count: the other items that cite the condition (02, 04.b, 05) do not satisfy it.
+    // Only the constituting items count: the other items that cite the condition (02, 04.b, 05, and since 11 November 2026 the examples
+    // 11.a-c and 12.a/b, TYPICAL_EXAMPLE and not REQUIRED) do not satisfy it. 10.a is the one constituting item that cites it.
     refused(
         copyWith(CONTRACT, json => {
-            for (const id of ['RPC-003-10.a', 'RPC-003-11.a', 'RPC-003-12.a']) itemOf(json, id).source = itemOf(json, id).source.filter((source: any) => source.rowId !== 'RPC-PROP-134')
+            itemOf(json, 'RPC-003-10.a').source = itemOf(json, 'RPC-003-10.a').source.filter((source: any) => source.rowId !== 'RPC-PROP-134')
         }),
         /RPC-PROP-134 for RPC-003 is cited by no item constituting a scoring condition/,
     )
-    // One constituting item citing it is enough.
+    // An example made REQUIRED again would constitute a condition, and would count (TEST-ONLY): what keeps 12.a from counting is its
+    // strictness, which constitutedConditionTypes reads, and not its TYPICAL_EXAMPLE, which it does not read (B13b holds both).
     assert.equal(
         loadDraftStore(
             copyWith(CONTRACT, json => {
-                for (const id of ['RPC-003-10.a', 'RPC-003-11.a']) {
+                itemOf(json, 'RPC-003-10.a').source = itemOf(json, 'RPC-003-10.a').source.filter((source: any) => source.rowId !== 'RPC-PROP-134')
+                itemOf(json, 'RPC-003-10.a').basisEvidence = 'TEST-ONLY: no quotation'
+                itemOf(json, 'RPC-003-12.a').strictness = 'REQUIRED'
+            }),
+        ).contracts.length,
+        1,
+    )
+    // One constituting item citing it is enough: 10.a, with the examples no longer citing it.
+    assert.equal(
+        loadDraftStore(
+            copyWith(CONTRACT, json => {
+                for (const id of ['RPC-003-11.a', 'RPC-003-12.a']) {
                     itemOf(json, id).source = itemOf(json, id).source.filter((source: any) => source.rowId !== 'RPC-PROP-134')
                     itemOf(json, id).basisEvidence = 'TEST-ONLY: no quotation'
                 }

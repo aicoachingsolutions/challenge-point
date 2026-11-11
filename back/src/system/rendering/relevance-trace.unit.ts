@@ -41,7 +41,8 @@ import path from 'node:path'
 import atmWorkbook from '../knowledge-core/atm-workbook.rc1.2.json'
 import sportModuleWorkbook from '../sport-module/soccer-module.rc1-v3.json'
 import { loadRegister } from '../derivation/corpus'
-import { DraftStoreRefused, loadDraftStore, loadRelevanceJoinRules, RELEVANCE_JOIN_RULES_FILE } from '../derivation/draft-store'
+import { LawsMateriality } from '../derivation/default-laws'
+import { DraftStoreRefused, loadDraftStore, loadLawsMateriality, loadRelevanceJoinRules, RELEVANCE_JOIN_RULES_FILE } from '../derivation/draft-store'
 import { indexRegister } from '../derivation/register'
 import { derivationInputFor } from '../derivation/run-bounded-selection'
 import { DRAFT_KNOWLEDGE } from '../derivation/types'
@@ -418,19 +419,26 @@ const linksOf = (trace: RelevanceTrace, at: string) => trace.elements.find(eleme
 {
     const drafts = loadDraftStore('ta02-composition')
     const rpc003 = (contracts: any[]) => contracts.find(contract => contract.contractId === 'restated:RPC-003')
+    /*
+     * TEST-ONLY stand-ins, NOT Christian's: the origin withheld, and LAW-11 classified PROCEDURAL (as draft-composition.unit.ts makes them).
+     * Until 11 November 2026 the stand-ins also typed the progression and control referents (PR-1, PR-2), and the trace's DRAFT gaps were on
+     * those two conditions. Both rested only on the corrected row's example; their items are TYPICAL_EXAMPLE since then and establish nothing,
+     * so the build no longer stops on their wording and is served (a measurement, not TA02 composing), and the elements that rest on DRAFT
+     * knowledge are the primary event's kind and the turnover's new episode.
+     */
     const standIns = (contracts: any[]) => {
-        rpc003(contracts).items.find((item: any) => item.itemId === 'RPC-003-11.b').value = { objectiveReferenceOf: 'SCORING_TEAM', role: 'PRIMARY_SCORING', asAuthored: 'TEST-ONLY PR-1: not his ruling' }
-        rpc003(contracts).items.push({
-            itemId: 'RPC-003-12.c', origId: 'RPC-003-12', row: 'V5', selector: 'type=control', requirement: 'EQUALS',
-            value: { objectiveReferenceOf: 'SCORING_TEAM', role: 'PRIMARY_SCORING', asAuthored: 'TEST-ONLY PR-2: not his ruling' },
-            strictness: 'REQUIRED', valueStatus: 'REQUIRED_RANGE', scope: 'WHOLE_GAME', basis: 'OWNER_RULING', basisEvidence: 'TEST-ONLY PR-2: not his ruling',
-            checkability: 'PARTLY_STRUCTURAL', structuralClause: 'TEST-ONLY', fitNote: 'TEST-ONLY PR-2', category: DRAFT_KNOWLEDGE,
-        })
         rpc003(contracts).items = rpc003(contracts).items.filter((item: any) => !['RPC-003-10.a', 'RPC-003-10.b'].includes(item.itemId))
     }
-    const built = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'TA02', session }, records, { drafts, review: { includeDrafts: true }, alter: standIns, relevance: { joinRules } })
+    const ours = loadLawsMateriality()
+    const lawsMateriality: LawsMateriality = {
+        ...ours,
+        file: 'TEST-ONLY',
+        standing: "DRAFT - TEST-ONLY stand-in, LAW-11 PROCEDURAL: neither our reading nor Christian's",
+        classifications: ours.classifications.map(entry => (entry.law === 'LAW-11' ? { ...entry, materiality: 'PROCEDURAL' as const, ourReading: 'TEST-ONLY stand-in.' } : entry)),
+    }
+    const built = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'TA02', session }, records, { drafts, review: { includeDrafts: true }, alter: standIns, lawsMateriality, relevance: { joinRules } })
     const trace = built.activity.relevance!
-    assert.equal(built.activity.outcome, 'refused')
+    assert.equal(built.activity.outcome, 'served')
     honest(trace, 'TA02 composition')
     assert.equal(trace.gameProblem.id, 'GP-015', 'the goal\'s Game Problem, as selection resolved it')
     assert.ok(trace.objects.some(object => object.contractId === 'restated:RPC-003' && object.layer === 'SHAPING'))
@@ -438,8 +446,9 @@ const linksOf = (trace: RelevanceTrace, at: string) => trace.elements.find(eleme
     for (const row of ['AUTHORIZED context RPC-003 -> GP-015 (the context workbook, RPC-REL-026)', 'AUTHORIZED context RPC-003 -> TA02 (the context workbook, RPC-REL-068)', 'AUTHORIZED context RPC-003 -> game form GF2 (the context workbook, RPC-REL-028)']) assert.ok(said.includes(row), row)
     assert.ok(!trace.gaps.some(gap => gap.missing.startsWith('the context')), 'a context with both rows is no gap')
     for (const element of trace.elements) for (const link of element.links) if (link.premises.some(premise => premise.standing === 'DRAFT')) assert.equal(link.grade, 'UNVERIFIED', element.path)
-    const draftGaps = trace.gaps.filter(gap => gap.path?.includes('RPC-003'))
-    assert.ok(draftGaps.length >= 6 && draftGaps.every(gap => gap.restsOn?.includes('DRAFT')), JSON.stringify(draftGaps))
+    const draftGaps = trace.gaps.filter(gap => gap.restsOn?.includes('DRAFT'))
+    assert.deepEqual(draftGaps.map(gap => gap.path).sort(), ['transitions[c:restated:GF2:GF2-07.a].startsEpisode', 'value.primaryEvent.kind'], JSON.stringify(draftGaps))
+    assert.ok(!JSON.stringify(trace).match(/RPC-003-(02|11\.[abc]|12\.[ab])\b/), 'no element, link or gap rests on an example item (TYPICAL_EXAMPLE)')
     assert.deepEqual(best(trace), best(plain), 'the draft context adds no affordance the plain game does not reach')
 }
 

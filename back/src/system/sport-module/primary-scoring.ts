@@ -16,6 +16,7 @@
  *   qualifying condition per context               RPC workbook, Properties (PRIMARY_SCORING_CONDITION)
  *   the event vocabulary and definitions           RPC workbook, Controlled Vocabulary (scoring_event)
  *   objects each game form physically marks        Soccer Module, Game Forms.scoring_structure_type
+ *   which event meanings Christian approved        APPROVED_EVENT_MEANINGS below (11 November 2026); every other one UNREVIEWED
  *
  * WHAT IS DECIDED HERE, and why none of it is knowledge:
  *   * Regain and denial availability is DERIVED. Every game form is a live two-team contest, so a
@@ -209,18 +210,24 @@ export const COACH_RULES: Readonly<Record<string, CoachRule>> = {
     },
 
     // ---- RPC-003 Attack Development -----------------------------------------------------------------
+    // The zone, line and gate rules are Christian's approved wording, character for character: "I approve removing the
+    // unsupported phrase "and your team keeps the ball" from all three affected Attack Development scoring rules." (received 11
+    // November 2026, second reply). The zone and line rules keep control on reception, on the meaning recorded in
+    // APPROVED_EVENT_MEANINGS. The gate is Option 2: "This remains a narrow decision for the Attack Development gate event. It
+    // should not become a universal requirement for all gate-based activities." (received 11 November 2026, second reply). The
+    // target player rule had no such phrase and is unchanged. Changed on an unmerged branch only; nothing deployed.
     'RPC-003|target_zone_entered|': {
-        rule: `Earn a point when a player dribbles into the attacking zone, or receives the ball there and controls it, and your team keeps the ball. ${NOT_FORWARD}`,
+        rule: `Earn a point when a player dribbles into the attacking zone, or receives the ball there and controls it. ${NOT_FORWARD}`,
         setup: 'Mark an attacking zone across the far third of the pitch at each end.',
         evidence: [ATTACKING_ZONE],
     },
     'RPC-003|line_crossed|': {
-        rule: `Earn a point when a player dribbles over the attacking line, or receives the ball past it and controls it, and your team keeps the ball. ${NOT_FORWARD}`,
+        rule: `Earn a point when a player dribbles over the attacking line, or receives the ball past it and controls it. ${NOT_FORWARD}`,
         setup: 'Mark an attacking line across the pitch two thirds of the way up, at each end.',
         evidence: [ATTACKING_LINE],
     },
     'RPC-003|gate|': {
-        rule: `Earn a point when a player passes or dribbles forward through a gate and your team keeps the ball. ${NOT_FORWARD}`,
+        rule: `Earn a point when a player dribbles forward through a gate, or passes forward through it and a teammate controls it. ${NOT_FORWARD}`,
         setup: 'Set out gates of two cones across the middle of the pitch.',
         evidence: [GATE],
     },
@@ -324,6 +331,95 @@ export const COACH_RULES: Readonly<Record<string, CoachRule>> = {
         evidence: [PROTECTED_LINE],
     },
 }
+
+/** Where a controlled-vocabulary scoring event's description stands for one context: a specific meaning approved, or not reviewed. */
+export type EventMeaningStanding = 'APPROVED' | 'UNREVIEWED'
+
+/**
+ * Christian's approval of one item, in the shape the approved wording records use (`ReadingApproval` in
+ * rendering/approved-wording-readings.ts, checked by its `approvalUnusableBecause` in the unit test): who, the date (YYYY-MM-DD), the
+ * reply it is filed in (naming that date in words) and Christian's words, verbatim. Declared here by shape, not imported, so the sport
+ * layer gains no dependency on rendering.
+ */
+export interface EventMeaningApproval {
+    who: string
+    date: string
+    filed: string
+    quote: string
+}
+
+/** One specific meaning of a controlled-vocabulary scoring event that Christian approved, for one context. */
+export interface ApprovedEventMeaning {
+    rpcId: string
+    eventKey: string
+    /** The span of the event's controlled-vocabulary description that completes it by dribbling through the boundary, verbatim. */
+    dribbling: string
+    /** The span of the same description that completes it by controlled reception, verbatim. */
+    controlledReception: string
+    /** Christian's words, verbatim inside the approval: who judges control on reception, and when. */
+    controlJudgedBy: string
+    /** Christian's words, verbatim inside the approval: what control on reception does not imply. */
+    doesNotImply: readonly string[]
+    approvedBy: EventMeaningApproval
+}
+
+const CONTROLLED_RECEPTION_APPROVAL: EventMeaningApproval = {
+    who: 'Christian',
+    date: '2026-11-11',
+    filed: 'Christian\'s reply filed 11 November 2026, the second that day (received 11 November 2026, second reply), item 2, "Controlled-Vocabulary Authority", answering question 2 of our document of 11 November 2026 on the Attack Development scoring rules',
+    quote:
+        'I approve the specific interpretation that controlled reception can complete the existing attacking-zone and attacking-line scoring events. ' +
+        'A player may also complete the event by dribbling through the relevant boundary. ' +
+        'Control on reception is judged by the coach in the immediate scoring situation. ' +
+        'It should not imply an additional retention period, subsequent mandatory pass, or universal post-score possession consequence. ' +
+        'I am not granting blanket approval to all controlled-vocabulary descriptions.',
+}
+const CONTROLLED_RECEPTION_NOT_IMPLIED = ['an additional retention period', 'subsequent mandatory pass', 'universal post-score possession consequence'] as const
+const CONTROL_JUDGED_BY = 'judged by the coach in the immediate scoring situation'
+
+/**
+ * **The specific meanings of controlled-vocabulary scoring events that Christian has approved, and nothing else** (11 November 2026).
+ *
+ * The scoring-event descriptions (RPC workbook, Controlled Vocabulary, scoring_event) are our wording, from our proposal of 13
+ * September 2026; they were not approved one by one. Asked whether they count as approved knowledge, Christian approved one meaning
+ * for two events and no more: "I approve the specific interpretation that controlled reception can complete the existing
+ * attacking-zone and attacking-line scoring events." "I am not granting blanket approval to all controlled-vocabulary descriptions."
+ * "Please preserve the distinction between the specific meanings approved here and other descriptions that remain unreviewed."
+ * (received 11 November 2026, second reply).
+ *
+ * So each entry is one context and one event: Attack Development (RPC-003), whose coach rules name these events the attacking zone
+ * and the attacking line. Every description not listed stays UNREVIEWED (`eventMeaningStanding`): the gate, the target player, the
+ * goal, the regain and the denial everywhere, and the zone and the line in every other context. Each entry names, verbatim, the spans
+ * of its event's description that the approval reads, so a changed description no longer matches it (the unit test checks), and
+ * Christian's limits on control on reception: "Control on reception is judged by the coach in the immediate scoring situation. It
+ * should not imply an additional retention period, subsequent mandatory pass, or universal post-score possession consequence."
+ * (received 11 November 2026, second reply). It records the standing of descriptions the knowledge library holds; it changes none
+ * of them. Read by the unit tests; no runtime path reads it, so what a coach is served is unchanged by it.
+ */
+export const APPROVED_EVENT_MEANINGS: readonly ApprovedEventMeaning[] = [
+    {
+        rpcId: 'RPC-003',
+        eventKey: 'target_zone_entered',
+        dribbling: 'dribbles into a marked zone',
+        controlledReception: 'receives and controls the ball inside it',
+        controlJudgedBy: CONTROL_JUDGED_BY,
+        doesNotImply: CONTROLLED_RECEPTION_NOT_IMPLIED,
+        approvedBy: CONTROLLED_RECEPTION_APPROVAL,
+    },
+    {
+        rpcId: 'RPC-003',
+        eventKey: 'line_crossed',
+        dribbling: 'dribbles the ball over a marked line',
+        controlledReception: 'receives and controls it beyond the line',
+        controlJudgedBy: CONTROL_JUDGED_BY,
+        doesNotImply: CONTROLLED_RECEPTION_NOT_IMPLIED,
+        approvedBy: CONTROLLED_RECEPTION_APPROVAL,
+    },
+]
+
+/** Whether a context's use of a controlled-vocabulary scoring event has a specific meaning Christian approved; UNREVIEWED otherwise. */
+export const eventMeaningStanding = (rpcId: string, eventKey: string): EventMeaningStanding =>
+    APPROVED_EVENT_MEANINGS.some((meaning) => meaning.rpcId === rpcId && meaning.eventKey === eventKey) ? 'APPROVED' : 'UNREVIEWED'
 
 /** Which marked object a context judges regain and denial against, most natural first. */
 const OBJECT_PREFERENCE: Readonly<Record<string, readonly ('line' | 'zone')[]>> = {
