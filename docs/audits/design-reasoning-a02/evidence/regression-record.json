@@ -1,25 +1,70 @@
 {
  "stage": "DESIGN_REASONING_A02_FOUNDATIONAL_TEST",
  "status": "RECORDED",
- "standing": "Recorded on 10 November 2026 from the lead's independent run on the committed tree of build 48ea09c (the A02 experiment's four slices, S1 to S5, and the three review batches A1 to A3). This record is committed on top of that build with no change to any code or data file; the evidence test reads only its status and build, to word the report's and the README's lines about it. Engineering evidence only: the live application and A01's checked behaviour are unchanged, nothing is deployed, and it does not establish ecological suitability or representative sufficiency (Christian's reply about A02, pasted 10 November 2026, sections 2 and 8).",
- "build": "48ea09c",
+ "standing": "Recorded on 10 November 2026 from the lead's independent run on the committed tree of build 96944b3 (the A02 experiment's slices S1 to S5, the review batches A1 to A4, and the lead's edits after A4's recheck and the 13 September verification); first recorded on 48ea09c, re-recorded here because A4 and the lead's edits changed the evidence after that record. This record is committed on top of that build with no change to any code or data file; the evidence test reads only its status and build, to word the report's and the README's lines about it. Engineering evidence only: the live application and A01's checked behaviour are unchanged, nothing is deployed, and it does not establish ecological suitability or representative sufficiency (Christian's reply about A02, pasted 10 November 2026, sections 2 and 8).",
+ "build": "96944b3",
  "recordedOn": "2026-11-10",
  "context": "branch claude/a02-foundational-test, on the handoff branch at 35e3799 with main 9919ea3 merged (0b60f26); main at 9919ea3",
  "checks": [
-  { "check": "Type check (tsc --noEmit)", "result": "passed (exit 0)" },
-  { "check": "Full unit suite (npm test), run alone", "result": "159 test files, 0 failed (exit 0)" },
-  { "check": "Behaviour snapshot against the baseline taken at 0b60f26 (main 9919ea3's behaviour), run alone after the suite", "result": "391 entries, 0 changed, 0 leaves, 0 only before, 0 only after; sha-256 2c9950b02cc92feb7946aa67d29ab527e6e15371a9095fd621967df10565d965 on both sides; A01's entries are among the unchanged" },
-  { "check": "Live backend bundle built from src/index.ts (as back/build.js builds it), compared with main at 9919ea3 and with the base 0b60f26", "result": "not byte-identical, as expected: this build sha-256 84cc4a751b9672e265865acf19258af318b6e2e139795669cc00ae5fadcba5d4 (3,235,100 bytes), main cd4feb8eb5fa5906464c454ab7c7072679ce4d71525fc5ff57366517e4d1a2cb (3,229,001 bytes), base 14d78e3f0efd3857b03c2235ac8134c3e344b0c5792f87e9ecd704e12ba1d671 (3,229,665 bytes); the same 192 inputs in all three, 0 from the design-reasoning folder or the draft store; against the base the text differs in 23 hunks, all the TEST-ONLY additions of generateSelection.ts (the quotaBypass switch and the two places the size rule lives), run-bounded-selection.ts (the upstream option, its shape check, the intersection with Step 2's form, the record route, the consumed records) and build-activity.ts (the account's optional fields, the option threaded, the observe-only guard), which no route passes; against main, 27 hunks: those and the five of the handoff's TEST-ONLY communication hook carried by the base" },
-  { "check": "dist/knowledge (the 18 files back/build.js copies), by git blob", "result": "identical to the base 0b60f26; against main 9919ea3 only conformance/stage-b/corpus-restatements.json differs (the handoff's decision 2 of 7 November, carried by the base); none added or removed" },
-  { "check": "Stage 1 runner re-run to a scratch folder", "result": "results byte-identical to the 7 November regression's run (itself identical to the post-sweep baseline of 6 November)" },
-  { "check": "Stage 2 evidence re-generated to a scratch folder", "result": "report and results byte-identical to the committed files" },
-  { "check": "Assembly evidence re-generated to a scratch folder, twice", "result": "report, results and DRAFT diagram byte-identical to the committed files each time" },
-  { "check": "Handoff evidence", "result": "git diff 0b60f26 over docs/audits/design-reasoning-handoff/ is empty; the handoff unit file (40 passing, in the suite) generates its report and results twice, identical, and equal to the committed files" },
-  { "check": "A02 evidence", "result": "the evidence test generates the report and results twice, identical, and equal to the committed files (in the suite, and again after this record, regenerated only because the report words the record's status)" },
-  { "check": "External quote check of the A02 report", "result": "94 quotes and 3 terms: 97 passed, 0 failed; 89 of 89 date citations correct" },
-  { "check": "External quote check of the README", "result": "7 quotes: 7 passed, 0 failed; 4 of 4 date citations correct" },
-  { "check": "Gendered pronouns in every line added since 0b60f26", "result": "none (31,080 lines scanned)" },
-  { "check": "Files changed outside the design-reasoning folder, the A02 audit folder and the A02 draft store since 0b60f26", "result": "back/scripts/unit-tests.json (the new unit files registered); rendering/upstream-consumption.unit.ts (new, registered); and the three bundled files above (TEST-ONLY hunks only); guided-selection.ts, comparison.ts, resolved-game.ts, the sport module and every knowledge file untouched" },
-  { "check": "GitHub checks", "result": "none run: the repository runs its checks only on pushes to main and to its integration branch, and on pull requests; this review branch has no pull request, and nothing deploys" }
+  {
+   "check": "Type check (tsc --noEmit)",
+   "result": "passed (exit 0)"
+  },
+  {
+   "check": "Full unit suite (npm test), run alone",
+   "result": "159 test files, 0 failed (exit 0)"
+  },
+  {
+   "check": "Behaviour snapshot against the baseline taken at 0b60f26 (main 9919ea3's behaviour), run alone after the suite",
+   "result": "391 entries, 0 changed, 0 leaves, 0 only before, 0 only after; sha-256 2c9950b02cc92feb7946aa67d29ab527e6e15371a9095fd621967df10565d965 on both sides; A01's entries are among the unchanged"
+  },
+  {
+   "check": "Live backend bundle built from src/index.ts (as back/build.js builds it), compared with main at 9919ea3 and with the base 0b60f26",
+   "result": "not byte-identical, as expected (and byte-identical to the bundle of 48ea09c, the first recorded build: A4 and the lead's edits touch no bundled file): this build sha-256 84cc4a751b9672e265865acf19258af318b6e2e139795669cc00ae5fadcba5d4 (3,235,100 bytes), main cd4feb8eb5fa5906464c454ab7c7072679ce4d71525fc5ff57366517e4d1a2cb (3,229,001 bytes), base 14d78e3f0efd3857b03c2235ac8134c3e344b0c5792f87e9ecd704e12ba1d671 (3,229,665 bytes); the same 192 inputs in all three, 0 from the design-reasoning folder or the draft store; against the base the text differs in 23 hunks, all the TEST-ONLY additions of generateSelection.ts (the quotaBypass switch and the two places the size rule lives), run-bounded-selection.ts (the upstream option, its shape check, the intersection with Step 2's form, the record route, the consumed records) and build-activity.ts (the account's optional fields, the option threaded, the observe-only guard), which no route passes; against main, 27 hunks: those and the five of the handoff's TEST-ONLY communication hook carried by the base"
+  },
+  {
+   "check": "dist/knowledge (the 18 files back/build.js copies), by git blob",
+   "result": "identical to the base 0b60f26; against main 9919ea3 only conformance/stage-b/corpus-restatements.json differs (the handoff's decision 2 of 7 November, carried by the base); none added or removed"
+  },
+  {
+   "check": "Stage 1 runner re-run to a scratch folder",
+   "result": "results byte-identical to the 7 November regression's run (itself identical to the post-sweep baseline of 6 November)"
+  },
+  {
+   "check": "Stage 2 evidence re-generated to a scratch folder",
+   "result": "report and results byte-identical to the committed files"
+  },
+  {
+   "check": "Assembly evidence re-generated to a scratch folder, twice",
+   "result": "report, results and DRAFT diagram byte-identical to the committed files each time"
+  },
+  {
+   "check": "Handoff evidence",
+   "result": "git diff 0b60f26 over docs/audits/design-reasoning-handoff/ is empty; the handoff unit file (40 passing, in the suite) generates its report and results twice, identical, and equal to the committed files"
+  },
+  {
+   "check": "A02 evidence",
+   "result": "the evidence test generates the report and results twice, identical, and equal to the committed files (in the suite, and again after this record, regenerated only because the report words the record's status)"
+  },
+  {
+   "check": "External quote check of the A02 report",
+   "result": "106 quotes and 3 terms: 109 passed, 0 failed; 101 of 101 date citations correct"
+  },
+  {
+   "check": "External quote check of the README",
+   "result": "9 quotes: 9 passed, 0 failed; 6 of 6 date citations correct"
+  },
+  {
+   "check": "Gendered pronouns in every line added since 0b60f26",
+   "result": "none (31,155 lines scanned)"
+  },
+  {
+   "check": "Files changed outside the design-reasoning folder, the A02 audit folder and the A02 draft store since 0b60f26",
+   "result": "back/scripts/unit-tests.json (the new unit files registered); rendering/upstream-consumption.unit.ts (new, registered); and the three bundled files above (TEST-ONLY hunks only); guided-selection.ts, comparison.ts, resolved-game.ts, the sport module and every knowledge file untouched"
+  },
+  {
+   "check": "GitHub checks",
+   "result": "none run: the repository runs its checks only on pushes to main and to its integration branch, and on pull requests; this review branch has no pull request, and nothing deploys"
+  }
  ]
 }
