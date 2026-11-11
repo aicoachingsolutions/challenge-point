@@ -12,6 +12,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
+import { exampleClauses } from '../derivation/example-clauses'
 import { AUDITS_DIR } from '../derivation/knowledge-root'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { CellValue, openWorkbook, projectSheet } from '../session-planning/workbook-projection'
@@ -381,29 +382,6 @@ function testAttackDevelopmentConditionIsTheSeptember13Wording(): void {
     assert.equal(rpcLibrary.primaryScoringCondition('RPC-003'), ATTACK_DEVELOPMENT_CONDITION, 'the library the engine imports carries it')
     const tail = (text: string): string => text.slice(text.indexOf('rather than possession alone'))
     assert.equal(tail(ATTACK_DEVELOPMENT_CONDITION), tail(SEPTEMBER_13_GOVERNING_WORDS['RPC-PROP-134'][0].words), 'from "rather than" on, the row is the 13 September sentence exactly')
-}
-
-const EXAMPLE_MARKERS = ['for example', 'for instance', 'e.g.', 'such as']
-
-/** Each example clause of a text: from the end of a marker to the end of its sentence ('.' then a space or the end, ';' or ')'). */
-function exampleClauses(text: string): { marker: string; clause: string }[] {
-    const t = text.replace(/\s+/g, ' ').trim()
-    const lower = t.toLowerCase()
-    const out: { marker: string; clause: string }[] = []
-    for (const marker of EXAMPLE_MARKERS) {
-        for (let at = lower.indexOf(marker); at >= 0; at = lower.indexOf(marker, at + marker.length)) {
-            const start = at + marker.length
-            let end = t.length
-            for (let i = start; i < t.length; i++) {
-                if (t[i] === ';' || t[i] === ')' || (t[i] === '.' && (i + 1 === t.length || t[i + 1] === ' '))) {
-                    end = i
-                    break
-                }
-            }
-            out.push({ marker, clause: t.slice(start, end) })
-        }
-    }
-    return out
 }
 
 /** Each example a text gives, as its marker and the first four words it introduces; curly apostrophes and quotation marks made straight. */

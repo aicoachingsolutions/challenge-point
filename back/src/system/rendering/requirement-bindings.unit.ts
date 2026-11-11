@@ -20,6 +20,8 @@ import os from 'node:os'
 import path from 'node:path'
 
 import { loadDraftRequirementBindings, loadDraftStore, mergeRequirementBindings } from '../derivation/draft-store'
+import { spanIsExample } from '../derivation/example-clauses'
+import rpcWorkbook from '../sport-module/rpc-library.rc1.json'
 import { learningGoalAuthorizations, observationCriteriaApprovals, quotesOfHisReplies, validateObservationCriteriaApprovals } from '../test-library/learning-goal-authorizations'
 import { buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from './build-activity'
 import { SCORING_REASON_HEAD } from './requirement-account'
@@ -377,6 +379,81 @@ test('B9: requirement-bindings.ts reads only the bindings from disk; every workb
     const mapped = [...source.matchAll(/'back\/src\/system\/([^']+\.json)': \{ json: (\w+)/g)].map(match => ({ file: path.basename(match[1]), binding: match[2] }))
     assert.equal(mapped.length, 2)
     for (const { file, binding } of mapped) assert.ok(new RegExp(`import ${binding} from '[^']*${file.replace(/\./g, '\\.')}'`).test(source), `${file} is an imported module (${binding})`)
+})
+
+// ── B13: an example never carries a requirement (11 November 2026) ─────────────────────────────────────────────────────────────────
+/**
+ * Christian's reply received 11 November 2026, item 3, asks for a check that "The executable interpretation does not recreate a
+ * possession-retention requirement from that example." and item 4 names the class: "A restatement should not acquire stronger
+ * authority or impose stricter requirements than its governing source supports." (received 11 November 2026). Our restatements of
+ * the workbook's condition rows are the requirement bindings (the production file, RPC-001, and the TEST-ONLY RPC-003 draft) and
+ * the TEST-ONLY draft contract items. None may be REQUIRED on words its row gives only as an example (example-clauses.ts):
+ *   - a binding part that is REQUIRED (a scoring-condition component is, by construction) must not quote, as its rowSpan, words its
+ *     row gives as an example;
+ *   - a REQUIRED item (not TYPICAL_EXAMPLE, which is inert) must have a quotation of its basisEvidence outside an example of the rows
+ *     its sources cite, and its value must not be words those rows give as an example.
+ * A source citing a row of the RPC library's properties is read against the whole row, so a shortened quotation cannot hide its
+ * marker. What still reads the corrected Attack Development row's example as required is pinned below by name, with why it stands;
+ * anything else found, or a pinned entry no longer found, fails until this list is brought up to date.
+ */
+const ANSWERED_NOT_YET_WITHDRAWN =
+    "answered by Christian's reply of 11 November (the clause is an example, not a requirement); to be withdrawn with the A02 work, where this draft is used"
+const REPORTED_DESIGN_POINT =
+    'reported: rests only on words the corrected row places inside an example; a design point, not changed (no broader scoring redesign)'
+const RESTATED_FROM_AN_EXAMPLE: Record<string, string> = {
+    'RPC-003-12.a': ANSWERED_NOT_YET_WITHDRAWN,
+    'RPC-003-12.b': ANSWERED_NOT_YET_WITHDRAWN,
+    'DRAFT bindings RPC-003 RPC-PROP-134 control': ANSWERED_NOT_YET_WITHDRAWN,
+    'RPC-003-02': REPORTED_DESIGN_POINT,
+    'RPC-003-11.a': REPORTED_DESIGN_POINT,
+    'RPC-003-11.b': REPORTED_DESIGN_POINT,
+    'RPC-003-11.c': REPORTED_DESIGN_POINT,
+    'DRAFT bindings RPC-003 RPC-PROP-134 progression': REPORTED_DESIGN_POINT,
+}
+test('B13 (11 November 2026): no REQUIRED restatement rests only on words its row gives as an example, outside the pinned list; none in the production bindings (RPC-001)', () => {
+    const LIBRARY_FILE = 'back/src/system/sport-module/rpc-library.rc1.json'
+    const properties = (rpcWorkbook as unknown as { properties: Record<string, unknown>[] }).properties
+    const rowText = (rowId: string): string | undefined => properties.find(row => row['property_id'] === rowId)?.['property_text'] as string | undefined
+    const quotations = (text: string): string[] => [...text.matchAll(/"([^"]+)"|“([^”]+)”/g)].map(match => match[1] ?? match[2])
+    const found: string[] = []
+
+    let partsRead = 0
+    for (const bindings of [production, draft]) {
+        for (const entry of bindings.contexts) {
+            for (const row of entry.rows) {
+                for (const part of row.parts as any[]) {
+                    if (!part.rowSpan) continue
+                    partsRead++
+                    const text = rowText(row.rowId)
+                    assert.ok(text, `${row.rowId}: a part quotes it, and the library holds no property row of that id`)
+                    const required = part.kind === 'SCORING_CONDITION_COMPONENT' || (part.facets ?? []).some((facet: any) => (facet.strictness ?? []).includes('REQUIRED'))
+                    if (required && spanIsExample(text, part.rowSpan)) found.push(`${bindings.mode} bindings ${entry.contextId} ${row.rowId} ${part.id}`)
+                }
+            }
+        }
+    }
+
+    let itemsRead = 0
+    for (const contract of store.contracts) {
+        for (const item of contract.items as any[]) {
+            if (item.strictness !== 'REQUIRED' || item.valueStatus === 'TYPICAL_EXAMPLE') continue
+            itemsRead++
+            const texts: string[] = (item.source ?? []).map((source: any) =>
+                source.file === LIBRARY_FILE && source.table === 'properties' ? rowText(String(source.rowId).trim().split(/\s+/)[0]) ?? String(source.text) : String(source.text),
+            )
+            // Each quotation of its evidence, read in every cited row that holds it: true where every such reading is an example.
+            const readings = quotations(String(item.basisEvidence ?? ''))
+                .map(quotation => texts.map(text => spanIsExample(text, quotation)).filter(reading => reading !== null))
+                .filter(reading => reading.length > 0)
+            const restsOnlyOnAnExample = readings.length > 0 && readings.every(reading => reading.every(Boolean))
+            const valueIsAnExample = typeof item.value === 'string' && item.value !== 'N/A' && texts.some(text => spanIsExample(text, item.value) === true)
+            if (restsOnlyOnAnExample || valueIsAnExample) found.push(String(item.itemId))
+        }
+    }
+
+    assert.ok(partsRead >= 8 && itemsRead > 0, `the check read what it holds to account (${partsRead} parts quoting a row, ${itemsRead} REQUIRED items)`)
+    assert.deepEqual(found.filter(entry => entry.startsWith('PRODUCTION')), [], 'no production component (RPC-001, A01) rests on an example')
+    assert.deepEqual(found.sort(), Object.keys(RESTATED_FROM_AN_EXAMPLE).sort(), 'what reads the corrected row\'s example as required is exactly the pinned list')
 })
 
 console.log = quiet

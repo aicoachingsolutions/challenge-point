@@ -16,6 +16,7 @@ import { findCommunicationStandardViolations } from '../activity/coach-communica
 import { toCoachScoringSentence } from '../activity/coach-voice'
 import { compressActivityForCoach } from '../activity/compress-activity-output'
 import { validateActivityAgainstSkeleton, withScoringObjectInSetup } from '../activity/validate-activity-skeleton'
+import { normaliseWhitespace, spanIsExample } from '../derivation/example-clauses'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { generateSelection, isSelectionKnowledgeGap } from '../test-library/generateSelection'
 import { gateCandidateGameFormsToContext } from './context-selection'
@@ -158,6 +159,110 @@ function testCoachWordingIsCompleteApprovedAndCoachFacing(): void {
             )
         }
     }
+}
+
+/** The possession and control clauses a coach rule can state. A rule stating one must name its ground in the table below. */
+const POSSESSION_OR_CONTROL_CLAUSES = [/keeps? the ball/, /\bcontrols? it\b/, /retains? possession/, /keeps? possession/, /under control/]
+
+/** Spans of the scoring events' controlled-vocabulary definitions that state control on reception. */
+const RECEIVES_AND_CONTROLS = {
+    line_crossed: 'receives and controls it beyond the line',
+    target_zone_entered: 'receives and controls the ball inside it',
+    target_player: 'received and controlled',
+}
+
+/**
+ * Each possession or control clause of a coach rule (verbatim in the rule) with its ground: a span, verbatim, of the rule's event
+ * definition in the controlled vocabulary (EVENT) or of its context's approved scoring condition (CONDITION). Our reading, for
+ * review. It keeps two things apart that Christian's reply received 11 November 2026 asks to keep apart: "I want to avoid
+ * inadvertently removing a legitimate requirement for controlled arrival at a target, for example, simply because an unrelated
+ * possession-retention requirement was incorrectly introduced." (received 11 November 2026). Control on reception rests on the event
+ * definitions; possession kept rests on a context's condition.
+ */
+const COACH_RULE_GROUNDS: Readonly<Record<string, [clause: string, kind: 'EVENT' | 'CONDITION', span: string][]>> = {
+    'RPC-001|line_crossed|': [['controls it', 'EVENT', RECEIVES_AND_CONTROLS.line_crossed]],
+    'RPC-001|target_zone_entered|': [['controls it', 'EVENT', RECEIVES_AND_CONTROLS.target_zone_entered]],
+    'RPC-001|gate|': [['keeps the ball', 'CONDITION', 'with possession controlled on arrival']],
+    'RPC-001|target_player|': [['controls it', 'EVENT', RECEIVES_AND_CONTROLS.target_player]],
+    'RPC-002|line_crossed|': [
+        ['controls it', 'EVENT', RECEIVES_AND_CONTROLS.line_crossed],
+        ['keeps the ball with the next pass', 'CONDITION', 'the attacking team retains possession through the next action'],
+    ],
+    'RPC-002|target_zone_entered|': [
+        ['controls it', 'EVENT', RECEIVES_AND_CONTROLS.target_zone_entered],
+        ['keeps the ball with the next pass', 'CONDITION', 'the attacking team retains possession through the next action'],
+    ],
+    'RPC-002|gate|': [['keeps the ball with the next pass', 'CONDITION', 'the attacking team retains possession through the next action']],
+    'RPC-002|target_player|': [
+        ['controls it', 'EVENT', RECEIVES_AND_CONTROLS.target_player],
+        ['keeps the ball with the next pass', 'CONDITION', 'the attacking team retains possession through the next action'],
+    ],
+    'RPC-003|target_zone_entered|': [
+        ['controls it', 'EVENT', RECEIVES_AND_CONTROLS.target_zone_entered],
+        ['keeps the ball', 'CONDITION', 'while maintaining attacking possession'],
+    ],
+    'RPC-003|line_crossed|': [
+        ['controls it', 'EVENT', RECEIVES_AND_CONTROLS.line_crossed],
+        ['keeps the ball', 'CONDITION', 'while maintaining attacking possession'],
+    ],
+    'RPC-003|gate|': [['keeps the ball', 'CONDITION', 'while maintaining attacking possession']],
+    'RPC-003|target_player|': [['control it', 'EVENT', RECEIVES_AND_CONTROLS.target_player]],
+    'RPC-004|target_zone_entered|': [['controls it', 'EVENT', RECEIVES_AND_CONTROLS.target_zone_entered]],
+    'RPC-004|gate|': [['controls it', 'CONDITION', 'the ball is received under control']],
+    'RPC-004|target_player|': [['controls it', 'EVENT', RECEIVES_AND_CONTROLS.target_player]],
+    'RPC-006|line_crossed|': [['controls it', 'EVENT', RECEIVES_AND_CONTROLS.line_crossed]],
+    'RPC-006|target_zone_entered|': [['controls it', 'EVENT', RECEIVES_AND_CONTROLS.target_zone_entered]],
+    'RPC-006|target_player|': [['controls it', 'EVENT', RECEIVES_AND_CONTROLS.target_player]],
+}
+
+/** The coach rules whose possession clause rests on words their context's condition gives only as an example, with why each stands. */
+const AWAITING_REVIEW = "awaiting Christian's review of the proposed wording"
+const GROUNDED_ON_AN_EXAMPLE: Readonly<Record<string, string>> = {
+    'RPC-003|target_zone_entered|': AWAITING_REVIEW,
+    'RPC-003|line_crossed|': AWAITING_REVIEW,
+    'RPC-003|gate|': AWAITING_REVIEW,
+}
+
+/**
+ * **Every possession or control clause of a coach rule names its ground, and none rests on an example** (11 November 2026).
+ * Christian's reply received 11 November 2026, item 3, asks for a check that "The executable interpretation does not recreate a
+ * possession-retention requirement from that example." (received 11 November 2026). The rules state their contexts' conditions in
+ * coach words (types.ts, the qualifying condition: "the scoring rule above already states it"), so each clause of possession or
+ * control must point at the words it states, verbatim, and those words must not be given only as an example (example-clauses.ts).
+ * A CONDITION ground must itself speak of possession, control or retention. The three Attack Development rules still say 'and your
+ * team keeps the ball' on the strength of the clause the corrected row gives as an example; they are pinned until Christian has
+ * reviewed the proposed wording: "Please keep any changes to the three coach-facing scoring rules separate until I have reviewed
+ * their proposed wording." (received 11 November 2026). A fourth rule found, or one of the three changed, fails until the pinned
+ * list is brought up to date.
+ */
+function testEveryPossessionOrControlClauseNamesItsGround(): void {
+    const definitions: Record<string, string> = Object.fromEntries(rpcLibrary.scoringEvents().map((event) => [event.key, event.definition]))
+    const failures: string[] = []
+    const onAnExample: string[] = []
+    for (const [key, wording] of Object.entries(COACH_RULES)) {
+        const [rpcId, eventKey] = key.split('|')
+        const declared = COACH_RULE_GROUNDS[key] ?? []
+        const undeclared = declared.reduce((rest, [clause]) => rest.split(clause).join(''), wording.rule)
+        for (const pattern of POSSESSION_OR_CONTROL_CLAUSES) {
+            if (pattern.test(undeclared)) failures.push(`${key}: a possession or control clause (${pattern}) with no declared ground: ${wording.rule}`)
+        }
+        for (const [clause, kind, span] of declared) {
+            if (!wording.rule.includes(clause)) {
+                failures.push(`${key}: the declared clause "${clause}" is not in the rule`)
+                continue
+            }
+            const ground = kind === 'CONDITION' ? rpcLibrary.primaryScoringCondition(rpcId!) : definitions[eventKey!] ?? ''
+            if (!normaliseWhitespace(ground).includes(normaliseWhitespace(span))) {
+                failures.push(`${key}: "${clause}" is grounded on "${span}", which is not verbatim in its ${kind === 'CONDITION' ? "context's approved condition" : "event's definition"}`)
+                continue
+            }
+            if (kind === 'CONDITION' && !/possession|control|retain/i.test(span)) failures.push(`${key}: "${clause}" is grounded on "${span}", which speaks of neither possession nor control`)
+            if (spanIsExample(ground, span)) onAnExample.push(key)
+        }
+    }
+    for (const key of Object.keys(COACH_RULE_GROUNDS)) if (!(key in COACH_RULES)) failures.push(`${key}: grounds declared for a rule that does not exist`)
+    assert.deepEqual(failures, [], 'every possession or control clause of a coach rule names a verbatim ground')
+    assert.deepEqual([...new Set(onAnExample)].sort(), Object.keys(GROUNDED_ON_AN_EXAMPLE).sort(), 'the rules grounded on words given only as an example are exactly the pinned list')
 }
 
 function slotFor(rpcId: string, gameFormId: string, slotIndex: 1 | 2 | 3 = 1): ActivitySkeletonSlot {
@@ -380,6 +485,7 @@ testBothApprovedDefensiveEventsReachCoaches()
 testEmptyIntersectionFailsInsteadOfInferring()
 testGameFormStructureUsesTheControlledVocabulary()
 testCoachWordingIsCompleteApprovedAndCoachFacing()
+testEveryPossessionOrControlClauseNamesItsGround()
 testSetupMustMarkTheScoringObject()
 testSetupGainsTheObjectWhenGenerationOmitsIt()
 testCompressionPinsTheResolvedRule()
