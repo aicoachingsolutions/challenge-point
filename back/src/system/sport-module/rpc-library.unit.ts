@@ -15,7 +15,7 @@ import path from 'node:path'
 import { exampleClauses } from '../derivation/example-clauses'
 import { AUDITS_DIR } from '../derivation/knowledge-root'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { CellValue, openWorkbook, projectSheet } from '../session-planning/workbook-projection'
+import { CellValue, openWorkbook, projectSheet, readSheetCells } from '../session-planning/workbook-projection'
 import rpcWorkbook from './rpc-library.rc1.json'
 import { rpcLibrary, validateRpcLibraryIntegrity, type PlanningRoute, type RpcWorkbook } from './rpc-library'
 
@@ -338,7 +338,7 @@ const SEPTEMBER_13_GOVERNING_WORDS: Record<string, { line: number; words: string
     ],
 }
 
-/** The sheets project-rpc-workbook.py projects, with their keys in the library; Metadata, the tenth, is read below. */
+/** The ten sheets project-rpc-workbook.py projects, in its order, with their keys in the library. Metadata is the tenth. */
 const PROJECTED_TABLES: [string, string][] = [
     ['Registry', 'registry'],
     ['Statements', 'statements'],
@@ -349,24 +349,72 @@ const PROJECTED_TABLES: [string, string][] = [
     ['Validation Rules', 'validation_rules'],
     ['Controlled Vocabulary', 'controlled_vocabulary'],
     ['Implementation Staging', 'implementation_staging'],
+    ['Metadata', 'metadata_rows'],
 ]
 
+const RPC_LIBRARY = path.resolve(__dirname, 'rpc-library.rc1.json')
+
+/** project-rpc-workbook.py's clean(): a string stripped, a blank one None; a number or a boolean as it is. */
+const cleanCell = (value: CellValue): CellValue => (typeof value === 'string' ? (value.trim() === '' ? null : value.trim()) : value)
+
+/** One sheet as project-rpc-workbook.py's read_table makes it, booleans read as openpyxl reads them. */
+const projectRpcTable = (zip: Buffer, sheet: string): Record<string, CellValue>[] =>
+    projectSheet(openWorkbook(zip, { booleans: true }).cells(sheet)).map((row) => Object.fromEntries(Object.entries(row).map(([column, value]) => [column, cleanCell(value)])))
+
 /**
- * **C0. The committed library is the committed workbook's projection.** `project-rpc-workbook.py` writes the library from the
- * workbook ('Never hand-edit the JSON — regenerate it.'), and until 11 November 2026 nothing compared the two: an edit to either
- * alone passed every check. Read by `workbook-projection.ts`'s reader under project-rpc-workbook.py's rules (header row 1, all-blank
- * rows skipped, every headed column kept, strings stripped and blank ones null), each of the nine sheets equals the library's table.
- * Metadata holds boolean cells, which that reader refuses rather than guesses; it is pinned as refused, so a reader that learns
- * booleans brings it in.
+ * The whole library as project-rpc-workbook.py writes it from the workbook: source_workbook, header_row, the ten tables in its
+ * order, then `metadata`, the Metadata rows as metadata_key → metadata_value; json.dump(indent=2, ensure_ascii=False) and a
+ * newline, which for strings, integers, booleans and null is JSON.stringify(…, null, 2) and a newline.
+ */
+function projectRpcWorkbook(zip: Buffer): string {
+    const projection: Record<string, unknown> = { source_workbook: path.basename(RPC_WORKBOOK), header_row: 1 }
+    for (const [sheet, key] of PROJECTED_TABLES) projection[key] = projectRpcTable(zip, sheet)
+    projection['metadata'] = Object.fromEntries((projection['metadata_rows'] as Record<string, CellValue>[]).map((row) => [String(row['metadata_key']), row['metadata_value']]))
+    return JSON.stringify(projection, null, 2) + '\n'
+}
+
+/**
+ * **C0. The committed library is the committed workbook's projection, all of it.** `project-rpc-workbook.py` writes the library
+ * from the workbook ('Never hand-edit the JSON — regenerate it.'), and until 11 November 2026 nothing compared the two: an edit to
+ * either alone passed every check. Read by `workbook-projection.ts`'s reader under project-rpc-workbook.py's rules (header row 1,
+ * all-blank rows skipped, every headed column kept, strings stripped and blank ones null), each sheet equals the library's table,
+ * and the whole file is what the projector writes.
+ *
+ * The tenth sheet, Metadata, was first left out (11 November 2026, commit 062cb7c): its boolean cells were refused by the reader.
+ * It is an authoritative dependency — its runtime_status is the `rpcLibrary.runtimeStatus` the live route gates on, and the
+ * integrity gate reads its schema version and context count — so a hand edit to the library's metadata, or a Metadata edit never
+ * projected, would have passed. The reader now reads booleans when asked, and Metadata and the derived `metadata` are compared.
  */
 function testCommittedLibraryIsTheWorkbookProjection(): void {
-    const workbook = openWorkbook(fs.readFileSync(RPC_WORKBOOK))
-    const clean = (value: CellValue): CellValue => (typeof value === 'string' ? (value.trim() === '' ? null : value.trim()) : value)
+    const zip = fs.readFileSync(RPC_WORKBOOK)
     for (const [sheet, key] of PROJECTED_TABLES) {
-        const projected = projectSheet(workbook.cells(sheet)).map((row) => Object.fromEntries(Object.entries(row).map(([column, value]) => [column, clean(value)])))
-        assert.deepEqual(projected, (REAL as unknown as Record<string, unknown>)[key], `the library's ${key} must be exactly the workbook's ${sheet} sheet projected`)
+        assert.deepEqual(projectRpcTable(zip, sheet), (REAL as unknown as Record<string, unknown>)[key], `the library's ${key} must be exactly the workbook's ${sheet} sheet projected`)
     }
-    assert.throws(() => workbook.cells('Metadata'), /has cell type "b"/, 'Metadata: its boolean cells are refused by the reader, so it is not compared here')
+    const committed = fs.readFileSync(RPC_LIBRARY, 'utf8').split('\r\n').join('\n')
+    assert.equal(projectRpcWorkbook(zip), committed, 'the committed library is, byte for byte, what project-rpc-workbook.py writes from the committed workbook')
+
+    // The tenth sheet is read, not skipped: its booleans arrive as booleans, and a library metadata edit alone would be seen.
+    const metadataRows = projectRpcTable(zip, 'Metadata')
+    assert.equal(metadataRows.length, 26, 'the Metadata sheet projects its 26 rows')
+    assert.ok(metadataRows.every((row) => typeof row['required'] === 'boolean'), 'every Metadata row\'s required cell is read as a boolean')
+    assert.equal(metadataRows.find((row) => row['metadata_key'] === 'schema_frozen')?.['metadata_value'], true, 'schema_frozen reads true')
+    const edited = JSON.parse(committed) as RpcWorkbook
+    edited.metadata['runtime_status'] = 'PROPOSED'
+    assert.notEqual(JSON.stringify(edited, null, 2) + '\n', projectRpcWorkbook(zip), 'a runtime_status edited in the library alone no longer matches the workbook')
+}
+
+/**
+ * **C0a. The reader reads a boolean only when asked, and only 1 or 0.** The default reader still refuses t="b" (the Session
+ * Planning Model's projection is unchanged); asked, it reads 1 and 0 as openpyxl does, an empty t="b" cell as empty, and refuses
+ * anything else.
+ */
+function testReaderReadsBooleansOnlyWhenAsked(): void {
+    const sheet = (cells: string) => `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1">${cells}</row></sheetData></worksheet>`
+    const booleans = sheet('<c r="A1" t="b"><v>1</v></c><c r="B1" t="b"><v>0</v></c><c r="C1" t="b" />')
+    assert.throws(() => readSheetCells(booleans), /cell type "b"/, 'the default reader refuses a boolean')
+    assert.deepEqual([...readSheetCells(booleans, [], [], { booleans: true }).get(1)!.values()], [true, false, null])
+    assert.throws(() => readSheetCells(sheet('<c r="A1" t="b"><v>2</v></c>'), [], [], { booleans: true }), /A1 is a boolean holding "2"/)
+    assert.throws(() => openWorkbook(fs.readFileSync(RPC_WORKBOOK)).cells('Metadata'), /has cell type "b"/, 'the RPC workbook\'s Metadata is refused by the default reader')
 }
 
 /**
@@ -437,6 +485,7 @@ testEveryContextHasAPrimaryGameFormInStrengthOrder()
 testStagingIsResolvedOrDeferredAndAuthoredNotesSurvive()
 testPrimaryScoringMatchesTheApproval()
 testCommittedLibraryIsTheWorkbookProjection()
+testReaderReadsBooleansOnlyWhenAsked()
 testAttackDevelopmentConditionIsTheSeptember13Wording()
 testExamplesSurviveTranscription()
 testGeneratorCarriesTheCorrectedCondition()
