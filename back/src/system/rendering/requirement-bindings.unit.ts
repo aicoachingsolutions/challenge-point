@@ -387,14 +387,21 @@ test('B9: requirement-bindings.ts reads only the bindings from disk; every workb
  * possession-retention requirement from that example." and item 4 names the class: "A restatement should not acquire stronger
  * authority or impose stricter requirements than its governing source supports." (received 11 November 2026). Our restatements of
  * the workbook's condition rows are the requirement bindings (the production file, RPC-001, and the TEST-ONLY RPC-003 draft) and
- * the TEST-ONLY draft contract items. None may be REQUIRED on words its row gives only as an example (example-clauses.ts):
+ * the TEST-ONLY draft contract items. Not read here: A01's production contract items (docs/audits/conformance/stage-b/contracts.json,
+ * RPC-001-07, 10.a, 10.b, 18.a-18.g, 19.a and 19.b, as corpus-restatements.json restates them). They also restate RPC-PROP-132 but
+ * carry no structured source. A marker added to RPC-PROP-132 is caught by C1b (rpc-library.unit.ts). None of the restatements read
+ * here may be REQUIRED on words its row gives only as an example (example-clauses.ts):
  *   - a binding part that is REQUIRED (a scoring-condition component is, by construction) must not quote, as its rowSpan, words its
  *     row gives as an example;
  *   - a REQUIRED item (not TYPICAL_EXAMPLE, which is inert) must have a quotation of its basisEvidence outside an example of the rows
  *     its sources cite, and its value must not be words those rows give as an example.
+ * Measured 11 November 2026: a rowSpan or quotation that starts at or before a marker and runs into its example (one beginning
+ * 'for example, reaching') is not read as resting only on the example and passes, even if only the marker lies outside it.
  * A source citing a row of the RPC library's properties is read against the whole row, so a shortened quotation cannot hide its
- * marker. What still reads the corrected Attack Development row's example as required is pinned below by name, with why it stands;
- * anything else found, or a pinned entry no longer found, fails until this list is brought up to date.
+ * marker. What rests only on words the corrected Attack Development row gives as an example is pinned below by name, with why it
+ * stands. RPC-003-04.b (REQUIRED, OUTSIDE_BOUNDARY, inert) passes: its 'at loss of possession' rests on RPC-PROP-037, though its
+ * 'at the scoring event' rests on the clause the corrected row gives as an example. It is recorded here, not pinned; anything else
+ * found, or a pinned entry no longer found, fails until this list is brought up to date.
  */
 const ANSWERED_NOT_YET_WITHDRAWN =
     "answered by Christian's reply of 11 November (the clause is an example, not a requirement); to be withdrawn with the A02 work, where this draft is used"
@@ -416,6 +423,7 @@ test('B13 (11 November 2026): no REQUIRED restatement rests only on words its ro
     const rowText = (rowId: string): string | undefined => properties.find(row => row['property_id'] === rowId)?.['property_text'] as string | undefined
     const quotations = (text: string): string[] => [...text.matchAll(/"([^"]+)"|“([^”]+)”/g)].map(match => match[1] ?? match[2])
     const found: string[] = []
+    assert.equal(spanIsExample(rowText('RPC-PROP-134') ?? '', 'while maintaining attacking possession'), true, 'the reading still sees the example of the corrected row')
 
     let partsRead = 0
     for (const bindings of [production, draft]) {
@@ -452,8 +460,8 @@ test('B13 (11 November 2026): no REQUIRED restatement rests only on words its ro
     }
 
     assert.ok(partsRead >= 8 && itemsRead > 0, `the check read what it holds to account (${partsRead} parts quoting a row, ${itemsRead} REQUIRED items)`)
-    assert.deepEqual(found.filter(entry => entry.startsWith('PRODUCTION')), [], 'no production component (RPC-001, A01) rests on an example')
-    assert.deepEqual(found.sort(), Object.keys(RESTATED_FROM_AN_EXAMPLE).sort(), 'what reads the corrected row\'s example as required is exactly the pinned list')
+    assert.deepEqual(found.filter(entry => entry.startsWith('PRODUCTION')), [], 'no production binding part (RPC-001, A01) rests on an example')
+    assert.deepEqual(found.sort(), Object.keys(RESTATED_FROM_AN_EXAMPLE).sort(), 'what rests only on the corrected row\'s example is exactly the pinned list')
 })
 
 console.log = quiet

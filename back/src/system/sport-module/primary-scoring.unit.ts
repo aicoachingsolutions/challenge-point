@@ -16,7 +16,7 @@ import { findCommunicationStandardViolations } from '../activity/coach-communica
 import { toCoachScoringSentence } from '../activity/coach-voice'
 import { compressActivityForCoach } from '../activity/compress-activity-output'
 import { validateActivityAgainstSkeleton, withScoringObjectInSetup } from '../activity/validate-activity-skeleton'
-import { normaliseWhitespace, spanIsExample } from '../derivation/example-clauses'
+import { exampleClauses, normaliseWhitespace, spanIsExample } from '../derivation/example-clauses'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { generateSelection, isSelectionKnowledgeGap } from '../test-library/generateSelection'
 import { gateCandidateGameFormsToContext } from './context-selection'
@@ -161,10 +161,29 @@ function testCoachWordingIsCompleteApprovedAndCoachFacing(): void {
     }
 }
 
-/** The possession and control clauses a coach rule can state. A rule stating one must name its ground in the table below. */
-const POSSESSION_OR_CONTROL_CLAUSES = [/keeps? the ball/, /\bcontrols? it\b/, /retains? possession/, /keeps? possession/, /under control/]
+/**
+ * The possession and control clauses a coach rule can state, in the wordings met so far (a list cannot read every wording): first
+ * those of possession kept, then those of control. A rule stating one must name its ground in the table below. Read in any letter
+ * case; any wording of possession, maintaining, retaining or holding must name its ground. A bare 'lose' is not read: RPC-007's
+ * rules say 'as soon as your team loses the ball'. Keeping control of the ball ('keeps control', 'in control of the ball') is
+ * read as possession kept, not as control on reception, so a declared one needs a ground of retaining or maintaining it.
+ */
+const POSSESSION_KEPT_CLAUSES = [
+    /keep(s|ing)? (the ball|it\b|possession|hold)/i, /retain/i, /maintain/i, /possession/i, /\bhold/i, /(without|not|never) los(e|es|ing)\b/i, /\b(has|have|having) the ball\b/i,
+    /(n't|n’t) los(e|es|ing)\b/i, /\bgiv(e|es|ing) (the ball|it|possession) away\b/i, /\bkeep(s|ing)? control\b/i, /\bkept (the ball|it|possession|hold|control)\b/i,
+    /\b(has|have|having) (it|control)\b/i, /\b(has|have|having) (still )?got (the ball|it)\b/i, /\bin control of (the ball|it)\b/i,
+    /\b(stays?|remains?|staying|remaining) in control\b/i, /\bsecur(e|es|ed|ing) (the ball|it|possession)\b/i, /\b(ball|it) (stays|remains) with\b/i,
+    /\bturnover\b/i, /\bturn(s|ing)? (it|the ball) over\b/i, /\b(take|takes|taking) care of (the ball|it)\b/i, /\b(look|looks|looking) after (the ball|it)\b/i,
+    /\b(hang|hangs|hanging) on to\b/i, /dispossess/i, /(not|never|n't|n’t) (win|wins|get|gets) (the ball|it) back\b/i, /\b(not|never|n't|n’t|being) lost\b/i,
+    /\bprotect(s|ing)? (the ball|it|possession)\b/i,
+]
+const CONTROL_CLAUSES = [/\bcontrols? it\b/i, /under control/i]
+const POSSESSION_OR_CONTROL_CLAUSES = [...POSSESSION_KEPT_CLAUSES, ...CONTROL_CLAUSES]
 
-/** Spans of the scoring events' controlled-vocabulary definitions that state control on reception. */
+/**
+ * Spans of the scoring events' controlled-vocabulary definitions that state control on reception. Our wording in the controlled
+ * vocabulary; whether it counts as approved knowledge is asked of Christian (11 November 2026).
+ */
 const RECEIVES_AND_CONTROLS = {
     line_crossed: 'receives and controls it beyond the line',
     target_zone_entered: 'receives and controls the ball inside it',
@@ -172,18 +191,20 @@ const RECEIVES_AND_CONTROLS = {
 }
 
 /**
- * Each possession or control clause of a coach rule (verbatim in the rule) with its ground: a span, verbatim, of the rule's event
- * definition in the controlled vocabulary (EVENT) or of its context's approved scoring condition (CONDITION). Our reading, for
- * review. It keeps two things apart that Christian's reply received 11 November 2026 asks to keep apart: "I want to avoid
- * inadvertently removing a legitimate requirement for controlled arrival at a target, for example, simply because an unrelated
- * possession-retention requirement was incorrectly introduced." (received 11 November 2026). Control on reception rests on the event
- * definitions; possession kept rests on a context's condition.
+ * Each possession or control clause of a coach rule or its setup (verbatim in either) with its ground: a span, verbatim, of the
+ * rule's event definition in the controlled vocabulary (EVENT) or of its context's approved scoring condition (CONDITION). Our
+ * reading, for review. It keeps two things apart that Christian's reply received 11 November 2026 asks to keep apart: "I want
+ * to avoid inadvertently removing a legitimate requirement for controlled arrival at a target, for example, simply because an
+ * unrelated possession-retention requirement was incorrectly introduced." (received 11 November 2026). Control on reception rests
+ * on the event definitions; possession kept rests on a context's condition.
  */
 const COACH_RULE_GROUNDS: Readonly<Record<string, [clause: string, kind: 'EVENT' | 'CONDITION', span: string][]>> = {
     'RPC-001|line_crossed|': [['controls it', 'EVENT', RECEIVES_AND_CONTROLS.line_crossed]],
     'RPC-001|target_zone_entered|': [['controls it', 'EVENT', RECEIVES_AND_CONTROLS.target_zone_entered]],
+    // presence of the words only: the rule is open-ended where the condition says on arrival; reported 11 November 2026, not changed.
     'RPC-001|gate|': [['keeps the ball', 'CONDITION', 'with possession controlled on arrival']],
     'RPC-001|target_player|': [['controls it', 'EVENT', RECEIVES_AND_CONTROLS.target_player]],
+    // presence of the words only: 'the next pass' is narrower than "through the next action" (received 13 September 2026); reported 11 November 2026, not changed.
     'RPC-002|line_crossed|': [
         ['controls it', 'EVENT', RECEIVES_AND_CONTROLS.line_crossed],
         ['keeps the ball with the next pass', 'CONDITION', 'the attacking team retains possession through the next action'],
@@ -224,31 +245,40 @@ const GROUNDED_ON_AN_EXAMPLE: Readonly<Record<string, string>> = {
 }
 
 /**
- * **Every possession or control clause of a coach rule names its ground, and none rests on an example** (11 November 2026).
- * Christian's reply received 11 November 2026, item 3, asks for a check that "The executable interpretation does not recreate a
- * possession-retention requirement from that example." (received 11 November 2026). The rules state their contexts' conditions in
- * coach words (types.ts, the qualifying condition: "the scoring rule above already states it"), so each clause of possession or
- * control must point at the words it states, verbatim, and those words must not be given only as an example (example-clauses.ts).
- * A CONDITION ground must itself speak of possession, control or retention. The three Attack Development rules still say 'and your
- * team keeps the ball' on the strength of the clause the corrected row gives as an example; they are pinned until Christian has
- * reviewed the proposed wording: "Please keep any changes to the three coach-facing scoring rules separate until I have reviewed
- * their proposed wording." (received 11 November 2026). A fourth rule found, or one of the three changed, fails until the pinned
- * list is brought up to date.
+ * **Every possession or control clause of a coach rule or its setup names its ground, and none rests on an example**
+ * (11 November 2026). Christian's reply received 11 November 2026, item 3, asks for a check that "The executable interpretation
+ * does not recreate a possession-retention requirement from that example." (received 11 November 2026). The rules state their
+ * contexts' conditions in coach words (types.ts, the qualifying condition: "the scoring rule above already states it"), so each
+ * clause of possession or control must point at the words it states, verbatim, and those words must not be given only as an
+ * example (example-clauses.ts). The rule and its setup are read together: the setup sentence is also written for the coach word
+ * for word. A ground that overlaps an example clause anywhere, even one that starts at or before its marker, counts as resting on
+ * the example. A declared clause must itself be a possession or control clause. One of possession kept must be grounded on words
+ * of retaining or maintaining it, or on 'possession controlled', which only RPC-001's condition holds; one of control on words of
+ * control. The table is hand-written and is reviewed as a fixture: a ground of the right kind that misreads its condition still
+ * passes. The clause list has the same kind of limit: a wording it does not read still passes. Measured on 11 November 2026,
+ * after a simulated correction of the three Attack Development rules: 'stays on the ball', 'is still on the ball',
+ * 'without an interception' and 'and the attack continues' still pass. The list supports review; it does not replace it. The
+ * three Attack Development rules still say 'and your team keeps the ball' on the strength of the clause the corrected row gives
+ * as an example; they are pinned until Christian has reviewed the proposed wording: "Please keep any changes to the three
+ * coach-facing scoring rules separate until I have reviewed their proposed wording." (received 11 November 2026). A fourth rule
+ * found, or one of the three changed, fails until the pinned list is brought up to date.
  */
 function testEveryPossessionOrControlClauseNamesItsGround(): void {
     const definitions: Record<string, string> = Object.fromEntries(rpcLibrary.scoringEvents().map((event) => [event.key, event.definition]))
     const failures: string[] = []
     const onAnExample: string[] = []
+    assert.equal(spanIsExample(rpcLibrary.primaryScoringCondition('RPC-003'), 'while maintaining attacking possession'), true, 'the reading still sees the example of the corrected row')
     for (const [key, wording] of Object.entries(COACH_RULES)) {
         const [rpcId, eventKey] = key.split('|')
         const declared = COACH_RULE_GROUNDS[key] ?? []
-        const undeclared = declared.reduce((rest, [clause]) => rest.split(clause).join(''), wording.rule)
+        const ruleAndSetup = wording.rule + ' ' + wording.setup
+        const undeclared = declared.reduce((rest, [clause]) => rest.split(clause).join(''), ruleAndSetup)
         for (const pattern of POSSESSION_OR_CONTROL_CLAUSES) {
-            if (pattern.test(undeclared)) failures.push(`${key}: a possession or control clause (${pattern}) with no declared ground: ${wording.rule}`)
+            if (pattern.test(undeclared)) failures.push(`${key}: a possession or control clause (${pattern}) with no declared ground: ${ruleAndSetup}`)
         }
         for (const [clause, kind, span] of declared) {
-            if (!wording.rule.includes(clause)) {
-                failures.push(`${key}: the declared clause "${clause}" is not in the rule`)
+            if (!ruleAndSetup.includes(clause)) {
+                failures.push(`${key}: the declared clause "${clause}" is not in the rule or its setup`)
                 continue
             }
             const ground = kind === 'CONDITION' ? rpcLibrary.primaryScoringCondition(rpcId!) : definitions[eventKey!] ?? ''
@@ -256,8 +286,17 @@ function testEveryPossessionOrControlClauseNamesItsGround(): void {
                 failures.push(`${key}: "${clause}" is grounded on "${span}", which is not verbatim in its ${kind === 'CONDITION' ? "context's approved condition" : "event's definition"}`)
                 continue
             }
-            if (kind === 'CONDITION' && !/possession|control|retain/i.test(span)) failures.push(`${key}: "${clause}" is grounded on "${span}", which speaks of neither possession nor control`)
-            if (spanIsExample(ground, span)) onAnExample.push(key)
+            if (!POSSESSION_OR_CONTROL_CLAUSES.some((p) => p.test(clause))) failures.push(`${key}: the declared clause "${clause}" is not itself a possession or control clause`)
+            // 'possession controlled' is accepted wherever a condition holds it, and only RPC-001's does; today only RPC-001's gate uses it, a reported departure: the rule is open-ended where the condition says on arrival.
+            if (POSSESSION_KEPT_CLAUSES.some((p) => p.test(clause)) && !/retain|maintain|possession controlled/i.test(span)) failures.push(`${key}: "${clause}" (possession kept) is grounded on "${span}", which does not speak of keeping possession`)
+            if (CONTROL_CLAUSES.some((p) => p.test(clause)) && !/control/i.test(span)) failures.push(`${key}: "${clause}" (control) is grounded on "${span}", which does not speak of control`)
+            const overlapsAnExample = exampleClauses(ground).some((c) => {
+                const t = normaliseWhitespace(ground)
+                const s = normaliseWhitespace(span)
+                for (let at = t.indexOf(s); at >= 0; at = t.indexOf(s, at + 1)) if (at < c.end && at + s.length > c.start) return true
+                return false
+            })
+            if (spanIsExample(ground, span) || overlapsAnExample) onAnExample.push(key)
         }
     }
     for (const key of Object.keys(COACH_RULE_GROUNDS)) if (!(key in COACH_RULES)) failures.push(`${key}: grounds declared for a rule that does not exist`)

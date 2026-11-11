@@ -288,7 +288,9 @@ const ATTACK_DEVELOPMENT_CONDITION =
  * The words that govern each PRIMARY_SCORING_CONDITION row: Christian's email of 13 September 2026 (received 13 September 2026),
  * verbatim as filed in the sources repository (sources/2026-09-13-scoring-approval/originals/christian-scoring-approval-email.txt),
  * each with its line there. Which sentences govern which row is our mapping, for review. Line 42 gives its first sentence only:
- * its "such as:" opens Chance Creation's list of events, which the relationship rows carry, not RPC-PROP-135.
+ * its "such as:" opens Chance Creation's list of events, which the relationship rows carry, not RPC-PROP-135. Line 72 ("For
+ * Counter-Press, that could mean:" (received 13 September 2026)) is left out. It introduces line 73 as one possible reading, with no
+ * marker this check reads. RPC-PROP-138 states line 73 as its definition, which this check cannot judge.
  */
 const SEPTEMBER_13_GOVERNING_WORDS: Record<string, { line: number; words: string }[]> = {
     'RPC-PROP-132': [
@@ -351,7 +353,7 @@ const PROJECTED_TABLES: [string, string][] = [
 
 /**
  * **C0. The committed library is the committed workbook's projection.** `project-rpc-workbook.py` writes the library from the
- * workbook ("Never hand-edit the JSON — regenerate it."), and until 11 November 2026 nothing compared the two: an edit to either
+ * workbook ('Never hand-edit the JSON — regenerate it.'), and until 11 November 2026 nothing compared the two: an edit to either
  * alone passed every check. Read by `workbook-projection.ts`'s reader under project-rpc-workbook.py's rules (header row 1, all-blank
  * rows skipped, every headed column kept, strings stripped and blank ones null), each of the nine sheets equals the library's table.
  * Metadata holds boolean cells, which that reader refuses rather than guesses; it is pinned as refused, so a reader that learns
@@ -411,6 +413,7 @@ function testExamplesSurviveTranscription(): void {
             failures.push(`${id}: the 13 September email (line ${governing.map((entry) => entry.line).join(', ')}) gives ${JSON.stringify(given)} as examples; the row gives ${JSON.stringify(transcribed)}`)
         }
     }
+    assert.deepEqual(examplesGiven(SEPTEMBER_13_GOVERNING_WORDS['RPC-PROP-134'][0].words), ['for example | reaching a more advanced'], 'the reading sees the one example the 13 September email gives (line 38), so the comparison cannot pass by finding nothing')
     assert.deepEqual(failures, [], 'every example of the 13 September email survives in its row, and no row adds one')
 }
 

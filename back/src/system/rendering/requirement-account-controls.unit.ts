@@ -532,7 +532,7 @@ test('T7: the RPC-003 draft, merged bindings, origin withheld: origin missing, p
     const scoring = account.summary.scoringCondition!
     assert.deepEqual(scoring.missing.map(entry => [entry.component, entry.cause.kind]), [['origin', 'NOT_CARRIED']])
     assert.deepEqual(scoring.components.map(entry => [entry.component, entry.account]), [['origin', 4], ['progression', 1], ['control', 1], ['not-possession-alone', 1]])
-    assert.equal(scoring.uncoveredWords, 'Purposeful advancement for example', 'the words of his row no component stands for (S1)')
+    assert.equal(scoring.uncoveredWords, 'Purposeful advancement for example', 'the words of the RPC-PROP-134 row no component stands for (S1)')
     const partOf = (partId: string) => account.parts.find(entry => entry.rowId === 'RPC-PROP-134' && entry.partId === partId)!
     assert.deepEqual([partOf('progression').restsOnDraftKnowledge, partOf('control').restsOnDraftKnowledge], [true, true])
     // S3: the progression referent under the TEST-ONLY PR-1 holds by construction, flagged, and its stand-in text is shown.

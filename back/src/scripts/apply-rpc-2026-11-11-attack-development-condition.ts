@@ -16,7 +16,7 @@
  *   Please preserve the original wording, the corrected wording, and the source and change provenance as you've already done in the
  *   offline review record." (received 11 November 2026)
  *
- * THE SOURCE (Christian's email of 13 September 2026, under 'Context Rows', "Attack Development — approved.", the sentence after
+ * THE SOURCE (Christian's email of 13 September 2026, under "Context Rows", "Attack Development — approved.", the sentence after
  * the list of valid events, verbatim as filed, curly apostrophe included):
  *
  *   "The qualifying condition should require purposeful advancement from the attack’s starting condition rather than possession
@@ -31,8 +31,8 @@
  * THE TEXT IT WRITES: AFTER below. The one change: the colon after 'possession alone' becomes '—for example,' (an em dash, then
  * 'for example', then a comma); the space before 'reaching' is kept. No other character changes.
  *
- * WHAT IT CHANGES, AND NOTHING ELSE. The cell Properties!D135 (RPC-PROP-134's property_text). G135 (its provenance, "Christian,
- * 2026-09-13: Primary Scoring Event approval (RC1.1)") and every other cell of row 135 stay as they are: "without changing anything
+ * WHAT IT CHANGES, AND NOTHING ELSE. The cell Properties!D135 (RPC-PROP-134's property_text). G135 (its provenance, 'Christian,
+ * 2026-09-13: Primary Scoring Event approval (RC1.1)') and every other cell of row 135 stay as they are: "without changing anything
  * else in the canonical row" (received 11 November 2026). Only the Properties sheet's zip entry is rewritten; every other entry's
  * local header, compressed bytes and central record (its offset aside) are copied raw, so docProps/core.xml's 'modified' date is
  * left as it was (openpyxl, as apply-rpc-scoring-events.py and resolve-rpc-staging.py save, would rewrite every part). The library
