@@ -675,7 +675,7 @@ function tracePart(run: AssemblyRun): string[] {
             L.push(`      note: ${l.note}`)
         }
     }
-    for (const [reading, counts] of Object.entries(account.counts.byReading)) L.push(`  Counts under ${readingLabel(reading)} (the identity rules count under both readings): ${Object.entries(counts).map(([c, k]) => `${x.accountCategories.indexOf(c) >= 0 ? `"${c}"` : `'${c}'`} ${k}`).join('; ')}.`)
+    for (const [reading, counts] of Object.entries(account.counts.byReading)) L.push(`  Counts under ${readingLabel(reading)} (the identity rules are counted under it too): ${Object.entries(counts).map(([c, k]) => `${x.accountCategories.indexOf(c) >= 0 ? `"${c}"` : `'${c}'`} ${k}`).join('; ')}.`)
     L.push(`  Excluded (not an active requirement): ${account.counts.excluded.length ? account.counts.excluded.join(', ') : 'none'}.`)
     L.push('', 'Laws account (one entry per law the Sport Profile lists; an adaptation owed is named, never silently assumed):')
     for (const l of x.laws) L.push(`  ${l.lawId ?? l.situation}: ${l.status}. ${l.reason} (values: ${l.paths.join(', ')})`)

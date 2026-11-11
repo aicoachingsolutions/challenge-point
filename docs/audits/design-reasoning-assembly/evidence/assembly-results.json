@@ -2363,7 +2363,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 3,
         "allDecisiveRulingsProvisional": false,
-        "note": "Printed byte-equal to the cell; never stated as a coach rule. The row is APPROVED, but its wording differs from Christian's 13 September text (a colon where Christian's text has \"for example\"); the wording stays CANDIDATE until the original is verified and the smallest correction Christian authorized on 6 November (section 2) is applied, which this review record does not do."
+        "note": "Printed byte-equal to the live cell, which keeps the colon; never stated as a coach rule. The row is APPROVED, but its wording differs from Christian's 13 September text (a colon where Christian's text has \"—for example,\"). The 13 September wording was verified on 10 November 2026 against the filed email (Joe's paste, which Joe confirmed is the email), and this review record applies the smallest correction Christian authorized on 6 November (section 2) in its reading of the row (the requirement account keeps the \"for example\" reading only) and in Part 6, section 8.2, as Christian's first reply of 7 November, section 4, directs (ASM-07NOV-SCORING-ROW). The live workbook and the coach-visible scoring interpretation are unchanged and the canonical change awaits Christian's separate approval, so the cell, and this printed value, keep the colon and stay CANDIDATE."
       },
       {
         "path": "scoring.qualifyingCondition.sep13Text",
@@ -2416,7 +2416,7 @@
         "traceLabel": "our record of what decided it (OURS), not a computed influence",
         "sixClass": 2,
         "allDecisiveRulingsProvisional": false,
-        "note": "Our copy of your 13 September email as pasted by Joe (pasted twice, identical); original not yet checked."
+        "note": "Your 13 September email as filed in the sources repository (sources/2026-09-13-scoring-approval/originals/christian-scoring-approval-email.txt): Joe's paste of the email, pasted twice and identical after whitespace and quotation-mark normalisation, which Joe confirmed is the email. Verified on 10 November 2026: it carries \"—for example,\" where the workbook has a colon."
       },
       {
         "path": "scoring.startingCondition",
@@ -5938,115 +5938,6 @@
         "satisfied": false,
         "downgraded": null,
         "excluded": null
-      },
-      {
-        "id": "RA-PROP-134-A1-COLON",
-        "requirementRef": {
-          "table": "properties",
-          "row": "RPC-PROP-134"
-        },
-        "clause": "advancement rather than possession alone",
-        "reading": "COLON",
-        "category": "Explicitly represented in the finished activity.",
-        "standard": "Structural validity",
-        "paths": [
-          "scoring.event",
-          "scoring.means"
-        ],
-        "observableConditions": null,
-        "note": "As under the other reading.",
-        "requirementStatus": "ACTIVE",
-        "requirementRole": "PRIMARY_SCORING_CONDITION",
-        "satisfied": true,
-        "downgraded": null,
-        "excluded": null
-      },
-      {
-        "id": "RA-PROP-134-A2-COLON",
-        "requirementRef": {
-          "table": "properties",
-          "row": "RPC-PROP-134"
-        },
-        "clause": "purposeful",
-        "reading": "COLON",
-        "category": "Dependent on coach observation or judgment, with the relevant observable conditions identified.",
-        "standard": "Field effectiveness",
-        "paths": [
-          "scoring.event"
-        ],
-        "observableConditions": "Whether the advancement that leads to a point comes from the team's own attacking play rather than from chance (for example a loose ball running into the target zone); no threshold.",
-        "inCoachGuidance": false,
-        "note": "As under the other reading; not counted as satisfied.",
-        "requirementStatus": "ACTIVE",
-        "requirementRole": "PRIMARY_SCORING_CONDITION",
-        "satisfied": false,
-        "downgraded": null,
-        "excluded": null
-      },
-      {
-        "id": "RA-PROP-134-B-COLON",
-        "requirementRef": {
-          "table": "properties",
-          "row": "RPC-PROP-134"
-        },
-        "clause": "from the attack's starting condition",
-        "reading": "COLON",
-        "category": "Unsupported or missing.",
-        "standard": "Learning-design relevance",
-        "paths": [
-          "scoring.startingCondition"
-        ],
-        "observableConditions": null,
-        "note": "UNRESOLVED, as under the other reading.",
-        "requirementStatus": "ACTIVE",
-        "requirementRole": "PRIMARY_SCORING_CONDITION",
-        "satisfied": false,
-        "downgraded": null,
-        "excluded": null
-      },
-      {
-        "id": "RA-PROP-134-C-COLON",
-        "requirementRef": {
-          "table": "properties",
-          "row": "RPC-PROP-134"
-        },
-        "clause": "reaching a more advanced representative area",
-        "reading": "COLON",
-        "category": "Explicitly represented in the finished activity.",
-        "standard": "Structural validity",
-        "paths": [
-          "scoring.event",
-          "endZones.placement"
-        ],
-        "observableConditions": null,
-        "note": "A required component under this reading; the advanced target zone is what scores.",
-        "requirementStatus": "ACTIVE",
-        "requirementRole": "PRIMARY_SCORING_CONDITION",
-        "satisfied": true,
-        "downgraded": null,
-        "excluded": null
-      },
-      {
-        "id": "RA-PROP-134-D-COLON",
-        "requirementRef": {
-          "table": "properties",
-          "row": "RPC-PROP-134"
-        },
-        "clause": "while maintaining attacking possession",
-        "reading": "COLON",
-        "category": "Unsupported or missing.",
-        "standard": "Structural validity",
-        "paths": [
-          "scoring.means",
-          "scoring.afterRegain"
-        ],
-        "observableConditions": null,
-        "note": "A required component under this reading only. Control at the moment of arrival is represented; whether possession must be maintained from the attack's starting condition is not, and points straight after a regain count. Christian's reply of 6 November, section 2, does not treat maintaining attacking possession as an independently approved universal requirement solely because it appears within the example (ASM-06NOV-SOURCE); the line stays listed, unsupported, under this reading until the correction is verified and applied.",
-        "requirementStatus": "ACTIVE",
-        "requirementRole": "PRIMARY_SCORING_CONDITION",
-        "satisfied": false,
-        "downgraded": null,
-        "excluded": null
       }
     ],
     "counts": {
@@ -6057,13 +5948,6 @@
           "Dependent on coach observation or judgment, with the relevant observable conditions identified.": 5,
           "Unsupported or missing.": 1,
           "Not a requirement under this reading (an example); not counted.": 1
-        },
-        "COLON": {
-          "Explicitly represented in the finished activity.": 3,
-          "Supported through an authorized Game Form or other knowledge relationship.": 0,
-          "Dependent on coach observation or judgment, with the relevant observable conditions identified.": 5,
-          "Unsupported or missing.": 2,
-          "Not a requirement under this reading (an example); not counted.": 0
         }
       },
       "excluded": []
@@ -10317,7 +10201,8 @@
         "ASM-REV1-SOURCE-FIDELITY",
         "ASM-REV1-SMALLEST-CORRECTION",
         "ASM-13SEP-SCORING",
-        "ASM-06NOV-SOURCE"
+        "ASM-06NOV-SOURCE",
+        "ASM-07NOV-SCORING-ROW"
       ],
       "showPaths": [
         "scoring.qualifyingCondition.sep13Text",
@@ -10325,14 +10210,14 @@
         "scoring.startingCondition"
       ],
       "items": [
-        "The two texts are printed side by side below: Christian's 13 September text (our copy as pasted by Joe; original not yet checked) has \"for example\" before its final clause; the workbook entry has a colon.",
-        "Smallest correction (proposed in our 5 November A05 assessment; not applied): restore Christian's \"—for example,\" in place of the colon.",
-        "Precondition for any amendment: verify the 13 September original (Joe's mailbox, or Christian's sent copy); our copy is Joe's paste.",
+        "The two texts are printed side by side below: Christian's 13 September text (the filed email, Joe's paste, which Joe confirmed is the email; verified on 10 November 2026) has \"for example\" before its final clause; the workbook entry, as the live library still holds it, has a colon.",
+        "Smallest correction (proposed in our 5 November A05 assessment; authorized once verified by the reply of 6 November, section 2): restore Christian's \"—for example,\" in place of the colon. Applied to this review record (the first reply of 7 November, section 4); not applied to the live workbook or the knowledge library.",
+        "Precondition for any amendment, met: the 13 September wording was verified on 10 November 2026 against the filed email (sources/2026-09-13-scoring-approval/originals/christian-scoring-approval-email.txt), which is Joe's paste of the email, confirmed by Joe as the email. It carries \"—for example,\" where the workbook has a colon, so the colon is our transcription.",
         "Attachment chain (OURS: LOGICAL INFERENCE, not verification): the draft workbook Christian reviewed on 13 September (zip time 15:31) holds no qualifying-condition sentence; the sentence first appears in Christian's reply; the workbook carrying the colon was written later that day (zip time 23:07; the zip clock's time zone is not recorded). This is consistent with the colon entering in our transcription; it does not replace checking the original email.",
         "The starting-condition clause stays UNRESOLVED in the scoring section and the trace, never in the observation guidance.",
         "Disclosure: our own earlier draft Attack Development requirement list (the RPC-003 draft contract and draft requirement bindings, test-only, OURS) reads the clause after the colon as a definition with required components; it is not used by this experiment.",
-        "Christian's reply of 6 November, section 2: once the exact wording is verified against the original approved source, the smallest correction is authorized, provided no other scoring semantics change. Described here and to be filed in the sources repository (the stage 6 change record), not applied: the library row RPC-PROP-134 with ':' replaced by '—for example,' (13 characters, nothing else). Before: the row as the library holds it (scoring.qualifyingCondition.workbookText, printed below). After (prepared, not applied): 'Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.' Provenance: the 13 September email; the reply of 6 November, section 2; verification by Joe, date blank until done. The review record and the knowledge library are unchanged on this point until verification.",
-        "Verification owed: our only copies are Joe's two September pastes; our report of 6 November printed that copy, marked not yet checked against the original, so the reply's \"as quoted in your report\" is not a verification. The request to Joe is repeated (the last 13 September email, opening \"Thanks. The generated-activity evidence makes the scoring issue much clearer.\").",
+        "Christian's reply of 6 November, section 2: once the exact wording is verified against the original approved source, the smallest correction is authorized, provided no other scoring semantics change. Christian's first reply of 7 November, section 4: the verified correction goes to this offline review record, and the canonical change to a separate approval. The correction: the library row RPC-PROP-134 with ':' replaced by '—for example,' (13 characters, nothing else). Before: the row as the library holds it (scoring.qualifyingCondition.workbookText, printed below). After: 'Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.' Provenance: the 13 September email (filed; verified on 10 November 2026 on the basis stated above); the reply of 6 November, section 2; the first reply of 7 November, section 4. Applied to this review record: its reading of the row (the requirement account keeps the \"for example\" reading only; its five colon-reading lines are retired), its open decisions and this section. The live knowledge library and the canonical workbook are unchanged; the canonical change is prepared for Christian's separate approval in the change record (the stage 6 change record, in the sources repository).",
+        "Verification done: the filed email is Joe's paste of 13 September (pasted twice, identical after whitespace and quotation-mark normalisation), which Joe confirmed is the email (the one opening \"Thanks. The generated-activity evidence makes the scoring issue much clearer.\"); checked on 10 November 2026. Our report of 6 November printed that copy marked not yet checked, so the reply's \"as quoted in your report\" was not itself the verification.",
         "Identified separately, as section 2 asks: A05's Active coach definition \"Improve attacking conditions while maintaining purposeful possession.\" (Session Planning Model) and Christian's 28 and 30 October restatements are a learning purpose, not a scoring requirement (OURS reading); no other source makes maintaining possession a scoring requirement (searched)."
       ]
     },
@@ -10539,7 +10424,7 @@
     {
       "path": "scoring.qualifyingCondition.workbookText",
       "before": "status set by ASM-AUTH-STARTING-CONDITION; ASM-REV1-SOURCE-FIDELITY consulted (class 3)",
-      "after": "status set by ASM-AUTH-STARTING-CONDITION, ASM-REV1-SOURCE-FIDELITY and ASM-06NOV-SOURCE (class 3); the correction described in the review record, to be filed in the sources repository; not applied",
+      "after": "status set by ASM-AUTH-STARTING-CONDITION, ASM-REV1-SOURCE-FIDELITY and ASM-06NOV-SOURCE (class 3); the value stays the live cell, with its colon; the verified correction applied to this review record's reading of the row, its open decisions and Part 6, section 8.2 (ASM-07NOV-SCORING-ROW); the canonical change prepared for Christian's separate approval; the live workbook unchanged",
       "replySections": "section 2",
       "date": "2026-11-06"
     },
@@ -10623,14 +10508,14 @@
     {
       "path": "AOD-PROP-134-MEANING",
       "before": "What does the approved qualifying condition mean (the \"for example\" reading or the colon reading), and is maintaining possession a requirement? (both texts shown; both readings accounted for)",
-      "after": "answered in principle by the reply of 6 November, section 2 (the \"for example\" reading; maintaining attacking possession not an independently approved universal requirement); blocking only until the 13 September wording is verified",
+      "after": "answered by ASM-06NOV-SOURCE (the \"for example\" reading; maintaining attacking possession not an independently approved universal requirement), once the 13 September wording was verified on 10 November 2026; the five colon-reading lines of the requirement account (RA-PROP-134-A1-COLON, RA-PROP-134-A2-COLON, RA-PROP-134-B-COLON, RA-PROP-134-C-COLON, RA-PROP-134-D-COLON) retired",
       "replySections": "section 2",
       "date": "2026-11-06"
     },
     {
       "path": "AOD-VERIFY-SEP13",
       "before": "our copy printed with its provenance; no amendment proposed or applied",
-      "after": "verification owed and the request to Joe repeated; the correction described in the review record, to be filed in the sources repository, not applied",
+      "after": "answered by ASM-13SEP-SCORING, the email now filed: verified on 10 November 2026 against the filed email (Joe's paste, which Joe confirmed is the email), which carries \"—for example,\"; the correction applied to this review record (ASM-07NOV-SCORING-ROW); the canonical change prepared for Christian's separate approval, not applied",
       "replySections": "section 2",
       "date": "2026-11-06"
     },
@@ -10700,7 +10585,11 @@
         "ASM-13SEP-SCORING",
         "ASM-06NOV-SOURCE"
       ],
-      "handling": "Both texts shown; both readings accounted for until the wording is verified; no canonical amendment."
+      "handling": "Both texts shown in Part 6; with the wording verified, the requirement account carries the \"for example\" reading only (its five colon-reading lines retired); no canonical amendment.",
+      "answeredBy": {
+        "rulingRef": "ASM-06NOV-SOURCE",
+        "statement": "answered by the reply of 6 November, section 2: the \"for example\" reading, and \"maintaining attacking possession\" is not an independently approved universal requirement. With the 13 September wording verified on 10 November 2026 (AOD-VERIFY-SEP13), the requirement account keeps that reading only; its five colon-reading lines are retired."
+      }
     },
     {
       "id": "AOD-VERIFY-SEP13",
@@ -10711,7 +10600,11 @@
         "ASM-13SEP-SCORING",
         "ASM-06NOV-SOURCE"
       ],
-      "handling": "Verification owed: our only copies are Joe's two September pastes; our report of 6 November printed that copy, marked not yet checked against the original, so the reply's \"as quoted in your report\" is not a verification; the request to Joe is repeated. Our copy is printed with its provenance; the correction is described in the review record and to be filed in the sources repository, not applied."
+      "handling": "Verification done on 10 November 2026 against the filed email (Joe's paste, which Joe confirmed is the email); printed with its provenance. The correction is applied to this review record (Part 6, section 8.2); the canonical change is prepared for Christian's separate approval, not applied.",
+      "answeredBy": {
+        "rulingRef": "ASM-13SEP-SCORING",
+        "statement": "answered by the 13 September email itself, now filed: it carries \"—for example,\" where our transcription has a colon. Checked on 10 November 2026 against the filed copy, which is Joe's paste of the email, confirmed by Joe as the email."
+      }
     },
     {
       "id": "AOD-SCORING-ROW-LIVE",
@@ -10719,9 +10612,14 @@
       "question": "Once verified, may the correction reach the live knowledge library (A01 unaffected; 32 review-page entries change), or should it stay in the review record until production work is authorized?",
       "rulingRefs": [
         "ASM-06NOV-SOURCE",
-        "ASM-AUTH-BOUNDS"
+        "ASM-AUTH-BOUNDS",
+        "ASM-07NOV-SCORING-ROW"
       ],
-      "handling": "The change record (before, after, provenance) is described in Part 6 and to be filed in the sources repository; nothing is applied to the knowledge library."
+      "handling": "The correction is applied to this record's reading of the row, its open decisions and Part 6, section 8.2; the change record (before, after, provenance) and the canonical change, as a specification for Christian's separate approval, are in the stage 6 change record in the sources repository; nothing is applied to the knowledge library or the workbook.",
+      "answeredBy": {
+        "rulingRef": "ASM-07NOV-SCORING-ROW",
+        "statement": "answered by the first reply of 7 November, section 4: for now, the verified correction is applied to this offline review record, and the corresponding canonical change is prepared for separate approval; the live workbook, the knowledge library and the coach-visible scoring interpretation are unchanged."
+      }
     },
     {
       "id": "AOD-TRANSLATION-SCOPE",
@@ -10944,63 +10842,10 @@
     }
   ],
   "regressionRecord": {
-    "standing": "Recorded on 6 November 2026 from an independent run on the committed tree of build 188fa90 (the fixes after the stage 6 recheck and the delivery review). This record and the evidence re-generated from it are committed on top of that build with no change to any code or data file; assembly.unit.ts test (v) requires the committed report, results and diagram to equal the runner's output with this record. Engineering evidence only: the live application and A01 are unchanged; it does not establish ecological suitability (Christian's reply of 6 November).",
-    "status": "RECORDED",
-    "build": "188fa90 (branch claude/a05-assembly-experiment, on top of the Stage 2 review branch at 38c61e2; main at f534a62)",
-    "results": [
-      {
-        "check": "Type check (tsc --noEmit)",
-        "result": "passed (exit 0)"
-      },
-      {
-        "check": "Full unit suite (npm test)",
-        "result": "151 test files, 0 failed"
-      },
-      {
-        "check": "Behaviour snapshot against main at f534a62",
-        "result": "391 entries, 0 changed, 0 added, 0 removed (sha-256 a8420db066c34341366254b9e8063aa9c66688fd777a350ce9aa1d0a2c4da246 on both sides); A01's 44 entries are among the unchanged"
-      },
-      {
-        "check": "Live backend bundle built from src/index.ts",
-        "result": "byte-identical to main at f534a62 (sha-256 6bd210238f7d620c9b968f17edac63cd4984b472320aadf58731e8b4b0a0deed, 3,228,588 bytes, 192 inputs); 0 inputs from the design-reasoning folder"
-      },
-      {
-        "check": "Stage 1 runner re-run to a scratch folder",
-        "result": "results byte-identical to the post-sweep baseline of 6 November (the committed Stage 1 evidence is not regenerated; its wording alone was swept, noted in the Stage 1 README)"
-      },
-      {
-        "check": "Stage 2 evidence re-generated to a scratch folder",
-        "result": "report and results byte-identical to the committed post-sweep files"
-      },
-      {
-        "check": "Assembly evidence re-generated to a scratch folder, twice",
-        "result": "report, results and DRAFT diagram byte-identical to the committed files each time (before this record was filled)"
-      },
-      {
-        "check": "External quote check of every quoted string of Christian's in the two data files",
-        "result": "316 quotes and 15 terms: 331 passed, 0 failed; 303 of 303 received-date citations correct"
-      },
-      {
-        "check": "Double-quoted spans in the results file",
-        "result": "82 quotes and 10 terms: 92 passed, 0 near, 0 not found, 0 failed (no value of ours in double quotation marks)"
-      },
-      {
-        "check": "The whole report through the quote checker",
-        "result": "684 quotes and 35 terms: 719 passed, 0 failed; no citation names a wrong received date"
-      },
-      {
-        "check": "Gendered pronouns in the assembly, Stage 1 and Stage 2 audit folders",
-        "result": "none"
-      },
-      {
-        "check": "Files changed outside the design-reasoning folder and its three audit folders since 063fc52",
-        "result": "none"
-      },
-      {
-        "check": "GitHub checks",
-        "result": "none run: the repository runs its checks only on pushes to main and to its integration branch, and on pull requests; this review branch has no pull request, and nothing deploys"
-      }
-    ]
+    "standing": "NOT YET RECORDED for this build: the regression run on this build's committed tree is recorded in the commit on top of it, with no change to any code or data file. When recorded, it is engineering evidence only: the live application and A01 are unchanged; it does not establish ecological suitability (Christian's reply of 6 November).",
+    "status": "PLACEHOLDER",
+    "build": null,
+    "results": []
   },
   "mutationLoop": {
     "values": 60,

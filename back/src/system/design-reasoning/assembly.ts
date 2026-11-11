@@ -1552,7 +1552,7 @@ export interface AccountLine extends AccountEntry {
 }
 
 export interface AccountCounts {
-    /** Per reading of the scoring row: each category's count over the counted lines (the identity rules count under both readings). */
+    /** Per reading of the scoring row: each category's count over the counted lines (the identity rules count under every reading). */
     byReading: Record<string, Record<string, number>>
     excluded: string[]
 }

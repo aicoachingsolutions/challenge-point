@@ -965,8 +965,8 @@ function testL2_labelsAndPremises(): void {
         assert.ok(!openBlocks.includes(`    ${d.id}: `) && !openBlocks.includes(` ${d.id}: ${d.question}`), `${d.id}: an answered decision listed as open`)
         assert.ok(REPORT_TEXT.includes(`    ${d.id} (${d.blocks}): ${d.answeredBy?.statement}`), `${d.id}: printed as answered`)
     }
-    assert.equal(answered.length, 3)
-    assert.ok(REPORT_TEXT.includes('18 open decisions (and 3 answered, kept by id)'))
+    assert.equal(answered.length, 6)
+    assert.ok(REPORT_TEXT.includes('15 open decisions (and 6 answered, kept by id)'))
     assert.ok(front.includes('- Recorded, nothing asked now (kept open by id):\n    AOD-OPTION-B: '), 'option (b) is recorded, not asked')
     // A derived value prints each source's class and label.
     assert.ok(REPORT_TEXT.split('\n').some((l) => l.startsWith('  area.betweenTargetZonesM2 = ') && l.includes('endZones.placement (class 5: ') && l.includes(', the weakest of its sources')))
@@ -1685,7 +1685,6 @@ function testAccount_requirementAccount(): void {
     const EXPECTED: Record<string, string> = {
         'RA-ID-011': c3, 'RA-ID-012': c3, 'RA-ID-013': c1, 'RA-ID-014': c3, 'RA-ID-015': c3,
         'RA-PROP-134-A1-EXAMPLE': c1, 'RA-PROP-134-A2-EXAMPLE': c3, 'RA-PROP-134-B-EXAMPLE': c4, 'RA-PROP-134-C-EXAMPLE': outside,
-        'RA-PROP-134-A1-COLON': c1, 'RA-PROP-134-A2-COLON': c3, 'RA-PROP-134-B-COLON': c4, 'RA-PROP-134-C-COLON': c1, 'RA-PROP-134-D-COLON': c4,
     }
     assert.deepEqual(Object.fromEntries(BASE.account.lines.map((l) => [l.id, l.category])), EXPECTED)
     for (const l of BASE.account.lines) {
@@ -1695,7 +1694,6 @@ function testAccount_requirementAccount(): void {
     }
     assert.deepEqual(BASE.account.counts.byReading, {
         FOR_EXAMPLE: { [c1]: 2, [c2]: 0, [c3]: 5, [c4]: 1, [outside]: 1 },
-        COLON: { [c1]: 3, [c2]: 0, [c3]: 5, [c4]: 2, [outside]: 0 },
     })
     // Bite: the starting-condition clause re-filed as category 2 still falls to category 4 (its value is UNRESOLVED).
     const xb = rawX()
@@ -2058,6 +2056,10 @@ const RULING_WORD_HASHES: Record<string, string> = {
     'ASM-06NOV-ILLUSTRATIVE-OFFLINE': '7c48f1862fe8465de3551cffc856c541ca248d93fb7fcf4f8f717249a2f326aa',
     'ASM-15OCT-NOT-MANDATORY': '0f72b178b805df4dc161344dfc6761f8c86d6abc9c725f92ec972239cdb644a0',
     'ASM-30OCT-EVE-SUFFICIENCY': 'c7d333ed1eb4385cacceff34ac6addcc98a81f0612deec7b8e8b7bafef3eab27',
+    // Christian's first reply of 7 November, section 4 (the scoring workbook correction), pinned 10 November 2026 after dump-quotes3.js and
+    // check-quotes.js --no-ban: 322 quotes and 16 terms PASS, 0 FAIL, 308 of 308 citations OK (its five sentences received 7 November 2026);
+    // no earlier entry's words changed (ASM-13SEP-SCORING's words equal the filed 13 September email; only its file reference changed).
+    'ASM-07NOV-SCORING-ROW': '601bbfd9c7f2f72c58160e78091f35e903bbc6a9d43fe00abab2d5b7020ee51a',
 }
 function testRulingWordsPinned(): void {
     const actual = Object.fromEntries(BASE.experiment.rulings.map((r) => [r.id, crypto.createHash('sha256').update(JSON.stringify(r.words)).digest('hex')]))
