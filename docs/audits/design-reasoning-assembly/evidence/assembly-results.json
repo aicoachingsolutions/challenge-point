@@ -10212,7 +10212,7 @@
       "items": [
         "The two texts are printed side by side below: Christian's 13 September text (the filed email, Joe's paste, which Joe confirmed is the email; verified on 10 November 2026) has \"for example\" before its final clause; the workbook entry, as the live library still holds it, has a colon.",
         "Smallest correction (proposed in our 5 November A05 assessment; authorized once verified by the reply of 6 November, section 2): restore Christian's \"—for example,\" in place of the colon. Applied to this review record (the first reply of 7 November, section 4); not applied to the live workbook or the knowledge library.",
-        "Precondition for any amendment, met: the 13 September wording was verified on 10 November 2026 against the filed email (sources/2026-09-13-scoring-approval/originals/christian-scoring-approval-email.txt), which is Joe's paste of the email, confirmed by Joe as the email. It carries \"—for example,\" where the workbook has a colon, so the colon is our transcription.",
+        "Precondition for any amendment, met: the 13 September wording was verified on 10 November 2026 against the filed email (sources/2026-09-13-scoring-approval/originals/christian-scoring-approval-email.txt), which is Joe's paste of the email, confirmed by Joe as the email. It was not checked against Joe's mailbox or Christian's sent copy, the route AOD-VERIFY-SEP13 named; the basis is Joe's confirmation that the filed paste is the email. It carries \"—for example,\" where the workbook has a colon, so the colon is our transcription.",
         "Attachment chain (OURS: LOGICAL INFERENCE, not verification): the draft workbook Christian reviewed on 13 September (zip time 15:31) holds no qualifying-condition sentence; the sentence first appears in Christian's reply; the workbook carrying the colon was written later that day (zip time 23:07; the zip clock's time zone is not recorded). This is consistent with the colon entering in our transcription; it does not replace checking the original email.",
         "The starting-condition clause stays UNRESOLVED in the scoring section and the trace, never in the observation guidance.",
         "Disclosure: our own earlier draft Attack Development requirement list (the RPC-003 draft contract and draft requirement bindings, test-only, OURS) reads the clause after the colon as a definition with required components; it is not used by this experiment.",
@@ -10508,7 +10508,7 @@
     {
       "path": "AOD-PROP-134-MEANING",
       "before": "What does the approved qualifying condition mean (the \"for example\" reading or the colon reading), and is maintaining possession a requirement? (both texts shown; both readings accounted for)",
-      "after": "answered by ASM-06NOV-SOURCE (the \"for example\" reading; maintaining attacking possession not an independently approved universal requirement), once the 13 September wording was verified on 10 November 2026; the five colon-reading lines of the requirement account (RA-PROP-134-A1-COLON, RA-PROP-134-A2-COLON, RA-PROP-134-B-COLON, RA-PROP-134-C-COLON, RA-PROP-134-D-COLON) retired",
+      "after": "answered by ASM-06NOV-SOURCE (the \"for example\" reading; maintaining attacking possession not treated as an independently approved universal requirement solely because it appears within that example; no other source found), once the 13 September wording was verified on 10 November 2026; the five colon-reading lines of the requirement account (RA-PROP-134-A1-COLON, RA-PROP-134-A2-COLON, RA-PROP-134-B-COLON, RA-PROP-134-C-COLON, RA-PROP-134-D-COLON) retired",
       "replySections": "section 2",
       "date": "2026-11-06"
     },
@@ -10588,7 +10588,7 @@
       "handling": "Both texts shown in Part 6; with the wording verified, the requirement account carries the \"for example\" reading only (its five colon-reading lines retired); no canonical amendment.",
       "answeredBy": {
         "rulingRef": "ASM-06NOV-SOURCE",
-        "statement": "answered by the reply of 6 November, section 2: the \"for example\" reading, and \"maintaining attacking possession\" is not an independently approved universal requirement. With the 13 September wording verified on 10 November 2026 (AOD-VERIFY-SEP13), the requirement account keeps that reading only; its five colon-reading lines are retired."
+        "statement": "answered by the reply of 6 November, section 2: the \"for example\" reading, and \"maintaining attacking possession\" is not treated as an independently approved universal requirement \"solely because it appears within that example\" (6 November); no other source makes it a scoring requirement (Part 6, section 8.2). With the 13 September wording verified on 10 November 2026 (AOD-VERIFY-SEP13), the requirement account keeps that reading only; its five colon-reading lines are retired."
       }
     },
     {
@@ -10603,7 +10603,7 @@
       "handling": "Verification done on 10 November 2026 against the filed email (Joe's paste, which Joe confirmed is the email); printed with its provenance. The correction is applied to this review record (Part 6, section 8.2); the canonical change is prepared for Christian's separate approval, not applied.",
       "answeredBy": {
         "rulingRef": "ASM-13SEP-SCORING",
-        "statement": "answered by the 13 September email itself, now filed: it carries \"—for example,\" where our transcription has a colon. Checked on 10 November 2026 against the filed copy, which is Joe's paste of the email, confirmed by Joe as the email."
+        "statement": "answered by the 13 September email itself, now filed: it carries \"—for example,\" where our transcription has a colon. Checked on 10 November 2026 against the filed copy, which is Joe's paste of the email, confirmed by Joe as the email. It was not checked against Joe's mailbox or Christian's sent copy, the route this question named; the basis is Joe's confirmation that the filed paste is the email."
       }
     },
     {

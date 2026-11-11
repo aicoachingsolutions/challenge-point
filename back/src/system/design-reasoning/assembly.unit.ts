@@ -1695,6 +1695,13 @@ function testAccount_requirementAccount(): void {
     assert.deepEqual(BASE.account.counts.byReading, {
         FOR_EXAMPLE: { [c1]: 2, [c2]: 0, [c3]: 5, [c4]: 1, [outside]: 1 },
     })
+    // Bite: a second reading counts the identity rules and its own lines only (planted in a copy of the record; the record unchanged).
+    const xr = rawX()
+    xr.requirementAccount.push({ ...JSON.parse(JSON.stringify(xr.requirementAccount.find((a: Raw) => a.id === 'RA-PROP-134-A1-EXAMPLE'))), id: 'RA-PROP-134-A1-OTHER', reading: 'OTHER' })
+    assert.deepEqual(run(committedKnowledge(), xr).account.counts.byReading, {
+        FOR_EXAMPLE: { [c1]: 2, [c2]: 0, [c3]: 5, [c4]: 1, [outside]: 1 },
+        OTHER: { [c1]: 2, [c2]: 0, [c3]: 4, [c4]: 0, [outside]: 0 },
+    }, 'bite: each reading counts the identity rules and its own lines only')
     // Bite: the starting-condition clause re-filed as category 2 still falls to category 4 (its value is UNRESOLVED).
     const xb = rawX()
     xb.requirementAccount.find((a: Raw) => a.id === 'RA-PROP-134-B-EXAMPLE').category = c2
