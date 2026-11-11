@@ -68,6 +68,127 @@
     {
       "finding": "Christian's reply received 11 November 2026, item 1 (the canonical scoring correction; applied 11 November 2026)",
       "change": "The 11 source quotations of RPC-PROP-134 (items 02, 04.b, 05, 10.a, 10.b, 11.a, 11.b, 11.c, 12.a and 12.b, and the withdrawn 04.a) are re-quoted to the corrected row: the colon after 'possession alone' becomes '—for example,'. Christian: \"I approve the canonical workbook correction.\" \"The correction should replace the erroneous colon with the dash and \"for example,\" without changing anything else in the canonical row.\" (received 11 November 2026). Re-quoted because the draft store requires each source's words verbatim in the row it cites (draft-store.ts, citedRowOf), and refuses the whole store otherwise. Nothing else changed: no item, strictness, value, valueStatus, basis, basisEvidence, declaration or proposed ruling. Reported, not changed here: 12.a and 12.b (and the DRAFT bindings' control component) still make \"while maintaining attacking possession\" REQUIRED, which Christian's same item reads as an example (\"The wording establishes an example of purposeful attacking advancement, not a mandatory condition requiring possession to be maintained in every qualifying scoring event.\" (received 11 November 2026)); and 02, 11.a, 11.b and 11.c (and the DRAFT bindings' progression component) rest only on words the corrected row places inside its example. Both are left for Christian's review with the A02 work, where this draft is used."
+    },
+    {
+      "finding": "Christian's reply received 11 November 2026, the second that day, item 3, \"Illustrative Examples Must Remain Illustrative\" (received 11 November 2026, second reply); applied 11 November 2026",
+      "change": "Christian: \"Neither \"maintaining attacking possession\" nor \"reaching a more advanced representative area\" should become a mandatory scoring requirement solely because those phrases appeared within an illustrative example.\" \"However, the governing purpose remains important: Attack Development scoring should reinforce purposeful attacking advancement rather than possession alone.\" \"An advanced-area scoring event may be an appropriate realization of that principle when independently justified by the Game Form and its configuration.\" \"Please make the narrow source-fidelity correction wherever the illustrative example is the sole authority for a mandatory requirement.\" \"Do not remove independently authorized structural or scoring conditions, and do not initiate a broader scoring redesign.\" (received 11 November 2026, second reply). Each item the focused check B13 (requirement-bindings.unit.ts) pinned as resting only on the corrected row's example was read for an independent basis (an approved scoring event, the Game Form's own structure, a ruling of Christian's); none had one. RPC-003-02, -11.a, -11.b, -11.c, -12.a and -12.b are re-classified, not deleted: strictness REQUIRED becomes SUPPORTING and valueStatus becomes TYPICAL_EXAMPLE (02, 11.a and 12.a were N/A; 11.b, 11.c and 12.b REQUIRED_RANGE), the class every example in the production contracts carries (GF2-24.a and b, NEUTRAL-11.a and b, WIDEZONE-13.a to c, VARTARGET-04.a, 04.b and 20.a, I13 to I15). Nothing else of them changes: value, basis, basisEvidence, sources and the drafted fitNote stay, and each fitNote now opens with why. They are inert: none establishes an element (derive.ts isSupportCapable), each forward check reads INERT, and neither 11.a nor 12.a constitutes a scoring condition any more (context-scoring-guard.ts constitutedConditionTypes reads REQUIRED items only), so no progression or control condition is required on the primary event. Kept, each on its own basis, none of it the example: RPC-003-10.a and 10.b, the origin (\"Purposeful advancement from the attack's starting condition\"), still the item through which the draft store finds RPC-PROP-134 cited by an item constituting a scoring condition; RPC-003-05, possession alone excluded (\"rather than possession alone\", with RPC-STMT-014, RPC-ID-013 and RPC-VAL-012); RPC-003-03.a, the four approved events (RPC-REL-079 to RPC-REL-082). They carry the governing purpose Christian names. An advanced target in a composed game stays the Game Form's own (GF2-03.a, GF2-03.b, GF2-04), not changed. RPC-003-04.b is not changed and is reported: it is OUTSIDE_BOUNDARY and establishes nothing; its 'at loss of possession' rests on RPC-PROP-037, and only its 'at the scoring event' rests on the example. The declarations on S1, V3, V5 and V6 stay CLAIMED, as a contract records its examples (GF2's E2 and E3: 'GF2-24.a only: TYPICAL_EXAMPLE, inert.'), with notes saying so; the S5 and V5 [type=control] notes, originalPlacement, ledger L-04 and RC-6 say what changed. PR-1 and PR-2 are withdrawn (status). The DRAFT requirement bindings (docs/audits/drafts/requirement-bindings-rpc-003.DRAFT.json, version 2026-11-11.1-draft) no longer bind the progression and control components of RPC-PROP-134, whose rowSpans quoted the example; the two parts are kept whole here, under withdrawnBindingParts. The coach-observed part 'The advancement is purposeful, judged in play' and the guard's 'Rather than possession alone' stay.",
+      "withdrawnBindingParts": {
+        "file": "docs/audits/drafts/requirement-bindings-rpc-003.DRAFT.json",
+        "contextId": "RPC-003",
+        "rowId": "RPC-PROP-134",
+        "fromVersion": "2026-11-04.2-draft",
+        "parts": [
+          {
+            "id": "progression",
+            "label": "Reaching a more advanced representative area",
+            "kind": "SCORING_CONDITION_COMPONENT",
+            "component": "progression",
+            "rowSpan": "reaching a more advanced representative area",
+            "standard": "STRUCTURAL_VALIDITY",
+            "facets": [
+              {
+                "id": "condition",
+                "label": "the progression condition on the realized primary event",
+                "row": "V3",
+                "requirement": [
+                  "EXISTS"
+                ],
+                "strictness": [
+                  "REQUIRED"
+                ],
+                "terms": [
+                  {
+                    "attribute": "type",
+                    "value": "progression"
+                  }
+                ],
+                "from": [
+                  "CONTEXT",
+                  "REALIZATION"
+                ]
+              },
+              {
+                "id": "referents",
+                "label": "the area reached",
+                "row": "V5",
+                "terms": [
+                  {
+                    "attribute": "type",
+                    "value": "progression"
+                  }
+                ],
+                "byConstructionWhen": "RELATIONAL_REFERENT",
+                "from": [
+                  "CONTEXT",
+                  "REALIZATION"
+                ]
+              },
+              {
+                "id": "value",
+                "label": "more advanced",
+                "row": "V6",
+                "terms": [
+                  {
+                    "attribute": "type",
+                    "value": "progression"
+                  }
+                ],
+                "from": [
+                  "CONTEXT",
+                  "REALIZATION"
+                ]
+              }
+            ],
+            "standingNote": "Where its referent is the target the scoring team attacks, the condition holds whenever the scoring event occurs; his reply filed 3 November 2026, section 3: \"My concern is that an advanced end zone may recognize a useful outcome without necessarily demonstrating improvement from the attack's starting situation.\""
+          },
+          {
+            "id": "control",
+            "label": "While maintaining attacking possession",
+            "kind": "SCORING_CONDITION_COMPONENT",
+            "component": "control",
+            "rowSpan": "while maintaining attacking possession",
+            "standard": "STRUCTURAL_VALIDITY",
+            "facets": [
+              {
+                "id": "condition",
+                "label": "the control condition on the realized primary event",
+                "row": "V3",
+                "requirement": [
+                  "EXISTS"
+                ],
+                "strictness": [
+                  "REQUIRED"
+                ],
+                "terms": [
+                  {
+                    "attribute": "type",
+                    "value": "control"
+                  }
+                ],
+                "from": [
+                  "CONTEXT",
+                  "REALIZATION"
+                ]
+              },
+              {
+                "id": "value",
+                "label": "possession maintained",
+                "row": "V6",
+                "terms": [
+                  {
+                    "attribute": "type",
+                    "value": "control"
+                  }
+                ],
+                "from": [
+                  "CONTEXT",
+                  "REALIZATION"
+                ]
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "about": "The contribution contract for RPC-003 Attack Development, in the shape of the RPC-001 entry of docs/audits/conformance/stage-b/contracts.json (entry 0) as corpus-restatements.json leaves it, built from the RPC-003 workbook rows. `contractEntry` is that shape exactly, with two annotation keys on every item and on the entry, `standing` (DRAFT) and `source` (the workbook rows quoted, each with file and line). corpus.ts loadCorpusContracts passes unknown item keys through untouched (corpus.ts:93-96) and neither key is one the engine reads by name (types.ts ENGINE_ITEM_KEYS), so the two keys change nothing a derivation does; they are for review and for the draft store (E1). kind \"restated\" is chosen because knowledgeKey strips only \"restated:\" and \"blind:\" (derivation/knowledge-key.ts:13-17): any other prefix would never match the context id RPC-003. setIndex is omitted, as for the two blind entries, because this contract was not derived from a contributions file. Added 28 October 2026 (B2 review): one declaration, O1 [kind=ball] CLAIMED, also carries `source`, and it is his words ({words, citedAs}), not workbook rows; the draft store checks no declaration's sources (it stamps every declaration DRAFT_KNOWLEDGE), and back/src/system/derivation/environment-elements.unit.ts pins those words to the Sport Profile's environment record, where the same ruling is recorded for RPC-003.",
@@ -167,14 +288,14 @@
           "selector": "*",
           "requirement": "EXISTS",
           "value": "N/A",
-          "strictness": "REQUIRED",
-          "valueStatus": "N/A",
+          "strictness": "SUPPORTING",
+          "valueStatus": "TYPICAL_EXAMPLE",
           "scope": "WHOLE_GAME",
           "basis": "AUTHORED",
           "basisEvidence": "\"reaching a more advanced representative area\" (RPC-PROP-134, PRIMARY_SCORING_CONDITION)",
           "checkability": "STRUCTURAL",
           "structuralClause": "—",
-          "fitNote": "The analog of RPC-001-07. The axis is presupposed by \"more advanced\", not stated (AUTHORED by presupposition, the L-14 class). EXISTS, because no dimension is fixed.",
+          "fitNote": "ILLUSTRATIVE since 11 November 2026 (was strictness REQUIRED, valueStatus N/A): it rests only on \"reaching a more advanced representative area\", words the corrected row gives inside its example. Christian: \"Neither \"maintaining attacking possession\" nor \"reaching a more advanced representative area\" should become a mandatory scoring requirement solely because those phrases appeared within an illustrative example.\" \"Please make the narrow source-fidelity correction wherever the illustrative example is the sole authority for a mandatory requirement.\" (received 11 November 2026, second reply). Kept, with its value, basis, basisEvidence and sources, in the class the project uses for an example (strictness SUPPORTING, valueStatus TYPICAL_EXAMPLE, as GF2-24.a and I13 are), so it requires nothing: it establishes no element (derive.ts isSupportCapable), its forward check reads INERT (forward.ts: 'a typical example is informative only'), and it constitutes no scoring condition (context-scoring-guard.ts constitutedConditionTypes reads REQUIRED items only). No independent basis was found in Attack Development's rows. What it presupposed stands without it: the axis field exists by schema (SD-100, so this item's forward check was INERT already) and SD-11 gives its value; neither is changed. As drafted: The analog of RPC-001-07. The axis is presupposed by \"more advanced\", not stated (AUTHORED by presupposition, the L-14 class). EXISTS, because no dimension is fixed.",
           "standing": "DRAFT",
           "source": [
             {
@@ -740,14 +861,14 @@
           "selector": "type=progression",
           "requirement": "EXISTS",
           "value": "N/A",
-          "strictness": "REQUIRED",
-          "valueStatus": "N/A",
+          "strictness": "SUPPORTING",
+          "valueStatus": "TYPICAL_EXAMPLE",
           "scope": "WHOLE_GAME",
           "basis": "AUTHORED",
           "basisEvidence": "\"reaching a more advanced representative area\" (RPC-PROP-134)",
           "checkability": "STRUCTURAL",
           "structuralClause": "—",
-          "fitNote": "The analog of RPC-001-18.c. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
+          "fitNote": "ILLUSTRATIVE since 11 November 2026 (was strictness REQUIRED, valueStatus N/A): it rests only on \"reaching a more advanced representative area\", words the corrected row gives inside its example. Christian: \"Neither \"maintaining attacking possession\" nor \"reaching a more advanced representative area\" should become a mandatory scoring requirement solely because those phrases appeared within an illustrative example.\" \"Please make the narrow source-fidelity correction wherever the illustrative example is the sole authority for a mandatory requirement.\" (received 11 November 2026, second reply). Kept, with its value, basis, basisEvidence and sources, in the class the project uses for an example (strictness SUPPORTING, valueStatus TYPICAL_EXAMPLE, as GF2-24.a and I13 are), so it requires nothing: it establishes no element (derive.ts isSupportCapable), its forward check reads INERT (forward.ts: 'a typical example is informative only'), and it constitutes no scoring condition (context-scoring-guard.ts constitutedConditionTypes reads REQUIRED items only). No independent basis was found: none of the four approved events (RPC-REL-079 to RPC-REL-082) states a progression condition, and no ruling of Christian's makes one. The governing purpose stays carried by items that do not rest on the example: \"However, the governing purpose remains important: Attack Development scoring should reinforce purposeful attacking advancement rather than possession alone.\" (received 11 November 2026, second reply), by RPC-003-05 (possession alone excluded) and RPC-003-10.a and 10.b (\"Purposeful advancement from the attack's starting condition\"). An advanced target in a composed game is the Game Form's own (GF2-03.a, GF2-03.b and GF2-04 place a target line or zone at the attacking end), unchanged, as Christian allows: \"An advanced-area scoring event may be an appropriate realization of that principle when independently justified by the Game Form and its configuration.\" (received 11 November 2026, second reply). As drafted: The analog of RPC-001-18.c. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
           "standing": "DRAFT",
           "source": [
             {
@@ -826,14 +947,14 @@
           "selector": "type=progression",
           "requirement": "EQUALS",
           "value": "a more advanced representative area",
-          "strictness": "REQUIRED",
-          "valueStatus": "REQUIRED_RANGE",
+          "strictness": "SUPPORTING",
+          "valueStatus": "TYPICAL_EXAMPLE",
           "scope": "WHOLE_GAME",
           "basis": "AUTHORED",
           "basisEvidence": "\"a more advanced representative area\" (RPC-PROP-134)",
           "checkability": "PARTLY_STRUCTURAL",
           "structuralClause": "Structural: once typed (proposed ruling PR-1), the PRIMARY_SCORING reference the scoring team attacks. Outside: what makes the area \"representative\", judged in play.",
-          "fitNote": "The referent as authored, open text (the analog of RPC-001-18.d before C59). Typing it as the objective reference of SCORING_TEAM (register V5 version 2) is proposed ruling PR-1 for him, as C59 was for RPC-001: the register admits that form only from a ruled restatement. Where the area lies is not authored here. GF2-04 places each target at the attacking end, and PR-1 would make that target stand for \"a more advanced representative area\". This draft reads Attack Development's silence on S5/O4 as NON_CLAIMED (OUR READING, ledger L-12); RPC-001's analog (\"how far beyond the first defenders\") was declared NOT_AUTHORED. MEASURED (final/scripts/probe-out, run U2n): the reading changes nothing in the line composition, because GF2-04 places the target either way, so nothing of Attack Development's \"more advanced representative area\" reaches the game beyond GF2's default target. Where the area lies is his decision D5 (README Q2). The RPC-003 engine wording \"two thirds of the way up\" is ENGINE_ONLY and is not used. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
+          "fitNote": "ILLUSTRATIVE since 11 November 2026 (was strictness REQUIRED, valueStatus REQUIRED_RANGE): it rests only on \"a more advanced representative area\", words the corrected row gives inside its example. Christian: \"Neither \"maintaining attacking possession\" nor \"reaching a more advanced representative area\" should become a mandatory scoring requirement solely because those phrases appeared within an illustrative example.\" \"Please make the narrow source-fidelity correction wherever the illustrative example is the sole authority for a mandatory requirement.\" (received 11 November 2026, second reply). Kept, with its value, basis, basisEvidence and sources, in the class the project uses for an example (strictness SUPPORTING, valueStatus TYPICAL_EXAMPLE, as GF2-24.a and I13 are), so it requires nothing: it establishes no element (derive.ts isSupportCapable), its forward check reads INERT (forward.ts: 'a typical example is informative only'), and it constitutes no scoring condition (context-scoring-guard.ts constitutedConditionTypes reads REQUIRED items only). No independent basis was found (as RPC-003-11.a). Typing its referent, proposed ruling PR-1, is withdrawn: an advanced target is the Game Form's own (GF2-03.a, GF2-03.b, GF2-04), unchanged. As drafted: The referent as authored, open text (the analog of RPC-001-18.d before C59). Typing it as the objective reference of SCORING_TEAM (register V5 version 2) is proposed ruling PR-1 for him, as C59 was for RPC-001: the register admits that form only from a ruled restatement. Where the area lies is not authored here. GF2-04 places each target at the attacking end, and PR-1 would make that target stand for \"a more advanced representative area\". This draft reads Attack Development's silence on S5/O4 as NON_CLAIMED (OUR READING, ledger L-12); RPC-001's analog (\"how far beyond the first defenders\") was declared NOT_AUTHORED. MEASURED (final/scripts/probe-out, run U2n): the reading changes nothing in the line composition, because GF2-04 places the target either way, so nothing of Attack Development's \"more advanced representative area\" reaches the game beyond GF2's default target. Where the area lies is his decision D5 (README Q2). The RPC-003 engine wording \"two thirds of the way up\" is ENGINE_ONLY and is not used. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
           "standing": "DRAFT",
           "source": [
             {
@@ -912,14 +1033,14 @@
           "selector": "type=progression",
           "requirement": "EQUALS",
           "value": "more advanced",
-          "strictness": "REQUIRED",
-          "valueStatus": "REQUIRED_RANGE",
+          "strictness": "SUPPORTING",
+          "valueStatus": "TYPICAL_EXAMPLE",
           "scope": "WHOLE_GAME",
           "basis": "AUTHORED",
           "basisEvidence": "\"reaching a more advanced representative area\" (RPC-PROP-134)",
           "checkability": "STRUCTURAL",
           "structuralClause": "—",
-          "fitNote": "The analog of RPC-001-18.e (\"beyond\"): a verbatim qualitative term, ENTAILED (RC-34), relative to the attack's starting condition. \"Purposeful\" (the same row's \"Purposeful advancement\") is not a second value: it is what \"rather than possession alone\" means here, carried on V1 by RPC-003-05. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
+          "fitNote": "ILLUSTRATIVE since 11 November 2026 (was strictness REQUIRED, valueStatus REQUIRED_RANGE): it rests only on \"more advanced\", words the corrected row gives inside its example. Christian: \"Neither \"maintaining attacking possession\" nor \"reaching a more advanced representative area\" should become a mandatory scoring requirement solely because those phrases appeared within an illustrative example.\" \"Please make the narrow source-fidelity correction wherever the illustrative example is the sole authority for a mandatory requirement.\" (received 11 November 2026, second reply). Kept, with its value, basis, basisEvidence and sources, in the class the project uses for an example (strictness SUPPORTING, valueStatus TYPICAL_EXAMPLE, as GF2-24.a and I13 are), so it requires nothing: it establishes no element (derive.ts isSupportCapable), its forward check reads INERT (forward.ts: 'a typical example is informative only'), and it constitutes no scoring condition (context-scoring-guard.ts constitutedConditionTypes reads REQUIRED items only). No independent basis was found (as RPC-003-11.a). As drafted: The analog of RPC-001-18.e (\"beyond\"): a verbatim qualitative term, ENTAILED (RC-34), relative to the attack's starting condition. \"Purposeful\" (the same row's \"Purposeful advancement\") is not a second value: it is what \"rather than possession alone\" means here, carried on V1 by RPC-003-05. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
           "standing": "DRAFT",
           "source": [
             {
@@ -998,14 +1119,14 @@
           "selector": "type=control",
           "requirement": "EXISTS",
           "value": "N/A",
-          "strictness": "REQUIRED",
-          "valueStatus": "N/A",
+          "strictness": "SUPPORTING",
+          "valueStatus": "TYPICAL_EXAMPLE",
           "scope": "WHOLE_GAME",
           "basis": "AUTHORED",
           "basisEvidence": "\"while maintaining attacking possession\" (RPC-PROP-134)",
           "checkability": "STRUCTURAL",
           "structuralClause": "—",
-          "fitNote": "The analog of RPC-001-18.f. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
+          "fitNote": "ILLUSTRATIVE since 11 November 2026 (was strictness REQUIRED, valueStatus N/A): it rests only on \"while maintaining attacking possession\", words the corrected row gives inside its example. Christian: \"Neither \"maintaining attacking possession\" nor \"reaching a more advanced representative area\" should become a mandatory scoring requirement solely because those phrases appeared within an illustrative example.\" \"Please make the narrow source-fidelity correction wherever the illustrative example is the sole authority for a mandatory requirement.\" (received 11 November 2026, second reply). Kept, with its value, basis, basisEvidence and sources, in the class the project uses for an example (strictness SUPPORTING, valueStatus TYPICAL_EXAMPLE, as GF2-24.a and I13 are), so it requires nothing: it establishes no element (derive.ts isSupportCapable), its forward check reads INERT (forward.ts: 'a typical example is informative only'), and it constitutes no scoring condition (context-scoring-guard.ts constitutedConditionTypes reads REQUIRED items only). No independent basis was found: no approved knowledge of Attack Development makes keeping the ball a condition of a point (the finding delivered to Christian on 11 November 2026 for the three coach rules), and Christian: \"The wording establishes an example of purposeful attacking advancement, not a mandatory condition requiring possession to be maintained in every qualifying scoring event.\" (received 11 November 2026). Control on reception at the zone and line events is a different meaning, approved for those coach rules only (primary-scoring.ts APPROVED_EVENT_MEANINGS); this item never carried it. As drafted: The analog of RPC-001-18.f. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
           "standing": "DRAFT",
           "source": [
             {
@@ -1084,14 +1205,14 @@
           "selector": "type=control",
           "requirement": "EQUALS",
           "value": "while maintaining attacking possession",
-          "strictness": "REQUIRED",
-          "valueStatus": "REQUIRED_RANGE",
+          "strictness": "SUPPORTING",
+          "valueStatus": "TYPICAL_EXAMPLE",
           "scope": "WHOLE_GAME",
           "basis": "AUTHORED",
           "basisEvidence": "\"while maintaining attacking possession\" (RPC-PROP-134)",
           "checkability": "STRUCTURAL",
           "structuralClause": "—",
-          "fitNote": "The analog of RPC-001-18.g, with a different predicate: MAINTAINING possession while reaching the area, not control ON ARRIVAL. A verbatim term, so ENTAILED (RC-34); it is not one of SD-15's two coach-judged terms, so whether it is a coach judgement in play (FREE(b)) is not decided here. The control's referent is NOT carried as an item: \"while maintaining attacking possession\" names no place, so V5 [type=control] is declared UNDECLARED, as RPC-001 left its control referent before his C57 ruling (M4 of the review). Typing it is proposed ruling PR-2. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
+          "fitNote": "ILLUSTRATIVE since 11 November 2026 (was strictness REQUIRED, valueStatus REQUIRED_RANGE): it rests only on \"while maintaining attacking possession\", words the corrected row gives inside its example. Christian: \"Neither \"maintaining attacking possession\" nor \"reaching a more advanced representative area\" should become a mandatory scoring requirement solely because those phrases appeared within an illustrative example.\" \"Please make the narrow source-fidelity correction wherever the illustrative example is the sole authority for a mandatory requirement.\" (received 11 November 2026, second reply). Kept, with its value, basis, basisEvidence and sources, in the class the project uses for an example (strictness SUPPORTING, valueStatus TYPICAL_EXAMPLE, as GF2-24.a and I13 are), so it requires nothing: it establishes no element (derive.ts isSupportCapable), its forward check reads INERT (forward.ts: 'a typical example is informative only'), and it constitutes no scoring condition (context-scoring-guard.ts constitutedConditionTypes reads REQUIRED items only). No independent basis was found (as RPC-003-12.a). Typing its referent, proposed ruling PR-2, is withdrawn. As drafted: The analog of RPC-001-18.g, with a different predicate: MAINTAINING possession while reaching the area, not control ON ARRIVAL. A verbatim term, so ENTAILED (RC-34); it is not one of SD-15's two coach-judged terms, so whether it is a coach judgement in play (FREE(b)) is not decided here. The control's referent is NOT carried as an item: \"while maintaining attacking possession\" names no place, so V5 [type=control] is declared UNDECLARED, as RPC-001 left its control referent before his C57 ruling (M4 of the review). Typing it is proposed ruling PR-2. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
           "standing": "DRAFT",
           "source": [
             {
@@ -1405,7 +1526,7 @@
         {
           "origId": "RPC-PROP-134",
           "placement": "SPLIT",
-          "note": "S1 (02), O1 (04.b; 04.a withdrawn 28 October 2026: the ball is the environment's), V1 EXCLUSION (05), origin V3/V5 (10.a/b), progression V3/V5/V6 (11.a-c), control V3/V6 (12.a/b). Control V5 UNDECLARED: the referent is not stated (PR-2). Origin V6 NOT_AUTHORED (PR-3)."
+          "note": "S1 (02), O1 (04.b; 04.a withdrawn 28 October 2026: the ball is the environment's), V1 EXCLUSION (05), origin V3/V5 (10.a/b), progression V3/V5/V6 (11.a-c), control V3/V6 (12.a/b). Control V5 UNDECLARED: the referent is not stated (PR-2). Origin V6 NOT_AUTHORED (PR-3). Since 11 November 2026 (Christian's item 3; see corrections), 02, 11.a-c and 12.a/b are TYPICAL_EXAMPLE, inert: they rest only on the example the corrected row gives."
         },
         {
           "origId": "RPC-ID-013",
@@ -1472,7 +1593,7 @@
           "declaration": "CLAIMED",
           "selector": "*",
           "scope": "WHOLE_GAME",
-          "note": "RPC-003-02."
+          "note": "RPC-003-02 only: TYPICAL_EXAMPLE, inert (since 11 November 2026, Christian's item 3; see corrections)."
         },
         {
           "row": "S2",
@@ -1514,7 +1635,7 @@
           "declaration": "NON_CLAIMED",
           "selector": "noun=zone & functions∋objective-area",
           "scope": "WHOLE_GAME",
-          "note": "OUR READING of silence (ledger L-12), for his decision D5 (README Q2). RPC-003 authors only \"more advanced\" (carried on V6 by RPC-003-11.c), not where the area lies or how deep it is. The game form places its targets (GF2-04) at the end line. RPC-001's analog (\"how far beyond the first defenders\") was declared NOT_AUTHORED. MEASURED (final/scripts/probe-out, run U2n): declaring S5 and O4 NOT_AUTHORED instead changes neither the outcome nor the realized game of the line composition, because GF2-04 places the target either way. So the end-line placement comes from GF2, not from Attack Development, under either reading; an earlier draft's statement that NOT_AUTHORED would refuse was wrong."
+          "note": "OUR READING of silence (ledger L-12), for his decision D5 (README Q2). RPC-003 authors only \"more advanced\" (carried on V6 by RPC-003-11.c, an example only since 11 November 2026: TYPICAL_EXAMPLE), not where the area lies or how deep it is. The game form places its targets (GF2-04) at the end line. RPC-001's analog (\"how far beyond the first defenders\") was declared NOT_AUTHORED. MEASURED (final/scripts/probe-out, run U2n): declaring S5 and O4 NOT_AUTHORED instead changes neither the outcome nor the realized game of the line composition, because GF2-04 places the target either way. So the end-line placement comes from GF2, not from Attack Development, under either reading; an earlier draft's statement that NOT_AUTHORED would refuse was wrong."
         },
         {
           "row": "S6",
@@ -1927,7 +2048,7 @@
           "declaration": "CLAIMED",
           "selector": "type ∈ {origin, progression, control}",
           "scope": "WHOLE_GAME",
-          "note": "RPC-003-10.a, -11.a, -12.a."
+          "note": "RPC-003-10.a; -11.a and -12.a are TYPICAL_EXAMPLE, inert, and constitute no condition (since 11 November 2026, Christian's item 3; see corrections)."
         },
         {
           "row": "V3",
@@ -1948,21 +2069,21 @@
           "declaration": "CLAIMED",
           "selector": "type ∈ {origin, progression}",
           "scope": "WHOLE_GAME",
-          "note": "RPC-003-10.b, -11.b (open text as authored; typing is proposed ruling PR-1 and decision D1)."
+          "note": "RPC-003-10.b (open text as authored; typing it is decision D1); -11.b is TYPICAL_EXAMPLE, inert, since 11 November 2026 (Christian's item 3; see corrections), and PR-1, which would have typed it, is withdrawn."
         },
         {
           "row": "V5",
           "declaration": "UNDECLARED",
           "selector": "type=control",
           "scope": "WHOLE_GAME",
-          "note": "Referent not stated: \"while maintaining attacking possession\" names no place. Typing it is PR-2 (the C57 analog). RPC-001 declares the same row UNDECLARED (\"Referents never examined.\"). Kept UNDECLARED, as the review's M4 prescribed, and every MEASURED outcome in these drafts was taken with it. The line was examined and found silent, which NOT_AUTHORED (a declared gap) would state more exactly; both kinds bar free choice alike (derivation-rules-2026-09-18.md:159), so switching would change only the verdict's subtype (DECLARED_GAP instead of COVERAGE): INFERRED, not measured."
+          "note": "Since 11 November 2026 no control condition is required (RPC-003-12.a is TYPICAL_EXAMPLE, Christian's item 3; see corrections), so this line asks nothing and PR-2 is withdrawn. As drafted: Referent not stated: \"while maintaining attacking possession\" names no place. Typing it is PR-2 (the C57 analog). RPC-001 declares the same row UNDECLARED (\"Referents never examined.\"). Kept UNDECLARED, as the review's M4 prescribed, and every MEASURED outcome in these drafts was taken with it. The line was examined and found silent, which NOT_AUTHORED (a declared gap) would state more exactly; both kinds bar free choice alike (derivation-rules-2026-09-18.md:159), so switching would change only the verdict's subtype (DECLARED_GAP instead of COVERAGE): INFERRED, not measured."
         },
         {
           "row": "V6",
           "declaration": "CLAIMED",
           "selector": "type ∈ {progression, control}",
           "scope": "WHOLE_GAME",
-          "note": "RPC-003-11.c, -12.b."
+          "note": "RPC-003-11.c, -12.b, both TYPICAL_EXAMPLE, inert (since 11 November 2026, Christian's item 3; see corrections)."
         },
         {
           "row": "V6",
@@ -2191,7 +2312,7 @@
           "class": "KNOWLEDGE",
           "schemaScope": "N/A",
           "what": "The progression referent is untyped; the control referent is not stated",
-          "detail": "The progression referent is carried as authored open text (\"a more advanced representative area\", 11.b); typing it as the objective reference of SCORING_TEAM is proposed ruling PR-1 (the C59 analog). The control clause (\"while maintaining attacking possession\") names no place, so V5 [type=control] is UNDECLARED, as RPC-001's was before C57; typing it is PR-2, which also asks whether \"while maintaining\" is judged at the target or continuously. The register admits a typed relational referent only from a ruled restatement (row V5)."
+          "detail": "The progression referent is carried as authored open text (\"a more advanced representative area\", 11.b); typing it as the objective reference of SCORING_TEAM is proposed ruling PR-1 (the C59 analog). The control clause (\"while maintaining attacking possession\") names no place, so V5 [type=control] is UNDECLARED, as RPC-001's was before C57; typing it is PR-2, which also asks whether \"while maintaining\" is judged at the target or continuously. The register admits a typed relational referent only from a ruled restatement (row V5). ANSWERED 11 November 2026 by Christian's item 3, as we read it: both clauses are an example, so 11.a-c and 12.a/b are TYPICAL_EXAMPLE and PR-1 and PR-2 are withdrawn (see corrections)."
         },
         {
           "ref": "L-05",
@@ -2268,7 +2389,7 @@
       "conventionsUsed": [
         {
           "rc": "RC-6",
-          "where": "Every item with no value is N/A; items with EQUALS/RANGE/COUNT values are REQUIRED_RANGE"
+          "where": "Every item with no value is N/A; items with EQUALS/RANGE/COUNT values are REQUIRED_RANGE; since 11 November 2026, 02, 11.a-c and 12.a/b are TYPICAL_EXAMPLE (examples)"
         },
         {
           "rc": "RC-7",
@@ -2365,7 +2486,8 @@
       "analogOf": "C59 (RPC-001-18.d)",
       "proposal": "Type the progression referent as {objectiveReferenceOf: \"SCORING_TEAM\", role: \"PRIMARY_SCORING\", asAuthored: \"a more advanced representative area - the target the scoring team attacks\"}.",
       "question": "Typing the progression referent as the target the scoring team attacks makes GF2's own target (its end line, when the realizer chooses line targets) stand for \"a more advanced representative area\": MEASURED (run U2n), nothing of Attack Development's area reaches the game beyond GF2's default target, under either reading of the silence. Is that target the intended progression outcome for Secure Possession? Your proviso on the RPC-001 analog applies: \"Controlled arrival and long-clearance exclusion: Approved in principle, provided they are evaluated against the intended progression outcome and not merely whichever target the current engine can represent.\" (your 16 October reply, item 9 point 2, christian-2026-10-16.txt:111). It is asked against the intended progression outcome, not because it composes.",
-      "needs": "His ruling: the register admits a relational referent only from a ruled restatement (register row V5). Without it the condition is judged against open text."
+      "needs": "His ruling: the register admits a relational referent only from a ruled restatement (register row V5). Without it the condition is judged against open text.",
+      "status": "WITHDRAWN 11 November 2026: its target, RPC-003-11.b, is an example (TYPICAL_EXAMPLE), so there is no progression referent of Attack Development's to type; an advanced target is the Game Form's own (GF2-03.a, GF2-03.b, GF2-04). Christian: \"Neither \"maintaining attacking possession\" nor \"reaching a more advanced representative area\" should become a mandatory scoring requirement solely because those phrases appeared within an illustrative example.\" \"An advanced-area scoring event may be an appropriate realization of that principle when independently justified by the Game Form and its configuration.\" (received 11 November 2026, second reply)."
     },
     {
       "id": "PR-2",
@@ -2373,7 +2495,8 @@
       "analogOf": "C57 (RPC-001-18.h)",
       "proposal": "Add an item typing the control referent as {objectiveReferenceOf: \"SCORING_TEAM\", role: \"PRIMARY_SCORING\", asAuthored: \"while maintaining attacking possession - the target the scoring team attacks\"}.",
       "question": "Typing the referent as the target reduces \"while maintaining attacking possession\" to a judgement at the target, which is RPC-001's \"controlled on arrival\". Is that your meaning? The alternative, continuity from the attack's start to the target, needs the origin typed (D1) and an episode (E8). Your C57 words point toward the episode reading: \"Apply the qualifying conditions to the target and scoring episode actually being evaluated.\" (your reply filed 17 October 2026, M8, quoted in RPC-001-18.h's basisEvidence). The day before, you attached a proviso to the same knowledge for Goalkeeper Build-Out: \"Controlled arrival and long-clearance exclusion: Approved in principle, provided they are evaluated against the intended progression outcome and not merely whichever target the current engine can represent.\" (your 16 October reply, item 9 point 2, christian-2026-10-16.txt:111). Judging at the target is the form the engine can evaluate today; it should be chosen only if it is the intended outcome.",
-      "needs": "His ruling, as PR-1, and his answer to the question."
+      "needs": "His ruling, as PR-1, and his answer to the question.",
+      "status": "WITHDRAWN 11 November 2026: the control clause is an example (RPC-003-12.a and 12.b are TYPICAL_EXAMPLE), so there is no control referent to type. Christian: \"Neither \"maintaining attacking possession\" nor \"reaching a more advanced representative area\" should become a mandatory scoring requirement solely because those phrases appeared within an illustrative example.\" \"An advanced-area scoring event may be an appropriate realization of that principle when independently justified by the Game Form and its configuration.\" (received 11 November 2026, second reply)."
     },
     {
       "id": "PR-3",

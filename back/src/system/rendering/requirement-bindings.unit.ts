@@ -10,7 +10,8 @@
  *
  * Pinned: the real file passes (B1); each check refuses (B2); a malformed file throws, and so does a TEST-ONLY build handed one (B3); the
  * bundle carries the file (B4); the TEST-ONLY draft bindings pass in DRAFT mode only, and merge with the production file only in MERGED mode
- * (B5-B8, the R-engine review's M1); every workbook the gate reads is a bundled module, and only the bindings are read from disk (B9, M2).
+ * (B5-B8, the R-engine review's M1); every workbook the gate reads is a bundled module, and only the bindings are read from disk (B9, M2);
+ * no REQUIRED restatement rests only on an example (B13, 11 November 2026), and what rests only on one is kept as one (B13b, S2).
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/requirement-bindings.unit.ts
  */
@@ -24,6 +25,7 @@ import { spanIsExample } from '../derivation/example-clauses'
 import rpcWorkbook from '../sport-module/rpc-library.rc1.json'
 import { learningGoalAuthorizations, observationCriteriaApprovals, quotesOfHisReplies, validateObservationCriteriaApprovals } from '../test-library/learning-goal-authorizations'
 import { buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from './build-activity'
+import { constitutedConditionTypes } from './context-scoring-guard'
 import { SCORING_REASON_HEAD } from './requirement-account'
 import { specializedRoleNames } from './session-envelope'
 import {
@@ -393,35 +395,61 @@ test('B9: requirement-bindings.ts reads only the bindings from disk; every workb
  * here may be REQUIRED on words its row gives only as an example (example-clauses.ts):
  *   - a binding part that is REQUIRED (a scoring-condition component is, by construction) must not quote, as its rowSpan, words its
  *     row gives as an example;
- *   - a REQUIRED item (not TYPICAL_EXAMPLE, which is inert) must have a quotation of its basisEvidence outside an example of the rows
- *     its sources cite, and its value must not be words those rows give as an example.
+ *   - a REQUIRED item, whatever its valueStatus, must have a quotation of its basisEvidence outside an example of the rows its sources
+ *     cite, and its value must not be words those rows give as an example. Until S2 (11 November 2026) a TYPICAL_EXAMPLE item was not
+ *     read, as inert; it is inert in derivation (derive.ts isSupportCapable, forward.ts), but the context-scoring guard constitutes a
+ *     scoring condition from a REQUIRED item on V3 whatever its valueStatus (context-scoring-guard.ts constitutedConditionTypes), so an
+ *     example marked TYPICAL_EXAMPLE and left REQUIRED would still be required, and this check did not read it (draft-store.unit.ts
+ *     measures such an item counting as a constituting item).
  * Measured 11 November 2026: a rowSpan or quotation that starts at or before a marker and runs into its example (one beginning
  * 'for example, reaching') is not read as resting only on the example and passes, even if only the marker lies outside it.
  * A source citing a row of the RPC library's properties is read against the whole row, so a shortened quotation cannot hide its
- * marker. What rests only on words the corrected Attack Development row gives as an example is pinned below by name, with why it
- * stands. RPC-003-04.b (REQUIRED, OUTSIDE_BOUNDARY, inert) passes: its 'at loss of possession' rests on RPC-PROP-037, though its
- * 'at the scoring event' rests on the clause the corrected row gives as an example. It is recorded here, not pinned; anything else
- * found, or a pinned entry no longer found, fails until this list is brought up to date.
+ * marker. What rests only on words the corrected Attack Development row gives as an example would be pinned below by name, with the
+ * independent basis that lets it stand; anything else found, or a pinned entry no longer found, fails until the list is brought up to
+ * date. RPC-003-04.b (REQUIRED, OUTSIDE_BOUNDARY, inert) passes: its 'at loss of possession' rests on RPC-PROP-037, though its 'at the
+ * scoring event' rests on the clause the corrected row gives as an example. It is recorded here, not pinned.
+ *
+ * The list is empty since S2. Christian's reply received 11 November 2026, the second that day, item 3: "Neither "maintaining attacking
+ * possession" nor "reaching a more advanced representative area" should become a mandatory scoring requirement solely because those
+ * phrases appeared within an illustrative example." "Please make the narrow source-fidelity correction wherever the illustrative example
+ * is the sole authority for a mandatory requirement." (received 11 November 2026, second reply). Its eight entries had no independent
+ * basis: RPC-003-02, 11.a, 11.b, 11.c, 12.a and 12.b are TYPICAL_EXAMPLE and SUPPORTING (B13b holds them so), and the DRAFT bindings'
+ * progression and control parts are no longer bound (kept whole in the draft contract's corrections, withdrawnBindingParts).
  */
-const ANSWERED_NOT_YET_WITHDRAWN =
-    "answered by Christian's reply of 11 November (the clause is an example, not a requirement); to be withdrawn with the A02 work, where this draft is used"
-const REPORTED_DESIGN_POINT =
-    'reported: rests only on words the corrected row places inside an example; a design point, not changed (no broader scoring redesign)'
-const RESTATED_FROM_AN_EXAMPLE: Record<string, string> = {
-    'RPC-003-12.a': ANSWERED_NOT_YET_WITHDRAWN,
-    'RPC-003-12.b': ANSWERED_NOT_YET_WITHDRAWN,
-    'DRAFT bindings RPC-003 RPC-PROP-134 control': ANSWERED_NOT_YET_WITHDRAWN,
-    'RPC-003-02': REPORTED_DESIGN_POINT,
-    'RPC-003-11.a': REPORTED_DESIGN_POINT,
-    'RPC-003-11.b': REPORTED_DESIGN_POINT,
-    'RPC-003-11.c': REPORTED_DESIGN_POINT,
-    'DRAFT bindings RPC-003 RPC-PROP-134 progression': REPORTED_DESIGN_POINT,
+const RESTATED_FROM_AN_EXAMPLE: Record<string, string> = {}
+/** The items S2 re-classified: each rests only on the corrected row's example, and is kept, with its provenance, as an example. */
+const KEPT_AS_AN_EXAMPLE =
+    "Christian's item 3 (received 11 November 2026, second reply): no independent basis; strictness SUPPORTING, valueStatus TYPICAL_EXAMPLE, sources kept"
+const RESTS_ONLY_ON_AN_EXAMPLE: Record<string, string> = {
+    'RPC-003-02': KEPT_AS_AN_EXAMPLE,
+    'RPC-003-11.a': KEPT_AS_AN_EXAMPLE,
+    'RPC-003-11.b': KEPT_AS_AN_EXAMPLE,
+    'RPC-003-11.c': KEPT_AS_AN_EXAMPLE,
+    'RPC-003-12.a': KEPT_AS_AN_EXAMPLE,
+    'RPC-003-12.b': KEPT_AS_AN_EXAMPLE,
 }
-test('B13 (11 November 2026): no REQUIRED restatement rests only on words its row gives as an example, outside the pinned list; none in the production bindings (RPC-001)', () => {
-    const LIBRARY_FILE = 'back/src/system/sport-module/rpc-library.rc1.json'
-    const properties = (rpcWorkbook as unknown as { properties: Record<string, unknown>[] }).properties
-    const rowText = (rowId: string): string | undefined => properties.find(row => row['property_id'] === rowId)?.['property_text'] as string | undefined
-    const quotations = (text: string): string[] => [...text.matchAll(/"([^"]+)"|“([^”]+)”/g)].map(match => match[1] ?? match[2])
+const LIBRARY_FILE = 'back/src/system/sport-module/rpc-library.rc1.json'
+const properties = (rpcWorkbook as unknown as { properties: Record<string, unknown>[] }).properties
+const rowText = (rowId: string): string | undefined => properties.find(row => row['property_id'] === rowId)?.['property_text'] as string | undefined
+const quotations = (text: string): string[] => [...text.matchAll(/"([^"]+)"|“([^”]+)”/g)].map(match => match[1] ?? match[2])
+/**
+ * Whether a draft item rests only on words the rows it cites give as an example: every quotation of its basisEvidence, read in every cited
+ * row that holds it, is an example, or its value is words those rows give as an example. A source citing a row of the RPC library's
+ * properties is read against the whole row.
+ */
+const restsOnlyOnAnExample = (item: any): boolean => {
+    const texts: string[] = (item.source ?? []).map((source: any) =>
+        source.file === LIBRARY_FILE && source.table === 'properties' ? rowText(String(source.rowId).trim().split(/\s+/)[0]) ?? String(source.text) : String(source.text),
+    )
+    // Each quotation of its evidence, read in every cited row that holds it: true where every such reading is an example.
+    const readings = quotations(String(item.basisEvidence ?? ''))
+        .map(quotation => texts.map(text => spanIsExample(text, quotation)).filter(reading => reading !== null))
+        .filter(reading => reading.length > 0)
+    const evidenceIsAnExample = readings.length > 0 && readings.every(reading => reading.every(Boolean))
+    const valueIsAnExample = typeof item.value === 'string' && item.value !== 'N/A' && texts.some(text => spanIsExample(text, item.value) === true)
+    return evidenceIsAnExample || valueIsAnExample
+}
+test('B13 (11 November 2026): no REQUIRED restatement rests only on words its row gives as an example, outside the pinned list (empty since S2); none in the production bindings (RPC-001)', () => {
     const found: string[] = []
     assert.equal(spanIsExample(rowText('RPC-PROP-134') ?? '', 'while maintaining attacking possession'), true, 'the reading still sees the example of the corrected row')
 
@@ -444,24 +472,47 @@ test('B13 (11 November 2026): no REQUIRED restatement rests only on words its ro
     let itemsRead = 0
     for (const contract of store.contracts) {
         for (const item of contract.items as any[]) {
-            if (item.strictness !== 'REQUIRED' || item.valueStatus === 'TYPICAL_EXAMPLE') continue
+            if (item.strictness !== 'REQUIRED') continue
             itemsRead++
-            const texts: string[] = (item.source ?? []).map((source: any) =>
-                source.file === LIBRARY_FILE && source.table === 'properties' ? rowText(String(source.rowId).trim().split(/\s+/)[0]) ?? String(source.text) : String(source.text),
-            )
-            // Each quotation of its evidence, read in every cited row that holds it: true where every such reading is an example.
-            const readings = quotations(String(item.basisEvidence ?? ''))
-                .map(quotation => texts.map(text => spanIsExample(text, quotation)).filter(reading => reading !== null))
-                .filter(reading => reading.length > 0)
-            const restsOnlyOnAnExample = readings.length > 0 && readings.every(reading => reading.every(Boolean))
-            const valueIsAnExample = typeof item.value === 'string' && item.value !== 'N/A' && texts.some(text => spanIsExample(text, item.value) === true)
-            if (restsOnlyOnAnExample || valueIsAnExample) found.push(String(item.itemId))
+            if (restsOnlyOnAnExample(item)) found.push(String(item.itemId))
         }
     }
 
-    assert.ok(partsRead >= 8 && itemsRead > 0, `the check read what it holds to account (${partsRead} parts quoting a row, ${itemsRead} REQUIRED items)`)
+    // 6 since S2: the production file's 4 (RPC-001) and the draft's origin and not-possession-alone.
+    assert.ok(partsRead >= 6 && itemsRead > 0, `the check read what it holds to account (${partsRead} parts quoting a row, ${itemsRead} REQUIRED items)`)
     assert.deepEqual(found.filter(entry => entry.startsWith('PRODUCTION')), [], 'no production binding part (RPC-001, A01) rests on an example')
     assert.deepEqual(found.sort(), Object.keys(RESTATED_FROM_AN_EXAMPLE).sort(), 'what rests only on the corrected row\'s example is exactly the pinned list')
+})
+
+/**
+ * B13b (S2, 11 November 2026): an item that rests only on an example is kept as an example, and requires nothing. What could have let an
+ * illustrative example act as a requirement again, before it reached another activity: an item re-classified by its valueStatus alone (the
+ * context-scoring guard reads strictness, never valueStatus), one made REQUIRED again, one deleted with its provenance, a new item resting
+ * on the example, or a DRAFT binding part bound to the example again. Each fails here or in B13. Pinned: exactly the six S2 re-classified,
+ * each strictness SUPPORTING and valueStatus TYPICAL_EXAMPLE, still citing RPC-PROP-134 (its provenance, which the draft store holds
+ * verbatim), constituting no scoring condition; and the DRAFT bindings bind as a scoring-condition component exactly what the draft
+ * contract constitutes, the origin.
+ */
+test('B13b (S2, 11 November 2026): what rests only on an example is exactly the six items kept as examples, SUPPORTING and TYPICAL_EXAMPLE, constituting no condition', () => {
+    const examples: string[] = []
+    for (const contract of store.contracts) {
+        const constituted = new Set(constitutedConditionTypes(contract).map(entry => entry.itemId))
+        assert.ok(constituted.size > 0, `${contract.contractId}: the draft still constitutes a scoring condition (the origin)`)
+        for (const item of contract.items as any[]) {
+            if (!restsOnlyOnAnExample(item)) continue
+            examples.push(String(item.itemId))
+            assert.deepEqual([item.strictness, item.valueStatus], ['SUPPORTING', 'TYPICAL_EXAMPLE'], `${item.itemId}: kept as an example, never required`)
+            assert.ok(!constituted.has(String(item.itemId)), `${item.itemId}: constitutes no scoring condition`)
+            assert.ok((item.source ?? []).some((source: any) => String(source.rowId).startsWith('RPC-PROP-134')), `${item.itemId}: its provenance, the corrected row, is kept`)
+            assert.ok(String(item.fitNote).startsWith('ILLUSTRATIVE since 11 November 2026'), `${item.itemId}: its fitNote says why`)
+        }
+    }
+    assert.deepEqual(examples.sort(), Object.keys(RESTS_ONLY_ON_AN_EXAMPLE).sort(), 'what rests only on an example is exactly the six kept as examples')
+    // The DRAFT bindings bind no component for them: every SCORING_CONDITION_COMPONENT of the draft is constituted by the draft contract.
+    const components = draft.contexts.flatMap(entry => entry.rows.flatMap(row => (row.parts as any[]).filter(part => part.kind === 'SCORING_CONDITION_COMPONENT').map(part => String(part.component))))
+    const constitutedTypes = store.contracts.flatMap(contract => constitutedConditionTypes(contract).map(entry => entry.type))
+    assert.deepEqual(components, ['origin'])
+    assert.deepEqual(constitutedTypes, ['origin'])
 })
 
 console.log = quiet
