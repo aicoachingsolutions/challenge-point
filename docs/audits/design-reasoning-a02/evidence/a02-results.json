@@ -197,8 +197,8 @@
    {
     "aspect": "the consumption (what the chain records it was handed)",
     "kind": "SHARED",
-    "a02": "Game Problem GP-015 from Step 1 (review pathway); scorer handed GF2 (SELECTION_TRACE_RANKING); constraints REVIEW_PATHWAY_K2 []; size-rule bypass false",
-    "ta02": "Game Problem GP-015 from Step 1 (review pathway); scorer handed GF2 (SELECTION_TRACE_RANKING); constraints REVIEW_PATHWAY_K2 []; size-rule bypass false",
+    "a02": "Game Problem GP-015 from Step 1 (review pathway); scorer handed GF2 (SELECTION_TRACE_RANKING); constraints REVIEW_PATHWAY_K2 []; size-rule bypass false; K2's limit carried with it (HO-07NOV-K2)",
+    "ta02": "Game Problem GP-015 from Step 1 (review pathway); scorer handed GF2 (SELECTION_TRACE_RANKING); constraints REVIEW_PATHWAY_K2 []; size-rule bypass false; K2's limit carried with it (HO-07NOV-K2)",
     "note": "the same TEST-ONLY option and the same K2 result, the empty set, for each goal (each goal's DRAFT record set aside, since stage W1 (b))"
    },
    {
@@ -1161,8 +1161,8 @@
     {
      "aspect": "the consumption (what the chain records it was handed)",
      "kind": "SHARED",
-     "a02": "Game Problem GP-015 from Step 1 (review pathway); scorer handed GF2 (SELECTION_TRACE_RANKING); constraints REVIEW_PATHWAY_K2 []; size-rule bypass false",
-     "ta02": "Game Problem GP-015 from Step 1 (review pathway); scorer handed GF2 (SELECTION_TRACE_RANKING); constraints REVIEW_PATHWAY_K2 []; size-rule bypass false",
+     "a02": "Game Problem GP-015 from Step 1 (review pathway); scorer handed GF2 (SELECTION_TRACE_RANKING); constraints REVIEW_PATHWAY_K2 []; size-rule bypass false; K2's limit carried with it (HO-07NOV-K2)",
+     "ta02": "Game Problem GP-015 from Step 1 (review pathway); scorer handed GF2 (SELECTION_TRACE_RANKING); constraints REVIEW_PATHWAY_K2 []; size-rule bypass false; K2's limit carried with it (HO-07NOV-K2)",
      "note": "the same TEST-ONLY option and the same K2 result, the empty set, for each goal (each goal's DRAFT record set aside, since stage W1 (b))"
     },
     {
@@ -5444,7 +5444,7 @@
   {
    "id": "S4-NP",
    "kind": "EXPERIMENT",
-   "label": "quota run NP",
+   "label": "quota run NP (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP",
     "experiment": true,
@@ -5663,7 +5663,7 @@
   {
    "id": "S4-WZA",
    "kind": "EXPERIMENT",
-   "label": "quota run WZA",
+   "label": "quota run WZA (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-WZA",
     "experiment": true,
@@ -5864,7 +5864,7 @@
   {
    "id": "S4-TR",
    "kind": "EXPERIMENT",
-   "label": "quota run TR",
+   "label": "quota run TR (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-TR",
     "experiment": true,
@@ -6069,7 +6069,7 @@
   {
    "id": "S4-CDC",
    "kind": "EXPERIMENT",
-   "label": "quota run CDC",
+   "label": "quota run CDC (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-CDC",
     "experiment": true,
@@ -6270,7 +6270,7 @@
   {
    "id": "S4-NP+WZA",
    "kind": "EXPERIMENT",
-   "label": "quota run NP+WZA",
+   "label": "quota run NP+WZA (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP+WZA",
     "experiment": true,
@@ -6493,7 +6493,7 @@
   {
    "id": "S4-NP+TR",
    "kind": "EXPERIMENT",
-   "label": "quota run NP+TR",
+   "label": "quota run NP+TR (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP+TR",
     "experiment": true,
@@ -6697,7 +6697,7 @@
   {
    "id": "S4-CDC+IR",
    "kind": "EXPERIMENT",
-   "label": "quota run CDC+IR",
+   "label": "quota run CDC+IR (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-CDC+IR",
     "experiment": true,
@@ -6901,7 +6901,7 @@
   {
    "id": "S4-NP/no-bypass",
    "kind": "CONTROL",
-   "label": "quota control: the lone manipulation without the bypass",
+   "label": "quota control: the lone manipulation without the bypass (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP/no-bypass",
     "experiment": true,
@@ -7096,7 +7096,7 @@
   {
    "id": "S4-NP+WZA/no-bypass",
    "kind": "CONTROL",
-   "label": "quota control: two manipulations without the bypass (a set inside 2 to 4)",
+   "label": "quota control: two manipulations without the bypass (a set inside 2 to 4) (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP+WZA/no-bypass",
     "experiment": true,
@@ -7318,7 +7318,7 @@
   {
    "id": "S4-NP@A02-D",
    "kind": "EXPERIMENT",
-   "label": "quota run NP on A02-D",
+   "label": "quota run NP on A02-D (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP@A02-D",
     "experiment": true,
@@ -7549,7 +7549,7 @@
   {
    "id": "S4-NP+WZA@A02-D",
    "kind": "EXPERIMENT",
-   "label": "quota run NP+WZA on A02-D",
+   "label": "quota run NP+WZA on A02-D (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP+WZA@A02-D",
     "experiment": true,
@@ -7784,7 +7784,7 @@
   {
    "id": "S4-NP+CDC",
    "kind": "EXPERIMENT",
-   "label": "quota run NP+CDC",
+   "label": "quota run NP+CDC (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP+CDC",
     "experiment": true,
@@ -7988,7 +7988,7 @@
   {
    "id": "S4-WZA+TR",
    "kind": "EXPERIMENT",
-   "label": "quota run WZA+TR",
+   "label": "quota run WZA+TR (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-WZA+TR",
     "experiment": true,
@@ -8192,7 +8192,7 @@
   {
    "id": "S4-NP+WZA+TR",
    "kind": "EXPERIMENT",
-   "label": "quota run NP+WZA+TR",
+   "label": "quota run NP+WZA+TR (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP+WZA+TR",
     "experiment": true,
@@ -8400,7 +8400,7 @@
   {
    "id": "S4-NP+WZA+CDC",
    "kind": "EXPERIMENT",
-   "label": "quota run NP+WZA+CDC",
+   "label": "quota run NP+WZA+CDC (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP+WZA+CDC",
     "experiment": true,
@@ -8607,7 +8607,7 @@
   {
    "id": "S4-WZA/foundation-kept",
    "kind": "CONTROL",
-   "label": "quota control: WZA under the switch with foundation presence kept (the reversal arm of FOUNDATION_PRESENCE_BYPASS)",
+   "label": "quota control: WZA under the switch with foundation presence kept (the reversal arm of FOUNDATION_PRESENCE_BYPASS) (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-WZA/foundation-kept",
     "experiment": true,
@@ -8802,7 +8802,7 @@
   {
    "id": "S4-TR/foundation-kept",
    "kind": "CONTROL",
-   "label": "quota control: TR under the switch with foundation presence kept (the reversal arm of FOUNDATION_PRESENCE_BYPASS)",
+   "label": "quota control: TR under the switch with foundation presence kept (the reversal arm of FOUNDATION_PRESENCE_BYPASS) (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-TR/foundation-kept",
     "experiment": true,
@@ -8997,7 +8997,7 @@
   {
    "id": "S4-WZA+TR/foundation-kept",
    "kind": "CONTROL",
-   "label": "quota control: WZA+TR under the switch with foundation presence kept (the reversal arm of FOUNDATION_PRESENCE_BYPASS)",
+   "label": "quota control: WZA+TR under the switch with foundation presence kept (the reversal arm of FOUNDATION_PRESENCE_BYPASS) (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-WZA+TR/foundation-kept",
     "experiment": true,
@@ -13082,7 +13082,7 @@
   {
    "id": "S4-NP~reversed",
    "kind": "EXPERIMENT",
-   "label": "quota run NP under the reversed wording",
+   "label": "quota run NP under the reversed wording (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP~reversed",
     "experiment": true,
@@ -13303,7 +13303,7 @@
   {
    "id": "S4-WZA~reversed",
    "kind": "EXPERIMENT",
-   "label": "quota run WZA under the reversed wording",
+   "label": "quota run WZA under the reversed wording (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-WZA~reversed",
     "experiment": true,
@@ -13506,7 +13506,7 @@
   {
    "id": "S4-TR~reversed",
    "kind": "EXPERIMENT",
-   "label": "quota run TR under the reversed wording",
+   "label": "quota run TR under the reversed wording (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-TR~reversed",
     "experiment": true,
@@ -13709,7 +13709,7 @@
   {
    "id": "S4-CDC~reversed",
    "kind": "EXPERIMENT",
-   "label": "quota run CDC under the reversed wording",
+   "label": "quota run CDC under the reversed wording (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-CDC~reversed",
     "experiment": true,
@@ -13912,7 +13912,7 @@
   {
    "id": "S4-NP+WZA~reversed",
    "kind": "EXPERIMENT",
-   "label": "quota run NP+WZA under the reversed wording",
+   "label": "quota run NP+WZA under the reversed wording (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP+WZA~reversed",
     "experiment": true,
@@ -14137,7 +14137,7 @@
   {
    "id": "S4-NP+TR~reversed",
    "kind": "EXPERIMENT",
-   "label": "quota run NP+TR under the reversed wording",
+   "label": "quota run NP+TR under the reversed wording (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP+TR~reversed",
     "experiment": true,
@@ -14343,7 +14343,7 @@
   {
    "id": "S4-CDC+IR~reversed",
    "kind": "EXPERIMENT",
-   "label": "quota run CDC+IR under the reversed wording",
+   "label": "quota run CDC+IR under the reversed wording (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-CDC+IR~reversed",
     "experiment": true,
@@ -15555,7 +15555,7 @@
   {
    "id": "S4-NP~neutral",
    "kind": "EXPERIMENT",
-   "label": "quota run NP under the neutral wording",
+   "label": "quota run NP under the neutral wording (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP~neutral",
     "experiment": true,
@@ -15776,7 +15776,7 @@
   {
    "id": "S4-WZA~neutral",
    "kind": "EXPERIMENT",
-   "label": "quota run WZA under the neutral wording",
+   "label": "quota run WZA under the neutral wording (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-WZA~neutral",
     "experiment": true,
@@ -15979,7 +15979,7 @@
   {
    "id": "S4-TR~neutral",
    "kind": "EXPERIMENT",
-   "label": "quota run TR under the neutral wording",
+   "label": "quota run TR under the neutral wording (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-TR~neutral",
     "experiment": true,
@@ -16182,7 +16182,7 @@
   {
    "id": "S4-CDC~neutral",
    "kind": "EXPERIMENT",
-   "label": "quota run CDC under the neutral wording",
+   "label": "quota run CDC under the neutral wording (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-CDC~neutral",
     "experiment": true,
@@ -16385,7 +16385,7 @@
   {
    "id": "S4-NP+WZA~neutral",
    "kind": "EXPERIMENT",
-   "label": "quota run NP+WZA under the neutral wording",
+   "label": "quota run NP+WZA under the neutral wording (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP+WZA~neutral",
     "experiment": true,
@@ -16610,7 +16610,7 @@
   {
    "id": "S4-NP+TR~neutral",
    "kind": "EXPERIMENT",
-   "label": "quota run NP+TR under the neutral wording",
+   "label": "quota run NP+TR under the neutral wording (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-NP+TR~neutral",
     "experiment": true,
@@ -16816,7 +16816,7 @@
   {
    "id": "S4-CDC+IR~neutral",
    "kind": "EXPERIMENT",
-   "label": "quota run CDC+IR under the neutral wording",
+   "label": "quota run CDC+IR under the neutral wording (TEST ASSUMPTION)",
    "run": {
     "runId": "S4-CDC+IR~neutral",
     "experiment": true,

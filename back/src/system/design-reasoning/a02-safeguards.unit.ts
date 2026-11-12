@@ -444,15 +444,15 @@ function buildAll(): void {
         runCase(c, 'CONTROL', c.label)
     }
     // The quota runs (S4), on A02-0 and on A02-D; the lone manipulation also without the bypass (a control).
-    for (const [name, set] of QUOTA_SETS) runCase(quotaCase(name, true), 'EXPERIMENT', `quota run ${name}`, { authorizedSet: set, attribute: attributeWith(lensPoolOf('A02-0'), set, true) })
-    runCase(quotaCase('NP', false), 'CONTROL', 'quota control: the lone manipulation without the bypass', { authorizedSet: setOf('NP'), attribute: attributeWith(lensPoolOf('A02-0'), setOf('NP'), false) })
+    for (const [name, set] of QUOTA_SETS) runCase(quotaCase(name, true), 'EXPERIMENT', `quota run ${name} (TEST ASSUMPTION)`, { authorizedSet: set, attribute: attributeWith(lensPoolOf('A02-0'), set, true) })
+    runCase(quotaCase('NP', false), 'CONTROL', 'quota control: the lone manipulation without the bypass (TEST ASSUMPTION)', { authorizedSet: setOf('NP'), attribute: attributeWith(lensPoolOf('A02-0'), setOf('NP'), false) })
     // R4-02 (review, batch A2): a set of two lies inside the 2-to-4 quota, so the switch should change nothing for it; measured, not assumed.
-    runCase(quotaCase('NP+WZA', false), 'CONTROL', 'quota control: two manipulations without the bypass (a set inside 2 to 4)', { authorizedSet: setOf('NP+WZA'), attribute: attributeWith(lensPoolOf('A02-0'), setOf('NP+WZA'), false) })
-    for (const name of ['NP', 'NP+WZA']) runCase(quotaCase(name, true, 'A02-D'), 'EXPERIMENT', `quota run ${name} on A02-D`, { authorizedSet: setOf(name) })
+    runCase(quotaCase('NP+WZA', false), 'CONTROL', 'quota control: two manipulations without the bypass (a set inside 2 to 4) (TEST ASSUMPTION)', { authorizedSet: setOf('NP+WZA'), attribute: attributeWith(lensPoolOf('A02-0'), setOf('NP+WZA'), false) })
+    for (const name of ['NP', 'NP+WZA']) runCase(quotaCase(name, true, 'A02-D'), 'EXPERIMENT', `quota run ${name} on A02-D (TEST ASSUMPTION)`, { authorizedSet: setOf(name) })
     // Stage W2 (11 November 2026): U3's runs table (two and three manipulations; the triple of E1's negative control), under the switch and the
     // treatment; and E3's reversal arm (foundation presence kept), controls, for the sets with no foundation member.
-    for (const [name, set] of W2_SETS) runCase(quotaCase(name, true), 'EXPERIMENT', `quota run ${name}`, { authorizedSet: set, attribute: attributeWith(lensPoolOf('A02-0'), set, true) })
-    for (const name of FOUNDATION_KEPT_SETS) runCase(quotaCase(name, true, 'A02-0', 'KEPT'), 'CONTROL', `quota control: ${name} under the switch with foundation presence kept (the reversal arm of FOUNDATION_PRESENCE_BYPASS)`, { authorizedSet: setOf(name), attribute: attributeWith(lensPoolOf('A02-0'), setOf(name), true, false) })
+    for (const [name, set] of W2_SETS) runCase(quotaCase(name, true), 'EXPERIMENT', `quota run ${name} (TEST ASSUMPTION)`, { authorizedSet: set, attribute: attributeWith(lensPoolOf('A02-0'), set, true) })
+    for (const name of FOUNDATION_KEPT_SETS) runCase(quotaCase(name, true, 'A02-0', 'KEPT'), 'CONTROL', `quota control: ${name} under the switch with foundation presence kept (the reversal arm of FOUNDATION_PRESENCE_BYPASS) (TEST ASSUMPTION)`, { authorizedSet: setOf(name), attribute: attributeWith(lensPoolOf('A02-0'), setOf(name), true, false) })
     // Dependency arms (tests 3 and 4) and the stop sequence's middle path (S6).
     const swapped = (gp: string): DesignKnowledge => {
         const kk = committedKnowledge()
@@ -545,7 +545,7 @@ function buildAll(): void {
             for (const [setName, set] of QUOTA_SETS) {
                 const c = quotaCase(setName, true)
                 c.id = `${c.id}~${name}`
-                runCase(c, 'EXPERIMENT', `quota run ${setName} under the ${name} wording`, { authorizedSet: set, attribute: attributeWith(lensPoolOf(`A02-0~${name}`), set, true) }, realChain, kk)
+                runCase(c, 'EXPERIMENT', `quota run ${setName} under the ${name} wording (TEST ASSUMPTION)`, { authorizedSet: set, attribute: attributeWith(lensPoolOf(`A02-0~${name}`), set, true) }, realChain, kk)
             }
             runCase(withoutConsumption(caseOf('A02-0'), `L2~${name}`), 'LEGACY', `the chain's own route under the ${name} wording (the positive control)`, {}, observing, kk)
             // Stage W1 (c1): the Game Problem Coverage-row arm under the same wording.

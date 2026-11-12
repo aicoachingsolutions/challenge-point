@@ -312,7 +312,9 @@ function comparisonOf(a: Pair, t: Pair): { rows: ReuseRow[]; differingLines: str
     )
     const handed = (p: Pair) => {
         const x = p.zero.result.consumption
-        return x ? `Game Problem ${x.gameProblem?.gameProblemId} from ${x.gameProblem?.source}; scorer handed ${x.formCandidatesScored.join(', ')} (${x.formCandidatesFrom}); constraints ${x.constraintAuthority} [${x.constraintCandidateIds.join(', ')}]; size-rule bypass ${x.sizeRuleBypassed}` : 'none recorded'
+        // Fix F (V2, 3a): a K2 result says whether K2's limit travelled with it, read from the record (the comparison row and the swap row alike).
+        const k2Limit = x?.constraintAuthority !== 'REVIEW_PATHWAY_K2' ? '' : x.reviewManipulations?.limit === ruling('HO-07NOV-K2').words[2] ? '; K2\'s limit carried with it (HO-07NOV-K2)' : '; K2\'s limit NOT carried (HO-07NOV-K2)'
+        return x ? `Game Problem ${x.gameProblem?.gameProblemId} from ${x.gameProblem?.source}; scorer handed ${x.formCandidatesScored.join(', ')} (${x.formCandidatesFrom}); constraints ${x.constraintAuthority} [${x.constraintCandidateIds.join(', ')}]; size-rule bypass ${x.sizeRuleBypassed}${k2Limit}` : 'none recorded'
     }
     row('the consumption (what the chain records it was handed)', handed(a), handed(t), 'the same TEST-ONLY option and the same K2 result, the empty set, for each goal (each goal\'s DRAFT record set aside, since stage W1 (b))')
     row('the context', `${s1(a)?.contextId} '${nameOfContext(s1(a)?.contextId)}'`, `${s1(t)?.contextId} '${nameOfContext(s1(t)?.contextId)}'`, 'routed by the planning model and read by the chain from the same routing; TA02\'s context pending')
@@ -1837,6 +1839,9 @@ test(`W5 (A02 package, 12 November 2026). reuse after the merge of the program b
     // (1) The shared rows, K2's result among what the consumption row holds (stage W1 (b)), the CAR profile consulted only.
     for (const aspect of SHARED_ROWS) assert.equal(rowOf(aspect).kind, 'SHARED', aspect)
     assert.ok(rowOf('the consumption (what the chain records it was handed)').a02.includes('constraints REVIEW_PATHWAY_K2 []; size-rule bypass false'))
+    // Fix F (V2, 3a): the consumption row, and its swap row, say K2's limit travelled with K2's result (read from each run's record).
+    const consumptionRows = [rowOf('the consumption (what the chain records it was handed)'), SWAP_COMPARISON.rows.find((r) => r.aspect === 'the consumption (what the chain records it was handed)')!]
+    assert.deepEqual(consumptionRows.flatMap((r) => [r.a02, r.ta02]).filter((side) => !side.endsWith('; K2\'s limit carried with it (HO-07NOV-K2)')), [])
     assert.ok(rowOf('Step 1: the CAR profile it consults').note.indexOf('consulted in Step 1 only') === 0)
 
     // (2) TA02's binding items: before the merge less exactly the six example-only items; the independently authorized ones kept.

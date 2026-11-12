@@ -1317,8 +1317,8 @@ export const EPISODE_SCOPES = ['BUILD_OUT_EPISODE']
  * **The episode scopes of the register a game is derived over** — stage W4 of the A02 package (U2 b1), 11 November 2026. The approved one
  * (`EPISODE_SCOPES`, SD-36), and any the register lists in `contractEnums.illustrativeEpisodeScope`, which only a TEST-ONLY copy of the
  * register holds (`run-bounded-selection.ts` `registerWith`, from ILLUSTRATIVE carriers of the draft store): the production register lists
- * none, so every production game reads exactly `EPISODE_SCOPES`. An ILLUSTRATIVE scope is never approved: "an episode scope is added only by
- * Christian's approval" (SD-36 is the only one).
+ * none, so every production game reads exactly `EPISODE_SCOPES`. An ILLUSTRATIVE scope is never approved: 'an episode scope is added only by
+ * Christian's approval' (our note, UN-SCOPE in a02-inputs.review.json, not Christian's words; SD-36 is the only one).
  */
 export function episodeScopesOf(index: RegisterIndex): string[] {
     const illustrative = index.contractEnums?.illustrativeEpisodeScope
