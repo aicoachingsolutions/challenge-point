@@ -55,9 +55,10 @@ export const EPISODE_REACHABLE_CHECK = 'GA-EPISODE-REACHABLE'
  * reads exactly as before. Nothing here applies the condition to every score: `conditionScopeNotEvaluable` still says so to every
  * reader that would.
  */
-export function episodeConfirmed(scope: unknown, check: CheckResult | undefined): boolean {
-    // W4 (A02 package): the scopes the check decides (`episodeCheckDecides`: the approved one, or an ILLUSTRATIVE one of a TEST-ONLY register copy).
-    if (!check || check.checkId !== EPISODE_REACHABLE_CHECK || typeof scope !== 'string' || !episodeCheckDecides(scope)) return false
+export function episodeConfirmed(scope: unknown, check: CheckResult | undefined, index: RegisterIndex = registerIndex()): boolean {
+    // W4 (A02 package): the scopes the check decides (`episodeCheckDecides`: the approved one, or an ILLUSTRATIVE one of a TEST-ONLY register copy),
+    // read from the register the game was derived over (fix F: never by the scope's spelling); without one given, the production register's.
+    if (!check || check.checkId !== EPISODE_REACHABLE_CHECK || typeof scope !== 'string' || !episodeCheckDecides(scope, index)) return false
     if (check.verdict !== 'PASS' || !check.clauses.length || !check.clauses.every(clause => clause.verdict === 'PASS')) return false
     const reach = check.clauses[0]
     return reach.basis !== 'NO_APPLICABLE_INSTANCES' && Number(reach.instances) > 0
@@ -240,6 +241,8 @@ export function conditionReadingOf(
     episodeCheck?: CheckResult,
     /** The type `constitutedConditionTypes` read for this item, where the caller has it (the guard): exactly the old loop's (round 2, R1 NIT 6). */
     constitutedType?: string,
+    /** The register the game was derived over, for the scopes the episode check decides (fix F); the production register's where none is given. */
+    index?: RegisterIndex,
 ): ConditionReading {
     const item = (contract.items ?? []).find(entry => entry.itemId === itemId)
     const selector = String(item?.selector ?? '')
@@ -258,7 +261,7 @@ export function conditionReadingOf(
     const element = conditions.find((condition: any) => String(condition?.elementId) === `c:${contract.contractId}:${itemId}`)
     const carried = element && Object.prototype.hasOwnProperty.call(element, 'scope') ? element.scope : EVALUABLE_CONDITION_SCOPE
     const notEvaluable = conditionScopeNotEvaluable(element)
-    const confirmed = episodeConfirmed(carried, episodeCheck)
+    const confirmed = episodeConfirmed(carried, episodeCheck, index)
     let why: string | null = null
     if (type === null) {
         why = `${contract.contractId}::${itemId} does not name a condition type by its selector, so the context-scoring guard does not read it`
@@ -354,7 +357,7 @@ export function contextScoringFindings(
     if (!contract) return [`the contract of the Representative Performance Context ${contextId} did not reach the build, so its scoring cannot be checked`]
     const findings: string[] = [...eventKindReadingOf(contextId, game, approvedEvents, alsoCountsSupport, roleEventSupport, index, relationships).findings]
     for (const { type, itemId } of constitutedConditionTypes(contract)) {
-        const { why } = conditionReadingOf(contextId, contract, itemId, game, episodeCheck, type)
+        const { why } = conditionReadingOf(contextId, contract, itemId, game, episodeCheck, type, index)
         if (why) findings.push(why)
     }
     return findings

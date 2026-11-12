@@ -1326,13 +1326,14 @@ export function episodeScopesOf(index: RegisterIndex): string[] {
 }
 
 /**
- * W4 (U2 b1): **does the episode check decide this scope?**, for the readers that hold the check's result but not the register it ran over (the
- * context-scoring guard, the requirement account). The approved scope, or an ILLUSTRATIVE one: a scope spelled 'ILLUSTRATIVE_...' exists only on
- * a TEST-ONLY register copy (`registerWith`), since the production register lists none (pinned by a02-carriers.unit.ts) and the loader refuses
- * an item scope the register does not list, so no production game reaches the second arm.
+ * W4 (U2 b1): **does the episode check decide this scope?**, for the readers that hold the check's result (the context-scoring guard, the
+ * requirement account), decided from the register the game was derived over, by the one reader `episodeScopesOf`. Fix F of the A02 package
+ * (after verifications V1 and V2, 12 November 2026): this accepted any scope spelled 'ILLUSTRATIVE_...' by its name alone; a scope is now
+ * decided only where the register lists it (the approved one, or an ILLUSTRATIVE one a TEST-ONLY register copy lists, `registerWith`), so a
+ * scope spelled ILLUSTRATIVE_ that the register does not list is refused. The production register lists none (pinned by a02-carriers.unit.ts).
  */
 export const ILLUSTRATIVE_EPISODE_SCOPE_PREFIX = 'ILLUSTRATIVE_'
-export const episodeCheckDecides = (scope: string): boolean => EPISODE_SCOPES.includes(scope) || scope.startsWith(ILLUSTRATIVE_EPISODE_SCOPE_PREFIX)
+export const episodeCheckDecides = (scope: string, index: RegisterIndex): boolean => episodeScopesOf(index).includes(scope)
 
 /**
  * **A state the episode begins under: each `whileState` placement re-established at every beginning of the episode** — stage W4 of the A02

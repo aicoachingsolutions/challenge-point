@@ -25,9 +25,12 @@ import path from 'node:path'
 
 import { loadRegister } from '../derivation/corpus'
 import { DraftStoreRefused, ILLUSTRATIVE_CARRIERS_FILE, loadDraftStore, loadIllustrativeCarriers, withIllustrativeCarriers } from '../derivation/draft-store'
-import { BEYOND_LINE_CLAUSE, episodeCheckDecides, WHILE_STATE_CLAUSE } from '../derivation/gates'
+import { BEYOND_LINE_CLAUSE, CheckResult, episodeCheckDecides, WHILE_STATE_CLAUSE } from '../derivation/gates'
+import { indexRegister } from '../derivation/register'
 import { registerWith } from '../derivation/run-bounded-selection'
 import { beginConditionReferentOf, ILLUSTRATIVE } from '../derivation/types'
+import { EPISODE_REACHABLE_CHECK, episodeConfirmed } from '../rendering/context-scoring-guard'
+import { conditionEvidenceOf } from '../rendering/requirement-account'
 import { itemSource } from '../rendering/review-evidence'
 import { ChainAnswer, ChainRequest, HandoffChain, HandoffResult, runHandoffCases, validateHandoffInputs } from './handoff'
 import { quotedSpans } from './a02.unit'
@@ -178,11 +181,11 @@ test('the ILLUSTRATIVE carriers: admitted whole by their gate, every item stampe
     assert.ok(items.every((i) => i.category === ILLUSTRATIVE && i.basis === 'AUTHORED' && String(i.basisEvidence).startsWith('ILLUSTRATIVE')), 'every carrier is ILLUSTRATIVE, AUTHORED only so it establishes, and says so')
     // Never A01's values: the line is 12 m from an end, not 20 m.
     assert.deepEqual((items.find((i) => i.itemId === 'IL-S5-1') as any).value.offsetM, { from: 12, to: 12 })
-    // The production register: no ILLUSTRATIVE scope, so `episodeCheckDecides`'s second arm is reached only on a TEST-ONLY register copy.
+    // The production register: no ILLUSTRATIVE scope, so `episodeCheckDecides` decides one only over a TEST-ONLY register copy that lists it.
     const register = loadRegister()
     assert.ok(!((register.vocabularies.contractEnums.scope as string[]).some((s) => s.startsWith('ILLUSTRATIVE_'))) && register.vocabularies.contractEnums.illustrativeEpisodeScope === undefined)
-    assert.equal(episodeCheckDecides('BUILD_OUT_EPISODE'), true)
-    assert.equal(episodeCheckDecides('WHOLE_GAME'), false)
+    assert.equal(episodeCheckDecides('BUILD_OUT_EPISODE', indexRegister(register)), true)
+    assert.equal(episodeCheckDecides('WHOLE_GAME', indexRegister(register)), false)
     // The A02 store is unchanged (the carriers have a folder of their own).
     const store = loadDraftStore('a02-composition')
     assert.deepEqual([store.files, store.notRead, store.illustrative, store.registerOverlay], [['a02-authorization.DRAFT.json', 'rpc-002-contract.DRAFT.json'], [], undefined, undefined])
@@ -239,6 +242,26 @@ test('the composition: groups added on a copy, stamped ILLUSTRATIVE, the overlay
     assert.deepEqual([overlaid.vocabularies.contractEnums.scope.slice(-1), overlaid.vocabularies.contractEnums.illustrativeEpisodeScope, String(overlaid.version).endsWith('+ILLUSTRATIVE(TT-A)')], [['ILLUSTRATIVE_PRESSURE_SEQUENCE'], ['ILLUSTRATIVE_PRESSURE_SEQUENCE'], true])
     assert.ok(!register.vocabularies.contractEnums.scope.includes('ILLUSTRATIVE_PRESSURE_SEQUENCE'), 'the register itself is untouched')
     assert.throws(() => registerWith(register, { episodeScopes: ['BUILD_OUT_EPISODE'], treatmentId: 'TT-A' }), /already a scope of the register/)
+    // Fix F (verifications V1 and V2, 12 November 2026): the readers that hold the episode check decide a scope from the register the game was
+    // derived over (`episodeCheckDecides` over `episodeScopesOf`), never by its spelling. On the copy the listed ILLUSTRATIVE scope is decided;
+    // a scope spelled ILLUSTRATIVE_ that the copy does not list is refused; on the production register neither is.
+    const onCopy = indexRegister(overlaid)
+    const onRegister = indexRegister(register)
+    assert.deepEqual(
+        [episodeCheckDecides('ILLUSTRATIVE_PRESSURE_SEQUENCE', onCopy), episodeCheckDecides('BUILD_OUT_EPISODE', onCopy), episodeCheckDecides('ILLUSTRATIVE_NOT_LISTED', onCopy), episodeCheckDecides('ILLUSTRATIVE_PRESSURE_SEQUENCE', onRegister)],
+        [true, true, false, false],
+    )
+    // The same through each reader: the guard (`episodeConfirmed`) and the requirement account (`conditionEvidenceOf`), on a passing episode check.
+    const passing = { checkId: EPISODE_REACHABLE_CHECK, verdict: 'PASS', subjects: [], why: 'TEST-ONLY', clauses: [{ clause: 'reach', verdict: 'PASS', basis: 'EVALUATED', instances: 1 }], pendingOn: [], blockedBy: [] } as unknown as CheckResult
+    assert.deepEqual(
+        [episodeConfirmed('ILLUSTRATIVE_PRESSURE_SEQUENCE', passing, onCopy), episodeConfirmed('ILLUSTRATIVE_NOT_LISTED', passing, onCopy), episodeConfirmed('ILLUSTRATIVE_PRESSURE_SEQUENCE', passing), episodeConfirmed('BUILD_OUT_EPISODE', passing)],
+        [true, false, false, true],
+    )
+    const reading = (scope: string) => ({ contractId: C, itemId: 'IL-02.a', type: 'origin', present: true, elementFound: true, authoredScope: scope, carriedScope: scope, scopeMatches: true, notEvaluable: 'TEST-ONLY', episodeConfirmed: false, governs: false, why: 'TEST-ONLY' })
+    const evidence = (scope: string, index = onCopy) => JSON.stringify(conditionEvidenceOf(reading(scope), passing, index))
+    assert.ok(evidence('ILLUSTRATIVE_NOT_LISTED').includes('does not decide the ILLUSTRATIVE_NOT_LISTED scope'), evidence('ILLUSTRATIVE_NOT_LISTED'))
+    assert.ok(evidence('ILLUSTRATIVE_PRESSURE_SEQUENCE', onRegister).includes('does not decide the ILLUSTRATIVE_PRESSURE_SEQUENCE scope'), evidence('ILLUSTRATIVE_PRESSURE_SEQUENCE', onRegister))
+    assert.ok(!evidence('ILLUSTRATIVE_PRESSURE_SEQUENCE').includes('does not decide'), evidence('ILLUSTRATIVE_PRESSURE_SEQUENCE'))
     // The referent: a state is a conjunct, recognized only where every entry is a typed reference; without one, as before.
     const arm = { beginsEpisodeOf: 'S', arms: [{ takenBy: 'x' }] }
     assert.ok(beginConditionReferentOf(arm))
