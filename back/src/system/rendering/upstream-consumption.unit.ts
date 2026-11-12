@@ -8,6 +8,9 @@
  * and from there to `selectFor`; an `alterSelection` given with it may only observe), `selectFor` (the context-gated forms filtered to Step
  * 2's form, the constraints from the record route only, `consumedGameProblem` and `consumed` on the selection and on its gap) and
  * `generateSelection` (the boolean `quotaBypass` at the two places of the size rule, honoured only for an evaluated, record-backed set).
+ * Since stage W2 of the A02 package (11 November 2026) the switch also takes the set whole, uncapped, with every selected member validated, and
+ * the treatment FOUNDATION_PRESENCE_BYPASS reaches the package check, the package builder and its validator (three more bundled files, each
+ * named in test 7d with its counted identifiers; only the package check passes the builder and validator their fourth argument, 7a).
  *
  * What is pinned, every build through the real chain:
  *   1. option absent: every Learning Goal builds exactly as the production entry builds it, and no selection, gap or account carries a
@@ -94,21 +97,31 @@ const A01_HINTS = {
 /** Test 7d, measured (stage W1 (a)): the option's identifiers named per file, and the guided selection hints' lines that name them. */
 // Stage W1 (b), re-pinned openly: was { ..., quotaBypass: 7, upstream: 25, ... } (stage W1 (a)); K2's field, type and refusal function join it.
 // Stage W1 (c1), re-pinned openly: upstream 30 -> 34; coverageLenses 6 and hintsLensesFrom 2 join it (the treatment GP_COVERAGE_LENSES).
-const RUN_BOUNDED_SELECTION_NAMES: Record<string, number> = { consumed: 7, consumedGameProblem: 10, coverageLenses: 6, hintsGameProblem: 3, hintsGameProblemId: 2, hintsGoverned: 2, hintsLensesFrom: 2, hintsSignals: 2, lensCandidateIds: 2, quotaBypass: 10, reviewManipulationRefusals: 2, reviewManipulations: 7, ReviewManipulations: 5, step1GameProblemId: 1, upstream: 34, UpstreamDecisions: 4 }
+// Stage W2, re-pinned openly: upstream 34 -> 40, quotaBypass 10 -> 11; foundationPresenceBypass 8 joins it (the treatment FOUNDATION_PRESENCE_BYPASS:
+// its field, its shape check beside the switch, its record and its hand-on to the selector).
+const RUN_BOUNDED_SELECTION_NAMES: Record<string, number> = { consumed: 7, consumedGameProblem: 10, coverageLenses: 6, foundationPresenceBypass: 8, hintsGameProblem: 3, hintsGameProblemId: 2, hintsGoverned: 2, hintsLensesFrom: 2, hintsSignals: 2, lensCandidateIds: 2, quotaBypass: 11, reviewManipulationRefusals: 2, reviewManipulations: 7, ReviewManipulations: 5, step1GameProblemId: 1, upstream: 40, UpstreamDecisions: 4 }
 // Stage W1 (c1), re-pinned openly: was { hintsGameProblem: 2, step1GameProblemId: 3 }; the treatment's option and helper join it.
 const GUIDED_SELECTION_NAMES: Record<string, number> = { coverageLenses: 2, coverageRowLenses: 2, hintsGameProblem: 2, step1GameProblemId: 4 }
-/** Test 7, measured (stage W1 (b)): every string literal REVIEW_PATHWAY_K2 in a non-test source file, and the one place it is written. */
-const K2_WRITTEN: string[] = ['system/derivation/run-bounded-selection.ts:391 WRITTEN in selectFor under upstream']
+/**
+ * Test 7, measured (stage W1 (b)): every string literal REVIEW_PATHWAY_K2 in a non-test source file, and the one place it is written. Stage W2,
+ * re-pinned openly (the same literals, moved by the stage's hunks above them): run-bounded-selection.ts:391 -> :402, safeguards.ts:459 -> :471
+ * and :698 -> :748, generateSelection.ts:1194 -> :1206.
+ */
+const K2_WRITTEN: string[] = ['system/derivation/run-bounded-selection.ts:402 WRITTEN in selectFor under upstream']
 const K2_LITERALS: string[] = [
-    'system/derivation/run-bounded-selection.ts:391 WRITTEN in selectFor under upstream',
-    'system/design-reasoning/safeguards.ts:459 READ',
-    'system/design-reasoning/safeguards.ts:698 READ',
+    'system/derivation/run-bounded-selection.ts:402 WRITTEN in selectFor under upstream',
+    'system/design-reasoning/safeguards.ts:471 READ',
+    'system/design-reasoning/safeguards.ts:748 READ',
     'system/rendering/build-activity.ts:171 TYPE',
-    'system/test-library/generateSelection.ts:1194 READ',
+    'system/test-library/generateSelection.ts:1206 READ',
     'system/test-library/types.ts:134 TYPE',
     'system/test-library/types.ts:170 TYPE',
     'system/test-library/types.ts:179 TYPE',
 ]
+/** Test 7d, measured (stage W2, 11 November 2026): the stage's identifiers in the package check, the package builder and its validator. */
+const SELECTION_COMPATIBILITY_NAMES: Record<string, number> = { ABSENT_MEMBER_WORDS: 2, everyMemberValidated: 3, foundationPresenceBypass: 5, refuseAbsentMembers: 3 }
+const BUILD_PACKAGE_NAMES: Record<string, number> = { FoundationOptionalPackage: 3, FoundationPresenceBypass: 3, foundationPresenceBypass: 2 }
+const VALIDATE_PACKAGE_NAMES: Record<string, number> = { FoundationOptionalPackage: 3, FoundationPresenceBypass: 3, foundationPresenceBypass: 1 }
 const GUIDED_SELECTION_LINES: string[] = [
     'hintsGameProblem?: GameProblemAuthority',
     // Stage W1 (c1): the option gains the treatment's flag; the Coverage-row lenses and their helper.
@@ -403,8 +416,11 @@ test('statically: production cannot reach the option (identifiers, positional ar
     // Stage W1 (a), 11 November 2026: the identifiers of Step 1's Game Problem governing the hints join the scan (the option field, the hints'
     // authority and the consumption record's four fields).
     // Stage W1 (b): the review pathway's K2 result handed in place of a record (the field, its type and its refusal function).
-    const NAMES = new Set(['upstream', 'consumedGameProblem', 'consumed', 'quotaBypass', 'quotaBypassOwnSize', 'UpstreamDecisions', 'step1GameProblemId', 'hintsGameProblem', 'hintsGameProblemId', 'hintsGoverned', 'lensCandidateIds', 'hintsSignals', 'reviewManipulations', 'ReviewManipulations', 'reviewManipulationRefusals', 'reviewPathwayK2EmptySet', 'coverageLenses', 'coverageRowLenses', 'hintsLensesFrom'])
-    const POSITION: Record<string, number> = { selectFor: 6, generateSelection: 3, build: 18 }
+    // Stage W2 (11 November 2026): the switch's checks and the treatment FOUNDATION_PRESENCE_BYPASS (the selector's, the package check's, the
+    // package builder's and validator's TEST-ONLY parameters, fields and helpers, and the review pathway's record of the treatment).
+    const NAMES = new Set(['upstream', 'consumedGameProblem', 'consumed', 'quotaBypass', 'quotaBypassOwnSize', 'UpstreamDecisions', 'step1GameProblemId', 'hintsGameProblem', 'hintsGameProblemId', 'hintsGoverned', 'lensCandidateIds', 'hintsSignals', 'reviewManipulations', 'ReviewManipulations', 'reviewManipulationRefusals', 'reviewPathwayK2EmptySet', 'coverageLenses', 'coverageRowLenses', 'hintsLensesFrom', 'foundationPresenceBypass', 'foundationPresenceBypassed', 'FoundationPresenceBypass', 'FoundationOptionalPackage', 'switchChecks', 'SwitchChecks', 'switchChecksFor', 'wholePool', 'everyMemberValidated', 'refuseAbsentMembers', 'ABSENT_MEMBER_WORDS'])
+    // Stage W2: a fourth argument to the package builder or validator is the treatment's (only the package check may pass it).
+    const POSITION: Record<string, number> = { selectFor: 6, generateSelection: 3, build: 18, buildConstraintPackage: 4, validateConstraintPackage: 4 }
     const named = new Map<string, Map<string, number>>()
     const namedLines = new Map<string, Map<number, string>>()
     const linesOfNamed = (file: string) => [...(namedLines.get(file) ?? new Map<number, string>()).entries()].sort((a, b) => a[0] - b[0]).map(entry => entry[1])
@@ -454,7 +470,7 @@ test('statically: production cannot reach the option (identifiers, positional ar
                 const bare = ts.isIdentifier(callee)
                 if (callName === 'buildActivityUnderAuthorizationRecords') callersOfTheEntry.push(`${name}:${lineOf(node) + 1}`)
                 // `build` is not exported: only a bare call in build-activity.ts is it (`.build(` elsewhere is another object's method).
-                const counted = callName === 'selectFor' || callName === 'generateSelection' || (callName === 'build' && bare && name === 'system/rendering/build-activity.ts')
+                const counted = callName === 'selectFor' || callName === 'generateSelection' || callName === 'buildConstraintPackage' || callName === 'validateConstraintPackage' || (callName === 'build' && bare && name === 'system/rendering/build-activity.ts')
                 if (callName && counted) {
                     const spread = node.arguments.some(argument => ts.isSpreadElement(argument))
                     if (spread || node.arguments.length >= POSITION[callName]) calls.push(`${name} ${callName} ${spread ? 'spread' : node.arguments.length}`)
@@ -492,8 +508,8 @@ test('statically: production cannot reach the option (identifiers, positional ar
         visit(source)
     }
     // The scan sees a positional pass, a spread and a pass by reference, which name no option.
-    scan('probe.ts', `selectFor('A02', null, r, undefined, undefined, u)\ngenerateSelection(i, h, true)\nselectFor(...args)\nconst s = selectFor\nconst x = upstream`)
-    assert.deepEqual(calls.splice(0), ['probe.ts selectFor 6', 'probe.ts generateSelection 3', 'probe.ts selectFor spread'])
+    scan('probe.ts', `selectFor('A02', null, r, undefined, undefined, u)\ngenerateSelection(i, h, true)\nselectFor(...args)\nconst s = selectFor\nconst x = upstream\nbuildConstraintPackage(c, a, t, o)\nvalidateConstraintPackage(a, t, p, o)\nbuildConstraintPackage(c, a, t)`)
+    assert.deepEqual(calls.splice(0), ['probe.ts selectFor 6', 'probe.ts generateSelection 3', 'probe.ts selectFor spread', 'probe.ts buildConstraintPackage 4', 'probe.ts validateConstraintPackage 4'])
     assert.deepEqual(references.splice(0), ['probe.ts selectFor :: const s = selectFor'])
     // ... and each form the name-based checks cannot follow.
     scan(
@@ -533,8 +549,16 @@ test('statically: production cannot reach the option (identifiers, positional ar
     // 7e. None of those forms outside the two files that thread the option (the entry's declaration is in build-activity.ts).
     assert.deepEqual(evasions.filter((e) => !e.startsWith('system/rendering/build-activity.ts ') && !e.startsWith('system/derivation/run-bounded-selection.ts ')), [])
 
-    // 7a. The only calls with an argument in the new position: the threading itself, one per file.
-    assert.deepEqual(calls.sort(), ['system/derivation/run-bounded-selection.ts generateSelection 3', 'system/rendering/build-activity.ts build 18', 'system/rendering/build-activity.ts selectFor 6'])
+    // 7a. The only calls with an argument in the new position: the threading itself, one per file. Stage W2, re-pinned openly: selectFor hands
+    // the selector a fourth argument (was 'generateSelection 3'), the treatment FOUNDATION_PRESENCE_BYPASS; and only the package check passes
+    // the package builder and validator theirs, under that treatment.
+    assert.deepEqual(calls.sort(), [
+        'system/derivation/run-bounded-selection.ts generateSelection 4',
+        'system/rendering/build-activity.ts build 18',
+        'system/rendering/build-activity.ts selectFor 6',
+        'system/test-library/selection-compatibility.ts buildConstraintPackage 4',
+        'system/test-library/selection-compatibility.ts validateConstraintPackage 4',
+    ])
     // 7b. selectFor is passed by reference only as a coverage selector's default, whose type takes two parameters.
     assert.deepEqual(
         [...new Set(references.map(reference => reference.split(' :: ')[0]))],
@@ -547,12 +571,20 @@ test('statically: production cannot reach the option (identifiers, positional ar
     // the selector names only its boolean. Stage W1 (a), 11 November 2026, re-pinned openly: the guided selection hints joins them (the
     // TEST-ONLY `step1GameProblemId` option and the `hintsGameProblem` it returns), and the review pathway's handoff, report and safeguards
     // read the consumption record's new fields (they were not named before because the scan's names did not include those fields).
-    assert.deepEqual([...named.keys()].filter((file) => !file.startsWith(REVIEW_PATHWAY)).sort(), ['system/derivation/run-bounded-selection.ts', 'system/rendering/build-activity.ts', 'system/sport-module/guided-selection.ts', 'system/test-library/generateSelection.ts'])
+    // Stage W2, re-pinned openly: the package builder, its validator and the package check join them (their TEST-ONLY parameters and helpers).
+    assert.deepEqual([...named.keys()].filter((file) => !file.startsWith(REVIEW_PATHWAY)).sort(), ['system/build-constraint-package.ts', 'system/derivation/run-bounded-selection.ts', 'system/rendering/build-activity.ts', 'system/sport-module/guided-selection.ts', 'system/test-library/generateSelection.ts', 'system/test-library/selection-compatibility.ts', 'system/validate-constraint-package.ts'])
     assert.deepEqual([...named.keys()].filter((file) => file.startsWith(REVIEW_PATHWAY)).sort(), ['system/design-reasoning/handoff-report.ts', 'system/design-reasoning/handoff.ts', 'system/design-reasoning/safeguards.ts'])
     // Counted per file (measured 10 November 2026, B1), so a new reference anywhere is a visible change; the selector names none but its boolean.
     const countsOf = (file: string) => Object.fromEntries([...(named.get(file) ?? new Map<string, number>()).entries()].sort((a, b) => a[0].localeCompare(b[0])))
     // Stage W1 (b), re-pinned openly: the selector also names its K2 guard (its call at :1029 and its declaration); was { quotaBypass: 3, quotaBypassOwnSize: 10 }.
-    assert.deepEqual(countsOf('system/test-library/generateSelection.ts'), { quotaBypass: 3, quotaBypassOwnSize: 10, reviewPathwayK2EmptySet: 2 })
+    // Stage W2, re-pinned openly: was { quotaBypass: 3, quotaBypassOwnSize: 10, reviewPathwayK2EmptySet: 2 }; the switch's checks join it
+    // (SwitchChecks, switchChecks, switchChecksFor, wholePool, everyMemberValidated, and the treatment's foundationPresenceBypass); quotaBypass
+    // 3 -> 7 (handed to switchChecksFor and read there), quotaBypassOwnSize 10 -> 9 (the sizes line: the set's own size only).
+    assert.deepEqual(countsOf('system/test-library/generateSelection.ts'), { SwitchChecks: 3, everyMemberValidated: 2, foundationPresenceBypass: 7, quotaBypass: 7, quotaBypassOwnSize: 9, reviewPathwayK2EmptySet: 2, switchChecks: 6, switchChecksFor: 2, wholePool: 6 })
+    // Stage W2: the package check, the package builder and its validator name only the treatment's and the tightening's identifiers.
+    assert.deepEqual(countsOf('system/test-library/selection-compatibility.ts'), SELECTION_COMPATIBILITY_NAMES)
+    assert.deepEqual(countsOf('system/build-constraint-package.ts'), BUILD_PACKAGE_NAMES)
+    assert.deepEqual(countsOf('system/validate-constraint-package.ts'), VALIDATE_PACKAGE_NAMES)
     // Stage W1 (b): the authority REVIEW_PATHWAY_K2 is written only in selectFor's upstream branch; elsewhere it is only read or typed.
     assert.deepEqual(k2Literals.filter((entry) => entry.indexOf(' WRITTEN') >= 0), K2_WRITTEN)
     assert.deepEqual(k2Literals, K2_LITERALS)
@@ -578,19 +610,37 @@ test('statically: production cannot reach the option (identifiers, positional ar
         'upstream ?? undefined,',
         'const observedOnly = upstream ? JSON.stringify(goalSelection) : null',
     ])
-    // The selector's lines: the size rule's own-size bound, the parameter, the guard, the sizes, and the size rule's call.
+    // The selector's lines: the size rule's own-size bound, the parameter, the guard, the sizes, and the size rule's call. Stage W2, re-pinned
+    // openly: the own-size bound admits exactly the set's size (was 'if (nc < 1 || nc > quotaBypassOwnSize) ... expected 1–n'); the sizes are
+    // the set's own only (was '... && ![2, 3, 4].includes(quotaBypassOwnSize) ? [quotaBypassOwnSize, 2, 3, 4] : [2, 3, 4]'); the parameter line
+    // gains a comma ('quotaBypass = false,'); and the switch's checks join (the pool's cap, the enumeration's field and its two reads, the
+    // package check's options, the treatment's parameter, SwitchChecks and switchChecksFor).
     assert.deepEqual(linesOf('system/test-library/generateSelection.ts'), [
+        'wholePool = false',
+        'for (const r of wholePool ? byBucket[bucket] : byBucket[bucket].slice(0, BOUNDED_SEARCH_TOP_CONSTRAINTS_PER_BUCKET)) {',
         'quotaBypassOwnSize: number | null = null',
         'if (quotaBypassOwnSize !== null) {',
-        'if (nc < 1 || nc > quotaBypassOwnSize) throw new Error(`Test Library selection contract violated: under the TEST-ONLY quota bypass expected 1–${quotaBypassOwnSize} constraints, got ${nc}.`)',
-        'quotaBypass = false',
+        'if (nc !== quotaBypassOwnSize) throw new Error(`Test Library selection contract violated: under the TEST-ONLY quota bypass the authorized set is committed whole, ${quotaBypassOwnSize} constraints, got ${nc}.`)',
+        'switchChecks: SwitchChecks',
+        'const { tokens, archetype, archeAffordances, informationIntent, lensCandidatePool, lensScoreById, allConstraints, roleNeedsFromPool, zeroConstraintCommitment, constraintSizes, switchChecks } = ctx',
+        'const constraintCandidatePool = boundedConstraintCandidates(conScored, allConstraints, switchChecks.wholePool)',
+        '...switchChecks.packageCheck,',
+        'quotaBypass = false,',
+        'foundationPresenceBypass = false',
         // Stage W1 (b): the zero branch admits K2's empty set (and the guard below throws on a K2 pool with any candidate).
         'const authorizesNone = (recordBacked || reviewPathwayK2EmptySet(constraintPool)) && constraintPool.candidateIds.length === 0',
         'if (quotaBypass && !(recordBacked && constraintPool.constraintPrinciple !== null)) {',
         'const quotaBypassOwnSize = quotaBypass ? constraintPool.candidateIds.length : null',
-        'const constraintSizes = quotaBypassOwnSize !== null && quotaBypassOwnSize >= 1 && ![2, 3, 4].includes(quotaBypassOwnSize) ? [quotaBypassOwnSize, 2, 3, 4] : [2, 3, 4]',
+        'const constraintSizes = quotaBypassOwnSize !== null && quotaBypassOwnSize >= 1 ? [quotaBypassOwnSize] : [2, 3, 4]',
+        'const switchChecks = switchChecksFor(quotaBypass, foundationPresenceBypass)',
+        'switchChecks,',
         'assertSelectionContract(bestLensCombo, bestConCombo, zeroConstraintCommitment, quotaBypassOwnSize)',
         'function reviewPathwayK2EmptySet(pool: ConstraintPoolAccount): boolean {',
+        'type SwitchChecks = { wholePool: boolean; packageCheck: { everyMemberValidated?: true; foundationPresenceBypass?: true } }',
+        'function switchChecksFor(quotaBypass: boolean, foundationPresenceBypass: boolean): SwitchChecks {',
+        "if (foundationPresenceBypass && !quotaBypass) throw new Error('TEST-ONLY: FOUNDATION_PRESENCE_BYPASS is honoured only under the quota bypass (the switch), with every selected member validated')",
+        'if (!quotaBypass) return { wholePool: false, packageCheck: {} }',
+        'return { wholePool: true, packageCheck: { everyMemberValidated: true, ...(foundationPresenceBypass ? { foundationPresenceBypass: true as const } : {}) } }',
     ])
 
     // Registered.

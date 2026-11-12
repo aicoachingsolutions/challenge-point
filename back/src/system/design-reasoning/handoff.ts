@@ -142,9 +142,11 @@ export interface StandInInput {
  * (`k2`, word indexes of a ruling); the draft store is then read without its records. Refused beside the size-rule bypass, a TEST-ONLY
  * record, or any manipulation with a relationship (placed or entering by the record route). Since stage W1 (c1), GP_COVERAGE_LENSES acts
  * on the request, only beside CONSUMED_STEPS: the chain's lens candidates and signal groups taken from Step 1's Game Problem Coverage row in
- * both branches (`ChainRequest.consume.coverageLenses`); a measurement treatment, never the consumption's default.
+ * both branches (`ChainRequest.consume.coverageLenses`); a measurement treatment, never the consumption's default. Since stage W2 (11 November
+ * 2026), FOUNDATION_PRESENCE_BYPASS acts on the request, only beside SIZE_RULE_BYPASS: the package check need find no foundation member (our
+ * classification of foundation presence as a quota, reversible by removing it; every selected member is still validated under the switch).
  */
-export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION', 'SIZE_RULE_BYPASS', 'K2_RETAIN_FORM', 'GP_COVERAGE_LENSES'] as const
+export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION', 'SIZE_RULE_BYPASS', 'K2_RETAIN_FORM', 'GP_COVERAGE_LENSES', 'FOUNDATION_PRESENCE_BYPASS'] as const
 
 export interface TreatmentInput {
     id: string
@@ -446,6 +448,8 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
         }
         // The safeguards slice (DESIGN-9 section 4): the size-rule bypass and the record route exist only on a consuming run.
         if (ofKind('SIZE_RULE_BYPASS').length > 1 || (ofKind('SIZE_RULE_BYPASS').length && !ofKind('CONSUMED_STEPS').length)) errors.push(`${at}: SIZE_RULE_BYPASS is declared at most once, and only beside CONSUMED_STEPS (the record route)`)
+        // Stage W2 (E3): foundation presence bypassed, once, only under the switch (where every selected member is validated).
+        if (ofKind('FOUNDATION_PRESENCE_BYPASS').length > 1 || (ofKind('FOUNDATION_PRESENCE_BYPASS').length && !ofKind('SIZE_RULE_BYPASS').length)) errors.push(`${at}: FOUNDATION_PRESENCE_BYPASS is declared at most once, and only beside SIZE_RULE_BYPASS (the switch)`)
         for (const m of manipulations.filter((x) => x.entersBy !== undefined)) {
             if (m.entersBy !== 'RECORD' || !ofKind('CONSUMED_STEPS').length || !isObject(m.relationship)) errors.push(`${at}: manipulation ${String(m.id)} enters by the record route (entersBy RECORD) only on a run that consumes Steps 1 and 2, on a TEST-ONLY relationship stand-in`)
         }
@@ -603,6 +607,8 @@ export interface ChainRequest {
         k2?: { basis: 'K2_REVIEW_ONLY'; set: string[]; rulingRef: string; rule: string; limit: string; cited: string; treatmentId: string }
         /** Present (true) only where the case declares GP_COVERAGE_LENSES (stage W1 (c1)): the lenses and signal groups from Step 1's Coverage row. */
         coverageLenses?: true
+        /** Present (true) only where the case declares FOUNDATION_PRESENCE_BYPASS (stage W2, E3), always beside `sizeRuleBypass`. */
+        foundationPresenceBypass?: true
     }
     /**
      * Present only where a consuming case names manipulations that enter by the record route (`ProposedManipulation.entersBy`): their ids. The
@@ -744,6 +750,8 @@ export interface ChainAnswer {
         reviewManipulations: { basis: string; set: string[]; rule: string; limit: string; cited: string } | null
         /** Stage W1 (c1): where the lens candidates came from (the governed hints, or Step 1's Coverage row under GP_COVERAGE_LENSES). */
         hintsLensesFrom: string
+        /** Stage W2 (E3): present (true) only where the build's account records FOUNDATION_PRESENCE_BYPASS handed on. */
+        foundationPresenceBypassed?: true
         /** True where the hook ran and only observed; null where it never ran (the selection returned nothing). */
         selectionObservedOnly: boolean | null
         draftStatus: string | null
@@ -1203,6 +1211,8 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
             ...(c.testOnlyTreatments.some((t) => t.kind === 'SIZE_RULE_BYPASS') ? { sizeRuleBypass: true as const } : {}),
             // Stage W1 (c1): the Coverage-row lenses, only where the case declares them.
             ...(c.testOnlyTreatments.some((t) => t.kind === 'GP_COVERAGE_LENSES') ? { coverageLenses: true as const } : {}),
+            // Stage W2 (E3): foundation presence bypassed, only where the case declares it (the validator holds it beside the switch).
+            ...(c.testOnlyTreatments.some((t) => t.kind === 'FOUNDATION_PRESENCE_BYPASS') ? { foundationPresenceBypass: true as const } : {}),
         }
         // Stage W1 (b): K2's result in place of a per-goal record, only where the case declares it: the empty set and K2's words, as data.
         const k2 = c.testOnlyTreatments.find((t) => t.kind === 'K2_RETAIN_FORM')

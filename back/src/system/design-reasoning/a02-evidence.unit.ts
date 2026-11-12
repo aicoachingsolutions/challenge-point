@@ -384,27 +384,59 @@ const A01_END = S.a01Hash()
 
 const SELECTOR_FILE = 'generateSelection.ts'
 const SELECTOR_PATH = path.join(HERE, '..', 'test-library', SELECTOR_FILE)
+/**
+ * Re-pinned openly in stage W2 (11 November 2026): every place renumbered by the stage's hunks above it (700-702 -> 704-705, 715-718 ->
+ * 718-721, 784-785 -> 787-790, 798 -> 803, 835 -> 840, 885-895 -> 891-906, 1031-1037 -> 1040-1048, 1061 -> 1072-1073, 1083 -> 1095); two
+ * reworded for what the switch now does (the size rule admits exactly the set's size, was 1 up to it; the sizes tried are the set's own only,
+ * were 2, 3, 4 and the set's own); and the stage's places added: the pool searched whole (662-667, 685, 836), the package check's options
+ * (852-853), the treatment's parameter (in 891-906) and SwitchChecks (1213-1232).
+ */
 const SELECTOR_HUNKS: Array<{ lines: string; at: number; holds: string; what: string }> = [
-    { lines: '700-702', at: 702, holds: 'quotaBypassOwnSize: number | null = null', what: 'the size rule\'s function takes the authorized set\'s own size, null unless the switch is on' },
-    { lines: '715-718', at: 715, holds: 'if (quotaBypassOwnSize !== null) {', what: 'given that size, the size rule admits 1 up to it instead of 2 to 4 (the first of the two places the size rule lives)' },
-    { lines: '784-785', at: 785, holds: 'constraintSizes: number[]', what: 'the enumeration takes the list of sizes it tries' },
-    { lines: '798', at: 798, holds: 'constraintSizes } = ctx', what: 'the enumeration reads that list' },
-    { lines: '835', at: 835, holds: 'for (const conSize of constraintSizes) {', what: 'the enumeration tries the listed sizes instead of the fixed 2, 3 and 4 (the second place)' },
-    { lines: '885-895', at: 895, holds: 'quotaBypass = false', what: 'the selector takes the switch, off unless a caller passes it' },
-    { lines: '1031-1037', at: 1033, holds: 'if (quotaBypass && !(recordBacked && constraintPool.constraintPrinciple !== null)) {', what: 'the switch is honoured only for an evaluated authorization record and throws for any other pool; under it the sizes tried are 2, 3, 4 and the set\'s own size' },
-    { lines: '1061', at: 1061, holds: 'constraintSizes,', what: 'the sizes are handed to the enumeration' },
-    { lines: '1083', at: 1083, holds: 'assertSelectionContract(bestLensCombo, bestConCombo, zeroConstraintCommitment, quotaBypassOwnSize)', what: 'the own size is handed to the size rule' },
+    { lines: '662-667', at: 666, holds: 'wholePool = false', what: 'the bounded search over constraints takes whether to search the pool whole, false unless the switch is on (stage W2)' },
+    { lines: '685', at: 685, holds: 'wholePool ? byBucket[bucket] : byBucket[bucket].slice(0, BOUNDED_SEARCH_TOP_CONSTRAINTS_PER_BUCKET)', what: 'searched whole, its cap of 2 per role is not applied' },
+    { lines: '704-705', at: 705, holds: 'quotaBypassOwnSize: number | null = null', what: 'the size rule\'s function takes the authorized set\'s own size, null unless the switch is on' },
+    { lines: '718-721', at: 718, holds: 'if (quotaBypassOwnSize !== null) {', what: 'given that size, the size rule admits exactly it instead of 2 to 4 (the first of the two places the size rule lives; the set whole, stage W2)' },
+    { lines: '787-790', at: 788, holds: 'constraintSizes: number[]', what: 'the enumeration takes the list of sizes it tries, and the switch\'s checks (stage W2)' },
+    { lines: '803', at: 803, holds: 'constraintSizes, switchChecks } = ctx', what: 'the enumeration reads them' },
+    { lines: '836', at: 836, holds: 'boundedConstraintCandidates(conScored, allConstraints, switchChecks.wholePool)', what: 'the enumeration searches the record\'s pool whole under the switch' },
+    { lines: '840', at: 840, holds: 'for (const conSize of constraintSizes) {', what: 'the enumeration tries the listed sizes instead of the fixed 2, 3 and 4 (the second place)' },
+    { lines: '852-853', at: 853, holds: '...switchChecks.packageCheck,', what: 'the package check receives the switch\'s options: every selected member validated and, under its treatment, no foundation presence; nothing without the switch' },
+    { lines: '891-906', at: 903, holds: 'quotaBypass = false,', what: 'the selector takes the switch, off unless a caller passes it, and (stage W2) the treatment FOUNDATION_PRESENCE_BYPASS, off unless a caller passes it' },
+    { lines: '1040-1048', at: 1043, holds: 'if (quotaBypass && !(recordBacked && constraintPool.constraintPrinciple !== null)) {', what: 'the switch is honoured only for an evaluated authorization record and throws for any other pool; under it the only size tried is the set\'s own, and the switch\'s checks are made (the treatment refused without the switch)' },
+    { lines: '1072-1073', at: 1072, holds: 'constraintSizes,', what: 'the sizes and the switch\'s checks are handed to the enumeration' },
+    { lines: '1095', at: 1095, holds: 'assertSelectionContract(bestLensCombo, bestConCombo, zeroConstraintCommitment, quotaBypassOwnSize)', what: 'the own size is handed to the size rule' },
+    { lines: '1213-1232', at: 1227, holds: 'type SwitchChecks = ', what: 'what the switch adds (the set whole, the pool whole, every selected member validated) and the treatment (no foundation presence), and the treatment refused without the switch (stage W2)' },
+]
+/**
+ * Stage W2 (11 November 2026): the places of the selector's package check, and of the package builder and validator it calls, that the switch
+ * reaches (every selected member validated) and the treatment FOUNDATION_PRESENCE_BYPASS reaches (no foundation member required), each held to
+ * its file's text. Only the package check passes them (the static test of upstream-consumption.unit.ts pins it); without them each reads every
+ * production package exactly as before.
+ */
+const PACKAGE_HUNKS: Array<{ file: string; lines: string; at: number; holds: string; what: string }> = [
+    { file: 'test-library/selection-compatibility.ts', lines: '25-41', at: 32, holds: 'everyMemberValidated?: true', what: 'the package check takes two TEST-ONLY options, every selected member validated and no foundation presence, and names the words of the tightening\'s refusal' },
+    { file: 'test-library/selection-compatibility.ts', lines: '110-123', at: 111, holds: 'if (input.foundationPresenceBypass && !input.everyMemberValidated) throw', what: 'the treatment only with the tightening (refused otherwise); under it the package built and validated without the foundation clause, then every member\'s presence checked' },
+    { file: 'test-library/selection-compatibility.ts', lines: '127-128', at: 128, holds: 'if (input.everyMemberValidated) refuseAbsentMembers(', what: 'without the treatment, under the switch only, every member\'s presence checked after the package\'s own checks' },
+    { file: 'test-library/selection-compatibility.ts', lines: '137-145', at: 141, holds: 'function refuseAbsentMembers(', what: 'the tightening: a selected constraint absent from the checked package is refused, named' },
+    { file: 'build-constraint-package.ts', lines: '349-350', at: 350, holds: 'foundation: ConstraintSelectionCandidate | undefined,', what: 'the exchange builder tolerates an absent foundation (read only into the overlay\'s list, which skips it)' },
+    { file: 'build-constraint-package.ts', lines: '606-629', at: 623, holds: 'testOnly: FoundationPresenceBypass): FoundationOptionalPackage', what: 'the treatment\'s type and the builder\'s TEST-ONLY fourth parameter; three arguments return the package as before' },
+    { file: 'build-constraint-package.ts', lines: '635', at: 635, holds: 'if (!foundation && testOnly?.foundationPresenceBypass !== true) {', what: 'the foundation clause, not applied under the treatment' },
+    { file: 'build-constraint-package.ts', lines: '651-654', at: 651, holds: 'foundation ? [foundation.constraint._id] : []', what: 'the shaping and consequence picks exclude the foundation only where one was picked' },
+    { file: 'validate-constraint-package.ts', lines: '2', at: 2, holds: 'import type { FoundationOptionalPackage, FoundationPresenceBypass }', what: 'a type-only import of the treatment\'s types' },
+    { file: 'validate-constraint-package.ts', lines: '302-313', at: 307, holds: 'testOnly: FoundationPresenceBypass): void', what: 'the validator\'s TEST-ONLY fourth parameter; three arguments validate as before' },
+    { file: 'validate-constraint-package.ts', lines: '333', at: 333, holds: 'if (!constraintPackage.foundation && testOnly?.foundationPresenceBypass !== true) {', what: 'the foundation clause, not applied under the treatment; every other check unchanged' },
 ]
 /**
  * Stage W1 (b), 11 November 2026: the selector's places for the review pathway's K2 result, disclosed apart from the switch (they are not the
  * switch), each held to the file's text. No production pool carries REVIEW_PATHWAY_K2 (the static test of upstream-consumption.unit.ts pins
  * that selectFor's upstream branch alone writes it), so each reads every production pool exactly as before.
  */
+// Stage W2, re-pinned openly (renumbered by the stage's hunks above them): 1029 -> 1039 (its text's :1033 -> :1043), 1186-1199 -> 1198-1211.
 const K2_SELECTOR_HUNKS: Array<{ lines: string; at: number; holds: string; what: string }> = [
     { lines: '152', at: 152, holds: 'constraintAuthority: authority ? authority.authority : (\'VOCABULARY_POOL\' as const),', what: 'the pool\'s authority is read from the hint (AUTHORIZATION_RECORD for every production hint), so K2\'s is never relabelled' },
     { lines: '168', at: 168, holds: 'source: authority ? authority.authority : \'GOAL_CANDIDATES\',', what: 'the pool\'s source likewise' },
-    { lines: '1029', at: 1029, holds: 'const authorizesNone = (recordBacked || reviewPathwayK2EmptySet(constraintPool)) && constraintPool.candidateIds.length === 0', what: 'the zero branch admits K2\'s result, as an empty set only (the quota bypass stays record-only, :1033)' },
-    { lines: '1186-1199', at: 1193, holds: 'function reviewPathwayK2EmptySet(pool: ConstraintPoolAccount): boolean {', what: 'the guard: false for every other pool, true for K2\'s empty set, and it throws for a K2 pool with any candidate (K2 authorizes no manipulation)' },
+    { lines: '1039', at: 1039, holds: 'const authorizesNone = (recordBacked || reviewPathwayK2EmptySet(constraintPool)) && constraintPool.candidateIds.length === 0', what: 'the zero branch admits K2\'s result, as an empty set only (the quota bypass stays record-only, :1043)' },
+    { lines: '1198-1211', at: 1205, holds: 'function reviewPathwayK2EmptySet(pool: ConstraintPoolAccount): boolean {', what: 'the guard: false for every other pool, true for K2\'s empty set, and it throws for a K2 pool with any candidate (K2 authorizes no manipulation)' },
 ]
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -417,7 +449,8 @@ const formName = (id: string) => String(k.sportModule.game_forms.find((f) => cel
 const CAR_NAMES = carRequirementNames(k)
 /** An exact identifier, or (family) every identifier beginning with it. */
 const KEY: Array<{ id: string; family?: boolean; means: string }> = [
-    ...['A01', 'A02', 'TA02'].map((id) => ({ id, means: `the Learning Goal '${goalName(id)}' (the planning model)` })),
+    // Stage W2: the other goals whose production selections item 4 measures.
+    ...['A01', 'A02', 'TA02', 'A03', 'A04', 'A05', 'A06', 'D01', 'D02', 'TA01', 'TD01', 'TD02'].map((id) => ({ id, means: `the Learning Goal '${goalName(id)}' (the planning model)` })),
     ...['GP-015', 'GP-002', 'GP-001'].map((id) => ({ id, means: `the Game Problem '${gpName(id)}' (the Game Problem library)` })),
     ...['GF2', 'GF3', 'GF7'].map((id) => ({ id, means: `the Game Form '${formName(id)}' (the sport module, a DRAFT module whose Game Problem cells we restate as CANDIDATE)` })),
     ...['RPC-002', 'RPC-003'].map((id) => ({ id, means: `the Representative Performance Context '${nameOfContext(id)}' (the context library)` })),
@@ -442,7 +475,7 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'TA02-D', means: 'the TA02 diagnostic, as A02-D (the reuse comparison)' },
     { id: 'L1', means: 'the legacy route: A02 on the production records, nothing consumed (the route the production chain takes)' },
     { id: 'L2', means: 'the chain\'s own route: A02 with our TEST-ONLY draft store (our DRAFT record and our restatement), nothing consumed, nothing placed' },
-    { id: 'S4-', family: true, means: 'a run of item 4: manipulations entered only through the DRAFT record\'s authorized set (NP Neutral Player, WZA Wide Zone Advantage, TR Turnover Reward, CDC Central Density Condition, IR Interception Reward; /no-bypass: without the size-rule bypass; @A02-D: on the diagnostic base A02-D; ~reversed, ~neutral: under a reworded goal, as A02-2~)' },
+    { id: 'S4-', family: true, means: 'a run of item 4: manipulations entered only through the DRAFT record\'s authorized set (NP Neutral Player, WZA Wide Zone Advantage, TR Turnover Reward, CDC Central Density Condition, IR Interception Reward; /no-bypass: without the switch, the size-rule bypass; /foundation-kept: under the switch without FOUNDATION_PRESENCE_BYPASS, its reversal arm; @A02-D: on the diagnostic base A02-D; ~reversed, ~neutral: under a reworded goal, as A02-2~)' },
     { id: 'OD-', family: true, means: 'an open disconnection the safeguards detect, listed with its measured evidence in appendix B; printed as open, never as a pass' },
     { id: 'TT-', family: true, means: 'a TEST-ONLY treatment, labelled where it enters (appendix A and appendix D)' },
     { id: 'W-DROPS-UPSTREAM', means: 'a control of item 3: A02-0 under a reworded goal, with a TEST-ONLY wrapper that drops the decisions handed to the chain' },
@@ -456,6 +489,12 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'K2', means: 'the K2 wording we proposed (retaining a basic Game Form), approved by Christian for review-only use (received 7 November 2026, first reply); under it the review pathway proposes no manipulation where none has an authorized basis (appendix D, 5. Manipulations); quoted in item 5' },
     { id: 'E5', means: 'Christian\'s E5, design authorization (received 3 November 2026); quoted in item 5' },
     { id: 'W1', means: 'stage W1 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 11 November 2026: (a) Step 1\'s Game Problem governs the chain\'s lens hints and matched signals on the isolated pathway; (b) the review pathway\'s K2 result is consumed in place of a per-goal authorization record; (c1) the TEST-ONLY treatment GP_COVERAGE_LENSES, both lens arms measured' },
+    { id: 'W2', means: 'stage W2 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 11 November 2026: quotas against justified validation; under the TEST-ONLY switch the authorized set is taken whole, its pool uncapped and every selected member validated, and foundation presence is bypassed only under FOUNDATION_PRESENCE_BYPASS' },
+    { id: 'FOUNDATION_PRESENCE_BYPASS', means: 'a TEST-ONLY treatment (stage W2), declared beside the switch on the quota runs: a package need hold no foundation (structure-role) member; our classification of foundation presence as a quota, which Christian can reverse by its removal (its reversal arm, /foundation-kept, is kept beside it)' },
+    { id: 'MEMBER_PRESENCE', means: 'a selection check added under the switch (stage W2, a tightening): a set any member of which is absent from the checked package (it holds one member per role, and drops a consequence scoring 12 or less) is refused, never committed unvalidated' },
+    { id: 'PACKAGE_OTHER', means: 'the other package checks of the selection (rows h-j, l-n, p: a one-sided package, vague language, compliance-heavy members and the like)' },
+    { id: 'PACKAGE_ROW_K', means: 'the selection check that each member of a package supports the selected affordance tag group (row k)' },
+    { id: 'Q-a1', means: 'our question to Christian (stage W2): may an authorization record ever be a menu to choose among, and on what learning-design basis; until it is answered the set is taken whole, and a strict subset built reads UNAUTHORIZED_SOURCE' },
     { id: 'GP_COVERAGE_LENSES', means: 'a TEST-ONLY treatment (stage W1 (c1)), never the default: the chain\'s lens candidates and signal groups taken from Step 1\'s Game Problem Coverage row in both branches, so they no longer follow the wording' },
     { id: 'CV-015', means: 'the sport module\'s Coverage row for GP-015: the candidate knowledge it records for that Game Problem (its lenses read under GP_COVERAGE_LENSES)' },
     { id: 'Q-a2', means: 'our question to Christian, open since 10 November 2026: whether the kept checks that read lenses should read the wording\'s top three, any combination of the Game Problem\'s lenses, or every combination' },
@@ -471,7 +510,7 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'VOCABULARY_POOL', means: 'the constraints\' authority the engine records where no authorization record governs: the goal\'s own candidate constraints (from its Game Problem\'s Coverage row, or the wording), which no record authorizes; nothing is drawn from outside them' },
     { id: 'ENGINE_LENS', means: 'an affordance lens the engine scores from the goal\'s wording: an engine input, not knowledge' },
     { id: 'NO_COMPATIBLE_COMBINATION', means: 'the selector\'s refusal: no combination of lenses and constraints passed its checks' },
-    { id: 'FOUNDATION_CLAUSE', means: 'the selection check that a package holds a foundation constraint (with its keyword threshold)' },
+    { id: 'FOUNDATION_CLAUSE', means: 'the selection check that a non-empty package holds a foundation constraint (its keyword threshold decides which structure member is picked); since stage W2 bypassed only under FOUNDATION_PRESENCE_BYPASS' },
     { id: 'PACKAGE_ROW_O', means: 'the selection check that a package shows a clear relationship to the selected affordance (row o)' },
     { id: 'CONSUMED', means: 'a verdict: the value equals the upstream one and the chain\'s own record shows the decision was made from it (the forms its scorer was handed; the record\'s pool)' },
     { id: 'CARRIED_NOT_READ', means: 'a verdict: the chain carries the upstream value as a record that no decision of the chain reads (a detected disconnection, never a pass, never consumption)' },
@@ -571,8 +610,6 @@ const disposition = (id: string) => {
 const verdictsOf = (findings: Finding[], row: string) => findings.filter((f) => f.row === row).map((f) => f.verdict)
 /** The experiment runs that commit a lone set of one manipulation under the size-rule bypass: those the switch's removal would refuse (NF-02). */
 const LONE_RUNS = S.EXPERIMENT_RUNS.filter((id) => S.at(id).result.consumption?.sizeRuleBypassed === true && (S.at(id).run.chain?.constraints ?? []).length === 1)
-/** The lone runs item 4's floor rests on: the reworded runs' Neutral Player alone (OD-WORDING-FLIP's runs without Turnover Reward). */
-const FLOOR_RUNS = (S.OPEN_DISCONNECTIONS.find((e) => e.id === 'OD-WORDING-FLIP')?.runs ?? []).map((id) => id.split('+TR').join(''))
 /**
  * RC1-N3: the runs whose clause reads CARRIED_UNDER_TREATMENT and whose later refusal names one of that clause's items by its value path
  * (conditions[c:<contract>:<item>]), not as a cited line: the verdict, read from the lines a refusal cites, keeps the carriage verdict.
@@ -615,15 +652,19 @@ function bodyLines(): string[] {
     add(`How each item is told, as Christian asked, ${cite('A02-10NOV-REPORT', 7)}: IMPLEMENTED AND TESTED (what the code does, measured by a registered test of this build); OPEN (unresolved, or detected as an open disconnection: never a pass); PROPOSALS (ours, for Christian's decision); ASSUMPTIONS (ours, each labelled where it enters); ECOLOGICAL SUITABILITY (not established by any run).`)
     add('')
     add('FIRST, FOR CHRISTIAN\'S DECISION: THE CONSTRAINT SELECTOR')
-    add(`- To bypass the numerical quota in the isolated experiment, the constraint selector's source file (${SELECTOR_FILE}) gained one TEST-ONLY parameter, a switch that is off unless a caller passes it, in ${SELECTOR_HUNKS.length} places (each held to the file's text by this report's test):`)
+    add(`- To bypass the numerical quota in the isolated experiment, the constraint selector's source file (${SELECTOR_FILE}) gained one TEST-ONLY parameter, a switch that is off unless a caller passes it, and since stage W2 (11 November 2026) a second, the declared treatment FOUNDATION_PRESENCE_BYPASS, honoured only with the switch, in ${SELECTOR_HUNKS.length} places (each held to the file's text by this report's test):`)
     for (const h of SELECTOR_HUNKS) add(`   ${SELECTOR_FILE}:${h.lines}: ${h.what}`)
+    add(`- Since stage W2, the selector's package check and the package builder and validator it calls gained TEST-ONLY options the selector passes only under the switch, in ${PACKAGE_HUNKS.length} places (each held to its file's text; only the package check passes them):`)
+    for (const h of PACKAGE_HUNKS) add(`   ${h.file.split('/').slice(-1)[0]}:${h.lines}: ${h.what}`)
     add(`- Since stage W1 (b) (11 November 2026), to take the review pathway's K2 result in place of a per-goal authorization record, the same file reads the pool's authority from the hint and admits K2's result only as the empty set, in ${K2_SELECTOR_HUNKS.length} places (each held to the file's text; production never hands it that authority):`)
     for (const h of K2_SELECTOR_HUNKS) add(`   ${SELECTOR_FILE}:${h.lines}: ${h.what}`)
-    add(`- No route, controller or service passes it (a registered static test reads every non-test source file). With it off, the selector's behaviour is compared with main's by the behaviour snapshot, ${RECORD_WORDS.disclosure}.`)
+    add(`- No route, controller or service passes them (a registered static test reads every non-test source file). With them off, the selector's behaviour is compared with main's by the behaviour snapshot, ${RECORD_WORDS.disclosure}.`)
     const npWza = S.at('S4-NP+WZA/no-bypass').result.chain
     const npWzaSame = json([npWza?.outcome, npWza?.stage, npWza?.reasons, S.at('S4-NP+WZA/no-bypass').run.chain?.constraints]) === json([S.at('S4-NP+WZA').result.chain?.outcome, S.at('S4-NP+WZA').result.chain?.stage, S.at('S4-NP+WZA').result.chain?.reasons, S.at('S4-NP+WZA').run.chain?.constraints])
+    // Stage W2, re-pinned openly: the floor for subsets is gone under the switch (E1), so the sentence naming its measurement (FLOOR_RUNS) is
+    // removed; the places deleted would now also restore the cap, unchecked presence and the foundation clause on the switched runs.
     add(
-        `- Question: is a TEST-ONLY parameter that no route passes within ${cite('A02-10NOV-SELECTOR', 0)}? It is removable: deleting the ${SELECTOR_HUNKS.length} places returns the file to main's text. Only the lone Neutral Player runs of item 4 (${LONE_RUNS.join(', ')}) would then change outcome, refused by the size rule as before (S4-NP/no-bypass: refused at ${S.at('S4-NP/no-bypass').result.chain?.stage})${FLOOR_RUNS.length && FLOOR_RUNS.every((id) => LONE_RUNS.indexOf(id) >= 0) ? `, and with ${FLOOR_RUNS.join(' and ')} the measurement behind item 4's floor for subsets would go` : ''}; the other lone sets would be refused by the size rule instead of by the kept checks; and a set of two lies inside 2 to 4, so it selects the same with or without the switch (read from the code, ${SELECTOR_FILE}:1037, and measured on Neutral Player with Wide Zone Advantage: without the switch it is ${npWzaSame ? `selected the same and refused at ${npWza?.stage}, as with it` : 'NOT the same'}).`,
+        `- Question: is a TEST-ONLY parameter that no route passes within ${cite('A02-10NOV-SELECTOR', 0)}? It is removable: deleting the ${SELECTOR_HUNKS.length} places and the package check's ${PACKAGE_HUNKS.length} returns the files to main's text. The lone Neutral Player runs of item 4 (${LONE_RUNS.join(', ')}) would then change outcome, refused by the size rule as before (S4-NP/no-bypass: refused at ${S.at('S4-NP/no-bypass').result.chain?.stage}); the other lone sets, and the sets with no foundation member, would be refused by the size rule or the foundation clause instead of by the kept checks; a set of two or three would again be enumerated with its subsets of 2 or more, its pool capped at 2 per role, a member absent from the checked package unchecked (Neutral Player with Central Density Condition, refused by MEMBER_PRESENCE with the switch, is admitted without it by the production check: item 4); and Neutral Player with Wide Zone Advantage, a set of two that passes every check, selects the same either way (measured: without the switch it is ${npWzaSame ? `selected the same and refused at ${npWza?.stage}, as with it` : 'NOT the same'}).`,
     )
     add('')
     add('KEY (the identifiers the frame and the seven items use; names read from the knowledge files)')
@@ -726,6 +767,8 @@ function bodyLines(): string[] {
         'W-DROPS-UPSTREAM': 'the wrapper that drops the handed decisions (on the DRAFT-record arm)',
         // Stage W1 (b): the DRAFT-record comparison arm, kept beside K2's result.
         ...Object.fromEntries(S.BASE_IDS.map((id) => [`${id}${S.DRAFT_ARM}`, `${id} on the DRAFT-record comparison arm (our record in place of K2's result: K2_NOT_TAKEN)`])),
+        // Stage W2: the reversal arm of FOUNDATION_PRESENCE_BYPASS (foundation presence kept, under the switch).
+        ...Object.fromEntries(S.FOUNDATION_KEPT_SETS.map((name) => [`S4-${name}${S.FOUNDATION_KEPT}`, `${name} with foundation presence kept (the reversal arm of FOUNDATION_PRESENCE_BYPASS: the foundation clause decides)`])),
     }
     const controlWords = (id: string) => {
         assert.ok(CONTROL_WORDS[id], `the control ${id} is described`)
@@ -751,28 +794,38 @@ function bodyLines(): string[] {
     add('4. ZERO, ONE OR MORE MANIPULATIONS WITHOUT THE QUOTA')
     add(`Christian asked: ${cite('A02-10NOV-REPORT', 3)}`)
     const flipRuns = S.OPEN_DISCONNECTIONS.find((e) => e.id === 'OD-WORDING-FLIP')?.runs ?? []
+    // Stage W2, re-pinned openly: the answer said zero and one could be represented where the record authorizes exactly that many, and that the
+    // floor of 2 for subsets stopped the reworded Neutral Player with Turnover Reward; under the switch the set is now taken whole (E1).
+    const selectedWhole = S.W2_RUNS_TABLE.filter(([, n, , by]) => n > 0 && by === 'selected').map(([id]) => id)
     add(
-        `Answer (OURS): zero and one manipulation can be represented without the quota interfering where the record authorizes exactly that many. Where it authorizes two and only one of them passes the kept checks, the floor of 2 that remains for subsets stops the run (${flipRuns.join(', ')}). No manipulation is justified for A02 in anything we hold, so what is shown is the representation, not a justified configuration.`,
+        `Answer (OURS): zero, one, two or three manipulations can be represented without a quota interfering (stage W2, 11 November 2026): under the TEST-ONLY switch the record's authorized set is taken whole, whatever its size, its pool uncapped, every selected member validated, and, under the declared TEST-ONLY treatment FOUNDATION_PRESENCE_BYPASS, with no foundation member required; each run is selected whole (${selectedWhole.join(', ')}) or refused by a named kept check, never by the size rule, foundation presence, the role mix or the bounded search. No manipulation is justified for A02 in anything we hold, so what is shown is the representation, not a justified configuration.`,
     )
     add('Implemented and tested:')
     add(`- Zero: the ${A02_RUN_IDS.length} A02 runs commit the review pathway's K2 result, the empty set (constraints ${[...new Set(A02_RUN_IDS.map((id) => S.verdictOf(id, 'CONSTRAINTS')))].join(', ')}, none built, since stage W1 (b)): representable, not shown to be justified; K2's limit travels with the result into the account, ${cite('HO-07NOV-K2', 2)}. On the DRAFT-record comparison arm the same runs commit our DRAFT record's empty set (${[...new Set(A02_RUN_IDS.map((id) => S.verdictOf(`${id}${S.DRAFT_ARM}`, 'CONSTRAINTS')))].join(', ')}), with the same outcome, stage and reasons; the record's finding is ours: no manipulation has an authorized relationship to RPC-002 and GP-015 in held knowledge.`)
     const sameAsA02 = json(S.at('S4-NP').result.chain?.reasons) === json(a0.chain?.reasons) ? `, on the same lines as ${A02_RUN_IDS[0]}` : ''
     add(`- One: a lone Neutral Player in the DRAFT record's set (a TEST-ONLY relationship stand-in, TEST ASSUMPTION) is selected with the TEST-ONLY size-rule bypass (S4-NP: selected, then refused at ${S.at('S4-NP').result.chain?.stage}${sameAsA02}) and refused without it (S4-NP/no-bypass: refused at ${S.at('S4-NP/no-bypass').result.chain?.stage}, attributed to the size rule): the quota interfered, and the bypass removed only it.`)
-    add(`- One, refused by kept checks: a lone Wide Zone Advantage or Turnover Reward is first refused by the foundation clause; Central Density Condition, alone and with Interception Reward, first by the package relationship check (row o); each attributed by re-running the selector's own exported package check on GF2 and each lens combination, which returns the first reason it meets (${S.QUOTA_REFUSED.map((id) => `${id} ${S.at(id).run.engineRule?.rule}`).join(', ')}).`)
-    add(`- Two: Neutral Player with Wide Zone Advantage is selected whole, then refused at ${S.at('S4-NP+WZA').result.chain?.stage}, and without the switch it selects the same (S4-NP+WZA/no-bypass); with Turnover Reward it is selected, then refused at ${S.at('S4-NP+TR').result.chain?.stage} (Turnover Reward has no contribution contract).`)
+    const ruleWords = (id: string) => {
+        const e = S.at(id).run.engineRule
+        return e ? (e.rules && e.rules.length ? e.rules.join(' and ') : String(e.rule)) : 'none'
+    }
+    add(`- One, refused by kept checks (stage W2, under FOUNDATION_PRESENCE_BYPASS): a lone Wide Zone Advantage is first refused as one-sided (the other package checks), a lone Turnover Reward by row k on one lens combination and row o on the others, Central Density Condition, alone and with Interception Reward, by the package relationship check (row o); each attributed by re-running the selector's own exported package check on GF2 and each lens combination with the run's options, which returns the first reason it meets (${S.QUOTA_REFUSED.map((id) => `${id} ${ruleWords(id)}`).join(', ')}).`)
+    add(`- Two: Neutral Player with Wide Zone Advantage is selected whole, then refused at ${S.at('S4-NP+WZA').result.chain?.stage}, and without the switch it selects the same (S4-NP+WZA/no-bypass); with Turnover Reward it is selected, then refused at ${S.at('S4-NP+TR').result.chain?.stage} (Turnover Reward has no contribution contract); Wide Zone Advantage with Turnover Reward, no foundation member, is selected whole, then refused at ${S.at('S4-WZA+TR').result.chain?.stage}; Neutral Player with Central Density Condition, two members of one role, is refused by ${ruleWords('S4-NP+CDC')} (the package holds one member per role, so Central Density Condition would never be validated).`)
+    add(`- Three: Neutral Player, Wide Zone Advantage and Turnover Reward are selected whole, then refused at ${S.at('S4-NP+WZA+TR').result.chain?.stage}; Neutral Player, Wide Zone Advantage and Central Density Condition are refused whole by ${ruleWords('S4-NP+WZA+CDC')}, while the pair Neutral Player with Wide Zone Advantage passes every lens combination: with the sizes as they were (2 to 4 for a set of three) the selector would have committed that pair, a choice no record made (the negative control of the set whole: such a strict subset built reads UNAUTHORIZED_SOURCE).`)
     add(
-        `- The floor that remains: under the bypass the sizes tried are the set's own size and 2 to 4 (${SELECTOR_FILE}:1037), so a one-manipulation subset of a set of 2 to 4 is never tried. Under the reworded wordings Neutral Player with Turnover Reward is refused at selection (row k on every lens combination), although a lone Neutral Player passes the package check on every one of those lens combinations and is selected as ${flipRuns.map((id) => id.split('+TR').join('')).join(' and ')} (measured).`,
+        `- The set whole (stage W2): under the switch the only size tried is the set's own (${SELECTOR_FILE}:1047), so the scorer chooses the lenses only, never how many or which of the record's constraints. Under the reworded wordings Neutral Player with Turnover Reward is refused at selection by row k on every lens combination (${flipRuns.join(', ')}); a lone Neutral Player, selected as ${flipRuns.map((id) => id.split('+TR').join('')).join(' and ')}, is another authorized set, never a subset the selector may choose.`,
     )
+    add(`- The pool whole: the bounded search's cap of 2 per role is not applied to the record's pool under the switch (a probe on the package check shows a set of three members of one role reaching it whole on every lens combination, and never without the switch). Every selected member validated: a set any member of which is absent from the checked package is refused, never committed unvalidated.`)
     add(`- Every line a manipulation brings rests on its stand-in, class 4 (TEST ASSUMPTION) at best: ${standInLines('S4-NP@A02-D').length} lines for Neutral Player alone, ${standInLines('S4-NP+WZA@A02-D').length} with Wide Zone Advantage (on the diagnostic base, where a game is built).`)
-    add(`- Of the ${DISPOSITION.length} selection checks only the numerical size rule is bypassed; every other check runs and enforces wherever its path is reached. On the empty-set runs the role mix, the package checks and the size rule are not run at all: the zero branch commits the empty set first, and its authority is ${plain(disposition('ZERO_BRANCH').authority)}.`)
+    add(`- Of the ${DISPOSITION.length} selection checks, under the switch the size rule with its floor and the bounded search over constraints are bypassed and every selected member is validated (a tightening); foundation presence is bypassed only under its declared treatment, which Christian can reverse by its removal (the reversal arm, ${S.FOUNDATION_KEPT_SETS.map((name) => `S4-${name}${S.FOUNDATION_KEPT}`).join(', ')}: refused by the foundation clause on every lens combination); every other check runs and enforces wherever its path is reached. On the empty-set runs the role mix, the package checks, the size rule, the bounded search and the tightening are not run at all: the zero branch commits the empty set first, and its authority is ${plain(disposition('ZERO_BRANCH').authority)}.`)
     for (const id of ['ROLE_MIX', 'FOUNDATION_CLAUSE']) {
         const d = disposition(id)
-        add(`- Reported with source and authority, as Christian asked: ${plain(d.check)}: source ${d.where}; origin ${plain(d.origin)}; authority ${plain(d.authority)}; kept and enforced, not treated as canonical.`)
+        add(`- Reported with source and authority, as Christian asked: ${plain(d.check)}: source ${d.where}; origin ${plain(d.origin)}; authority ${plain(d.authority)}; ${d.disposition === 'KEPT_ENFORCED' ? 'kept and enforced' : 'bypassed only under its declared TEST-ONLY treatment (our classification, reversible)'}, not treated as canonical.`)
     }
-    add('- The role mix refuses no set run here (read from the code, not observed: a set of 1 or 2 is enumerated only whole, and its needs are read over the pool: generateSelection.ts:827, :835-836, :590-612).')
-    add('Open: the wording decides one two-manipulation selection (item 3); the floor of 2 for subsets decides it together with row k (above).')
-    add('Proposals (OURS, for Christian\'s decision): whether the TEST-ONLY switch in the constraint selector may stay (the disclosure above); it is removable. Whether a one-manipulation subset of an authorized set of 2 to 4 may be tried, put together with the commit rule\'s open question (commit the whole authorized set, or choose among it); the selector is not changed before that answer.')
-    add('Assumptions (OURS): every manipulation here is a TEST-ONLY stand-in, never knowledge.')
+    add('- The role mix refuses no set run here: under the switch a set is enumerated only whole and its needs are read over the set itself (generateSelection.ts:832, :840-841, :591-613); a registered test pins it over every singleton, pair and triple of the library.')
+    add(`- On the production route (reported only, not changed): the package check holds one member per role and drops a consequence scoring 12 or less, so a selection of four, or of two members of one role, commits a member it never validated; measured on the production selections, ${S.PRODUCTION_ABSENT.length} goals commit such a member (${S.PRODUCTION_ABSENT.map(([goal, absent]) => `${goal}: ${absent}`).join('; ')}).`)
+    add('Open: the wording decides one two-manipulation selection (item 3), by row k alone now that the set is taken whole. Whether a record may ever be a menu to choose among, and on what learning-design basis, is Christian\'s question Q-a1 (until it is answered the set is taken whole).')
+    add('Proposals (OURS, for Christian\'s decision): whether the TEST-ONLY switch in the constraint selector may stay (the disclosure above); it is removable. Our classification of foundation presence as a quota, reversible by removing FOUNDATION_PRESENCE_BYPASS. Whether the production route\'s unvalidated members (above) should be refused as the switch refuses them: a production change, not made here.')
+    add('Assumptions (OURS): every manipulation here is a TEST-ONLY stand-in, never knowledge; foundation presence classified as a quota.')
     add('Ecological suitability: not established: selected means only that the kept checks did not refuse it.')
     add('')
 
@@ -826,7 +879,7 @@ function bodyLines(): string[] {
     add('- The TEST-ONLY option is passed by no route, controller or service (a registered static test reads every non-test source file); with it absent, every one of the 13 Learning Goals builds exactly as the production entry builds it, and A01 with it is identical once its two TEST-ONLY account fields are set aside (registered tests).')
     add('- No production knowledge file holds our restatement of RPC-002 or the DRAFT A02 record, and A02 has no production record (tested).')
     add(`Recorded apart, not in this report: the regression on the committed tree (the type check, the whole suite, the behaviour snapshot against main's baseline, the bundle compared with main), in the evidence folder's regression record (${RECORD_WORDS.item7}).`)
-    add('Open: five bundled files differ from main by TEST-ONLY additions no route passes (the selector\'s are disclosed first, above; the guided selection hints\' one option since stage W1 (a); the authority of the review pathway\'s K2 result in the types since stage W1 (b)); isolation rests on the branch staying unmerged and undeployed.')
+    add('Open: eight bundled files differ from main by TEST-ONLY additions no route passes (the selector\'s are disclosed first, above; the guided selection hints\' one option since stage W1 (a); the authority of the review pathway\'s K2 result in the types since stage W1 (b); the package check, the package builder and its validator since stage W2); isolation rests on the branch staying unmerged and undeployed.')
     add('Proposals: none.')
     add('Assumptions (OURS): none beyond the TEST-ONLY option itself, which no route passes.')
     add('Ecological suitability: not addressed: an unchanged application is an engineering claim.')
@@ -879,6 +932,8 @@ function evidenceOf(a02Results: HandoffResult[], ta02Results: HandoffResult[]): 
         standing: 'TEST-ONLY review evidence; isolated; not deployed; not merged; not an authorization. Engineering evidence only: no run establishes ecological suitability or representative sufficiency.',
         selectorHunks: SELECTOR_HUNKS.map((h) => ({ file: SELECTOR_FILE, lines: h.lines, what: h.what })),
         k2SelectorHunks: K2_SELECTOR_HUNKS.map((h) => ({ file: SELECTOR_FILE, lines: h.lines, what: h.what })),
+        // Stage W2: the package check's, the builder's and the validator's places.
+        packageHunks: PACKAGE_HUNKS.map((h) => ({ file: h.file.split('/').slice(-1)[0], lines: h.lines, what: h.what })),
         a01: { before: S.A01_BEFORE, afterSafeguards: S.A01_AFTER, afterTa02: A01_END },
         comparison: COMPARISON,
         reuseFinding: REUSE_FINDING,
@@ -1066,15 +1121,30 @@ test(`the report: the constraint selector disclosed first, each of its places he
     const namingK2 = source.map((l, n) => ({ n: n + 1, l })).filter((x) => x.l.indexOf('REVIEW_PATHWAY_K2') >= 0 || x.l.indexOf('reviewPathwayK2EmptySet') >= 0 || x.l.indexOf('authority.authority') >= 0)
     assert.ok(namingK2.length > 0)
     assert.deepEqual(namingK2.filter((x) => !insideK2(x.n)).map((x) => x.n), [], 'a line naming K2 outside the disclosed places')
-    // Every line of the selector naming the switch, the own size or the sizes list lies inside a disclosed place (measured: none outside).
+    // Every line of the selector naming the switch, the own size or the sizes list lies inside a disclosed place (measured: none outside). Stage
+    // W2: also the switch's checks and the treatment (switchChecks, SwitchChecks, wholePool, everyMemberValidated, foundationPresenceBypass).
     const inside = (n: number) =>
         SELECTOR_HUNKS.some((h) => {
             const [from, to] = h.lines.split('-').map(Number)
             return n >= from && n <= (to ?? from)
         })
-    const naming = source.map((l, n) => ({ n: n + 1, l })).filter((x) => x.l.indexOf('quotaBypass') >= 0 || x.l.indexOf('constraintSizes') >= 0)
+    const SWITCH_WORDS = ['quotaBypass', 'constraintSizes', 'switchChecks', 'SwitchChecks', 'wholePool', 'everyMemberValidated', 'foundationPresenceBypass']
+    const naming = source.map((l, n) => ({ n: n + 1, l })).filter((x) => SWITCH_WORDS.some((w) => x.l.indexOf(w) >= 0))
     assert.ok(naming.length > 0)
     assert.deepEqual(naming.filter((x) => !inside(x.n)).map((x) => x.n), [], 'a line naming the switch outside the disclosed places')
+    // Stage W2: the package check's, the builder's and the validator's places, each held to its file's text, and every line of those files naming
+    // the stage's identifiers inside one of them.
+    for (const h of PACKAGE_HUNKS) {
+        const text = fs.readFileSync(path.join(HERE, '..', h.file), 'utf8').split(/\r?\n/)
+        assert.ok(text[h.at - 1].includes(h.holds), `${h.file}:${h.at} holds ${h.holds}`)
+        assert.ok(lines.includes(`   ${h.file.split('/').slice(-1)[0]}:${h.lines}: ${h.what}`), `${h.file}:${h.lines}`)
+    }
+    const PACKAGE_WORDS = ['everyMemberValidated', 'foundationPresenceBypass', 'FoundationPresenceBypass', 'FoundationOptionalPackage', 'refuseAbsentMembers', 'ABSENT_MEMBER_WORDS']
+    for (const file of [...new Set(PACKAGE_HUNKS.map((h) => h.file))]) {
+        const text = fs.readFileSync(path.join(HERE, '..', file), 'utf8').split(/\r?\n/)
+        const insideOf = (n: number) => PACKAGE_HUNKS.filter((h) => h.file === file).some((h) => n >= Number(h.lines.split('-')[0]) && n <= Number(h.lines.split('-')[1] ?? h.lines))
+        assert.deepEqual(text.map((l, n) => ({ n: n + 1, l })).filter((x) => PACKAGE_WORDS.some((w) => x.l.indexOf(w) >= 0) && !insideOf(x.n)).map((x) => x.n), [], `${file}: a line naming the stage's identifiers outside the disclosed places`)
+    }
     // The key.
     const keyAt = first('KEY (')
     const keyEnd = first('The appendices are the detailed texts')
@@ -1116,11 +1186,11 @@ test(`the report: the constraint selector disclosed first, each of its places he
     const doctored = copy(results)
     delete datedEntries(doctored).find((e) => e.ref.indexOf('A02-10NOV-') === 0)!.entry.dateBasis
     assert.equal(undatedEntries(doctored).length, 1, 'bite: an A02-10NOV-* entry without its date basis is found')
-    // NF-02: the runs the switch's removal would refuse are the lone Neutral Player runs, each committing S4-NP's set (measured), and they hold
-    // item 4's floor measurement.
+    // NF-02: the runs the switch's removal would refuse are the lone Neutral Player runs, each committing S4-NP's set (measured). Stage W2,
+    // re-pinned openly: the assertion that they held item 4's floor measurement (FLOOR_RUNS, ['S4-NP~reversed', 'S4-NP~neutral']) is removed,
+    // because under the switch the set is taken whole (E1) and no floor for subsets remains to be measured.
     assert.deepEqual(LONE_RUNS, ['S4-NP', 'S4-NP@A02-D', 'S4-NP~reversed', 'S4-NP~neutral'])
     for (const id of LONE_RUNS) assert.deepEqual(S.at(id).run.chain?.constraints, S.at('S4-NP').run.chain?.constraints, id)
-    assert.deepEqual(FLOOR_RUNS, ['S4-NP~reversed', 'S4-NP~neutral'])
     // RC1-N3 (documented, not widened): the control clause carried under the treatment and then refused on its item named by its value path
     // (measured), said in item 2; no other clause has such a run.
     assert.deepEqual(['origin', 'progression', 'control'].map((c) => valuePathRefusals(c).map((x) => `${x.id} ${x.stage}`)), [[], [], ['A02-2 communication', 'A02-2~reversed communication', 'A02-2~neutral communication']])
@@ -1173,6 +1243,8 @@ test('the evidence equals what this file generates, generated twice and identica
     for (const d of DISPOSITION) assert.ok(readme.includes(`| ${d.id} | ${d.disposition} |`), `the README's disposition table holds ${d.id}`)
     for (const e of S.OPEN_DISCONNECTIONS) assert.ok(readme.includes(`| ${e.id} |`), `the README lists ${e.id}`)
     for (const h of [...SELECTOR_HUNKS, ...K2_SELECTOR_HUNKS]) assert.ok(readme.includes(`${SELECTOR_FILE}:${h.lines}`), `the README discloses ${SELECTOR_FILE}:${h.lines}`)
+    // Stage W2: the package places too.
+    for (const h of PACKAGE_HUNKS) assert.ok(readme.includes(`${h.file.split('/').slice(-1)[0]}:${h.lines}`), `the README discloses ${h.file}:${h.lines}`)
     // The README's counts are held to the runs (batch A2): the safeguard runs, the restatement's items, and the date of the reply about A02.
     // Batch A3: the lone runs the switch's removal would refuse (NF-02); the first stop and the DRAFT record standing in (RC3-N2); the TA02
     // stop's parallel as the report words it (NF-05). Batch A4, re-pinned openly: the DRAFT record stands in for the review pathway's K2

@@ -4,48 +4,73 @@
  "selectorHunks": [
   {
    "file": "generateSelection.ts",
-   "lines": "700-702",
+   "lines": "662-667",
+   "what": "the bounded search over constraints takes whether to search the pool whole, false unless the switch is on (stage W2)"
+  },
+  {
+   "file": "generateSelection.ts",
+   "lines": "685",
+   "what": "searched whole, its cap of 2 per role is not applied"
+  },
+  {
+   "file": "generateSelection.ts",
+   "lines": "704-705",
    "what": "the size rule's function takes the authorized set's own size, null unless the switch is on"
   },
   {
    "file": "generateSelection.ts",
-   "lines": "715-718",
-   "what": "given that size, the size rule admits 1 up to it instead of 2 to 4 (the first of the two places the size rule lives)"
+   "lines": "718-721",
+   "what": "given that size, the size rule admits exactly it instead of 2 to 4 (the first of the two places the size rule lives; the set whole, stage W2)"
   },
   {
    "file": "generateSelection.ts",
-   "lines": "784-785",
-   "what": "the enumeration takes the list of sizes it tries"
+   "lines": "787-790",
+   "what": "the enumeration takes the list of sizes it tries, and the switch's checks (stage W2)"
   },
   {
    "file": "generateSelection.ts",
-   "lines": "798",
-   "what": "the enumeration reads that list"
+   "lines": "803",
+   "what": "the enumeration reads them"
   },
   {
    "file": "generateSelection.ts",
-   "lines": "835",
+   "lines": "836",
+   "what": "the enumeration searches the record's pool whole under the switch"
+  },
+  {
+   "file": "generateSelection.ts",
+   "lines": "840",
    "what": "the enumeration tries the listed sizes instead of the fixed 2, 3 and 4 (the second place)"
   },
   {
    "file": "generateSelection.ts",
-   "lines": "885-895",
-   "what": "the selector takes the switch, off unless a caller passes it"
+   "lines": "852-853",
+   "what": "the package check receives the switch's options: every selected member validated and, under its treatment, no foundation presence; nothing without the switch"
   },
   {
    "file": "generateSelection.ts",
-   "lines": "1031-1037",
-   "what": "the switch is honoured only for an evaluated authorization record and throws for any other pool; under it the sizes tried are 2, 3, 4 and the set's own size"
+   "lines": "891-906",
+   "what": "the selector takes the switch, off unless a caller passes it, and (stage W2) the treatment FOUNDATION_PRESENCE_BYPASS, off unless a caller passes it"
   },
   {
    "file": "generateSelection.ts",
-   "lines": "1061",
-   "what": "the sizes are handed to the enumeration"
+   "lines": "1040-1048",
+   "what": "the switch is honoured only for an evaluated authorization record and throws for any other pool; under it the only size tried is the set's own, and the switch's checks are made (the treatment refused without the switch)"
   },
   {
    "file": "generateSelection.ts",
-   "lines": "1083",
+   "lines": "1072-1073",
+   "what": "the sizes and the switch's checks are handed to the enumeration"
+  },
+  {
+   "file": "generateSelection.ts",
+   "lines": "1095",
    "what": "the own size is handed to the size rule"
+  },
+  {
+   "file": "generateSelection.ts",
+   "lines": "1213-1232",
+   "what": "what the switch adds (the set whole, the pool whole, every selected member validated) and the treatment (no foundation presence), and the treatment refused without the switch (stage W2)"
   }
  ],
  "k2SelectorHunks": [
@@ -61,13 +86,70 @@
   },
   {
    "file": "generateSelection.ts",
-   "lines": "1029",
-   "what": "the zero branch admits K2's result, as an empty set only (the quota bypass stays record-only, :1033)"
+   "lines": "1039",
+   "what": "the zero branch admits K2's result, as an empty set only (the quota bypass stays record-only, :1043)"
   },
   {
    "file": "generateSelection.ts",
-   "lines": "1186-1199",
+   "lines": "1198-1211",
    "what": "the guard: false for every other pool, true for K2's empty set, and it throws for a K2 pool with any candidate (K2 authorizes no manipulation)"
+  }
+ ],
+ "packageHunks": [
+  {
+   "file": "selection-compatibility.ts",
+   "lines": "25-41",
+   "what": "the package check takes two TEST-ONLY options, every selected member validated and no foundation presence, and names the words of the tightening's refusal"
+  },
+  {
+   "file": "selection-compatibility.ts",
+   "lines": "110-123",
+   "what": "the treatment only with the tightening (refused otherwise); under it the package built and validated without the foundation clause, then every member's presence checked"
+  },
+  {
+   "file": "selection-compatibility.ts",
+   "lines": "127-128",
+   "what": "without the treatment, under the switch only, every member's presence checked after the package's own checks"
+  },
+  {
+   "file": "selection-compatibility.ts",
+   "lines": "137-145",
+   "what": "the tightening: a selected constraint absent from the checked package is refused, named"
+  },
+  {
+   "file": "build-constraint-package.ts",
+   "lines": "349-350",
+   "what": "the exchange builder tolerates an absent foundation (read only into the overlay's list, which skips it)"
+  },
+  {
+   "file": "build-constraint-package.ts",
+   "lines": "606-629",
+   "what": "the treatment's type and the builder's TEST-ONLY fourth parameter; three arguments return the package as before"
+  },
+  {
+   "file": "build-constraint-package.ts",
+   "lines": "635",
+   "what": "the foundation clause, not applied under the treatment"
+  },
+  {
+   "file": "build-constraint-package.ts",
+   "lines": "651-654",
+   "what": "the shaping and consequence picks exclude the foundation only where one was picked"
+  },
+  {
+   "file": "validate-constraint-package.ts",
+   "lines": "2",
+   "what": "a type-only import of the treatment's types"
+  },
+  {
+   "file": "validate-constraint-package.ts",
+   "lines": "302-313",
+   "what": "the validator's TEST-ONLY fourth parameter; three arguments validate as before"
+  },
+  {
+   "file": "validate-constraint-package.ts",
+   "lines": "333",
+   "what": "the foundation clause, not applied under the treatment; every other check unchanged"
   }
  ],
  "a01": {
@@ -684,6 +766,10 @@
     "S4-CDC+IR",
     "S4-NP@A02-D",
     "S4-NP+WZA@A02-D",
+    "S4-NP+CDC",
+    "S4-WZA+TR",
+    "S4-NP+WZA+TR",
+    "S4-NP+WZA+CDC",
     "GP-002",
     "GF7-CELL",
     "A02-2/narrowed",
@@ -737,6 +823,8 @@
     "S4-NP+TR",
     "S4-NP@A02-D",
     "S4-NP+WZA@A02-D",
+    "S4-WZA+TR",
+    "S4-NP+WZA+TR",
     "GP-002",
     "GF7-CELL",
     "A02-2/narrowed",
@@ -760,7 +848,7 @@
   },
   {
    "id": "OD-PACKAGE-LENSES",
-   "what": "after the form is consumed, a kept package check that reads the wording-derived lenses decides the selection (the foundation clause's keyword threshold on the primary lens; row o)",
+   "what": "after the form is consumed, a kept package check that reads the wording-derived lenses decides the selection (row o, row k and the other package checks on the members present, and every selected member validated)",
    "scope": "EXPERIMENT",
    "rows": [
     "SELECTION_OUTCOME"
@@ -773,6 +861,8 @@
     "S4-TR",
     "S4-CDC",
     "S4-CDC+IR",
+    "S4-NP+CDC",
+    "S4-NP+WZA+CDC",
     "S4-WZA~reversed",
     "S4-TR~reversed",
     "S4-CDC~reversed",
@@ -786,12 +876,12 @@
     {
      "run": "S4-WZA",
      "verdict": "ENGINE_RULE_DECIDED",
-     "rule": "FOUNDATION_CLAUSE"
+     "rule": "PACKAGE_OTHER"
     },
     {
      "run": "S4-TR",
      "verdict": "ENGINE_RULE_DECIDED",
-     "rule": "FOUNDATION_CLAUSE"
+     "rule": "PACKAGE_ROW_K+PACKAGE_ROW_O"
     },
     {
      "run": "S4-CDC",
@@ -804,14 +894,24 @@
      "rule": "PACKAGE_ROW_O"
     },
     {
+     "run": "S4-NP+CDC",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "MEMBER_PRESENCE"
+    },
+    {
+     "run": "S4-NP+WZA+CDC",
+     "verdict": "ENGINE_RULE_DECIDED",
+     "rule": "MEMBER_PRESENCE"
+    },
+    {
      "run": "S4-WZA~reversed",
      "verdict": "ENGINE_RULE_DECIDED",
-     "rule": "FOUNDATION_CLAUSE"
+     "rule": "PACKAGE_OTHER"
     },
     {
      "run": "S4-TR~reversed",
      "verdict": "ENGINE_RULE_DECIDED",
-     "rule": "FOUNDATION_CLAUSE"
+     "rule": "PACKAGE_ROW_K"
     },
     {
      "run": "S4-CDC~reversed",
@@ -826,12 +926,12 @@
     {
      "run": "S4-WZA~neutral",
      "verdict": "ENGINE_RULE_DECIDED",
-     "rule": "FOUNDATION_CLAUSE"
+     "rule": "PACKAGE_OTHER"
     },
     {
      "run": "S4-TR~neutral",
      "verdict": "ENGINE_RULE_DECIDED",
-     "rule": "FOUNDATION_CLAUSE"
+     "rule": "PACKAGE_ROW_K"
     },
     {
      "run": "S4-CDC~neutral",
@@ -844,7 +944,7 @@
      "rule": "PACKAGE_ROW_O"
     }
    ],
-   "evidence": "attributed by re-running the exported isSelectionPackageCompatible on GF2 and each of the 4 lens combinations: a lone Wide Zone Advantage or Turnover Reward is first refused by the foundation clause on every combination, Central Density Condition alone and with Interception Reward first by row o (the check returns the first reason it meets; the foundation clause runs before every package row); the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612)"
+   "evidence": "attributed by re-running the exported isSelectionPackageCompatible on GF2 and each of the 4 lens combinations, with the selector's options on the run (under the switch every selected member validated; foundation presence not required under FOUNDATION_PRESENCE_BYPASS): a lone Wide Zone Advantage is first refused as one-sided (the other package checks) on every combination; a lone Turnover Reward by row k on one of the goal's combinations and row o on the other three (row k on every reworded one); Central Density Condition alone and with Interception Reward first by row o; Neutral Player with Central Density Condition, and with Wide Zone Advantage too, by MEMBER_PRESENCE, Central Density Condition absent from the checked package (the check returns the first reason it meets; the members present are checked before every member's presence); the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it)"
   },
   {
    "id": "OD-WORDING-FLIP",
@@ -875,7 +975,7 @@
    "evidence": "the reworded lenses are Line-Breaking, Possession Stability and Space Creation; row k (Turnover Reward does not support the selected affordance tag group) refuses all 4 lens combinations there, 1 of 4 on the goal's own lenses",
    "measured": {
     "before": "the goal's wording: selected on GF2 with Neutral Player and Turnover Reward, then refused at knowledge (the authorized constraint Turnover Reward has no contribution contract)",
-    "after": "the reversed and the neutral wording: refused at selection, NO_COMPATIBLE_COMBINATION on GF2 (row k on every lens combination); lenses none; a lone Neutral Player, which the package check admits on every lens combination of the reworded pool and which commits as S4-NP~reversed and S4-NP~neutral, is never tried: under the bypass the sizes enumerated for a set of 2 are 2 to 4, so the refusal rests on row k together with that floor for subsets"
+    "after": "the reversed and the neutral wording: refused at selection, NO_COMPATIBLE_COMBINATION on GF2 (row k on every lens combination); lenses none; under the switch the authorized set is taken whole (stage W2), so the refusal rests on row k alone: a lone Neutral Player, which the package check admits on every lens combination of the reworded pool and which commits as S4-NP~reversed and S4-NP~neutral, is a different authorized set, never a subset the selector may choose"
    }
   },
   {
@@ -1112,7 +1212,7 @@
   {
    "id": "TOKEN_CHECK",
    "check": "the token check: the wording must hold a non-stopword token",
-   "where": "generateSelection.ts:931-937",
+   "where": "generateSelection.ts:941-947",
    "origin": "3980188, 3 May 2026",
    "disposition": "KEPT_ENFORCED",
    "reported": "wording-keyed: a wording-only change can trigger it",
@@ -1140,8 +1240,8 @@
   {
    "id": "ZERO_BRANCH",
    "check": "the zero branch: an evaluated empty set commits lenses with no constraint",
-   "where": "generateSelection.ts:811-815, :1029-1030",
-   "origin": "1f18a02 (the branch, then switched by a per-record zeroConstraintRuling) and 487dc32 (the general-principle switch, :1030), 15 October 2026; the review pathway's K2 result admitted as an empty set only at :1029 (TEST-ONLY, stage W1 (b), 11 November 2026)",
+   "where": "generateSelection.ts:816-820, :1039-1040",
+   "origin": "1f18a02 (the branch, then switched by a per-record zeroConstraintRuling) and 487dc32 (the general-principle switch, :1040), 15 October 2026; the review pathway's K2 result admitted as an empty set only at :1039 (TEST-ONLY, stage W1 (b), 11 November 2026)",
    "disposition": "KEPT_ENFORCED",
    "reported": null,
    "authority": "Christian's general principle of 15 October 2026 (a constraint is not mandatory unless justified)",
@@ -1153,39 +1253,39 @@
   },
   {
    "id": "SIZE_RULE",
-   "check": "the numerical size rule: 2 to 4 constraints",
-   "where": "generateSelection.ts:719-721 (assertSelectionContract), :835 (the sizes enumerated)",
+   "check": "the numerical size rule: 2 to 4 constraints, and with it the floor of 2 for subsets",
+   "where": "generateSelection.ts:718-724 (assertSelectionContract), :840 (the sizes enumerated), :1046-1047 (the sizes under the switch)",
    "origin": "3980188, 3 May 2026",
-   "disposition": "BYPASSED_SIZE_RULE_ONLY",
-   "reported": "bypassed only under the TEST-ONLY SIZE_RULE_BYPASS treatment (the authorization's section 5); under the bypass the sizes enumerated are the set's own size and 2 to 4, so for a set of 2 to 4 a one-manipulation subset is never tried (the floor of 2 remains for subsets)",
+   "disposition": "BYPASSED_UNDER_SWITCH",
+   "reported": "bypassed only under the TEST-ONLY SIZE_RULE_BYPASS treatment, the switch (the authorization's section 5); since stage W2 (11 November 2026) under the switch the only size tried is the set's own, so the set is taken whole: the floor of 2 for subsets is gone with the rule, and the contract admits exactly that size",
    "authority": "none found; engine rule",
    "readsLenses": false,
    "reads": "nothing of the wording",
    "path": "NON_EMPTY_SET",
    "marks": [],
-   "control": "a lone manipulation is refused without the bypass and selected with it"
+   "control": "a lone manipulation is refused without the switch and selected with it; with the legacy sizes back under the switch (a deliberate break), a passing pair of a triple whose whole fails a kept check is committed and reads UNAUTHORIZED_SOURCE"
   },
   {
    "id": "ROLE_MIX",
    "check": "the role mix",
-   "where": "generateSelection.ts:590-612, applied :839",
-   "origin": "3980188, 3 May 2026 (the rule, :590-612); dc98ecb, 14 October 2026 (its needs read over the goal's pool, :819-827, applied :839)",
+   "where": "generateSelection.ts:591-613, applied :844",
+   "origin": "3980188, 3 May 2026 (the rule, :591-613); dc98ecb, 14 October 2026 (its needs read over the goal's pool, :824-832, applied :844)",
    "disposition": "KEPT_ENFORCED",
-   "reported": "reported with its source and authority (the authorization's section 5); it refuses no set run here: a set of 1 or 2 is enumerated only whole, and its needs are read over the pool (generateSelection.ts:827, :835-836, :590-612)",
+   "reported": "reported with its source and authority (the authorization's section 5); unchanged, and it refuses no set under the switch: there a set is enumerated only whole (stage W2) and its needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613)",
    "authority": "none found for the rule; the pool-relative reading of its needs is our reading of Christian's 14 October ruling (constraints only from the goal's designated candidates), not a ruling on the role mix",
    "readsLenses": true,
-   "reads": "the constraint scores of each lens combination (the wording's tokens and the lens slugs, generateSelection.ts:572-580, :817-827)",
+   "reads": "the constraint scores of each lens combination (the wording's tokens and the lens slugs, generateSelection.ts:572-580, :822-832)",
    "path": "NON_EMPTY_SET",
    "marks": [],
-   "control": "none needed: read from the code, it refuses no set run here (no observer is added to the selector)"
+   "control": "the inertness test (stage W2): every singleton, pair and triple of the library passes whole with its needs read over itself, each member counted compatible; bite: with the library-wide needs a pair is refused"
   },
   {
    "id": "FOUNDATION_CLAUSE",
-   "check": "the foundation clause (with its keyword threshold)",
-   "where": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-   "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
-   "disposition": "KEPT_ENFORCED",
-   "reported": "reported with its source and authority (the authorization's section 5)",
+   "check": "the foundation clause: a non-empty package holds a foundation (structure-role) member",
+   "where": "build-constraint-package.ts:634-641; validate-constraint-package.ts:333-335",
+   "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
+   "disposition": "BYPASSED_UNDER_TREATMENT",
+   "reported": "reported with its source and authority (the authorization's section 5); since stage W2 (11 November 2026) classified by us as a quota (presence required of every non-empty set, so 15 of the 23 library constraints, 9 consequence and 6 hybrid, can never be the one manipulation) and bypassed only under the declared TEST-ONLY treatment FOUNDATION_PRESENCE_BYPASS, which Christian can reverse by its removal; the keyword threshold (build-constraint-package.ts:147-153) still decides whether a present structure member is picked, and one under it is refused by MEMBER_PRESENCE",
    "authority": "none found; engine rule (our own comment calls it not ruled)",
    "readsLenses": true,
    "reads": "the primary lens title (the keyword threshold)",
@@ -1193,12 +1293,28 @@
    "marks": [
     "No compatible foundation constraint was found for archetype"
    ],
-   "control": "a lone shaping or consequence manipulation is refused on every lens combination (attribution)"
+   "control": "without the treatment (the reversal arm, controls) a lone Wide Zone Advantage or Turnover Reward, and the two together, are refused by it on every lens combination (attribution); with it they reach the kept checks"
+  },
+  {
+   "id": "MEMBER_PRESENCE",
+   "check": "every selected member validated: a set any member of which is absent from the checked package is refused (the package holds one member per role, build-constraint-package.ts:163-179, :634-657; a consequence scoring 12 or less is dropped, :657)",
+   "where": "selection-compatibility.ts:121, :128, :137-145; switched on at generateSelection.ts:853 (SwitchChecks, :1213-1232)",
+   "origin": "stage W2, 11 November 2026 (TEST-ONLY)",
+   "disposition": "TIGHTENING_UNDER_SWITCH",
+   "reported": "a tightening, always on under the switch, absent without it; the same hole is open on the production route by construction (a selection of 4, or of two members of one role, commits a member the package never held): reported, not changed",
+   "authority": "our reading of Christian's words of 15 October 2026 (the engine to continue enforcing structural validity) and of 11 November 2026, second reply (justified validation retained): the validation of what is present, applied to every member present",
+   "readsLenses": true,
+   "reads": "the primary and supporting lens titles and tag groups, through each member's score for its role (build-constraint-package.ts:89-161)",
+   "path": "NON_EMPTY_SET",
+   "marks": [
+    "absent from the checked package"
+   ],
+   "control": "two members of one role (Neutral Player with Central Density Condition) are refused by it; without it (a deliberate break) the pair is committed with a member never validated, and the production package check admits it directly"
   },
   {
    "id": "PACKAGE_ROW_O",
    "check": "the package check: a clear relationship to the selected affordance (row o)",
-   "where": "validate-constraint-package.ts:484-493",
+   "where": "validate-constraint-package.ts:492-501",
    "origin": "e60a740, 18 April 2026",
    "disposition": "KEPT_ENFORCED",
    "reported": "an engine keyword heuristic, reported",
@@ -1214,7 +1330,7 @@
   {
    "id": "PACKAGE_ROW_K",
    "check": "the package check: each member supports the selected affordance tag group (row k)",
-   "where": "validate-constraint-package.ts:356-367",
+   "where": "validate-constraint-package.ts:364-375",
    "origin": "e60a740, 18 April 2026",
    "disposition": "KEPT_ENFORCED",
    "reported": "an engine compatibility check, reported",
@@ -1230,7 +1346,7 @@
   {
    "id": "PACKAGE_OTHER",
    "check": "the other package checks (rows h-j, l-n, p)",
-   "where": "validate-constraint-package.ts:306-555",
+   "where": "validate-constraint-package.ts:314-563",
    "origin": "e60a740, 02adc8b, 5222486",
    "disposition": "KEPT_ENFORCED",
    "reported": "engine checks and heuristics, reported",
@@ -1238,27 +1354,61 @@
    "readsLenses": true,
    "reads": "the lenses and the members' own text",
    "path": "NON_EMPTY_SET",
-   "marks": [],
-   "control": "none refused in these runs"
+   "marks": [
+    "is required before validation",
+    "missing complete structured assembly guardrails",
+    "does not provide validation signals for the system-built interaction exchange",
+    "is not compatible with the selected system inputs",
+    "conflicts with the selected archetype",
+    "uses vague language instead of observable game cues",
+    "does not clearly state what players should notice and adapt to",
+    "does not shape the environment strongly enough",
+    "does not highlight the problem through incentives or preserved player choices",
+    "does not express a meaningful incentive",
+    "does not connect one team's opportunity to risk for the other team",
+    "removes too many player decisions",
+    "is compliance-heavy and does not preserve open play",
+    "over-prescribes behavior",
+    "includes vague language instead of observable game events",
+    "reads as one-sided and does not depend enough on opponent interaction",
+    "does not express a meaningful consequence",
+    "does not fully describe the visible cue, consequence, opponent response, and live continuation",
+    "do not fully express the visible cue, decision problem, opponent consequence, and live continuation"
+   ],
+   "control": "under FOUNDATION_PRESENCE_BYPASS a lone Wide Zone Advantage is refused on every lens combination as one-sided (attribution)"
   },
   {
    "id": "BOUNDED_SEARCH",
-   "check": "the bounded search: 3 lenses, 2 constraints per bucket",
-   "where": "generateSelection.ts:635-690",
+   "check": "the bounded search over constraints: 2 per bucket",
+   "where": "generateSelection.ts:637, :662-693",
    "origin": "ded8aaa, 13 May 2026",
-   "disposition": "KEPT_ENFORCED",
-   "reported": "an engine performance heuristic, reported (it can drop an authorized constraint beyond 2 per bucket)",
+   "disposition": "BYPASSED_UNDER_SWITCH",
+   "reported": "an engine performance heuristic, reported (it can drop an authorized constraint beyond 2 per bucket); since stage W2 (11 November 2026) not applied under the switch, where the record's pool is searched whole (:685)",
    "authority": "none found; engine heuristic",
    "readsLenses": true,
-   "reads": "the lens and constraint scores",
+   "reads": "the constraint scores",
    "path": "NON_EMPTY_SET",
    "marks": [],
-   "control": "none needed here (no set holds more than 2 per bucket)"
+   "control": "three members of one role under the switch: the whole set reaches the package check on every lens combination and is refused there by MEMBER_PRESENCE (observed by a probe on the check); with the cap (a deliberate break) the set never reaches it"
+  },
+  {
+   "id": "LENS_SEARCH",
+   "check": "the bounded search over lenses: the top 3 lenses by score",
+   "where": "generateSelection.ts:636, :643-653, applied :1055",
+   "origin": "ded8aaa, 13 May 2026",
+   "disposition": "KEPT_ENFORCED",
+   "reported": "an engine performance heuristic, reported (stage W2 splits it from the bounded search over constraints, unchanged); with the ranking by the wording's tokens it decides which lenses the kept checks read, Christian's question Q-a2",
+   "authority": "none found; engine heuristic",
+   "readsLenses": true,
+   "reads": "the lens scores (the wording's tokens)",
+   "path": "EVERY_SELECTION",
+   "marks": [],
+   "control": "every committed selection holds lenses of the top 3 (the lens arms of stage W1 (c1))"
   },
   {
    "id": "LENS_RULE",
    "check": "the lens rule: 2 or 3 lenses",
-   "where": "generateSelection.ts:704-709, :801",
+   "where": "generateSelection.ts:707-712, :806",
    "origin": "3980188, 3 May 2026",
    "disposition": "KEPT_ENFORCED",
    "reported": "a numerical engine rule on lenses, reported (the authorization's section 5 names manipulations only)",
@@ -1272,21 +1422,21 @@
   {
    "id": "COMMIT_RULE",
    "check": "the commit rule: the highest-scoring possibility, ties to the smallest key",
-   "where": "generateSelection.ts:868-876",
+   "where": "generateSelection.ts:875-883",
    "origin": "1f01d41, 8 July 2026",
    "disposition": "KEPT_ENFORCED",
-   "reported": "an engine heuristic, reported (commit all or choose stays open)",
+   "reported": "an engine heuristic, reported; under the switch, since stage W2, it chooses among lens combinations only, the set being whole, so never how many or which of the record's constraints; without the switch it still chooses among sizes 2 to 4 (whether a record may be a menu: Christian's question Q-a1)",
    "authority": "none found; engine heuristic",
    "readsLenses": true,
    "reads": "the lens and constraint scores",
    "path": "COMMITTED_SELECTION",
    "marks": [],
-   "control": "every committed non-empty set was committed whole (asserted)"
+   "control": "every committed non-empty set was committed whole (asserted); a built strict subset of the record's set reads UNAUTHORIZED_SOURCE (stage W2)"
   },
   {
    "id": "RESOLUTION_STATUS",
    "check": "the resolution status: a selection that did not resolve is refused",
-   "where": "run-bounded-selection.ts:459",
+   "where": "run-bounded-selection.ts:472",
    "origin": "3a5aeed, 8 October 2026",
    "disposition": "KEPT_ENFORCED",
    "reported": "wording-keyed (the matched signals)",
@@ -3762,7 +3912,8 @@
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -3970,7 +4121,8 @@
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -4010,8 +4162,8 @@
      "refusedOn": []
     },
     "engineRule": {
-     "rule": "FOUNDATION_CLAUSE",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
+     "rule": "PACKAGE_OTHER",
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_OTHER reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -4060,12 +4212,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327; origin e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the other package checks (rows h-j, l-n, p)); source validate-constraint-package.ts:314-563; origin e60a740, 02adc8b, 5222486; authority none found; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_OTHER reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
-      "id": "FOUNDATION_CLAUSE",
-      "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
+      "id": "PACKAGE_OTHER",
+      "source": "validate-constraint-package.ts:314-563",
+      "origin": "e60a740, 02adc8b, 5222486",
       "readsLenses": true
      }
     },
@@ -4170,7 +4322,8 @@
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -4210,8 +4363,12 @@
      "refusedOn": []
     },
     "engineRule": {
-     "rule": "FOUNDATION_CLAUSE",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
+     "rule": null,
+     "rules": [
+      "PACKAGE_ROW_K",
+      "PACKAGE_ROW_O"
+     ],
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the reason of one of PACKAGE_ROW_K, PACKAGE_ROW_O (possession-stability-opportunity+space-creation-opportunity PACKAGE_ROW_K; possession-stability-opportunity+regain-opportunity PACKAGE_ROW_O; space-creation-opportunity+regain-opportunity PACKAGE_ROW_O; possession-stability-opportunity+space-creation-opportunity+regain-opportunity PACKAGE_ROW_O) (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -4260,12 +4417,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327; origin e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by engine rules kept under the authorization's section 5, each lens combination by one of them: PACKAGE_ROW_K (the package check: each member supports the selected affordance tag group (row k); source validate-constraint-package.ts:364-375; reads wording-derived lenses: yes); PACKAGE_ROW_O (the package check: a clear relationship to the selected affordance (row o); source validate-constraint-package.ts:492-501; reads wording-derived lenses: yes); attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the reason of one of PACKAGE_ROW_K, PACKAGE_ROW_O (possession-stability-opportunity+space-creation-opportunity PACKAGE_ROW_K; possession-stability-opportunity+regain-opportunity PACKAGE_ROW_O; space-creation-opportunity+regain-opportunity PACKAGE_ROW_O; possession-stability-opportunity+space-creation-opportunity+regain-opportunity PACKAGE_ROW_O) (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
-      "id": "FOUNDATION_CLAUSE",
-      "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
+      "id": "PACKAGE_ROW_K+PACKAGE_ROW_O",
+      "source": "validate-constraint-package.ts:364-375; validate-constraint-package.ts:492-501",
+      "origin": "e60a740, 18 April 2026; e60a740, 18 April 2026",
       "readsLenses": true
      }
     },
@@ -4370,7 +4527,8 @@
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -4411,7 +4569,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -4460,11 +4618,11 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:492-501; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
-      "source": "validate-constraint-package.ts:484-493",
+      "source": "validate-constraint-package.ts:492-501",
       "origin": "e60a740, 18 April 2026",
       "readsLenses": true
      }
@@ -4584,7 +4742,8 @@
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -4804,7 +4963,8 @@
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -4998,7 +5158,8 @@
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -5039,7 +5200,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -5088,11 +5249,11 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:492-501; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
-      "source": "validate-constraint-package.ts:484-493",
+      "source": "validate-constraint-package.ts:492-501",
       "origin": "e60a740, 18 April 2026",
       "readsLenses": true
      }
@@ -5239,7 +5400,7 @@
     },
     "engineRule": {
      "rule": "SIZE_RULE",
-     "how": "no combination was enumerated: the set holds 1 and, without the bypass, the sizes enumerated are 2 to 4 (generateSelection.ts:835-836)"
+     "how": "no combination was enumerated: the set holds 1 and, without the bypass, the sizes enumerated are 2 to 4 (generateSelection.ts:840-841)"
     }
    },
    "findings": [
@@ -5288,7 +5449,7 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused at selection after consuming the form, by a rule not attributed to a kept check (no combination was enumerated: the set holds 1 and, without the bypass, the sizes enumerated are 2 to 4 (generateSelection.ts:835-836))",
+     "why": "refused at selection after consuming the form, by a rule not attributed to a kept check (no combination was enumerated: the set holds 1 and, without the bypass, the sizes enumerated are 2 to 4 (generateSelection.ts:840-841))",
      "consulted": null,
      "keptRule": null
     },
@@ -5621,7 +5782,8 @@
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -5855,7 +6017,8 @@
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -6016,6 +6179,1417 @@
      "clause": null,
      "verdict": "LEGITIMATE_CHAIN_DECISION",
      "why": "the chain closed the open lines within their authored bounds (each line graded by the handoff)",
+     "consulted": null
+    }
+   ]
+  },
+  {
+   "id": "S4-NP+CDC",
+   "kind": "EXPERIMENT",
+   "label": "quota run NP+CDC",
+   "run": {
+    "runId": "S4-NP+CDC",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-central-density-condition"
+     ],
+     "recordKind": "TEST_ONLY_RECORD",
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-central-density-condition"
+     ]
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "selection",
+     "reasons": [
+      "selection: A02: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF2; unfilled roles: shaping, consequence; held by ruling: none. Nothing was drawn from outside the goal's candidates."
+     ],
+     "refusalVerdict": "NOT KNOWLEDGE",
+     "ownPick": null,
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [],
+     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "lenses": [],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "CANDIDATES_HANDED_TO_SELECTOR",
+      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintCandidateIds": [
+       "tl-v0-constraint-neutral-player-condition",
+       "tl-v0-constraint-central-density-condition"
+      ],
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ],
+      "k2": null,
+      "foundationPresenceBypassed": true
+     },
+     "contextInThisActivity": false,
+     "scoringCondition": null
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [],
+     "resting": [],
+     "unestablished": [],
+     "resolved": [],
+     "withheld": [],
+     "declarationTreatments": [],
+     "refusedOn": []
+    },
+    "engineRule": {
+     "rule": "MEMBER_PRESENCE",
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the MEMBER_PRESENCE reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
+    }
+   },
+   "findings": [
+    {
+     "runId": "S4-NP+CDC",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "S4-NP+CDC",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "S4-NP+CDC",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+CDC",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from CANDIDATES_HANDED_TO_SELECTOR)",
+     "consulted": "the chain's own pick: none (its selection returned nothing)"
+    },
+    {
+     "runId": "S4-NP+CDC",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (tl-v0-constraint-neutral-player-condition, tl-v0-constraint-central-density-condition); not built (refused at selection)",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+CDC",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "ENGINE_RULE_DECIDED",
+     "why": "refused by an engine rule kept under the authorization's section 5 (every selected member validated: a set any member of which is absent from the checked package is refused (the package holds one member per role, build-constraint-package.ts:163-179, :634-657; a consequence scoring 12 or less is dropped, :657)); source selection-compatibility.ts:121, :128, :137-145; switched on at generateSelection.ts:853 (SwitchChecks, :1213-1232); origin stage W2, 11 November 2026 (TEST-ONLY); authority our reading of Christian's words of 15 October 2026 (the engine to continue enforcing structural validity) and of 11 November 2026, second reply (justified validation retained): the validation of what is present, applied to every member present; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the MEMBER_PRESENCE reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
+     "consulted": null,
+     "keptRule": {
+      "id": "MEMBER_PRESENCE",
+      "source": "selection-compatibility.ts:121, :128, :137-145; switched on at generateSelection.ts:853 (SwitchChecks, :1213-1232)",
+      "origin": "stage W2, 11 November 2026 (TEST-ONLY)",
+      "readsLenses": true
+     }
+    },
+    {
+     "runId": "S4-NP+CDC",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+CDC",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+CDC",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+CDC",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "the account does not display the condition as in this activity",
+     "consulted": "the requirement account is not on this run"
+    },
+    {
+     "runId": "S4-NP+CDC",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection)",
+     "consulted": null
+    }
+   ]
+  },
+  {
+   "id": "S4-WZA+TR",
+   "kind": "EXPERIMENT",
+   "label": "quota run WZA+TR",
+   "run": {
+    "runId": "S4-WZA+TR",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": [
+      "tl-v0-constraint-wide-zone-advantage",
+      "tl-v0-constraint-turnover-reward"
+     ],
+     "recordKind": "TEST_ONLY_RECORD",
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-wide-zone-advantage",
+      "tl-v0-constraint-turnover-reward"
+     ]
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "knowledge",
+     "reasons": [
+      "the authorized constraint tl-v0-constraint-turnover-reward has no contribution contract, so it cannot shape the game, and it is not dropped silently"
+     ],
+     "refusalVerdict": "NOT KNOWLEDGE",
+     "ownPick": [
+      "GF2"
+     ],
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [
+      "tl-v0-constraint-wide-zone-advantage",
+      "tl-v0-constraint-turnover-reward"
+     ],
+     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "lenses": [
+      "Possession Stability Opportunity",
+      "Space Creation Opportunity",
+      "Regain Opportunity"
+     ],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "SELECTION_TRACE_RANKING",
+      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintCandidateIds": [
+       "tl-v0-constraint-wide-zone-advantage",
+       "tl-v0-constraint-turnover-reward"
+      ],
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ],
+      "k2": null,
+      "foundationPresenceBypassed": true
+     },
+     "contextInThisActivity": true,
+     "scoringCondition": null
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [],
+     "resting": [],
+     "unestablished": [],
+     "resolved": [],
+     "withheld": [],
+     "declarationTreatments": [],
+     "refusedOn": []
+    },
+    "engineRule": null
+   },
+   "findings": [
+    {
+     "runId": "S4-WZA+TR",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "S4-WZA+TR",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "S4-WZA+TR",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA+TR",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+     "consulted": "the chain's own pick: GF2"
+    },
+    {
+     "runId": "S4-WZA+TR",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (tl-v0-constraint-wide-zone-advantage, tl-v0-constraint-turnover-reward); built tl-v0-constraint-wide-zone-advantage, tl-v0-constraint-turnover-reward",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA+TR",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the selection committed; the chain's own checks then stopped the run at knowledge",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA+TR",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA+TR",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA+TR",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA+TR",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "CITED_NOT_CARRIED",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried",
+     "consulted": "the requirement account is not on this run"
+    },
+    {
+     "runId": "S4-WZA+TR",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at knowledge)",
+     "consulted": null
+    }
+   ]
+  },
+  {
+   "id": "S4-NP+WZA+TR",
+   "kind": "EXPERIMENT",
+   "label": "quota run NP+WZA+TR",
+   "run": {
+    "runId": "S4-NP+WZA+TR",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-wide-zone-advantage",
+      "tl-v0-constraint-turnover-reward"
+     ],
+     "recordKind": "TEST_ONLY_RECORD",
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-wide-zone-advantage",
+      "tl-v0-constraint-turnover-reward"
+     ]
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "knowledge",
+     "reasons": [
+      "the authorized constraint tl-v0-constraint-turnover-reward has no contribution contract, so it cannot shape the game, and it is not dropped silently"
+     ],
+     "refusalVerdict": "NOT KNOWLEDGE",
+     "ownPick": [
+      "GF2"
+     ],
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-wide-zone-advantage",
+      "tl-v0-constraint-turnover-reward"
+     ],
+     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "lenses": [
+      "Possession Stability Opportunity",
+      "Space Creation Opportunity",
+      "Regain Opportunity"
+     ],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "SELECTION_TRACE_RANKING",
+      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintCandidateIds": [
+       "tl-v0-constraint-neutral-player-condition",
+       "tl-v0-constraint-wide-zone-advantage",
+       "tl-v0-constraint-turnover-reward"
+      ],
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ],
+      "k2": null,
+      "foundationPresenceBypassed": true
+     },
+     "contextInThisActivity": true,
+     "scoringCondition": null
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [],
+     "resting": [],
+     "unestablished": [],
+     "resolved": [],
+     "withheld": [],
+     "declarationTreatments": [],
+     "refusedOn": []
+    },
+    "engineRule": null
+   },
+   "findings": [
+    {
+     "runId": "S4-NP+WZA+TR",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "S4-NP+WZA+TR",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "S4-NP+WZA+TR",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA+TR",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+     "consulted": "the chain's own pick: GF2"
+    },
+    {
+     "runId": "S4-NP+WZA+TR",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (tl-v0-constraint-neutral-player-condition, tl-v0-constraint-wide-zone-advantage, tl-v0-constraint-turnover-reward); built tl-v0-constraint-neutral-player-condition, tl-v0-constraint-wide-zone-advantage, tl-v0-constraint-turnover-reward",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA+TR",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the selection committed; the chain's own checks then stopped the run at knowledge",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA+TR",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA+TR",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA+TR",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at knowledge), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA+TR",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "CITED_NOT_CARRIED",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried",
+     "consulted": "the requirement account is not on this run"
+    },
+    {
+     "runId": "S4-NP+WZA+TR",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at knowledge)",
+     "consulted": null
+    }
+   ]
+  },
+  {
+   "id": "S4-NP+WZA+CDC",
+   "kind": "EXPERIMENT",
+   "label": "quota run NP+WZA+CDC",
+   "run": {
+    "runId": "S4-NP+WZA+CDC",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-wide-zone-advantage",
+      "tl-v0-constraint-central-density-condition"
+     ],
+     "recordKind": "TEST_ONLY_RECORD",
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-wide-zone-advantage",
+      "tl-v0-constraint-central-density-condition"
+     ]
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "selection",
+     "reasons": [
+      "selection: A02: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF2; unfilled roles: consequence; held by ruling: none. Nothing was drawn from outside the goal's candidates."
+     ],
+     "refusalVerdict": "NOT KNOWLEDGE",
+     "ownPick": null,
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [],
+     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "lenses": [],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "CANDIDATES_HANDED_TO_SELECTOR",
+      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintCandidateIds": [
+       "tl-v0-constraint-neutral-player-condition",
+       "tl-v0-constraint-wide-zone-advantage",
+       "tl-v0-constraint-central-density-condition"
+      ],
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ],
+      "k2": null,
+      "foundationPresenceBypassed": true
+     },
+     "contextInThisActivity": false,
+     "scoringCondition": null
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [],
+     "resting": [],
+     "unestablished": [],
+     "resolved": [],
+     "withheld": [],
+     "declarationTreatments": [],
+     "refusedOn": []
+    },
+    "engineRule": {
+     "rule": "MEMBER_PRESENCE",
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the MEMBER_PRESENCE reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
+    }
+   },
+   "findings": [
+    {
+     "runId": "S4-NP+WZA+CDC",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "S4-NP+WZA+CDC",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "S4-NP+WZA+CDC",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA+CDC",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from CANDIDATES_HANDED_TO_SELECTOR)",
+     "consulted": "the chain's own pick: none (its selection returned nothing)"
+    },
+    {
+     "runId": "S4-NP+WZA+CDC",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (tl-v0-constraint-neutral-player-condition, tl-v0-constraint-wide-zone-advantage, tl-v0-constraint-central-density-condition); not built (refused at selection)",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA+CDC",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "ENGINE_RULE_DECIDED",
+     "why": "refused by an engine rule kept under the authorization's section 5 (every selected member validated: a set any member of which is absent from the checked package is refused (the package holds one member per role, build-constraint-package.ts:163-179, :634-657; a consequence scoring 12 or less is dropped, :657)); source selection-compatibility.ts:121, :128, :137-145; switched on at generateSelection.ts:853 (SwitchChecks, :1213-1232); origin stage W2, 11 November 2026 (TEST-ONLY); authority our reading of Christian's words of 15 October 2026 (the engine to continue enforcing structural validity) and of 11 November 2026, second reply (justified validation retained): the validation of what is present, applied to every member present; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the MEMBER_PRESENCE reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
+     "consulted": null,
+     "keptRule": {
+      "id": "MEMBER_PRESENCE",
+      "source": "selection-compatibility.ts:121, :128, :137-145; switched on at generateSelection.ts:853 (SwitchChecks, :1213-1232)",
+      "origin": "stage W2, 11 November 2026 (TEST-ONLY)",
+      "readsLenses": true
+     }
+    },
+    {
+     "runId": "S4-NP+WZA+CDC",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA+CDC",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA+CDC",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-NP+WZA+CDC",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "the account does not display the condition as in this activity",
+     "consulted": "the requirement account is not on this run"
+    },
+    {
+     "runId": "S4-NP+WZA+CDC",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection)",
+     "consulted": null
+    }
+   ]
+  },
+  {
+   "id": "S4-WZA/foundation-kept",
+   "kind": "CONTROL",
+   "label": "quota control: WZA under the switch with foundation presence kept (the reversal arm of FOUNDATION_PRESENCE_BYPASS)",
+   "run": {
+    "runId": "S4-WZA/foundation-kept",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": [
+      "tl-v0-constraint-wide-zone-advantage"
+     ],
+     "recordKind": "TEST_ONLY_RECORD",
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-wide-zone-advantage"
+     ]
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "selection",
+     "reasons": [
+      "selection: A02: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF2; unfilled roles: foundation, consequence; held by ruling: none. Nothing was drawn from outside the goal's candidates."
+     ],
+     "refusalVerdict": "NOT KNOWLEDGE",
+     "ownPick": null,
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [],
+     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "lenses": [],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "CANDIDATES_HANDED_TO_SELECTOR",
+      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintCandidateIds": [
+       "tl-v0-constraint-wide-zone-advantage"
+      ],
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ],
+      "k2": null
+     },
+     "contextInThisActivity": false,
+     "scoringCondition": null
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [],
+     "resting": [],
+     "unestablished": [],
+     "resolved": [],
+     "withheld": [],
+     "declarationTreatments": [],
+     "refusedOn": []
+    },
+    "engineRule": {
+     "rule": "FOUNDATION_CLAUSE",
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated): every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
+    }
+   },
+   "findings": [
+    {
+     "runId": "S4-WZA/foundation-kept",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "S4-WZA/foundation-kept",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "S4-WZA/foundation-kept",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA/foundation-kept",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from CANDIDATES_HANDED_TO_SELECTOR)",
+     "consulted": "the chain's own pick: none (its selection returned nothing)"
+    },
+    {
+     "runId": "S4-WZA/foundation-kept",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (tl-v0-constraint-wide-zone-advantage); not built (refused at selection)",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA/foundation-kept",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "ENGINE_RULE_DECIDED",
+     "why": "refused at selection after consuming the form, by a rule not attributed to a kept check (the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated): every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause))",
+     "consulted": null,
+     "keptRule": null
+    },
+    {
+     "runId": "S4-WZA/foundation-kept",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA/foundation-kept",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA/foundation-kept",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA/foundation-kept",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "the account does not display the condition as in this activity",
+     "consulted": "the requirement account is not on this run"
+    },
+    {
+     "runId": "S4-WZA/foundation-kept",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection)",
+     "consulted": null
+    }
+   ]
+  },
+  {
+   "id": "S4-TR/foundation-kept",
+   "kind": "CONTROL",
+   "label": "quota control: TR under the switch with foundation presence kept (the reversal arm of FOUNDATION_PRESENCE_BYPASS)",
+   "run": {
+    "runId": "S4-TR/foundation-kept",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": [
+      "tl-v0-constraint-turnover-reward"
+     ],
+     "recordKind": "TEST_ONLY_RECORD",
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-turnover-reward"
+     ]
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "selection",
+     "reasons": [
+      "selection: A02: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF2; unfilled roles: foundation, shaping; held by ruling: none. Nothing was drawn from outside the goal's candidates."
+     ],
+     "refusalVerdict": "NOT KNOWLEDGE",
+     "ownPick": null,
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [],
+     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "lenses": [],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "CANDIDATES_HANDED_TO_SELECTOR",
+      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintCandidateIds": [
+       "tl-v0-constraint-turnover-reward"
+      ],
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ],
+      "k2": null
+     },
+     "contextInThisActivity": false,
+     "scoringCondition": null
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [],
+     "resting": [],
+     "unestablished": [],
+     "resolved": [],
+     "withheld": [],
+     "declarationTreatments": [],
+     "refusedOn": []
+    },
+    "engineRule": {
+     "rule": "FOUNDATION_CLAUSE",
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated): every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
+    }
+   },
+   "findings": [
+    {
+     "runId": "S4-TR/foundation-kept",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "S4-TR/foundation-kept",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "S4-TR/foundation-kept",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "S4-TR/foundation-kept",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from CANDIDATES_HANDED_TO_SELECTOR)",
+     "consulted": "the chain's own pick: none (its selection returned nothing)"
+    },
+    {
+     "runId": "S4-TR/foundation-kept",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (tl-v0-constraint-turnover-reward); not built (refused at selection)",
+     "consulted": null
+    },
+    {
+     "runId": "S4-TR/foundation-kept",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "ENGINE_RULE_DECIDED",
+     "why": "refused at selection after consuming the form, by a rule not attributed to a kept check (the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated): every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause))",
+     "consulted": null,
+     "keptRule": null
+    },
+    {
+     "runId": "S4-TR/foundation-kept",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-TR/foundation-kept",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-TR/foundation-kept",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-TR/foundation-kept",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "the account does not display the condition as in this activity",
+     "consulted": "the requirement account is not on this run"
+    },
+    {
+     "runId": "S4-TR/foundation-kept",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection)",
+     "consulted": null
+    }
+   ]
+  },
+  {
+   "id": "S4-WZA+TR/foundation-kept",
+   "kind": "CONTROL",
+   "label": "quota control: WZA+TR under the switch with foundation presence kept (the reversal arm of FOUNDATION_PRESENCE_BYPASS)",
+   "run": {
+    "runId": "S4-WZA+TR/foundation-kept",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": [
+      "tl-v0-constraint-wide-zone-advantage",
+      "tl-v0-constraint-turnover-reward"
+     ],
+     "recordKind": "TEST_ONLY_RECORD",
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-wide-zone-advantage",
+      "tl-v0-constraint-turnover-reward"
+     ]
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "selection",
+     "reasons": [
+      "selection: A02: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF2; unfilled roles: foundation; held by ruling: none. Nothing was drawn from outside the goal's candidates."
+     ],
+     "refusalVerdict": "NOT KNOWLEDGE",
+     "ownPick": null,
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [],
+     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "lenses": [],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "CANDIDATES_HANDED_TO_SELECTOR",
+      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintCandidateIds": [
+       "tl-v0-constraint-wide-zone-advantage",
+       "tl-v0-constraint-turnover-reward"
+      ],
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ],
+      "k2": null
+     },
+     "contextInThisActivity": false,
+     "scoringCondition": null
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [],
+     "resting": [],
+     "unestablished": [],
+     "resolved": [],
+     "withheld": [],
+     "declarationTreatments": [],
+     "refusedOn": []
+    },
+    "engineRule": {
+     "rule": "FOUNDATION_CLAUSE",
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated): every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
+    }
+   },
+   "findings": [
+    {
+     "runId": "S4-WZA+TR/foundation-kept",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "S4-WZA+TR/foundation-kept",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "S4-WZA+TR/foundation-kept",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA+TR/foundation-kept",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from CANDIDATES_HANDED_TO_SELECTOR)",
+     "consulted": "the chain's own pick: none (its selection returned nothing)"
+    },
+    {
+     "runId": "S4-WZA+TR/foundation-kept",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (tl-v0-constraint-wide-zone-advantage, tl-v0-constraint-turnover-reward); not built (refused at selection)",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA+TR/foundation-kept",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "ENGINE_RULE_DECIDED",
+     "why": "refused at selection after consuming the form, by a rule not attributed to a kept check (the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated): every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause))",
+     "consulted": null,
+     "keptRule": null
+    },
+    {
+     "runId": "S4-WZA+TR/foundation-kept",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA+TR/foundation-kept",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA+TR/foundation-kept",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "S4-WZA+TR/foundation-kept",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "the account does not display the condition as in this activity",
+     "consulted": "the requirement account is not on this run"
+    },
+    {
+     "runId": "S4-WZA+TR/foundation-kept",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at selection)",
      "consulted": null
     }
    ]
@@ -9978,7 +11552,8 @@
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -10188,7 +11763,8 @@
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -10228,8 +11804,8 @@
      "refusedOn": []
     },
     "engineRule": {
-     "rule": "FOUNDATION_CLAUSE",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
+     "rule": "PACKAGE_OTHER",
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_OTHER reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -10278,12 +11854,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327; origin e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the other package checks (rows h-j, l-n, p)); source validate-constraint-package.ts:314-563; origin e60a740, 02adc8b, 5222486; authority none found; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_OTHER reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
-      "id": "FOUNDATION_CLAUSE",
-      "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
+      "id": "PACKAGE_OTHER",
+      "source": "validate-constraint-package.ts:314-563",
+      "origin": "e60a740, 02adc8b, 5222486",
       "readsLenses": true
      }
     },
@@ -10390,7 +11966,8 @@
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -10430,8 +12007,8 @@
      "refusedOn": []
     },
     "engineRule": {
-     "rule": "FOUNDATION_CLAUSE",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
+     "rule": "PACKAGE_ROW_K",
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -10480,12 +12057,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327; origin e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: each member supports the selected affordance tag group (row k)); source validate-constraint-package.ts:364-375; origin e60a740, 18 April 2026; authority UNCONFIRMED (the tag-group data); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
-      "id": "FOUNDATION_CLAUSE",
-      "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
+      "id": "PACKAGE_ROW_K",
+      "source": "validate-constraint-package.ts:364-375",
+      "origin": "e60a740, 18 April 2026",
       "readsLenses": true
      }
     },
@@ -10592,7 +12169,8 @@
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -10633,7 +12211,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -10682,11 +12260,11 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:492-501; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
-      "source": "validate-constraint-package.ts:484-493",
+      "source": "validate-constraint-package.ts:492-501",
       "origin": "e60a740, 18 April 2026",
       "readsLenses": true
      }
@@ -10808,7 +12386,8 @@
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -11021,7 +12600,8 @@
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -11062,7 +12642,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_K",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -11111,11 +12691,11 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: each member supports the selected affordance tag group (row k)); source validate-constraint-package.ts:356-367; origin e60a740, 18 April 2026; authority UNCONFIRMED (the tag-group data); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: each member supports the selected affordance tag group (row k)); source validate-constraint-package.ts:364-375; origin e60a740, 18 April 2026; authority UNCONFIRMED (the tag-group data); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_K",
-      "source": "validate-constraint-package.ts:356-367",
+      "source": "validate-constraint-package.ts:364-375",
       "origin": "e60a740, 18 April 2026",
       "readsLenses": true
      }
@@ -11226,7 +12806,8 @@
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -11267,7 +12848,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -11316,11 +12897,11 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:492-501; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
-      "source": "validate-constraint-package.ts:484-493",
+      "source": "validate-constraint-package.ts:492-501",
       "origin": "e60a740, 18 April 2026",
       "readsLenses": true
      }
@@ -12444,7 +14025,8 @@
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -12654,7 +14236,8 @@
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -12694,8 +14277,8 @@
      "refusedOn": []
     },
     "engineRule": {
-     "rule": "FOUNDATION_CLAUSE",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
+     "rule": "PACKAGE_OTHER",
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_OTHER reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -12744,12 +14327,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327; origin e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the other package checks (rows h-j, l-n, p)); source validate-constraint-package.ts:314-563; origin e60a740, 02adc8b, 5222486; authority none found; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_OTHER reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
-      "id": "FOUNDATION_CLAUSE",
-      "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
+      "id": "PACKAGE_OTHER",
+      "source": "validate-constraint-package.ts:314-563",
+      "origin": "e60a740, 02adc8b, 5222486",
       "readsLenses": true
      }
     },
@@ -12856,7 +14439,8 @@
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -12896,8 +14480,8 @@
      "refusedOn": []
     },
     "engineRule": {
-     "rule": "FOUNDATION_CLAUSE",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
+     "rule": "PACKAGE_ROW_K",
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -12946,12 +14530,12 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the foundation clause (with its keyword threshold)); source build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327; origin e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled); authority none found; engine rule (our own comment calls it not ruled); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the FOUNDATION_CLAUSE reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: each member supports the selected affordance tag group (row k)); source validate-constraint-package.ts:364-375; origin e60a740, 18 April 2026; authority UNCONFIRMED (the tag-group data); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
-      "id": "FOUNDATION_CLAUSE",
-      "source": "build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327",
-      "origin": "e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian's 14 October ruling, the foundation half kept, not ruled)",
+      "id": "PACKAGE_ROW_K",
+      "source": "validate-constraint-package.ts:364-375",
+      "origin": "e60a740, 18 April 2026",
       "readsLenses": true
      }
     },
@@ -13058,7 +14642,8 @@
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -13099,7 +14684,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -13148,11 +14733,11 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:492-501; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
-      "source": "validate-constraint-package.ts:484-493",
+      "source": "validate-constraint-package.ts:492-501",
       "origin": "e60a740, 18 April 2026",
       "readsLenses": true
      }
@@ -13274,7 +14859,8 @@
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -13487,7 +15073,8 @@
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -13528,7 +15115,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_K",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -13577,11 +15164,11 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: each member supports the selected affordance tag group (row k)); source validate-constraint-package.ts:356-367; origin e60a740, 18 April 2026; authority UNCONFIRMED (the tag-group data); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: each member supports the selected affordance tag group (row k)); source validate-constraint-package.ts:364-375; origin e60a740, 18 April 2026; authority UNCONFIRMED (the tag-group data); reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_K reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_K",
-      "source": "validate-constraint-package.ts:356-367",
+      "source": "validate-constraint-package.ts:364-375",
       "origin": "e60a740, 18 April 2026",
       "readsLenses": true
      }
@@ -13692,7 +15279,8 @@
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
       ],
-      "k2": null
+      "k2": null,
+      "foundationPresenceBypassed": true
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -13733,7 +15321,7 @@
     },
     "engineRule": {
      "rule": "PACKAGE_ROW_O",
-     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)"
+     "how": "the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)"
     }
    },
    "findings": [
@@ -13782,11 +15370,11 @@
      "row": "SELECTION_OUTCOME",
      "clause": null,
      "verdict": "ENGINE_RULE_DECIDED",
-     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:484-493; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set: every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:89-106; the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612); the gap's unfilled roles are the pool's, never the cause)",
+     "why": "refused by an engine rule kept under the authorization's section 5 (the package check: a clear relationship to the selected affordance (row o)); source validate-constraint-package.ts:492-501; origin e60a740, 18 April 2026; authority none found; engine heuristic; reads wording-derived lenses: yes; attributed by the exported package check re-run on GF2 and each of the 4 lens combinations of the run's lens pool with the set, with the selector's options on this run (every selected member validated; foundation presence not required): every one first refused with the PACKAGE_ROW_O reason (the check returns the first reason it meets, selection-compatibility.ts:105-135; the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it); the gap's unfilled roles are the pool's, never the cause)",
      "consulted": null,
      "keptRule": {
       "id": "PACKAGE_ROW_O",
-      "source": "validate-constraint-package.ts:484-493",
+      "source": "validate-constraint-package.ts:492-501",
       "origin": "e60a740, 18 April 2026",
       "readsLenses": true
      }

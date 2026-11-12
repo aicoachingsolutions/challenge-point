@@ -399,6 +399,8 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
                   ...(consume.k2 ? { reviewManipulations: { basis: consume.k2.basis, set: [...consume.k2.set], rule: consume.k2.rule, limit: consume.k2.limit, cited: consume.k2.cited } } : {}),
                   // Stage W1 (c1): the Coverage-row lenses, only where the request carries the treatment.
                   ...(consume.coverageLenses === true ? { coverageLenses: true } : {}),
+                  // Stage W2 (E3): foundation presence bypassed, only where the request carries the treatment (the selection refuses it without the switch).
+                  ...(consume.foundationPresenceBypass === true ? { foundationPresenceBypass: true } : {}),
               }
             : undefined
         if (request.recordRoute && !consume) throw new Error(`case ${request.caseId}: a manipulation enters by the record route only on a request that consumes Steps 1 and 2`)
@@ -546,6 +548,8 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
                   // Stage W1 (b): K2's result as the build's account recorded it (never read from the request).
                   reviewManipulations: recorded.reviewManipulations ? copy(recorded.reviewManipulations) : null,
                   hintsLensesFrom: recorded.hintsLensesFrom,
+                  // Stage W2 (E3): read from the build's account, present only where the treatment was handed on.
+                  ...(recorded.foundationPresenceBypass === true ? { foundationPresenceBypassed: true as const } : {}),
                   selectionObservedOnly: observedOnly,
                   draftStatus: activity.draftKnowledge?.status ?? null,
               }

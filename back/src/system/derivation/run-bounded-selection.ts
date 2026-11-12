@@ -178,6 +178,8 @@ export interface BoundedSelection extends KnowledgeSelection {
  *   - `quotaBypass`: the one numerical rule the authorization lets us bypass, in its words:
  *     "For the isolated A02 experiment, you may remove or bypass this unsupported numerical quota where necessary to test legitimate zero-, one-, or multiple-manipulation configurations."
  *     `generateSelection` receives this boolean and nothing else of the upstream decisions, and honours it only for an evaluated, record-backed set.
+ *     Since stage W2 (11 November 2026) the switch also takes the set whole, uncapped, with every selected member validated (`SwitchChecks`
+ *     in generateSelection.ts); `foundationPresenceBypass`, a declared treatment, is the one other value it receives, honoured only beside it.
  *   - `reviewManipulations` (stage W1 (b), 11 November 2026): the review pathway's K2 result, handed in place of a per-goal authorization
  *     record where no record governs the goal: K2's rule and its limit in Christian's words (plain data, with the citation), and the set,
  *     which must be empty: K2 retains the form without additional manipulation and can authorize none. Refused beside a record, with a
@@ -190,6 +192,11 @@ export interface UpstreamDecisions {
     reviewManipulations?: ReviewManipulations
     /** Stage W1 (c1), the declared TEST-ONLY treatment GP_COVERAGE_LENSES: the lens candidates and signal groups from Step 1's Coverage row in both branches. */
     coverageLenses?: boolean
+    /**
+     * Stage W2 (11 November 2026, E3), the declared TEST-ONLY treatment FOUNDATION_PRESENCE_BYPASS: the package check need find no foundation
+     * member. Honoured only with `quotaBypass` (refused otherwise); `generateSelection` then validates every selected member (E4).
+     */
+    foundationPresenceBypass?: boolean
 }
 
 /** TEST-ONLY (stage W1 (b)): the review pathway's K2 result as the chain consumes it: an empty set, K2's rule and its limit, and their citation. */
@@ -233,6 +240,8 @@ export interface ConsumedRecord {
     reviewManipulations: ReviewManipulations | null
     /** Stage W1 (c1): where the lens candidates came from: the hints as Step 1's Game Problem governed them, or its Coverage row (the treatment). */
     hintsLensesFrom: 'GOVERNED_HINTS' | 'STEP1_COVERAGE_ROW'
+    /** Stage W2 (E3): present (true) only where the treatment FOUNDATION_PRESENCE_BYPASS was handed on. */
+    foundationPresenceBypass?: true
 }
 
 /** TEST-ONLY: an upstream object missing what the consumption reads is refused, never read partly. */
@@ -248,6 +257,8 @@ function upstreamRefusals(upstream: UpstreamDecisions): string[] {
     if (k2 !== undefined && (k2?.basis !== 'K2_REVIEW_ONLY' || !Array.isArray(k2?.set) || !filled(k2?.rule) || !filled(k2?.limit) || !filled(k2?.cited)))
         errors.push(`the review pathway's K2 result with its basis (K2_REVIEW_ONLY), its set, its rule, its limit and their citation`)
     if (upstream?.coverageLenses !== undefined && typeof upstream.coverageLenses !== 'boolean') errors.push('coverageLenses as a boolean')
+    if (upstream?.foundationPresenceBypass !== undefined && (typeof upstream.foundationPresenceBypass !== 'boolean' || (upstream.foundationPresenceBypass && upstream.quotaBypass !== true)))
+        errors.push('foundationPresenceBypass as a boolean, true only beside quotaBypass')
     return errors
 }
 
@@ -416,10 +427,12 @@ export function selectFor(
         reviewManipulations: upstream!.reviewManipulations ? (JSON.parse(JSON.stringify(upstream!.reviewManipulations)) as ReviewManipulations) : null,
         // Stage W1 (c1): the treatment GP_COVERAGE_LENSES, where it was handed on.
         hintsLensesFrom: upstream!.coverageLenses === true ? 'STEP1_COVERAGE_ROW' : 'GOVERNED_HINTS',
+        // Stage W2 (E3): the treatment FOUNDATION_PRESENCE_BYPASS, recorded only where it was handed on.
+        ...(upstream!.foundationPresenceBypass === true ? { foundationPresenceBypass: true as const } : {}),
     })
     let result: any
     try {
-        result = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, hints, upstream?.quotaBypass === true)
+        result = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, hints, upstream?.quotaBypass === true, upstream?.foundationPresenceBypass === true)
     } catch (error) {
         // A knowledge gap is reported WITH what this boundary alone knows — the goal's Game Problem authority
         // and its context — so the account of the refusal is filled from the same computation, not a second one.

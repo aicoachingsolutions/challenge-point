@@ -31,9 +31,13 @@
  *     engine rule kept under the authorization's section 5 refusing after consumption) or VIOLATION.
  *   - `unlisted` / `stale`: the findings no open-disconnection entry lists, and the entries no finding supports (the list is data; an entry may
  *     name its measured run and verdict pairs, and the rule of each engine refusal, and then lists only those).
- *   - `DISPOSITION`: every selection check, kept-enforced or bypassed (the numerical size rule only), with its source, origin and authority,
- *     and `dispositionOf`, the per-run column: ran, not run on this path (the zero branch, or no combination enumerated), bypassed, or not
- *     reached.
+ *   - `DISPOSITION`: every selection check, kept-enforced, bypassed under the TEST-ONLY switch (the size rule and its floor, the bounded pool:
+ *     stage W2, 11 November 2026), bypassed under a declared TEST-ONLY treatment (foundation presence), or a tightening under the switch (every
+ *     selected member validated), with its source, origin and authority, and `dispositionOf`, the per-run column: ran, not run on this path (the
+ *     zero branch, or no combination enumerated), bypassed, or not reached. A refusal counts as a kept check's only where its row is
+ *     KEPT_ENFORCED or the tightening; a bypassed rule deciding is never a kept check.
+ *   - Since stage W2: on the record route, a built strict subset of the authorized set reads UNAUTHORIZED_SOURCE (which of the record's
+ *     constraints to commit was decided by the commit rule, not the record; whether a record may be a menu is Christian's question Q-a1).
  *   - `blockerSequence`: the stops of the paths in chain order, which ones a later path passes (a later stage, or a later check of the same
  *     stage), and the earliest that remains, named in the failure-source categories Christian listed (Christian's words, handed in as data).
  *   - `safeguardsText`: the report's lines. Double quotation marks are never printed (category names are printed bare).
@@ -152,8 +156,10 @@ export const STAGE_ORDER = ['handoff (form)', 'selection', 'knowledge', 'session
 
 /** An engine rule's attribution, from the exported package check re-run on the run's own form, lens combinations and set (the unit test). */
 export interface EngineRuleAttribution {
-    /** The disposition row that refused (its `id`), or null where nothing could be attributed. */
+    /** The disposition row that refused (its `id`), or null where nothing could be attributed, or where several rows did (then `rules`). */
     rule: string | null
+    /** Stage W2 (11 November 2026): where the lens combinations were each refused by a row, but not all by one, each row (sorted); else absent. */
+    rules?: string[]
     /** What the attribution read, in a few words (e.g. every lens combination refused with the same reason). */
     how: string
 }
@@ -197,7 +203,7 @@ export interface SafeguardRun {
          * Stage W1 (a): `hintsGameProblemId`, the Game Problem the chain recorded as governing its lens hints (null where it recorded none).
          * Stage W1 (b): `k2`, the review pathway's K2 result as the chain recorded it (its basis, set, limit and citation), or null.
          */
-        consumption: null | { gameProblemId: string | null; gameProblemSource: string | null; formCandidatesScored: string[]; formCandidatesFrom: string; constraintAuthority: string; constraintCandidateIds: string[]; sizeRuleBypassed: boolean; hintsGameProblemId: string | null; lensCandidateIds: string[]; hintsSignals: string[]; k2: { basis: string; set: string[]; limit: string; cited: string } | null }
+        consumption: null | { gameProblemId: string | null; gameProblemSource: string | null; formCandidatesScored: string[]; formCandidatesFrom: string; constraintAuthority: string; constraintCandidateIds: string[]; sizeRuleBypassed: boolean; hintsGameProblemId: string | null; lensCandidateIds: string[]; hintsSignals: string[]; k2: { basis: string; set: string[]; limit: string; cited: string } | null; foundationPresenceBypassed?: true }
         contextInThisActivity: boolean | null
         scoringCondition: { state: string; rowId: string | null; carried: boolean } | null
     }
@@ -304,6 +310,8 @@ export function safeguardRunOf(r: HandoffResult, a: ChainAnswer | null, experime
                                 lensCandidateIds: [...(consumption.lensCandidateIds ?? [])],
                                 hintsSignals: [...(consumption.hintsSignals ?? [])],
                                 k2: consumption.reviewManipulations ? { basis: consumption.reviewManipulations.basis, set: [...consumption.reviewManipulations.set], limit: consumption.reviewManipulations.limit, cited: consumption.reviewManipulations.cited } : null,
+                                // Stage W2 (E3): present only where the chain's record names the treatment.
+                                ...(consumption.foundationPresenceBypassed === true ? { foundationPresenceBypassed: true as const } : {}),
                             }
                           : null,
                       contextInThisActivity: a.observed ? a.observed.contextInThisActivity : null,
@@ -454,8 +462,12 @@ export function ownershipOf(run: SafeguardRun): Finding[] {
         if (outside.length || unauthorizedAuthority)
             push('CONSTRAINTS', 'UNAUTHORIZED_SOURCE', `${c.constraints.length} built from ${c.constraintAuthority ?? 'no named authority'}${outside.length ? `; outside the authorized set: ${outside.join(', ')}` : ''} (${record})`)
         else if (x) {
-            const subset = u.authorizedSet ? u.authorizedSet.filter((id) => c.constraints.indexOf(id) < 0) : []
-            const built = stop > stageIndex('selection') ? `built ${list(c.constraints)}${subset.length ? `; authorized and not built: ${subset.join(', ')} (dropped by the commit rule over the bounded search)` : ''}` : 'not built (refused at selection)'
+            // Stage W2 (11 November 2026): a strict subset of the record's set, built, is never consumption: which members to commit was decided
+            // by the commit rule over the scores (an engine heuristic), not by the record. Before the stage it read CONSUMED with the members not
+            // built named; no run reached it.
+            const notBuilt = u.authorizedSet ? u.authorizedSet.filter((id) => c.constraints.indexOf(id) < 0) : []
+            const builtSubset = stop > stageIndex('selection') && c.constraints.length > 0 && notBuilt.length > 0
+            const built = stop > stageIndex('selection') ? `built ${list(c.constraints)}` : 'not built (refused at selection)'
             if (x.constraintAuthority === 'REVIEW_PATHWAY_K2') {
                 // Stage W1 (b): the review pathway's K2 result, taken in place of a per-goal record: only the empty set, only where the review
                 // pathway proposed no manipulation and no record governs, and only with K2's limit carried beside it.
@@ -465,6 +477,12 @@ export function ownershipOf(run: SafeguardRun): Finding[] {
                 else push('CONSTRAINTS', 'CONSUMED', `the review pathway's K2 result (no manipulation proposed; basis ${x.k2.basis}, review-only), taken in place of a per-goal authorization record: candidates none; ${built}; K2's limit carried with it into the account (${x.k2.cited})`)
             } else if (x.constraintAuthority !== 'AUTHORIZATION_RECORD') push('CONSTRAINTS', 'UNAUTHORIZED_SOURCE', `the candidates carried ${x.constraintAuthority}, not the record route (${record})`)
             else if (u.authorizedSet === null || !sameSet(x.constraintCandidateIds, u.authorizedSet)) push('CONSTRAINTS', 'CONTRADICTED', `the candidates ${list(x.constraintCandidateIds)} are not the authorized set ${u.authorizedSet ? list(u.authorizedSet) : 'none'} (${record})`)
+            else if (builtSubset)
+                push(
+                    'CONSTRAINTS',
+                    'UNAUTHORIZED_SOURCE',
+                    `built ${list(c.constraints)}, a strict subset of the authorized set of ${record} (not built: ${notBuilt.join(', ')}): which of the record's constraints to commit was decided by the commit rule over the scores, an engine heuristic, not by the record (whether a record may be a menu to choose among is Christian's question Q-a1; until it is answered the set is taken whole)`,
+                )
             else if (u.recordKind === 'TEST_ONLY_RECORD' && !u.proposed.length)
                 // Stage W1 (b): the review pathway proposed no manipulation, so K2's result applies; our TEST-ONLY record stood in for it.
                 push('CONSTRAINTS', 'K2_NOT_TAKEN', `the review pathway proposed no manipulation, so its K2 result applies (the empty set), and the chain took ${record} in its place (its set ${list(x.constraintCandidateIds)}); ${built} (a detected disconnection, never a pass: the comparison arm)`)
@@ -479,17 +497,25 @@ export function ownershipOf(run: SafeguardRun): Finding[] {
         // DESIGN-9 section 3 limits ENGINE_RULE_DECIDED to a refusal whose basis is NOT KNOWLEDGE; any other basis fails closed.
         push('SELECTION_OUTCOME', 'MISSING', `refused at selection after consuming the form, on a refusal basis ${c.refusalVerdict ?? 'none'}, not NOT KNOWLEDGE: no engine rule is attributed to it (fails closed)`)
     else if (c.stage === 'selection' && x && formVerdict === 'CONSUMED') {
-        const rule = run.engineRule?.rule ? DISPOSITION.find((d) => d.id === run.engineRule!.rule) ?? null : null
-        const kept = rule !== null && rule.disposition === 'KEPT_ENFORCED'
+        // Stage W2: one row, or (`rules`) a row per lens combination where they differ; every one must be a kept check.
+        const ids = run.engineRule ? (run.engineRule.rules && run.engineRule.rules.length ? run.engineRule.rules : run.engineRule.rule ? [run.engineRule.rule] : []) : []
+        const rows = ids.map((id) => DISPOSITION.find((d) => d.id === id) ?? null)
+        // Stage W2: a kept check is one KEPT_ENFORCED, or the tightening every selected member is validated by (it runs only under the switch);
+        // a rule bypassed under the switch or a treatment deciding (the size rule, the bounded pool, foundation presence) is never one.
+        const kept = rows.length > 0 && rows.every((r) => r !== null && (r.disposition === 'KEPT_ENFORCED' || r.disposition === 'TIGHTENING_UNDER_SWITCH'))
+        const keptRows = rows as DispositionRow[]
+        const one = keptRows[0]
         push(
             'SELECTION_OUTCOME',
             'ENGINE_RULE_DECIDED',
-            kept
-                ? `refused by an engine rule kept under the authorization's section 5 (${rule!.check}); source ${rule!.where}; origin ${rule!.origin}; authority ${rule!.authority}; reads wording-derived lenses: ${rule!.readsLenses ? 'yes' : 'no'}; attributed by ${run.engineRule!.how}`
-                : `refused at selection after consuming the form, by a rule not attributed to a kept check (${run.engineRule ? run.engineRule.how : 'no attribution'})`,
+            kept && keptRows.length === 1
+                ? `refused by an engine rule kept under the authorization's section 5 (${one.check}); source ${one.where}; origin ${one.origin}; authority ${one.authority}; reads wording-derived lenses: ${one.readsLenses ? 'yes' : 'no'}; attributed by ${run.engineRule!.how}`
+                : kept
+                  ? `refused by engine rules kept under the authorization's section 5, each lens combination by one of them: ${keptRows.map((r) => `${r.id} (${r.check}; source ${r.where}; reads wording-derived lenses: ${r.readsLenses ? 'yes' : 'no'})`).join('; ')}; attributed by ${run.engineRule!.how}`
+                  : `refused at selection after consuming the form, by a rule not attributed to a kept check (${run.engineRule ? run.engineRule.how : 'no attribution'})`,
             null,
             null,
-            kept ? { id: rule!.id, source: rule!.where, origin: rule!.origin, readsLenses: rule!.readsLenses } : null,
+            kept ? { id: keptRows.map((r) => r.id).join('+'), source: keptRows.map((r) => r.where).join('; '), origin: keptRows.map((r) => r.origin).join('; '), readsLenses: keptRows.some((r) => r.readsLenses) } : null,
         )
     } else if (c.stage === 'selection') push('SELECTION_OUTCOME', 'NOT_REACHED', 'the chain refused at selection before consuming anything; the form row holds the verdict')
     else push('SELECTION_OUTCOME', 'LEGITIMATE_CHAIN_DECISION', c.outcome === 'served' ? 'the selection committed and the chain served the run' : `the selection committed; the chain's own checks then stopped the run at ${c.stage}`)
@@ -650,7 +676,13 @@ export interface DispositionRow {
     check: string
     where: string
     origin: string
-    disposition: 'KEPT_ENFORCED' | 'BYPASSED_SIZE_RULE_ONLY'
+    /**
+     * Stage W2 (11 November 2026), re-pinned openly (was 'KEPT_ENFORCED' | 'BYPASSED_SIZE_RULE_ONLY'): KEPT_ENFORCED; BYPASSED_UNDER_SWITCH (only
+     * under the TEST-ONLY switch, SIZE_RULE_BYPASS: the size rule and its floor, the bounded pool); BYPASSED_UNDER_TREATMENT (only under a
+     * declared TEST-ONLY treatment: foundation presence, FOUNDATION_PRESENCE_BYPASS); TIGHTENING_UNDER_SWITCH (added under the switch, always on
+     * there: every selected member validated).
+     */
+    disposition: 'KEPT_ENFORCED' | 'BYPASSED_UNDER_SWITCH' | 'BYPASSED_UNDER_TREATMENT' | 'TIGHTENING_UNDER_SWITCH'
     /** Reported with its source and authority under the authorization's section 5 (the role mix and the foundation clause), or as an engine heuristic. */
     reported: string | null
     authority: string
@@ -667,19 +699,23 @@ export interface DispositionRow {
 
 export const DISPOSITION: DispositionRow[] = [
     { id: 'RECORD_POOL', check: 'the pool: the record\'s authorized set replaces the goal\'s own candidate constraints (which no record authorizes; the engine labels their authority VOCABULARY_POOL), minus holds', where: 'generateSelection.ts:135-190; guided-selection.ts (the record route)', origin: 'dc98ecb, 14 October 2026 (authorized constraints only); 1f18a02, 15 October 2026 (the record route)', disposition: 'KEPT_ENFORCED', reported: null, authority: 'Christian\'s 14 and 15 October rulings (constraints only from the goal\'s authorized set)', readsLenses: false, reads: 'nothing of the wording', path: 'EVERY_SELECTION', marks: [], control: 'the quota runs: the pool equals the authorized set (asserted)' },
-    { id: 'TOKEN_CHECK', check: 'the token check: the wording must hold a non-stopword token', where: 'generateSelection.ts:931-937', origin: '3980188, 3 May 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed: a wording-only change can trigger it', authority: 'none found; engine rule', readsLenses: false, reads: 'the wording\'s tokens', path: 'EVERY_SELECTION', marks: [], control: 'none run here (no wording without a token is used)' },
+    { id: 'TOKEN_CHECK', check: 'the token check: the wording must hold a non-stopword token', where: 'generateSelection.ts:941-947', origin: '3980188, 3 May 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed: a wording-only change can trigger it', authority: 'none found; engine rule', readsLenses: false, reads: 'the wording\'s tokens', path: 'EVERY_SELECTION', marks: [], control: 'none run here (no wording without a token is used)' },
     { id: 'LENS_HINTS', check: 'the lens hints and matched signals of the guided selection', where: 'guided-selection.ts:218-246 (governByApprovedGameProblem, :131)', origin: 'c725117, 13 October 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed: the engine lenses (ENGINE_LENS) follow the wording', authority: 'none over an owned decision (the lenses are engine inputs; the context\'s affordance targets were deferred by Christian on 13 September)', readsLenses: true, reads: 'the wording, and the Game Problem that governs the hints (Step 1\'s on the experiment path since stage W1 (a); the planning model\'s on the legacy route)', path: 'EVERY_SELECTION', marks: [], control: 'the wording test: the lens list changes under every rewording (an open disconnection)' },
-    { id: 'ZERO_BRANCH', check: 'the zero branch: an evaluated empty set commits lenses with no constraint', where: 'generateSelection.ts:811-815, :1029-1030', origin: '1f18a02 (the branch, then switched by a per-record zeroConstraintRuling) and 487dc32 (the general-principle switch, :1030), 15 October 2026; the review pathway\'s K2 result admitted as an empty set only at :1029 (TEST-ONLY, stage W1 (b), 11 November 2026)', disposition: 'KEPT_ENFORCED', reported: null, authority: 'Christian\'s general principle of 15 October 2026 (a constraint is not mandatory unless justified)', readsLenses: false, reads: 'nothing of the wording', path: 'EMPTY_SET', marks: [], control: 'the base cases (empty set) commit through it' },
-    { id: 'SIZE_RULE', check: 'the numerical size rule: 2 to 4 constraints', where: 'generateSelection.ts:719-721 (assertSelectionContract), :835 (the sizes enumerated)', origin: '3980188, 3 May 2026', disposition: 'BYPASSED_SIZE_RULE_ONLY', reported: 'bypassed only under the TEST-ONLY SIZE_RULE_BYPASS treatment (the authorization\'s section 5); under the bypass the sizes enumerated are the set\'s own size and 2 to 4, so for a set of 2 to 4 a one-manipulation subset is never tried (the floor of 2 remains for subsets)', authority: 'none found; engine rule', readsLenses: false, reads: 'nothing of the wording', path: 'NON_EMPTY_SET', marks: [], control: 'a lone manipulation is refused without the bypass and selected with it' },
-    { id: 'ROLE_MIX', check: 'the role mix', where: 'generateSelection.ts:590-612, applied :839', origin: '3980188, 3 May 2026 (the rule, :590-612); dc98ecb, 14 October 2026 (its needs read over the goal\'s pool, :819-827, applied :839)', disposition: 'KEPT_ENFORCED', reported: 'reported with its source and authority (the authorization\'s section 5); it refuses no set run here: a set of 1 or 2 is enumerated only whole, and its needs are read over the pool (generateSelection.ts:827, :835-836, :590-612)', authority: 'none found for the rule; the pool-relative reading of its needs is our reading of Christian\'s 14 October ruling (constraints only from the goal\'s designated candidates), not a ruling on the role mix', readsLenses: true, reads: 'the constraint scores of each lens combination (the wording\'s tokens and the lens slugs, generateSelection.ts:572-580, :817-827)', path: 'NON_EMPTY_SET', marks: [], control: 'none needed: read from the code, it refuses no set run here (no observer is added to the selector)' },
-    { id: 'FOUNDATION_CLAUSE', check: 'the foundation clause (with its keyword threshold)', where: 'build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327', origin: 'e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian\'s 14 October ruling, the foundation half kept, not ruled)', disposition: 'KEPT_ENFORCED', reported: 'reported with its source and authority (the authorization\'s section 5)', authority: 'none found; engine rule (our own comment calls it not ruled)', readsLenses: true, reads: 'the primary lens title (the keyword threshold)', path: 'NON_EMPTY_SET', marks: ['No compatible foundation constraint was found for archetype'], control: 'a lone shaping or consequence manipulation is refused on every lens combination (attribution)' },
-    { id: 'PACKAGE_ROW_O', check: 'the package check: a clear relationship to the selected affordance (row o)', where: 'validate-constraint-package.ts:484-493', origin: 'e60a740, 18 April 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine keyword heuristic, reported', authority: 'none found; engine heuristic', readsLenses: true, reads: 'the primary lens title and tag group, and ten words in the members\' own text', path: 'NON_EMPTY_SET', marks: ['does not show a clear relationship to the selected affordance or open problem space'], control: 'the goal\'s own pool members are refused on every lens combination (attribution)' },
-    { id: 'PACKAGE_ROW_K', check: 'the package check: each member supports the selected affordance tag group (row k)', where: 'validate-constraint-package.ts:356-367', origin: 'e60a740, 18 April 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine compatibility check, reported', authority: 'UNCONFIRMED (the tag-group data)', readsLenses: true, reads: 'the lens tag group', path: 'NON_EMPTY_SET', marks: ['does not support the selected affordance tag group'], control: 'a consequence member is refused on the reworded lenses (attribution)' },
-    { id: 'PACKAGE_OTHER', check: 'the other package checks (rows h-j, l-n, p)', where: 'validate-constraint-package.ts:306-555', origin: 'e60a740, 02adc8b, 5222486', disposition: 'KEPT_ENFORCED', reported: 'engine checks and heuristics, reported', authority: 'none found', readsLenses: true, reads: 'the lenses and the members\' own text', path: 'NON_EMPTY_SET', marks: [], control: 'none refused in these runs' },
-    { id: 'BOUNDED_SEARCH', check: 'the bounded search: 3 lenses, 2 constraints per bucket', where: 'generateSelection.ts:635-690', origin: 'ded8aaa, 13 May 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine performance heuristic, reported (it can drop an authorized constraint beyond 2 per bucket)', authority: 'none found; engine heuristic', readsLenses: true, reads: 'the lens and constraint scores', path: 'NON_EMPTY_SET', marks: [], control: 'none needed here (no set holds more than 2 per bucket)' },
-    { id: 'LENS_RULE', check: 'the lens rule: 2 or 3 lenses', where: 'generateSelection.ts:704-709, :801', origin: '3980188, 3 May 2026', disposition: 'KEPT_ENFORCED', reported: 'a numerical engine rule on lenses, reported (the authorization\'s section 5 names manipulations only)', authority: 'none found; engine rule', readsLenses: true, reads: 'the lens candidates', path: 'COMMITTED_SELECTION', marks: [], control: 'every committed selection holds 3 lenses' },
-    { id: 'COMMIT_RULE', check: 'the commit rule: the highest-scoring possibility, ties to the smallest key', where: 'generateSelection.ts:868-876', origin: '1f01d41, 8 July 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine heuristic, reported (commit all or choose stays open)', authority: 'none found; engine heuristic', readsLenses: true, reads: 'the lens and constraint scores', path: 'COMMITTED_SELECTION', marks: [], control: 'every committed non-empty set was committed whole (asserted)' },
-    { id: 'RESOLUTION_STATUS', check: 'the resolution status: a selection that did not resolve is refused', where: 'run-bounded-selection.ts:459', origin: '3a5aeed, 8 October 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed (the matched signals)', authority: 'Christian\'s ruling of 8 October 2026 (unresolved selections must not proceed)', readsLenses: false, reads: 'the matched signals of the wording', path: 'COMMITTED_SELECTION', marks: [], control: 'none refused in these runs' },
+    { id: 'ZERO_BRANCH', check: 'the zero branch: an evaluated empty set commits lenses with no constraint', where: 'generateSelection.ts:816-820, :1039-1040', origin: '1f18a02 (the branch, then switched by a per-record zeroConstraintRuling) and 487dc32 (the general-principle switch, :1040), 15 October 2026; the review pathway\'s K2 result admitted as an empty set only at :1039 (TEST-ONLY, stage W1 (b), 11 November 2026)', disposition: 'KEPT_ENFORCED', reported: null, authority: 'Christian\'s general principle of 15 October 2026 (a constraint is not mandatory unless justified)', readsLenses: false, reads: 'nothing of the wording', path: 'EMPTY_SET', marks: [], control: 'the base cases (empty set) commit through it' },
+    { id: 'SIZE_RULE', check: 'the numerical size rule: 2 to 4 constraints, and with it the floor of 2 for subsets', where: 'generateSelection.ts:718-724 (assertSelectionContract), :840 (the sizes enumerated), :1046-1047 (the sizes under the switch)', origin: '3980188, 3 May 2026', disposition: 'BYPASSED_UNDER_SWITCH', reported: 'bypassed only under the TEST-ONLY SIZE_RULE_BYPASS treatment, the switch (the authorization\'s section 5); since stage W2 (11 November 2026) under the switch the only size tried is the set\'s own, so the set is taken whole: the floor of 2 for subsets is gone with the rule, and the contract admits exactly that size', authority: 'none found; engine rule', readsLenses: false, reads: 'nothing of the wording', path: 'NON_EMPTY_SET', marks: [], control: 'a lone manipulation is refused without the switch and selected with it; with the legacy sizes back under the switch (a deliberate break), a passing pair of a triple whose whole fails a kept check is committed and reads UNAUTHORIZED_SOURCE' },
+    { id: 'ROLE_MIX', check: 'the role mix', where: 'generateSelection.ts:591-613, applied :844', origin: '3980188, 3 May 2026 (the rule, :591-613); dc98ecb, 14 October 2026 (its needs read over the goal\'s pool, :824-832, applied :844)', disposition: 'KEPT_ENFORCED', reported: 'reported with its source and authority (the authorization\'s section 5); unchanged, and it refuses no set under the switch: there a set is enumerated only whole (stage W2) and its needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613)', authority: 'none found for the rule; the pool-relative reading of its needs is our reading of Christian\'s 14 October ruling (constraints only from the goal\'s designated candidates), not a ruling on the role mix', readsLenses: true, reads: 'the constraint scores of each lens combination (the wording\'s tokens and the lens slugs, generateSelection.ts:572-580, :822-832)', path: 'NON_EMPTY_SET', marks: [], control: 'the inertness test (stage W2): every singleton, pair and triple of the library passes whole with its needs read over itself, each member counted compatible; bite: with the library-wide needs a pair is refused' },
+    { id: 'FOUNDATION_CLAUSE', check: 'the foundation clause: a non-empty package holds a foundation (structure-role) member', where: 'build-constraint-package.ts:634-641; validate-constraint-package.ts:333-335', origin: 'e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts: the shaping half removed after Christian\'s 14 October ruling, the foundation half kept, not ruled)', disposition: 'BYPASSED_UNDER_TREATMENT', reported: 'reported with its source and authority (the authorization\'s section 5); since stage W2 (11 November 2026) classified by us as a quota (presence required of every non-empty set, so 15 of the 23 library constraints, 9 consequence and 6 hybrid, can never be the one manipulation) and bypassed only under the declared TEST-ONLY treatment FOUNDATION_PRESENCE_BYPASS, which Christian can reverse by its removal; the keyword threshold (build-constraint-package.ts:147-153) still decides whether a present structure member is picked, and one under it is refused by MEMBER_PRESENCE', authority: 'none found; engine rule (our own comment calls it not ruled)', readsLenses: true, reads: 'the primary lens title (the keyword threshold)', path: 'NON_EMPTY_SET', marks: ['No compatible foundation constraint was found for archetype'], control: 'without the treatment (the reversal arm, controls) a lone Wide Zone Advantage or Turnover Reward, and the two together, are refused by it on every lens combination (attribution); with it they reach the kept checks' },
+    { id: 'MEMBER_PRESENCE', check: 'every selected member validated: a set any member of which is absent from the checked package is refused (the package holds one member per role, build-constraint-package.ts:163-179, :634-657; a consequence scoring 12 or less is dropped, :657)', where: 'selection-compatibility.ts:121, :128, :137-145; switched on at generateSelection.ts:853 (SwitchChecks, :1213-1232)', origin: 'stage W2, 11 November 2026 (TEST-ONLY)', disposition: 'TIGHTENING_UNDER_SWITCH', reported: 'a tightening, always on under the switch, absent without it; the same hole is open on the production route by construction (a selection of 4, or of two members of one role, commits a member the package never held): reported, not changed', authority: 'our reading of Christian\'s words of 15 October 2026 (the engine to continue enforcing structural validity) and of 11 November 2026, second reply (justified validation retained): the validation of what is present, applied to every member present', readsLenses: true, reads: 'the primary and supporting lens titles and tag groups, through each member\'s score for its role (build-constraint-package.ts:89-161)', path: 'NON_EMPTY_SET', marks: ['absent from the checked package'], control: 'two members of one role (Neutral Player with Central Density Condition) are refused by it; without it (a deliberate break) the pair is committed with a member never validated, and the production package check admits it directly' },
+    { id: 'PACKAGE_ROW_O', check: 'the package check: a clear relationship to the selected affordance (row o)', where: 'validate-constraint-package.ts:492-501', origin: 'e60a740, 18 April 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine keyword heuristic, reported', authority: 'none found; engine heuristic', readsLenses: true, reads: 'the primary lens title and tag group, and ten words in the members\' own text', path: 'NON_EMPTY_SET', marks: ['does not show a clear relationship to the selected affordance or open problem space'], control: 'the goal\'s own pool members are refused on every lens combination (attribution)' },
+    { id: 'PACKAGE_ROW_K', check: 'the package check: each member supports the selected affordance tag group (row k)', where: 'validate-constraint-package.ts:364-375', origin: 'e60a740, 18 April 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine compatibility check, reported', authority: 'UNCONFIRMED (the tag-group data)', readsLenses: true, reads: 'the lens tag group', path: 'NON_EMPTY_SET', marks: ['does not support the selected affordance tag group'], control: 'a consequence member is refused on the reworded lenses (attribution)' },
+    // Stage W2: its own refusals recognized by their words (each check's message other than the foundation clause, row k and row o), since a
+    // lone member without a foundation now reaches them (measured: a lone Wide Zone Advantage, the package one-sided).
+    { id: 'PACKAGE_OTHER', check: 'the other package checks (rows h-j, l-n, p)', where: 'validate-constraint-package.ts:314-563', origin: 'e60a740, 02adc8b, 5222486', disposition: 'KEPT_ENFORCED', reported: 'engine checks and heuristics, reported', authority: 'none found', readsLenses: true, reads: 'the lenses and the members\' own text', path: 'NON_EMPTY_SET', marks: ['is required before validation', 'missing complete structured assembly guardrails', 'does not provide validation signals for the system-built interaction exchange', 'is not compatible with the selected system inputs', 'conflicts with the selected archetype', 'uses vague language instead of observable game cues', 'does not clearly state what players should notice and adapt to', 'does not shape the environment strongly enough', 'does not highlight the problem through incentives or preserved player choices', 'does not express a meaningful incentive', 'does not connect one team\'s opportunity to risk for the other team', 'removes too many player decisions', 'is compliance-heavy and does not preserve open play', 'over-prescribes behavior', 'includes vague language instead of observable game events', 'reads as one-sided and does not depend enough on opponent interaction', 'does not express a meaningful consequence', 'does not fully describe the visible cue, consequence, opponent response, and live continuation', 'do not fully express the visible cue, decision problem, opponent consequence, and live continuation'], control: 'under FOUNDATION_PRESENCE_BYPASS a lone Wide Zone Advantage is refused on every lens combination as one-sided (attribution)' },
+    { id: 'BOUNDED_SEARCH', check: 'the bounded search over constraints: 2 per bucket', where: 'generateSelection.ts:637, :662-693', origin: 'ded8aaa, 13 May 2026', disposition: 'BYPASSED_UNDER_SWITCH', reported: 'an engine performance heuristic, reported (it can drop an authorized constraint beyond 2 per bucket); since stage W2 (11 November 2026) not applied under the switch, where the record\'s pool is searched whole (:685)', authority: 'none found; engine heuristic', readsLenses: true, reads: 'the constraint scores', path: 'NON_EMPTY_SET', marks: [], control: 'three members of one role under the switch: the whole set reaches the package check on every lens combination and is refused there by MEMBER_PRESENCE (observed by a probe on the check); with the cap (a deliberate break) the set never reaches it' },
+    { id: 'LENS_SEARCH', check: 'the bounded search over lenses: the top 3 lenses by score', where: 'generateSelection.ts:636, :643-653, applied :1055', origin: 'ded8aaa, 13 May 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine performance heuristic, reported (stage W2 splits it from the bounded search over constraints, unchanged); with the ranking by the wording\'s tokens it decides which lenses the kept checks read, Christian\'s question Q-a2', authority: 'none found; engine heuristic', readsLenses: true, reads: 'the lens scores (the wording\'s tokens)', path: 'EVERY_SELECTION', marks: [], control: 'every committed selection holds lenses of the top 3 (the lens arms of stage W1 (c1))' },
+    { id: 'LENS_RULE', check: 'the lens rule: 2 or 3 lenses', where: 'generateSelection.ts:707-712, :806', origin: '3980188, 3 May 2026', disposition: 'KEPT_ENFORCED', reported: 'a numerical engine rule on lenses, reported (the authorization\'s section 5 names manipulations only)', authority: 'none found; engine rule', readsLenses: true, reads: 'the lens candidates', path: 'COMMITTED_SELECTION', marks: [], control: 'every committed selection holds 3 lenses' },
+    { id: 'COMMIT_RULE', check: 'the commit rule: the highest-scoring possibility, ties to the smallest key', where: 'generateSelection.ts:875-883', origin: '1f01d41, 8 July 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine heuristic, reported; under the switch, since stage W2, it chooses among lens combinations only, the set being whole, so never how many or which of the record\'s constraints; without the switch it still chooses among sizes 2 to 4 (whether a record may be a menu: Christian\'s question Q-a1)', authority: 'none found; engine heuristic', readsLenses: true, reads: 'the lens and constraint scores', path: 'COMMITTED_SELECTION', marks: [], control: 'every committed non-empty set was committed whole (asserted); a built strict subset of the record\'s set reads UNAUTHORIZED_SOURCE (stage W2)' },
+    { id: 'RESOLUTION_STATUS', check: 'the resolution status: a selection that did not resolve is refused', where: 'run-bounded-selection.ts:472', origin: '3a5aeed, 8 October 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed (the matched signals)', authority: 'Christian\'s ruling of 8 October 2026 (unresolved selections must not proceed)', readsLenses: false, reads: 'the matched signals of the wording', path: 'COMMITTED_SELECTION', marks: [], control: 'none refused in these runs' },
 ]
 
 /** The rule a package refusal is recognized by: the one disposition row whose marks every given reason holds, or null. */
@@ -687,6 +723,20 @@ export function ruleOfReasons(reasons: string[]): DispositionRow | null {
     if (!reasons.length) return null
     const hits = DISPOSITION.filter((d) => d.marks.length && reasons.every((reason) => d.marks.some((m) => reason.indexOf(m) >= 0)))
     return hits.length === 1 ? hits[0] : null
+}
+
+/**
+ * Stage W2 (11 November 2026): the rows a selection refusal over several lens combinations is recognized by (each combination's reasons as the
+ * package check returned them): one row holding them all; otherwise each combination's own row, sorted and unique, where every combination
+ * has one; otherwise null.
+ */
+export function rulesOfCombinations(reasonsPerCombination: string[][]): string[] | null {
+    if (!reasonsPerCombination.length) return null
+    const one = ruleOfReasons(reasonsPerCombination.reduce((all, r) => [...all, ...r], [] as string[]))
+    if (one) return [one.id]
+    const each = reasonsPerCombination.map((r) => ruleOfReasons(r))
+    if (each.some((r) => r === null)) return null
+    return [...new Set(each.map((r) => (r as DispositionRow).id))].sort()
 }
 
 /** Each check of the disposition table, with whether it ran on this run: ran, not run on this path (the zero branch), bypassed, or not reached. */
@@ -698,20 +748,29 @@ export function dispositionOf(run: SafeguardRun): Array<{ id: string; ran: strin
     const recordRoute = x ? x.constraintAuthority === 'AUTHORIZATION_RECORD' || x.constraintAuthority === 'REVIEW_PATHWAY_K2' : c?.constraintAuthority === 'AUTHORIZATION_RECORD'
     const zero = !!c && recordRoute && ids !== null && ids.length === 0
     const committed = !!c && stopIndexOf(run) > stageIndex('selection')
-    const zeroWords = 'not run on this path (zero branch, generateSelection.ts:811-815)'
-    // A consumed set smaller than 2 (the smallest size generateSelection.ts:1037 enumerates without the bypass) is never enumerated: no
-    // combination reaches the role mix or the package checks (generateSelection.ts:835-836 skips every size larger than the pool).
+    const zeroWords = 'not run on this path (zero branch, generateSelection.ts:816-820)'
+    // A consumed set smaller than 2 (the smallest size generateSelection.ts:1047 enumerates without the bypass) is never enumerated: no
+    // combination reaches the role mix or the package checks (generateSelection.ts:840-841 skips every size larger than the pool).
     const unenumerated = !!x && !x.sizeRuleBypassed && ids !== null && ids.length > 0 && ids.length < 2
-    const unenumeratedWords = `not run on this path (no combination enumerated: the set holds ${ids ? ids.length : 0}; without the bypass the sizes enumerated are 2 to 4, generateSelection.ts:835-836)`
+    const unenumeratedWords = `not run on this path (no combination enumerated: the set holds ${ids ? ids.length : 0}; without the bypass the sizes enumerated are 2 to 4, generateSelection.ts:840-841)`
     const ENUMERATED_ONLY = ['ROLE_MIX', 'FOUNDATION_CLAUSE', 'PACKAGE_ROW_O', 'PACKAGE_ROW_K', 'PACKAGE_OTHER']
+    // Stage W2 (11 November 2026): what the switch and the treatment change, per run.
+    const underSwitch = !!x && x.sizeRuleBypassed
+    const SWITCHED: Record<string, string> = {
+        SIZE_RULE: 'bypassed (TEST-ONLY, the switch): the set\'s own size only, the set taken whole, and the contract admits exactly that size (stage W2)',
+        BOUNDED_SEARCH: 'not applied (TEST-ONLY, the switch): the record\'s pool searched whole (stage W2)',
+    }
     return DISPOSITION.map((d) => {
         if (!c) return { id: d.id, ran: 'not reached (the chain was not run)' }
         if (d.path === 'EVERY_SELECTION') return { id: d.id, ran: 'ran' }
         if (d.path === 'EMPTY_SET') return { id: d.id, ran: zero ? 'ran' : 'not on this path (the set is not empty, or no evaluated record governs)' }
         if (d.path === 'COMMITTED_SELECTION') return { id: d.id, ran: committed ? 'ran' : 'not reached (no selection was committed)' }
         if (zero) return { id: d.id, ran: zeroWords }
+        if (d.disposition === 'TIGHTENING_UNDER_SWITCH' && !underSwitch) return { id: d.id, ran: 'not on this path (the switch is off)' }
         if (unenumerated && ENUMERATED_ONLY.indexOf(d.id) >= 0) return { id: d.id, ran: unenumeratedWords }
-        if (d.id === 'SIZE_RULE' && x && x.sizeRuleBypassed) return { id: d.id, ran: 'bypassed (TEST-ONLY): the set\'s own size tried, and the contract admits 1 to its size (a one-manipulation subset of a set of 2 to 4 is not tried)' }
+        if (underSwitch && SWITCHED[d.id]) return { id: d.id, ran: SWITCHED[d.id] }
+        if (d.id === 'FOUNDATION_CLAUSE' && x && x.foundationPresenceBypassed)
+            return { id: d.id, ran: 'bypassed (TEST-ONLY, the treatment FOUNDATION_PRESENCE_BYPASS): presence not required; a structure member present is still checked, and one under its threshold is refused by MEMBER_PRESENCE (stage W2)' }
         return { id: d.id, ran: 'ran' }
     })
 }
@@ -804,7 +863,7 @@ export function safeguardsText(rep: SafeguardsReport): string[] {
         out.push(`   checks: ${dispositionOf(r.run).map((d) => `${d.id} ${d.ran}`).join('; ')}`)
     }
     out.push('')
-    out.push('THE SELECTION CHECKS (kept-enforced unless named; the numerical size rule alone is bypassed, TEST-ONLY)')
+    out.push('THE SELECTION CHECKS (kept and enforced unless named: under the TEST-ONLY switch the size rule with its floor and the bounded search over constraints are bypassed and every selected member is validated; foundation presence is bypassed only under the declared TEST-ONLY treatment FOUNDATION_PRESENCE_BYPASS)')
     for (const d of DISPOSITION) out.push(`- ${d.id}: ${d.check}; ${d.disposition}; source ${d.where}; origin ${d.origin}; authority ${d.authority}; reads ${d.reads}; reads wording-derived lenses: ${d.readsLenses ? 'yes' : 'no'}${d.reported ? `; ${d.reported}` : ''}; negative control: ${d.control}`)
     out.push('')
     out.push(`OPEN DISCONNECTIONS (${rep.entries.length}; printed as open disconnections, never as safeguards passing)`)

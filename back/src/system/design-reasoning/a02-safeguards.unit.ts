@@ -35,6 +35,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as packageBuilder from '../build-constraint-package'
 import { loadDraftStore } from '../derivation/draft-store'
 import * as boundedSelection from '../derivation/run-bounded-selection'
 import { SIGNAL_GROUP_TO_GAME_PROBLEM } from '../knowledge-core/affordance-target-matrix'
@@ -43,10 +44,11 @@ import { specializedRoleNames } from '../rendering/session-envelope'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { guidedGoalText, guidedSelectionHints } from '../sport-module/guided-selection'
 import { soccerModule } from '../sport-module/soccer-module'
-import { generateSelection } from '../test-library/generateSelection'
+import { constraintBalanceBucket, constraintComboPassesRoleMix, generateSelection } from '../test-library/generateSelection'
 import { testLibraryRegistry } from '../test-library/library/registry'
 import { CONSTRAINT_AUTHORITIES } from '../test-library/types'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
+import * as compatibility from '../test-library/selection-compatibility'
 import { isSelectionPackageCompatible } from '../test-library/selection-compatibility'
 import { CaseInput, ChainAnswer, ChainRequest, HandoffChain, HandoffInputs, HandoffResult, runHandoff, validateHandoffInputs } from './handoff'
 import { chainWith, holdsGenderedPronoun, realChain } from './handoff-chain.unit'
@@ -68,6 +70,7 @@ import {
     ownershipOf,
     OWNERSHIP_TABLE,
     ruleOfReasons,
+    rulesOfCombinations,
     SafeguardFacts,
     SafeguardRun,
     safeguardRunOf,
@@ -183,7 +186,21 @@ export const QUOTA_SETS: Array<[string, string[]]> = [
     ['NP+TR', [C('neutral-player-condition'), C('turnover-reward')]],
     ['CDC+IR', [C('central-density-condition'), C('interception-reward')]],
 ]
-const setOf = (name: string): string[] => QUOTA_SETS.find((x) => x[0] === name)![1]
+/**
+ * Stage W2 (11 November 2026): the sets U3's runs table adds, on A02-0 under the goal's wording: two members of one role (NP+CDC), two with no
+ * foundation member (WZA+TR), three of the three roles (NP+WZA+TR), and the triple chosen by measurement for E1's negative control (NP+WZA+CDC:
+ * its whole fails a kept check on every lens combination while its pair NP+WZA passes on every one).
+ */
+export const W2_SETS: Array<[string, string[]]> = [
+    ['NP+CDC', [C('neutral-player-condition'), C('central-density-condition')]],
+    ['WZA+TR', [C('wide-zone-advantage'), C('turnover-reward')]],
+    ['NP+WZA+TR', [C('neutral-player-condition'), C('wide-zone-advantage'), C('turnover-reward')]],
+    ['NP+WZA+CDC', [C('neutral-player-condition'), C('wide-zone-advantage'), C('central-density-condition')]],
+]
+/** Stage W2: the reversal arm of E3 (foundation presence kept: the treatment not declared), for the sets with no foundation member (controls). */
+export const FOUNDATION_KEPT_SETS = ['WZA', 'TR', 'WZA+TR']
+export const FOUNDATION_KEPT = '/foundation-kept'
+const setOf = (name: string): string[] => [...QUOTA_SETS, ...W2_SETS].find((x) => x[0] === name)![1]
 const STAND_IN_FINDING = (set: string[]) =>
     `TEST-ONLY relationship stand-in (TEST ASSUMPTION), not knowledge: ${set.join(', ')} authorized here only to exercise the numerical size rule and the kept checks; no manipulation has an authorized relationship to RPC-002 and GP-015 in held knowledge`
 const quotaStores = new Map<string, string>()
@@ -228,10 +245,20 @@ function coverageLensesCase(wording = ''): CaseInput {
     c.testOnlyTreatments.push(copy(COVERAGE_LENSES))
     return c
 }
-function quotaCase(name: string, bypass: boolean, baseId = 'A02-0'): CaseInput {
+/** Stage W2 (E3): the declared TEST-ONLY treatment that bypasses foundation presence, on every quota run under the switch but the reversal arm. */
+const FOUNDATION_PRESENCE = {
+    id: 'TT-FOUNDATION-PRESENCE-BYPASS',
+    kind: 'FOUNDATION_PRESENCE_BYPASS' as const,
+    what: 'the package check need find no foundation (structure-role) member: our classification of foundation presence as a quota (stage W2)',
+    effect: 'a set with no structure member reaches the kept package checks; every member present is still checked, and under the switch every selected member must be in the checked package (a structure member under its keyword threshold is refused there)',
+    why: 'no authority was found for requiring a foundation member in every non-empty set; the treatment lets Christian reverse our classification by its removal (the reversal arm, the controls /foundation-kept, is kept beside it)',
+    label: 'TEST-ONLY',
+    rulingRefs: ['A02-10NOV-QUOTA'],
+}
+function quotaCase(name: string, bypass: boolean, baseId = 'A02-0', foundation: 'BYPASSED' | 'KEPT' = 'BYPASSED'): CaseInput {
     const c = withoutK2(caseOf(baseId))
-    c.id = `S4-${name}${bypass ? '' : '/no-bypass'}${baseId === 'A02-0' ? '' : `@${baseId}`}`
-    c.label = `TEST-ONLY quota run: ${setOf(name).join(', ')} in the DRAFT record's authorized set (a stand-in, never knowledge)${bypass ? ', the size rule bypassed' : ''}; base ${baseId}`
+    c.id = `S4-${name}${bypass ? '' : '/no-bypass'}${bypass && foundation === 'KEPT' ? FOUNDATION_KEPT : ''}${baseId === 'A02-0' ? '' : `@${baseId}`}`
+    c.label = `TEST-ONLY quota run: ${setOf(name).join(', ')} in the DRAFT record's authorized set (a stand-in, never knowledge)${bypass ? `, the size rule bypassed${foundation === 'BYPASSED' ? ', foundation presence not required' : ', foundation presence kept (the reversal arm)'}` : ''}; base ${baseId}`
     c.resultStanding = 'TEST_ONLY_TREATMENT_NEVER_THE_A02_CONFIGURATION'
     c.chain.draftStore = quotaStoreOf(name)
     c.testOnlyTreatments = c.testOnlyTreatments.map((t) =>
@@ -239,9 +266,15 @@ function quotaCase(name: string, bypass: boolean, baseId = 'A02-0'): CaseInput {
             ? { ...t, id: 'TT-DRAFT-STORE-SET', what: `a TEST-ONLY copy of the draft store ${STORE} whose DRAFT record authorizes ${setOf(name).join(', ')} (no ruling field filled; its finding names a TEST-ONLY relationship stand-in)`, effect: 'the record route governs the constraints with that set', why: 'to test one and two manipulations without the numerical quota; the set is a stand-in, never knowledge', rulingRefs: ['A02-10NOV-QUOTA'] }
             : t,
     )
+    // Stage W2, re-pinned openly (the switch's description): was 'the numerical size rule (2 to 4 constraints) bypassed for the record route's
+    // authorized set, and nothing else' / 'the selector also tries the set's own size, and its contract admits 1 to that size; every other check
+    // runs and enforces'.
     if (bypass)
-        c.testOnlyTreatments.push({ id: 'TT-SIZE-RULE-BYPASS', kind: 'SIZE_RULE_BYPASS', what: 'the numerical size rule (2 to 4 constraints) bypassed for the record route\'s authorized set, and nothing else', effect: 'the selector also tries the set\'s own size, and its contract admits 1 to that size; every other check runs and enforces', why: 'the authorization\'s section 5', label: 'TEST-ONLY', rulingRefs: ['A02-10NOV-QUOTA'] })
-    c.rulings = [...c.rulings, { ref: 'A02-10NOV-QUOTA', entersAs: 'REPORT_ONLY', how: 'the numerical size rule bypassed for the TEST-ONLY set only; every other check kept and enforced; the role mix and the foundation clause reported with source and authority' }]
+        c.testOnlyTreatments.push({ id: 'TT-SIZE-RULE-BYPASS', kind: 'SIZE_RULE_BYPASS', what: 'the switch: the numerical size rule (2 to 4 constraints) and its floor of 2 for subsets bypassed for the record route\'s authorized set, and the bounded search\'s cap of 2 per role not applied to it (stage W2)', effect: 'the selector tries the set whole, its own size only, and its contract admits exactly that size; every selected member must be in the checked package (stage W2, a tightening); every other check runs and enforces', why: 'the authorization\'s section 5', label: 'TEST-ONLY', rulingRefs: ['A02-10NOV-QUOTA'] })
+    if (bypass && foundation === 'BYPASSED') c.testOnlyTreatments.push(copy(FOUNDATION_PRESENCE))
+    // Stage W2, re-pinned openly: was 'the numerical size rule bypassed for the TEST-ONLY set only; every other check kept and enforced; the role
+    // mix and the foundation clause reported with source and authority'.
+    c.rulings = [...c.rulings, { ref: 'A02-10NOV-QUOTA', entersAs: 'REPORT_ONLY', how: 'under the switch the numerical size rule with its floor and the bounded pool bypassed for the TEST-ONLY set only, the set taken whole and every selected member validated; foundation presence bypassed only under its declared treatment; every other check kept and enforced; the role mix and the foundation clause reported with source and authority' }]
     c.proposedManipulations = setOf(name).map((m, n) => ({ id: `PM-S4-${n + 1}`, purpose: 'TEST-ONLY: a manipulation in the record\'s authorized set, to exercise the size rule and the kept checks', manipulation: m, relationship: { ...RELATIONSHIP }, entersBy: 'RECORD' as const }))
     return c
 }
@@ -344,18 +377,28 @@ export const attributions = new Map<string, { pool: string[]; perCombo: string[]
  * The role mix on these runs, read from the code (R3-09): a set of 1 or 2 is enumerated only whole (generateSelection.ts:835-836 skips every
  * size larger than the pool), its role needs are read over the pool (:827), and the whole pool holds every role it needs (:590-612).
  */
-const ROLE_MIX_PASSES = 'the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read over the pool (generateSelection.ts:827, :835-836, :590-612)'
-function attributeWith(pool: () => string[], set: string[], bypass: boolean) {
+// Stage W2, re-pinned openly: was 'the role mix refuses no set run here: a set of 1 or 2 is enumerated only whole, and its role needs are read
+// over the pool (generateSelection.ts:827, :835-836, :590-612)'; under the switch every set is now enumerated only whole (E1).
+const ROLE_MIX_PASSES = 'the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it)'
+/**
+ * The package check's options as the selector passes them on the run: under the switch every selected member validated (E4), and under the
+ * treatment foundation presence not required (E3); nothing without the switch (stage W2).
+ */
+const optionsOf = (bypass: boolean, foundationBypassed: boolean) => (bypass ? { everyMemberValidated: true as const, ...(foundationBypassed ? { foundationPresenceBypass: true as const } : {}) } : {})
+function attributeWith(pool: () => string[], set: string[], bypass: boolean, foundationBypassed = bypass) {
     return (r: HandoffResult): EngineRuleAttribution | null => {
         if (!r.chain || r.chain.stage !== 'selection') return null
-        if (!bypass && set.length < 2) return { rule: 'SIZE_RULE', how: `no combination was enumerated: the set holds ${set.length} and, without the bypass, the sizes enumerated are 2 to 4 (generateSelection.ts:835-836)` }
+        if (!bypass && set.length < 2) return { rule: 'SIZE_RULE', how: `no combination was enumerated: the set holds ${set.length} and, without the bypass, the sizes enumerated are 2 to 4 (generateSelection.ts:840-841)` }
         const lenses = pool()
         const combos = [...subsets(lenses, 2), ...subsets(lenses, 3)]
-        const results = combos.map((lc) => isSelectionPackageCompatible({ archetype: archetypeOf(String(r.form.formId)), affordanceLenses: lc.map(lensOf), constraints: set.map(constraintOf), requireShaping: false }))
+        const results = combos.map((lc) => isSelectionPackageCompatible({ archetype: archetypeOf(String(r.form.formId)), affordanceLenses: lc.map(lensOf), constraints: set.map(constraintOf), requireShaping: false, ...optionsOf(bypass, foundationBypassed) }))
         attributions.set(r.caseId, { pool: lenses, perCombo: results.map((x, n) => `${combos[n].map((l) => l.replace('tl-v0-lens-', '')).join('+')}: ${x.compatible ? 'compatible' : x.reasons.join(' | ')}`) })
         if (results.some((x) => x.compatible)) return { rule: null, how: `the package check admits ${results.filter((x) => x.compatible).length} of ${combos.length} lens combinations, so it is not what refused (${ROLE_MIX_PASSES})` }
-        const rule = ruleOfReasons(results.flatMap((x) => x.reasons))
-        return { rule: rule ? rule.id : null, how: `the exported package check re-run on ${r.form.formId} and each of the ${combos.length} lens combinations of the run's lens pool with the set: every one first refused with ${rule ? `the ${rule.id} reason` : 'reasons no single check owns'} (the check returns the first reason it meets, selection-compatibility.ts:89-106; ${ROLE_MIX_PASSES}; the gap's unfilled roles are the pool's, never the cause)` }
+        // Stage W2: one check for every combination, or (rules) each combination's own check where they differ.
+        const ids = rulesOfCombinations(results.map((x) => x.reasons))
+        const options = bypass ? `, with the selector's options on this run (every selected member validated${foundationBypassed ? '; foundation presence not required' : ''})` : ''
+        const how = `the exported package check re-run on ${r.form.formId} and each of the ${combos.length} lens combinations of the run's lens pool with the set${options}: every one first refused with ${ids === null ? 'reasons no single check owns' : ids.length === 1 ? `the ${ids[0]} reason` : `the reason of one of ${ids.join(', ')} (${results.map((x, n) => `${combos[n].map((l) => l.replace('tl-v0-lens-', '')).join('+')} ${ruleOfReasons(x.reasons)?.id}`).join('; ')})`} (the check returns the first reason it meets, selection-compatibility.ts:105-135; ${ROLE_MIX_PASSES}; the gap's unfilled roles are the pool's, never the cause)`
+        return ids && ids.length > 1 ? { rule: null, rules: ids, how } : { rule: ids ? ids[0] : null, how }
     }
 }
 const lensPoolOf = (id: string) => () => {
@@ -405,6 +448,10 @@ function buildAll(): void {
     // R4-02 (review, batch A2): a set of two lies inside the 2-to-4 quota, so the switch should change nothing for it; measured, not assumed.
     runCase(quotaCase('NP+WZA', false), 'CONTROL', 'quota control: two manipulations without the bypass (a set inside 2 to 4)', { authorizedSet: setOf('NP+WZA'), attribute: attributeWith(lensPoolOf('A02-0'), setOf('NP+WZA'), false) })
     for (const name of ['NP', 'NP+WZA']) runCase(quotaCase(name, true, 'A02-D'), 'EXPERIMENT', `quota run ${name} on A02-D`, { authorizedSet: setOf(name) })
+    // Stage W2 (11 November 2026): U3's runs table (two and three manipulations; the triple of E1's negative control), under the switch and the
+    // treatment; and E3's reversal arm (foundation presence kept), controls, for the sets with no foundation member.
+    for (const [name, set] of W2_SETS) runCase(quotaCase(name, true), 'EXPERIMENT', `quota run ${name}`, { authorizedSet: set, attribute: attributeWith(lensPoolOf('A02-0'), set, true) })
+    for (const name of FOUNDATION_KEPT_SETS) runCase(quotaCase(name, true, 'A02-0', 'KEPT'), 'CONTROL', `quota control: ${name} under the switch with foundation presence kept (the reversal arm of FOUNDATION_PRESENCE_BYPASS)`, { authorizedSet: setOf(name), attribute: attributeWith(lensPoolOf('A02-0'), setOf(name), true, false) })
     // Dependency arms (tests 3 and 4) and the stop sequence's middle path (S6).
     const swapped = (gp: string): DesignKnowledge => {
         const kk = committedKnowledge()
@@ -570,12 +617,16 @@ function writeMeasurement(file: string): void {
 
 const WORDED = (ids: string[]) => ['reversed', 'neutral'].flatMap((w) => ids.map((id) => `${id}~${w}`))
 export const QUOTA_REFUSED = ['S4-WZA', 'S4-TR', 'S4-CDC', 'S4-CDC+IR']
+/** Stage W2: the runs of W2_SETS refused at selection (measured: two members of one role, refused by MEMBER_PRESENCE on every lens combination). */
+export const W2_REFUSED = ['S4-NP+CDC', 'S4-NP+WZA+CDC']
 /** Stage W1 (c1): the Coverage-row arm of A02-0 under the goal's wording and the two rewordings. */
 export const GPCL_RUNS = ['', '~reversed', '~neutral'].map((w) => `A02-0${GPCL}${w}`)
 /** Every experiment run that reached the chain (measured: every one but GP-001, which stops at the handoff). */
 const REACHED_CHAIN = [
     'A02-0', 'A02-1', 'A02-1b', 'A02-2', 'A02-D',
     ...QUOTA_SETS.map(([name]) => `S4-${name}`), 'S4-NP@A02-D', 'S4-NP+WZA@A02-D',
+    // Stage W2: the runs of W2_SETS.
+    ...W2_SETS.map(([name]) => `S4-${name}`),
     'GP-002', 'GF7-CELL', 'A02-2/narrowed', 'A02-2/no-line-crossed', 'NO-RESTATEMENT',
     ...WORDED(['A02-0', 'A02-1', 'A02-2', ...QUOTA_SETS.map(([name]) => `S4-${name}`)]), 'A02-0~pressure',
     // Stage W1 (c1): the Game Problem Coverage-row arm under the three wordings.
@@ -584,6 +635,8 @@ const REACHED_CHAIN = [
 /** The experiment runs whose account displays the approved condition as in this activity (measured: every run past selection with RPC-002's restatement). */
 const DISPLAYED = [
     'A02-0', 'A02-1', 'A02-1b', 'A02-2', 'A02-D', 'S4-NP', 'S4-NP+WZA', 'S4-NP+TR', 'S4-NP@A02-D', 'S4-NP+WZA@A02-D',
+    // Stage W2: the two runs of W2_SETS selected (then refused at knowledge).
+    'S4-WZA+TR', 'S4-NP+WZA+TR',
     'GP-002', 'GF7-CELL', 'A02-2/narrowed', 'A02-2/no-line-crossed',
     ...WORDED(['A02-0', 'A02-1', 'A02-2', 'S4-NP', 'S4-NP+WZA']), 'A02-0~pressure',
     ...GPCL_RUNS,
@@ -592,8 +645,30 @@ const LEGACY_REACHED = ['GP-002/legacy', 'GF7-CELL/legacy', 'L1', 'L2', 'L3', 'A
 const LENSES_BEFORE = 'Possession Stability Opportunity, Space Creation Opportunity, Regain Opportunity'
 const LENSES_AFTER = 'Line-Breaking Opportunity, Possession Stability Opportunity, Space Creation Opportunity'
 
-/** The rule each refused quota run was attributed to (measured: the exported package check re-run on the run's own lens pool; S4 pins it). */
-const QUOTA_RULES: Record<string, string> = { 'S4-WZA': 'FOUNDATION_CLAUSE', 'S4-TR': 'FOUNDATION_CLAUSE', 'S4-CDC': 'PACKAGE_ROW_O', 'S4-CDC+IR': 'PACKAGE_ROW_O' }
+/**
+ * The rule each refused quota run was attributed to (measured: the exported package check re-run on the run's own lens pool with the selector's
+ * options on the run; S4 pins it). Re-pinned openly in stage W2 (11 November 2026), keyed by run (the reworded Turnover Reward differs): was
+ * { 'S4-WZA': 'FOUNDATION_CLAUSE', 'S4-TR': 'FOUNDATION_CLAUSE', 'S4-CDC': 'PACKAGE_ROW_O', 'S4-CDC+IR': 'PACKAGE_ROW_O' } for the four sets
+ * and their rewordings. Why: under FOUNDATION_PRESENCE_BYPASS a lone member with no foundation reaches the kept checks: a lone Wide Zone
+ * Advantage is one-sided (PACKAGE_OTHER) on every lens combination; a lone Turnover Reward fails row k on one of the goal's lens combinations
+ * and row o on the other three (TR_PER_COMBO), and row k on every reworded one; Central Density Condition, alone and with Interception Reward,
+ * row o as before. The runs of W2_SETS refused at selection: MEMBER_PRESENCE.
+ */
+const QUOTA_RULES: Record<string, string> = {
+    'S4-WZA': 'PACKAGE_OTHER',
+    'S4-TR': 'PACKAGE_ROW_K+PACKAGE_ROW_O',
+    'S4-CDC': 'PACKAGE_ROW_O',
+    'S4-CDC+IR': 'PACKAGE_ROW_O',
+    'S4-NP+CDC': 'MEMBER_PRESENCE',
+    'S4-NP+WZA+CDC': 'MEMBER_PRESENCE',
+    ...Object.fromEntries(WORDED(['S4-WZA']).map((id) => [id, 'PACKAGE_OTHER'])),
+    ...Object.fromEntries(WORDED(['S4-TR']).map((id) => [id, 'PACKAGE_ROW_K'])),
+    ...Object.fromEntries(WORDED(['S4-CDC', 'S4-CDC+IR']).map((id) => [id, 'PACKAGE_ROW_O'])),
+}
+/** Stage W2: the refused quota runs held to OD-PACKAGE-LENSES, in the order its pairs list them. */
+const PACKAGE_LENS_RUNS = [...QUOTA_REFUSED, ...W2_REFUSED, ...WORDED(QUOTA_REFUSED)]
+/** Stage W2 (measured): the check that first refused a lone Turnover Reward on each of the goal's lens combinations, in the selector's order (k: row k; o: row o). */
+const TR_PER_COMBO = ['k', 'o', 'o', 'o']
 const baseOf = (id: string) => id.split('~')[0]
 
 /*
@@ -622,13 +697,15 @@ export const OPEN_DISCONNECTIONS: OpenDisconnection[] = [
     },
     {
         id: 'OD-PACKAGE-LENSES',
-        what: 'after the form is consumed, a kept package check that reads the wording-derived lenses decides the selection (the foundation clause\'s keyword threshold on the primary lens; row o)',
+        // Stage W2, re-pinned openly: the what was '... (the foundation clause's keyword threshold on the primary lens; row o)'; the runs gain
+        // W2_REFUSED; each pair's rule as QUOTA_RULES says why. The foundation clause no longer refuses on this path (FOUNDATION_PRESENCE_BYPASS).
+        what: 'after the form is consumed, a kept package check that reads the wording-derived lenses decides the selection (row o, row k and the other package checks on the members present, and every selected member validated)',
         scope: 'EXPERIMENT',
         rows: ['SELECTION_OUTCOME'],
         verdicts: ['ENGINE_RULE_DECIDED'],
-        runs: [...QUOTA_REFUSED, ...WORDED(QUOTA_REFUSED)],
-        pairs: [...QUOTA_REFUSED, ...WORDED(QUOTA_REFUSED)].map((run) => ({ run, verdict: 'ENGINE_RULE_DECIDED' as const, rule: QUOTA_RULES[baseOf(run)] })),
-        evidence: `attributed by re-running the exported isSelectionPackageCompatible on GF2 and each of the 4 lens combinations: a lone Wide Zone Advantage or Turnover Reward is first refused by the foundation clause on every combination, Central Density Condition alone and with Interception Reward first by row o (the check returns the first reason it meets; the foundation clause runs before every package row); ${ROLE_MIX_PASSES}`,
+        runs: PACKAGE_LENS_RUNS,
+        pairs: PACKAGE_LENS_RUNS.map((run) => ({ run, verdict: 'ENGINE_RULE_DECIDED' as const, rule: QUOTA_RULES[run] })),
+        evidence: `attributed by re-running the exported isSelectionPackageCompatible on GF2 and each of the 4 lens combinations, with the selector's options on the run (under the switch every selected member validated; foundation presence not required under FOUNDATION_PRESENCE_BYPASS): a lone Wide Zone Advantage is first refused as one-sided (the other package checks) on every combination; a lone Turnover Reward by row k on one of the goal's combinations and row o on the other three (row k on every reworded one); Central Density Condition alone and with Interception Reward first by row o; Neutral Player with Central Density Condition, and with Wide Zone Advantage too, by MEMBER_PRESENCE, Central Density Condition absent from the checked package (the check returns the first reason it meets; the members present are checked before every member's presence); ${ROLE_MIX_PASSES}`,
     },
     {
         id: 'OD-WORDING-FLIP',
@@ -639,9 +716,11 @@ export const OPEN_DISCONNECTIONS: OpenDisconnection[] = [
         runs: WORDED(['S4-NP+TR']),
         pairs: WORDED(['S4-NP+TR']).map((run) => ({ run, verdict: 'ENGINE_RULE_DECIDED' as const, rule: 'PACKAGE_ROW_K' })),
         evidence: 'the reworded lenses are Line-Breaking, Possession Stability and Space Creation; row k (Turnover Reward does not support the selected affordance tag group) refuses all 4 lens combinations there, 1 of 4 on the goal\'s own lenses',
+        // Stage W2, re-pinned openly: the after was '... is never tried: under the bypass the sizes enumerated for a set of 2 are 2 to 4, so the
+        // refusal rests on row k together with that floor for subsets'; under the switch the set is now taken whole (E1), so it rests on row k.
         measured: {
             before: 'the goal\'s wording: selected on GF2 with Neutral Player and Turnover Reward, then refused at knowledge (the authorized constraint Turnover Reward has no contribution contract)',
-            after: 'the reversed and the neutral wording: refused at selection, NO_COMPATIBLE_COMBINATION on GF2 (row k on every lens combination); lenses none; a lone Neutral Player, which the package check admits on every lens combination of the reworded pool and which commits as S4-NP~reversed and S4-NP~neutral, is never tried: under the bypass the sizes enumerated for a set of 2 are 2 to 4, so the refusal rests on row k together with that floor for subsets',
+            after: 'the reversed and the neutral wording: refused at selection, NO_COMPATIBLE_COMBINATION on GF2 (row k on every lens combination); lenses none; under the switch the authorized set is taken whole (stage W2), so the refusal rests on row k alone: a lone Neutral Player, which the package check admits on every lens combination of the reworded pool and which commits as S4-NP~reversed and S4-NP~neutral, is a different authorized set, never a subset the selector may choose',
         },
     },
     {
@@ -700,19 +779,21 @@ export const OPEN_DISCONNECTIONS: OpenDisconnection[] = [
  * Per decision row, the experiment runs that reach it (of 44; GP-001 stops at the handoff; a scoring clause is reached where a game is
  * built, a treatment withholds it, or the run's refusal cites its own line; the realizer's own refusal reaches realization). Re-pinned in
  * stage W1 (c1): of 41 -> of 44, each row reached by the three Coverage-row runs (refused at structure on the origin and control lines, as
- * A02-0) gains 3; progression and realization unchanged.
+ * A02-0) gains 3; progression and realization unchanged. Re-pinned in stage W2: of 44 -> of 48, each decision row gains the 4 runs of
+ * W2_SETS (all reach the chain), SCORING_DISPLAY gains the 2 of them selected (WZA+TR, NP+WZA+TR, refused at knowledge, whose account
+ * displays the condition); no clause row moves (none of the 4 is refused on a clause's line or builds a game).
  */
 const REACH: Record<string, number> = {
-    GAME_PROBLEM: 43,
-    GAME_PROBLEM_HINTS: 43,
-    CONTEXT: 43,
-    GAME_FORM: 43,
-    CONSTRAINTS: 43,
-    SELECTION_OUTCOME: 43,
+    GAME_PROBLEM: 47,
+    GAME_PROBLEM_HINTS: 47,
+    CONTEXT: 47,
+    GAME_FORM: 47,
+    CONSTRAINTS: 47,
+    SELECTION_OUTCOME: 47,
     'SCORING(origin)': 25,
     'SCORING(progression)': 12,
     'SCORING(control)': 23,
-    SCORING_DISPLAY: 28,
+    SCORING_DISPLAY: 30,
     REALIZATION: 9,
 }
 /** Test 1's assertion on the legacy route with the production records (measured): it fails, naming the form first among the owned decisions. */
@@ -749,19 +830,24 @@ const STAND_IN_COUNTS: Array<[string, number]> = [
  * comparison arm, as the base runs were before the stage): 10 violation verdicts (CONTEXT and SCORING_DISPLAY, two each) and 19 detected
  * (K2_NOT_TAKEN 5, WITHHELD_BY_TREATMENT 9, REFUSED_ON_CLAUSE_LINE 3, CARRIED_UNDER_TREATMENT 2); the experiment path is unchanged. Re-pinned
  * openly in stage W1 (c1): [138, 94] -> [144, 100], all of it the three Coverage-row runs (as A02-0: CONTEXT and SCORING_DISPLAY two
- * violation verdicts each; REFUSED_ON_CLAUSE_LINE on origin and control, two detected each).
+ * violation verdicts each; REFUSED_ON_CLAUSE_LINE on origin and control, two detected each). Re-pinned openly in stage W2: [144, 100] ->
+ * [156, 102]: the four runs of W2_SETS bring 6 violation verdicts (CONTEXT on each, SCORING_DISPLAY on the two selected, WZA+TR and NP+WZA+TR)
+ * and 2 detected (ENGINE_RULE_DECIDED 14 -> 16: NP+CDC and NP+WZA+CDC, refused by MEMBER_PRESENCE); the three reversal-arm controls bring 6
+ * violation verdicts (CONTEXT, and SELECTION_OUTCOME: the foundation clause, a bypassed rule, deciding). Every other run's counts unchanged
+ * (S4-WZA, S4-TR and their rewordings stay one detected ENGINE_RULE_DECIDED each, now attributed to kept checks).
  */
-const REPORT_COUNTS: number[] = [144, 100]
-const DETECTED_BY_VERDICT = 'ENGINE_RULE_DECIDED 14, CARRIED_UNDER_TREATMENT 7, WITHHELD_BY_TREATMENT 38, REFUSED_ON_CLAUSE_LINE 36, K2_NOT_TAKEN 5'
+const REPORT_COUNTS: number[] = [156, 102]
+const DETECTED_BY_VERDICT = 'ENGINE_RULE_DECIDED 16, CARRIED_UNDER_TREATMENT 7, WITHHELD_BY_TREATMENT 38, REFUSED_ON_CLAUSE_LINE 36, K2_NOT_TAKEN 5'
 /**
  * The same counts per group, in the order the runs are built: the experiment path, the controls, the legacy route (runs, violations, detected).
  * Re-pinned in stage W1 (a): experiment [41, 105, 108] -> [41, 65, 68]; controls [4, 15, 10] -> [4, 12, 7]; legacy unchanged. Stage W1 (b):
  * controls [4, 12, 7] -> [9, 22, 26] (the five DRAFT-record controls); the experiment path and the legacy route unchanged. Stage W1 (c1):
- * experiment [41, 65, 68] -> [44, 71, 74] (the three Coverage-row runs).
+ * experiment [41, 65, 68] -> [44, 71, 74] (the three Coverage-row runs). Stage W2: experiment [44, 71, 74] -> [48, 77, 76] (the four runs of
+ * W2_SETS); controls [9, 22, 26] -> [12, 28, 26] (the three reversal-arm controls); the legacy route unchanged.
  */
 const COUNTS_BY_GROUP: number[][] = [
-    [44, 71, 74],
-    [9, 22, 26],
+    [48, 77, 76],
+    [12, 28, 26],
     [21, 51, 0],
 ]
 const Q = String.fromCharCode(34)
@@ -800,8 +886,8 @@ export const withheldOf = (id: string) => at(id).findings.filter((f) => f.verdic
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
 test('1. every experiment run: the Game Form, the constraints, the Game Problem and the Game Problem that governs the hints CONSUMED (each NOT_REACHED where not reached); every violation and every lens-reading engine refusal listed as an open disconnection by its measured pair, and no entry stale; the legacy entries held the same way (reported only); every WITHHELD_BY_TREATMENT pinned per run; each decision reached by at least one run', () => {
-    // Re-pinned in stage W1 (c1): 41 -> 44 (the three Coverage-row runs of GP_COVERAGE_LENSES).
-    assert.equal(EXPERIMENT_RUNS.length, 44, 'the experiment runs (measured)')
+    // Re-pinned in stage W1 (c1): 41 -> 44 (the three Coverage-row runs of GP_COVERAGE_LENSES). Stage W2: 44 -> 48 (the four runs of W2_SETS).
+    assert.equal(EXPERIMENT_RUNS.length, 48, 'the experiment runs (measured)')
     for (const id of EXPERIMENT_RUNS) assertExperimentRun(at(id).findings)
     const experimentFindings = EXPERIMENT_RUNS.flatMap((id) => at(id).findings)
     assert.deepEqual(stale(experimentFindings, OPEN_DISCONNECTIONS.filter((e) => e.scope === 'EXPERIMENT' && e.verdicts.length)), [], 'no experiment entry names a run where it is no longer detected')
@@ -1037,11 +1123,12 @@ test('5. wording only: the goal\'s wording rewritten (reversed, neutral) in the 
         const f = at(`S4-NP+TR~${w}`)
         assert.deepEqual([f.result.chain?.stage, verdictOf(`S4-NP+TR~${w}`, 'SELECTION_OUTCOME'), f.run.engineRule?.rule], ['selection', 'ENGINE_RULE_DECIDED', 'PACKAGE_ROW_K'])
     }
-    // R1-05 (review, batch A2): the after arm rests on row k together with the floor of 2 for subsets. Under the bypass the sizes enumerated for
-    // a set of 2 are 2 to 4 (the set's own size is added only outside 2 to 4), so a lone Neutral Player is never tried there, although the
-    // package check admits it on every lens combination of the reworded pool and the lone run commits.
-    const sizesLine = fs.readFileSync(path.resolve(HERE, '..', 'test-library', 'generateSelection.ts'), 'utf8').split('\n')[1037 - 1]
-    assert.ok(sizesLine.includes('![2, 3, 4].includes(quotaBypassOwnSize) ? [quotaBypassOwnSize, 2, 3, 4] : [2, 3, 4]'), 'generateSelection.ts:1037: the sizes enumerated')
+    // R1-05 (review, batch A2), re-pinned openly in stage W2 (11 November 2026): the after arm rested on row k together with the floor of 2 for
+    // subsets (generateSelection.ts:1037 held '![2, 3, 4].includes(quotaBypassOwnSize) ? [quotaBypassOwnSize, 2, 3, 4] : [2, 3, 4]'). Under
+    // the switch the only size tried is now the set's own (E1, :1047), so the set is taken whole and the refusal rests on row k alone; a lone
+    // Neutral Player, which the package check admits on every lens combination of the reworded pool and whose own run commits, is another set.
+    const sizesLine = fs.readFileSync(path.resolve(HERE, '..', 'test-library', 'generateSelection.ts'), 'utf8').split(/\r?\n/)[1047 - 1]
+    assert.ok(sizesLine.includes('const constraintSizes = quotaBypassOwnSize !== null && quotaBypassOwnSize >= 1 ? [quotaBypassOwnSize] : [2, 3, 4]'), 'generateSelection.ts:1047: the sizes enumerated')
     for (const w of ['reversed', 'neutral']) {
         const pool = lensPoolOf(`A02-0~${w}`)()
         const lone = [...subsets(pool, 2), ...subsets(pool, 3)].map((lc) => isSelectionPackageCompatible({ archetype: archetypeOf('GF2'), affordanceLenses: lc.map(lensOf), constraints: setOf('NP').map(constraintOf), requireShaping: false }).compatible)
@@ -1125,8 +1212,33 @@ test('7. the pure check returns each verdict on a minimal doctored fixture', () 
     assert.equal(v((x) => Object.assign(x.chain!, { consumption: null, outcome: 'refused', stage: 'selection', form: 'F2', ownPick: null }), 'GAME_FORM').verdict, 'REFUSED_ON_OWN_CHOICE')
     assert.equal(v((x) => (x.chain!.constraints = ['m9']), 'CONSTRAINTS').verdict, 'UNAUTHORIZED_SOURCE')
     assert.equal(v((x) => Object.assign(x.chain!, { constraints: ['m1'], constraintAuthority: 'VOCABULARY_POOL' }), 'CONSTRAINTS').verdict, 'UNAUTHORIZED_SOURCE')
-    const kept = v((x) => Object.assign(x, { engineRule: { rule: 'FOUNDATION_CLAUSE', how: 'h' }, chain: { ...x.chain!, outcome: 'refused', stage: 'selection', refusalVerdict: 'NOT KNOWLEDGE', constraints: [] } }), 'SELECTION_OUTCOME')
+    // Re-pinned openly in stage W2: the kept rule of this fixture was FOUNDATION_CLAUSE, which is now bypassed under its treatment and so never a
+    // kept check (it reads VIOLATION below); row o stands in for a kept check.
+    const refusedBy = (engineRule: EngineRuleAttribution) => v((x) => Object.assign(x, { engineRule, chain: { ...x.chain!, outcome: 'refused', stage: 'selection', refusalVerdict: 'NOT KNOWLEDGE', constraints: [] } }), 'SELECTION_OUTCOME')
+    const kept = refusedBy({ rule: 'PACKAGE_ROW_O', how: 'h' })
     assert.deepEqual([kept.verdict, classOf(kept), kept.keptRule?.readsLenses], ['ENGINE_RULE_DECIDED', 'DETECTED', true])
+    // Stage W2: a rule bypassed under the switch or a treatment deciding is never a kept check; the tightening is one; several kept checks, one
+    // per lens combination, are one kept refusal (named together); several with a bypassed one among them are not.
+    assert.deepEqual([refusedBy({ rule: 'FOUNDATION_CLAUSE', how: 'h' }), refusedBy({ rule: 'BOUNDED_SEARCH', how: 'h' })].map((f) => [f.verdict, classOf(f), f.keptRule]), [['ENGINE_RULE_DECIDED', 'VIOLATION', null], ['ENGINE_RULE_DECIDED', 'VIOLATION', null]])
+    const member = refusedBy({ rule: 'MEMBER_PRESENCE', how: 'h' })
+    assert.deepEqual([classOf(member), member.keptRule?.id], ['DETECTED', 'MEMBER_PRESENCE'])
+    const several = refusedBy({ rule: null, rules: ['PACKAGE_ROW_K', 'PACKAGE_ROW_O'], how: 'h' })
+    assert.deepEqual([classOf(several), several.keptRule?.id, several.why.startsWith('refused by engine rules kept under the authorization\'s section 5, each lens combination by one of them: PACKAGE_ROW_K (')], ['DETECTED', 'PACKAGE_ROW_K+PACKAGE_ROW_O', true])
+    assert.equal(classOf(refusedBy({ rule: null, rules: ['PACKAGE_ROW_O', 'SIZE_RULE'], how: 'h' })), 'VIOLATION')
+    // The rows of a refusal over lens combinations: one for all; each combination's own; none where one combination has no row.
+    const ROW_K_WORDS = 'Constraint X does not support the selected affordance tag group.'
+    const ROW_O_WORDS = 'The selected package does not show a clear relationship to the selected affordance or open problem space.'
+    assert.deepEqual([rulesOfCombinations([[ROW_O_WORDS], [ROW_O_WORDS]]), rulesOfCombinations([[ROW_O_WORDS], [ROW_K_WORDS]]), rulesOfCombinations([[ROW_O_WORDS], ['an unknown reason']]), rulesOfCombinations([])], [['PACKAGE_ROW_O'], ['PACKAGE_ROW_K', 'PACKAGE_ROW_O'], null, null])
+    // Stage W2: a built strict subset of the record's set is never consumption (UNAUTHORIZED_SOURCE): which members to commit was the commit
+    // rule's, not the record's; the same set refused at selection (nothing built) is not; the whole set built is consumed.
+    const subsetOf = (stage: string | null, built: string[]) => v((x) => {
+        x.given.authorizedSet = ['m1', 'm2']
+        x.chain!.consumption!.constraintCandidateIds = ['m1', 'm2']
+        Object.assign(x.chain!, { constraints: built, ...(stage ? { outcome: 'refused', stage } : {}) })
+    }, 'CONSTRAINTS')
+    const strict = subsetOf(null, ['m1'])
+    assert.deepEqual([strict.verdict, strict.why.includes('a strict subset of the authorized set') && strict.why.includes('Q-a1')], ['UNAUTHORIZED_SOURCE', true])
+    assert.deepEqual([subsetOf('selection', []).verdict, subsetOf(null, ['m1', 'm2']).verdict], ['CONSUMED', 'CONSUMED'])
     const unattributed = v((x) => Object.assign(x, { chain: { ...x.chain!, outcome: 'refused', stage: 'selection', refusalVerdict: 'NOT KNOWLEDGE', constraints: [] } }), 'SELECTION_OUTCOME')
     assert.deepEqual([unattributed.verdict, classOf(unattributed)], ['ENGINE_RULE_DECIDED', 'VIOLATION'])
     // A selection refusal after consumption whose basis is not NOT KNOWLEDGE is attributed to no engine rule: it fails closed.
@@ -1181,20 +1293,28 @@ test('7. the pure check returns each verdict on a minimal doctored fixture', () 
 // S4: the quota runs
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-const QUOTA_RUNS = [...QUOTA_SETS.map(([name]) => `S4-${name}`), 'S4-NP/no-bypass', 'S4-NP+WZA/no-bypass', 'S4-NP@A02-D', 'S4-NP+WZA@A02-D']
+// Stage W2: the runs of W2_SETS and the reversal arm join the quota runs (re-pinned openly: was the first four groups only).
+const QUOTA_RUNS = [...QUOTA_SETS.map(([name]) => `S4-${name}`), 'S4-NP/no-bypass', 'S4-NP+WZA/no-bypass', 'S4-NP@A02-D', 'S4-NP+WZA@A02-D', ...W2_SETS.map(([name]) => `S4-${name}`), ...FOUNDATION_KEPT_SETS.map((name) => `S4-${name}${FOUNDATION_KEPT}`)]
 const setOfRun = (id: string): string[] => setOf(id.slice(3).split('/')[0].split('@')[0].split('~')[0])
+/** Stage W2: the rule a refused run was attributed to, or its rules joined (one per lens combination, where they differ). */
+const ruleOfRun = (id: string): string | null => {
+    const e = at(id).run.engineRule
+    return e ? (e.rules && e.rules.length ? e.rules.join('+') : e.rule) : null
+}
 
-test('S4. one and two manipulations only through the DRAFT record\'s authorized set (the record route, never placed), with the TEST-ONLY size-rule bypass: the pool is the authorized set; the triples (a lone Neutral Player selected with the bypass and refused without it; each refusal attributed by re-running the exported package check; the run\'s own refusal); the lines a manipulation brings rest on its stand-in (class 4 at best); A01 unchanged', () => {
+test('S4. zero, one, two and three manipulations only through the DRAFT record\'s authorized set (the record route, never placed), with the TEST-ONLY switch (since stage W2 the set taken whole, every selected member validated) and FOUNDATION_PRESENCE_BYPASS: the pool is the authorized set; the triples (a lone Neutral Player selected with the switch and refused without it; each refusal attributed by re-running the exported package check with the run\'s options; the run\'s own refusal); the lines a manipulation brings rest on its stand-in (class 4 at best); A01 unchanged', () => {
     // The quota cases are held to the handoff's own validator.
-    const quotaCases = [...QUOTA_SETS.map(([name]) => quotaCase(name, true)), quotaCase('NP', false), quotaCase('NP+WZA', false), quotaCase('NP', true, 'A02-D'), quotaCase('NP+WZA', true, 'A02-D')]
+    const quotaCases = [...QUOTA_SETS.map(([name]) => quotaCase(name, true)), quotaCase('NP', false), quotaCase('NP+WZA', false), quotaCase('NP', true, 'A02-D'), quotaCase('NP+WZA', true, 'A02-D'), ...W2_SETS.map(([name]) => quotaCase(name, true)), ...FOUNDATION_KEPT_SETS.map((name) => quotaCase(name, true, 'A02-0', 'KEPT'))]
     assert.deepEqual(quotaCases.map((c) => c.id), QUOTA_RUNS)
     assert.doesNotThrow(() => validateHandoffInputs(composed([...raw.cases, ...quotaCases])))
     for (const id of QUOTA_RUNS) {
         const r = at(id)
         const set = setOfRun(id)
+        const switched = id.indexOf('/no-bypass') < 0
+        const foundationBypassed = switched && id.indexOf(FOUNDATION_KEPT) < 0
         assert.deepEqual(r.request?.place, [], `${id}: nothing is placed`)
-        assert.deepEqual([r.request?.recordRoute, r.request?.consume?.sizeRuleBypass ?? false], [set, id.indexOf('/no-bypass') < 0], id)
-        assert.deepEqual([r.result.consumption?.constraintAuthority, r.result.consumption?.constraintCandidateIds, r.result.consumption?.sizeRuleBypassed], ['AUTHORIZATION_RECORD', set, id.indexOf('/no-bypass') < 0], `${id}: the selection's pool is the authorized set`)
+        assert.deepEqual([r.request?.recordRoute, r.request?.consume?.sizeRuleBypass ?? false, r.request?.consume?.foundationPresenceBypass ?? false], [set, switched, foundationBypassed], id)
+        assert.deepEqual([r.result.consumption?.constraintAuthority, r.result.consumption?.constraintCandidateIds, r.result.consumption?.sizeRuleBypassed, r.result.consumption?.foundationPresenceBypassed ?? false], ['AUTHORIZATION_RECORD', set, switched, foundationBypassed], `${id}: the selection's pool is the authorized set`)
         assert.equal(verdictOf(id, 'CONSTRAINTS'), 'CONSUMED', id)
     }
     // (i) the positive control: size 1 was tried only with the bypass.
@@ -1203,17 +1323,28 @@ test('S4. one and two manipulations only through the DRAFT record\'s authorized 
     // (ii) attribution: the run's lens pool is the zero-set run's committed lenses (lens scoring does not read the set: the selected Neutral
     // Player run commits the same three), and the exported package check refuses every lens combination with one check's own reason.
     assert.deepEqual(at('S4-NP').answer?.observed?.lensIds, at('A02-0').answer?.observed?.lensIds)
-    assert.deepEqual(QUOTA_REFUSED.map((id) => [id, at(id).run.engineRule?.rule]), [['S4-WZA', 'FOUNDATION_CLAUSE'], ['S4-TR', 'FOUNDATION_CLAUSE'], ['S4-CDC', 'PACKAGE_ROW_O'], ['S4-CDC+IR', 'PACKAGE_ROW_O']])
+    // Re-pinned openly in stage W2 (QUOTA_RULES says before and why): Wide Zone Advantage and Turnover Reward alone were refused by the
+    // foundation clause; under FOUNDATION_PRESENCE_BYPASS they reach the kept checks.
+    assert.deepEqual(QUOTA_REFUSED.map((id) => [id, ruleOfRun(id)]), [['S4-WZA', 'PACKAGE_OTHER'], ['S4-TR', 'PACKAGE_ROW_K+PACKAGE_ROW_O'], ['S4-CDC', 'PACKAGE_ROW_O'], ['S4-CDC+IR', 'PACKAGE_ROW_O']])
     // The reworded refused runs, attributed the same way (measured), as OD-PACKAGE-LENSES pairs them.
-    assert.deepEqual(WORDED(QUOTA_REFUSED).map((id) => [id, at(id).run.engineRule?.rule]), WORDED(QUOTA_REFUSED).map((id) => [id, QUOTA_RULES[baseOf(id)]]))
-    assert.deepEqual(WORDED(QUOTA_REFUSED).map((id) => at(id).run.engineRule?.rule), ['FOUNDATION_CLAUSE', 'FOUNDATION_CLAUSE', 'PACKAGE_ROW_O', 'PACKAGE_ROW_O', 'FOUNDATION_CLAUSE', 'FOUNDATION_CLAUSE', 'PACKAGE_ROW_O', 'PACKAGE_ROW_O'])
+    assert.deepEqual(WORDED(QUOTA_REFUSED).map((id) => [id, ruleOfRun(id)]), WORDED(QUOTA_REFUSED).map((id) => [id, QUOTA_RULES[id]]))
+    assert.deepEqual(WORDED(QUOTA_REFUSED).map((id) => ruleOfRun(id)), ['PACKAGE_OTHER', 'PACKAGE_ROW_K', 'PACKAGE_ROW_O', 'PACKAGE_ROW_O', 'PACKAGE_OTHER', 'PACKAGE_ROW_K', 'PACKAGE_ROW_O', 'PACKAGE_ROW_O'])
     const FOUNDATION = `No compatible foundation constraint was found for archetype ${Q}Directional Possession Games${Q}.`
     const ROW_O = 'The selected package does not show a clear relationship to the selected affordance or open problem space.'
+    const ROW_K_TR = `Constraint ${Q}Turnover Reward${Q} does not support the selected affordance tag group.`
+    const ONE_SIDED = 'The selected package reads as one-sided and does not depend enough on opponent interaction.'
     const combos = ['possession-stability-opportunity+space-creation-opportunity', 'possession-stability-opportunity+regain-opportunity', 'space-creation-opportunity+regain-opportunity', 'possession-stability-opportunity+space-creation-opportunity+regain-opportunity']
-    assert.deepEqual(attributions.get('S4-WZA')?.perCombo, combos.map((c) => `${c}: ${FOUNDATION}`))
-    assert.deepEqual(attributions.get('S4-TR')?.perCombo, combos.map((c) => `${c}: ${FOUNDATION}`))
+    assert.deepEqual(attributions.get('S4-WZA')?.perCombo, combos.map((c) => `${c}: ${ONE_SIDED}`))
+    assert.deepEqual(attributions.get('S4-TR')?.perCombo, TR_PER_COMBO.map((reason, n) => `${combos[n]}: ${reason === 'k' ? ROW_K_TR : ROW_O}`))
     assert.deepEqual(attributions.get('S4-CDC')?.perCombo, combos.map((c) => `${c}: ${ROW_O}`))
     assert.deepEqual(attributions.get('S4-CDC+IR')?.perCombo, combos.map((c) => `${c}: ${ROW_O}`))
+    // Stage W2, E3's negative control: the reversal arm (foundation presence kept) is refused by the foundation clause on every lens
+    // combination, as the 10 November attribution read; a bypassed rule deciding is never a kept check (VIOLATION, controls only).
+    for (const name of FOUNDATION_KEPT_SETS) {
+        const id = `S4-${name}${FOUNDATION_KEPT}`
+        assert.deepEqual([at(id).result.chain?.stage, ruleOfRun(id), attributions.get(id)?.perCombo, classOf(at(id).findings.find((f) => f.row === 'SELECTION_OUTCOME')!)], ['selection', 'FOUNDATION_CLAUSE', combos.map((c) => `${c}: ${FOUNDATION}`), 'VIOLATION'], id)
+        assert.throws(() => assertExperimentRun(at(id).findings), /whether the selection commits .*ENGINE_RULE_DECIDED: refused at selection after consuming the form, by a rule not attributed to a kept check/, id)
+    }
     // On the goal's own lenses the package check admits Neutral Player with Turnover Reward on 3 of the 4 combinations (row k refuses one).
     const pool = at('A02-0').answer!.observed!.lensIds
     const npTr = [...subsets(pool, 2), ...subsets(pool, 3)].map((lc) => isSelectionPackageCompatible({ archetype: archetypeOf('GF2'), affordanceLenses: lc.map(lensOf), constraints: setOf('NP+TR').map(constraintOf), requireShaping: false }))
@@ -1270,6 +1401,217 @@ test('S4. one and two manipulations only through the DRAFT record\'s authorized 
     const request = copy(at('S4-NP').request!)
     assert.throws(() => realChain.build({ ...request, recordRoute: [C('wide-zone-advantage')] }), /the record the chain consulted authorizes tl-v0-constraint-neutral-player-condition, and the case's record-route manipulations are tl-v0-constraint-wide-zone-advantage/)
     assert.throws(() => realChain.build({ ...request, vehicle: { goalId: 'A02', removeContext: true, lawsStandIn: null, treatmentRef: 'TT-DRAFT-STORE-SET' } }), /a request that consumes Steps 1 and 2 carries no TEST-ONLY vehicle/)
+})
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Stage W2 (11 November 2026): quotas versus justified validation (U3 (a)): E1 the set whole, E2 the pool whole, E3 FOUNDATION_PRESENCE_BYPASS,
+// E4 every selected member validated; the role mix inert. Christian: "A library constraint is not mandatory unless its inclusion is justified
+// by the approved knowledge and intended learning environment." and "The engine should continue enforcing structural validity and any genuinely
+// required conditions." (received 15 October 2026); "Removing unsupported constraint quotas from isolated testing while retaining justified
+// validation." (received 11 November 2026, second reply).
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ * The base runs as the committed evidence held them when stage W2 began (8d5a3f3): sha-256 of each run's handoff result and of its findings
+ * (compact JSON of a02-results.json's a02Cases and safeguardRuns entries). Row 0 of U3's runs table: the empty set, untouched by the stage.
+ */
+const BASE_AT_8D5A3F3: Record<string, [string, string]> = {
+    'A02-0': ['ff86c208f7d05206e392975127d2a580c8c5215469a17fae266d749da8e8ec08', 'b0151c96ccd104825bff8ab71ac4237b7e49ef5994543c03f72b7a2dbf584adb'],
+    'A02-1': ['25d709538291307eefcafba8dd63ef3ffc5ce130426e88291c8a3d25e3bb01ce', '023a3bcde50990726d513c7634cb41fdbe181ee0be6d0ac03352565e4899641f'],
+    'A02-1b': ['3f55ca0dd4527625f6cbb735a2a64cea5292a1b2a01fdfdba71a37ac3242188e', '91faebdf8aa6bed12d562f29b578f35ebc7fafceca38dda34c25613acda260d4'],
+    'A02-2': ['e375900d723672a66c32536ddd0b4ea0c8cc3180eb40ce9b2c59cbab501df8d7', 'ad1ab834a167059c505e2fcefa1217ddcb483f1ab4ed65d9643a6ce2d8bd6a68'],
+    'A02-D': ['82c19b23627b7a06b4eddcca69acff3425507a6e183e42b3197070fb950849ec', 'bc230e663b31ceea22c7aedf40100c71137dc5126ab936ea30c709a0a6a1d5d9'],
+}
+const sha = (v: unknown) => crypto.createHash('sha256').update(json(v)).digest('hex')
+/**
+ * U3's runs table, measured (stage W2): each run with how many manipulations, where it stopped, and the named check that refused it at
+ * selection, or 'selected' (the whole set committed; a later stop is the chain's own, read beside it). Never SIZE_RULE, foundation presence,
+ * ROLE_MIX or BOUNDED_SEARCH.
+ */
+export const W2_RUNS_TABLE: Array<[string, number, string, string]> = [
+    ['A02-0', 0, 'structure', 'selected (the empty set, the zero branch)'],
+    ['A02-1', 0, 'structure', 'selected (the empty set, the zero branch)'],
+    ['A02-1b', 0, 'validation', 'selected (the empty set, the zero branch)'],
+    ['A02-2', 0, 'communication', 'selected (the empty set, the zero branch)'],
+    ['A02-D', 0, 'served', 'selected (the empty set, the zero branch)'],
+    ['S4-NP', 1, 'structure', 'selected'],
+    ['S4-WZA', 1, 'selection', 'PACKAGE_OTHER'],
+    ['S4-TR', 1, 'selection', 'PACKAGE_ROW_K+PACKAGE_ROW_O'],
+    ['S4-CDC', 1, 'selection', 'PACKAGE_ROW_O'],
+    ['S4-NP+WZA', 2, 'structure', 'selected'],
+    ['S4-NP+TR', 2, 'knowledge', 'selected'],
+    ['S4-NP+TR~reversed', 2, 'selection', 'PACKAGE_ROW_K'],
+    ['S4-NP+CDC', 2, 'selection', 'MEMBER_PRESENCE'],
+    ['S4-WZA+TR', 2, 'knowledge', 'selected'],
+    ['S4-NP+WZA+TR', 3, 'knowledge', 'selected'],
+    ['S4-NP+WZA+CDC', 3, 'selection', 'MEMBER_PRESENCE'],
+]
+/** The checks a run may never be refused by on the experiment path (the quotas, and the role mix and the bounded search). */
+const NEVER_BY = ['SIZE_RULE', 'FOUNDATION_CLAUSE', 'ROLE_MIX', 'BOUNDED_SEARCH']
+/**
+ * E4's invariant (the safeguard that would have caught the hole): a committed selection's every constraint is a member of the package the
+ * selector's own check builds on its committed lenses (in their committed order: the first is the primary lens) and form. It reads the package
+ * the builder returned (a probe on the builder, removed after), never the check's own refusal, so it holds even where the tightening itself is
+ * broken. Returns the members absent, by id.
+ */
+export function absentFromPackage(formId: string, lensIds: string[], constraintIds: string[]): string[] {
+    if (!constraintIds.length) return []
+    let built: { foundation?: { constraint: { _id: unknown } }; shaping?: { constraint: { _id: unknown } }; consequence?: { constraint: { _id: unknown } } } | null = null
+    const original = packageBuilder.buildConstraintPackage
+    ;(packageBuilder as any).buildConstraintPackage = (...args: unknown[]) => (built = (original as any)(...args))
+    try {
+        isSelectionPackageCompatible({ archetype: archetypeOf(formId), affordanceLenses: lensIds.map(lensOf), constraints: constraintIds.map(constraintOf), requireShaping: false, everyMemberValidated: true, foundationPresenceBypass: true })
+    } finally {
+        ;(packageBuilder as any).buildConstraintPackage = original
+    }
+    assert.equal(packageBuilder.buildConstraintPackage, original, 'the probe on the builder is removed')
+    if (!built) return ['(no package was built)']
+    const b = built as NonNullable<typeof built>
+    const present = [b.foundation, b.shaping, b.consequence].filter((m) => m !== undefined).map((m) => String(m!.constraint._id))
+    return constraintIds.filter((id) => present.indexOf(id) < 0)
+}
+/**
+ * The production route's selections, measured (stage W2), reported only, never changed: each Learning Goal's committed selection (production
+ * hints, two arguments) with the constraints absent from the package the production check built on its committed lenses (E4's invariant).
+ */
+export const PRODUCTION_ABSENT: Array<[string, string]> = [
+    ['A03', 'central-density-condition'],
+    ['A04', 'zone-structure-condition'],
+    ['A05', 'turnover-reward'],
+    ['A06', 'goalkeeper-included-condition'],
+    ['D01', 'central-density-condition'],
+    ['D02', 'interception-reward'],
+    ['TA01', 'interception-reward'],
+    ['TA02', 'turnover-reward'],
+    ['TD01', 'transition-trigger'],
+    ['TD02', 'central-density-condition, delay-reward'],
+]
+/** The runs of this file that committed constraints (the experiment path and the controls; measured, stage W2), each held to E4's invariant. */
+const COMMITTED_RUNS: string[] = [
+    'S4-NP', 'S4-NP+WZA', 'S4-NP+TR', 'S4-NP+WZA/no-bypass', 'S4-NP@A02-D', 'S4-NP+WZA@A02-D', 'S4-WZA+TR', 'S4-NP+WZA+TR',
+    'S4-NP~reversed', 'S4-NP+WZA~reversed', 'S4-NP~neutral', 'S4-NP+WZA~neutral',
+]
+const PRODUCTION_GOALS = ['A01', 'A02', 'A03', 'A04', 'A05', 'A06', 'D01', 'D02', 'D03', 'TA01', 'TA02', 'TD01', 'TD02']
+/** The production route's committed selections, read as production calls the selector (the goal's text and guided hints, two arguments). */
+function productionSelections(): Array<{ goal: string; formId: string; lensIds: string[]; constraintIds: string[] } | { goal: string; refused: string }> {
+    return PRODUCTION_GOALS.map((goal) => {
+        const text = guidedGoalText(goal)
+        try {
+            const r = generateSelection({ learningGoals: [text], learningGoalId: goal } as any, guidedSelectionHints(goal, text, learningGoalAuthorizations()).hints)
+            return { goal, formId: r.archetype.game_form_id, lensIds: r.affordanceLenses.map((l: any) => l.id), constraintIds: r.constraints.map((c: any) => c.id) }
+        } catch (error) {
+            return { goal, refused: String((error as Error).message).split(' - ')[0] }
+        }
+    })
+}
+
+test('W2. quotas versus justified validation (U3 (a)): the runs table, each run selected whole or refused by a named kept check, never by the size rule, foundation presence, the role mix or the bounded search; E1 the set whole (a strict subset reads UNAUTHORIZED_SOURCE); E2 the pool whole (probe: the whole set reaches the package check); E3 FOUNDATION_PRESENCE_BYPASS (declared, refused off the switch; its reversal arm the controls); E4 every selected member validated (its invariant over every committed run, the production hole measured and reported only); the role mix inert; the base runs byte-identical to the evidence', () => {
+    // Row 0: the base runs are the committed evidence's, byte for byte (result and findings).
+    for (const id of BASE_IDS) assert.deepEqual([sha(at(id).result), sha(at(id).findings)], BASE_AT_8D5A3F3[id], `${id}: byte-identical to the evidence at 8d5a3f3`)
+    // The table: each run's size, stop and the check that refused it (or selected, the whole set committed).
+    const measured = W2_RUNS_TABLE.map(([id]) => {
+        const r = at(id)
+        const stop = r.result.chain?.outcome === 'served' ? 'served' : String(r.result.chain?.stage)
+        const zero = (r.run.chain?.consumption?.constraintCandidateIds ?? []).length === 0
+        const by = r.result.chain?.stage === 'selection' ? String(ruleOfRun(id)) : zero ? 'selected (the empty set, the zero branch)' : 'selected'
+        return [id, (r.run.chain?.consumption?.constraintCandidateIds ?? []).length, stop, by] as [string, number, string, string]
+    })
+    assert.deepEqual(measured, W2_RUNS_TABLE)
+    // Every switched quota run of the experiment path: selected whole, or refused at selection by kept checks only (each named; held to test 1).
+    const switched = EXPERIMENT_RUNS.filter((id) => at(id).result.consumption?.sizeRuleBypassed === true)
+    assert.equal(switched.length, 27, 'the switched experiment runs (measured: the 7 sets, their 14 rewordings, 2 on A02-D, the 4 of W2_SETS)')
+    for (const id of switched) {
+        const r = at(id)
+        if (r.result.chain?.stage === 'selection') {
+            const rules = String(ruleOfRun(id)).split('+')
+            assert.ok(rules.every((rule) => NEVER_BY.indexOf(rule) < 0 && DISPOSITION.some((d) => d.id === rule && (d.disposition === 'KEPT_ENFORCED' || d.disposition === 'TIGHTENING_UNDER_SWITCH'))), `${id}: refused by ${rules.join(', ')}`)
+            assert.equal(classOf(r.findings.find((f) => f.row === 'SELECTION_OUTCOME')!), 'DETECTED', id)
+        } else assert.deepEqual(r.run.chain?.constraints, setOfRun(id), `${id}: the whole set committed`)
+    }
+    // E1, the set whole: under the switch the only size tried is the set's own (generateSelection.ts:1047), and the contract admits exactly it.
+    const source = fs.readFileSync(path.resolve(HERE, '..', 'test-library', 'generateSelection.ts'), 'utf8').split(/\r?\n/)
+    assert.ok(source[1047 - 1].includes('? [quotaBypassOwnSize] : [2, 3, 4]') && source[719 - 1].includes('if (nc !== quotaBypassOwnSize)'), 'the set whole, at the size rule\'s two places')
+    // E1's triple, chosen by measurement: the whole fails a kept check (MEMBER_PRESENCE) on every lens combination, while its pair Neutral Player
+    // with Wide Zone Advantage passes on every one; so the legacy sizes would commit the pair, and E1 refuses the set whole.
+    const lensPool = at('A02-0').answer!.observed!.lensIds
+    const combosOf = (set: string[], options: object) => [...subsets(lensPool, 2), ...subsets(lensPool, 3)].map((lc) => isSelectionPackageCompatible({ archetype: archetypeOf('GF2'), affordanceLenses: lc.map(lensOf), constraints: set.map(constraintOf), requireShaping: false, ...options }).compatible)
+    const SWITCH = { everyMemberValidated: true, foundationPresenceBypass: true }
+    assert.deepEqual([combosOf(setOf('NP+WZA+CDC'), SWITCH), combosOf(setOf('NP+WZA'), SWITCH)], [[false, false, false, false], [true, true, true, true]])
+    assert.deepEqual([at('S4-NP+WZA+CDC').result.chain?.stage, at('S4-NP+WZA+CDC').run.chain?.constraints], ['selection', []])
+    // Its safeguard, a doctored copy of the run: the pair built (as the legacy sizes commit it) reads UNAUTHORIZED_SOURCE and fails test 1.
+    const pairBuilt = copy(at('S4-NP+WZA+CDC').run)
+    Object.assign(pairBuilt.chain!, { outcome: 'refused', stage: 'structure', constraints: setOf('NP+WZA') })
+    const pairVerdict = ownershipOf(pairBuilt).find((f) => f.row === 'CONSTRAINTS')!
+    assert.deepEqual([pairVerdict.verdict, pairVerdict.why.indexOf('not built: tl-v0-constraint-central-density-condition') > 0], ['UNAUTHORIZED_SOURCE', true])
+    assert.throws(() => assertExperimentRun(ownershipOf(pairBuilt)), /owned by the upstream result the chain takes, one of: .*: UNAUTHORIZED_SOURCE: built tl-v0-constraint-neutral-player-condition, tl-v0-constraint-wide-zone-advantage, a strict subset/)
+    // E2, the pool whole, observed by a probe on the package check: three members of one role in a TEST-ONLY record-backed pool, directly. Under
+    // the switch the whole set reaches the check on every lens combination (and is refused there by MEMBER_PRESENCE); without it, the cap of 2
+    // per role drops one first, so the whole set never reaches the check (the in-test negative control).
+    const text = guidedGoalText('A02')
+    const three = [C('neutral-player-condition'), C('central-density-condition'), C('zone-structure-condition')]
+    const recordHints = { ...guidedSelectionHints('A02', text).hints, candidateArchetypeIds: ['GF2'], candidateConstraintIds: three, constraintAuthority: { authority: 'AUTHORIZATION_RECORD' as const, learningGoalId: 'A02', constraintPrinciple: { ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', principle: 'TEST-ONLY fixture: a record-backed pool of three structure members, never knowledge' } } }
+    const probe = (quotaBypass: boolean) => {
+        const seen: string[] = []
+        const original = compatibility.isSelectionPackageCompatible
+        ;(compatibility as any).isSelectionPackageCompatible = (input: any) => {
+            const r = original(input)
+            seen.push(`${input.constraints.length}: ${r.compatible ? 'compatible' : r.reasons.join(' | ').indexOf(compatibility.ABSENT_MEMBER_WORDS) >= 0 ? 'MEMBER_PRESENCE' : 'other'}`)
+            return r
+        }
+        let reason = ''
+        try {
+            generateSelection({ learningGoals: [text], learningGoalId: 'A02' } as any, recordHints, quotaBypass, quotaBypass)
+        } catch (error) {
+            reason = String((error as any).reason ?? (error as Error).message)
+        } finally {
+            ;(compatibility as any).isSelectionPackageCompatible = original
+        }
+        assert.equal(compatibility.isSelectionPackageCompatible, original, 'the probe is removed')
+        return { seen, reason }
+    }
+    const whole = probe(true)
+    assert.deepEqual([whole.seen.filter((s) => s.indexOf('3: ') === 0), whole.reason], [['3: MEMBER_PRESENCE', '3: MEMBER_PRESENCE', '3: MEMBER_PRESENCE', '3: MEMBER_PRESENCE'], 'NO_COMPATIBLE_COMBINATION'])
+    const capped = probe(false)
+    assert.deepEqual(capped.seen.filter((s) => s.indexOf('3: ') === 0), [], 'without the switch the cap drops a member before the check: the whole set never reaches it')
+    // E3, declared and reversible: refused off the switch at every layer (the handoff's validator, the selection's shape check, the selector, the
+    // package check without E4); its reversal arm is held in S4.
+    const declared: any = quotaCase('NP', true)
+    declared.testOnlyTreatments = declared.testOnlyTreatments.filter((t: any) => t.kind !== 'SIZE_RULE_BYPASS')
+    assert.throws(() => validateHandoffInputs(composed([...raw.cases, declared])), /FOUNDATION_PRESENCE_BYPASS is declared at most once, and only beside SIZE_RULE_BYPASS/)
+    const twice: any = quotaCase('NP', true)
+    twice.testOnlyTreatments.push({ ...FOUNDATION_PRESENCE, id: 'TT-FOUNDATION-PRESENCE-BYPASS-AGAIN' })
+    assert.throws(() => validateHandoffInputs(composed([...raw.cases, twice])), /FOUNDATION_PRESENCE_BYPASS is declared at most once/)
+    const consume = at('S4-NP').request!.consume!
+    const upstream = { gameProblem: { gameProblemId: consume.gameProblem.gameProblemId, step1Basis: consume.gameProblem.basis as 'APPROVED_TRANSLATION', label: consume.gameProblem.label }, gameForm: copy(consume.gameForm), foundationPresenceBypass: true }
+    assert.throws(() => boundedSelection.selectFor('A02', null, learningGoalAuthorizations(), undefined, undefined, upstream), /they lack foundationPresenceBypass as a boolean, true only beside quotaBypass/)
+    assert.throws(() => generateSelection({ learningGoals: [text], learningGoalId: 'A02' } as any, recordHints, false, true), /FOUNDATION_PRESENCE_BYPASS is honoured only under the quota bypass/)
+    assert.throws(() => isSelectionPackageCompatible({ archetype: archetypeOf('GF2'), affordanceLenses: lensPool.slice(0, 2).map(lensOf), constraints: setOf('WZA').map(constraintOf), foundationPresenceBypass: true }), /applied only with every selected member validated/)
+    // E4, every selected member validated: two members of one role are refused by it; the direct fixture: the production check admits Neutral
+    // Player with Central Density Condition on every lens combination while Central Density Condition is absent from its package (the hole).
+    assert.deepEqual([ruleOfRun('S4-NP+CDC'), combosOf(setOf('NP+CDC'), {}), combosOf(setOf('NP+CDC'), { everyMemberValidated: true })], ['MEMBER_PRESENCE', [true, true, true, true], [false, false, false, false]])
+    assert.deepEqual(absentFromPackage('GF2', lensPool, setOf('NP+CDC')), [C('central-density-condition')], 'the invariant names the member the production check never validated')
+    // The role mix, inert under the switch: every singleton, pair and triple of the library passes whole, its needs read over itself (each
+    // member counted compatible, the strictest needs); bite: with the library-wide needs a pair is refused.
+    const library = testLibraryRegistry.selectableConstraints()
+    const rowsOf = (cs: any[]) => cs.map((c) => ({ c, score: 1, reasons: [] as string[], bucket: constraintBalanceBucket(c) }))
+    const wholeSets = [...subsets(library, 1), ...subsets(library, 2), ...subsets(library, 3)]
+    assert.equal(library.length, 23)
+    assert.deepEqual([wholeSets.length, wholeSets.filter((set) => !constraintComboPassesRoleMix(set, rowsOf(set))).length], [23 + 253 + 1771, 0])
+    const libraryWide = rowsOf(library)
+    assert.ok(subsets(library, 2).some((pair) => !constraintComboPassesRoleMix(pair, libraryWide)), 'bite: with the library-wide needs a pair is refused')
+    assert.ok(DISPOSITION.find((d) => d.id === 'ROLE_MIX')?.disposition === 'KEPT_ENFORCED', 'the role mix is unchanged and kept')
+})
+
+test('W2, every selected member validated, its invariant (the safeguard that would have caught the hole): on every run that committed constraints, of the experiment path and the controls, every committed constraint is a member of the package the builder built on the committed lenses (read from the builder, not from the check\'s own refusal); the same invariant over the production route\'s selections, measured and reported only (production unchanged)', () => {
+    const committedRuns = [...runs.values()].filter((r) => r.kind !== 'LEGACY' && (r.run.chain?.constraints ?? []).length > 0 && r.result.chain?.stage !== 'selection')
+    const unvalidated = committedRuns.map((r) => [r.id, absentFromPackage(String(r.run.chain?.form), r.answer!.observed!.lensIds, r.run.chain!.constraints)] as [string, string[]]).filter((x) => x[1].length > 0)
+    assert.deepEqual(unvalidated, [], 'every committed constraint validated (each run with the members absent from its checked package)')
+    assert.deepEqual(committedRuns.map((r) => r.id), COMMITTED_RUNS, 'the runs that committed constraints (measured)')
+    // The production route's selections: the hole by construction, measured, reported only (production unchanged).
+    const production = productionSelections()
+    const absent = production.filter((p): p is { goal: string; formId: string; lensIds: string[]; constraintIds: string[] } => 'constraintIds' in p).map((p) => [p.goal, absentFromPackage(p.formId, p.lensIds, p.constraintIds).map((id) => id.replace('tl-v0-constraint-', '')).join(', ')] as [string, string]).filter((p) => p[1].length > 0)
+    assert.deepEqual(absent, PRODUCTION_ABSENT, 'the production route commits these constraints without ever validating them (reported, not changed)')
+    assert.deepEqual(production.filter((p) => 'refused' in p).map((p) => p.goal), ['A02', 'D03'])
 })
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -1481,53 +1823,88 @@ test('W1 (c1): under the declared TEST-ONLY treatment GP_COVERAGE_LENSES the len
 // The disposition table
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-test('the disposition table: every selection check kept and enforced except the numerical size rule (bypassed, TEST-ONLY); each with its source (held to the source text), origin and authority; per run, ran or not run on this path: the empty-set runs print not run for the role mix, the package checks and the size rule', () => {
-    assert.deepEqual(DISPOSITION.filter((d) => d.disposition !== 'KEPT_ENFORCED').map((d) => d.id), ['SIZE_RULE'])
+test('the disposition table: every selection check kept and enforced except, under the TEST-ONLY switch, the size rule with its floor and the bounded search over constraints (bypassed) and every selected member validated (a tightening), and foundation presence (bypassed only under FOUNDATION_PRESENCE_BYPASS); each with its source (held to the source text), origin and authority; per run, ran, bypassed or not run on this path: the empty-set runs print not run for the role mix, the package checks, the size rule, the bounded search and the tightening', () => {
+    // Re-pinned openly in stage W2 (11 November 2026): was ['SIZE_RULE'] (BYPASSED_SIZE_RULE_ONLY); see the rows for why each moved.
+    assert.deepEqual(DISPOSITION.filter((d) => d.disposition !== 'KEPT_ENFORCED').map((d) => [d.id, d.disposition]), [
+        ['SIZE_RULE', 'BYPASSED_UNDER_SWITCH'],
+        ['FOUNDATION_CLAUSE', 'BYPASSED_UNDER_TREATMENT'],
+        ['MEMBER_PRESENCE', 'TIGHTENING_UNDER_SWITCH'],
+        ['BOUNDED_SEARCH', 'BYPASSED_UNDER_SWITCH'],
+    ])
     for (const d of DISPOSITION) assert.ok(d.control.length > 0 && d.origin.length > 0 && d.authority.length > 0, d.id)
     for (const id of ['ROLE_MIX', 'FOUNDATION_CLAUSE']) assert.ok(String(DISPOSITION.find((d) => d.id === id)?.reported).includes('reported with its source and authority'), id)
-    // Each source line holds what the row says it holds (read, not run).
+    // Each row's marks are its own: no reason is recognized by two rows.
+    for (const d of DISPOSITION) for (const m of d.marks) assert.deepEqual(DISPOSITION.filter((e) => e.marks.some((x) => x.indexOf(m) >= 0 || m.indexOf(x) >= 0)).map((e) => e.id), [d.id], m)
+    // Each source line holds what the row says it holds (read, not run). Re-pinned openly in stage W2 (each line moved by the hunks of the
+    // stage above it, none changed but where named): generateSelection.ts 719 -> 722, 835 -> 840, 590 -> 591, 839 -> 844, 705 -> 708,
+    // 811 -> 816, 1030 -> 1040, 933 -> 943, 636 -> 637, 868 -> 875, 1029 -> 1039, 836 -> 841; build-constraint-package.ts 614 -> 634;
+    // validate-constraint-package.ts 326 -> 334, 491 -> 499, 365 -> 373; run-bounded-selection.ts 459 -> 472, 391 -> 402.
     const SYS = path.resolve(HERE, '..')
-    const holds = (file: string, line: number, fragment: string) => assert.ok(fs.readFileSync(path.join(SYS, file), 'utf8').split('\n')[line - 1].includes(fragment), `${file}:${line} holds ${fragment}`)
-    holds('test-library/generateSelection.ts', 719, 'if (nc < 2 || nc > 4)')
-    holds('test-library/generateSelection.ts', 835, 'for (const conSize of constraintSizes)')
-    holds('test-library/generateSelection.ts', 590, 'function constraintComboPassesRoleMix')
-    holds('test-library/generateSelection.ts', 839, 'constraintComboPassesRoleMix(conCombo, roleNeeds)')
-    holds('test-library/generateSelection.ts', 705, 'if (nl < 2 || nl > 3)')
-    holds('test-library/generateSelection.ts', 811, 'if (zeroConstraintCommitment)')
-    holds('test-library/generateSelection.ts', 1030, 'const zeroConstraintCommitment = ')
-    holds('test-library/generateSelection.ts', 933, 'if (tokens.length === 0)')
-    holds('test-library/generateSelection.ts', 636, 'BOUNDED_SEARCH_TOP_CONSTRAINTS_PER_BUCKET = 2')
-    holds('test-library/generateSelection.ts', 868, 'export function commitDesignChoice')
-    holds('build-constraint-package.ts', 614, 'const foundation = pickBestConstraint')
+    const holds = (file: string, line: number, fragment: string) => assert.ok(fs.readFileSync(path.join(SYS, file), 'utf8').split(/\r?\n/)[line - 1].includes(fragment), `${file}:${line} holds ${fragment}`)
+    holds('test-library/generateSelection.ts', 722, 'if (nc < 2 || nc > 4)')
+    holds('test-library/generateSelection.ts', 719, 'if (nc !== quotaBypassOwnSize)')
+    holds('test-library/generateSelection.ts', 840, 'for (const conSize of constraintSizes)')
+    holds('test-library/generateSelection.ts', 1047, '? [quotaBypassOwnSize] : [2, 3, 4]')
+    holds('test-library/generateSelection.ts', 591, 'function constraintComboPassesRoleMix')
+    holds('test-library/generateSelection.ts', 844, 'constraintComboPassesRoleMix(conCombo, roleNeeds)')
+    holds('test-library/generateSelection.ts', 832, 'const roleNeeds = roleNeedsFromPool ? conScored.filter((row) => poolIds.has(row.c.id)) : conScored')
+    holds('test-library/generateSelection.ts', 708, 'if (nl < 2 || nl > 3)')
+    holds('test-library/generateSelection.ts', 816, 'if (zeroConstraintCommitment)')
+    holds('test-library/generateSelection.ts', 1040, 'const zeroConstraintCommitment = ')
+    holds('test-library/generateSelection.ts', 943, 'if (tokens.length === 0)')
+    holds('test-library/generateSelection.ts', 636, 'BOUNDED_SEARCH_TOP_LENSES = 3')
+    holds('test-library/generateSelection.ts', 637, 'BOUNDED_SEARCH_TOP_CONSTRAINTS_PER_BUCKET = 2')
+    holds('test-library/generateSelection.ts', 685, 'wholePool ? byBucket[bucket] : byBucket[bucket].slice(0, BOUNDED_SEARCH_TOP_CONSTRAINTS_PER_BUCKET)')
+    holds('test-library/generateSelection.ts', 853, '...switchChecks.packageCheck,')
+    holds('test-library/generateSelection.ts', 1227, 'type SwitchChecks = ')
+    holds('test-library/generateSelection.ts', 1055, 'const lensCandidatePool = boundedLensCandidates(lensScored, allLenses)')
+    holds('test-library/generateSelection.ts', 875, 'export function commitDesignChoice')
+    holds('build-constraint-package.ts', 634, 'const foundation = pickBestConstraint')
+    holds('build-constraint-package.ts', 635, 'if (!foundation && testOnly?.foundationPresenceBypass !== true) {')
     holds('build-constraint-package.ts', 148, 'score <= 10 &&')
-    holds('validate-constraint-package.ts', 326, 'A valid package requires a foundation constraint.')
-    holds('validate-constraint-package.ts', 491, 'does not show a clear relationship to the selected affordance or open problem space')
-    holds('validate-constraint-package.ts', 365, 'does not support the selected affordance tag group')
+    holds('build-constraint-package.ts', 657, 'const selectedConsequence = consequence && consequence.score > 12 ? consequence : undefined')
+    holds('validate-constraint-package.ts', 334, 'A valid package requires a foundation constraint.')
+    holds('validate-constraint-package.ts', 499, 'does not show a clear relationship to the selected affordance or open problem space')
+    holds('validate-constraint-package.ts', 373, 'does not support the selected affordance tag group')
+    holds('test-library/selection-compatibility.ts', 121, 'refuseAbsentMembers(input.constraints, [pkg.foundation, pkg.shaping, pkg.consequence])')
+    holds('test-library/selection-compatibility.ts', 128, 'if (input.everyMemberValidated) refuseAbsentMembers(')
+    holds('test-library/selection-compatibility.ts', 141, 'function refuseAbsentMembers(')
     // Re-pinned openly in stage W1 (a) (lines moved by the TEST-ONLY hunks added above them): 384 -> 398, 212 -> 218, 228 -> 238; and the
     // TEST-ONLY call with Step 1's Game Problem, 246. Stage W1 (b): 398 -> 452 (K2's hunks above it); K2's authority written at 386 only, and
     // the selector's zero branch admitting K2's empty set at 1029. Stage W1 (c1): 452 -> 459 and 386 -> 391 (the treatment's field above).
-    holds('derivation/run-bounded-selection.ts', 459, `if (resolutionStatus !== 'matched')`)
-    holds('derivation/run-bounded-selection.ts', 391, `constraintAuthority: { authority: 'REVIEW_PATHWAY_K2', learningGoalId: goalId`)
-    holds('test-library/generateSelection.ts', 1029, 'const authorizesNone = (recordBacked || reviewPathwayK2EmptySet(constraintPool)) && constraintPool.candidateIds.length === 0')
+    // Stage W2: 459 -> 472, 391 -> 402, 1029 -> 1039 (the stage's hunks above them).
+    holds('derivation/run-bounded-selection.ts', 472, `if (resolutionStatus !== 'matched')`)
+    holds('derivation/run-bounded-selection.ts', 402, `constraintAuthority: { authority: 'REVIEW_PATHWAY_K2', learningGoalId: goalId`)
+    holds('test-library/generateSelection.ts', 1039, 'const authorizesNone = (recordBacked || reviewPathwayK2EmptySet(constraintPool)) && constraintPool.candidateIds.length === 0')
     holds('sport-module/guided-selection.ts', 218, 'export function guidedSelectionHints')
     holds('sport-module/guided-selection.ts', 238, 'governByApprovedGameProblem(learningGoalId')
     holds('sport-module/guided-selection.ts', 246, 'governByApprovedGameProblem(learningGoalId, deriveInputConstraints(goalText), options.step1GameProblemId)')
     holds('sport-module/guided-selection.ts', 131, 'export function governByApprovedGameProblem(')
     // Per run.
     const ran = (id: string) => Object.fromEntries(dispositionOf(at(id).run).map((d) => [d.id, d.ran]))
-    const zero = 'not run on this path (zero branch, generateSelection.ts:811-815)'
+    const zero = 'not run on this path (zero branch, generateSelection.ts:816-820)'
     for (const id of ['A02-0', 'A02-1', 'A02-1b', 'A02-2', 'A02-D']) {
         const r = ran(id)
-        for (const check of ['ROLE_MIX', 'FOUNDATION_CLAUSE', 'PACKAGE_ROW_O', 'PACKAGE_ROW_K', 'PACKAGE_OTHER', 'SIZE_RULE', 'BOUNDED_SEARCH']) assert.equal(r[check], zero, `${id} ${check}`)
-        assert.deepEqual([r.ZERO_BRANCH, r.LENS_RULE, r.TOKEN_CHECK], ['ran', 'ran', 'ran'], id)
+        for (const check of ['ROLE_MIX', 'FOUNDATION_CLAUSE', 'MEMBER_PRESENCE', 'PACKAGE_ROW_O', 'PACKAGE_ROW_K', 'PACKAGE_OTHER', 'SIZE_RULE', 'BOUNDED_SEARCH']) assert.equal(r[check], zero, `${id} ${check}`)
+        assert.deepEqual([r.ZERO_BRANCH, r.LENS_RULE, r.TOKEN_CHECK, r.LENS_SEARCH], ['ran', 'ran', 'ran', 'ran'], id)
     }
-    for (const id of ['S4-NP', 'S4-WZA', 'S4-NP+WZA']) assert.deepEqual([ran(id).SIZE_RULE, ran(id).ROLE_MIX, ran(id).FOUNDATION_CLAUSE], ['bypassed (TEST-ONLY): the set\'s own size tried, and the contract admits 1 to its size (a one-manipulation subset of a set of 2 to 4 is not tried)', 'ran', 'ran'], id)
+    // Re-pinned openly in stage W2: the switched runs' SIZE_RULE text was 'bypassed (TEST-ONLY): the set's own size tried, and the contract
+    // admits 1 to its size (a one-manipulation subset of a set of 2 to 4 is not tried)', their FOUNDATION_CLAUSE 'ran'; the bounded search and
+    // the tightening are new rows (E2, E4), foundation presence bypassed under its treatment (E3).
+    const SWITCHED_SIZE = 'bypassed (TEST-ONLY, the switch): the set\'s own size only, the set taken whole, and the contract admits exactly that size (stage W2)'
+    const SWITCHED_POOL = 'not applied (TEST-ONLY, the switch): the record\'s pool searched whole (stage W2)'
+    const NO_PRESENCE = 'bypassed (TEST-ONLY, the treatment FOUNDATION_PRESENCE_BYPASS): presence not required; a structure member present is still checked, and one under its threshold is refused by MEMBER_PRESENCE (stage W2)'
+    for (const id of ['S4-NP', 'S4-WZA', 'S4-NP+WZA', 'S4-NP+CDC']) assert.deepEqual([ran(id).SIZE_RULE, ran(id).BOUNDED_SEARCH, ran(id).ROLE_MIX, ran(id).FOUNDATION_CLAUSE, ran(id).MEMBER_PRESENCE], [SWITCHED_SIZE, SWITCHED_POOL, 'ran', NO_PRESENCE, 'ran'], id)
+    // The reversal arm: under the switch, foundation presence runs.
+    assert.deepEqual([ran(`S4-WZA${FOUNDATION_KEPT}`).FOUNDATION_CLAUSE, ran(`S4-WZA${FOUNDATION_KEPT}`).SIZE_RULE, ran(`S4-WZA${FOUNDATION_KEPT}`).MEMBER_PRESENCE], ['ran', SWITCHED_SIZE, 'ran'])
     assert.deepEqual([ran('S4-NP/no-bypass').SIZE_RULE, ran('S4-WZA').LENS_RULE], ['ran', 'not reached (no selection was committed)'])
-    // The lone manipulation without the bypass: no combination is enumerated, so the role mix and the package checks never run.
+    // The lone manipulation without the bypass: no combination is enumerated, so the role mix and the package checks never run; the tightening
+    // is not on that path (the switch is off).
     const noBypass = ran('S4-NP/no-bypass')
-    const unenumerated = 'not run on this path (no combination enumerated: the set holds 1; without the bypass the sizes enumerated are 2 to 4, generateSelection.ts:835-836)'
-    assert.deepEqual(['ROLE_MIX', 'FOUNDATION_CLAUSE', 'PACKAGE_ROW_O', 'PACKAGE_ROW_K', 'PACKAGE_OTHER', 'SIZE_RULE', 'BOUNDED_SEARCH'].map((check) => noBypass[check]), [unenumerated, unenumerated, unenumerated, unenumerated, unenumerated, 'ran', 'ran'])
-    holds('test-library/generateSelection.ts', 836, 'if (constraintCandidatePool.length < conSize) continue')
+    const unenumerated = 'not run on this path (no combination enumerated: the set holds 1; without the bypass the sizes enumerated are 2 to 4, generateSelection.ts:840-841)'
+    assert.deepEqual(['ROLE_MIX', 'FOUNDATION_CLAUSE', 'PACKAGE_ROW_O', 'PACKAGE_ROW_K', 'PACKAGE_OTHER', 'SIZE_RULE', 'BOUNDED_SEARCH', 'MEMBER_PRESENCE'].map((check) => noBypass[check]), [unenumerated, unenumerated, unenumerated, unenumerated, unenumerated, 'ran', 'ran', 'not on this path (the switch is off)'])
+    assert.deepEqual([ran('S4-NP+WZA/no-bypass').MEMBER_PRESENCE, ran('S4-NP+WZA/no-bypass').BOUNDED_SEARCH, ran('S4-NP+WZA/no-bypass').FOUNDATION_CLAUSE], ['not on this path (the switch is off)', 'ran', 'ran'])
+    holds('test-library/generateSelection.ts', 841, 'if (constraintCandidatePool.length < conSize) continue')
     assert.equal(ran('GP-001').ROLE_MIX, 'not reached (the chain was not run)')
 })
 
@@ -1625,9 +2002,13 @@ test('S6. the earliest consequential blocker, computed from the runs: the stops 
 
 export function reportLines(): string[] {
     const notes = [
-        'QUOTA (S4): zero is the base cases (the empty set, through the zero branch): representable, not shown to be justified (generateSelection.ts:1018-1021 names this goal among the knowledge gaps a floor of 0 would turn into empty selections).',
-        'QUOTA (S4): one and two manipulations entered only through the DRAFT record\'s authorized set, with the TEST-ONLY size-rule bypass; a lone Neutral Player is selected with the bypass and refused without it; a lone Wide Zone Advantage or Turnover Reward is refused by the foundation clause, Central Density Condition (alone and with Interception Reward) by row o, each attributed by re-running the exported package check; Neutral Player with Wide Zone Advantage or with Turnover Reward is selected whole.',
-        'QUOTA (S4): no manipulation is justified for A02 in anything we hold; every manipulation here rests on a TEST-ONLY relationship stand-in (TEST ASSUMPTION), never knowledge, and every line it brings is graded class 4 at best.',
+        // Stage W2, re-pinned openly: the second note read 'one and two manipulations ... with the TEST-ONLY size-rule bypass; ... a lone Wide Zone
+        // Advantage or Turnover Reward is refused by the foundation clause, ...'; the third and fourth are new (the runs table, Q-a1).
+        'QUOTA (S4): zero is the base cases (the empty set, through the zero branch): representable, not shown to be justified (generateSelection.ts:1028-1031 names this goal among the knowledge gaps a floor of 0 would turn into empty selections).',
+        `QUOTA (S4, stage W2): one, two and three manipulations entered only through the DRAFT record's authorized set, under the TEST-ONLY switch (the set taken whole, its own size only; the bounded search's cap not applied to it; every selected member validated) and the declared TEST-ONLY treatment FOUNDATION_PRESENCE_BYPASS (our classification of foundation presence as a quota, reversible by its removal); a lone Neutral Player is selected with the switch and refused without it; a lone Wide Zone Advantage is refused as one-sided (the other package checks), a lone Turnover Reward by row k and row o, Central Density Condition (alone and with Interception Reward) by row o, Neutral Player with Central Density Condition (and with Wide Zone Advantage too) by MEMBER_PRESENCE, each attributed by re-running the exported package check with the run's options; Neutral Player with Wide Zone Advantage, with Turnover Reward, Wide Zone Advantage with Turnover Reward, and the three of them are selected whole.`,
+        `QUOTA RUNS TABLE (stage W2; run, manipulations, stop, what decided at selection): ${W2_RUNS_TABLE.map(([id, n, stop, by]) => `${id}, ${n}, ${stop}, ${by}`).join('; ')}. Never the size rule, foundation presence, the role mix or the bounded search; on the reversal arm (foundation presence kept: ${FOUNDATION_KEPT_SETS.map((name) => `S4-${name}${FOUNDATION_KEPT}`).join(', ')}, controls) the foundation clause refuses each on every lens combination, a quota deciding (a violation verdict, controls only).`,
+        `QUOTA, EVERY MEMBER VALIDATED, ON THE PRODUCTION ROUTE (reported only, not changed): the production package check holds one member per role and drops a consequence scoring 12 or less, so a selection of four, or of two members of one role, commits a member it never validated; measured on the production route's own selections: ${PRODUCTION_ABSENT.map(([goal, absent]) => `${goal} (${absent})`).join('; ')}.`,
+        'QUOTA (S4): no manipulation is justified for A02 in anything we hold; every manipulation here rests on a TEST-ONLY relationship stand-in (TEST ASSUMPTION), never knowledge, and every line it brings is graded class 4 at best. Whether a record may ever be a menu to choose among, and on what learning-design basis, is Christian\'s question Q-a1; until it is answered the set is taken whole, and a strict subset built reads UNAUTHORIZED_SOURCE.',
         `WORDING (test 5): the lens list moves from ${LENSES_BEFORE} to ${LENSES_AFTER} under both rewordings; the owned decisions do not move; the selection of Neutral Player with Turnover Reward flips (OD-WORDING-FLIP).`,
         // Stage W1 (c1): the two arms measured, for Christian's Q-a2 (which lenses the kept checks read); the ranking changes are not made.
         'LENS ARMS (stage W1 (c1), the TEST-ONLY treatment GP_COVERAGE_LENSES beside the consumption, never its default): A02-0 under the goal\'s wording and the two rewordings, the wording arm (the default) against the Coverage-row arm (the lens candidates and signal groups of Step 1\'s Coverage row, CV-015, in both branches); per row: wording, arm, run, the lens candidate pool, the signal groups, the lenses committed (the first is the primary lens the foundation threshold and row o read), the stop:',

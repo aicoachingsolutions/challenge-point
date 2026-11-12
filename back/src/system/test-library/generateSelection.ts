@@ -586,8 +586,9 @@ function isCompatibleConstraint(row: ConScored): boolean {
  * - Consequence is optional but preferred (via bonus); not allowed to dominate when both
  *   foundation and shaping are compatible — at most (n−2) consequence slots so F+S can appear.
  * - Never return an all-consequence bundle when a compatible foundation or shaping exists.
+ * Exported only so a test can pin that it refuses no whole set whose needs are read over that set (stage W2, 11 November 2026); unchanged.
  */
-function constraintComboPassesRoleMix(combo: TestLibraryV0Constraint[], conScored: ConScored[]): boolean {
+export function constraintComboPassesRoleMix(combo: TestLibraryV0Constraint[], conScored: ConScored[]): boolean {
     const needFoundation = conScored.some(
         (r) => r.bucket === 'foundation' && isCompatibleConstraint(r)
     )
@@ -660,7 +661,9 @@ function boundedLensCandidates(
  */
 function boundedConstraintCandidates(
     conScored: ConScored[],
-    allowedPool: TestLibraryV0Constraint[]
+    allowedPool: TestLibraryV0Constraint[],
+    /** TEST-ONLY (stage W2, E2): true only under the switch, for a record-backed pool: the per-bucket cap is not applied (`SwitchChecks`). */
+    wholePool = false
 ): TestLibraryV0Constraint[] {
     const allowedIds = new Set(allowedPool.map((c) => c.id))
     const filtered = conScored
@@ -679,7 +682,7 @@ function boundedConstraintCandidates(
     const out: TestLibraryV0Constraint[] = []
     const seen = new Set<string>()
     for (const bucket of ['foundation', 'shaping', 'consequence'] as const) {
-        for (const r of byBucket[bucket].slice(0, BOUNDED_SEARCH_TOP_CONSTRAINTS_PER_BUCKET)) {
+        for (const r of wholePool ? byBucket[bucket] : byBucket[bucket].slice(0, BOUNDED_SEARCH_TOP_CONSTRAINTS_PER_BUCKET)) {
             if (!seen.has(r.c.id)) {
                 seen.add(r.c.id)
                 out.push(r.c)
@@ -698,7 +701,7 @@ function assertSelectionContract(
     affordanceLenses: TestLibraryV0AffordanceLens[],
     constraints: TestLibraryV0Constraint[],
     zeroConstraintCommitment = false,
-    /** TEST-ONLY (the isolated A02 experiment): under `quotaBypass`, the authorized set's own size n, admitting 1 to n. Null in production. */
+    /** TEST-ONLY (the isolated A02 experiment): under `quotaBypass`, the authorized set's own size n, admitting exactly n (stage W2, E1: the set whole). Null in production. */
     quotaBypassOwnSize: number | null = null
 ): void {
     const nl = affordanceLenses.length
@@ -713,7 +716,7 @@ function assertSelectionContract(
         return
     }
     if (quotaBypassOwnSize !== null) {
-        if (nc < 1 || nc > quotaBypassOwnSize) throw new Error(`Test Library selection contract violated: under the TEST-ONLY quota bypass expected 1–${quotaBypassOwnSize} constraints, got ${nc}.`)
+        if (nc !== quotaBypassOwnSize) throw new Error(`Test Library selection contract violated: under the TEST-ONLY quota bypass the authorized set is committed whole, ${quotaBypassOwnSize} constraints, got ${nc}.`)
         return
     }
     if (nc < 2 || nc > 4) {
@@ -781,8 +784,10 @@ interface DesignEnumerationContext {
     roleNeedsFromPool: boolean
     /** Commit lenses with NO constraint: set only for a record-backed goal whose evaluated authorized set is empty. */
     zeroConstraintCommitment: boolean
-    /** The constraint sizes tried: [2, 3, 4], and under the TEST-ONLY quota bypass also the authorized set's own size. */
+    /** The constraint sizes tried: [2, 3, 4], and under the TEST-ONLY quota bypass the authorized set's own size only (stage W2, E1). */
     constraintSizes: number[]
+    /** TEST-ONLY (stage W2): what the switch adds to the search and the package check (`SwitchChecks`); nothing in production. */
+    switchChecks: SwitchChecks
 }
 
 function comboKey(lenses: TestLibraryV0AffordanceLens[], cons: TestLibraryV0Constraint[]): string {
@@ -795,7 +800,7 @@ function comboKey(lenses: TestLibraryV0AffordanceLens[], cons: TestLibraryV0Cons
  * pre-assembly compatibility, scoring each. It does NOT choose; that is commitDesignChoice's job.
  */
 function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPossibility[] {
-    const { tokens, archetype, archeAffordances, informationIntent, lensCandidatePool, lensScoreById, allConstraints, roleNeedsFromPool, zeroConstraintCommitment, constraintSizes } = ctx
+    const { tokens, archetype, archeAffordances, informationIntent, lensCandidatePool, lensScoreById, allConstraints, roleNeedsFromPool, zeroConstraintCommitment, constraintSizes, switchChecks } = ctx
     const poolIds = new Set(allConstraints.map((c) => c.id))
     const possibilities: DesignPossibility[] = []
     for (const lensSize of [2, 3]) {
@@ -828,7 +833,7 @@ function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPoss
 
             // Bound the constraint search pool for this lens combo. Per-lens-combo because constraint
             // scoring depends on the selected lens slugs (targetMatchesSelectedLens bonus).
-            const constraintCandidatePool = boundedConstraintCandidates(conScored, allConstraints)
+            const constraintCandidatePool = boundedConstraintCandidates(conScored, allConstraints, switchChecks.wholePool)
 
             const lensSum = lensCombo.reduce((s, l) => s + (lensScoreById.get(l.id)?.score ?? 0), 0)
 
@@ -844,6 +849,8 @@ function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPoss
                         constraints: conCombo,
                         // Free text keeps the pre-14-October package rule exactly (see `requireShaping`).
                         requireShaping: !roleNeedsFromPool,
+                        // TEST-ONLY (stage W2): under the switch, every selected member validated (E4) and, under its treatment, no foundation presence (E3).
+                        ...switchChecks.packageCheck,
                     })
                     if (!compat.compatible) continue
 
@@ -887,12 +894,15 @@ export function generateSelection(
      * TEST-ONLY, the isolated A02 experiment. Christian's A02 authorization, pasted 10 November 2026:
      *   "For the isolated A02 experiment, you may remove or bypass this unsupported numerical quota where necessary to test legitimate zero-, one-, or multiple-manipulation configurations."
      *   "I am not authorizing a production change to the constraint selector at this stage."
-     * Bypass the size rule only, at its two places (the sizes enumerated and `assertSelectionContract`), for an evaluated, record-backed authorized set, and throw for any
+     * Bypass the size rule at its two places (the sizes enumerated and `assertSelectionContract`), for an evaluated, record-backed authorized set, and throw for any
      * other pool. Passed only by `selectFor` under `buildActivityUnderAuthorizationRecords`'s `upstream` option, which no route passes; every
-     * production caller passes at most two arguments (a static test pins both). The role mix, the package checks, the zero branch and the lens
-     * rule are untouched.
+     * production caller passes at most two arguments (a static test pins both). Since stage W2 of the A02 package (11 November 2026), under the
+     * switch the set is taken whole, its own size only (E1), the bounded search does not cap its pool (E2) and every selected member is validated
+     * (E4, a tightening): `SwitchChecks`. The role mix, the zero branch and the lens rule are untouched.
      */
-    quotaBypass = false
+    quotaBypass = false,
+    /** TEST-ONLY (stage W2, E3): the declared treatment FOUNDATION_PRESENCE_BYPASS, honoured only with the switch (`SwitchChecks`); thrown otherwise. */
+    foundationPresenceBypass = false
 ): TestLibrarySelectionResult {
     if (!input.learningGoals || !Array.isArray(input.learningGoals) || input.learningGoals.length === 0) {
         throw new Error('Test Library selection requires at least one learning goal.')
@@ -1029,12 +1039,13 @@ export function generateSelection(
     const authorizesNone = (recordBacked || reviewPathwayK2EmptySet(constraintPool)) && constraintPool.candidateIds.length === 0
     const zeroConstraintCommitment = authorizesNone && constraintPool.constraintPrinciple !== null
     // TEST-ONLY (the isolated A02 experiment): the quota bypass is honoured only for an evaluated, record-backed authorized set; requested for
-    // any other pool it throws. Under it the sizes also try the set's own size n, and `assertSelectionContract` admits 1 to n.
+    // any other pool it throws. Under it (stage W2, E1) the only size tried is the set's own size n, and `assertSelectionContract` admits n.
     if (quotaBypass && !(recordBacked && constraintPool.constraintPrinciple !== null)) {
         throw new Error(`TEST-ONLY quota bypass requested for a selection whose constraints are not an evaluated authorization record (${constraintPool.source}): it is honoured only there`)
     }
     const quotaBypassOwnSize = quotaBypass ? constraintPool.candidateIds.length : null
-    const constraintSizes = quotaBypassOwnSize !== null && quotaBypassOwnSize >= 1 && ![2, 3, 4].includes(quotaBypassOwnSize) ? [quotaBypassOwnSize, 2, 3, 4] : [2, 3, 4]
+    const constraintSizes = quotaBypassOwnSize !== null && quotaBypassOwnSize >= 1 ? [quotaBypassOwnSize] : [2, 3, 4]
+    const switchChecks = switchChecksFor(quotaBypass, foundationPresenceBypass)
     if (authorizesNone && !zeroConstraintCommitment) gapFor(archetype.game_form_id)('NO_AUTHORIZED_CONSTRAINTS')
 
     const lensScored = scoreAllLenses(tokens, archetype, archeAffordances)
@@ -1059,6 +1070,7 @@ export function generateSelection(
         roleNeedsFromPool: forGoal,
         zeroConstraintCommitment,
         constraintSizes,
+        switchChecks,
     })
     const committed = commitDesignChoice(designPossibilities)
     const bestLensCombo = committed?.lenses ?? null
@@ -1196,4 +1208,25 @@ function reviewPathwayK2EmptySet(pool: ConstraintPoolAccount): boolean {
         throw new Error(`TEST-ONLY: the review pathway's K2 result carries ${pool.candidateIds.length} candidate constraint(s) (${pool.candidateIds.join(', ')}): K2 yields no manipulation, so its set is the empty set only`)
     }
     return true
+}
+
+/**
+ * TEST-ONLY (the isolated A02 experiment, stage W2 of the A02 package, 11 November 2026): what the switch (`quotaBypass`, honoured only for an
+ * evaluated, record-backed set) adds to the search and to the package check. Christian, received 15 October 2026: "A library constraint is not
+ * mandatory unless its inclusion is justified by the approved knowledge and intended learning environment." and "The engine should continue
+ * enforcing structural validity and any genuinely required conditions."; received 11 November 2026, second reply: "Removing unsupported
+ * constraint quotas from isolated testing while retaining justified validation." Under the switch:
+ *   - E1 (the set whole; `generateSelection` and `assertSelectionContract`): the only size tried is the set's own, so the floor of 2 for
+ *     subsets is gone and the scorer chooses lenses only, never how many or which of the record's constraints;
+ *   - E2 (`wholePool`): the bounded search's cap of 2 per role is not applied to the record's pool, so no authorized member is dropped unseen;
+ *   - E4 (`everyMemberValidated`, a tightening, always on): a set any member of which is absent from the checked package is refused;
+ *   - E3 (`foundationPresenceBypass`, only where the case declares FOUNDATION_PRESENCE_BYPASS): the package need hold no foundation member
+ *     (our classification of foundation presence as a quota, reversible by removing the treatment); it is refused without the switch.
+ * Without the switch: no change at all (the bounded pool, and nothing added to the package check).
+ */
+type SwitchChecks = { wholePool: boolean; packageCheck: { everyMemberValidated?: true; foundationPresenceBypass?: true } }
+function switchChecksFor(quotaBypass: boolean, foundationPresenceBypass: boolean): SwitchChecks {
+    if (foundationPresenceBypass && !quotaBypass) throw new Error('TEST-ONLY: FOUNDATION_PRESENCE_BYPASS is honoured only under the quota bypass (the switch), with every selected member validated')
+    if (!quotaBypass) return { wholePool: false, packageCheck: {} }
+    return { wholePool: true, packageCheck: { everyMemberValidated: true, ...(foundationPresenceBypass ? { foundationPresenceBypass: true as const } : {}) } }
 }
