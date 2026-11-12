@@ -494,21 +494,31 @@ const NEXT_PASS_AWAITING_RELEASE =
     'AWAITING RELEASE: \'with the next pass\' names one kind of action where the approved condition names any, "the attacking team retains possession through the next action." ' +
     '(RPC-PROP-133, approved 13 September 2026). Our CANDIDATE wording (docs/audits/drafts/a02-composition/rpc-002-coach-rules.CANDIDATE.json) says the row\'s ' +
     "'through the next action', every other word kept; the live text is unchanged, held for the same release decision as the three approved Attack Development rules."
-const KICK_AGAINST_CLEARANCE =
-    "REPORTED ONLY, nothing changed (RPC-001 is A01's context): the rule excludes 'a long kick' where the approved condition excludes a clearance, \"A long clearance " +
-    'that happens to reach the target does not satisfy the event." (RPC-PROP-132, approved 13 September 2026): an exclusion wider than its source, since it also ' +
-    "excludes a long pass played on purpose. Christian's to review with A01."
+/**
+ * Christian's rulings on a coach-facing word (WORD_RULING grounds), each verbatim with its date. A WORD_RULING grounds its action class only
+ * in its context's rules and only where the rule says its phrase. Today one: A01's 'A long kick ... does not count' rests on the ruling
+ * of SD-15's term, item 5c, "`long kick` may remain coach-facing wording rather than a canonical matching term." (received 20 September
+ * 2026), with "long clearance" (RPC-PROP-132) the canonical term internally. Stage W3 first pinned these four as a departure from the
+ * approved condition; the delivery check of 12 November 2026 found the ruling, so they rest on it instead (the realization's SD-15 reading,
+ * realize.ts, already cites it).
+ */
+const WORD_RULINGS: ReadonlyArray<{ rpcId: string; phrase: string; actionClass: ActionClass; sentence: string; received: string }> = [
+    {
+        rpcId: 'RPC-001',
+        phrase: 'long kick',
+        actionClass: 'kick',
+        sentence: '`long kick` may remain coach-facing wording rather than a canonical matching term.',
+        received: 'received 20 September 2026',
+    },
+]
 
 /**
  * **The action-word findings of the live coach rules, each with why it stands** (stage W3, measured 11 November 2026). Any finding not
  * listed, or a listed one no longer found, fails until the list is brought up to date. RPC-003's 'Passing it around' is not listed: it is
  * Christian's approved wording (a DECISION ground) on the zone, line and gate, and the target player's own event definition names a pass.
+ * RPC-001's 'A long kick' is not listed: it rests on Christian's ruling of 20 September 2026 (a WORD_RULING ground).
  */
 const ACTION_WORD_FINDINGS: Readonly<Record<string, string>> = {
-    'RPC-001|line_crossed| (ii) kick': KICK_AGAINST_CLEARANCE,
-    'RPC-001|target_zone_entered| (ii) kick': KICK_AGAINST_CLEARANCE,
-    'RPC-001|gate| (ii) kick': KICK_AGAINST_CLEARANCE,
-    'RPC-001|target_player| (ii) kick': KICK_AGAINST_CLEARANCE,
     'RPC-002|line_crossed| (i) pass': NEXT_PASS_AWAITING_RELEASE,
     'RPC-002|target_zone_entered| (i) pass': NEXT_PASS_AWAITING_RELEASE,
     'RPC-002|gate| (i) pass': NEXT_PASS_AWAITING_RELEASE,
@@ -525,9 +535,10 @@ interface ActionWordFinding {
  * Test 2c's reading, over any table of rules and grounds. (i) A declared clause (2b's table) keeps its class: each specific action word in
  * it must be named, in its class, by its own ground, and a generic 'action' never grounds a specific word. (ii) Every other specific action
  * word of the rule and its setup must be named, in its class, by the event's controlled-vocabulary definition, the context's approved
- * condition, or a DECISION ground the rule says exactly. A finding is `${key} (i|ii) ${class}`.
+ * condition, a DECISION ground the rule says exactly, or a WORD_RULING of its context whose phrase the rule says. A finding is
+ * `${key} (i|ii) ${class}`.
  */
-function actionWordFindings(rules: CoachRuleTable, grounds: CoachRuleGrounds, decisions = DECISION_GROUNDS): ActionWordFinding[] {
+function actionWordFindings(rules: CoachRuleTable, grounds: CoachRuleGrounds, decisions = DECISION_GROUNDS, wordRulings = WORD_RULINGS): ActionWordFinding[] {
     const definitions: Record<string, string> = Object.fromEntries(rpcLibrary.scoringEvents().map((event) => [event.key, event.definition]))
     const findings: ActionWordFinding[] = []
     for (const [key, wording] of Object.entries(rules)) {
@@ -542,7 +553,8 @@ function actionWordFindings(rules: CoachRuleTable, grounds: CoachRuleGrounds, de
         }
         const undeclared = declared.reduce((rest, [clause]) => rest.split(clause).join(' '), wording.rule + ' ' + wording.setup)
         const decision = decisions[key] && wording.rule === decisions[key]!.sentence ? decisions[key]!.sentence : ''
-        const grounded = new Set<ActionClass>([...actionClassesIn(definitions[eventKey!] ?? ''), ...actionClassesIn(rpcLibrary.primaryScoringCondition(rpcId!)), ...actionClassesIn(decision)])
+        const ruled = wordRulings.filter((ruling) => ruling.rpcId === rpcId && undeclared.toLowerCase().includes(ruling.phrase.toLowerCase())).map((ruling) => ruling.actionClass)
+        const grounded = new Set<ActionClass>([...actionClassesIn(definitions[eventKey!] ?? ''), ...actionClassesIn(rpcLibrary.primaryScoringCondition(rpcId!)), ...actionClassesIn(decision), ...ruled])
         for (const actionClass of actionClassesIn(undeclared)) {
             if (grounded.has(actionClass)) continue
             const words = actionWordsIn(undeclared).filter((word) => word.actionClass === actionClass).map((word) => `'${word.word}'`)
@@ -591,10 +603,24 @@ function testAnActionWordKeepsItsClass(): void {
     // (i)-(iii) Over every coach rule key: the findings are exactly the pinned list.
     const live = actionWordFindings(COACH_RULES, COACH_RULE_GROUNDS)
     assert.deepEqual(live.map((f) => f.id).sort(), Object.keys(ACTION_WORD_FINDINGS).sort(), `the action-word findings are exactly the pinned list:\n${live.map((f) => f.message).join('\n')}`)
-    for (const [id, why] of Object.entries(ACTION_WORD_FINDINGS)) assert.ok(why.startsWith('AWAITING RELEASE') || why.startsWith('REPORTED ONLY'), `${id}: says why it stands`)
+    for (const [id, why] of Object.entries(ACTION_WORD_FINDINGS)) assert.ok(why.startsWith('AWAITING RELEASE'), `${id}: says why it stands`)
     assert.deepEqual(Object.keys(ACTION_WORD_FINDINGS).filter((id) => ACTION_WORD_FINDINGS[id]!.startsWith('AWAITING RELEASE')), HIGH_PRESS_ESCAPE_KEYS.map((key) => `${key} (i) pass`), "the live High Press Escape four are pinned 'awaiting release'")
     for (const finding of live.filter((f) => f.id.startsWith('RPC-002|'))) assert.match(finding.message, /names only the generic 'action'/, `${finding.id}: a generic 'action' never grounds a specific word`)
-    assert.ok(Object.keys(COACH_RULES).length >= 28 && live.length === 8, 'every coach rule key was read')
+    assert.ok(Object.keys(COACH_RULES).length >= 28 && live.length === 4, 'every coach rule key was read')
+
+    // The WORD_RULING kind is what grounds A01's 'A long kick' (measured without it: the four RPC-001 rules) ...
+    const withoutWordRulings = actionWordFindings(COACH_RULES, COACH_RULE_GROUNDS, DECISION_GROUNDS, [])
+    assert.deepEqual(
+        withoutWordRulings.map((f) => f.id).filter((id) => !(id in ACTION_WORD_FINDINGS)).sort(),
+        ['RPC-001|gate| (ii) kick', 'RPC-001|line_crossed| (ii) kick', 'RPC-001|target_player| (ii) kick', 'RPC-001|target_zone_entered| (ii) kick']
+    )
+    // ... only where the rule says its phrase ('A kick' alone is not 'long kick') ...
+    const shortened = { ...COACH_RULES, 'RPC-001|line_crossed|': { ...COACH_RULES['RPC-001|line_crossed|']!, rule: COACH_RULES['RPC-001|line_crossed|']!.rule.replace('A long kick', 'A kick') } }
+    assert.ok(COACH_RULES['RPC-001|line_crossed|']!.rule.includes('A long kick'), "A01's line rule says 'A long kick' today")
+    assert.ok(actionWordFindings(shortened, COACH_RULE_GROUNDS).some((f) => f.id === 'RPC-001|line_crossed| (ii) kick'), 'a WORD_RULING grounds only its phrase')
+    // ... and only in its own context (the same phrase in Chance Creation's rule is not grounded by an A01 ruling).
+    const elsewhere = { ...COACH_RULES, 'RPC-004|target_zone_entered|': { ...COACH_RULES['RPC-004|target_zone_entered|']!, rule: COACH_RULES['RPC-004|target_zone_entered|']!.rule.replace('A hopeful ball', 'A long kick') } }
+    assert.ok(actionWordFindings(elsewhere, COACH_RULE_GROUNDS).some((f) => f.id === 'RPC-004|target_zone_entered| (ii) kick'), 'a WORD_RULING grounds only its own context')
 
     // The DECISION kind is what grounds Attack Development's 'Passing it around' on the zone and line (measured without it).
     const withoutDecisions = actionWordFindings(COACH_RULES, COACH_RULE_GROUNDS, {})
