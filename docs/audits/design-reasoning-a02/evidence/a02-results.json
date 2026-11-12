@@ -1522,6 +1522,1202 @@
   },
   "carrierMechanismNames": []
  },
+ "w6": {
+  "classes": [
+   {
+    "id": "origin-and-control",
+    "stop": "structure: the origin clause's value (RPC-002-02.a::V6) and the control clause's referent (RPC-002-04.a::V5) of High Press Escape's approved condition hold no value (our CANDIDATE restatement declares them NOT_AUTHORED and UNDECLARED)",
+    "categories": [
+     "Missing knowledge.",
+     "A configuration or rendering implementation limitation."
+    ],
+    "owner": "CHRISTIAN",
+    "whose": "question 1 of item 2 (the observable start of established coordinated pressure, with the condition's scope) and question 3 of item 2 (the control clause's referent); the configuration part, no carrier in knowledge or in the production register, has an ILLUSTRATIVE TEST-ONLY form since stage W4 (the carrier runs below), which stands for that knowledge and does not replace it",
+    "runs": [
+     "A02-0",
+     "A02-0/draft-record",
+     "S4-NP",
+     "S4-NP+WZA",
+     "S4-NP+WZA/no-bypass",
+     "L3",
+     "A02-0+GPCL",
+     "A02-0~reversed",
+     "S4-NP~reversed",
+     "S4-NP+WZA~reversed",
+     "L2~reversed",
+     "A02-0+GPCL~reversed",
+     "A02-0~neutral",
+     "S4-NP~neutral",
+     "S4-NP+WZA~neutral",
+     "L2~neutral",
+     "A02-0+GPCL~neutral",
+     "A02-0~pressure",
+     "L2~pressure",
+     "W-DROPS-UPSTREAM",
+     "TA02-0/swap"
+    ]
+   },
+   {
+    "id": "control-referent",
+    "stop": "structure: the control clause's referent (RPC-002-04.a::V5) holds no value, the origin and progression items withheld (TEST-ONLY)",
+    "categories": [
+     "Missing knowledge."
+    ],
+    "owner": "CHRISTIAN",
+    "whose": "question 3 of item 2: whether through the next action needs a referent or no further value (the carrier runs measure both), with the meaning of the next action (Q-a to Q-d of stage W3)",
+    "runs": [
+     "A02-1",
+     "A02-1/draft-record",
+     "A02-1~reversed",
+     "A02-1~neutral"
+    ]
+   },
+   {
+    "id": "ta02-origin",
+    "stop": "structure: the origin clause's value (RPC-003-10.a::V6) of Attack Development's approved condition holds no value (our DRAFT restatement declares it NOT_AUTHORED)",
+    "categories": [
+     "Missing knowledge.",
+     "A configuration or rendering implementation limitation."
+    ],
+    "owner": "CHRISTIAN",
+    "whose": "TA02's origin clause (RPC-PROP-134, from the attack's starting condition), to be asked only once TA02's context is settled (Christian's replies received 27 and 28 October 2026); on the swap control it is the swapped restatement's clause",
+    "runs": [
+     "TA02-0",
+     "TA02-0+GPCL",
+     "A02-0/swap"
+    ]
+   },
+   {
+    "id": "example-made-required",
+    "stop": "structure: an example's possession condition made a required control clause (RPC-003-12.a::V5), beside the origin clause's value (RPC-003-10.a::V6)",
+    "categories": [
+     "An unapproved or inaccurate interpretation."
+    ],
+    "owner": "ENGINEERING",
+    "whose": "corrected by the merge of the program branch (11 November 2026): the run is stage W5's negative control over a TEST-ONLY copy of our restatement in its class before the merge",
+    "runs": [
+     "TA02-0/pre-merge-class"
+    ]
+   },
+   {
+    "id": "law-11",
+    "stop": "validation: LAW-11 (offside) owed as a material adaptation under our DRAFT reading of the Laws",
+    "categories": [
+     "An unapproved or inaccurate interpretation.",
+     "Missing knowledge."
+    ],
+    "owner": "CHRISTIAN",
+    "whose": "question 4 of item 2: LAW-11 for A02; the refusal rests on our DRAFT materiality reading, not a classification of Christian's",
+    "runs": [
+     "A02-1b",
+     "A02-1b/draft-record",
+     "A02-IL-2L"
+    ]
+   },
+   {
+    "id": "coach-wording",
+    "stop": "communication: a clause of the condition awaits approved wording, and no sentence carries it",
+    "categories": [
+     "Missing knowledge.",
+     "A configuration or rendering implementation limitation."
+    ],
+    "owner": "CHRISTIAN",
+    "whose": "approved coach wording for the condition's clauses (part of question 3 of item 2; none is held for RPC-002, our CANDIDATE through the next action is not approved wording, and Q-a to Q-d stay open); the rendering part (no sentence carries a clause, and on the carrier runs the line, the placement and the start need a team noun the axis designation lacks) is engineering that waits on that wording and on question 2 of item 2",
+    "runs": [
+     "A02-2",
+     "A02-2/draft-record",
+     "A02-2/CAR",
+     "A02-2~reversed",
+     "A02-2~neutral",
+     "A02-IL-1",
+     "A02-IL-2",
+     "A02-IL-2r"
+    ]
+   },
+   {
+    "id": "served-diagnostic",
+    "stop": "served: every condition item withheld (TEST-ONLY)",
+    "categories": [],
+    "owner": "NEITHER",
+    "whose": "no stop: structural compatibility only, never representative sufficiency and never the A02 configuration",
+    "runs": [
+     "A02-D",
+     "A02-D/draft-record",
+     "S4-NP@A02-D",
+     "S4-NP+WZA@A02-D",
+     "TA02-D",
+     "A02-D/swap",
+     "TA02-D/swap"
+    ]
+   },
+   {
+    "id": "wording-flip",
+    "stop": "selection: a kept package check refuses, on every lens combination, a TEST-ONLY stand-in set the same run selects under the goal's own wording",
+    "categories": [
+     "Incorrect reasoning chronology or decision authority.",
+     "Missing knowledge."
+    ],
+    "owner": "CHRISTIAN",
+    "whose": "the wording alone decides (OD-WORDING-FLIP), through the wording-derived lenses the kept checks read: which lenses they should read is Christian's question Q-a2 (open since 10 November 2026); the set is a stand-in, never knowledge",
+    "runs": [
+     "S4-NP+TR~reversed",
+     "S4-NP+TR~neutral"
+    ]
+   },
+   {
+    "id": "kept-check",
+    "stop": "selection: a kept package check refuses a TEST-ONLY stand-in set (TEST ASSUMPTION) on every lens combination",
+    "categories": [
+     "Missing knowledge."
+    ],
+    "owner": "CHRISTIAN",
+    "whose": "not a stop of A02 as the knowledge stands (validation of what is present, working); a real set needs question 5 of item 2 (later, not the next consequential gap), and which lenses the kept checks read is Q-a2",
+    "runs": [
+     "S4-WZA",
+     "S4-TR",
+     "S4-CDC",
+     "S4-CDC+IR",
+     "S4-WZA~reversed",
+     "S4-TR~reversed",
+     "S4-CDC~reversed",
+     "S4-CDC+IR~reversed",
+     "S4-WZA~neutral",
+     "S4-TR~neutral",
+     "S4-CDC~neutral",
+     "S4-CDC+IR~neutral"
+    ]
+   },
+   {
+    "id": "member-presence",
+    "stop": "selection: MEMBER_PRESENCE refuses a TEST-ONLY stand-in set with two members of one role",
+    "categories": [
+     "A configuration or rendering implementation limitation."
+    ],
+    "owner": "ENGINEERING",
+    "whose": "a configuration limitation, recorded and not built (stage W2): the package holds one member per role, so such a set is refused rather than validated; it matters only once a real set holds two members of one role",
+    "runs": [
+     "S4-NP+CDC",
+     "S4-NP+WZA+CDC"
+    ]
+   },
+   {
+    "id": "size-rule",
+    "stop": "selection: the 2-to-4 size rule refuses a lone manipulation (the switch off)",
+    "categories": [
+     "Incorrect reasoning chronology or decision authority."
+    ],
+    "owner": "ENGINEERING",
+    "whose": "an engine quota with no identified authority decides; bypassed under the TEST-ONLY switch on the isolated pathway (this control runs without it); the production selector is unchanged, and changing it is Christian's",
+    "runs": [
+     "S4-NP/no-bypass"
+    ]
+   },
+   {
+    "id": "foundation-clause",
+    "stop": "selection: foundation presence refuses a set with no structure member (FOUNDATION_PRESENCE_BYPASS not declared)",
+    "categories": [
+     "Incorrect reasoning chronology or decision authority."
+    ],
+    "owner": "ENGINEERING",
+    "whose": "a rule with no identified authority decides; bypassed under FOUNDATION_PRESENCE_BYPASS, our classification as a quota, which Christian can reverse (this is its reversal arm)",
+    "runs": [
+     "S4-WZA/foundation-kept",
+     "S4-TR/foundation-kept",
+     "S4-WZA+TR/foundation-kept"
+    ]
+   },
+   {
+    "id": "constraint-contract",
+    "stop": "knowledge: an authorized constraint (Turnover Reward, a TEST-ONLY stand-in) has no contribution contract",
+    "categories": [
+     "A broken relationship between existing knowledge components.",
+     "A configuration or rendering implementation limitation."
+    ],
+    "owner": "CHRISTIAN",
+    "whose": "a contribution contract for the constraint would be new knowledge; moot until a manipulation is authorized for A02 (question 5 of item 2)",
+    "runs": [
+     "S4-NP+TR",
+     "S4-WZA+TR",
+     "S4-NP+WZA+TR"
+    ]
+   },
+   {
+    "id": "context-contract",
+    "stop": "knowledge: the Representative Performance Context has no contribution contract",
+    "categories": [
+     "A broken relationship between existing knowledge components.",
+     "A configuration or rendering implementation limitation."
+    ],
+    "owner": "CHRISTIAN",
+    "whose": "for RPC-002 our CANDIDATE restatement stands in on the isolated pathway (its review is Christian's); for RPC-003, on the TA02 legacy run, TA02's context is pending",
+    "runs": [
+     "NO-RESTATEMENT",
+     "TA02"
+    ]
+   },
+   {
+    "id": "own-form",
+    "stop": "knowledge: the chain's own form from the wording, GF3, has no contribution contract",
+    "categories": [
+     "Incorrect reasoning chronology or decision authority."
+    ],
+    "owner": "ENGINEERING",
+    "whose": "the chain picks its own form against Step 2's (OD-A02-LEGACY-FORM): closed on the isolated pathway by the consumption of Step 2's form; the production route is unchanged, and changing it is Christian's",
+    "runs": [
+     "GP-002/legacy",
+     "GF7-CELL/legacy",
+     "L2"
+    ]
+   },
+   {
+    "id": "test-copy-form",
+    "stop": "knowledge: Step 2's reconsidered form, GF7, has no contribution contract (a TEST copy of the knowledge)",
+    "categories": [
+     "A broken relationship between existing knowledge components.",
+     "A configuration or rendering implementation limitation."
+    ],
+    "owner": "NEITHER",
+    "whose": "a dependency arm on a TEST copy (TEST ASSUMPTION): the chain follows Step 2's reconsidered form; not a stop of A02 as the knowledge stands",
+    "runs": [
+     "GP-002",
+     "GF7-CELL"
+    ]
+   },
+   {
+    "id": "test-copy-no-basis",
+    "stop": "handoff: Step 2 retains its alternatives with no basis to select (a TEST copy of the knowledge, Step 1's primary swapped to GP-001)",
+    "categories": [
+     "Missing knowledge."
+    ],
+    "owner": "NEITHER",
+    "whose": "a dependency arm on a TEST copy (TEST ASSUMPTION), stopped before the chain; not a stop of A02 as the knowledge stands",
+    "runs": [
+     "GP-001",
+     "GP-001/legacy"
+    ]
+   },
+   {
+    "id": "production-record",
+    "stop": "selection: on the production records, no combination of A02's own candidate constraints on its own form GF3 (no authorization record)",
+    "categories": [
+     "Incorrect reasoning chronology or decision authority."
+    ],
+    "owner": "ENGINEERING",
+    "whose": "the production route takes manipulations only on a per-goal authorization record, which A02 lacks: passed on the isolated pathway by the review pathway's K2 result (stage W1 (b), our reading put to Christian); the production route is unchanged",
+    "runs": [
+     "L1"
+    ]
+   },
+   {
+    "id": "event-line-control",
+    "stop": "realization: the shared choices file's value for the event line is refused once our narrowed or reduced item determines that line",
+    "categories": [
+     "A configuration or rendering implementation limitation."
+    ],
+    "owner": "NEITHER",
+    "whose": "a consumption-tracing control on a TEST-ONLY copy of our restated events: the item shapes the line (what the control shows); the choices file's entry applied after its line closed is the configuration behaviour stage W4 reported (D4), production behaviour not changed",
+    "runs": [
+     "A02-2/narrowed",
+     "A02-2/no-line-crossed"
+    ]
+   },
+   {
+    "id": "another-goal",
+    "stop": "another goal through the handoff (the census of the safeguard test)",
+    "categories": [],
+    "owner": "NEITHER",
+    "whose": "reported only; not classified in this package",
+    "runs": [
+     "A01",
+     "TA01",
+     "A05-0",
+     "D02",
+     "A03",
+     "A04",
+     "A06",
+     "D01",
+     "D03",
+     "TD01",
+     "TD02"
+    ]
+   }
+  ],
+  "rows": [
+   {
+    "id": "A02-0",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "A02-1",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "control-referent"
+   },
+   {
+    "id": "A02-1b",
+    "group": "A02 experiment path",
+    "stage": "validation",
+    "cited": [],
+    "rules": [],
+    "cls": "law-11"
+   },
+   {
+    "id": "A02-2",
+    "group": "A02 experiment path",
+    "stage": "communication",
+    "cited": [],
+    "rules": [],
+    "cls": "coach-wording"
+   },
+   {
+    "id": "A02-D",
+    "group": "A02 experiment path",
+    "stage": "served",
+    "cited": [],
+    "rules": [],
+    "cls": "served-diagnostic"
+   },
+   {
+    "id": "A02-0/draft-record",
+    "group": "A02 control",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "A02-1/draft-record",
+    "group": "A02 control",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "control-referent"
+   },
+   {
+    "id": "A02-1b/draft-record",
+    "group": "A02 control",
+    "stage": "validation",
+    "cited": [],
+    "rules": [],
+    "cls": "law-11"
+   },
+   {
+    "id": "A02-2/draft-record",
+    "group": "A02 control",
+    "stage": "communication",
+    "cited": [],
+    "rules": [],
+    "cls": "coach-wording"
+   },
+   {
+    "id": "A02-D/draft-record",
+    "group": "A02 control",
+    "stage": "served",
+    "cited": [],
+    "rules": [],
+    "cls": "served-diagnostic"
+   },
+   {
+    "id": "S4-NP",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "S4-WZA",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "PACKAGE_OTHER"
+    ],
+    "cls": "kept-check"
+   },
+   {
+    "id": "S4-TR",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "PACKAGE_ROW_K",
+     "PACKAGE_ROW_O"
+    ],
+    "cls": "kept-check"
+   },
+   {
+    "id": "S4-CDC",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "PACKAGE_ROW_O"
+    ],
+    "cls": "kept-check"
+   },
+   {
+    "id": "S4-NP+WZA",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "S4-NP+TR",
+    "group": "A02 experiment path",
+    "stage": "knowledge",
+    "cited": [],
+    "rules": [],
+    "cls": "constraint-contract"
+   },
+   {
+    "id": "S4-CDC+IR",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "PACKAGE_ROW_O"
+    ],
+    "cls": "kept-check"
+   },
+   {
+    "id": "S4-NP/no-bypass",
+    "group": "A02 control",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "SIZE_RULE"
+    ],
+    "cls": "size-rule"
+   },
+   {
+    "id": "S4-NP+WZA/no-bypass",
+    "group": "A02 control",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "S4-NP@A02-D",
+    "group": "A02 experiment path",
+    "stage": "served",
+    "cited": [],
+    "rules": [],
+    "cls": "served-diagnostic"
+   },
+   {
+    "id": "S4-NP+WZA@A02-D",
+    "group": "A02 experiment path",
+    "stage": "served",
+    "cited": [],
+    "rules": [],
+    "cls": "served-diagnostic"
+   },
+   {
+    "id": "S4-NP+CDC",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "MEMBER_PRESENCE"
+    ],
+    "cls": "member-presence"
+   },
+   {
+    "id": "S4-WZA+TR",
+    "group": "A02 experiment path",
+    "stage": "knowledge",
+    "cited": [],
+    "rules": [],
+    "cls": "constraint-contract"
+   },
+   {
+    "id": "S4-NP+WZA+TR",
+    "group": "A02 experiment path",
+    "stage": "knowledge",
+    "cited": [],
+    "rules": [],
+    "cls": "constraint-contract"
+   },
+   {
+    "id": "S4-NP+WZA+CDC",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "MEMBER_PRESENCE"
+    ],
+    "cls": "member-presence"
+   },
+   {
+    "id": "S4-WZA/foundation-kept",
+    "group": "A02 control",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "FOUNDATION_CLAUSE"
+    ],
+    "cls": "foundation-clause"
+   },
+   {
+    "id": "S4-TR/foundation-kept",
+    "group": "A02 control",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "FOUNDATION_CLAUSE"
+    ],
+    "cls": "foundation-clause"
+   },
+   {
+    "id": "S4-WZA+TR/foundation-kept",
+    "group": "A02 control",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "FOUNDATION_CLAUSE"
+    ],
+    "cls": "foundation-clause"
+   },
+   {
+    "id": "GP-002",
+    "group": "A02 experiment path",
+    "stage": "knowledge",
+    "cited": [],
+    "rules": [],
+    "cls": "test-copy-form"
+   },
+   {
+    "id": "GP-002/legacy",
+    "group": "A02 legacy route",
+    "stage": "knowledge",
+    "cited": [],
+    "rules": [],
+    "cls": "own-form"
+   },
+   {
+    "id": "GP-001",
+    "group": "A02 experiment path",
+    "stage": "handoff",
+    "cited": [],
+    "rules": [],
+    "cls": "test-copy-no-basis"
+   },
+   {
+    "id": "GP-001/legacy",
+    "group": "A02 legacy route",
+    "stage": "handoff",
+    "cited": [],
+    "rules": [],
+    "cls": "test-copy-no-basis"
+   },
+   {
+    "id": "GF7-CELL",
+    "group": "A02 experiment path",
+    "stage": "knowledge",
+    "cited": [],
+    "rules": [],
+    "cls": "test-copy-form"
+   },
+   {
+    "id": "GF7-CELL/legacy",
+    "group": "A02 legacy route",
+    "stage": "knowledge",
+    "cited": [],
+    "rules": [],
+    "cls": "own-form"
+   },
+   {
+    "id": "A02-2/narrowed",
+    "group": "A02 experiment path",
+    "stage": "realization",
+    "cited": [],
+    "rules": [],
+    "cls": "event-line-control"
+   },
+   {
+    "id": "A02-2/no-line-crossed",
+    "group": "A02 experiment path",
+    "stage": "realization",
+    "cited": [],
+    "rules": [],
+    "cls": "event-line-control"
+   },
+   {
+    "id": "NO-RESTATEMENT",
+    "group": "A02 experiment path",
+    "stage": "knowledge",
+    "cited": [],
+    "rules": [],
+    "cls": "context-contract"
+   },
+   {
+    "id": "A02-2/CAR",
+    "group": "A02 control",
+    "stage": "communication",
+    "cited": [],
+    "rules": [],
+    "cls": "coach-wording"
+   },
+   {
+    "id": "L1",
+    "group": "A02 legacy route",
+    "stage": "selection",
+    "cited": [],
+    "rules": [],
+    "cls": "production-record"
+   },
+   {
+    "id": "L2",
+    "group": "A02 legacy route",
+    "stage": "knowledge",
+    "cited": [],
+    "rules": [],
+    "cls": "own-form"
+   },
+   {
+    "id": "L3",
+    "group": "A02 legacy route",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "A01",
+    "group": "census of other goals",
+    "stage": "served",
+    "cited": [],
+    "rules": [],
+    "cls": "another-goal"
+   },
+   {
+    "id": "TA01",
+    "group": "census of other goals",
+    "stage": "knowledge",
+    "cited": [],
+    "rules": [],
+    "cls": "another-goal"
+   },
+   {
+    "id": "A05-0",
+    "group": "census of other goals",
+    "stage": "structure",
+    "cited": [
+     "RPC-003-10.a::V6"
+    ],
+    "rules": [],
+    "cls": "another-goal"
+   },
+   {
+    "id": "D02",
+    "group": "census of other goals",
+    "stage": "knowledge",
+    "cited": [],
+    "rules": [],
+    "cls": "another-goal"
+   },
+   {
+    "id": "TA02",
+    "group": "TA02 legacy route",
+    "stage": "knowledge",
+    "cited": [],
+    "rules": [],
+    "cls": "context-contract"
+   },
+   {
+    "id": "A03",
+    "group": "census of other goals",
+    "stage": "handoff",
+    "cited": [],
+    "rules": [],
+    "cls": "another-goal"
+   },
+   {
+    "id": "A04",
+    "group": "census of other goals",
+    "stage": "handoff",
+    "cited": [],
+    "rules": [],
+    "cls": "another-goal"
+   },
+   {
+    "id": "A06",
+    "group": "census of other goals",
+    "stage": "handoff",
+    "cited": [],
+    "rules": [],
+    "cls": "another-goal"
+   },
+   {
+    "id": "D01",
+    "group": "census of other goals",
+    "stage": "handoff",
+    "cited": [],
+    "rules": [],
+    "cls": "another-goal"
+   },
+   {
+    "id": "D03",
+    "group": "census of other goals",
+    "stage": "handoff",
+    "cited": [],
+    "rules": [],
+    "cls": "another-goal"
+   },
+   {
+    "id": "TD01",
+    "group": "census of other goals",
+    "stage": "handoff",
+    "cited": [],
+    "rules": [],
+    "cls": "another-goal"
+   },
+   {
+    "id": "TD02",
+    "group": "census of other goals",
+    "stage": "handoff",
+    "cited": [],
+    "rules": [],
+    "cls": "another-goal"
+   },
+   {
+    "id": "A02-0+GPCL",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "A02-0~reversed",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "A02-1~reversed",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "control-referent"
+   },
+   {
+    "id": "A02-2~reversed",
+    "group": "A02 experiment path",
+    "stage": "communication",
+    "cited": [],
+    "rules": [],
+    "cls": "coach-wording"
+   },
+   {
+    "id": "S4-NP~reversed",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "S4-WZA~reversed",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "PACKAGE_OTHER"
+    ],
+    "cls": "kept-check"
+   },
+   {
+    "id": "S4-TR~reversed",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "PACKAGE_ROW_K"
+    ],
+    "cls": "kept-check"
+   },
+   {
+    "id": "S4-CDC~reversed",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "PACKAGE_ROW_O"
+    ],
+    "cls": "kept-check"
+   },
+   {
+    "id": "S4-NP+WZA~reversed",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "S4-NP+TR~reversed",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "PACKAGE_ROW_K"
+    ],
+    "cls": "wording-flip"
+   },
+   {
+    "id": "S4-CDC+IR~reversed",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "PACKAGE_ROW_O"
+    ],
+    "cls": "kept-check"
+   },
+   {
+    "id": "L2~reversed",
+    "group": "A02 legacy route",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "A02-0+GPCL~reversed",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "A02-0~neutral",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "A02-1~neutral",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "control-referent"
+   },
+   {
+    "id": "A02-2~neutral",
+    "group": "A02 experiment path",
+    "stage": "communication",
+    "cited": [],
+    "rules": [],
+    "cls": "coach-wording"
+   },
+   {
+    "id": "S4-NP~neutral",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "S4-WZA~neutral",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "PACKAGE_OTHER"
+    ],
+    "cls": "kept-check"
+   },
+   {
+    "id": "S4-TR~neutral",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "PACKAGE_ROW_K"
+    ],
+    "cls": "kept-check"
+   },
+   {
+    "id": "S4-CDC~neutral",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "PACKAGE_ROW_O"
+    ],
+    "cls": "kept-check"
+   },
+   {
+    "id": "S4-NP+WZA~neutral",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "S4-NP+TR~neutral",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "PACKAGE_ROW_K"
+    ],
+    "cls": "wording-flip"
+   },
+   {
+    "id": "S4-CDC+IR~neutral",
+    "group": "A02 experiment path",
+    "stage": "selection",
+    "cited": [],
+    "rules": [
+     "PACKAGE_ROW_O"
+    ],
+    "cls": "kept-check"
+   },
+   {
+    "id": "L2~neutral",
+    "group": "A02 legacy route",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "A02-0+GPCL~neutral",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "A02-0~pressure",
+    "group": "A02 experiment path",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "L2~pressure",
+    "group": "A02 legacy route",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "W-DROPS-UPSTREAM",
+    "group": "A02 control",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "TA02-0",
+    "group": "TA02",
+    "stage": "structure",
+    "cited": [
+     "RPC-003-10.a::V6"
+    ],
+    "rules": [],
+    "cls": "ta02-origin"
+   },
+   {
+    "id": "TA02-D",
+    "group": "TA02",
+    "stage": "served",
+    "cited": [],
+    "rules": [],
+    "cls": "served-diagnostic"
+   },
+   {
+    "id": "TA02-0+GPCL",
+    "group": "TA02 under a TEST-ONLY treatment",
+    "stage": "structure",
+    "cited": [
+     "RPC-003-10.a::V6"
+    ],
+    "rules": [],
+    "cls": "ta02-origin"
+   },
+   {
+    "id": "TA02-0/pre-merge-class",
+    "group": "TA02 negative control",
+    "stage": "structure",
+    "cited": [
+     "RPC-003-10.a::V6",
+     "RPC-003-12.a::V5"
+    ],
+    "rules": [],
+    "cls": "example-made-required"
+   },
+   {
+    "id": "A02-0/swap",
+    "group": "swap control",
+    "stage": "structure",
+    "cited": [
+     "RPC-003-10.a::V6"
+    ],
+    "rules": [],
+    "cls": "ta02-origin"
+   },
+   {
+    "id": "A02-D/swap",
+    "group": "swap control",
+    "stage": "served",
+    "cited": [],
+    "rules": [],
+    "cls": "served-diagnostic"
+   },
+   {
+    "id": "TA02-0/swap",
+    "group": "swap control",
+    "stage": "structure",
+    "cited": [
+     "RPC-002-02.a::V6",
+     "RPC-002-04.a::V5"
+    ],
+    "rules": [],
+    "cls": "origin-and-control"
+   },
+   {
+    "id": "TA02-D/swap",
+    "group": "swap control",
+    "stage": "served",
+    "cited": [],
+    "rules": [],
+    "cls": "served-diagnostic"
+   },
+   {
+    "id": "A02-IL-1",
+    "group": "ILLUSTRATIVE carriers, TEST-ONLY",
+    "stage": "communication",
+    "cited": [
+     "IL-S2-1::undefined"
+    ],
+    "rules": [],
+    "cls": "coach-wording"
+   },
+   {
+    "id": "A02-IL-2",
+    "group": "ILLUSTRATIVE carriers, TEST-ONLY",
+    "stage": "communication",
+    "cited": [
+     "IL-S2-1::undefined"
+    ],
+    "rules": [],
+    "cls": "coach-wording"
+   },
+   {
+    "id": "A02-IL-2r",
+    "group": "ILLUSTRATIVE carriers, TEST-ONLY",
+    "stage": "communication",
+    "cited": [
+     "IL-S2-1::undefined"
+    ],
+    "rules": [],
+    "cls": "coach-wording"
+   },
+   {
+    "id": "A02-IL-2L",
+    "group": "ILLUSTRATIVE carriers, TEST-ONLY",
+    "stage": "validation",
+    "cited": [],
+    "rules": [],
+    "cls": "law-11"
+   }
+  ]
+ },
  "ownership": [
   {
    "row": "GAME_PROBLEM",
@@ -1904,7 +3100,7 @@
      1,
      5
     ],
-    "why": "of the two lines this stop cites together, the origin clause, placed first by us (OURS: the condition is what distinguishes High Press Escape from the contexts sharing its events): no operational interpretation of the clause is held (question 1 of the smallest source material, the next consequential gap), and no carrier exists for it (the only typed begin condition is a restart, the only episode scope the build-out one)",
+    "why": "of the two lines this stop cites together, the origin clause, placed first by us (OURS: the condition is what distinguishes High Press Escape from the contexts sharing its events): no operational interpretation of the clause is held (question 1 of the smallest source material, the next consequential gap), and no carrier for it exists in knowledge or in the production register (a begin condition is a restart, and the register's only episode scope is the build-out one); since stage W4 an ILLUSTRATIVE carrier (TEST-ONLY, never knowledge) carries it executably, standing for what an approved answer must supply, and with it the runs pass structure (appendix E)",
     "passed": false,
     "passedBy": null
    }
@@ -1919,7 +3115,7 @@
     1,
     5
    ],
-   "why": "of the two lines this stop cites together, the origin clause, placed first by us (OURS: the condition is what distinguishes High Press Escape from the contexts sharing its events): no operational interpretation of the clause is held (question 1 of the smallest source material, the next consequential gap), and no carrier exists for it (the only typed begin condition is a restart, the only episode scope the build-out one)",
+   "why": "of the two lines this stop cites together, the origin clause, placed first by us (OURS: the condition is what distinguishes High Press Escape from the contexts sharing its events): no operational interpretation of the clause is held (question 1 of the smallest source material, the next consequential gap), and no carrier for it exists in knowledge or in the production register (a begin condition is a restart, and the register's only episode scope is the build-out one); since stage W4 an ILLUSTRATIVE carrier (TEST-ONLY, never knowledge) carries it executably, standing for what an approved answer must supply, and with it the runs pass structure (appendix E)",
    "passed": false,
    "passedBy": null
   },

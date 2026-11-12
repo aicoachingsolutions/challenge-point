@@ -38,6 +38,7 @@ import path from 'node:path'
 
 import { loadDraftStore } from '../derivation/draft-store'
 import { experiment, inputs, items as a02Items, quotedSpans } from './a02.unit'
+import { CARRIER_RUN_IDS, carrierResult } from './a02-carriers.unit'
 import * as S from './a02-safeguards.unit'
 import { citedDateOf } from './assembly'
 import { foundationalTestText } from './foundational-test'
@@ -731,6 +732,301 @@ function w5Appendix(): string[] {
     return out
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Stage W6 of the A02 package (12 November 2026): every run's earliest stop, read in Christian's failure-source categories (OURS) and said to
+// be Christian's knowledge, engineering, or neither; the ILLUSTRATIVE carrier runs of stage W4 (a02-carriers.unit.ts) consolidated here
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
+type Owner = 'CHRISTIAN' | 'ENGINEERING' | 'NEITHER'
+const OWNER_WORDS: Record<Owner, string> = {
+    CHRISTIAN: 'Christian\'s knowledge',
+    ENGINEERING: 'engineering',
+    NEITHER: 'neither (a control\'s or a stand-in\'s intended effect, a TEST copy of the knowledge, or another goal)',
+}
+/** One run's earliest stop, read from its own result (and, for a selection refusal, the rule the safeguard test attributes it to). */
+interface StopRow {
+    id: string
+    group: string
+    /** 'served', the chain's refusing stage, or 'handoff' where the run stops before the chain. */
+    stage: string
+    /** The lines its refusal cites, as <item>::<row>: the contract's id set aside, so a swapped restatement's line reads as its own item's. */
+    cited: string[]
+    reasons: string[]
+    rules: string[]
+    treatments: string[]
+}
+interface StopClass {
+    id: string
+    stop: string
+    /** OURS: indices into Christian's failure-source categories (S.CATEGORIES); none where nothing fails (a served diagnostic, another goal). */
+    categories: number[]
+    owner: Owner
+    whose: string
+    matches: (r: StopRow, rowOf: (id: string) => StopRow | undefined) => boolean
+}
+const citedItem = (ref: string): string => {
+    const [head, row] = ref.split('::')
+    return `${head.split(':').slice(-1)[0]}::${row}`
+}
+const stopRowOf = (id: string, group: string, r: HandoffResult, rule: { rule?: string | null; rules?: string[] } | null = null): StopRow => ({
+    id,
+    group,
+    stage: r.chain ? (r.chain.outcome === 'served' ? 'served' : String(r.chain.stage)) : 'handoff',
+    cited: (r.refusalBasis?.cited ?? []).map((c) => citedItem(c.ref)).sort(),
+    reasons: r.chain ? [...r.chain.reasons] : r.form.stop ? [r.form.stop] : [],
+    rules: rule ? (rule.rules ?? (rule.rule ? [rule.rule] : [])) : [],
+    treatments: r.testOnlyTreatments.map((t) => t.id),
+})
+const S_GROUP: Record<S.Kind, string> = { EXPERIMENT: 'A02 experiment path', CONTROL: 'A02 control', LEGACY: 'legacy route' }
+const CARRIER_GROUP = 'ILLUSTRATIVE carriers, TEST-ONLY'
+const runsWord = (n: number) => `${n} run${n === 1 ? '' : 's'}`
+/** The safeguard test's legacy census of other goals: reported only, never classified in this package. */
+const groupOfRun = (r: S.Run): string => (r.kind !== 'LEGACY' ? S_GROUP[r.kind] : r.result.goalId === 'A02' ? 'A02 legacy route' : r.result.goalId === 'TA02' ? 'TA02 legacy route' : 'census of other goals')
+function allStopRows(): StopRow[] {
+    return [
+        ...[...S.runs.values()].map((r) => stopRowOf(r.id, groupOfRun(r), r.result, r.run.engineRule)),
+        ...TA02_IDS.map((id) => stopRowOf(id, 'TA02', ta02At(id).result)),
+        stopRowOf(TA02_GPCL.result.caseId, 'TA02 under a TEST-ONLY treatment', TA02_GPCL.result),
+        stopRowOf(TA02_PRE_MERGE_CLASS.result.caseId, 'TA02 negative control', TA02_PRE_MERGE_CLASS.result),
+        ...[...swapBuilt.keys()].map((id) => stopRowOf(id, 'swap control', swapAt(id).result)),
+        ...CARRIER_RUN_IDS.map((id) => stopRowOf(id, CARRIER_GROUP, carrierResult(id))),
+    ]
+}
+/** Item 2's smallest-source questions by number (the words are held to the questions' own text by test W6). */
+const question = (n: number): string => {
+    assert.ok(experiment.questions.some((x: { order: number }) => x.order === n), `item 2 holds question ${n}`)
+    return `question ${n} of item 2`
+}
+const PACKAGE_RULES = ['PACKAGE_OTHER', 'PACKAGE_ROW_O', 'PACKAGE_ROW_K']
+const byKeptPackageCheck = (r: StopRow) => r.stage === 'selection' && r.rules.length > 0 && r.rules.every((x) => PACKAGE_RULES.indexOf(x) >= 0)
+/** A run under a reworded goal refused at selection while the same run under the goal's own wording got past selection (measured, OD-WORDING-FLIP). */
+const flipsWithWording = (r: StopRow, rowOf: (id: string) => StopRow | undefined): boolean => {
+    if (r.id.indexOf('~') < 0) return false
+    const own = rowOf(r.id.split('~')[0])
+    return !!own && own.stage !== 'selection'
+}
+const citesExactly = (r: StopRow, lines: string[]) => r.stage === 'structure' && json(r.cited) === json([...lines].sort())
+const says = (r: StopRow, words: string) => r.reasons.some((x) => x.indexOf(words) >= 0)
+const STOP_CLASSES: StopClass[] = [
+    {
+        id: 'origin-and-control',
+        stop: 'structure: the origin clause\'s value (RPC-002-02.a::V6) and the control clause\'s referent (RPC-002-04.a::V5) of High Press Escape\'s approved condition hold no value (our CANDIDATE restatement declares them NOT_AUTHORED and UNDECLARED)',
+        categories: [1, 5],
+        owner: 'CHRISTIAN',
+        whose: `${question(1)} (the observable start of established coordinated pressure, with the condition's scope) and ${question(3)} (the control clause's referent); the configuration part, no carrier in knowledge or in the production register, has an ILLUSTRATIVE TEST-ONLY form since stage W4 (the carrier runs below), which stands for that knowledge and does not replace it`,
+        matches: (r) => citesExactly(r, ['RPC-002-02.a::V6', 'RPC-002-04.a::V5']),
+    },
+    {
+        id: 'control-referent',
+        stop: 'structure: the control clause\'s referent (RPC-002-04.a::V5) holds no value, the origin and progression items withheld (TEST-ONLY)',
+        categories: [1],
+        owner: 'CHRISTIAN',
+        whose: `${question(3)}: whether through the next action needs a referent or no further value (the carrier runs measure both), with the meaning of the next action (Q-a to Q-d of stage W3)`,
+        matches: (r) => citesExactly(r, ['RPC-002-04.a::V5']),
+    },
+    {
+        id: 'ta02-origin',
+        stop: 'structure: the origin clause\'s value (RPC-003-10.a::V6) of Attack Development\'s approved condition holds no value (our DRAFT restatement declares it NOT_AUTHORED)',
+        categories: [1, 5],
+        owner: 'CHRISTIAN',
+        whose: 'TA02\'s origin clause (RPC-PROP-134, from the attack\'s starting condition), to be asked only once TA02\'s context is settled (Christian\'s replies received 27 and 28 October 2026); on the swap control it is the swapped restatement\'s clause',
+        matches: (r) => citesExactly(r, ['RPC-003-10.a::V6']),
+    },
+    {
+        id: 'example-made-required',
+        stop: 'structure: an example\'s possession condition made a required control clause (RPC-003-12.a::V5), beside the origin clause\'s value (RPC-003-10.a::V6)',
+        categories: [2],
+        owner: 'ENGINEERING',
+        whose: 'corrected by the merge of the program branch (11 November 2026): the run is stage W5\'s negative control over a TEST-ONLY copy of our restatement in its class before the merge',
+        matches: (r) => r.stage === 'structure' && r.cited.indexOf('RPC-003-12.a::V5') >= 0,
+    },
+    {
+        id: 'law-11',
+        stop: 'validation: LAW-11 (offside) owed as a material adaptation under our DRAFT reading of the Laws',
+        categories: [2, 1],
+        owner: 'CHRISTIAN',
+        whose: `${question(4)}: LAW-11 for A02; the refusal rests on our DRAFT materiality reading, not a classification of Christian's`,
+        matches: (r) => r.stage === 'validation' && says(r, 'LAW-11'),
+    },
+    {
+        id: 'coach-wording',
+        stop: 'communication: a clause of the condition awaits approved wording, and no sentence carries it',
+        categories: [1, 5],
+        owner: 'CHRISTIAN',
+        whose: `approved coach wording for the condition's clauses (part of ${question(3)}; none is held for RPC-002, our CANDIDATE through the next action is not approved wording, and Q-a to Q-d stay open); the rendering part (no sentence carries a clause, and on the carrier runs the line, the placement and the start need a team noun the axis designation lacks) is engineering that waits on that wording and on ${question(2)}`,
+        matches: (r) => r.stage === 'communication' && r.reasons.some((x) => x.indexOf('awaiting approved wording') === 0),
+    },
+    {
+        id: 'served-diagnostic',
+        stop: 'served: every condition item withheld (TEST-ONLY)',
+        categories: [],
+        owner: 'NEITHER',
+        whose: 'no stop: structural compatibility only, never representative sufficiency and never the A02 configuration',
+        matches: (r) => r.stage === 'served' && r.treatments.indexOf('TT-WITHHOLD-CONDITION') >= 0,
+    },
+    {
+        id: 'wording-flip',
+        stop: 'selection: a kept package check refuses, on every lens combination, a TEST-ONLY stand-in set the same run selects under the goal\'s own wording',
+        categories: [4, 1],
+        owner: 'CHRISTIAN',
+        whose: 'the wording alone decides (OD-WORDING-FLIP), through the wording-derived lenses the kept checks read: which lenses they should read is Christian\'s question Q-a2 (open since 10 November 2026); the set is a stand-in, never knowledge',
+        matches: (r, rowOf) => byKeptPackageCheck(r) && flipsWithWording(r, rowOf),
+    },
+    {
+        id: 'kept-check',
+        stop: 'selection: a kept package check refuses a TEST-ONLY stand-in set (TEST ASSUMPTION) on every lens combination',
+        categories: [1],
+        owner: 'CHRISTIAN',
+        whose: `not a stop of A02 as the knowledge stands (validation of what is present, working); a real set needs ${question(5)} (later, not the next consequential gap), and which lenses the kept checks read is Q-a2`,
+        matches: (r, rowOf) => byKeptPackageCheck(r) && !flipsWithWording(r, rowOf),
+    },
+    {
+        id: 'member-presence',
+        stop: 'selection: MEMBER_PRESENCE refuses a TEST-ONLY stand-in set with two members of one role',
+        categories: [5],
+        owner: 'ENGINEERING',
+        whose: 'a configuration limitation, recorded and not built (stage W2): the package holds one member per role, so such a set is refused rather than validated; it matters only once a real set holds two members of one role',
+        matches: (r) => r.stage === 'selection' && json(r.rules) === json(['MEMBER_PRESENCE']),
+    },
+    {
+        id: 'size-rule',
+        stop: 'selection: the 2-to-4 size rule refuses a lone manipulation (the switch off)',
+        categories: [4],
+        owner: 'ENGINEERING',
+        whose: 'an engine quota with no identified authority decides; bypassed under the TEST-ONLY switch on the isolated pathway (this control runs without it); the production selector is unchanged, and changing it is Christian\'s',
+        matches: (r) => r.stage === 'selection' && json(r.rules) === json(['SIZE_RULE']),
+    },
+    {
+        id: 'foundation-clause',
+        stop: 'selection: foundation presence refuses a set with no structure member (FOUNDATION_PRESENCE_BYPASS not declared)',
+        categories: [4],
+        owner: 'ENGINEERING',
+        whose: 'a rule with no identified authority decides; bypassed under FOUNDATION_PRESENCE_BYPASS, our classification as a quota, which Christian can reverse (this is its reversal arm)',
+        matches: (r) => r.stage === 'selection' && json(r.rules) === json(['FOUNDATION_CLAUSE']),
+    },
+    {
+        id: 'constraint-contract',
+        stop: 'knowledge: an authorized constraint (Turnover Reward, a TEST-ONLY stand-in) has no contribution contract',
+        categories: [3, 5],
+        owner: 'CHRISTIAN',
+        whose: `a contribution contract for the constraint would be new knowledge; moot until a manipulation is authorized for A02 (${question(5)})`,
+        matches: (r) => r.stage === 'knowledge' && r.reasons.some((x) => x.indexOf('the authorized constraint ') === 0 && x.indexOf('has no contribution contract') > 0),
+    },
+    {
+        id: 'context-contract',
+        stop: 'knowledge: the Representative Performance Context has no contribution contract',
+        categories: [3, 5],
+        owner: 'CHRISTIAN',
+        whose: 'for RPC-002 our CANDIDATE restatement stands in on the isolated pathway (its review is Christian\'s); for RPC-003, on the TA02 legacy run, TA02\'s context is pending',
+        matches: (r) => r.stage === 'knowledge' && r.reasons.some((x) => x.indexOf('the Representative Performance Context ') === 0),
+    },
+    {
+        id: 'own-form',
+        stop: 'knowledge: the chain\'s own form from the wording, GF3, has no contribution contract',
+        categories: [4],
+        owner: 'ENGINEERING',
+        whose: 'the chain picks its own form against Step 2\'s (OD-A02-LEGACY-FORM): closed on the isolated pathway by the consumption of Step 2\'s form; the production route is unchanged, and changing it is Christian\'s',
+        matches: (r) => r.stage === 'knowledge' && json(r.reasons) === json(['the game form GF3 has no contribution contract']),
+    },
+    {
+        id: 'test-copy-form',
+        stop: 'knowledge: Step 2\'s reconsidered form, GF7, has no contribution contract (a TEST copy of the knowledge)',
+        categories: [3, 5],
+        owner: 'NEITHER',
+        whose: 'a dependency arm on a TEST copy (TEST ASSUMPTION): the chain follows Step 2\'s reconsidered form; not a stop of A02 as the knowledge stands',
+        matches: (r) => r.stage === 'knowledge' && json(r.reasons) === json(['the game form GF7 has no contribution contract']),
+    },
+    {
+        id: 'test-copy-no-basis',
+        stop: 'handoff: Step 2 retains its alternatives with no basis to select (a TEST copy of the knowledge, Step 1\'s primary swapped to GP-001)',
+        categories: [1],
+        owner: 'NEITHER',
+        whose: 'a dependency arm on a TEST copy (TEST ASSUMPTION), stopped before the chain; not a stop of A02 as the knowledge stands',
+        matches: (r) => r.stage === 'handoff' && says(r, 'no basis to select'),
+    },
+    {
+        id: 'production-record',
+        stop: 'selection: on the production records, no combination of A02\'s own candidate constraints on its own form GF3 (no authorization record)',
+        categories: [4],
+        owner: 'ENGINEERING',
+        whose: 'the production route takes manipulations only on a per-goal authorization record, which A02 lacks: passed on the isolated pathway by the review pathway\'s K2 result (stage W1 (b), our reading put to Christian); the production route is unchanged',
+        matches: (r) => r.stage === 'selection' && r.rules.length === 0 && says(r, 'NO_COMPATIBLE_COMBINATION') && says(r, 'on GF3'),
+    },
+    {
+        id: 'event-line-control',
+        stop: 'realization: the shared choices file\'s value for the event line is refused once our narrowed or reduced item determines that line',
+        categories: [5],
+        owner: 'NEITHER',
+        whose: 'a consumption-tracing control on a TEST-ONLY copy of our restated events: the item shapes the line (what the control shows); the choices file\'s entry applied after its line closed is the configuration behaviour stage W4 reported (D4), production behaviour not changed',
+        matches: (r) => r.stage === 'realization' && says(r, 'does not list this line as open'),
+    },
+    {
+        id: 'another-goal',
+        stop: 'another goal through the handoff (the census of the safeguard test)',
+        categories: [],
+        owner: 'NEITHER',
+        whose: 'reported only; not classified in this package',
+        matches: (r) => r.group === 'census of other goals',
+    },
+]
+/** Each row with the one class it belongs to; a row in no class, or in two, is named (the census is classed apart, before the others). */
+function classifyStops(rows: StopRow[], classes: StopClass[] = STOP_CLASSES): { rows: Array<StopRow & { cls: string }>; unclassified: string[]; ambiguous: string[]; unused: string[] } {
+    const rowOf = (id: string) => rows.find((x) => x.id === id)
+    const unclassified: string[] = []
+    const ambiguous: string[] = []
+    const out = rows.map((r) => {
+        const hits = classes.filter((c) => (r.group === 'census of other goals' ? c.id === 'another-goal' && c.matches(r, rowOf) : c.id !== 'another-goal' && c.matches(r, rowOf)))
+        if (hits.length === 0) unclassified.push(`${r.id} (${r.stage}: ${r.reasons[0] ?? 'no reason'})`)
+        if (hits.length > 1) ambiguous.push(`${r.id}: ${hits.map((c) => c.id).join(', ')}`)
+        return { ...r, cls: hits.length === 1 ? hits[0].id : 'UNCLASSIFIED' }
+    })
+    const unused = classes.filter((c) => !out.some((r) => r.cls === c.id)).map((c) => c.id)
+    return { rows: out, unclassified, ambiguous, unused }
+}
+const STOPS = classifyStops(allStopRows())
+const clsOf = (id: string): string => {
+    const r = STOPS.rows.find((x) => x.id === id)
+    assert.ok(r, `no stop row ${id}`)
+    return r.cls
+}
+const catsOf = (ids: number[]): string => (ids.length ? ids.map((i) => (S.CATEGORIES[i].slice(-1) === '.' ? S.CATEGORIES[i].slice(0, -1) : S.CATEGORIES[i])).join('; and ') : 'no failure category')
+const runsOfClass = (cls: string) => STOPS.rows.filter((r) => r.cls === cls)
+/** The A02 runs of the knowledge as it stands or under TEST-ONLY treatments of its condition only (no stand-in set, no TEST copy, no control). */
+const A02_CONDITION_RUNS = STOPS.rows.filter((r) => (r.group === 'A02 experiment path' && !/^(S4-|GP-0|GF7-CELL)/.test(r.id) && r.id.indexOf('/') < 0) || r.group === CARRIER_GROUP)
+// An unclassified run reads 'UNCLASSIFIED' here (never a crash at load), so appendix E, item 5 and test W6 name it (measured by bite
+// class-predicate-broken: before this, the report's generation threw a TypeError before any test ran).
+const ownerOfClass = (cls: string): Owner | 'UNCLASSIFIED' => STOP_CLASSES.find((c) => c.id === cls)?.owner ?? 'UNCLASSIFIED'
+/** A stop that is neither Christian's knowledge nor a control's or stand-in's effect: engineering, or a stop no class holds. */
+const openStop = (r: { cls: string }): boolean => ownerOfClass(r.cls) === 'ENGINEERING' || ownerOfClass(r.cls) === 'UNCLASSIFIED'
+/** Appendix E: every run's earliest stop, by class, then the earliest stop by arm and whose each stop is. */
+function appendixE(): string[] {
+    const out: string[] = []
+    const groupsIn = (rows: StopRow[]) => [...new Set(rows.map((r) => r.group))]
+    out.push('APPENDIX E: EVERY RUN\'S EARLIEST STOP (stage W6, 12 November 2026; computed from the runs; each stop\'s category and whose it is are OURS, for Christian\'s review)')
+    out.push(`How to read: each run stops at the first stage whose check refuses it, or is served; each stop is read in Christian's failure-source categories (our reading, as in item 5) and said to be Christian's knowledge, engineering, or neither (a control's or a stand-in's intended effect, a TEST copy of the knowledge, or another goal). ${STOPS.rows.length} runs: the ${S.runs.size} safeguard runs (appendix B: ${groupsIn(STOPS.rows.filter((r) => S.runs.has(r.id))).join(', ')}), the TA02 runs, the TA02 negative control and the swap runs (appendix C), and the ${CARRIER_RUN_IDS.length} ILLUSTRATIVE carrier runs of stage W4 (TEST-ONLY, never knowledge; pinned by their own registered test): ${CARRIER_RUN_IDS.join(', ')}.`)
+    for (const c of STOP_CLASSES) {
+        const rows = runsOfClass(c.id)
+        out.push(`- ${c.id} (${runsWord(rows.length)}): ${c.stop} [${catsOf(c.categories)}]; ${OWNER_WORDS[c.owner]}: ${c.whose}`)
+        out.push(`   ${rows.map((r) => `${r.id} (${r.group})`).join(', ')}`)
+    }
+    out.push(`unclassified: ${STOPS.unclassified.join('; ') || 'none'}; in two classes: ${STOPS.ambiguous.join('; ') || 'none'}`)
+    out.push('THE EARLIEST STOP BY ARM:')
+    out.push(`- A02, the knowledge as it stands, on the review pathway's K2 result (A02-0): ${clsOf('A02-0')}; on the DRAFT-record comparison arm (A02-0${S.DRAFT_ARM}): ${clsOf(`A02-0${S.DRAFT_ARM}`)}`)
+    out.push(`- A02 with the TEST-ONLY treatments of the condition: A02-1 ${clsOf('A02-1')}; A02-1b ${clsOf('A02-1b')}; A02-2 ${clsOf('A02-2')}; A02-D ${clsOf('A02-D')}`)
+    out.push(`- A02 with the ILLUSTRATIVE carriers on (stage W4; the origin clause carried, the progression clause withheld on A02-IL-1 and carried on the others, the control clause by each of its two alternatives): ${CARRIER_RUN_IDS.map((id) => `${id} ${clsOf(id)}`).join('; ')}`)
+    out.push(`- TA02, the knowledge as it stands (TA02-0): ${clsOf('TA02-0')}; its diagnostic (TA02-D): ${clsOf('TA02-D')}`)
+    out.push('WHOSE EACH STOP IS:')
+    for (const owner of ['CHRISTIAN', 'ENGINEERING', 'NEITHER'] as Owner[]) {
+        const classes = STOP_CLASSES.filter((c) => c.owner === owner)
+        out.push(`- ${OWNER_WORDS[owner]}: ${classes.reduce((n, c) => n + runsOfClass(c.id).length, 0)} runs (${classes.map((c) => c.id).join(', ')})`)
+    }
+    const engineeringOnA02 = A02_CONDITION_RUNS.filter((r) => openStop(r))
+    out.push(`- the ${A02_CONDITION_RUNS.length} A02 runs of the knowledge as it stands, under TEST-ONLY treatments of its condition only, or with the carriers on (${A02_CONDITION_RUNS.map((r) => r.id).join(', ')}): ${engineeringOnA02.length === 0 ? `none stops on engineering; each stops on Christian's knowledge or is the served diagnostic (${[...new Set(A02_CONDITION_RUNS.map((r) => r.cls))].join(', ')})` : `ENGINEERING OR UNCLASSIFIED STOPS REMAIN: ${engineeringOnA02.map((r) => `${r.id} ${r.cls}`).join('; ')}`}`)
+    out.push('Development findings only: no stop here, and no run served, validates an activity ecologically.')
+    out.push('')
+    return out
+}
+
 /** A01, built by the production entry after the TA02 runs (beside the safeguard test's before and after). */
 const A01_END = S.a01Hash()
 
@@ -847,7 +1143,10 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'W1', means: 'stage W1 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 11 November 2026: (a) Step 1\'s Game Problem governs the chain\'s lens hints and matched signals on the isolated pathway; (b) the review pathway\'s K2 result is consumed in place of a per-goal authorization record; (c1) the TEST-ONLY treatment GP_COVERAGE_LENSES, both lens arms measured' },
     { id: 'W2', means: 'stage W2 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 11 November 2026: quotas against justified validation; under the TEST-ONLY switch the authorized set is taken whole, its pool uncapped and every selected member validated, and foundation presence is bypassed only under FOUNDATION_PRESENCE_BYPASS' },
     // Stage W5 (12 November 2026): item 6 names stages W4 and W5.
-    { id: 'W4', means: 'stage W4 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 11 November 2026: ILLUSTRATIVE carriers (TEST-ONLY, never knowledge) for High Press Escape\'s origin and progression clauses and both third-clause alternatives, run by their own registered test, not in this report' },
+    // Stage W6, re-pinned openly: W4's entry ended 'run by their own registered test, not in this report'; their stops are in appendix E now.
+    { id: 'W4', means: 'stage W4 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 11 November 2026: ILLUSTRATIVE carriers (TEST-ONLY, never knowledge) for High Press Escape\'s origin and progression clauses and both third-clause alternatives, run by their own registered test; their stops are in appendix E (stage W6)' },
+    { id: 'A02-IL-', family: true, means: 'a carrier run of stage W4 (TEST-ONLY), built on A02-0: the origin clause carried by ILLUSTRATIVE carriers (A02-IL-1), the progression clause too (A02-IL-2), the control clause by its relational alternative (A02-IL-2r), or under our DRAFT Laws reading (A02-IL-2L)' },
+    { id: 'W6', means: 'stage W6 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 12 November 2026: every run\'s earliest stop, read in Christian\'s failure-source categories (ours) and said to be engineering or Christian\'s knowledge (appendix E), the carrier runs of stage W4 included' },
     { id: 'W5', means: 'stage W5 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 12 November 2026: the reuse comparison after the merge of the program branch: TA02\'s binding items, the example-only items no refusal cites, the swap control, the distinctions recorded and executing, and stages W1 to W4 where they apply to TA02' },
     { id: 'FOUNDATION_PRESENCE_BYPASS', means: 'a TEST-ONLY treatment (stage W2), declared beside the switch on the quota runs: a package need hold no foundation (structure-role) member; our classification of foundation presence as a quota, which Christian can reverse by its removal (its reversal arm, /foundation-kept, is kept beside it)' },
     { id: 'MEMBER_PRESENCE', means: 'a selection check added under the switch (stage W2, a tightening): a set any member of which is absent from the checked package (it holds one member per role, and drops a consequence scoring 12 or less) is refused, never committed unvalidated' },
@@ -1087,6 +1386,11 @@ function bodyLines(): string[] {
         )
     }
     add(`- A02-D, the diagnostic (every condition item withheld): the chain would serve plain GF2 (${aD.sentences.length} sentences): structural compatibility only, not representative sufficiency.`)
+    // Stage W6 (12 November 2026): the ILLUSTRATIVE carriers of stage W4 consolidated here, each run's stop read from its result (appendix E).
+    const carriedPast = CARRIER_RUN_IDS.every((id) => ['validation', 'communication'].indexOf(String(carrierResult(id).chain?.stage)) >= 0)
+    add(
+        `- Since stage W4 (11 November 2026), ILLUSTRATIVE carriers (TEST-ONLY, never knowledge; every line resting on one graded ILLUSTRATIVE) stand for what an approved answer must supply: the origin clause as a restart that begins the sequence with a set-up re-established at it, scoped to an ILLUSTRATIVE episode on a TEST-ONLY copy of the register; the pressing line as a marked line, with a check that a condition beyond a typed line is met only where the scoring team's target lies beyond it; and the control clause by each of its two alternatives (no further value, or a relational referent). ${carriedPast ? 'With them the clauses pass structure and realization, so the gap an approved answer must fill is executable' : 'They do NOT all get the clauses past structure'}: ${CARRIER_RUN_IDS.map((id) => `${id} stops at ${carrierResult(id).chain?.stage}`).join(', ')} (appendix E; A02-IL-2L under our DRAFT Laws reading).`,
+    )
     add('Unsupported (UNRESOLVED, kept explicit, never closed by an assumption; where each stands: appendix A):')
     for (const n of a0.notCarried) add(`- ${plain(n.what)}`)
     add('Smallest specific source material (questions only, in order of consequence):')
@@ -1204,6 +1508,13 @@ function bodyLines(): string[] {
     add(`- Earliest remaining: ${plain(seq.earliest.path)}: ${plain(seq.earliest.why)}.`)
     add('- Downstream, recorded and not investigated:')
     for (const s of seq.downstream) add(`   ${plain(s.path)}: ${s.stage} [${cats(s.categories)}]`)
+    // Stage W6 (12 November 2026): every run's earliest stop, with its category and whose it is (appendix E), the carrier runs included.
+    const a02Engineering = A02_CONDITION_RUNS.filter((r) => openStop(r))
+    const atWording = CARRIER_RUN_IDS.filter((id) => clsOf(id) === 'coach-wording')
+    const atLaws = CARRIER_RUN_IDS.filter((id) => clsOf(id) === 'law-11')
+    add(
+        `- Every run's earliest stop, with its category and whether it is engineering or Christian's knowledge (stage W6; appendix E, ${STOPS.rows.length} runs): with the ILLUSTRATIVE carriers on (stage W4, TEST-ONLY), A02 gets past structure and stops at communication, awaiting approved wording for the clauses (${atWording.join(', ')}), or at validation on LAW-11 under our DRAFT Laws reading (${atLaws.join(', ')}); ${a02Engineering.length === 0 ? `on none of the ${A02_CONDITION_RUNS.length} A02 runs of the knowledge as it stands, under TEST-ONLY treatments of its condition only, or with the carriers on, does an engineering stop remain: each stops on Christian's knowledge, or is the served diagnostic` : `ENGINEERING OR UNCLASSIFIED STOPS REMAIN on ${a02Engineering.map((r) => r.id).join(', ')}`}; the engineering stops of the other runs (the production route, the stand-in sets, the controls) are listed there with where each stands.`,
+    )
     add(`The categories are Christian's: ${cite('A02-10NOV-FAILURE-SOURCES', 0)} ${S.CATEGORIES.slice(1).map((w) => quoted(w)).join(' ')}`)
     add('Proposals: none. The requests: for the first stop, our reading, which Christian may reverse: in the isolated experiment the checked pathway takes the review pathway\'s K2 result (no manipulation proposed) in place of a per-goal authorization record, under E5 and K2 (reversing it costs one treatment; the DRAFT-record arm is kept beside it); whether A02 needs any manipulation to represent High Press Escape stays open (item 2, questions 1 and 5). For the blocker past it, question 1 of item 2. Each is a request, not a proposal of knowledge.')
     add('Assumptions (OURS): the assignment of each stop to Christian\'s categories (the first blocker\'s included); the order of the questions; placing the origin clause before the control clause\'s referent, which A02-0\'s single refusal cites together.')
@@ -1242,7 +1553,9 @@ function bodyLines(): string[] {
     add('- The TEST-ONLY option is passed by no route, controller or service (a registered static test reads every non-test source file); with it absent, every one of the 13 Learning Goals builds exactly as the production entry builds it, and A01 with it is identical once its two TEST-ONLY account fields are set aside (registered tests).')
     add('- No production knowledge file holds our restatement of RPC-002 or the DRAFT A02 record, and A02 has no production record (tested).')
     add(`Recorded apart, not in this report: the regression on the committed tree (the type check, the whole suite, the behaviour snapshot against main's baseline, the bundle compared with main), in the evidence folder's regression record (${RECORD_WORDS.item7}).`)
-    add('Open: eight bundled files differ from main by TEST-ONLY additions no route passes (the selector\'s are disclosed first, above; the guided selection hints\' one option since stage W1 (a); the authority of the review pathway\'s K2 result in the types since stage W1 (b); the package check, the package builder and its validator since stage W2); isolation rests on the branch staying unmerged and undeployed.')
+    // Stage W6, re-pinned openly (prose made true): was 'Open: eight bundled files differ from main by TEST-ONLY additions no route passes (...
+    // since stage W2); isolation rests on ...'; stage W4 added TEST-ONLY branches to eight more bundled files, measured by stage W6's static scan.
+    add('Open: TEST-ONLY additions no route passes sit in bundled files: the selector\'s (disclosed first, above); the guided selection hints\' one option since stage W1 (a); the authority of the review pathway\'s K2 result in the types since stage W1 (b); the package check, the package builder and its validator since stage W2; and since stage W4 the derivation\'s types, gates, engine and emit and the build\'s draft account, review evidence, requirement account and context-scoring guard, whose new branches act only on ILLUSTRATIVE data that no production knowledge or register holds. Isolation rests on the branch staying unmerged and undeployed.')
     add('Proposals: none.')
     add('Assumptions (OURS): none beyond the TEST-ONLY option itself, which no route passes.')
     add('Ecological suitability: not addressed: an unchanged application is an engineering claim.')
@@ -1294,6 +1607,8 @@ function evidenceOf(a02Results: HandoffResult[], ta02Results: HandoffResult[]): 
         ...appendixC(),
         'APPENDIX D: THE CASES AS THE HANDOFF REPORTS THEM (the A02 runs and the TA02 runs: inputs, Steps 1 and 2, the form, the chain, configuration lines, coach text, laws and requirement accounts, refusals and what they rest on)',
         handoffReportText([...a02Results, ...ta02Results], ta02Inputs, []),
+        // Stage W6 (12 November 2026): every run's earliest stop, the carrier runs of stage W4 included.
+        ...appendixE(),
     ].join('\n')
     const results = {
         stage: 'DESIGN_REASONING_A02_FOUNDATIONAL_TEST',
@@ -1319,6 +1634,11 @@ function evidenceOf(a02Results: HandoffResult[], ta02Results: HandoffResult[]): 
             ta02PreMergeClass: { outcome: TA02_PRE_MERGE_CLASS.result.chain?.outcome ?? null, stage: TA02_PRE_MERGE_CLASS.result.chain?.stage ?? null, cited: (TA02_PRE_MERGE_CLASS.result.refusalBasis?.cited ?? []).map((c) => c.ref), exampleItemsCited: exampleItemsCited(TA02_PRE_MERGE_CLASS.result) },
             ta02CoverageLenses: { lensCandidateIds: TA02_GPCL.result.consumption?.lensCandidateIds ?? [], committed: TA02_GPCL.answer?.observed?.lensIds ?? [], from: TA02_GPCL.result.consumption?.hintsLensesFrom ?? null },
             carrierMechanismNames: carrierMechanismNames(),
+        },
+        // Stage W6 (12 November 2026): every run's earliest stop, its class, the class's categories (Christian's words) and whose it is (ours).
+        w6: {
+            classes: STOP_CLASSES.map((c) => ({ id: c.id, stop: c.stop, categories: c.categories.map((i) => S.CATEGORIES[i]), owner: c.owner, whose: c.whose, runs: runsOfClass(c.id).map((r) => r.id) })),
+            rows: STOPS.rows.map((r) => ({ id: r.id, group: r.group, stage: r.stage, cited: r.cited, rules: r.rules, cls: r.cls })),
         },
         ownership: OWNERSHIP_TABLE,
         disposition: DISPOSITION,
@@ -1351,6 +1671,10 @@ if (process.env.A02_EVIDENCE_MEASURE) {
     lines.push(`TA02-0+GPCL: ${TA02_GPCL.result.chain?.outcome} ${TA02_GPCL.result.chain?.stage}; lens candidates ${json(TA02_GPCL.result.consumption?.lensCandidateIds)} from ${TA02_GPCL.result.consumption?.hintsLensesFrom}; committed ${json(TA02_GPCL.answer?.observed?.lensIds)}; A02-0+GPCL ${json(S.at(`A02-0${S.GPCL}`).result.consumption?.lensCandidateIds)} committed ${json(S.at(`A02-0${S.GPCL}`).answer?.observed?.lensIds)}`)
     lines.push(`carrier mechanism names: ${json(carrierMechanismNames())}`)
     for (const id of TA02_IDS) for (const f of ta02Safeguard(id).findings) lines.push(`${id} ${f.row}${f.clause ? `(${f.clause})` : ''} ${f.verdict} [${classOf(f)}] ${f.why}`)
+    // Stage W6: every run's earliest stop by class (the measurement STOP_CLASS_RUNS was taken from).
+    for (const c of STOP_CLASSES) lines.push(`STOP ${c.id}: ${json(runsOfClass(c.id).map((r) => r.id))}`)
+    lines.push(`STOP unclassified ${json(STOPS.unclassified)}; ambiguous ${json(STOPS.ambiguous)}; unused ${json(STOPS.unused)}`)
+    for (const r of STOPS.rows) lines.push(`STOP ROW ${r.id} | ${r.group} | ${r.stage} | cited ${json(r.cited)} | rules ${json(r.rules)} | ${r.cls} | ${r.reasons[0] ?? ''}`)
     lines.push(`identifiers in the body not in the key: ${json(identifiersOf(BODY).filter((t) => !keyOf(t)))}`)
     lines.push(`key entries the body does not use: ${json(KEY.filter((e) => !identifiersOf(BODY).some((t) => (e.family ? t.indexOf(e.id) === 0 : t === e.id)) && BODY.indexOf(e.id) < 0).map((e) => e.id))}`)
     lines.push(`report ${FIRST.report.length} chars, ${FIRST.report.split('\n').length} lines; results ${FIRST.json.length} chars; A01 ${S.A01_BEFORE} ${S.A01_AFTER} ${A01_END}`)
@@ -1612,6 +1936,68 @@ test(`W5 (A02 package, 12 November 2026). reuse after the merge of the program b
     assert.deepEqual([S.A01_BEFORE, S.A01_AFTER], [A01_END, A01_END])
 })
 
+/** Stage W6: each class's runs (measured first, scratchpad/pkg/A02/W6; A02_EVIDENCE_MEASURE writes them). */
+const STOP_CLASS_RUNS: Record<string, string[]> = {
+    'origin-and-control': ['A02-0', 'A02-0/draft-record', 'S4-NP', 'S4-NP+WZA', 'S4-NP+WZA/no-bypass', 'L3', 'A02-0+GPCL', 'A02-0~reversed', 'S4-NP~reversed', 'S4-NP+WZA~reversed', 'L2~reversed', 'A02-0+GPCL~reversed', 'A02-0~neutral', 'S4-NP~neutral', 'S4-NP+WZA~neutral', 'L2~neutral', 'A02-0+GPCL~neutral', 'A02-0~pressure', 'L2~pressure', 'W-DROPS-UPSTREAM', 'TA02-0/swap'],
+    'control-referent': ['A02-1', 'A02-1/draft-record', 'A02-1~reversed', 'A02-1~neutral'],
+    'ta02-origin': ['TA02-0', 'TA02-0+GPCL', 'A02-0/swap'],
+    'example-made-required': ['TA02-0/pre-merge-class'],
+    'law-11': ['A02-1b', 'A02-1b/draft-record', 'A02-IL-2L'],
+    'coach-wording': ['A02-2', 'A02-2/draft-record', 'A02-2/CAR', 'A02-2~reversed', 'A02-2~neutral', 'A02-IL-1', 'A02-IL-2', 'A02-IL-2r'],
+    'served-diagnostic': ['A02-D', 'A02-D/draft-record', 'S4-NP@A02-D', 'S4-NP+WZA@A02-D', 'TA02-D', 'A02-D/swap', 'TA02-D/swap'],
+    'wording-flip': ['S4-NP+TR~reversed', 'S4-NP+TR~neutral'],
+    'kept-check': ['S4-WZA', 'S4-TR', 'S4-CDC', 'S4-CDC+IR', 'S4-WZA~reversed', 'S4-TR~reversed', 'S4-CDC~reversed', 'S4-CDC+IR~reversed', 'S4-WZA~neutral', 'S4-TR~neutral', 'S4-CDC~neutral', 'S4-CDC+IR~neutral'],
+    'member-presence': ['S4-NP+CDC', 'S4-NP+WZA+CDC'],
+    'size-rule': ['S4-NP/no-bypass'],
+    'foundation-clause': ['S4-WZA/foundation-kept', 'S4-TR/foundation-kept', 'S4-WZA+TR/foundation-kept'],
+    'constraint-contract': ['S4-NP+TR', 'S4-WZA+TR', 'S4-NP+WZA+TR'],
+    'context-contract': ['NO-RESTATEMENT', 'TA02'],
+    'own-form': ['GP-002/legacy', 'GF7-CELL/legacy', 'L2'],
+    'test-copy-form': ['GP-002', 'GF7-CELL'],
+    'test-copy-no-basis': ['GP-001', 'GP-001/legacy'],
+    'production-record': ['L1'],
+    'event-line-control': ['A02-2/narrowed', 'A02-2/no-line-crossed'],
+    'another-goal': ['A01', 'TA01', 'A05-0', 'D02', 'A03', 'A04', 'A06', 'D01', 'D03', 'TD01', 'TD02'],
+}
+
+test('W6 (A02 package, 12 November 2026). every run\'s earliest stop (the safeguard runs, the TA02 runs, the swap runs and the ILLUSTRATIVE carrier runs of stage W4), each in exactly one class read in Christian\'s failure-source categories and said to be engineering, Christian\'s knowledge or neither; the classes pinned; the earliest stop by arm; no engineering stop on an A02 run of the knowledge as it stands, under TEST-ONLY treatments of its condition only, or with the carriers on; with its negative controls', () => {
+    // Every run in exactly one class; every class used; one row per run.
+    assert.deepEqual([STOPS.unclassified, STOPS.ambiguous, STOPS.unused], [[], [], []])
+    assert.equal(new Set(STOPS.rows.map((r) => r.id)).size, STOPS.rows.length, 'one row per run')
+    assert.equal(STOPS.rows.length, S.runs.size + TA02_IDS.length + 2 + swapBuilt.size + CARRIER_RUN_IDS.length, 'every run of the four sources')
+    // Each class's runs, pinned.
+    assert.deepEqual(Object.fromEntries(STOP_CLASSES.map((c) => [c.id, runsOfClass(c.id).map((r) => r.id)])), STOP_CLASS_RUNS)
+    // The earliest stop by arm.
+    assert.deepEqual(
+        [clsOf('A02-0'), clsOf(`A02-0${S.DRAFT_ARM}`), clsOf('A02-1'), clsOf('A02-1b'), clsOf('A02-2'), clsOf('A02-D'), ...CARRIER_RUN_IDS.map(clsOf), clsOf('TA02-0'), clsOf('TA02-D')],
+        ['origin-and-control', 'origin-and-control', 'control-referent', 'law-11', 'coach-wording', 'served-diagnostic', 'coach-wording', 'coach-wording', 'coach-wording', 'law-11', 'ta02-origin', 'served-diagnostic'],
+    )
+    // What item 2, item 5 and the A02-0 stop's why say of the carriers, held to the runs: each gets past structure and realization.
+    for (const id of CARRIER_RUN_IDS) assert.ok(['validation', 'communication'].indexOf(String(carrierResult(id).chain?.stage)) >= 0, id)
+    assert.ok(S.stopsOf().find((s) => s.id === 'A02-0')!.why.includes('since stage W4 an ILLUSTRATIVE carrier (TEST-ONLY, never knowledge) carries it executably'), 'the earliest stop\'s why says what the carriers do')
+    // No engineering stop on an A02 run of the knowledge as it stands, under TEST-ONLY treatments of its condition only, or with the carriers on.
+    assert.deepEqual(A02_CONDITION_RUNS.filter((r) => openStop(r)).map((r) => r.id), [])
+    assert.ok(A02_CONDITION_RUNS.length > CARRIER_RUN_IDS.length + 5, 'the A02 condition runs are read')
+    // The classes' categories are Christian's (indices 1 to 5), and the questions they name are item 2's, by their text.
+    assert.ok(STOP_CLASSES.every((c) => c.categories.every((i) => i >= 1 && i <= 5)))
+    const q = (n: number) => experiment.questions.find((x: { order: number }) => x.order === n)!.question
+    assert.ok(q(1).includes('origin clause') && q(2).includes('pressing line') && q(3).includes('through the next action') && q(4).includes('LAW-11') && q(5).includes('manipulations'), 'questions 1 to 5 are the ones the classes name')
+    // Negative controls: a stop no class knows is named unclassified; a class matching nothing is named unused; two classes matching one run are
+    // named; the wording flip, read without its own-wording run, is a kept-check refusal (so the flip is measured, never assumed from the id).
+    const unknown: StopRow = { id: 'X-UNKNOWN', group: 'A02 experiment path', stage: 'structure', cited: ['RPC-002-03.b::V5'], reasons: ['x'], rules: [], treatments: [] }
+    assert.deepEqual(classifyStops([unknown]).unclassified, ['X-UNKNOWN (structure: x)'])
+    assert.ok(classifyStops(STOPS.rows.filter((r) => r.group !== 'census of other goals')).unused.includes('another-goal'), 'a class with no run is named')
+    const twice = [...STOP_CLASSES, { ...STOP_CLASSES.find((c) => c.id === 'law-11')!, id: 'law-11-copy' }]
+    assert.equal(classifyStops(STOPS.rows, twice).ambiguous.length, runsOfClass('law-11').length, 'a run two classes match is named')
+    const flip = STOPS.rows.find((r) => r.cls === 'wording-flip')!
+    assert.equal(classifyStops([flip]).rows[0].cls, 'kept-check', 'without its own-wording run the flip is not seen')
+    // The appendix prints each class with its runs; the report and the results hold it.
+    const e = appendixE()
+    for (const c of STOP_CLASSES) assert.ok(e.some((l) => l.indexOf(`- ${c.id} (${runsWord(runsOfClass(c.id).length)}): `) === 0), c.id)
+    assert.ok(FIRST.report.includes(e.join('\n')), 'the report holds appendix E')
+    assert.equal(JSON.parse(FIRST.json).w6.rows.length, STOPS.rows.length)
+})
+
 /** Every object of the results with a ruling's `ref` and a `received` date (a ruling's serialized entry), wherever it sits. */
 function datedEntries(value: unknown, out: Array<{ ref: string; entry: Record<string, unknown> }> = []): Array<{ ref: string; entry: Record<string, unknown> }> {
     if (Array.isArray(value)) for (const v of value) datedEntries(v, out)
@@ -1704,7 +2090,8 @@ test(`the report: the constraint selector disclosed first, each of its places he
         assert.ok(parts.every((p, m) => p > 0 && (m === 0 || p > parts[m - 1])), `${HEADINGS[n]}: its parts told apart, in order (${parts.join(', ')})`)
     })
     assert.ok(lines.some((l) => l.includes(cite('A02-10NOV-REPORT', 7))), 'the distinction Christian asked for is quoted')
-    const appendices = ['APPENDIX A:', 'APPENDIX B:', 'APPENDIX C:', 'APPENDIX D:'].map(first)
+    // Stage W6: appendix E (every run's earliest stop) after appendix D.
+    const appendices = ['APPENDIX A:', 'APPENDIX B:', 'APPENDIX C:', 'APPENDIX D:', 'APPENDIX E:'].map(first)
     assert.ok(appendices.every((s, n) => s > starts[6] && (n === 0 || s > appendices[n - 1])), 'the appendices, in order, after the seven items')
     // Quotation marks: every double-quoted span (typographic ones read whole first) is, verbatim, words of a ruling the inputs hold.
     const words = new Set(inputs.rulings.flatMap((r) => r.words))

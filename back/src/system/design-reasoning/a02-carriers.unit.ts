@@ -42,7 +42,10 @@ console.log = (...args: unknown[]) => {
     quiet(...args)
 }
 let passed = 0
+/** Run itself (npm test runs it so), the tests run; imported (by a02-evidence.unit.ts, for the carrier runs' stops, stage W6), none does. */
+const MAIN = require.main === module
 function test(name: string, run: () => void): void {
+    if (!MAIN) return
     try {
         run()
         passed++
@@ -52,7 +55,7 @@ function test(name: string, run: () => void): void {
         process.exitCode = 1
     }
 }
-quiet(`stage W4 of the A02 package: ILLUSTRATIVE carriers (TEST-ONLY), Christian's second reply received 11 November 2026`)
+if (MAIN) quiet(`stage W4 of the A02 package: ILLUSTRATIVE carriers (TEST-ONLY), Christian's second reply received 11 November 2026`)
 
 const HERE = __dirname
 const WT = path.resolve(HERE, '..', '..', '..', '..')
@@ -124,6 +127,13 @@ function runAll(): { results: Map<string, HandoffResult>; requests: Map<string, 
     return { results, requests, answers, gates }
 }
 const made = runAll()
+/** Stage W6 (12 November 2026): the carrier runs' ids and results, read by a02-evidence.unit.ts for appendix E (each run's earliest stop). */
+export const CARRIER_RUN_IDS = [...RUNS]
+export const carrierResult = (id: string): HandoffResult => {
+    const r = made.results.get(id)
+    assert.ok(r, `no carrier run ${id}`)
+    return r
+}
 
 /** A TEST-ONLY copy of the carriers file, changed, in a temporary folder; returns its absolute path. */
 function carriersCopy(change: (raw: any) => void): string {
@@ -438,4 +448,4 @@ test('registered', () => {
     assert.ok(registry.includes('./src/system/design-reasoning/a02-carriers.unit.ts'))
 })
 
-quiet(`a02 carriers (W4): ${passed} passed`)
+if (MAIN) quiet(`a02 carriers (W4): ${passed} passed`)
