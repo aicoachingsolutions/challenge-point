@@ -397,6 +397,8 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
                   ...(consume.sizeRuleBypass === true ? { quotaBypass: true } : {}),
                   // Stage W1 (b): the review pathway's K2 result, the empty set with K2's rule and limit, in place of a per-goal record.
                   ...(consume.k2 ? { reviewManipulations: { basis: consume.k2.basis, set: [...consume.k2.set], rule: consume.k2.rule, limit: consume.k2.limit, cited: consume.k2.cited } } : {}),
+                  // Stage W1 (c1): the Coverage-row lenses, only where the request carries the treatment.
+                  ...(consume.coverageLenses === true ? { coverageLenses: true } : {}),
               }
             : undefined
         if (request.recordRoute && !consume) throw new Error(`case ${request.caseId}: a manipulation enters by the record route only on a request that consumes Steps 1 and 2`)
@@ -543,6 +545,7 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
                   hintsSignals: [...recorded.hintsSignals],
                   // Stage W1 (b): K2's result as the build's account recorded it (never read from the request).
                   reviewManipulations: recorded.reviewManipulations ? copy(recorded.reviewManipulations) : null,
+                  hintsLensesFrom: recorded.hintsLensesFrom,
                   selectionObservedOnly: observedOnly,
                   draftStatus: activity.draftKnowledge?.status ?? null,
               }

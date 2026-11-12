@@ -89,15 +89,18 @@ const A01_HINTS = {
     lensCandidateIds: ['tl-v0-lens-space-exploitation-opportunity', 'tl-v0-lens-space-creation-opportunity', 'tl-v0-lens-line-breaking-opportunity', 'tl-v0-lens-possession-stability-opportunity'],
     hintsSignals: ['signalGroup:G_overload', 'unresolvedLensTitle:Support Angle Opportunity', 'unresolvedConstraintTitle:Pressure Condition'],
     reviewManipulations: null,
+    hintsLensesFrom: 'GOVERNED_HINTS',
 }
 /** Test 7d, measured (stage W1 (a)): the option's identifiers named per file, and the guided selection hints' lines that name them. */
 // Stage W1 (b), re-pinned openly: was { ..., quotaBypass: 7, upstream: 25, ... } (stage W1 (a)); K2's field, type and refusal function join it.
-const RUN_BOUNDED_SELECTION_NAMES: Record<string, number> = { consumed: 7, consumedGameProblem: 10, hintsGameProblem: 3, hintsGameProblemId: 2, hintsGoverned: 2, hintsSignals: 2, lensCandidateIds: 2, quotaBypass: 10, reviewManipulationRefusals: 2, reviewManipulations: 7, ReviewManipulations: 5, step1GameProblemId: 1, upstream: 30, UpstreamDecisions: 4 }
-const GUIDED_SELECTION_NAMES: Record<string, number> = { hintsGameProblem: 2, step1GameProblemId: 3 }
+// Stage W1 (c1), re-pinned openly: upstream 30 -> 34; coverageLenses 6 and hintsLensesFrom 2 join it (the treatment GP_COVERAGE_LENSES).
+const RUN_BOUNDED_SELECTION_NAMES: Record<string, number> = { consumed: 7, consumedGameProblem: 10, coverageLenses: 6, hintsGameProblem: 3, hintsGameProblemId: 2, hintsGoverned: 2, hintsLensesFrom: 2, hintsSignals: 2, lensCandidateIds: 2, quotaBypass: 10, reviewManipulationRefusals: 2, reviewManipulations: 7, ReviewManipulations: 5, step1GameProblemId: 1, upstream: 34, UpstreamDecisions: 4 }
+// Stage W1 (c1), re-pinned openly: was { hintsGameProblem: 2, step1GameProblemId: 3 }; the treatment's option and helper join it.
+const GUIDED_SELECTION_NAMES: Record<string, number> = { coverageLenses: 2, coverageRowLenses: 2, hintsGameProblem: 2, step1GameProblemId: 4 }
 /** Test 7, measured (stage W1 (b)): every string literal REVIEW_PATHWAY_K2 in a non-test source file, and the one place it is written. */
-const K2_WRITTEN: string[] = ['system/derivation/run-bounded-selection.ts:386 WRITTEN in selectFor under upstream']
+const K2_WRITTEN: string[] = ['system/derivation/run-bounded-selection.ts:391 WRITTEN in selectFor under upstream']
 const K2_LITERALS: string[] = [
-    'system/derivation/run-bounded-selection.ts:386 WRITTEN in selectFor under upstream',
+    'system/derivation/run-bounded-selection.ts:391 WRITTEN in selectFor under upstream',
     'system/design-reasoning/safeguards.ts:459 READ',
     'system/design-reasoning/safeguards.ts:698 READ',
     'system/rendering/build-activity.ts:171 TYPE',
@@ -108,9 +111,12 @@ const K2_LITERALS: string[] = [
 ]
 const GUIDED_SELECTION_LINES: string[] = [
     'hintsGameProblem?: GameProblemAuthority',
-    'options: { draftsAdmitted?: boolean; step1GameProblemId?: string } = {},',
+    // Stage W1 (c1): the option gains the treatment's flag; the Coverage-row lenses and their helper.
+    'options: { draftsAdmitted?: boolean; step1GameProblemId?: string; coverageLenses?: boolean } = {},',
     'const step1 = options.step1GameProblemId === undefined ? null : governByApprovedGameProblem(learningGoalId, deriveInputConstraints(goalText), options.step1GameProblemId)',
+    'const lensed = step1 && options.coverageLenses ? { ...hintsFrom.hints, ...coverageRowLenses(options.step1GameProblemId as string, goalText) } : hintsFrom.hints',
     '...(step1 ? { hintsGameProblem: step1.gameProblem } : {}),',
+    "function coverageRowLenses(gameProblemId: string, goalText: string): Pick<InputConstraintHints, 'candidateAffordanceLensIds' | 'matchedSignals'> {",
 ]
 const A02_HINTS = {
     hintsGameProblemId: 'GP-015',
@@ -118,6 +124,7 @@ const A02_HINTS = {
     lensCandidateIds: ['tl-v0-lens-possession-stability-opportunity', 'tl-v0-lens-regain-opportunity', 'tl-v0-lens-space-creation-opportunity'],
     hintsSignals: ['signalGroup:B_pressure', 'unresolvedLensTitle:Support Angle Opportunity', 'unresolvedConstraintTitle:Pressure Condition'],
     reviewManipulations: null,
+    hintsLensesFrom: 'GOVERNED_HINTS',
 }
 
 /** A TEST-ONLY DRAFT A02 record in a temporary folder, loaded through the draft store's gate: no ruling field (the gate requires that of a record we drafted). */
@@ -396,7 +403,7 @@ test('statically: production cannot reach the option (identifiers, positional ar
     // Stage W1 (a), 11 November 2026: the identifiers of Step 1's Game Problem governing the hints join the scan (the option field, the hints'
     // authority and the consumption record's four fields).
     // Stage W1 (b): the review pathway's K2 result handed in place of a record (the field, its type and its refusal function).
-    const NAMES = new Set(['upstream', 'consumedGameProblem', 'consumed', 'quotaBypass', 'quotaBypassOwnSize', 'UpstreamDecisions', 'step1GameProblemId', 'hintsGameProblem', 'hintsGameProblemId', 'hintsGoverned', 'lensCandidateIds', 'hintsSignals', 'reviewManipulations', 'ReviewManipulations', 'reviewManipulationRefusals', 'reviewPathwayK2EmptySet'])
+    const NAMES = new Set(['upstream', 'consumedGameProblem', 'consumed', 'quotaBypass', 'quotaBypassOwnSize', 'UpstreamDecisions', 'step1GameProblemId', 'hintsGameProblem', 'hintsGameProblemId', 'hintsGoverned', 'lensCandidateIds', 'hintsSignals', 'reviewManipulations', 'ReviewManipulations', 'reviewManipulationRefusals', 'reviewPathwayK2EmptySet', 'coverageLenses', 'coverageRowLenses', 'hintsLensesFrom'])
     const POSITION: Record<string, number> = { selectFor: 6, generateSelection: 3, build: 18 }
     const named = new Map<string, Map<string, number>>()
     const namedLines = new Map<string, Map<number, string>>()

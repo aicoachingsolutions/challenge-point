@@ -140,9 +140,11 @@ export interface StandInInput {
  * Since stage W1 (b) of the foundational package (11 November 2026), K2_RETAIN_FORM acts on the request, only beside CONSUMED_STEPS: the review
  * pathway's K2 result (no manipulation proposed) handed to the chain in place of a per-goal authorization record, with K2's rule and limit
  * (`k2`, word indexes of a ruling); the draft store is then read without its records. Refused beside the size-rule bypass, a TEST-ONLY
- * record, or any manipulation with a relationship (placed or entering by the record route).
+ * record, or any manipulation with a relationship (placed or entering by the record route). Since stage W1 (c1), GP_COVERAGE_LENSES acts
+ * on the request, only beside CONSUMED_STEPS: the chain's lens candidates and signal groups taken from Step 1's Game Problem Coverage row in
+ * both branches (`ChainRequest.consume.coverageLenses`); a measurement treatment, never the consumption's default.
  */
-export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION', 'SIZE_RULE_BYPASS', 'K2_RETAIN_FORM'] as const
+export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION', 'SIZE_RULE_BYPASS', 'K2_RETAIN_FORM', 'GP_COVERAGE_LENSES'] as const
 
 export interface TreatmentInput {
     id: string
@@ -451,6 +453,8 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
         // record or a manipulation with a relationship (placed or by the record route), and naming K2's rule and limit among a ruling's words.
         const k2 = ofKind('K2_RETAIN_FORM')
         if (k2.length > 1 || (k2.length && !ofKind('CONSUMED_STEPS').length)) errors.push(`${at}: K2_RETAIN_FORM is declared at most once, and only beside CONSUMED_STEPS`)
+        // Stage W1 (c1): the Coverage-row lenses, once, only on a consuming run (they need Step 1's Game Problem).
+        if (ofKind('GP_COVERAGE_LENSES').length > 1 || (ofKind('GP_COVERAGE_LENSES').length && !ofKind('CONSUMED_STEPS').length)) errors.push(`${at}: GP_COVERAGE_LENSES is declared at most once, and only beside CONSUMED_STEPS`)
         if (k2.length && ofKind('SIZE_RULE_BYPASS').length) errors.push(`${at}: K2_RETAIN_FORM is never declared beside SIZE_RULE_BYPASS (K2's result is the empty set; the bypass is for a record's evaluated set)`)
         if (k2.length && (merged.record !== null && merged.record !== undefined || (isObject(merged.chain) && merged.chain.records === 'TEST_ONLY'))) errors.push(`${at}: K2_RETAIN_FORM stands in place of a per-goal authorization record, never beside one (the case has a TEST-ONLY record)`)
         if (k2.length && manipulations.some((m) => m.relationship !== undefined)) errors.push(`${at}: K2_RETAIN_FORM is handed only where no proposed manipulation has a relationship (placed or entering by the record route): K2 yields no manipulation`)
@@ -597,6 +601,8 @@ export interface ChainRequest {
          * its limit in Christian's words and their citation; the chain reads the draft store without its records under it.
          */
         k2?: { basis: 'K2_REVIEW_ONLY'; set: string[]; rulingRef: string; rule: string; limit: string; cited: string; treatmentId: string }
+        /** Present (true) only where the case declares GP_COVERAGE_LENSES (stage W1 (c1)): the lenses and signal groups from Step 1's Coverage row. */
+        coverageLenses?: true
     }
     /**
      * Present only where a consuming case names manipulations that enter by the record route (`ProposedManipulation.entersBy`): their ids. The
@@ -736,6 +742,8 @@ export interface ChainAnswer {
         hintsSignals: string[]
         /** Stage W1 (b): the review pathway's K2 result as the chain's account recorded it (its rule and limit carried), or null where a record governed. */
         reviewManipulations: { basis: string; set: string[]; rule: string; limit: string; cited: string } | null
+        /** Stage W1 (c1): where the lens candidates came from (the governed hints, or Step 1's Coverage row under GP_COVERAGE_LENSES). */
+        hintsLensesFrom: string
         /** True where the hook ran and only observed; null where it never ran (the selection returned nothing). */
         selectionObservedOnly: boolean | null
         draftStatus: string | null
@@ -1193,6 +1201,8 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
             gameForm: { formId, standing: g.statement, cells: g.trace.influencedBy.map((i) => ({ cell: i.ref, grade: i.standing })) },
             // The safeguards slice: the numerical size rule bypassed, only where the case declares it.
             ...(c.testOnlyTreatments.some((t) => t.kind === 'SIZE_RULE_BYPASS') ? { sizeRuleBypass: true as const } : {}),
+            // Stage W1 (c1): the Coverage-row lenses, only where the case declares them.
+            ...(c.testOnlyTreatments.some((t) => t.kind === 'GP_COVERAGE_LENSES') ? { coverageLenses: true as const } : {}),
         }
         // Stage W1 (b): K2's result in place of a per-goal record, only where the case declares it: the empty set and K2's words, as data.
         const k2 = c.testOnlyTreatments.find((t) => t.kind === 'K2_RETAIN_FORM')

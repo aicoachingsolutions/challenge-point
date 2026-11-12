@@ -709,7 +709,10 @@
     "S4-NP+WZA~neutral",
     "S4-NP+TR~neutral",
     "S4-CDC+IR~neutral",
-    "A02-0~pressure"
+    "A02-0~pressure",
+    "A02-0+GPCL",
+    "A02-0+GPCL~reversed",
+    "A02-0+GPCL~neutral"
    ],
    "evidence": "every A02 run: the account names RPC-002, Step 1 resolves RPC-002; the upstream option carries no context (DESIGN-9 section 1 consumes the Game Problem and the form only)"
   },
@@ -748,7 +751,10 @@
     "A02-2~neutral",
     "S4-NP~neutral",
     "S4-NP+WZA~neutral",
-    "A02-0~pressure"
+    "A02-0~pressure",
+    "A02-0+GPCL",
+    "A02-0+GPCL~reversed",
+    "A02-0+GPCL~neutral"
    ],
    "evidence": "build-activity.ts:641 reads only whether the context's contract is selected; on these runs no clause is carried, or only the control clause under a declared treatment; the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass"
   },
@@ -1280,7 +1286,7 @@
   {
    "id": "RESOLUTION_STATUS",
    "check": "the resolution status: a selection that did not resolve is refused",
-   "where": "run-bounded-selection.ts:452",
+   "where": "run-bounded-selection.ts:459",
    "origin": "3a5aeed, 8 October 2026",
    "disposition": "KEPT_ENFORCED",
    "reported": "wording-keyed (the matched signals)",
@@ -1303,7 +1309,7 @@
     "categories": [
      4
     ],
-    "why": "the production route accepts manipulations only on a per-goal authorization record's authority (the live route hands it only a record-backed selection, live-activity.ts:55-56), and A02 has none; called on the production records, its candidates are A02's own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal's candidates), and they cannot be combined on any of RPC-002's declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the production route is unchanged. On the isolated pathway, since stage W1 (b), the chain takes the review pathway's K2 result in place of a per-goal record (no manipulation proposed for A02; K2 approved for review-only use; our reading of E5, reversible: the DRAFT-record arm is kept as comparison and reads K2_NOT_TAKEN), and without K2 or a record it still refuses (run-bounded-selection.ts:389-390); L2 passes this stop on our TEST-ONLY DRAFT record (nothing consumed), NO-RESTATEMENT and A02-0 on K2's result with no record of ours; the category is OURS (an assumption)",
+    "why": "the production route accepts manipulations only on a per-goal authorization record's authority (the live route hands it only a record-backed selection, live-activity.ts:55-56), and A02 has none; called on the production records, its candidates are A02's own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal's candidates), and they cannot be combined on any of RPC-002's declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the production route is unchanged. On the isolated pathway, since stage W1 (b), the chain takes the review pathway's K2 result in place of a per-goal record (no manipulation proposed for A02; K2 approved for review-only use; our reading of E5, reversible: the DRAFT-record arm is kept as comparison and reads K2_NOT_TAKEN), and without K2 or a record it still refuses (run-bounded-selection.ts:394-395); L2 passes this stop on our TEST-ONLY DRAFT record (nothing consumed), NO-RESTATEMENT and A02-0 on K2's result with no record of ours; the category is OURS (an assumption)",
     "passed": true,
     "passedBy": "L2"
    },
@@ -8992,6 +8998,225 @@
    ]
   },
   {
+   "id": "A02-0+GPCL",
+   "kind": "EXPERIMENT",
+   "label": "A02-0 with the TEST-ONLY treatment GP_COVERAGE_LENSES (the lens candidates and signal groups from Step 1's Coverage row)",
+   "run": {
+    "runId": "A02-0+GPCL",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "structure",
+     "reasons": [
+      "Gate A is FAIL",
+      "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+      "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-002:RPC-002-04.a::V5, c:restated:RPC-002:RPC-002-02.a::V6"
+     ],
+     "refusalVerdict": "RESTATEMENT-ONLY",
+     "ownPick": [
+      "GF2"
+     ],
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [],
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
+     "lenses": [
+      "Possession Stability Opportunity",
+      "Line-Breaking Opportunity",
+      "Space Creation Opportunity"
+     ],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "SELECTION_TRACE_RANKING",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
+      "constraintCandidateIds": [],
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
+     },
+     "contextInThisActivity": true,
+     "scoringCondition": null
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [
+      "RPC-002-02.a",
+      "RPC-002-02.b",
+      "RPC-002-03.a",
+      "RPC-002-03.b",
+      "RPC-002-03.c",
+      "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "resting": [],
+     "unestablished": [],
+     "resolved": [],
+     "withheld": [],
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
+    },
+    "engineRule": null
+   },
+   "findings": [
+    {
+     "runId": "A02-0+GPCL",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "A02-0+GPCL",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "A02-0+GPCL",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+     "consulted": "the chain's own pick: GF2"
+    },
+    {
+     "runId": "A02-0+GPCL",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the selection committed; the chain's own checks then stopped the run at structure",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "CITED_NOT_CARRIED",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried",
+     "consulted": "the requirement account is not on this run"
+    },
+    {
+     "runId": "A02-0+GPCL",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at structure)",
+     "consulted": null
+    }
+   ]
+  },
+  {
    "id": "A02-0~reversed",
    "kind": "EXPERIMENT",
    "label": "A02-0 under the reversed wording",
@@ -11232,6 +11457,223 @@
     },
     {
      "runId": "L2~reversed",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at structure)",
+     "consulted": null
+    }
+   ]
+  },
+  {
+   "id": "A02-0+GPCL~reversed",
+   "kind": "EXPERIMENT",
+   "label": "A02-0 with the TEST-ONLY treatment GP_COVERAGE_LENSES (the lens candidates and signal groups from Step 1's Coverage row) under the reversed wording",
+   "run": {
+    "runId": "A02-0+GPCL~reversed",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "structure",
+     "reasons": [
+      "Gate A is FAIL",
+      "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+      "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-002:RPC-002-04.a::V5, c:restated:RPC-002:RPC-002-02.a::V6"
+     ],
+     "refusalVerdict": "RESTATEMENT-ONLY",
+     "ownPick": [
+      "GF2"
+     ],
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [],
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
+     "lenses": [
+      "Line-Breaking Opportunity",
+      "Possession Stability Opportunity",
+      "Space Creation Opportunity"
+     ],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "SELECTION_TRACE_RANKING",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
+      "constraintCandidateIds": [],
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
+     },
+     "contextInThisActivity": true,
+     "scoringCondition": null
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [
+      "RPC-002-02.a",
+      "RPC-002-02.b",
+      "RPC-002-03.a",
+      "RPC-002-03.b",
+      "RPC-002-03.c",
+      "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "resting": [],
+     "unestablished": [],
+     "resolved": [],
+     "withheld": [],
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
+    },
+    "engineRule": null
+   },
+   "findings": [
+    {
+     "runId": "A02-0+GPCL~reversed",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "A02-0+GPCL~reversed",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "A02-0+GPCL~reversed",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL~reversed",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+     "consulted": "the chain's own pick: GF2"
+    },
+    {
+     "runId": "A02-0+GPCL~reversed",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL~reversed",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the selection committed; the chain's own checks then stopped the run at structure",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL~reversed",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL~reversed",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL~reversed",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL~reversed",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "CITED_NOT_CARRIED",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried",
+     "consulted": "the requirement account is not on this run"
+    },
+    {
+     "runId": "A02-0+GPCL~reversed",
      "row": "REALIZATION",
      "clause": null,
      "verdict": "NOT_REACHED",
@@ -13490,6 +13932,223 @@
    ]
   },
   {
+   "id": "A02-0+GPCL~neutral",
+   "kind": "EXPERIMENT",
+   "label": "A02-0 with the TEST-ONLY treatment GP_COVERAGE_LENSES (the lens candidates and signal groups from Step 1's Coverage row) under the neutral wording",
+   "run": {
+    "runId": "A02-0+GPCL~neutral",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "structure",
+     "reasons": [
+      "Gate A is FAIL",
+      "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+      "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-002:RPC-002-04.a::V5, c:restated:RPC-002:RPC-002-02.a::V6"
+     ],
+     "refusalVerdict": "RESTATEMENT-ONLY",
+     "ownPick": [
+      "GF2"
+     ],
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [],
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
+     "lenses": [
+      "Line-Breaking Opportunity",
+      "Possession Stability Opportunity",
+      "Space Creation Opportunity"
+     ],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "SELECTION_TRACE_RANKING",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
+      "constraintCandidateIds": [],
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
+     },
+     "contextInThisActivity": true,
+     "scoringCondition": null
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [
+      "RPC-002-02.a",
+      "RPC-002-02.b",
+      "RPC-002-03.a",
+      "RPC-002-03.b",
+      "RPC-002-03.c",
+      "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "resting": [],
+     "unestablished": [],
+     "resolved": [],
+     "withheld": [],
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
+    },
+    "engineRule": null
+   },
+   "findings": [
+    {
+     "runId": "A02-0+GPCL~neutral",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "A02-0+GPCL~neutral",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "A02-0+GPCL~neutral",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL~neutral",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+     "consulted": "the chain's own pick: GF2"
+    },
+    {
+     "runId": "A02-0+GPCL~neutral",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL~neutral",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the selection committed; the chain's own checks then stopped the run at structure",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL~neutral",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL~neutral",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL~neutral",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0+GPCL~neutral",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "CITED_NOT_CARRIED",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried",
+     "consulted": "the requirement account is not on this run"
+    },
+    {
+     "runId": "A02-0+GPCL~neutral",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at structure)",
+     "consulted": null
+    }
+   ]
+  },
+  {
    "id": "A02-0~pressure",
    "kind": "EXPERIMENT",
    "label": "A02-0 under the wording in immediate pressure (the control of the wrapper)",
@@ -14590,6 +15249,7 @@
      "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
      "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
     },
+    "hintsLensesFrom": "GOVERNED_HINTS",
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -15207,6 +15867,7 @@
      "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
      "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
     },
+    "hintsLensesFrom": "GOVERNED_HINTS",
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -17095,6 +17756,7 @@
      "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
      "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
     },
+    "hintsLensesFrom": "GOVERNED_HINTS",
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -18999,6 +19661,7 @@
      "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
      "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
     },
+    "hintsLensesFrom": "GOVERNED_HINTS",
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -20947,6 +21610,7 @@
      "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
      "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
     },
+    "hintsLensesFrom": "GOVERNED_HINTS",
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -21459,6 +22123,7 @@
      "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
      "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
     },
+    "hintsLensesFrom": "GOVERNED_HINTS",
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -23329,6 +23994,7 @@
      "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
      "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
     },
+    "hintsLensesFrom": "GOVERNED_HINTS",
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [

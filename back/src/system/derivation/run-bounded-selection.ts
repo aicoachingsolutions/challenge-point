@@ -188,6 +188,8 @@ export interface UpstreamDecisions {
     gameForm: { formId: string; standing: string; cells: { cell: string; grade: string }[] }
     quotaBypass?: boolean
     reviewManipulations?: ReviewManipulations
+    /** Stage W1 (c1), the declared TEST-ONLY treatment GP_COVERAGE_LENSES: the lens candidates and signal groups from Step 1's Coverage row in both branches. */
+    coverageLenses?: boolean
 }
 
 /** TEST-ONLY (stage W1 (b)): the review pathway's K2 result as the chain consumes it: an empty set, K2's rule and its limit, and their citation. */
@@ -229,6 +231,8 @@ export interface ConsumedRecord {
     hintsSignals: string[]
     /** Stage W1 (b): the review pathway's K2 result as consumed (its rule and limit carried into the account), or null where a record governed. */
     reviewManipulations: ReviewManipulations | null
+    /** Stage W1 (c1): where the lens candidates came from: the hints as Step 1's Game Problem governed them, or its Coverage row (the treatment). */
+    hintsLensesFrom: 'GOVERNED_HINTS' | 'STEP1_COVERAGE_ROW'
 }
 
 /** TEST-ONLY: an upstream object missing what the consumption reads is refused, never read partly. */
@@ -243,6 +247,7 @@ function upstreamRefusals(upstream: UpstreamDecisions): string[] {
     const k2 = upstream?.reviewManipulations
     if (k2 !== undefined && (k2?.basis !== 'K2_REVIEW_ONLY' || !Array.isArray(k2?.set) || !filled(k2?.rule) || !filled(k2?.limit) || !filled(k2?.cited)))
         errors.push(`the review pathway's K2 result with its basis (K2_REVIEW_ONLY), its set, its rule, its limit and their citation`)
+    if (upstream?.coverageLenses !== undefined && typeof upstream.coverageLenses !== 'boolean') errors.push('coverageLenses as a boolean')
     return errors
 }
 
@@ -352,7 +357,7 @@ export function selectFor(
      * an authored field dropped by a projection; it is closed the same way, by having one source.
      */
     // TEST-ONLY (stage W1 (a)): with upstream decisions, Step 1's Game Problem governs the Game-Problem-dependent hints; without, nothing is added.
-    const guided = guidedSelectionHints(goalId, text, records, provisionalIds, { ...(drafts ? { draftsAdmitted: true } : {}), ...(upstream ? { step1GameProblemId: upstream.gameProblem.gameProblemId } : {}) })
+    const guided = guidedSelectionHints(goalId, text, records, provisionalIds, { ...(drafts ? { draftsAdmitted: true } : {}), ...(upstream ? { step1GameProblemId: upstream.gameProblem.gameProblemId, ...(upstream.coverageLenses === true ? { coverageLenses: true } : {}) } : {}) })
     /**
      * TEST-ONLY (A02 experiment, S1(b) and S1(c)): with upstream decisions, the candidate forms are the context-gated list FILTERED to Step 2's
      * form, an intersection and never a replacement, so a form the routed context does not declare is refused here in its own words; and the
@@ -409,6 +414,8 @@ export function selectFor(
         hintsSignals: [...(hints.matchedSignals ?? [])],
         // Stage W1 (b): K2's result as consumed, its rule and limit carried into the account; null where a record governed.
         reviewManipulations: upstream!.reviewManipulations ? (JSON.parse(JSON.stringify(upstream!.reviewManipulations)) as ReviewManipulations) : null,
+        // Stage W1 (c1): the treatment GP_COVERAGE_LENSES, where it was handed on.
+        hintsLensesFrom: upstream!.coverageLenses === true ? 'STEP1_COVERAGE_ROW' : 'GOVERNED_HINTS',
     })
     let result: any
     try {

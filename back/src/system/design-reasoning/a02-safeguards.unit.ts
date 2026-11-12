@@ -209,6 +209,25 @@ export function withoutK2(c: CaseInput): CaseInput {
     return c
 }
 const takesK2 = (c: CaseInput) => c.testOnlyTreatments.some((t) => t.kind === 'K2_RETAIN_FORM')
+/** Stage W1 (c1): the declared TEST-ONLY treatment that takes the lens candidates and signal groups from Step 1's Coverage row in both branches. */
+export const GPCL = '+GPCL'
+const COVERAGE_LENSES = {
+    id: 'TT-GP-COVERAGE-LENSES',
+    kind: 'GP_COVERAGE_LENSES' as const,
+    what: 'the chain\'s lens candidates and matched signal groups taken from Step 1\'s Game Problem Coverage row in both branches (where Step 1 and the wording agree too); the forms and the constraints untouched',
+    effect: 'the engine lenses\' candidate pool and signal groups no longer follow the wording on this path; the ranking of the lenses by wording tokens, the top-3 cap and every kept check are unchanged',
+    why: 'stage W1 (c1): the wording-invariance measurement; never the isolated path\'s default, because which lenses the kept checks read is Christian\'s (Q-a2)',
+    label: 'TEST-ONLY',
+    rulingRefs: ['A02-10NOV-AUTHORIZATION'],
+}
+function coverageLensesCase(wording = ''): CaseInput {
+    const c = caseOf('A02-0')
+    c.id = `A02-0${GPCL}${wording ? `~${wording}` : ''}`
+    c.label = `A02-0 with the TEST-ONLY treatment GP_COVERAGE_LENSES (the lens candidates and signal groups from Step 1's Coverage row)${wording ? ` under the ${wording} wording` : ''}`
+    c.resultStanding = 'TEST_ONLY_TREATMENT_NEVER_THE_A02_CONFIGURATION'
+    c.testOnlyTreatments.push(copy(COVERAGE_LENSES))
+    return c
+}
 function quotaCase(name: string, bypass: boolean, baseId = 'A02-0'): CaseInput {
     const c = withoutK2(caseOf(baseId))
     c.id = `S4-${name}${bypass ? '' : '/no-bypass'}${baseId === 'A02-0' ? '' : `@${baseId}`}`
@@ -462,6 +481,11 @@ function buildAll(): void {
         c.goalId = goal
         runCase(c, 'LEGACY', `${goal} as the handoff's C4 runs it (its form from Step 2, production records)`, LEGACY_FACTS_NONE, realChain, k, handoffInputs)
     }
+    // Stage W1 (c1): the Game Problem Coverage-row arm under the goal's own wording (the reworded ones are built with test 5's runs).
+    {
+        const cl = coverageLensesCase()
+        runCase(cl, 'EXPERIMENT', cl.label)
+    }
     // Test 5: the same runs under two rewordings, with the legacy route's own form as the positive control.
     for (const name of ['reversed', 'neutral'])
         reworded(name, (kk) => {
@@ -476,6 +500,9 @@ function buildAll(): void {
                 runCase(c, 'EXPERIMENT', `quota run ${setName} under the ${name} wording`, { authorizedSet: set, attribute: attributeWith(lensPoolOf(`A02-0~${name}`), set, true) }, realChain, kk)
             }
             runCase(withoutConsumption(caseOf('A02-0'), `L2~${name}`), 'LEGACY', `the chain's own route under the ${name} wording (the positive control)`, {}, observing, kk)
+            // Stage W1 (c1): the Game Problem Coverage-row arm under the same wording.
+            const cl = coverageLensesCase(name)
+            runCase(cl, 'EXPERIMENT', cl.label, {}, realChain, kk)
         })
     // Test 2: a TEST-ONLY selectFor wrapper that drops the upstream decisions, on a wording where the chain's own pick equals Step 2's form.
     reworded('pressure', (kk) => {
@@ -543,18 +570,23 @@ function writeMeasurement(file: string): void {
 
 const WORDED = (ids: string[]) => ['reversed', 'neutral'].flatMap((w) => ids.map((id) => `${id}~${w}`))
 export const QUOTA_REFUSED = ['S4-WZA', 'S4-TR', 'S4-CDC', 'S4-CDC+IR']
+/** Stage W1 (c1): the Coverage-row arm of A02-0 under the goal's wording and the two rewordings. */
+export const GPCL_RUNS = ['', '~reversed', '~neutral'].map((w) => `A02-0${GPCL}${w}`)
 /** Every experiment run that reached the chain (measured: every one but GP-001, which stops at the handoff). */
 const REACHED_CHAIN = [
     'A02-0', 'A02-1', 'A02-1b', 'A02-2', 'A02-D',
     ...QUOTA_SETS.map(([name]) => `S4-${name}`), 'S4-NP@A02-D', 'S4-NP+WZA@A02-D',
     'GP-002', 'GF7-CELL', 'A02-2/narrowed', 'A02-2/no-line-crossed', 'NO-RESTATEMENT',
     ...WORDED(['A02-0', 'A02-1', 'A02-2', ...QUOTA_SETS.map(([name]) => `S4-${name}`)]), 'A02-0~pressure',
+    // Stage W1 (c1): the Game Problem Coverage-row arm under the three wordings.
+    ...GPCL_RUNS,
 ]
 /** The experiment runs whose account displays the approved condition as in this activity (measured: every run past selection with RPC-002's restatement). */
 const DISPLAYED = [
     'A02-0', 'A02-1', 'A02-1b', 'A02-2', 'A02-D', 'S4-NP', 'S4-NP+WZA', 'S4-NP+TR', 'S4-NP@A02-D', 'S4-NP+WZA@A02-D',
     'GP-002', 'GF7-CELL', 'A02-2/narrowed', 'A02-2/no-line-crossed',
     ...WORDED(['A02-0', 'A02-1', 'A02-2', 'S4-NP', 'S4-NP+WZA']), 'A02-0~pressure',
+    ...GPCL_RUNS,
 ]
 const LEGACY_REACHED = ['GP-002/legacy', 'GF7-CELL/legacy', 'L1', 'L2', 'L3', 'A01', 'TA01', 'A05-0', 'D02', 'TA02', 'L2~reversed', 'L2~neutral', 'L2~pressure']
 const LENSES_BEFORE = 'Possession Stability Opportunity, Space Creation Opportunity, Regain Opportunity'
@@ -665,20 +697,22 @@ export const OPEN_DISCONNECTIONS: OpenDisconnection[] = [
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
 /**
- * Per decision row, the experiment runs that reach it (of 41; GP-001 stops at the handoff; a scoring clause is reached where a game is
- * built, a treatment withholds it, or the run's refusal cites its own line; the realizer's own refusal reaches realization).
+ * Per decision row, the experiment runs that reach it (of 44; GP-001 stops at the handoff; a scoring clause is reached where a game is
+ * built, a treatment withholds it, or the run's refusal cites its own line; the realizer's own refusal reaches realization). Re-pinned in
+ * stage W1 (c1): of 41 -> of 44, each row reached by the three Coverage-row runs (refused at structure on the origin and control lines, as
+ * A02-0) gains 3; progression and realization unchanged.
  */
 const REACH: Record<string, number> = {
-    GAME_PROBLEM: 40,
-    GAME_PROBLEM_HINTS: 40,
-    CONTEXT: 40,
-    GAME_FORM: 40,
-    CONSTRAINTS: 40,
-    SELECTION_OUTCOME: 40,
-    'SCORING(origin)': 22,
+    GAME_PROBLEM: 43,
+    GAME_PROBLEM_HINTS: 43,
+    CONTEXT: 43,
+    GAME_FORM: 43,
+    CONSTRAINTS: 43,
+    SELECTION_OUTCOME: 43,
+    'SCORING(origin)': 25,
     'SCORING(progression)': 12,
-    'SCORING(control)': 20,
-    SCORING_DISPLAY: 25,
+    'SCORING(control)': 23,
+    SCORING_DISPLAY: 28,
     REALIZATION: 9,
 }
 /** Test 1's assertion on the legacy route with the production records (measured): it fails, naming the form first among the owned decisions. */
@@ -713,17 +747,20 @@ const STAND_IN_COUNTS: Array<[string, number]> = [
  * chain and the 3 consuming controls now read CONSUMED); the violations fall by the 43 hints rows those runs read AGREES_INDEPENDENTLY (39 + 3)
  * or CONTRADICTED (GP-002) before. Re-pinned openly in stage W1 (b): [128, 75] -> [138, 94], all of it the five DRAFT-record controls (the
  * comparison arm, as the base runs were before the stage): 10 violation verdicts (CONTEXT and SCORING_DISPLAY, two each) and 19 detected
- * (K2_NOT_TAKEN 5, WITHHELD_BY_TREATMENT 9, REFUSED_ON_CLAUSE_LINE 3, CARRIED_UNDER_TREATMENT 2); the experiment path is unchanged.
+ * (K2_NOT_TAKEN 5, WITHHELD_BY_TREATMENT 9, REFUSED_ON_CLAUSE_LINE 3, CARRIED_UNDER_TREATMENT 2); the experiment path is unchanged. Re-pinned
+ * openly in stage W1 (c1): [138, 94] -> [144, 100], all of it the three Coverage-row runs (as A02-0: CONTEXT and SCORING_DISPLAY two
+ * violation verdicts each; REFUSED_ON_CLAUSE_LINE on origin and control, two detected each).
  */
-const REPORT_COUNTS: number[] = [138, 94]
-const DETECTED_BY_VERDICT = 'ENGINE_RULE_DECIDED 14, CARRIED_UNDER_TREATMENT 7, WITHHELD_BY_TREATMENT 38, REFUSED_ON_CLAUSE_LINE 30, K2_NOT_TAKEN 5'
+const REPORT_COUNTS: number[] = [144, 100]
+const DETECTED_BY_VERDICT = 'ENGINE_RULE_DECIDED 14, CARRIED_UNDER_TREATMENT 7, WITHHELD_BY_TREATMENT 38, REFUSED_ON_CLAUSE_LINE 36, K2_NOT_TAKEN 5'
 /**
  * The same counts per group, in the order the runs are built: the experiment path, the controls, the legacy route (runs, violations, detected).
  * Re-pinned in stage W1 (a): experiment [41, 105, 108] -> [41, 65, 68]; controls [4, 15, 10] -> [4, 12, 7]; legacy unchanged. Stage W1 (b):
- * controls [4, 12, 7] -> [9, 22, 26] (the five DRAFT-record controls); the experiment path and the legacy route unchanged.
+ * controls [4, 12, 7] -> [9, 22, 26] (the five DRAFT-record controls); the experiment path and the legacy route unchanged. Stage W1 (c1):
+ * experiment [41, 65, 68] -> [44, 71, 74] (the three Coverage-row runs).
  */
 const COUNTS_BY_GROUP: number[][] = [
-    [41, 65, 68],
+    [44, 71, 74],
     [9, 22, 26],
     [21, 51, 0],
 ]
@@ -763,7 +800,8 @@ export const withheldOf = (id: string) => at(id).findings.filter((f) => f.verdic
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
 test('1. every experiment run: the Game Form, the constraints, the Game Problem and the Game Problem that governs the hints CONSUMED (each NOT_REACHED where not reached); every violation and every lens-reading engine refusal listed as an open disconnection by its measured pair, and no entry stale; the legacy entries held the same way (reported only); every WITHHELD_BY_TREATMENT pinned per run; each decision reached by at least one run', () => {
-    assert.equal(EXPERIMENT_RUNS.length, 41, 'the experiment runs (measured)')
+    // Re-pinned in stage W1 (c1): 41 -> 44 (the three Coverage-row runs of GP_COVERAGE_LENSES).
+    assert.equal(EXPERIMENT_RUNS.length, 44, 'the experiment runs (measured)')
     for (const id of EXPERIMENT_RUNS) assertExperimentRun(at(id).findings)
     const experimentFindings = EXPERIMENT_RUNS.flatMap((id) => at(id).findings)
     assert.deepEqual(stale(experimentFindings, OPEN_DISCONNECTIONS.filter((e) => e.scope === 'EXPERIMENT' && e.verdicts.length)), [], 'no experiment entry names a run where it is no longer detected')
@@ -817,8 +855,11 @@ test('1. every experiment run: the Game Form, the constraints, the Game Problem 
         EXPERIMENT_RUNS.filter((id) => clausesWith(id, 'REFUSED_ON_CLAUSE_LINE').length).map((id) => [id, clausesWith(id, 'REFUSED_ON_CLAUSE_LINE').join('+')]),
         [
             ['A02-0', OC], ['A02-1', 'control'], ['S4-NP', OC], ['S4-NP+WZA', OC],
-            ['A02-0~reversed', OC], ['A02-1~reversed', 'control'], ['S4-NP~reversed', OC], ['S4-NP+WZA~reversed', OC],
-            ['A02-0~neutral', OC], ['A02-1~neutral', 'control'], ['S4-NP~neutral', OC], ['S4-NP+WZA~neutral', OC],
+            // Stage W1 (c1): each Coverage-row run, refused on the same two lines as A02-0 (built after the goal's wording runs and within
+            // each rewording's runs).
+            [GPCL_RUNS[0], OC],
+            ['A02-0~reversed', OC], ['A02-1~reversed', 'control'], ['S4-NP~reversed', OC], ['S4-NP+WZA~reversed', OC], [GPCL_RUNS[1], OC],
+            ['A02-0~neutral', OC], ['A02-1~neutral', 'control'], ['S4-NP~neutral', OC], ['S4-NP+WZA~neutral', OC], [GPCL_RUNS[2], OC],
             ['A02-0~pressure', OC],
         ],
     )
@@ -1349,6 +1390,94 @@ test('K2 (stage W1 (b)): the five base runs stand on the review pathway\'s K2 re
 })
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
+// Stage W1 (c1): the Game Problem Coverage-row lenses, a declared TEST-ONLY treatment beside the consumption (both arms measured, Q-a2)
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
+const WORDING_SUFFIXES: Array<[string, string]> = [
+    ['the goal\'s wording', ''],
+    ['reversed', '~reversed'],
+    ['neutral', '~neutral'],
+]
+const shortLens = (id: string) => id.split('tl-v0-lens-').join('').split('-opportunity').join('')
+/**
+ * The two arms measured (for Christian's Q-a2, how the kept checks read lenses): per wording, each arm's lens candidate pool, its signal
+ * groups, the lenses it committed (in order: the first is the primary lens the foundation threshold and row o read) and its stop; and per
+ * S4 set, how many lens combinations the exported package check admits on each arm's committed lenses (2- and 3-combinations, as the
+ * selector enumerates them) and on every combination of the Coverage row's lenses (the reading a permissive or a strict rule would test).
+ */
+export function c1Table(): { rows: string[]; packageRows: string[] } {
+    const rows: string[] = []
+    for (const [name, suffix] of WORDING_SUFFIXES)
+        for (const [arm, id] of [
+            ['wording arm (default)', `A02-0${suffix}`],
+            ['Coverage-row arm (GP_COVERAGE_LENSES)', `A02-0${GPCL}${suffix}`],
+        ]) {
+            const r = at(id)
+            const x = r.result.consumption
+            rows.push(`${name} | ${arm} | ${id} | pool ${x?.lensCandidateIds.length}: ${(x?.lensCandidateIds ?? []).map(shortLens).join(', ')} | signal groups ${signalGroupsOf(x?.hintsSignals).join(', ')} | committed ${(r.answer?.observed?.lensIds ?? []).map(shortLens).join(', ')} | stop ${r.result.chain?.outcome} at ${r.result.chain?.stage}`)
+        }
+    const combos = (lenses: string[]) => [...subsets(lenses, 2), ...subsets(lenses, 3)]
+    const admits = (lenses: string[], set: string[]) => combos(lenses).filter((lc) => isSelectionPackageCompatible({ archetype: archetypeOf('GF2'), affordanceLenses: lc.map(lensOf), constraints: set.map(constraintOf), requireShaping: false }).compatible).length
+    const committed = (id: string) => [...(at(id).answer?.observed?.lensIds ?? [])]
+    const cv015 = coverageOf('GP-015').lenses
+    const packageRows = QUOTA_SETS.map(
+        ([name, set]) =>
+            `${name}: wording arm, goal's wording ${admits(committed('A02-0'), set)}/${combos(committed('A02-0')).length}; wording arm, reworded ${admits(committed('A02-0~reversed'), set)}/${combos(committed('A02-0~reversed')).length}; Coverage-row arm, goal's wording ${admits(committed(`A02-0${GPCL}`), set)}/${combos(committed(`A02-0${GPCL}`)).length}; Coverage-row arm, reworded ${admits(committed(`A02-0${GPCL}~reversed`), set)}/${combos(committed(`A02-0${GPCL}~reversed`)).length}; every combination of CV-015's ${cv015.length} lenses ${admits(cv015, set)}/${combos(cv015).length}`,
+    )
+    return { rows, packageRows }
+}
+/** The table, measured, then pinned (stage W1 (c1)). */
+const C1_ROWS: string[] = [
+    `the goal's wording | wording arm (default) | A02-0 | pool 3: possession-stability, regain, space-creation | signal groups signalGroup:B_pressure | committed possession-stability, space-creation, regain | stop refused at structure`,
+    `the goal's wording | Coverage-row arm (GP_COVERAGE_LENSES) | A02-0+GPCL | pool 5: possession-stability, space-creation, space-exploitation, line-breaking, regain | signal groups signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure | committed possession-stability, line-breaking, space-creation | stop refused at structure`,
+    'reversed | wording arm (default) | A02-0~reversed | pool 5: possession-stability, space-creation, space-exploitation, line-breaking, regain | signal groups signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure | committed line-breaking, possession-stability, space-creation | stop refused at structure',
+    'reversed | Coverage-row arm (GP_COVERAGE_LENSES) | A02-0+GPCL~reversed | pool 5: possession-stability, space-creation, space-exploitation, line-breaking, regain | signal groups signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure | committed line-breaking, possession-stability, space-creation | stop refused at structure',
+    'neutral | wording arm (default) | A02-0~neutral | pool 5: possession-stability, space-creation, space-exploitation, line-breaking, regain | signal groups signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure | committed line-breaking, possession-stability, space-creation | stop refused at structure',
+    'neutral | Coverage-row arm (GP_COVERAGE_LENSES) | A02-0+GPCL~neutral | pool 5: possession-stability, space-creation, space-exploitation, line-breaking, regain | signal groups signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure | committed line-breaking, possession-stability, space-creation | stop refused at structure',
+]
+const C1_PACKAGE_ROWS: string[] = [
+    "NP: wording arm, goal's wording 4/4; wording arm, reworded 4/4; Coverage-row arm, goal's wording 4/4; Coverage-row arm, reworded 4/4; every combination of CV-015's 5 lenses 20/20",
+    "WZA: wording arm, goal's wording 0/4; wording arm, reworded 0/4; Coverage-row arm, goal's wording 0/4; Coverage-row arm, reworded 0/4; every combination of CV-015's 5 lenses 0/20",
+    "TR: wording arm, goal's wording 0/4; wording arm, reworded 0/4; Coverage-row arm, goal's wording 0/4; Coverage-row arm, reworded 0/4; every combination of CV-015's 5 lenses 0/20",
+    "CDC: wording arm, goal's wording 0/4; wording arm, reworded 0/4; Coverage-row arm, goal's wording 0/4; Coverage-row arm, reworded 0/4; every combination of CV-015's 5 lenses 0/20",
+    "NP+WZA: wording arm, goal's wording 4/4; wording arm, reworded 4/4; Coverage-row arm, goal's wording 4/4; Coverage-row arm, reworded 4/4; every combination of CV-015's 5 lenses 20/20",
+    "NP+TR: wording arm, goal's wording 3/4; wording arm, reworded 0/4; Coverage-row arm, goal's wording 0/4; Coverage-row arm, reworded 0/4; every combination of CV-015's 5 lenses 10/20",
+    "CDC+IR: wording arm, goal's wording 0/4; wording arm, reworded 0/4; Coverage-row arm, goal's wording 0/4; Coverage-row arm, reworded 0/4; every combination of CV-015's 5 lenses 0/20",
+]
+
+test('W1 (c1): under the declared TEST-ONLY treatment GP_COVERAGE_LENSES the lens candidates and signal groups are Step 1\'s Coverage row\'s (CV-015) for the goal\'s wording and both rewordings, so they no longer follow the wording; without it they do (the negative control); it is not the default; both arms measured and the table pinned (the choice between them is Christian\'s, Q-a2)', () => {
+    const cv015 = coverageOf('GP-015')
+    assert.equal(cv015.coverageId, 'CV-015')
+    for (const id of GPCL_RUNS) {
+        const x = at(id).result.consumption
+        assert.ok(at(id).request?.consume?.coverageLenses === true, `${id}: the request carries the treatment`)
+        assert.deepEqual([x?.hintsLensesFrom, x?.hintsGameProblemId, x?.lensCandidateIds, signalGroupsOf(x?.hintsSignals)], ['STEP1_COVERAGE_ROW', 'GP-015', cv015.lenses, cv015.groups], id)
+        // The owned decisions and the stop are those of A02-0: the treatment moves the lenses only.
+        assert.deepEqual([at(id).result.chain?.outcome, at(id).result.chain?.stage, at(id).result.chain?.reasons, at(id).run.chain?.form, at(id).result.consumption?.constraintAuthority], [at('A02-0').result.chain?.outcome, at('A02-0').result.chain?.stage, at('A02-0').result.chain?.reasons, 'GF2', 'REVIEW_PATHWAY_K2'], id)
+    }
+    // Wording-invariant under the treatment: one pool and one set of signal groups for all three wordings.
+    assert.equal(new Set(GPCL_RUNS.map((id) => json([at(id).result.consumption?.lensCandidateIds, signalGroupsOf(at(id).result.consumption?.hintsSignals)]))).size, 1)
+    // The negative control: without the treatment the pool follows the wording (the wording's own three where Step 1 and the wording agree,
+    // CV-015's five under a rewording that infers no Game Problem).
+    const pools = WORDING_SUFFIXES.map(([, suffix]) => json(at(`A02-0${suffix}`).result.consumption?.lensCandidateIds))
+    assert.equal(new Set(pools).size, 2, 'without the treatment the lens pool moves with the wording')
+    // Not the default: every other consuming run reads the governed hints.
+    for (const id of EXPERIMENT_RUNS.filter((x) => GPCL_RUNS.indexOf(x) < 0 && at(x).result.consumption)) assert.equal(at(id).result.consumption?.hintsLensesFrom, 'GOVERNED_HINTS', id)
+    // The validator refuses the treatment outside a consuming run, and twice.
+    const c: any = coverageLensesCase()
+    c.testOnlyTreatments = c.testOnlyTreatments.filter((t: any) => t.kind !== 'CONSUMED_STEPS' && t.kind !== 'K2_RETAIN_FORM')
+    assert.throws(() => validateHandoffInputs(composed([...raw.cases, c])), /GP_COVERAGE_LENSES is declared at most once, and only beside CONSUMED_STEPS/)
+    const twice: any = coverageLensesCase()
+    twice.testOnlyTreatments.push({ ...COVERAGE_LENSES, id: 'TT-GP-COVERAGE-LENSES-AGAIN' })
+    assert.throws(() => validateHandoffInputs(composed([...raw.cases, twice])), /GP_COVERAGE_LENSES is declared at most once/)
+    // The table (measured, then pinned).
+    const table = c1Table()
+    assert.deepEqual(table.rows, C1_ROWS)
+    assert.deepEqual(table.packageRows, C1_PACKAGE_ROWS)
+    if (process.env.A02_W1_C1_TABLE) fs.writeFileSync(process.env.A02_W1_C1_TABLE, [...table.rows, '', ...table.packageRows].join('\n'))
+})
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
 // The disposition table
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1376,9 +1505,9 @@ test('the disposition table: every selection check kept and enforced except the 
     holds('validate-constraint-package.ts', 365, 'does not support the selected affordance tag group')
     // Re-pinned openly in stage W1 (a) (lines moved by the TEST-ONLY hunks added above them): 384 -> 398, 212 -> 218, 228 -> 238; and the
     // TEST-ONLY call with Step 1's Game Problem, 246. Stage W1 (b): 398 -> 452 (K2's hunks above it); K2's authority written at 386 only, and
-    // the selector's zero branch admitting K2's empty set at 1029.
-    holds('derivation/run-bounded-selection.ts', 452, `if (resolutionStatus !== 'matched')`)
-    holds('derivation/run-bounded-selection.ts', 386, `constraintAuthority: { authority: 'REVIEW_PATHWAY_K2', learningGoalId: goalId`)
+    // the selector's zero branch admitting K2's empty set at 1029. Stage W1 (c1): 452 -> 459 and 386 -> 391 (the treatment's field above).
+    holds('derivation/run-bounded-selection.ts', 459, `if (resolutionStatus !== 'matched')`)
+    holds('derivation/run-bounded-selection.ts', 391, `constraintAuthority: { authority: 'REVIEW_PATHWAY_K2', learningGoalId: goalId`)
     holds('test-library/generateSelection.ts', 1029, 'const authorizesNone = (recordBacked || reviewPathwayK2EmptySet(constraintPool)) && constraintPool.candidateIds.length === 0')
     holds('sport-module/guided-selection.ts', 218, 'export function guidedSelectionHints')
     holds('sport-module/guided-selection.ts', 238, 'governByApprovedGameProblem(learningGoalId')
@@ -1426,7 +1555,7 @@ export function stopsOf(): Stop[] {
             kind: 'PATH',
             // Batch A4 (the lead's decision, from the delivery review): read as decision authority [4], no longer Missing knowledge [1].
             categories: [4],
-            why: 'the production route accepts manipulations only on a per-goal authorization record\'s authority (the live route hands it only a record-backed selection, live-activity.ts:55-56), and A02 has none; called on the production records, its candidates are A02\'s own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal\'s candidates), and they cannot be combined on any of RPC-002\'s declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the production route is unchanged. On the isolated pathway, since stage W1 (b), the chain takes the review pathway\'s K2 result in place of a per-goal record (no manipulation proposed for A02; K2 approved for review-only use; our reading of E5, reversible: the DRAFT-record arm is kept as comparison and reads K2_NOT_TAKEN), and without K2 or a record it still refuses (run-bounded-selection.ts:389-390); L2 passes this stop on our TEST-ONLY DRAFT record (nothing consumed), NO-RESTATEMENT and A02-0 on K2\'s result with no record of ours; the category is OURS (an assumption)',
+            why: 'the production route accepts manipulations only on a per-goal authorization record\'s authority (the live route hands it only a record-backed selection, live-activity.ts:55-56), and A02 has none; called on the production records, its candidates are A02\'s own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal\'s candidates), and they cannot be combined on any of RPC-002\'s declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the production route is unchanged. On the isolated pathway, since stage W1 (b), the chain takes the review pathway\'s K2 result in place of a per-goal record (no manipulation proposed for A02; K2 approved for review-only use; our reading of E5, reversible: the DRAFT-record arm is kept as comparison and reads K2_NOT_TAKEN), and without K2 or a record it still refuses (run-bounded-selection.ts:394-395); L2 passes this stop on our TEST-ONLY DRAFT record (nothing consumed), NO-RESTATEMENT and A02-0 on K2\'s result with no record of ours; the category is OURS (an assumption)',
         },
         {
             id: 'L2',
@@ -1500,6 +1629,12 @@ export function reportLines(): string[] {
         'QUOTA (S4): one and two manipulations entered only through the DRAFT record\'s authorized set, with the TEST-ONLY size-rule bypass; a lone Neutral Player is selected with the bypass and refused without it; a lone Wide Zone Advantage or Turnover Reward is refused by the foundation clause, Central Density Condition (alone and with Interception Reward) by row o, each attributed by re-running the exported package check; Neutral Player with Wide Zone Advantage or with Turnover Reward is selected whole.',
         'QUOTA (S4): no manipulation is justified for A02 in anything we hold; every manipulation here rests on a TEST-ONLY relationship stand-in (TEST ASSUMPTION), never knowledge, and every line it brings is graded class 4 at best.',
         `WORDING (test 5): the lens list moves from ${LENSES_BEFORE} to ${LENSES_AFTER} under both rewordings; the owned decisions do not move; the selection of Neutral Player with Turnover Reward flips (OD-WORDING-FLIP).`,
+        // Stage W1 (c1): the two arms measured, for Christian's Q-a2 (which lenses the kept checks read); the ranking changes are not made.
+        'LENS ARMS (stage W1 (c1), the TEST-ONLY treatment GP_COVERAGE_LENSES beside the consumption, never its default): A02-0 under the goal\'s wording and the two rewordings, the wording arm (the default) against the Coverage-row arm (the lens candidates and signal groups of Step 1\'s Coverage row, CV-015, in both branches); per row: wording, arm, run, the lens candidate pool, the signal groups, the lenses committed (the first is the primary lens the foundation threshold and row o read), the stop:',
+        ...c1Table().rows.map((row) => `   ${row}`),
+        'LENS ARMS, per S4 set: the lens combinations the exported package check admits on each arm\'s committed lenses, and on every combination of CV-015\'s lenses (what a permissive or a strict reading of the Game Problem\'s lenses would test):',
+        ...c1Table().packageRows.map((row) => `   ${row}`),
+        'LENS ARMS, read: under the treatment the candidate pool and the signal groups are the same for every wording, and the committed lenses are the same three; their order still follows the wording (the ranking by wording tokens and the top-3 cap, not changed here), so the primary lens the kept checks read still moves with it. Which lenses the kept checks should read (the wording\'s top three, any combination of the Game Problem\'s, or every combination) is Christian\'s question Q-a2, open since 10 November 2026; the arms are measured for it and neither is adopted as the default.',
     ]
     return safeguardsText({ runs: groupedRuns(), entries: OPEN_DISCONNECTIONS, categories: CATEGORIES, stops: stopsOf(), notes })
 }
