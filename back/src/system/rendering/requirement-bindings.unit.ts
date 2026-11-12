@@ -11,7 +11,8 @@
  * Pinned: the real file passes (B1); each check refuses (B2); a malformed file throws, and so does a TEST-ONLY build handed one (B3); the
  * bundle carries the file (B4); the TEST-ONLY draft bindings pass in DRAFT mode only, and merge with the production file only in MERGED mode
  * (B5-B8, the R-engine review's M1); every workbook the gate reads is a bundled module, and only the bindings are read from disk (B9, M2);
- * no REQUIRED restatement rests only on an example (B13, 11 November 2026), and what rests only on one is kept as one (B13b, S2).
+ * no REQUIRED restatement rests only on an example (B13, 11 November 2026), and what rests only on one is kept as one (B13b, S2); no
+ * restatement names an action word its cited rows lack (B13c, A02 package W3).
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/requirement-bindings.unit.ts
  */
@@ -22,6 +23,7 @@ import path from 'node:path'
 
 import { loadDraftRequirementBindings, loadDraftStore, mergeRequirementBindings } from '../derivation/draft-store'
 import { spanIsExample } from '../derivation/example-clauses'
+import { actionClassesIn, namesGenericAction } from '../sport-module/action-words'
 import rpcWorkbook from '../sport-module/rpc-library.rc1.json'
 import { learningGoalAuthorizations, observationCriteriaApprovals, quotesOfHisReplies, validateObservationCriteriaApprovals } from '../test-library/learning-goal-authorizations'
 import { buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from './build-activity'
@@ -437,10 +439,13 @@ const quotations = (text: string): string[] => [...text.matchAll(/"([^"]+)"|“(
  * row that holds it, is an example, or its value is words those rows give as an example. A source citing a row of the RPC library's
  * properties is read against the whole row.
  */
-const restsOnlyOnAnExample = (item: any): boolean => {
-    const texts: string[] = (item.source ?? []).map((source: any) =>
+/** The texts of the rows a draft item cites: a row of the RPC library's properties read whole, any other source by the words it quotes. */
+const citedRowTexts = (item: any): string[] =>
+    (item.source ?? []).map((source: any) =>
         source.file === LIBRARY_FILE && source.table === 'properties' ? rowText(String(source.rowId).trim().split(/\s+/)[0]) ?? String(source.text) : String(source.text),
     )
+const restsOnlyOnAnExample = (item: any): boolean => {
+    const texts: string[] = citedRowTexts(item)
     // Each quotation of its evidence, read in every cited row that holds it: true where every such reading is an example.
     const readings = quotations(String(item.basisEvidence ?? ''))
         .map(quotation => texts.map(text => spanIsExample(text, quotation)).filter(reading => reading !== null))
@@ -513,6 +518,61 @@ test('B13b (S2, 11 November 2026): what rests only on an example is exactly the 
     const constitutedTypes = store.contracts.flatMap(contract => constitutedConditionTypes(contract).map(entry => entry.type))
     assert.deepEqual(components, ['origin'])
     assert.deepEqual(constitutedTypes, ['origin'])
+})
+
+// ── B13c: a restatement's action word keeps its class (A02 package, stage W3, 11 November 2026) ─────────────────────────────────────
+/**
+ * The restatement sibling of primary-scoring.unit.ts's Test 2c. High Press Escape's coach rules said 'with the next pass' where the approved
+ * row says "the attacking team retains possession through the next action." (RPC-PROP-133, approved 13 September 2026); Christian: "That
+ * appears to introduce an unsupported restriction on the players' possible solutions." and "What automated safeguard could have detected
+ * this problem before it affected another activity?" (received 11 November 2026, second reply). A restatement can narrow an action the same
+ * way. So no item of either TEST-ONLY draft store (a02-composition, the RPC-002 restatement; ta02-composition, the RPC-003 one) may name, in
+ * its value or a quotation of its basisEvidence, a specific action (action-words.ts: pass, dribble, shot, kick, cross, clearance, header,
+ * carry) that no row it cites names in the same class; a generic 'action' grounds none. Its cited rows are read as B13 reads them (a row of
+ * the RPC library's properties whole). Measured 11 November 2026: no item names a specific action, so the pinned list is empty; A02's
+ * RPC-002-04.b ('retains possession through the next action') is read and passes, and a TEST-ONLY copy of it reading 'through the next
+ * pass' fails. Not read here, as in B13: A01's production contract items, which carry no structured source. Its limit is the reader's: it
+ * sees words, not meaning.
+ */
+const ACTION_WORDS_BEYOND_THEIR_ROWS: Record<string, string> = {}
+const a02Store = loadDraftStore('a02-composition')
+/** The specific action classes an item's value or quoted evidence names that no row it cites names. */
+const actionClassesBeyondCitedRows = (item: any): string[] => {
+    const values: string[] = Array.isArray(item.value) ? item.value.map(String) : typeof item.value === 'string' ? [item.value] : []
+    const named = actionClassesIn([...values, ...quotations(String(item.basisEvidence ?? ''))].join(' | '))
+    const cited = actionClassesIn(citedRowTexts(item).join(' | '))
+    return named.filter(actionClass => !cited.includes(actionClass))
+}
+test("B13c (A02 package W3, 11 November 2026): no restatement's value or quoted evidence names an action word its cited rows lack (both TEST-ONLY draft stores); A02's 04.b passes, its 'through the next pass' copy fails", () => {
+    const found: string[] = []
+    let itemsRead = 0
+    for (const contracts of [a02Store.contracts, store.contracts]) {
+        for (const contract of contracts) {
+            for (const item of contract.items as any[]) {
+                itemsRead++
+                const beyond = actionClassesBeyondCitedRows(item)
+                if (beyond.length) found.push(`${item.itemId} ${beyond.join(',')}`)
+            }
+        }
+    }
+    assert.ok(itemsRead >= 20 && a02Store.contracts.length === 1, `the check read both stores (${itemsRead} items)`)
+    assert.deepEqual(found.sort(), Object.keys(ACTION_WORDS_BEYOND_THEIR_ROWS).sort(), 'the items naming an action word their cited rows lack are exactly the pinned list (empty)')
+
+    // A02's control value is read, names only the generic 'action', and passes.
+    const control = (a02Store.contracts[0]!.items as any[]).find(item => item.itemId === 'RPC-002-04.b')
+    assert.equal(control?.value, 'retains possession through the next action')
+    assert.deepEqual([actionClassesIn(control.value), namesGenericAction(control.value), actionClassesBeyondCitedRows(control)], [[], true, []])
+    // Negative controls (TEST-ONLY copies, never written): its value, or its quoted evidence, reading 'through the next pass' fails; so does a dribble.
+    const doctored = (alter: (item: any) => void) => {
+        const item = copy(control)
+        alter(item)
+        return actionClassesBeyondCitedRows(item)
+    }
+    assert.deepEqual(doctored(item => (item.value = 'retains possession through the next pass')), ['pass'], "a copy reading 'through the next pass' fails")
+    assert.deepEqual(doctored(item => (item.basisEvidence = '"retains possession through the next pass" (RPC-PROP-133)')), ['pass'], 'its quoted evidence is read too')
+    assert.deepEqual(doctored(item => (item.value = 'retains possession through the next dribble')), ['dribble'])
+    // A word the cited rows do name in its class passes: the gate event's own row names passing.
+    assert.deepEqual(doctored(item => ((item.value = 'passes through the gate'), (item.source = [{ file: 'x', table: 'controlled_vocabulary', text: 'The ball is passed or dribbled through a pair of cones or poles.' }]))), [])
 })
 
 console.log = quiet

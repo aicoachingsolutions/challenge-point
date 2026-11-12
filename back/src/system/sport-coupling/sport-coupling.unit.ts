@@ -72,6 +72,13 @@ const SPORT_LAYER_FILES = [
     // Hands the Soccer Module workbook to the sport-neutral design-reasoning stage (review pathway only). It names the module's file, so
     // it sits in the sport layer and the stage itself never names a sport.
     'system/sport-module/design-knowledge-sources.ts',
+    // TESTS ONLY (A02 package, stage W3, 11 November 2026): the action words of a coach rule or a restatement (pass, dribble, shot, ...),
+    // read by primary-scoring.unit.ts and requirement-bindings.unit.ts; the soccer action vocabulary is what it reads, so it is sport-specific
+    // by design. No engine module imports it (primary-scoring.unit.ts holds that by a scan).
+    'system/sport-module/action-words.ts',
+    // TESTS ONLY (stage W3): the reader and gate of our CANDIDATE High Press Escape coach rules; it reads the soccer RPC library and the
+    // live coach rules. No engine module imports it (the same scan).
+    'system/sport-module/candidate-coach-rules.ts',
 ]
 
 const SPORT_TERMS = [

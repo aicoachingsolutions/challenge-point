@@ -10,6 +10,8 @@
  * Run: part of `npm test`.
  */
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import path from 'node:path'
 
 import type { ActivitySkeletonSlot } from '../activity/build-activity-skeleton'
 import { findCommunicationStandardViolations } from '../activity/coach-communication-standard'
@@ -17,9 +19,12 @@ import { toCoachScoringSentence } from '../activity/coach-voice'
 import { compressActivityForCoach } from '../activity/compress-activity-output'
 import { validateActivityAgainstSkeleton, withScoringObjectInSetup } from '../activity/validate-activity-skeleton'
 import { exampleClauses, normaliseWhitespace, spanIsExample } from '../derivation/example-clauses'
+import { AUDITS_DIR } from '../derivation/knowledge-root'
 import { approvalUnusableBecause, type ReadingApproval } from '../rendering/approved-wording-readings'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { generateSelection, isSelectionKnowledgeGap } from '../test-library/generateSelection'
+import { ACTION_CLASSES, ACTION_WORD_FORMS, actionClassesIn, actionWordsIn, namesGenericAction, type ActionClass } from './action-words'
+import { CANDIDATE_COACH_RULES_FILE, candidateCoachRulesRefusals, CandidateCoachRulesRefused, libraryRow, loadCandidateCoachRules, overlaidCoachRules, type CandidateCoachRules } from './candidate-coach-rules'
 import { gateCandidateGameFormsToContext } from './context-selection'
 import { guidedSelectionHints } from './guided-selection'
 import {
@@ -34,6 +39,7 @@ import {
     resolvePrimaryScoringDirectives,
 } from './primary-scoring'
 import { rpcLibrary } from './rpc-library'
+import rpcWorkbook from './rpc-library.rc1.json'
 import { soccerModule } from './soccer-module'
 
 function compatiblePairs(): Array<{ rpcId: string; gameFormId: string }> {
@@ -148,20 +154,28 @@ function testCoachWordingIsCompleteApprovedAndCoachFacing(): void {
             assert.ok(keys.some((key) => key.startsWith(`${context.id}|${event}|`)), `${context.id} ${event} has no coach wording.`)
         }
     }
-    for (const [key, wording] of Object.entries(COACH_RULES)) {
-        assert.deepEqual(findCommunicationStandardViolations(wording.rule), [], `${key}: ${wording.rule}`)
-        assert.equal(toCoachScoringSentence(wording.rule), wording.rule, `${key} would be rewritten by the engine-voice translation.`)
-        assert.match(wording.rule, /\bpoint\b/, `${key} does not say how a point is earned.`)
-        assert.ok(wording.evidence.every((group) => group.length > 0), `${key} has an empty evidence group.`)
-        assert.ok(wording.evidence.length > 0, `${key} has no setup evidence.`)
-        // The setup's object must carry the rule's own name for it, so a coach can tell which one scores.
-        for (const group of wording.evidence) {
-            assert.ok(
-                group.some((word) => wording.rule.toLowerCase().includes(word) || wording.setup.toLowerCase().includes(word)),
-                `${key}: evidence "${group.join('/')}" is named in neither the rule nor the setup requirement.`
-            )
-        }
+    for (const [key, wording] of Object.entries(COACH_RULES)) assert.deepEqual(coachWordingFailures(key, wording), [], `${key}: ${wording.rule}`)
+}
+
+/**
+ * What a coach rule must be to be read aloud unchanged: no Coach Communication Standard violation, untouched by the engine-voice
+ * translation, saying how a point is earned, and its setup evidence named in the rule or the setup. One reading, applied to the live
+ * rules above and to our CANDIDATE wording (stage W3), where a rewrite would be a paraphrase, which is Christian's.
+ */
+function coachWordingFailures(key: string, wording: (typeof COACH_RULES)[string]): string[] {
+    const failures: string[] = []
+    const violations = findCommunicationStandardViolations(wording.rule)
+    if (violations.length) failures.push(`${key} breaks the Coach Communication Standard: ${JSON.stringify(violations)}`)
+    if (toCoachScoringSentence(wording.rule) !== wording.rule) failures.push(`${key} would be rewritten by the engine-voice translation.`)
+    if (!/\bpoint\b/.test(wording.rule)) failures.push(`${key} does not say how a point is earned.`)
+    if (!wording.evidence.every((group) => group.length > 0)) failures.push(`${key} has an empty evidence group.`)
+    if (!(wording.evidence.length > 0)) failures.push(`${key} has no setup evidence.`)
+    // The setup's object must carry the rule's own name for it, so a coach can tell which one scores.
+    for (const group of wording.evidence) {
+        if (!group.some((word) => wording.rule.toLowerCase().includes(word) || wording.setup.toLowerCase().includes(word)))
+            failures.push(`${key}: evidence "${group.join('/')}" is named in neither the rule nor the setup requirement.`)
     }
+    return failures
 }
 
 /**
@@ -223,6 +237,8 @@ const COACH_RULE_GROUNDS: Readonly<Record<string, [clause: string, kind: 'EVENT'
     'RPC-001|gate|': [['keeps the ball', 'CONDITION', 'with possession controlled on arrival']],
     'RPC-001|target_player|': [['controls it', 'EVENT', RECEIVES_AND_CONTROLS.target_player]],
     // presence of the words only: 'the next pass' is narrower than "through the next action" (received 13 September 2026); reported 11 November 2026, not changed.
+    // Since stage W3 (11 November 2026) Test 2c reads the action word and pins all four 'awaiting release'; our CANDIDATE wording
+    // (rpc-002-coach-rules.CANDIDATE.json) says the row's 'through the next action', and this table's clause becomes that there.
     'RPC-002|line_crossed|': [
         ['controls it', 'EVENT', RECEIVES_AND_CONTROLS.line_crossed],
         ['keeps the ball with the next pass', 'CONDITION', 'the attacking team retains possession through the next action'],
@@ -277,13 +293,23 @@ const GROUNDED_ON_AN_EXAMPLE: Readonly<Record<string, string>> = {}
  * and the pinned list is empty. A rule found on an example again fails until the pinned list is brought up to date.
  */
 function testEveryPossessionOrControlClauseNamesItsGround(): void {
+    assert.equal(spanIsExample(rpcLibrary.primaryScoringCondition('RPC-003'), 'while maintaining attacking possession'), true, 'the reading still sees the example of the corrected row')
+    const { failures, onAnExample } = possessionOrControlFindings(COACH_RULES, COACH_RULE_GROUNDS)
+    assert.deepEqual(failures, [], 'every possession or control clause of a coach rule names a verbatim ground')
+    assert.deepEqual([...new Set(onAnExample)].sort(), Object.keys(GROUNDED_ON_AN_EXAMPLE).sort(), 'the rules grounded on words given only as an example are exactly the pinned list')
+}
+
+type CoachRuleTable = Readonly<Record<string, (typeof COACH_RULES)[string]>>
+type CoachRuleGrounds = typeof COACH_RULE_GROUNDS
+
+/** Test 2b's reading, over any table of rules and grounds (the live rules, or our CANDIDATE wording since stage W3). */
+function possessionOrControlFindings(rules: CoachRuleTable, grounds: CoachRuleGrounds): { failures: string[]; onAnExample: string[] } {
     const definitions: Record<string, string> = Object.fromEntries(rpcLibrary.scoringEvents().map((event) => [event.key, event.definition]))
     const failures: string[] = []
     const onAnExample: string[] = []
-    assert.equal(spanIsExample(rpcLibrary.primaryScoringCondition('RPC-003'), 'while maintaining attacking possession'), true, 'the reading still sees the example of the corrected row')
-    for (const [key, wording] of Object.entries(COACH_RULES)) {
+    for (const [key, wording] of Object.entries(rules)) {
         const [rpcId, eventKey] = key.split('|')
-        const declared = COACH_RULE_GROUNDS[key] ?? []
+        const declared = grounds[key] ?? []
         const ruleAndSetup = wording.rule + ' ' + wording.setup
         const undeclared = declared.reduce((rest, [clause]) => rest.split(clause).join(''), ruleAndSetup)
         for (const pattern of POSSESSION_OR_CONTROL_CLAUSES) {
@@ -316,9 +342,8 @@ function testEveryPossessionOrControlClauseNamesItsGround(): void {
             if (spanIsExample(ground, span) || overlapsAnExample) onAnExample.push(key)
         }
     }
-    for (const key of Object.keys(COACH_RULE_GROUNDS)) if (!(key in COACH_RULES)) failures.push(`${key}: grounds declared for a rule that does not exist`)
-    assert.deepEqual(failures, [], 'every possession or control clause of a coach rule names a verbatim ground')
-    assert.deepEqual([...new Set(onAnExample)].sort(), Object.keys(GROUNDED_ON_AN_EXAMPLE).sort(), 'the rules grounded on words given only as an example are exactly the pinned list')
+    for (const key of Object.keys(grounds)) if (!(key in rules)) failures.push(`${key}: grounds declared for a rule that does not exist`)
+    return { failures, onAnExample }
 }
 
 const ATTACK_DEVELOPMENT_ZONE_AND_LINE = ['RPC-003|line_crossed|', 'RPC-003|target_zone_entered|']
@@ -451,6 +476,315 @@ function testControlledVocabularyApprovalCoversTwoMeaningsOnly(): void {
         const [rpcId, eventKey] = key.split('|')
         assert.equal(span, APPROVED_EVENT_MEANINGS.find((m) => m.rpcId === rpcId && m.eventKey === eventKey)!.controlledReception, `${key} rests on the recorded span`)
     }
+}
+
+// ── Test 2c: an action word keeps its class (A02 package, stage W3, 11 November 2026) ──────────────────────────────────────────────
+
+/**
+ * Christian's approved sentences that may ground a coach rule's action words (DECISION grounds), each verbatim with its date: today the
+ * three Attack Development rules approved under "Attacking Zone — Approved", "Attacking Line — Approved" and "Gate — Option 2 Approved"
+ * (received 11 November 2026, second reply), pinned in CHRISTIAN_APPROVED_RULES above. A DECISION ground grounds a rule only where the
+ * rule says it exactly, as 2b's RULING ground does.
+ */
+const DECISION_GROUNDS: Readonly<Record<string, { sentence: string; received: string }>> = Object.fromEntries(
+    Object.entries(CHRISTIAN_APPROVED_RULES).map(([key, sentence]) => [key, { sentence, received: 'received 11 November 2026, second reply' }])
+)
+
+const NEXT_PASS_AWAITING_RELEASE =
+    'AWAITING RELEASE: \'with the next pass\' names one kind of action where the approved condition names any, "the attacking team retains possession through the next action." ' +
+    '(RPC-PROP-133, approved 13 September 2026). Our CANDIDATE wording (docs/audits/drafts/a02-composition/rpc-002-coach-rules.CANDIDATE.json) says the row\'s ' +
+    "'through the next action', every other word kept; the live text is unchanged, held for the same release decision as the three approved Attack Development rules."
+const KICK_AGAINST_CLEARANCE =
+    "REPORTED ONLY, nothing changed (RPC-001 is A01's context): the rule excludes 'a long kick' where the approved condition excludes a clearance, \"A long clearance " +
+    'that happens to reach the target does not satisfy the event." (RPC-PROP-132, approved 13 September 2026): an exclusion wider than its source, since it also ' +
+    "excludes a long pass played on purpose. Christian's to review with A01."
+
+/**
+ * **The action-word findings of the live coach rules, each with why it stands** (stage W3, measured 11 November 2026). Any finding not
+ * listed, or a listed one no longer found, fails until the list is brought up to date. RPC-003's 'Passing it around' is not listed: it is
+ * Christian's approved wording (a DECISION ground) on the zone, line and gate, and the target player's own event definition names a pass.
+ */
+const ACTION_WORD_FINDINGS: Readonly<Record<string, string>> = {
+    'RPC-001|line_crossed| (ii) kick': KICK_AGAINST_CLEARANCE,
+    'RPC-001|target_zone_entered| (ii) kick': KICK_AGAINST_CLEARANCE,
+    'RPC-001|gate| (ii) kick': KICK_AGAINST_CLEARANCE,
+    'RPC-001|target_player| (ii) kick': KICK_AGAINST_CLEARANCE,
+    'RPC-002|line_crossed| (i) pass': NEXT_PASS_AWAITING_RELEASE,
+    'RPC-002|target_zone_entered| (i) pass': NEXT_PASS_AWAITING_RELEASE,
+    'RPC-002|gate| (i) pass': NEXT_PASS_AWAITING_RELEASE,
+    'RPC-002|target_player| (i) pass': NEXT_PASS_AWAITING_RELEASE,
+}
+const HIGH_PRESS_ESCAPE_KEYS = ['RPC-002|line_crossed|', 'RPC-002|target_zone_entered|', 'RPC-002|gate|', 'RPC-002|target_player|']
+
+interface ActionWordFinding {
+    id: string
+    message: string
+}
+
+/**
+ * Test 2c's reading, over any table of rules and grounds. (i) A declared clause (2b's table) keeps its class: each specific action word in
+ * it must be named, in its class, by its own ground, and a generic 'action' never grounds a specific word. (ii) Every other specific action
+ * word of the rule and its setup must be named, in its class, by the event's controlled-vocabulary definition, the context's approved
+ * condition, or a DECISION ground the rule says exactly. A finding is `${key} (i|ii) ${class}`.
+ */
+function actionWordFindings(rules: CoachRuleTable, grounds: CoachRuleGrounds, decisions = DECISION_GROUNDS): ActionWordFinding[] {
+    const definitions: Record<string, string> = Object.fromEntries(rpcLibrary.scoringEvents().map((event) => [event.key, event.definition]))
+    const findings: ActionWordFinding[] = []
+    for (const [key, wording] of Object.entries(rules)) {
+        const [rpcId, eventKey] = key.split('|')
+        const declared = grounds[key] ?? []
+        for (const [clause, kind, span] of declared) {
+            for (const actionClass of actionClassesIn(clause)) {
+                if (actionClassesIn(span).includes(actionClass)) continue
+                const generic = namesGenericAction(span) ? ", which names only the generic 'action'" : ''
+                findings.push({ id: `${key} (i) ${actionClass}`, message: `${key}: '${actionClass}' in the declared clause "${clause}" is not named by its ${kind} ground "${span}"${generic}` })
+            }
+        }
+        const undeclared = declared.reduce((rest, [clause]) => rest.split(clause).join(' '), wording.rule + ' ' + wording.setup)
+        const decision = decisions[key] && wording.rule === decisions[key]!.sentence ? decisions[key]!.sentence : ''
+        const grounded = new Set<ActionClass>([...actionClassesIn(definitions[eventKey!] ?? ''), ...actionClassesIn(rpcLibrary.primaryScoringCondition(rpcId!)), ...actionClassesIn(decision)])
+        for (const actionClass of actionClassesIn(undeclared)) {
+            if (grounded.has(actionClass)) continue
+            const words = actionWordsIn(undeclared).filter((word) => word.actionClass === actionClass).map((word) => `'${word.word}'`)
+            findings.push({ id: `${key} (ii) ${actionClass}`, message: `${key}: ${words.join(', ')} (${actionClass}) is named by neither its event's definition, its context's approved condition, nor a DECISION ground` })
+        }
+    }
+    return findings
+}
+
+/**
+ * **Test 2c: an action word of a coach rule keeps its class** (A02 package, stage W3, 11 November 2026). High Press Escape's rules say
+ * 'with the next pass' where the approved row says "through the next action" (RPC-PROP-133, approved 13 September 2026); Christian: "That
+ * appears to introduce an unsupported restriction on the players' possible solutions." and "What automated safeguard could have detected
+ * this problem before it affected another activity?" (received 11 November 2026, second reply). Test 2b reads possession and control
+ * clauses; it read 'keeps the ball with the next pass' as possession kept, grounded on the row's retention, and passed it: the action word
+ * inside the clause was never read. This test reads it, over every coach rule key, through the one tests-only reader (action-words.ts):
+ * (i) and (ii) as actionWordFindings says, (iii) the findings equal the pinned list, each with why it stands, (iv) the reader finds 'pass'
+ * in today's High Press Escape rule. Its limit is the reader's: it sees words, not meaning ('with the next touch' passes unread).
+ */
+function testAnActionWordKeepsItsClass(): void {
+    // (iv) The reader, on today's rule and on every form of every class.
+    assert.deepEqual(actionClassesIn(COACH_RULES['RPC-002|line_crossed|']!.rule), ['pass', 'dribble'], "the reader finds 'pass' in today's High Press Escape rule")
+    assert.ok(actionWordsIn(COACH_RULES['RPC-002|line_crossed|']!.rule).some((word) => word.actionClass === 'pass' && word.word === 'pass'))
+    const FORMS: Record<ActionClass, string[]> = {
+        pass: ['pass', 'passes', 'passed', 'passing'],
+        dribble: ['dribble', 'dribbles', 'dribbled', 'dribbling'],
+        shot: ['shot', 'shots', 'shoot', 'shoots', 'shooting'],
+        kick: ['kick', 'kicks', 'kicked', 'kicking'],
+        cross: ['cross', 'crosses', 'crossed', 'crossing'],
+        clearance: ['clearance', 'clearances', 'clears', 'cleared'],
+        header: ['header', 'headers', 'headed'],
+        carry: ['carry', 'carries', 'carried', 'carrying'],
+    }
+    assert.deepEqual(Object.keys(FORMS), [...ACTION_CLASSES], 'the fixture covers every class, in the reader\'s order')
+    assert.deepEqual(Object.keys(ACTION_WORD_FORMS), [...ACTION_CLASSES])
+    for (const [actionClass, forms] of Object.entries(FORMS)) {
+        for (const form of forms) {
+            for (const written of [form, form.toUpperCase(), form[0]!.toUpperCase() + form.slice(1)]) assert.deepEqual(actionClassesIn(`and then ${written}.`), [actionClass], `'${written}' reads as ${actionClass}`)
+        }
+    }
+    for (const word of ['past', 'across', 'passive', 'bypass', 'carrier', 'clear', 'clearly', 'heading', 'head', 'touch', 'line_crossed', 'action', 'actions'])
+        assert.deepEqual(actionClassesIn(`and then ${word}.`), [], `'${word}' names no specific class`)
+    assert.equal(namesGenericAction('through the next action'), true)
+    assert.equal(namesGenericAction('a transaction'), false)
+
+    // (i)-(iii) Over every coach rule key: the findings are exactly the pinned list.
+    const live = actionWordFindings(COACH_RULES, COACH_RULE_GROUNDS)
+    assert.deepEqual(live.map((f) => f.id).sort(), Object.keys(ACTION_WORD_FINDINGS).sort(), `the action-word findings are exactly the pinned list:\n${live.map((f) => f.message).join('\n')}`)
+    for (const [id, why] of Object.entries(ACTION_WORD_FINDINGS)) assert.ok(why.startsWith('AWAITING RELEASE') || why.startsWith('REPORTED ONLY'), `${id}: says why it stands`)
+    assert.deepEqual(Object.keys(ACTION_WORD_FINDINGS).filter((id) => ACTION_WORD_FINDINGS[id]!.startsWith('AWAITING RELEASE')), HIGH_PRESS_ESCAPE_KEYS.map((key) => `${key} (i) pass`), "the live High Press Escape four are pinned 'awaiting release'")
+    for (const finding of live.filter((f) => f.id.startsWith('RPC-002|'))) assert.match(finding.message, /names only the generic 'action'/, `${finding.id}: a generic 'action' never grounds a specific word`)
+    assert.ok(Object.keys(COACH_RULES).length >= 28 && live.length === 8, 'every coach rule key was read')
+
+    // The DECISION kind is what grounds Attack Development's 'Passing it around' on the zone and line (measured without it).
+    const withoutDecisions = actionWordFindings(COACH_RULES, COACH_RULE_GROUNDS, {})
+    assert.deepEqual(withoutDecisions.map((f) => f.id).filter((id) => !(id in ACTION_WORD_FINDINGS)).sort(), ['RPC-003|line_crossed| (ii) pass', 'RPC-003|target_zone_entered| (ii) pass'])
+    // ... and only where the rule says Christian's sentence exactly: one word changed and the DECISION ground no longer applies.
+    const drifted = { ...COACH_RULES, 'RPC-003|line_crossed|': { ...COACH_RULES['RPC-003|line_crossed|']!, rule: COACH_RULES['RPC-003|line_crossed|']!.rule.replace('Passing it around', 'Passing the ball around') } }
+    assert.ok(actionWordFindings(drifted, COACH_RULE_GROUNDS).some((f) => f.id === 'RPC-003|line_crossed| (ii) pass'), 'a DECISION ground not said exactly grounds nothing')
+    // (ii) catches a specific word in an undeclared clause (fixture: a kick added to a Chance Creation rule).
+    const kicked = { ...COACH_RULES, 'RPC-004|target_zone_entered|': { ...COACH_RULES['RPC-004|target_zone_entered|']!, rule: COACH_RULES['RPC-004|target_zone_entered|']!.rule.replace('A hopeful ball', 'A hopeful kick') } }
+    assert.deepEqual(actionWordFindings(kicked, COACH_RULE_GROUNDS).map((f) => f.id).filter((id) => !(id in ACTION_WORD_FINDINGS)), ['RPC-004|target_zone_entered| (ii) kick'])
+}
+
+/** Christian's item 4, verbatim, line by line as the reply gives it (received 11 November 2026, second reply). */
+const CHRISTIAN_HIGH_PRESS_ESCAPE_ITEM = [
+    'Your additional finding about High Press Escape is important, particularly because A02 is our current foundational test.',
+    'The approved wording refers to retaining possession through the next action, while the existing coach-facing rules specify the next pass.',
+    "That appears to introduce an unsupported restriction on the players' possible solutions.",
+    'Please include a focused source-to-code check in the A02 work and prepare the smallest correction that faithfully preserves the approved meaning.',
+    'Where the intended interpretation is already unambiguous, you may correct it within the isolated, non-deployed pathway and test it.',
+    'If the meaning of a qualifying action or its scoring consequence requires a new substantive coaching decision, retain that as a clearly identified question for my review.',
+    "I don't want to prescribe passing when a dribble or another functional action may legitimately solve the problem.",
+]
+/** Christian's other words the CANDIDATE file quotes, verbatim (received 11 November 2026, second reply). */
+const CHRISTIAN_OTHER_WORDS = ['It should not become a universal requirement for all gate-based activities.']
+
+/** The live High Press Escape rules, word for word: unchanged by stage W3, awaiting release. */
+const LIVE_HIGH_PRESS_ESCAPE_RULES: Readonly<Record<string, string>> = {
+    'RPC-002|line_crossed|': 'Earn a point when a player dribbles over the line behind the press, or receives the ball past it and controls it, and your team keeps the ball with the next pass. The other team presses from the start of every attack.',
+    'RPC-002|target_zone_entered|': 'Earn a point when a player dribbles into the target zone behind the press, or receives the ball there and controls it, and your team keeps the ball with the next pass. The other team presses from the start of every attack.',
+    'RPC-002|gate|': 'Earn a point when a player passes or dribbles through a gate behind the press and your team keeps the ball with the next pass. The other team presses from the start of every attack.',
+    'RPC-002|target_player|': 'Earn a point when your target player behind the press receives the ball and controls it, and your team keeps the ball with the next pass. The other team presses from the start of every attack.',
+}
+
+/** 2b's grounds with the overlay's replacement made in each covered rule's declared clauses (the spans are the rows' words, unchanged). */
+function groundsUnder(overlay: CandidateCoachRules): CoachRuleGrounds {
+    const covered = new Set(overlay.rules.map((rule) => rule.key))
+    return Object.fromEntries(
+        Object.entries(COACH_RULE_GROUNDS).map(([key, grounds]) => [key, covered.has(key) ? grounds.map(([clause, kind, span]) => [clause.replace(overlay.replacement.from, overlay.replacement.to), kind, span]) : grounds])
+    ) as CoachRuleGrounds
+}
+
+/** The overlay with other words in place of the replacement's new words (a TEST-ONLY copy, never written). */
+function overlayWith(overlay: CandidateCoachRules, to: string): CandidateCoachRules {
+    const copy: CandidateCoachRules = JSON.parse(JSON.stringify(overlay))
+    copy.replacement.to = to
+    for (const rule of copy.rules) rule.candidate = rule.live.replace(copy.replacement.from, to)
+    return copy
+}
+
+/**
+ * **High Press Escape's CANDIDATE wording: the source's 'through the next action', every other word kept, never live** (A02 package,
+ * stage W3, 11 November 2026). Christian: "Please include a focused source-to-code check in the A02 work and prepare the smallest
+ * correction that faithfully preserves the approved meaning." "Where the intended interpretation is already unambiguous, you may correct it
+ * within the isolated, non-deployed pathway and test it." (received 11 November 2026, second reply). The file passes its gate
+ * (candidate-coach-rules.ts); the live four are unchanged and pinned; the source-to-code check corrects only the CONTROL clauses it finds
+ * NARROWED and reports the rest; the candidate passes the wording checks (CCS, coach voice, evidence) unchanged, so no paraphrase is
+ * ours; 2b and 2c pass over it; the questions it leaves open are Christian's (Q-a to Q-d); it enters no approved wording.
+ */
+function testHighPressEscapeCandidateWording(): void {
+    const overlay = loadCandidateCoachRules()
+    const { from, to } = overlay.replacement
+    assert.deepEqual([from, to], ['with the next pass', 'through the next action'])
+    assert.ok(rpcLibrary.primaryScoringCondition('RPC-002').includes('the attacking team retains possession through the next action'), "the new words are the approved row's")
+    assert.equal(overlay.label, 'CANDIDATE')
+    assert.ok(overlay.rules.every((rule) => rule.label === 'CANDIDATE'), 'every candidate is labelled CANDIDATE')
+    assert.ok(overlay.standing.startsWith('CANDIDATE - TEST-ONLY, NOT APPROVED, NOT LIVE.'))
+    for (const words of overlay.basis.authority) {
+        assert.ok(CHRISTIAN_HIGH_PRESS_ESCAPE_ITEM.includes(words.quote), `"${words.quote}" is Christian's, verbatim`)
+        assert.equal(words.received, 'received 11 November 2026, second reply')
+    }
+    for (const question of overlay.questions) for (const words of question.christian) assert.ok([...CHRISTIAN_HIGH_PRESS_ESCAPE_ITEM, ...CHRISTIAN_OTHER_WORDS].includes(words.quote), `${question.id}: "${words.quote}" is Christian's, verbatim`)
+
+    // The live four are unchanged, word for word, and the candidate covers exactly them.
+    assert.deepEqual(overlay.rules.map((rule) => rule.key), HIGH_PRESS_ESCAPE_KEYS)
+    for (const key of HIGH_PRESS_ESCAPE_KEYS) assert.equal(COACH_RULES[key]!.rule, LIVE_HIGH_PRESS_ESCAPE_RULES[key], `${key}: the live rule is unchanged (awaiting release)`)
+    for (const rule of overlay.rules) assert.equal(rule.candidate, LIVE_HIGH_PRESS_ESCAPE_RULES[rule.key]!.replace('with the next pass', 'through the next action'), `${rule.key}: one replacement, every other word kept`)
+
+    // The source-to-code check, pinned: per rule, each component's verdict; only the CONTROL clauses NARROWED and corrected.
+    const verdicts = overlay.sourceToCode.map((check) => [check.key, check.clauses.map((clause) => `${clause.in} ${clause.component} ${clause.verdict} ${clause.action}`)])
+    const OUTSIDE = ['rule PROGRESSION REALIZATION REPORTED_NOT_CHANGED', 'rule CONTROL NARROWED CORRECTED_IN_CANDIDATE', 'rule ORIGIN OVER_APPLIED REPORTED_NOT_CHANGED', 'setup PROGRESSION REALIZATION REPORTED_NOT_CHANGED']
+    assert.deepEqual(verdicts, [
+        ['RPC-002|line_crossed|', ['rule EVENT FAITHFUL REPORTED_NOT_CHANGED', 'rule EVENT FAITHFUL REPORTED_NOT_CHANGED', ...OUTSIDE]],
+        ['RPC-002|target_zone_entered|', ['rule EVENT FAITHFUL REPORTED_NOT_CHANGED', 'rule EVENT FAITHFUL REPORTED_NOT_CHANGED', ...OUTSIDE]],
+        ['RPC-002|gate|', ['rule EVENT FAITHFUL REPORTED_NOT_CHANGED', ...OUTSIDE]],
+        ['RPC-002|target_player|', ['rule EVENT FAITHFUL REPORTED_NOT_CHANGED', 'rule EVENT WIDER REPORTED_NOT_CHANGED', ...OUTSIDE]],
+    ])
+    for (const check of overlay.sourceToCode) {
+        const eventKey = check.key.split('|')[1]!
+        for (const clause of check.clauses.filter((c) => c.component === 'EVENT')) assert.equal(clause.eventStanding, eventMeaningStanding('RPC-002', eventKey), `${check.key}: the event description's standing is recorded as it is`)
+    }
+    // The other approved rows: every row of RPC-002 that names a specific action is listed with its reading, and none is a scoring condition
+    // or a scoring event; no row of RPC-002 names a pass as the next action (the one 'pass' read is a validation that passes).
+    const naming: string[] = []
+    for (const table of Object.values(rpcWorkbook as unknown as Record<string, unknown>)) {
+        if (!Array.isArray(table)) continue
+        for (const row of table as Record<string, unknown>[]) {
+            if (row['rpc_id'] !== 'RPC-002') continue
+            const id = String(Object.values(row)[0])
+            const texts = Object.values(row).filter((value): value is string => typeof value === 'string')
+            if (texts.some((text) => actionClassesIn(text).length)) naming.push(id)
+        }
+    }
+    assert.deepEqual(naming.sort(), overlay.otherRowsNamingAnAction.map((row) => row.rowId).sort(), 'every RPC-002 row naming a specific action is read and listed')
+    assert.deepEqual(overlay.otherRowsNamingAnAction.map((row) => [row.rowId, row.actionClass]), [['RPC-PROP-026', 'clearance'], ['RPC-PROP-027', 'dribble'], ['RPC-VAL-009', 'pass']])
+    for (const row of overlay.otherRowsNamingAnAction) assert.notEqual(libraryRow(row.rowId)!.row['property_category'], 'PRIMARY_SCORING_CONDITION', `${row.rowId} is no scoring condition`)
+    assert.deepEqual(overlay.questions.map((q) => q.id), ['Q-a', 'Q-b', 'Q-c', 'Q-d'])
+    assert.ok(overlay.questions.every((q) => q.sources.some((s) => s.rowId === 'RPC-PROP-133')), 'each question cites the approved condition')
+
+    // The candidate passes the wording checks unchanged (a rewrite would be a paraphrase, which is Christian's), 2b and 2c.
+    const overlaid = overlaidCoachRules(overlay)
+    for (const key of HIGH_PRESS_ESCAPE_KEYS) {
+        assert.deepEqual(coachWordingFailures(key, overlaid[key]!), [], `${key}: the CANDIDATE wording passes CCS, coach voice and evidence unchanged`)
+        assert.deepEqual(findCommunicationStandardViolations(overlaid[key]!.rule), [])
+        assert.equal(toCoachScoringSentence(overlaid[key]!.rule), overlaid[key]!.rule, `${key}: the coach-voice pass does not rewrite the CANDIDATE sentence`)
+        assert.deepEqual([overlaid[key]!.setup, overlaid[key]!.evidence], [COACH_RULES[key]!.setup, COACH_RULES[key]!.evidence], `${key}: setup and evidence kept`)
+    }
+    for (const key of Object.keys(COACH_RULES)) if (!HIGH_PRESS_ESCAPE_KEYS.includes(key)) assert.deepEqual(overlaid[key], COACH_RULES[key], `${key}: untouched by the overlay`)
+    const overlaidGrounds = groundsUnder(overlay)
+    assert.deepEqual(overlaidGrounds['RPC-002|gate|'], [['keeps the ball through the next action', 'CONDITION', 'the attacking team retains possession through the next action']])
+    assert.deepEqual(possessionOrControlFindings(overlaid, overlaidGrounds), { failures: [], onAnExample: [] }, '2b holds over the CANDIDATE wording')
+    const overlaidFindings = actionWordFindings(overlaid, overlaidGrounds).map((f) => f.id).sort()
+    assert.deepEqual(overlaidFindings, Object.keys(ACTION_WORD_FINDINGS).filter((id) => !id.startsWith('RPC-002|')).sort(), '2c: the four High Press Escape findings are gone under the CANDIDATE wording, and nothing else moves')
+    const gatesWithControl = (table: CoachRuleTable) => Object.keys(table).filter((key) => key.split('|')[1] === 'gate' && [...CONTROL_CLAUSES, /teammate/i].some((p) => p.test(table[key]!.rule + ' ' + table[key]!.setup)))
+    assert.deepEqual(gatesWithControl(overlaid), gatesWithControl(COACH_RULES), 'Option 2 is not carried over to the High Press Escape gate')
+
+    // Negative controls: another specific action in place of the row's 'action' fails 2c (i) on all four, and the gate refuses it.
+    for (const other of ['through the next dribble', 'through the next pass']) {
+        const doctored = overlayWith(overlay, other)
+        const actionClass = actionClassesIn(other)[0]!
+        assert.deepEqual(actionWordFindings(overlaidCoachRules(doctored), groundsUnder(doctored)).map((f) => f.id).filter((id) => id.startsWith('RPC-002|')), HIGH_PRESS_ESCAPE_KEYS.map((key) => `${key} (i) ${actionClass}`), `'${other}' fails 2c`)
+        assert.ok(candidateCoachRulesRefusals(doctored).some((why) => why.includes(`the new words "${other}" are not verbatim in RPC-PROP-133`)), `'${other}' is refused by the gate`)
+    }
+    // The reader's limit, measured: an action named outside its classes passes 2c unread; the gate still refuses it (not the row's words).
+    const touch = overlayWith(overlay, 'through the next touch')
+    assert.deepEqual(actionWordFindings(overlaidCoachRules(touch), groundsUnder(touch)).map((f) => f.id).filter((id) => id.startsWith('RPC-002|')), [], "the limit: 'touch' is not read")
+    assert.ok(candidateCoachRulesRefusals(touch).length > 0)
+    // The gate: a paraphrase, a drifted live text, a missing rule, an APPROVED label, a wrong line, a clause not verbatim, a narrowing left in place.
+    const gateRefuses = (alter: (copy: any) => void, expected: string) => {
+        const copy: any = JSON.parse(JSON.stringify(overlay))
+        alter(copy)
+        const reasons = candidateCoachRulesRefusals(copy)
+        assert.ok(reasons.some((why) => why.includes(expected)), `the gate refuses: ${expected} (it said ${JSON.stringify(reasons)})`)
+    }
+    gateRefuses((c) => (c.rules[0].candidate = c.rules[0].candidate.replace('keeps the ball', 'keeps possession')), 'the candidate is not the live rule with only')
+    gateRefuses((c) => (c.rules[1].live = c.rules[1].live.replace('Earn a point', 'Score a point')), 'its live text is not the live rule')
+    gateRefuses((c) => c.rules.pop(), 'holds "with the next pass" and has no candidate')
+    gateRefuses((c) => (c.rules[2].label = 'APPROVED'), 'not CANDIDATE')
+    gateRefuses((c) => (c.label = 'APPROVED'), 'is labelled "APPROVED", not CANDIDATE')
+    gateRefuses((c) => (c.standing = c.standing.replace('NOT LIVE', 'LIVE')), 'does not stand CANDIDATE')
+    gateRefuses((c) => (c.sourceToCode[0].clauses[3].sources[0].line = 2643), 'is not the line holding property_id of RPC-PROP-133')
+    gateRefuses((c) => (c.sourceToCode[0].clauses[3].sources[0].words = 'the attacking team retains possession through the next pass'), 'is not verbatim in RPC-PROP-133')
+    gateRefuses((c) => (c.sourceToCode[1].clauses[0].clause = 'a player dribbles into the zone'), 'not verbatim in the live rule')
+    gateRefuses((c) => (c.sourceToCode[2].clauses[2].action = 'REPORTED_NOT_CHANGED'), 'a clause is corrected exactly where it is found NARROWED')
+    gateRefuses((c) => (c.sourceToCode[3].clauses = c.sourceToCode[3].clauses.filter((x: any) => x.component !== 'ORIGIN')), 'no ORIGIN clause')
+    gateRefuses((c) => (c.sourceToCode[2].clauses = c.sourceToCode[2].clauses.filter((x: any) => x.component !== 'EVENT')), "the rule's action word 'passes' lies in no checked clause")
+    gateRefuses((c) => (c.questions = c.questions.slice(1)), 'the questions are not Q-a, Q-b, Q-c, Q-d')
+    gateRefuses((c) => (c.questions[2].sources[1].rowId = 'RPC-PROP-999'), 'RPC-PROP-999 is no row of the RPC library')
+    assert.throws(() => loadCandidateCoachRules(CANDIDATE_COACH_RULES_FILE, { ...COACH_RULES, 'RPC-002|gate|': { ...COACH_RULES['RPC-002|gate|']!, rule: overlay.rules[2]!.candidate } }), (error: unknown) => error instanceof CandidateCoachRulesRefused, 'released (the live rule changed), the file is retired: its live text no longer matches')
+
+    // The candidate never enters the approved coach wording.
+    const approvedFiles = ['approved-coach-wording.json', 'approved-wording-readings.json'].map((name) => fs.readFileSync(path.join(AUDITS_DIR, name), 'utf8'))
+    const approvedSource = fs.readFileSync(path.join(__dirname, '..', 'rendering', 'approved-wording.ts'), 'utf8')
+    for (const text of [...approvedFiles, approvedSource]) {
+        assert.ok(!text.includes('through the next action'), 'no approved wording says the CANDIDATE words')
+        for (const rule of overlay.rules) assert.ok(!text.includes(rule.candidate))
+    }
+}
+
+/**
+ * **The tests-only readers reach no production module** (stage W3). No non-unit module of back/src imports action-words.ts or
+ * candidate-coach-rules.ts, or names the CANDIDATE file, but the reader itself; and the live rules' module names neither. A probe shows
+ * the scan sees each import form.
+ */
+function testTestsOnlyReadersReachNoProductionModule(): void {
+    const SRC = path.resolve(__dirname, '..', '..')
+    const files: string[] = []
+    const walk = (dir: string) => {
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+            const full = path.join(dir, entry.name)
+            if (entry.isDirectory()) walk(full)
+            else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.unit.ts') && !entry.name.endsWith('.d.ts')) files.push(full)
+        }
+    }
+    walk(SRC)
+    assert.ok(files.length > 200, 'the scan reads the source tree')
+    const READS = /(from|require\s*\(|import\s*\()\s*['"][^'"]*(action-words|candidate-coach-rules)['"]|rpc-002-coach-rules\.CANDIDATE/
+    assert.ok([`from './action-words'`, `require('../sport-module/candidate-coach-rules')`, `import ( "./action-words" )`, `'rpc-002-coach-rules.CANDIDATE.json'`].every((text) => READS.test(text)), 'the scan sees each form')
+    const relative = (file: string) => path.relative(SRC, file).split(path.sep).join('/')
+    assert.deepEqual(files.filter((file) => READS.test(fs.readFileSync(file, 'utf8'))).map(relative), ['system/sport-module/candidate-coach-rules.ts'], 'only the CANDIDATE reader reads the action words and the CANDIDATE file')
+    assert.ok(!fs.readFileSync(path.join(__dirname, 'primary-scoring.ts'), 'utf8').includes('through the next action'), 'the live rules do not say the CANDIDATE words')
 }
 
 function slotFor(rpcId: string, gameFormId: string, slotIndex: 1 | 2 | 3 = 1): ActivitySkeletonSlot {
@@ -678,6 +1012,9 @@ testAttackDevelopmentRulesSayChristiansApprovedWording()
 testControlOnReceptionAddsNoRetentionNextPassOrPostScoreClause()
 testTeammateControlAtAGateIsAttackDevelopmentsAlone()
 testControlledVocabularyApprovalCoversTwoMeaningsOnly()
+testAnActionWordKeepsItsClass()
+testHighPressEscapeCandidateWording()
+testTestsOnlyReadersReachNoProductionModule()
 testSetupMustMarkTheScoringObject()
 testSetupGainsTheObjectWhenGenerationOmitsIt()
 testCompressionPinsTheResolvedRule()
