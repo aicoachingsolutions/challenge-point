@@ -149,7 +149,7 @@ export function constraintPoolFor(hints?: InputConstraintHints | null, learningG
         throw new Error(`hints carry the authorization record of ${authority.learningGoalId} and were used to select ${learningGoalId ?? 'free text'}`)
     }
     const authorityAccount = {
-        constraintAuthority: authority ? ('AUTHORIZATION_RECORD' as const) : ('VOCABULARY_POOL' as const),
+        constraintAuthority: authority ? authority.authority : ('VOCABULARY_POOL' as const),
         constraintPrinciple: authority?.constraintPrinciple ? { ruledOn: authority.constraintPrinciple.ruledOn, by: authority.constraintPrinciple.by } : null,
     }
     if (learningGoalId) {
@@ -165,7 +165,7 @@ export function constraintPoolFor(hints?: InputConstraintHints | null, learningG
         const filled = new Set(constraints.map((c) => constraintBalanceBucket(c)))
         return {
             constraints,
-            source: authority ? 'AUTHORIZATION_RECORD' : 'GOAL_CANDIDATES',
+            source: authority ? authority.authority : 'GOAL_CANDIDATES',
             ...authorityAccount,
             setAsideBecause: null,
             missingRoles: [],
@@ -1026,7 +1026,7 @@ export function generateSelection(
      * zero constraints under the old ruling. It meets the ordinary path and its NO_SELECTABLE_CANDIDATES gap.
      */
     const recordBacked = constraintPool.source === 'AUTHORIZATION_RECORD'
-    const authorizesNone = recordBacked && constraintPool.candidateIds.length === 0
+    const authorizesNone = (recordBacked || reviewPathwayK2EmptySet(constraintPool)) && constraintPool.candidateIds.length === 0
     const zeroConstraintCommitment = authorizesNone && constraintPool.constraintPrinciple !== null
     // TEST-ONLY (the isolated A02 experiment): the quota bypass is honoured only for an evaluated, record-backed authorized set; requested for
     // any other pool it throws. Under it the sizes also try the set's own size n, and `assertSelectionContract` admits 1 to n.
@@ -1181,4 +1181,19 @@ export function generateSelection(
             },
         },
     }
+}
+
+/**
+ * TEST-ONLY (the isolated A02 experiment, stage W1 (b), 11 November 2026): whether a pool is the review pathway's K2 result consumed in place
+ * of a per-goal authorization record, which may only ever be the empty set (K2 retains a compatible Game Form without additional
+ * manipulation; it can authorize none). True for such a pool with no candidate; THROWS for such a pool with any candidate; false for every
+ * other pool, so every production pool is read exactly as before (no production pool carries `REVIEW_PATHWAY_K2`: written only by
+ * `selectFor` under its TEST-ONLY `upstream` option, a static test pins it). The quota bypass stays record-only (`generateSelection`).
+ */
+function reviewPathwayK2EmptySet(pool: ConstraintPoolAccount): boolean {
+    if (pool.source !== 'REVIEW_PATHWAY_K2') return false
+    if (pool.candidateIds.length !== 0) {
+        throw new Error(`TEST-ONLY: the review pathway's K2 result carries ${pool.candidateIds.length} candidate constraint(s) (${pool.candidateIds.join(', ')}): K2 yields no manipulation, so its set is the empty set only`)
+    }
+    return true
 }

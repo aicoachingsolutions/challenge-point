@@ -131,7 +131,7 @@ export interface ConstraintPoolAccount {
      * `AUTHORIZATION_RECORD` since 15 October 2026 for a goal whose constraints come from his authorization record
      * (`learning-goal-authorizations.json`) instead of a vocabulary-derived pool.
      */
-    source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY' | 'AUTHORIZATION_RECORD'
+    source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY' | 'AUTHORIZATION_RECORD' | 'REVIEW_PATHWAY_K2'
     /**
      * Whose authority the candidate constraints carry (15 October 2026). `AUTHORIZATION_RECORD`: an owner-ruled
      * record names them. `VOCABULARY_POOL`: they were derived from wording or from a Game Problem's Coverage row —
@@ -161,14 +161,22 @@ export interface ConstraintPoolAccount {
     unfilledRoles: ConstraintBalanceBucket[]
 }
 
-export type ConstraintAuthority = 'AUTHORIZATION_RECORD' | 'VOCABULARY_POOL'
+/**
+ * Every authority a pool of candidate constraints can carry, as a list so a check can read them all. `REVIEW_PATHWAY_K2` is TEST-ONLY (the
+ * isolated A02 experiment, stage W1 (b), 11 November 2026): the review pathway's K2 result (no manipulation proposed) consumed in place of a
+ * per-goal authorization record, an empty set only. It is written only by `selectFor` under its TEST-ONLY `upstream` option (a static test
+ * pins it); no production pool carries it.
+ */
+export const CONSTRAINT_AUTHORITIES = ['AUTHORIZATION_RECORD', 'VOCABULARY_POOL', 'REVIEW_PATHWAY_K2'] as const
+export type ConstraintAuthority = (typeof CONSTRAINT_AUTHORITIES)[number]
 
 /**
  * What the hints say about where a guided goal's candidate constraints came from (15 October 2026). Set only by
- * `guidedSelectionHints`, and only for a goal with an authorization record; absent means the vocabulary pool.
+ * `guidedSelectionHints`, and only for a goal with an authorization record; absent means the vocabulary pool. Since stage W1 (b), TEST-ONLY:
+ * `REVIEW_PATHWAY_K2` where `selectFor`'s upstream option hands K2's result in place of a record (never relabelled AUTHORIZATION_RECORD).
  */
 export interface ConstraintAuthorityHint {
-    authority: 'AUTHORIZATION_RECORD'
+    authority: 'AUTHORIZATION_RECORD' | 'REVIEW_PATHWAY_K2'
     learningGoalId: string
     /**
      * The general principle the record's EVALUATED authorized set is read under, or null where the record has not

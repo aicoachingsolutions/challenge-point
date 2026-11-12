@@ -23,7 +23,9 @@
  *     REFUSED_ON_CLAUSE_LINE / CITED_NOT_CARRIED per clause of the cited approved row and for the account's display, NOT_REACHED (the run
  *     stopped before the decision, and its refusal cites none of the clause's lines), LEGITIMATE_CHAIN_DECISION (the chain's own rows),
  *     MISSING (a reached stage without its field, a withheld item that entered derivation, or a selection refusal no rule can be attributed to
- *     because its basis is not NOT KNOWLEDGE).
+ *     because its basis is not NOT KNOWLEDGE), K2_NOT_TAKEN (stage W1 (b), 11 November 2026: the review pathway proposed no manipulation, so
+ *     its K2 result applies, and a TEST-ONLY record of ours stood in for it; detected, never a pass). The constraints read CONSUMED on K2's
+ *     result only as the empty set, with no record beside it, no manipulation proposed, and K2's limit carried.
  *   - `classOf`: PASS, DETECTED (printed as a detected disconnection, never a pass: a declared TEST-ONLY treatment withholding a clause, or
  *     carrying it by a replaced declaration; a clause whose own line the run's refusal cites; the carried Game Problem no decision reads; an
  *     engine rule kept under the authorization's section 5 refusing after consumption) or VIOLATION.
@@ -82,10 +84,10 @@ export const OWNERSHIP_TABLE: Array<{ row: DecisionRow; decision: string; owner:
     {
         row: 'CONSTRAINTS',
         decision: 'the constraints (manipulations)',
-        owner: 'Christian\'s authorization record, or a TEST-ONLY record whose finding is ours (printed distinctly)',
-        input: 'the record\'s authorized set (the record route)',
+        owner: 'the upstream result the chain takes, one of: Christian\'s authorization record (AUTHORIZATION_RECORD); the review pathway\'s K2 result where it proposes no manipulation (REVIEW_PATHWAY_K2, the empty set only, review-only, since stage W1 (b)); or a TEST-ONLY record whose finding is ours (AUTHORIZATION_RECORD, printed distinctly)',
+        input: 'the record\'s authorized set (the record route), or K2\'s result with its limit (in place of a per-goal record, never beside one); where the review pathway proposes no manipulation and a TEST-ONLY record of ours stood in, K2_NOT_TAKEN',
         output: 'the selection\'s candidate pool and the constraints built',
-        authority: 'Christian\'s ruling where Christian\'s record governs; none where the record is a TEST-ONLY one of ours',
+        authority: 'Christian\'s ruling where Christian\'s record governs; K2 (approved for review-only use, received 7 November 2026) with E5 (received 3 November 2026), our reading, where its result is taken; none where the record is a TEST-ONLY one of ours',
     },
     {
         row: 'SELECTION_OUTCOME',
@@ -141,6 +143,7 @@ export const VERDICTS = [
     'CITED_NOT_CARRIED',
     'LEGITIMATE_CHAIN_DECISION',
     'MISSING',
+    'K2_NOT_TAKEN',
 ] as const
 export type Verdict = (typeof VERDICTS)[number]
 
@@ -169,6 +172,11 @@ export interface SafeguardRun {
         recordKind: 'CHRISTIANS_RECORD' | 'TEST_ONLY_RECORD' | 'NONE'
         /** Constraint ids the case declares as TEST-ONLY relationship stand-ins (labelled, never knowledge). */
         standIns: string[]
+        /**
+         * Stage W1 (b): the manipulations the review pathway handed on (placed, or entering by the record route), each on a relationship or its
+         * TEST-ONLY stand-in, read from the handoff's own manipulation entries; empty where it proposed none, which is where K2 applies.
+         */
+        proposed: string[]
     }
     handoffStop: string | null
     chain: null | {
@@ -185,8 +193,11 @@ export interface SafeguardRun {
         constraints: string[]
         constraintAuthority: string | null
         lenses: string[]
-        /** Stage W1 (a): `hintsGameProblemId`, the Game Problem the chain recorded as governing its lens hints (null where it recorded none). */
-        consumption: null | { gameProblemId: string | null; gameProblemSource: string | null; formCandidatesScored: string[]; formCandidatesFrom: string; constraintAuthority: string; constraintCandidateIds: string[]; sizeRuleBypassed: boolean; hintsGameProblemId: string | null; lensCandidateIds: string[]; hintsSignals: string[] }
+        /**
+         * Stage W1 (a): `hintsGameProblemId`, the Game Problem the chain recorded as governing its lens hints (null where it recorded none).
+         * Stage W1 (b): `k2`, the review pathway's K2 result as the chain recorded it (its basis, set, limit and citation), or null.
+         */
+        consumption: null | { gameProblemId: string | null; gameProblemSource: string | null; formCandidatesScored: string[]; formCandidatesFrom: string; constraintAuthority: string; constraintCandidateIds: string[]; sizeRuleBypassed: boolean; hintsGameProblemId: string | null; lensCandidateIds: string[]; hintsSignals: string[]; k2: { basis: string; set: string[]; limit: string; cited: string } | null }
         contextInThisActivity: boolean | null
         scoringCondition: { state: string; rowId: string | null; carried: boolean } | null
     }
@@ -262,6 +273,7 @@ export function safeguardRunOf(r: HandoffResult, a: ChainAnswer | null, experime
             authorizedSet: facts.authorizedSet === null ? null : [...facts.authorizedSet],
             recordKind: facts.recordKind,
             standIns: [...(facts.standIns ?? [])],
+            proposed: r.manipulations.filter((m) => m.premise !== null).map((m) => m.manipulation),
         },
         handoffStop: r.form.stop,
         chain:
@@ -291,6 +303,7 @@ export function safeguardRunOf(r: HandoffResult, a: ChainAnswer | null, experime
                                 hintsGameProblemId: consumption.hintsGameProblemId ?? null,
                                 lensCandidateIds: [...(consumption.lensCandidateIds ?? [])],
                                 hintsSignals: [...(consumption.hintsSignals ?? [])],
+                                k2: consumption.reviewManipulations ? { basis: consumption.reviewManipulations.basis, set: [...consumption.reviewManipulations.set], limit: consumption.reviewManipulations.limit, cited: consumption.reviewManipulations.cited } : null,
                             }
                           : null,
                       contextInThisActivity: a.observed ? a.observed.contextInThisActivity : null,
@@ -443,8 +456,18 @@ export function ownershipOf(run: SafeguardRun): Finding[] {
         else if (x) {
             const subset = u.authorizedSet ? u.authorizedSet.filter((id) => c.constraints.indexOf(id) < 0) : []
             const built = stop > stageIndex('selection') ? `built ${list(c.constraints)}${subset.length ? `; authorized and not built: ${subset.join(', ')} (dropped by the commit rule over the bounded search)` : ''}` : 'not built (refused at selection)'
-            if (x.constraintAuthority !== 'AUTHORIZATION_RECORD') push('CONSTRAINTS', 'UNAUTHORIZED_SOURCE', `the candidates carried ${x.constraintAuthority}, not the record route (${record})`)
+            if (x.constraintAuthority === 'REVIEW_PATHWAY_K2') {
+                // Stage W1 (b): the review pathway's K2 result, taken in place of a per-goal record: only the empty set, only where the review
+                // pathway proposed no manipulation and no record governs, and only with K2's limit carried beside it.
+                if (u.recordKind !== 'NONE') push('CONSTRAINTS', 'CONTRADICTED', `the chain took the review pathway's K2 result beside ${record}: K2's result stands in place of a per-goal record, never beside one`)
+                else if (x.constraintCandidateIds.length || u.proposed.length) push('CONSTRAINTS', 'CONTRADICTED', `the chain took the review pathway's K2 result with candidates ${list(x.constraintCandidateIds)} where the review pathway proposed ${list(u.proposed)}: K2 yields no manipulation, so it is taken only as the empty set where none is proposed`)
+                else if (!x.k2 || x.k2.set.length || !x.k2.limit) push('CONSTRAINTS', 'MISSING', `the chain's candidates carry REVIEW_PATHWAY_K2 and its record carries ${x.k2 ? 'a non-empty set or no limit' : 'no K2 result'}: K2's limit travels with its result`)
+                else push('CONSTRAINTS', 'CONSUMED', `the review pathway's K2 result (no manipulation proposed; basis ${x.k2.basis}, review-only), taken in place of a per-goal authorization record: candidates none; ${built}; K2's limit carried with it into the account (${x.k2.cited})`)
+            } else if (x.constraintAuthority !== 'AUTHORIZATION_RECORD') push('CONSTRAINTS', 'UNAUTHORIZED_SOURCE', `the candidates carried ${x.constraintAuthority}, not the record route (${record})`)
             else if (u.authorizedSet === null || !sameSet(x.constraintCandidateIds, u.authorizedSet)) push('CONSTRAINTS', 'CONTRADICTED', `the candidates ${list(x.constraintCandidateIds)} are not the authorized set ${u.authorizedSet ? list(u.authorizedSet) : 'none'} (${record})`)
+            else if (u.recordKind === 'TEST_ONLY_RECORD' && !u.proposed.length)
+                // Stage W1 (b): the review pathway proposed no manipulation, so K2's result applies; our TEST-ONLY record stood in for it.
+                push('CONSTRAINTS', 'K2_NOT_TAKEN', `the review pathway proposed no manipulation, so its K2 result applies (the empty set), and the chain took ${record} in its place (its set ${list(x.constraintCandidateIds)}); ${built} (a detected disconnection, never a pass: the comparison arm)`)
             else push('CONSTRAINTS', 'CONSUMED', `the candidates are exactly the authorized set of ${record} (${list(x.constraintCandidateIds)}); ${built}`)
         } else if (c.stage === 'selection') push('CONSTRAINTS', 'NOT_REACHED', `the chain refused at selection; nothing was built`, `the candidates' authority: ${c.constraintAuthority ?? 'none'}`)
         else push('CONSTRAINTS', 'AGREES_INDEPENDENTLY', `built ${list(c.constraints)} from ${c.constraintAuthority ?? 'no named authority'}, within the authorized set of ${record}; nothing records the set as consumed`)
@@ -549,7 +572,7 @@ export function ownershipOf(run: SafeguardRun): Finding[] {
 export const VIOLATION_VERDICTS: Verdict[] = ['AGREES_INDEPENDENTLY', 'CONTRADICTED', 'REFUSED_ON_OWN_CHOICE', 'UNAUTHORIZED_SOURCE', 'CITED_NOT_CARRIED', 'MISSING']
 
 /** The verdicts printed as a detected disconnection, never a pass (beside a kept engine rule's refusal). */
-export const DETECTED_VERDICTS: Verdict[] = ['CARRIED_NOT_READ', 'WITHHELD_BY_TREATMENT', 'CARRIED_UNDER_TREATMENT', 'REFUSED_ON_CLAUSE_LINE']
+export const DETECTED_VERDICTS: Verdict[] = ['CARRIED_NOT_READ', 'WITHHELD_BY_TREATMENT', 'CARRIED_UNDER_TREATMENT', 'REFUSED_ON_CLAUSE_LINE', 'K2_NOT_TAKEN']
 
 /** PASS, DETECTED (printed as a detected disconnection, never a pass) or VIOLATION. */
 export function classOf(f: Finding): 'PASS' | 'DETECTED' | 'VIOLATION' {
@@ -646,7 +669,7 @@ export const DISPOSITION: DispositionRow[] = [
     { id: 'RECORD_POOL', check: 'the pool: the record\'s authorized set replaces the goal\'s own candidate constraints (which no record authorizes; the engine labels their authority VOCABULARY_POOL), minus holds', where: 'generateSelection.ts:135-190; guided-selection.ts (the record route)', origin: 'dc98ecb, 14 October 2026 (authorized constraints only); 1f18a02, 15 October 2026 (the record route)', disposition: 'KEPT_ENFORCED', reported: null, authority: 'Christian\'s 14 and 15 October rulings (constraints only from the goal\'s authorized set)', readsLenses: false, reads: 'nothing of the wording', path: 'EVERY_SELECTION', marks: [], control: 'the quota runs: the pool equals the authorized set (asserted)' },
     { id: 'TOKEN_CHECK', check: 'the token check: the wording must hold a non-stopword token', where: 'generateSelection.ts:931-937', origin: '3980188, 3 May 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed: a wording-only change can trigger it', authority: 'none found; engine rule', readsLenses: false, reads: 'the wording\'s tokens', path: 'EVERY_SELECTION', marks: [], control: 'none run here (no wording without a token is used)' },
     { id: 'LENS_HINTS', check: 'the lens hints and matched signals of the guided selection', where: 'guided-selection.ts:218-246 (governByApprovedGameProblem, :131)', origin: 'c725117, 13 October 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed: the engine lenses (ENGINE_LENS) follow the wording', authority: 'none over an owned decision (the lenses are engine inputs; the context\'s affordance targets were deferred by Christian on 13 September)', readsLenses: true, reads: 'the wording, and the Game Problem that governs the hints (Step 1\'s on the experiment path since stage W1 (a); the planning model\'s on the legacy route)', path: 'EVERY_SELECTION', marks: [], control: 'the wording test: the lens list changes under every rewording (an open disconnection)' },
-    { id: 'ZERO_BRANCH', check: 'the zero branch: an evaluated empty set commits lenses with no constraint', where: 'generateSelection.ts:811-815, :1030', origin: '1f18a02 (the branch, then switched by a per-record zeroConstraintRuling) and 487dc32 (the general-principle switch, :1030), 15 October 2026', disposition: 'KEPT_ENFORCED', reported: null, authority: 'Christian\'s general principle of 15 October 2026 (a constraint is not mandatory unless justified)', readsLenses: false, reads: 'nothing of the wording', path: 'EMPTY_SET', marks: [], control: 'the base cases (empty set) commit through it' },
+    { id: 'ZERO_BRANCH', check: 'the zero branch: an evaluated empty set commits lenses with no constraint', where: 'generateSelection.ts:811-815, :1029-1030', origin: '1f18a02 (the branch, then switched by a per-record zeroConstraintRuling) and 487dc32 (the general-principle switch, :1030), 15 October 2026; the review pathway\'s K2 result admitted as an empty set only at :1029 (TEST-ONLY, stage W1 (b), 11 November 2026)', disposition: 'KEPT_ENFORCED', reported: null, authority: 'Christian\'s general principle of 15 October 2026 (a constraint is not mandatory unless justified)', readsLenses: false, reads: 'nothing of the wording', path: 'EMPTY_SET', marks: [], control: 'the base cases (empty set) commit through it' },
     { id: 'SIZE_RULE', check: 'the numerical size rule: 2 to 4 constraints', where: 'generateSelection.ts:719-721 (assertSelectionContract), :835 (the sizes enumerated)', origin: '3980188, 3 May 2026', disposition: 'BYPASSED_SIZE_RULE_ONLY', reported: 'bypassed only under the TEST-ONLY SIZE_RULE_BYPASS treatment (the authorization\'s section 5); under the bypass the sizes enumerated are the set\'s own size and 2 to 4, so for a set of 2 to 4 a one-manipulation subset is never tried (the floor of 2 remains for subsets)', authority: 'none found; engine rule', readsLenses: false, reads: 'nothing of the wording', path: 'NON_EMPTY_SET', marks: [], control: 'a lone manipulation is refused without the bypass and selected with it' },
     { id: 'ROLE_MIX', check: 'the role mix', where: 'generateSelection.ts:590-612, applied :839', origin: '3980188, 3 May 2026 (the rule, :590-612); dc98ecb, 14 October 2026 (its needs read over the goal\'s pool, :819-827, applied :839)', disposition: 'KEPT_ENFORCED', reported: 'reported with its source and authority (the authorization\'s section 5); it refuses no set run here: a set of 1 or 2 is enumerated only whole, and its needs are read over the pool (generateSelection.ts:827, :835-836, :590-612)', authority: 'none found for the rule; the pool-relative reading of its needs is our reading of Christian\'s 14 October ruling (constraints only from the goal\'s designated candidates), not a ruling on the role mix', readsLenses: true, reads: 'the constraint scores of each lens combination (the wording\'s tokens and the lens slugs, generateSelection.ts:572-580, :817-827)', path: 'NON_EMPTY_SET', marks: [], control: 'none needed: read from the code, it refuses no set run here (no observer is added to the selector)' },
     { id: 'FOUNDATION_CLAUSE', check: 'the foundation clause (with its keyword threshold)', where: 'build-constraint-package.ts:614-621 (threshold :147-153); validate-constraint-package.ts:325-327', origin: 'e60a740, 18 April 2026 (the build-constraint-package.ts lines); dc98ecb, 14 October 2026 (validate-constraint-package.ts:325-326: the shaping half removed after Christian\'s 14 October ruling, the foundation half kept, not ruled)', disposition: 'KEPT_ENFORCED', reported: 'reported with its source and authority (the authorization\'s section 5)', authority: 'none found; engine rule (our own comment calls it not ruled)', readsLenses: true, reads: 'the primary lens title (the keyword threshold)', path: 'NON_EMPTY_SET', marks: ['No compatible foundation constraint was found for archetype'], control: 'a lone shaping or consequence manipulation is refused on every lens combination (attribution)' },
@@ -656,7 +679,7 @@ export const DISPOSITION: DispositionRow[] = [
     { id: 'BOUNDED_SEARCH', check: 'the bounded search: 3 lenses, 2 constraints per bucket', where: 'generateSelection.ts:635-690', origin: 'ded8aaa, 13 May 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine performance heuristic, reported (it can drop an authorized constraint beyond 2 per bucket)', authority: 'none found; engine heuristic', readsLenses: true, reads: 'the lens and constraint scores', path: 'NON_EMPTY_SET', marks: [], control: 'none needed here (no set holds more than 2 per bucket)' },
     { id: 'LENS_RULE', check: 'the lens rule: 2 or 3 lenses', where: 'generateSelection.ts:704-709, :801', origin: '3980188, 3 May 2026', disposition: 'KEPT_ENFORCED', reported: 'a numerical engine rule on lenses, reported (the authorization\'s section 5 names manipulations only)', authority: 'none found; engine rule', readsLenses: true, reads: 'the lens candidates', path: 'COMMITTED_SELECTION', marks: [], control: 'every committed selection holds 3 lenses' },
     { id: 'COMMIT_RULE', check: 'the commit rule: the highest-scoring possibility, ties to the smallest key', where: 'generateSelection.ts:868-876', origin: '1f01d41, 8 July 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine heuristic, reported (commit all or choose stays open)', authority: 'none found; engine heuristic', readsLenses: true, reads: 'the lens and constraint scores', path: 'COMMITTED_SELECTION', marks: [], control: 'every committed non-empty set was committed whole (asserted)' },
-    { id: 'RESOLUTION_STATUS', check: 'the resolution status: a selection that did not resolve is refused', where: 'run-bounded-selection.ts:398', origin: '3a5aeed, 8 October 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed (the matched signals)', authority: 'Christian\'s ruling of 8 October 2026 (unresolved selections must not proceed)', readsLenses: false, reads: 'the matched signals of the wording', path: 'COMMITTED_SELECTION', marks: [], control: 'none refused in these runs' },
+    { id: 'RESOLUTION_STATUS', check: 'the resolution status: a selection that did not resolve is refused', where: 'run-bounded-selection.ts:452', origin: '3a5aeed, 8 October 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed (the matched signals)', authority: 'Christian\'s ruling of 8 October 2026 (unresolved selections must not proceed)', readsLenses: false, reads: 'the matched signals of the wording', path: 'COMMITTED_SELECTION', marks: [], control: 'none refused in these runs' },
 ]
 
 /** The rule a package refusal is recognized by: the one disposition row whose marks every given reason holds, or null. */
@@ -671,7 +694,8 @@ export function dispositionOf(run: SafeguardRun): Array<{ id: string; ran: strin
     const c = run.chain
     const x = c?.consumption ?? null
     const ids = x ? x.constraintCandidateIds : run.given.authorizedSet ?? null
-    const recordRoute = x ? x.constraintAuthority === 'AUTHORIZATION_RECORD' : c?.constraintAuthority === 'AUTHORIZATION_RECORD'
+    // Stage W1 (b): the review pathway's K2 result reaches the zero branch as an evaluated empty set does.
+    const recordRoute = x ? x.constraintAuthority === 'AUTHORIZATION_RECORD' || x.constraintAuthority === 'REVIEW_PATHWAY_K2' : c?.constraintAuthority === 'AUTHORIZATION_RECORD'
     const zero = !!c && recordRoute && ids !== null && ids.length === 0
     const committed = !!c && stopIndexOf(run) > stageIndex('selection')
     const zeroWords = 'not run on this path (zero branch, generateSelection.ts:811-815)'

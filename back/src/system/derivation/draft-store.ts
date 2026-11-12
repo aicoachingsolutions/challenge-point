@@ -328,8 +328,12 @@ function citedRowOf(source: Record<string, unknown>, label: string, reasons: str
 /**
  * **Load the draft store of one folder, or refuse it whole.** `folder` is a folder name under `docs/audits/drafts/`, or (tests only) an
  * absolute path to a TEST-ONLY copy. Throws `DraftStoreRefused` naming every defect.
+ *
+ * `recordsSetAsideBy` (stage W1 (b) of the A02 package, 11 November 2026; this module is TEST-ONLY): the id of a declared TEST-ONLY treatment
+ * under which the store is read without its authorization records (the review pathway's K2 result is consumed in their place). Each record
+ * file is still held to the gate (the whole folder is refused as before), and is then listed in `notRead`, with the treatment, never read.
  */
-export function loadDraftStore(folder: string): DraftStoreContents {
+export function loadDraftStore(folder: string, options: { recordsSetAsideBy?: string } = {}): DraftStoreContents {
     const dir = path.isAbsolute(folder) ? folder : path.join(DRAFTS_DIR, folder)
     const reasons: string[] = []
     if (!fs.existsSync(dir)) throw new DraftStoreRefused(folder, [`no such folder: ${dir}`])
@@ -386,8 +390,12 @@ export function loadDraftStore(folder: string): DraftStoreContents {
             const loaded = contractOf(name, raw.contractEntry, reasons, { productionKeys, productionItems, draftItems, citableDecisions, workbooks })
             if (loaded) contracts.push(loaded)
         } else if (raw.record !== undefined) {
-            files.push(name)
             const record = recordOf(name, raw.record, reasons, productionGoals)
+            if (options.recordsSetAsideBy) {
+                notRead.push({ file: name, why: `an authorization record, held to the gate and set aside by the TEST-ONLY treatment ${options.recordsSetAsideBy}: the review pathway's K2 result is consumed in its place` })
+                continue
+            }
+            files.push(name)
             if (record) records.push(record)
         } else {
             notRead.push({

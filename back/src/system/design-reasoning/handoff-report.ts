@@ -195,6 +195,12 @@ function caseText(r: HandoffResult, inputs: HandoffInputs): string[] {
             push(`     form carried from Step 2: ${x.form ? `${x.form.formId} (${plain(x.form.standing)}); the cells it rests on: ${x.form.cells.map((c) => `${plain(c.cell)} ${c.grade}`).join('; ')}` : 'none'}`)
             push(`     forms the chain's scorer ranked: ${x.formCandidatesScored.join(', ') || 'none'} (read from ${x.formCandidatesFrom})`)
             push(`     constraints: authority ${x.constraintAuthority}; candidates ${x.constraintCandidateIds.join(', ') || 'none'}; the TEST-ONLY size-rule bypass ${x.sizeRuleBypassed ? 'in force' : 'not in force'}`)
+            // Stage W1 (b): K2's result, consumed in place of a per-goal record, with its rule and its limit in Christian's words.
+            if (x.reviewManipulations) {
+                const k = x.reviewManipulations
+                push(`     manipulations: the review pathway's K2 result (basis ${k.basis}; set ${k.set.join(', ') || 'empty'}), consumed in place of a per-goal authorization record (TEST-ONLY): ${quoted(k.rule)} (${k.cited})`)
+                push(`     K2's limit, carried with the result: ${quoted(k.limit)} (${k.cited})`)
+            }
             push(`     the selection hook only observed: ${x.selectionObservedOnly === null ? 'it never ran (no selection was returned)' : x.selectionObservedOnly ? 'yes' : 'NO'}; the build's own label for a build from the draft store: ${x.draftStatus ?? 'none'}`)
             push(`     draft store items that entered derivation (${x.draftItemsDerived.length}): ${x.draftItemsDerived.join(', ') || 'none'}`)
         }

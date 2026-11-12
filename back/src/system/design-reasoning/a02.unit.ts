@@ -267,6 +267,10 @@ test(`the review data: held to the handoff's own validator with its borrowed rul
     refuses((x) => (x.cases[0].form = { named: 'GF2', basis: 'LOGICAL_INFERENCE', rulingRefs: [], why: 'w' }), /CONSUMED_STEPS consumes Step 2's SELECTED form/)
     refuses((x) => (x.cases[0].proposedManipulations = [{ id: 'PM-X', purpose: 'p', manipulation: 'm', relationship: { ref: 'R', label: 'TEST ASSUMPTION', why: 'w' } }]), /a case that consumes Steps 1 and 2 places no manipulation/)
     refuses((x) => (x.cases[0].realization = { id: 'X', by: 'Christian', rulingRefs: [], departures: [], lawsCheck: { mode: 'REPORT', rulingRefs: [], treatmentRef: 'TT-LAWS-DRAFT', because: 'b' } }) && x.cases[0].testOnlyTreatments.push(copy(treatment(x, 2, 'TT-LAWS-DRAFT'))), /LAWS_CLASSIFICATION is not declared beside a TEST-ONLY realization's check/)
+    // Stage W1 (b): K2_RETAIN_FORM, each defect refusing the file: declared twice, without its words, naming words the ruling does not hold.
+    refuses((x) => x.cases[0].testOnlyTreatments.push({ ...treatment(x, 0, 'TT-K2-RETAIN-FORM'), id: 'TT-K2-AGAIN' }), /K2_RETAIN_FORM is declared at most once/)
+    refuses((x) => delete treatment(x, 1, 'TT-K2-RETAIN-FORM').k2, /K2's rule and limit belong only to K2_RETAIN_FORM/)
+    refuses((x) => (treatment(x, 4, 'TT-K2-RETAIN-FORM').k2.rulingRef = 'HO-07NOV-NOWHERE'), /K2's rule and limit belong only to K2_RETAIN_FORM/)
 })
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -285,7 +289,10 @@ function sharedOf(r: HandoffResult): void {
     const x = r.consumption
     assert.ok(x, `${r.caseId}: the chain recorded a consumption`)
     assert.deepEqual(x.gameProblem, { gameProblemId: 'GP-015', basis: 'APPROVED_TRANSLATION', label: 'as resolved by Step 1 (review pathway)', source: 'Step 1 (review pathway)' }, r.caseId)
-    assert.deepEqual([x.form?.formId, x.form?.cells.find((c) => c.cell.endsWith('game_forms GF2'))?.grade, x.formCandidatesScored, x.formCandidatesFrom, x.constraintAuthority, x.constraintCandidateIds, x.sizeRuleBypassed, x.selectionObservedOnly, x.draftStatus], ['GF2', 'CANDIDATE', ['GF2'], 'SELECTION_TRACE_RANKING', 'AUTHORIZATION_RECORD', [], false, true, 'BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED'], r.caseId)
+    // Stage W1 (b), re-pinned openly: the constraints' authority was AUTHORIZATION_RECORD (our DRAFT record's empty set); every run now takes
+    // the review pathway's K2 result in place of a per-goal record, REVIEW_PATHWAY_K2, the empty set, with K2's limit carried.
+    assert.deepEqual([x.form?.formId, x.form?.cells.find((c) => c.cell.endsWith('game_forms GF2'))?.grade, x.formCandidatesScored, x.formCandidatesFrom, x.constraintAuthority, x.constraintCandidateIds, x.sizeRuleBypassed, x.selectionObservedOnly, x.draftStatus], ['GF2', 'CANDIDATE', ['GF2'], 'SELECTION_TRACE_RANKING', 'REVIEW_PATHWAY_K2', [], false, true, 'BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED'], r.caseId)
+    assert.equal(x.reviewManipulations?.limit, inputs.rulings.find((ruling) => ruling.id === 'HO-07NOV-K2')?.words[2], `${r.caseId}: K2's limit carried`)
     assert.deepEqual(r.notCarried.map((n) => n.id), ['UN-ORIGIN', 'UN-PRESSING-LINE', 'UN-CONTROL-REFERENT', 'UN-SCOPE', 'UN-WORDING', 'UN-RESTART-POSSESSION', 'UN-LAWS', 'UN-IDENTITY', 'UN-PRESSURE-CARRIER', 'UN-AFFORDANCE-TARGETS'], r.caseId)
 }
 const itemRefs = items.map((i) => `${CONTRACT} ${i.itemId}`)
@@ -308,7 +315,8 @@ test(`A02-0, the knowledge as it stands: Steps 1 and 2 by the handoff and consum
     // keyword scorer) and the handoff PLACES Step 2's form over it; the refusal is the same, the provenance is not.
     const placedCase = copy(inputs.cases.find((c) => c.id === 'A02-0')!)
     placedCase.id = 'A02-0/placed'
-    placedCase.testOnlyTreatments = placedCase.testOnlyTreatments.filter((t) => t.kind !== 'CONSUMED_STEPS')
+    // Stage W1 (b): K2's result goes with the consumption (it is handed only to a consuming run), so the placed route reads our DRAFT record.
+    placedCase.testOnlyTreatments = placedCase.testOnlyTreatments.filter((t) => t.kind !== 'CONSUMED_STEPS' && t.kind !== 'K2_RETAIN_FORM')
     const placed = runHandoff(placedCase, inputs, realChain, k)
     assert.deepEqual([placed.chain?.outcome, placed.chain?.stage, placed.chain?.reasons], ['refused', 'structure', r.chain?.reasons])
     assert.equal(placed.chain?.scorerPick, `GF3 (the chain's own keyword-scorer pick: not used; the handoff placed GF2)`)

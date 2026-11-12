@@ -137,8 +137,12 @@ export interface StandInInput {
  * check reads: our DRAFT classification, with the treatment's labelled stand-in for one law where it names one, `standIn`). Since the
  * safeguards slice of stage 9 (DESIGN-9 section 4), SIZE_RULE_BYPASS also acts on the request, only beside CONSUMED_STEPS: the chain's TEST-ONLY
  * bypass of the numerical size rule (and of nothing else) for the record route's authorized set (`ChainRequest.consume.sizeRuleBypass`).
+ * Since stage W1 (b) of the foundational package (11 November 2026), K2_RETAIN_FORM acts on the request, only beside CONSUMED_STEPS: the review
+ * pathway's K2 result (no manipulation proposed) handed to the chain in place of a per-goal authorization record, with K2's rule and limit
+ * (`k2`, word indexes of a ruling); the draft store is then read without its records. Refused beside the size-rule bypass, a TEST-ONLY
+ * record, or any manipulation with a relationship (placed or entering by the record route).
  */
-export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION', 'SIZE_RULE_BYPASS'] as const
+export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION', 'SIZE_RULE_BYPASS', 'K2_RETAIN_FORM'] as const
 
 export interface TreatmentInput {
     id: string
@@ -154,6 +158,8 @@ export interface TreatmentInput {
     declaration?: { row: string; selector: string; from: string; to: string; qualifier?: string }
     /** LAWS_CLASSIFICATION only, optional: one law read with another materiality, a labelled TEST-ONLY stand-in (neither our reading nor a ruling). */
     standIn?: { law: string; materiality: string }
+    /** K2_RETAIN_FORM only (stage W1 (b)): the ruling holding K2 and the indexes of its rule and of its limit among that ruling's words. */
+    k2?: { rulingRef: string; rule: number; limit: number }
 }
 
 export interface ProposedManipulation {
@@ -441,6 +447,20 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
         for (const m of manipulations.filter((x) => x.entersBy !== undefined)) {
             if (m.entersBy !== 'RECORD' || !ofKind('CONSUMED_STEPS').length || !isObject(m.relationship)) errors.push(`${at}: manipulation ${String(m.id)} enters by the record route (entersBy RECORD) only on a run that consumes Steps 1 and 2, on a TEST-ONLY relationship stand-in`)
         }
+        // Stage W1 (b): K2's result in place of a per-goal record: once, only on a consuming run, never beside the size-rule bypass, a TEST-ONLY
+        // record or a manipulation with a relationship (placed or by the record route), and naming K2's rule and limit among a ruling's words.
+        const k2 = ofKind('K2_RETAIN_FORM')
+        if (k2.length > 1 || (k2.length && !ofKind('CONSUMED_STEPS').length)) errors.push(`${at}: K2_RETAIN_FORM is declared at most once, and only beside CONSUMED_STEPS`)
+        if (k2.length && ofKind('SIZE_RULE_BYPASS').length) errors.push(`${at}: K2_RETAIN_FORM is never declared beside SIZE_RULE_BYPASS (K2's result is the empty set; the bypass is for a record's evaluated set)`)
+        if (k2.length && (merged.record !== null && merged.record !== undefined || (isObject(merged.chain) && merged.chain.records === 'TEST_ONLY'))) errors.push(`${at}: K2_RETAIN_FORM stands in place of a per-goal authorization record, never beside one (the case has a TEST-ONLY record)`)
+        if (k2.length && manipulations.some((m) => m.relationship !== undefined)) errors.push(`${at}: K2_RETAIN_FORM is handed only where no proposed manipulation has a relationship (placed or entering by the record route): K2 yields no manipulation`)
+        for (const t of treatments.filter((x) => x.k2 !== undefined || x.kind === 'K2_RETAIN_FORM')) {
+            const q = t.k2
+            const ruled = isObject(q) ? (rulings.find((r) => isObject(r) && r.id === q.rulingRef) as Record<string, unknown> | undefined) : undefined
+            const inRange = (n: unknown) => typeof n === 'number' && Number.isInteger(n) && !!ruled && Array.isArray(ruled.words) && n >= 0 && n < (ruled.words as unknown[]).length
+            if (t.kind !== 'K2_RETAIN_FORM' || !isObject(q) || !ruled || !inRange(q.rule) || !inRange(q.limit) || q.rule === q.limit)
+                errors.push(`${at}: treatment ${String(t.id)}: K2's rule and limit belong only to K2_RETAIN_FORM, which names them as two words of a ruling the file holds (k2: rulingRef, rule, limit)`)
+        }
         if (ofKind('LAWS_CLASSIFICATION').length && (isObject(merged.realization) || (isObject(merged.chain) && isObject(merged.chain.vehicle) && isObject(merged.chain.vehicle.lawsStandIn))))
             errors.push(`${at}: LAWS_CLASSIFICATION is not declared beside a TEST-ONLY realization's check or a vehicle's stand-in`)
         for (const i of Array.isArray(merged.illustrative) ? (merged.illustrative as unknown[]) : []) {
@@ -572,6 +592,11 @@ export interface ChainRequest {
         gameForm: { formId: string; standing: string; cells: Array<{ cell: string; grade: string }> }
         /** Present (true) only where the case declares SIZE_RULE_BYPASS: the chain's TEST-ONLY bypass of the numerical size rule, and of nothing else. */
         sizeRuleBypass?: true
+        /**
+         * Present only where the case declares K2_RETAIN_FORM (stage W1 (b)): the review pathway's K2 result, the empty set, with K2's rule and
+         * its limit in Christian's words and their citation; the chain reads the draft store without its records under it.
+         */
+        k2?: { basis: 'K2_REVIEW_ONLY'; set: string[]; rulingRef: string; rule: string; limit: string; cited: string; treatmentId: string }
     }
     /**
      * Present only where a consuming case names manipulations that enter by the record route (`ProposedManipulation.entersBy`): their ids. The
@@ -709,6 +734,8 @@ export interface ChainAnswer {
         hintsGoverned: boolean | null
         lensCandidateIds: string[]
         hintsSignals: string[]
+        /** Stage W1 (b): the review pathway's K2 result as the chain's account recorded it (its rule and limit carried), or null where a record governed. */
+        reviewManipulations: { basis: string; set: string[]; rule: string; limit: string; cited: string } | null
         /** True where the hook ran and only observed; null where it never ran (the selection returned nothing). */
         selectionObservedOnly: boolean | null
         draftStatus: string | null
@@ -1167,6 +1194,14 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
             // The safeguards slice: the numerical size rule bypassed, only where the case declares it.
             ...(c.testOnlyTreatments.some((t) => t.kind === 'SIZE_RULE_BYPASS') ? { sizeRuleBypass: true as const } : {}),
         }
+        // Stage W1 (b): K2's result in place of a per-goal record, only where the case declares it: the empty set and K2's words, as data.
+        const k2 = c.testOnlyTreatments.find((t) => t.kind === 'K2_RETAIN_FORM')
+        if (k2 && k2.k2) {
+            const r = rulingOf(inputs, k2.k2.rulingRef)
+            consume.k2 = { basis: 'K2_REVIEW_ONLY', set: [], rulingRef: r.id, rule: r.words[k2.k2.rule], limit: r.words[k2.k2.limit], cited: `${r.id}, ${citedDateOf(r)}`, treatmentId: k2.id }
+        }
+    } else if (c.testOnlyTreatments.some((t) => t.kind === 'K2_RETAIN_FORM')) {
+        throw new Error(`case ${c.id}: K2_RETAIN_FORM hands K2's result only to a run that consumes Steps 1 and 2`)
     }
     // The safeguards slice: the manipulations that enter by the record route (never placed), held by the wiring to the record consulted.
     const recordRoute = c.proposedManipulations.filter((m) => m.entersBy === 'RECORD').map((m) => m.manipulation)

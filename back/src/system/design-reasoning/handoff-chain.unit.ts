@@ -395,9 +395,13 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
                   gameProblem: { gameProblemId: consume.gameProblem.gameProblemId, step1Basis: consume.gameProblem.basis as UpstreamDecisions['gameProblem']['step1Basis'], label: consume.gameProblem.label },
                   gameForm: { formId: consume.gameForm.formId, standing: consume.gameForm.standing, cells: copy(consume.gameForm.cells) },
                   ...(consume.sizeRuleBypass === true ? { quotaBypass: true } : {}),
+                  // Stage W1 (b): the review pathway's K2 result, the empty set with K2's rule and limit, in place of a per-goal record.
+                  ...(consume.k2 ? { reviewManipulations: { basis: consume.k2.basis, set: [...consume.k2.set], rule: consume.k2.rule, limit: consume.k2.limit, cited: consume.k2.cited } } : {}),
               }
             : undefined
         if (request.recordRoute && !consume) throw new Error(`case ${request.caseId}: a manipulation enters by the record route only on a request that consumes Steps 1 and 2`)
+        // Stage W1 (b): K2's result stands in place of a record, never beside one, and never beside a record-route manipulation.
+        if (consume?.k2 && (request.records !== 'PRODUCTION' || request.recordRoute)) throw new Error(`case ${request.caseId}: K2's result is handed in place of a per-goal authorization record, and this request also carries ${request.records !== 'PRODUCTION' ? 'a TEST-ONLY record' : 'record-route manipulations'}`)
         let records = productionRecords
         if (request.records !== 'PRODUCTION') {
             // The TEST-ONLY record, in memory, in the production shape (held to the record gate by the build; never written to the file).
@@ -407,7 +411,8 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
             records = [...productionRecords, record as unknown as (typeof productionRecords)[number]]
         }
         const realizations = request.realization ? gatedRealizations(realizationEntry(request.realization)) : undefined
-        const drafts: DraftStoreContents | undefined = request.draftStore ? loadDraftStore(request.draftStore) : undefined
+        // Stage W1 (b): under K2's result the draft store is read without its records (each still held to the gate, listed as not read).
+        const drafts: DraftStoreContents | undefined = request.draftStore ? loadDraftStore(request.draftStore, consume?.k2 ? { recordsSetAsideBy: consume.k2.treatmentId } : {}) : undefined
         const draftIds = new Set((drafts?.contracts ?? []).map((c) => c.contractId))
         let scorerPick: string[] | null = null
         let seen: ChainAnswer['contracts'] = []
@@ -536,6 +541,8 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
                   hintsGoverned: recorded.hintsGoverned,
                   lensCandidateIds: [...recorded.lensCandidateIds],
                   hintsSignals: [...recorded.hintsSignals],
+                  // Stage W1 (b): K2's result as the build's account recorded it (never read from the request).
+                  reviewManipulations: recorded.reviewManipulations ? copy(recorded.reviewManipulations) : null,
                   selectionObservedOnly: observedOnly,
                   draftStatus: activity.draftKnowledge?.status ?? null,
               }

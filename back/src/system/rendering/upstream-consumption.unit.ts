@@ -88,10 +88,24 @@ const A01_HINTS = {
     hintsGoverned: true,
     lensCandidateIds: ['tl-v0-lens-space-exploitation-opportunity', 'tl-v0-lens-space-creation-opportunity', 'tl-v0-lens-line-breaking-opportunity', 'tl-v0-lens-possession-stability-opportunity'],
     hintsSignals: ['signalGroup:G_overload', 'unresolvedLensTitle:Support Angle Opportunity', 'unresolvedConstraintTitle:Pressure Condition'],
+    reviewManipulations: null,
 }
 /** Test 7d, measured (stage W1 (a)): the option's identifiers named per file, and the guided selection hints' lines that name them. */
-const RUN_BOUNDED_SELECTION_NAMES: Record<string, number> = { consumed: 7, consumedGameProblem: 10, hintsGameProblem: 3, hintsGameProblemId: 2, hintsGoverned: 2, hintsSignals: 2, lensCandidateIds: 2, quotaBypass: 7, step1GameProblemId: 1, upstream: 25, UpstreamDecisions: 4 }
+// Stage W1 (b), re-pinned openly: was { ..., quotaBypass: 7, upstream: 25, ... } (stage W1 (a)); K2's field, type and refusal function join it.
+const RUN_BOUNDED_SELECTION_NAMES: Record<string, number> = { consumed: 7, consumedGameProblem: 10, hintsGameProblem: 3, hintsGameProblemId: 2, hintsGoverned: 2, hintsSignals: 2, lensCandidateIds: 2, quotaBypass: 10, reviewManipulationRefusals: 2, reviewManipulations: 7, ReviewManipulations: 5, step1GameProblemId: 1, upstream: 30, UpstreamDecisions: 4 }
 const GUIDED_SELECTION_NAMES: Record<string, number> = { hintsGameProblem: 2, step1GameProblemId: 3 }
+/** Test 7, measured (stage W1 (b)): every string literal REVIEW_PATHWAY_K2 in a non-test source file, and the one place it is written. */
+const K2_WRITTEN: string[] = ['system/derivation/run-bounded-selection.ts:386 WRITTEN in selectFor under upstream']
+const K2_LITERALS: string[] = [
+    'system/derivation/run-bounded-selection.ts:386 WRITTEN in selectFor under upstream',
+    'system/design-reasoning/safeguards.ts:459 READ',
+    'system/design-reasoning/safeguards.ts:698 READ',
+    'system/rendering/build-activity.ts:171 TYPE',
+    'system/test-library/generateSelection.ts:1194 READ',
+    'system/test-library/types.ts:134 TYPE',
+    'system/test-library/types.ts:170 TYPE',
+    'system/test-library/types.ts:179 TYPE',
+]
 const GUIDED_SELECTION_LINES: string[] = [
     'hintsGameProblem?: GameProblemAuthority',
     'options: { draftsAdmitted?: boolean; step1GameProblemId?: string } = {},',
@@ -103,6 +117,7 @@ const A02_HINTS = {
     hintsGoverned: false,
     lensCandidateIds: ['tl-v0-lens-possession-stability-opportunity', 'tl-v0-lens-regain-opportunity', 'tl-v0-lens-space-creation-opportunity'],
     hintsSignals: ['signalGroup:B_pressure', 'unresolvedLensTitle:Support Angle Opportunity', 'unresolvedConstraintTitle:Pressure Condition'],
+    reviewManipulations: null,
 }
 
 /** A TEST-ONLY DRAFT A02 record in a temporary folder, loaded through the draft store's gate: no ruling field (the gate requires that of a record we drafted). */
@@ -380,7 +395,8 @@ test('statically: production cannot reach the option (identifiers, positional ar
 
     // Stage W1 (a), 11 November 2026: the identifiers of Step 1's Game Problem governing the hints join the scan (the option field, the hints'
     // authority and the consumption record's four fields).
-    const NAMES = new Set(['upstream', 'consumedGameProblem', 'consumed', 'quotaBypass', 'quotaBypassOwnSize', 'UpstreamDecisions', 'step1GameProblemId', 'hintsGameProblem', 'hintsGameProblemId', 'hintsGoverned', 'lensCandidateIds', 'hintsSignals'])
+    // Stage W1 (b): the review pathway's K2 result handed in place of a record (the field, its type and its refusal function).
+    const NAMES = new Set(['upstream', 'consumedGameProblem', 'consumed', 'quotaBypass', 'quotaBypassOwnSize', 'UpstreamDecisions', 'step1GameProblemId', 'hintsGameProblem', 'hintsGameProblemId', 'hintsGoverned', 'lensCandidateIds', 'hintsSignals', 'reviewManipulations', 'ReviewManipulations', 'reviewManipulationRefusals', 'reviewPathwayK2EmptySet'])
     const POSITION: Record<string, number> = { selectFor: 6, generateSelection: 3, build: 18 }
     const named = new Map<string, Map<string, number>>()
     const namedLines = new Map<string, Map<number, string>>()
@@ -395,11 +411,28 @@ test('statically: production cannot reach the option (identifiers, positional ar
     const WATCHED = new Set(['selectFor', 'generateSelection', 'buildActivityUnderAuthorizationRecords'])
     const ENTRY = 'buildActivityUnderAuthorizationRecords'
     const evasions: string[] = []
+    /**
+     * Stage W1 (b): every string literal 'REVIEW_PATHWAY_K2' (the authority of the review pathway's K2 result), with how it is used: WRITTEN (a
+     * property's value), READ (compared), TYPE (a literal type or the authority list), and for a written one whether it lies inside selectFor's
+     * `if (upstream)` branch. The authority may be written only there.
+     */
+    const k2Literals: string[] = []
     const scan = (name: string, text: string) => {
         const source = ts.createSourceFile(name, text, ts.ScriptTarget.ES2020, true)
         const lineOf = (node: ts.Node) => source.getLineAndCharacterOfPosition(node.getStart(source)).line
-        const lines = text.split('\n')
+        const lines = text.split(/\r?\n/)
         const visit = (node: ts.Node) => {
+            if (ts.isStringLiteralLike(node) && node.text === 'REVIEW_PATHWAY_K2') {
+                const parent = node.parent
+                const use = ts.isPropertyAssignment(parent) && parent.initializer === node ? 'WRITTEN' : ts.isBinaryExpression(parent) ? 'READ' : ts.isLiteralTypeNode(parent) || ts.isArrayLiteralExpression(parent) ? 'TYPE' : 'OTHER'
+                let inUpstreamBranch = false
+                let inSelectFor = false
+                for (let at: ts.Node | undefined = parent; at; at = at.parent) {
+                    if (ts.isIfStatement(at) && at.expression.getText(source) === 'upstream') inUpstreamBranch = true
+                    if (ts.isFunctionDeclaration(at) && at.name?.text === 'selectFor') inSelectFor = true
+                }
+                k2Literals.push(`${name}:${lineOf(node) + 1} ${use}${use === 'WRITTEN' ? (inSelectFor && inUpstreamBranch ? ' in selectFor under upstream' : ' ELSEWHERE') : ''}`)
+            }
             if (ts.isIdentifier(node) && NAMES.has(node.text)) {
                 const counts = named.get(name) ?? new Map<string, number>()
                 counts.set(node.text, (counts.get(node.text) ?? 0) + 1)
@@ -483,6 +516,9 @@ test('statically: production cannot reach the option (identifiers, positional ar
         'probe2.ts string-keyed property of generateSelection',
     ])
     assert.deepEqual([calls.splice(0), references.splice(0)], [[], []], 'the name-based checks do not see those forms (which is why these exist)')
+    // Stage W1 (b): the literal scan sees a write inside selectFor's upstream branch, a write elsewhere, and a read.
+    scan('probe3.ts', [`function selectFor() { if (upstream) { hints = { authority: 'REVIEW_PATHWAY_K2' } } }`, `const elsewhere = { authority: 'REVIEW_PATHWAY_K2' }`, `if (pool.source === 'REVIEW_PATHWAY_K2') {}`].join('\n'))
+    assert.deepEqual(k2Literals.splice(0), ['probe3.ts:1 WRITTEN in selectFor under upstream', 'probe3.ts:2 WRITTEN ELSEWHERE', 'probe3.ts:3 READ'])
     named.clear()
     namedLines.clear()
 
@@ -508,7 +544,11 @@ test('statically: production cannot reach the option (identifiers, positional ar
     assert.deepEqual([...named.keys()].filter((file) => file.startsWith(REVIEW_PATHWAY)).sort(), ['system/design-reasoning/handoff-report.ts', 'system/design-reasoning/handoff.ts', 'system/design-reasoning/safeguards.ts'])
     // Counted per file (measured 10 November 2026, B1), so a new reference anywhere is a visible change; the selector names none but its boolean.
     const countsOf = (file: string) => Object.fromEntries([...(named.get(file) ?? new Map<string, number>()).entries()].sort((a, b) => a[0].localeCompare(b[0])))
-    assert.deepEqual(countsOf('system/test-library/generateSelection.ts'), { quotaBypass: 3, quotaBypassOwnSize: 10 })
+    // Stage W1 (b), re-pinned openly: the selector also names its K2 guard (its call at :1029 and its declaration); was { quotaBypass: 3, quotaBypassOwnSize: 10 }.
+    assert.deepEqual(countsOf('system/test-library/generateSelection.ts'), { quotaBypass: 3, quotaBypassOwnSize: 10, reviewPathwayK2EmptySet: 2 })
+    // Stage W1 (b): the authority REVIEW_PATHWAY_K2 is written only in selectFor's upstream branch; elsewhere it is only read or typed.
+    assert.deepEqual(k2Literals.filter((entry) => entry.indexOf(' WRITTEN') >= 0), K2_WRITTEN)
+    assert.deepEqual(k2Literals, K2_LITERALS)
     assert.deepEqual(countsOf('system/rendering/build-activity.ts'), { consumed: 7, consumedGameProblem: 7, upstream: 6, UpstreamDecisions: 4 })
     // Stage W1 (a), re-pinned openly: run-bounded-selection.ts was { consumed: 7, consumedGameProblem: 10, quotaBypass: 7, upstream: 23, UpstreamDecisions: 4 }.
     assert.deepEqual(countsOf('system/derivation/run-bounded-selection.ts'), RUN_BOUNDED_SELECTION_NAMES)
@@ -537,10 +577,13 @@ test('statically: production cannot reach the option (identifiers, positional ar
         'if (quotaBypassOwnSize !== null) {',
         'if (nc < 1 || nc > quotaBypassOwnSize) throw new Error(`Test Library selection contract violated: under the TEST-ONLY quota bypass expected 1–${quotaBypassOwnSize} constraints, got ${nc}.`)',
         'quotaBypass = false',
+        // Stage W1 (b): the zero branch admits K2's empty set (and the guard below throws on a K2 pool with any candidate).
+        'const authorizesNone = (recordBacked || reviewPathwayK2EmptySet(constraintPool)) && constraintPool.candidateIds.length === 0',
         'if (quotaBypass && !(recordBacked && constraintPool.constraintPrinciple !== null)) {',
         'const quotaBypassOwnSize = quotaBypass ? constraintPool.candidateIds.length : null',
         'const constraintSizes = quotaBypassOwnSize !== null && quotaBypassOwnSize >= 1 && ![2, 3, 4].includes(quotaBypassOwnSize) ? [quotaBypassOwnSize, 2, 3, 4] : [2, 3, 4]',
         'assertSelectionContract(bestLensCombo, bestConCombo, zeroConstraintCommitment, quotaBypassOwnSize)',
+        'function reviewPathwayK2EmptySet(pool: ConstraintPoolAccount): boolean {',
     ])
 
     // Registered.

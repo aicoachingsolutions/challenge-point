@@ -168,7 +168,7 @@ export interface ActivityAccount {
      *   - `gap`: set where the candidates cannot be combined at all and the goal was refused at `selection`.
      */
     constraintSource: {
-        source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY' | 'AUTHORIZATION_RECORD'
+        source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY' | 'AUTHORIZATION_RECORD' | 'REVIEW_PATHWAY_K2'
         /**
          * 15 October 2026: whether the candidates carry an owner-ruled authorization (`AUTHORIZATION_RECORD`) or
          * were derived from vocabulary (`VOCABULARY_POOL` — the wording pool or a Coverage row, never authorized in

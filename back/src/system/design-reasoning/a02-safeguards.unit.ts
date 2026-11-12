@@ -45,10 +45,12 @@ import { guidedGoalText, guidedSelectionHints } from '../sport-module/guided-sel
 import { soccerModule } from '../sport-module/soccer-module'
 import { generateSelection } from '../test-library/generateSelection'
 import { testLibraryRegistry } from '../test-library/library/registry'
+import { CONSTRAINT_AUTHORITIES } from '../test-library/types'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import { isSelectionPackageCompatible } from '../test-library/selection-compatibility'
 import { CaseInput, ChainAnswer, ChainRequest, HandoffChain, HandoffInputs, HandoffResult, runHandoff, validateHandoffInputs } from './handoff'
 import { chainWith, holdsGenderedPronoun, realChain } from './handoff-chain.unit'
+import { handoffReportText } from './handoff-report'
 import { cell, committedKnowledge, DesignKnowledge } from './knowledge'
 import { runStage1 } from './stage1'
 import {
@@ -73,6 +75,7 @@ import {
     stale,
     Stop,
     unlisted,
+    VERDICTS,
 } from './safeguards'
 
 const quiet = console.log
@@ -196,8 +199,18 @@ const quotaStoreOf = (name: string): string => {
     return quotaStores.get(name)!
 }
 const RELATIONSHIP = { ref: 'TEST-ONLY-RELATIONSHIP-S4', label: 'TEST ASSUMPTION' as const, why: 'a stand-in for an authorized relationship of the manipulation to RPC-002 and GP-015, which no held knowledge provides; never knowledge' }
+/** Stage W1 (b): the rulings that enter only with K2's result (its words and E5), dropped with its treatment. */
+const K2_RULINGS = ['HO-07NOV-K2', 'A02-03NOV-DESIGN-AUTHORIZATION']
+const K2_TREATMENT = 'TT-K2-RETAIN-FORM'
+/** Stage W1 (b): a base case without K2's result (its treatment and the rulings entering with it): the record route, as before the stage. */
+export function withoutK2(c: CaseInput): CaseInput {
+    c.testOnlyTreatments = c.testOnlyTreatments.filter((t) => t.kind !== 'K2_RETAIN_FORM')
+    c.rulings = c.rulings.filter((r) => K2_RULINGS.indexOf(r.ref) < 0)
+    return c
+}
+const takesK2 = (c: CaseInput) => c.testOnlyTreatments.some((t) => t.kind === 'K2_RETAIN_FORM')
 function quotaCase(name: string, bypass: boolean, baseId = 'A02-0'): CaseInput {
-    const c = caseOf(baseId)
+    const c = withoutK2(caseOf(baseId))
     c.id = `S4-${name}${bypass ? '' : '/no-bypass'}${baseId === 'A02-0' ? '' : `@${baseId}`}`
     c.label = `TEST-ONLY quota run: ${setOf(name).join(', ')} in the DRAFT record's authorized set (a stand-in, never knowledge)${bypass ? ', the size rule bypassed' : ''}; base ${baseId}`
     c.resultStanding = 'TEST_ONLY_TREATMENT_NEVER_THE_A02_CONFIGURATION'
@@ -246,9 +259,10 @@ function runCase(c: CaseInput, kind: Kind, label: string, facts: Partial<Safegua
         },
     }
     const result = runHandoff(c, from, capture, kk)
+    // Stage W1 (b): a case that takes K2's result has no record governing it (the store's DRAFT record set aside): no authorized set, no record.
     const full: SafeguardFacts = {
-        authorizedSet: facts.authorizedSet === undefined ? [] : facts.authorizedSet,
-        recordKind: facts.recordKind ?? 'TEST_ONLY_RECORD',
+        authorizedSet: facts.authorizedSet === undefined ? (takesK2(c) ? null : []) : facts.authorizedSet,
+        recordKind: facts.recordKind ?? (takesK2(c) ? 'NONE' : 'TEST_ONLY_RECORD'),
         standIns: facts.standIns ?? [],
         scoring: facts.scoring === undefined ? (kind === 'LEGACY' ? null : SCORING) : facts.scoring,
         engineRule: facts.attribute ? facts.attribute(result, answer) : null,
@@ -333,7 +347,12 @@ const lensPoolOf = (id: string) => () => {
 
 const T0 = Date.now()
 const LEGACY_FACTS_NONE = { authorizedSet: null, recordKind: 'NONE' as const }
+export const BASE_IDS = ['A02-0', 'A02-1', 'A02-1b', 'A02-2', 'A02-D']
+/** Stage W1 (b): the facts of a run that takes K2's result: no record governs, so no authorized set. */
+export const K2_FACTS = { authorizedSet: null, recordKind: 'NONE' as const }
+export const DRAFT_ARM = '/draft-record'
 const withoutConsumption = (c: CaseInput, id: string, keepStore = true): CaseInput => {
+    withoutK2(c)
     c.id = id
     c.resultStanding = 'LEGACY_ROUTE_REPORTED_ONLY'
     c.testOnlyTreatments = c.testOnlyTreatments.filter((t) => t.kind !== 'CONSUMED_STEPS' && (keepStore || t.kind !== 'DRAFT_STORE'))
@@ -352,6 +371,15 @@ const CAR_KNOWLEDGE: DesignKnowledge = (() => {
 function buildAll(): void {
     // The experiment path: the five cases.
     for (const id of ['A02-0', 'A02-1', 'A02-1b', 'A02-2', 'A02-D']) runCase(caseOf(id), 'EXPERIMENT', inputs.cases.find((c) => c.id === id)!.label)
+    // Stage W1 (b): the DRAFT-record arm, kept beside K2's result as a comparison (so Christian can reverse our reading of E5 and K2): the same
+    // five cases with our TEST-ONLY DRAFT record standing in for K2's result, as before the stage. Controls: not held to test 1 (they read
+    // K2_NOT_TAKEN, by design).
+    for (const id of BASE_IDS) {
+        const c = withoutK2(caseOf(id))
+        c.id = `${id}${DRAFT_ARM}`
+        c.label = `${id} on the DRAFT-record arm (comparison): our TEST-ONLY DRAFT A02 record (an empty set, the finding ours) stands in for the review pathway's K2 result, as before stage W1 (b)`
+        runCase(c, 'CONTROL', c.label)
+    }
     // The quota runs (S4), on A02-0 and on A02-D; the lone manipulation also without the bypass (a control).
     for (const [name, set] of QUOTA_SETS) runCase(quotaCase(name, true), 'EXPERIMENT', `quota run ${name}`, { authorizedSet: set, attribute: attributeWith(lensPoolOf('A02-0'), set, true) })
     runCase(quotaCase('NP', false), 'CONTROL', 'quota control: the lone manipulation without the bypass', { authorizedSet: setOf('NP'), attribute: attributeWith(lensPoolOf('A02-0'), setOf('NP'), false) })
@@ -405,7 +433,7 @@ function buildAll(): void {
         const c = caseOf('A02-0')
         c.id = 'NO-RESTATEMENT'
         c.chain.draftStore = storeCopy(() => undefined, false)
-        runCase(c, 'EXPERIMENT', 'A02-0 consumed with the DRAFT record only: no restatement of RPC-002 in the store')
+        runCase(c, 'EXPERIMENT', 'A02-0 consumed on the review pathway\'s K2 result without the restatement: the store copy holds only our DRAFT record, set aside under TT-K2-RETAIN-FORM')
     }
     // Test 6's converse: GP-015's CAR Essential ratings changed in a TEST copy of the design knowledge (consulted in Step 1 only).
     {
@@ -459,9 +487,11 @@ function buildAll(): void {
         const wrapper = (...args: Parameters<typeof original>) => original(args[0], args[1], args[2], args[3], args[4])
         ;(boundedSelection as any).selectFor = wrapper
         try {
-            const w = caseOf('A02-0')
+            // Stage W1 (b): on the DRAFT-record arm, because dropping the upstream decisions drops K2's result with them (the record then
+            // stands in, as on L2, so the chain's own route proceeds to its own pick).
+            const w = withoutK2(caseOf('A02-0'))
             w.id = 'W-DROPS-UPSTREAM'
-            runCase(w, 'CONTROL', 'A02-0 under the same wording with a TEST-ONLY selectFor wrapper that drops the upstream decisions', {}, realChain, kk)
+            runCase(w, 'CONTROL', 'A02-0 on the DRAFT-record arm under the same wording with a TEST-ONLY selectFor wrapper that drops the upstream decisions', {}, realChain, kk)
         } finally {
             ;(boundedSelection as any).selectFor = original
         }
@@ -681,17 +711,20 @@ const STAND_IN_COUNTS: Array<[string, number]> = [
  * The report's counts over all runs: violation verdicts and detected disconnections (measured), and the detected ones by verdict. Re-pinned
  * openly in stage W1 (a): [171, 118] -> [128, 75]; CARRIED_NOT_READ 43 -> none (the Game Problem rows of the 40 experiment runs reaching the
  * chain and the 3 consuming controls now read CONSUMED); the violations fall by the 43 hints rows those runs read AGREES_INDEPENDENTLY (39 + 3)
- * or CONTRADICTED (GP-002) before.
+ * or CONTRADICTED (GP-002) before. Re-pinned openly in stage W1 (b): [128, 75] -> [138, 94], all of it the five DRAFT-record controls (the
+ * comparison arm, as the base runs were before the stage): 10 violation verdicts (CONTEXT and SCORING_DISPLAY, two each) and 19 detected
+ * (K2_NOT_TAKEN 5, WITHHELD_BY_TREATMENT 9, REFUSED_ON_CLAUSE_LINE 3, CARRIED_UNDER_TREATMENT 2); the experiment path is unchanged.
  */
-const REPORT_COUNTS: number[] = [128, 75]
-const DETECTED_BY_VERDICT = 'ENGINE_RULE_DECIDED 14, CARRIED_UNDER_TREATMENT 5, WITHHELD_BY_TREATMENT 29, REFUSED_ON_CLAUSE_LINE 27'
+const REPORT_COUNTS: number[] = [138, 94]
+const DETECTED_BY_VERDICT = 'ENGINE_RULE_DECIDED 14, CARRIED_UNDER_TREATMENT 7, WITHHELD_BY_TREATMENT 38, REFUSED_ON_CLAUSE_LINE 30, K2_NOT_TAKEN 5'
 /**
  * The same counts per group, in the order the runs are built: the experiment path, the controls, the legacy route (runs, violations, detected).
- * Re-pinned in stage W1 (a): experiment [41, 105, 108] -> [41, 65, 68]; controls [4, 15, 10] -> [4, 12, 7]; legacy unchanged.
+ * Re-pinned in stage W1 (a): experiment [41, 105, 108] -> [41, 65, 68]; controls [4, 15, 10] -> [4, 12, 7]; legacy unchanged. Stage W1 (b):
+ * controls [4, 12, 7] -> [9, 22, 26] (the five DRAFT-record controls); the experiment path and the legacy route unchanged.
  */
 const COUNTS_BY_GROUP: number[][] = [
     [41, 65, 68],
-    [4, 12, 7],
+    [9, 22, 26],
     [21, 51, 0],
 ]
 const Q = String.fromCharCode(34)
@@ -990,7 +1023,7 @@ test('6. consumption tracing: a cited relationship removed (line_crossed dropped
     assert.doesNotThrow(() => assertExperimentRun(d.findings))
     const doctored = copy(d.result)
     doctored.testOnlyTreatments = doctored.testOnlyTreatments.filter((t) => t.id !== 'TT-WITHHOLD-CONDITION')
-    const without = ownershipOf(safeguardRunOf(doctored, d.answer, true, { authorizedSet: [], recordKind: 'TEST_ONLY_RECORD', scoring: SCORING }))
+    const without = ownershipOf(safeguardRunOf(doctored, d.answer, true, { ...K2_FACTS, scoring: SCORING }))
     assert.deepEqual(without.filter((f) => f.row === 'SCORING').map((f) => [f.clause, f.verdict]), [['origin', 'CITED_NOT_CARRIED'], ['progression', 'CITED_NOT_CARRIED'], ['control', 'CITED_NOT_CARRIED']])
     assert.throws(() => assertExperimentRun(without), (e: Error) => e.message.includes('ownership: A02-D: the context\'s approved identity and scoring, clause by clause (origin) owned by the context\'s approved rows, through our CANDIDATE restatement: CITED_NOT_CARRIED'))
     // The converse: CAR consulted in Step 1 only; nothing of the chain's result moves. Its positive control first: the changed ratings reach
@@ -1009,7 +1042,7 @@ test('6. consumption tracing: a cited relationship removed (line_crossed dropped
 const fixture = (): SafeguardRun => ({
     runId: 'FIXTURE',
     experiment: true,
-    given: { gameProblemId: 'G1', contextId: 'X1', formId: 'F1', authorizedSet: ['m1'], recordKind: 'TEST_ONLY_RECORD', standIns: [] },
+    given: { gameProblemId: 'G1', contextId: 'X1', formId: 'F1', authorizedSet: ['m1'], recordKind: 'TEST_ONLY_RECORD', standIns: [], proposed: ['m1'] },
     handoffStop: null,
     chain: {
         outcome: 'served',
@@ -1024,7 +1057,7 @@ const fixture = (): SafeguardRun => ({
         constraints: ['m1'],
         constraintAuthority: 'AUTHORIZATION_RECORD',
         lenses: ['L1', 'L2'],
-        consumption: { gameProblemId: 'G1', gameProblemSource: 'Step 1 (review pathway)', formCandidatesScored: ['F1'], formCandidatesFrom: 'SELECTION_TRACE_RANKING', constraintAuthority: 'AUTHORIZATION_RECORD', constraintCandidateIds: ['m1'], sizeRuleBypassed: true, hintsGameProblemId: 'G1', lensCandidateIds: ['L1', 'L2'], hintsSignals: ['S1'] },
+        consumption: { gameProblemId: 'G1', gameProblemSource: 'Step 1 (review pathway)', formCandidatesScored: ['F1'], formCandidatesFrom: 'SELECTION_TRACE_RANKING', constraintAuthority: 'AUTHORIZATION_RECORD', constraintCandidateIds: ['m1'], sizeRuleBypassed: true, hintsGameProblemId: 'G1', lensCandidateIds: ['L1', 'L2'], hintsSignals: ['S1'], k2: null },
         contextInThisActivity: true,
         scoringCondition: { state: 'NOT_CLASSIFIED', rowId: 'R1', carried: false },
     },
@@ -1199,6 +1232,123 @@ test('S4. one and two manipulations only through the DRAFT record\'s authorized 
 })
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
+// Stage W1 (b): the review pathway's K2 result consumed in place of a per-goal authorization record
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
+/** K2's rule and its limit, verbatim (Christian, received 7 November 2026, first reply); held equal to the ruling the data holds. */
+const K2_RULE = 'A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.'
+const K2_LIMIT = 'Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.'
+/** What a run shares with its DRAFT-record twin once the authority label, K2's basis, the treatment and the rulings entering with it are set aside. */
+const sansK2 = (r: HandoffResult) => {
+    const x: any = copy(r)
+    for (const key of ['caseId', 'label', 'testOnlyTreatments', 'rulings']) delete x[key]
+    if (x.consumption) {
+        delete x.consumption.constraintAuthority
+        delete x.consumption.reviewManipulations
+    }
+    return json(x)
+}
+/** The upstream results the chain can take that the constraints row of the ownership table does not name (the safeguard of stage W1 (b)). */
+export const unnamedUpstreamResults = (authorities: readonly string[], row = OWNERSHIP_TABLE.find((o) => o.row === 'CONSTRAINTS')!): string[] =>
+    authorities.filter((a) => a !== 'VOCABULARY_POOL' && `${row.owner} ${row.input}`.indexOf(a) < 0)
+
+test('K2 (stage W1 (b)): the five base runs stand on the review pathway\'s K2 result with no record of ours (the empty set, authority REVIEW_PATHWAY_K2, never AUTHORIZATION_RECORD), K2\'s rule and limit carried into the account and the report, GF2\'s GP-015 cell still CANDIDATE; each equals its DRAFT-record twin but for the authority label and the basis, and the twin reads K2_NOT_TAKEN; K2 is refused with a non-empty set, beside a record, with the quota bypass, and without it the chain stops as before; the ownership row names every upstream result the chain can take', () => {
+    assert.deepEqual([words('HO-07NOV-K2')[1], words('HO-07NOV-K2')[2]], [K2_RULE, K2_LIMIT], 'the data holds K2 verbatim')
+    const cited = 'HO-07NOV-K2, received 7 November 2026, first reply'
+    for (const id of BASE_IDS) {
+        const r = at(id)
+        const twin = at(`${id}${DRAFT_ARM}`)
+        assert.deepEqual([r.request?.records, r.request?.consume?.k2?.set, r.request?.consume?.sizeRuleBypass ?? false, r.request?.recordRoute ?? null], ['PRODUCTION', [], false, null], `${id}: K2's empty set, no record, no bypass`)
+        assert.deepEqual([r.result.consumption?.constraintAuthority, r.result.consumption?.constraintCandidateIds, r.answer?.observed?.constraintAuthority, r.run.chain?.constraints], ['REVIEW_PATHWAY_K2', [], 'REVIEW_PATHWAY_K2', []], `${id}: the authority REVIEW_PATHWAY_K2, never relabelled`)
+        // The limit travels with the result into the account (read back from the build's account by the wiring), and GF2's cell keeps its grade.
+        assert.deepEqual(r.result.consumption?.reviewManipulations, { basis: 'K2_REVIEW_ONLY', set: [], rule: K2_RULE, limit: K2_LIMIT, cited }, id)
+        assert.equal(r.result.consumption?.form?.cells.find((c) => c.cell.endsWith('game_forms GF2'))?.grade, 'CANDIDATE', `${id}: GF2's GP-015 cell stays CANDIDATE`)
+        // The twin: our DRAFT record with its empty set, as before the stage.
+        assert.deepEqual([twin.result.consumption?.constraintAuthority, twin.result.consumption?.constraintCandidateIds, twin.result.consumption?.reviewManipulations], ['AUTHORIZATION_RECORD', [], null], `${id}: the twin stands on the record`)
+        // Outcome, stage, reasons, lines, sentences, refusal basis: identical; only the authority label and the basis differ.
+        assert.deepEqual([r.result.chain?.outcome, r.result.chain?.stage, r.result.chain?.reasons], [twin.result.chain?.outcome, twin.result.chain?.stage, twin.result.chain?.reasons], id)
+        assert.equal(sansK2(r.result), sansK2(twin.result), `${id}: equal to its DRAFT-record twin but for the authority label and K2's basis`)
+        assert.deepEqual([verdictOf(id, 'CONSTRAINTS'), verdictOf(`${id}${DRAFT_ARM}`, 'CONSTRAINTS')], ['CONSUMED', 'K2_NOT_TAKEN'], id)
+        const notTaken = at(`${id}${DRAFT_ARM}`).findings.find((f) => f.row === 'CONSTRAINTS')!
+        assert.equal(classOf(notTaken), 'DETECTED', 'K2_NOT_TAKEN is a detected disconnection, never a pass')
+        assert.throws(() => assertExperimentRun(at(`${id}${DRAFT_ARM}`).findings), /owned by the upstream result the chain takes, one of: .*: K2_NOT_TAKEN/, `${id}: the twin would fail test 1`)
+    }
+    // The report carries K2's rule and limit, each quoted with its date (the handoff's report of the A02 runs).
+    const report = handoffReportText([at('A02-0').result], inputs, [])
+    assert.ok(report.includes(`K2's limit, carried with the result: ${Q}${K2_LIMIT}${Q} (${cited})`), 'the report quotes the limit')
+    assert.ok(report.includes(`${Q}${K2_RULE}${Q} (${cited})`), 'the report quotes the rule')
+    // The draft store under K2: the DRAFT A02 record held to the gate, then set aside and listed as not read.
+    const asideStore = loadDraftStore(STORE, { recordsSetAsideBy: K2_TREATMENT })
+    assert.deepEqual([asideStore.records.length, asideStore.files], [0, ['rpc-002-contract.DRAFT.json']])
+    assert.ok(asideStore.notRead.some((n) => n.file === 'a02-authorization.DRAFT.json' && n.why.includes(K2_TREATMENT)), 'the record is listed as not read, with the treatment')
+    assert.equal(loadDraftStore(STORE).records.length, 1, 'read without the treatment, the store still holds the record (the DRAFT-record arm)')
+
+    // The selection's own refusals (selectFor under upstream, the chain's entry): a non-empty set, beside a record, with the quota bypass.
+    const consume = at('A02-0').request!.consume!
+    const upstreamWith = (extra: Partial<boundedSelection.UpstreamDecisions>): boundedSelection.UpstreamDecisions => ({
+        gameProblem: { gameProblemId: consume.gameProblem.gameProblemId, step1Basis: consume.gameProblem.basis as 'APPROVED_TRANSLATION', label: consume.gameProblem.label },
+        gameForm: copy(consume.gameForm),
+        reviewManipulations: { basis: 'K2_REVIEW_ONLY', set: [], rule: K2_RULE, limit: K2_LIMIT, cited },
+        ...extra,
+    })
+    const production = learningGoalAuthorizations()
+    const withRecord = [...production, ...loadDraftStore(STORE).records]
+    const contracts = { contracts: asideStore.contracts, draftsAdmitted: true as const }
+    const k2Selection = boundedSelection.selectFor('A02', null, production, undefined, contracts, upstreamWith({}))
+    assert.deepEqual([k2Selection.constraintAuthority, k2Selection.constraintPool.source, k2Selection.constraintPool.candidateIds, k2Selection.authorization, k2Selection.consumed?.reviewManipulations?.limit], ['REVIEW_PATHWAY_K2', 'REVIEW_PATHWAY_K2', [], null, K2_LIMIT])
+    assert.ok(k2Selection.constraintPool.constraintPrinciple !== null, 'read under the one recorded principle, so the zero branch commits the form alone')
+    assert.throws(() => boundedSelection.selectFor('A02', null, production, undefined, contracts, upstreamWith({ reviewManipulations: { basis: 'K2_REVIEW_ONLY', set: [C('neutral-player-condition')], rule: K2_RULE, limit: K2_LIMIT, cited } })), /the review pathway's K2 result is consumed only as the empty set/)
+    assert.throws(() => boundedSelection.selectFor('A02', null, withRecord, undefined, contracts, upstreamWith({})), /consumed only in place of a per-goal authorization record, and a record governs this goal \(A02, a DRAFT record\)/)
+    assert.throws(() => boundedSelection.selectFor('A02', null, production, undefined, contracts, upstreamWith({ quotaBypass: true })), /quota bypass is honoured only for an authorization record's evaluated set, never beside the review pathway's K2 result/)
+    assert.throws(() => boundedSelection.selectFor('A02', null, production, undefined, contracts, upstreamWith({ reviewManipulations: { basis: 'K2_REVIEW_ONLY', set: [], rule: K2_RULE, limit: ' ', cited } })), /K2 result with its basis \(K2_REVIEW_ONLY\), its set, its rule, its limit and their citation/)
+    // Without K2 (and no record), the chain stops where it stopped before the stage.
+    const { reviewManipulations: _k2, ...plain } = upstreamWith({})
+    assert.throws(() => boundedSelection.selectFor('A02', null, production, undefined, contracts, plain), /no record governs this goal, so its pool would be vocabulary-derived/)
+    // The selector's own guard: a K2 pool with a candidate throws, so K2 can never authorize a manipulation even if handed one directly.
+    const text = guidedGoalText('A02')
+    const k2Hints = { ...guidedSelectionHints('A02', text).hints, candidateArchetypeIds: ['GF2'], candidateConstraintIds: [C('neutral-player-condition')], constraintAuthority: { authority: 'REVIEW_PATHWAY_K2' as const, learningGoalId: 'A02', constraintPrinciple: { ruledOn: 'x', by: 'x', principle: 'x' } } }
+    assert.throws(() => generateSelection({ learningGoals: [text], learningGoalId: 'A02' } as any, k2Hints, false), /K2 yields no manipulation, so its set is the empty set only/)
+    assert.throws(() => generateSelection({ learningGoals: [text], learningGoalId: 'A02' } as any, { ...k2Hints, candidateConstraintIds: [] }, true), /TEST-ONLY quota bypass requested for a selection whose constraints are not an evaluated authorization record \(REVIEW_PATHWAY_K2\)/)
+    // The handoff's validator and the wiring refuse the pairings.
+    const refuses = (alter: (c: any) => void, pattern: RegExp) => {
+        const c: any = caseOf('A02-0')
+        alter(c)
+        assert.throws(() => validateHandoffInputs(composed([...raw.cases.filter((x: any) => x.id !== 'A02-0'), c])), pattern)
+    }
+    refuses((c) => c.testOnlyTreatments.push({ id: 'TT-SIZE', kind: 'SIZE_RULE_BYPASS', what: 'w', effect: 'e', why: 'y', label: 'TEST-ONLY' }), /K2_RETAIN_FORM is never declared beside SIZE_RULE_BYPASS/)
+    refuses((c) => (c.proposedManipulations = [{ id: 'PM-X', purpose: 'p', manipulation: C('neutral-player-condition'), relationship: { ...RELATIONSHIP }, entersBy: 'RECORD' }]), /K2_RETAIN_FORM is handed only where no proposed manipulation has a relationship/)
+    refuses((c) => (c.testOnlyTreatments = c.testOnlyTreatments.filter((t: any) => t.kind !== 'CONSUMED_STEPS')), /K2_RETAIN_FORM is declared at most once, and only beside CONSUMED_STEPS/)
+    refuses((c) => (c.testOnlyTreatments.find((t: any) => t.kind === 'K2_RETAIN_FORM').k2.limit = 99), /K2's rule and limit belong only to K2_RETAIN_FORM/)
+    refuses((c) => (c.testOnlyTreatments.find((t: any) => t.kind === 'DRAFT_STORE').k2 = { rulingRef: 'HO-07NOV-K2', rule: 1, limit: 2 }), /K2's rule and limit belong only to K2_RETAIN_FORM/)
+    const k2Request = copy(at('A02-0').request!)
+    assert.throws(() => realChain.build({ ...k2Request, recordRoute: [C('neutral-player-condition')] }), /K2's result is handed in place of a per-goal authorization record, and this request also carries record-route manipulations/)
+
+    // The safeguards on doctored copies of a K2 run: a built constraint under K2 is UNAUTHORIZED_SOURCE; K2 beside a record, or with a
+    // manipulation proposed, CONTRADICTED; K2's limit not carried, MISSING.
+    const doctor = (change: (x: SafeguardRun) => void): string => {
+        const x = copy(at('A02-0').run)
+        change(x)
+        return ownershipOf(x).find((f) => f.row === 'CONSTRAINTS')!.verdict
+    }
+    assert.deepEqual(
+        [
+            doctor((x) => (x.chain!.constraints = [C('neutral-player-condition')])),
+            doctor((x) => (x.given.recordKind = 'TEST_ONLY_RECORD')),
+            doctor((x) => (x.given.proposed = [C('neutral-player-condition')])),
+            doctor((x) => (x.chain!.consumption!.k2 = null)),
+            doctor((x) => (x.chain!.consumption!.k2!.limit = '')),
+        ],
+        ['UNAUTHORIZED_SOURCE', 'CONTRADICTED', 'CONTRADICTED', 'MISSING', 'MISSING'],
+    )
+    // The ownership row names every upstream result the chain can take (every authority but the vocabulary pool), and the verdict for K2 not
+    // taken; bite: an upstream result added to the list without a row naming it is caught.
+    assert.deepEqual(unnamedUpstreamResults(CONSTRAINT_AUTHORITIES), [])
+    assert.deepEqual(unnamedUpstreamResults([...CONSTRAINT_AUTHORITIES, 'A_NEW_UPSTREAM_RESULT']), ['A_NEW_UPSTREAM_RESULT'])
+    const row = OWNERSHIP_TABLE.find((o) => o.row === 'CONSTRAINTS')!
+    assert.ok(row.input.includes('K2_NOT_TAKEN') && (VERDICTS as readonly string[]).includes('K2_NOT_TAKEN'))
+})
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
 // The disposition table
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1225,8 +1375,11 @@ test('the disposition table: every selection check kept and enforced except the 
     holds('validate-constraint-package.ts', 491, 'does not show a clear relationship to the selected affordance or open problem space')
     holds('validate-constraint-package.ts', 365, 'does not support the selected affordance tag group')
     // Re-pinned openly in stage W1 (a) (lines moved by the TEST-ONLY hunks added above them): 384 -> 398, 212 -> 218, 228 -> 238; and the
-    // TEST-ONLY call with Step 1's Game Problem, 246.
-    holds('derivation/run-bounded-selection.ts', 398, `if (resolutionStatus !== 'matched')`)
+    // TEST-ONLY call with Step 1's Game Problem, 246. Stage W1 (b): 398 -> 452 (K2's hunks above it); K2's authority written at 386 only, and
+    // the selector's zero branch admitting K2's empty set at 1029.
+    holds('derivation/run-bounded-selection.ts', 452, `if (resolutionStatus !== 'matched')`)
+    holds('derivation/run-bounded-selection.ts', 386, `constraintAuthority: { authority: 'REVIEW_PATHWAY_K2', learningGoalId: goalId`)
+    holds('test-library/generateSelection.ts', 1029, 'const authorizesNone = (recordBacked || reviewPathwayK2EmptySet(constraintPool)) && constraintPool.candidateIds.length === 0')
     holds('sport-module/guided-selection.ts', 218, 'export function guidedSelectionHints')
     holds('sport-module/guided-selection.ts', 238, 'governByApprovedGameProblem(learningGoalId')
     holds('sport-module/guided-selection.ts', 246, 'governByApprovedGameProblem(learningGoalId, deriveInputConstraints(goalText), options.step1GameProblemId)')
@@ -1273,7 +1426,7 @@ export function stopsOf(): Stop[] {
             kind: 'PATH',
             // Batch A4 (the lead's decision, from the delivery review): read as decision authority [4], no longer Missing knowledge [1].
             categories: [4],
-            why: 'the checked pathway accepts manipulations only on a per-goal authorization record\'s authority (the live route hands it only a record-backed selection, live-activity.ts:55-56; with upstream decisions it refuses without one, run-bounded-selection.ts:338-339), and A02 has none; called on the production records, its candidates are A02\'s own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal\'s candidates), and they cannot be combined on any of RPC-002\'s declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the review pathway proposes no manipulation for A02 under K2 (approved for review-only use), and the checked pathway does not take that result; passed only by our TEST-ONLY DRAFT record standing in for that result (an empty set; on item 4\'s runs a TEST-ONLY copy of it holds the stand-in manipulations instead; the finding OURS, no ruling), never by the consumption; the category is OURS (an assumption)',
+            why: 'the production route accepts manipulations only on a per-goal authorization record\'s authority (the live route hands it only a record-backed selection, live-activity.ts:55-56), and A02 has none; called on the production records, its candidates are A02\'s own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal\'s candidates), and they cannot be combined on any of RPC-002\'s declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the production route is unchanged. On the isolated pathway, since stage W1 (b), the chain takes the review pathway\'s K2 result in place of a per-goal record (no manipulation proposed for A02; K2 approved for review-only use; our reading of E5, reversible: the DRAFT-record arm is kept as comparison and reads K2_NOT_TAKEN), and without K2 or a record it still refuses (run-bounded-selection.ts:389-390); L2 passes this stop on our TEST-ONLY DRAFT record (nothing consumed), NO-RESTATEMENT and A02-0 on K2\'s result with no record of ours; the category is OURS (an assumption)',
         },
         {
             id: 'L2',
@@ -1285,8 +1438,8 @@ export function stopsOf(): Stop[] {
             categories: [4],
             why: 'the chain selects its own GF3 from the wording against Step 2\'s SELECTED form (GAME_FORM CONTRADICTED); the consumption (S1) closes it',
         },
-        { id: 'NO-RESTATEMENT', path: 'consumed, with our DRAFT record and without the restatement', stage: String(at('NO-RESTATEMENT').result.chain?.stage), reason: reason('NO-RESTATEMENT'), kind: 'PATH', within: 1684, categories: [3, 5], why: 'the context\'s approved rows have no executable form in the engine: no contribution contract joins them to the configuration' },
-        { id: 'A02-0', path: 'consumed, with our CANDIDATE restatement (the knowledge as it stands)', stage: String(at('A02-0').result.chain?.stage), reason: reason('A02-0', 2), kind: 'PATH', categories: [1, 5], why: `of the two lines this stop cites together, the origin clause, placed first by us (OURS: the condition is what distinguishes High Press Escape from the contexts sharing its events): no operational interpretation of the clause is held (question ${firstNext.order} of the smallest source material, the next consequential gap), and no carrier exists for it (the only typed begin condition is a restart, the only episode scope the build-out one)` },
+        { id: 'NO-RESTATEMENT', path: 'consumed, on the review pathway\'s K2 result (no record of ours) and without the restatement', stage: String(at('NO-RESTATEMENT').result.chain?.stage), reason: reason('NO-RESTATEMENT'), kind: 'PATH', within: 1684, categories: [3, 5], why: 'the context\'s approved rows have no executable form in the engine: no contribution contract joins them to the configuration' },
+        { id: 'A02-0', path: 'consumed, on the review pathway\'s K2 result, with our CANDIDATE restatement (the knowledge as it stands)', stage: String(at('A02-0').result.chain?.stage), reason: reason('A02-0', 2), kind: 'PATH', categories: [1, 5], why: `of the two lines this stop cites together, the origin clause, placed first by us (OURS: the condition is what distinguishes High Press Escape from the contexts sharing its events): no operational interpretation of the clause is held (question ${firstNext.order} of the smallest source material, the next consequential gap), and no carrier exists for it (the only typed begin condition is a restart, the only episode scope the build-out one)` },
         { id: 'A02-1', path: 'A02-1 (origin and progression withheld, TEST-ONLY)', stage: String(at('A02-1').result.chain?.stage), reason: reason('A02-1', 2), kind: 'DOWNSTREAM', categories: [1], why: 'the control referent is not stated' },
         { id: 'A02-1b', path: 'A02-1b (+ the control referent declared NO_FURTHER_VALUE, TEST-ONLY)', stage: String(at('A02-1b').result.chain?.stage), reason: reason('A02-1b', 1), kind: 'DOWNSTREAM', categories: [2, 1], why: 'the refusal rests on our DRAFT classification of the laws; no ruling settles the Laws for A02' },
         { id: 'A02-2', path: 'A02-2 (+ the LAW-11 stand-in, TEST-ONLY)', stage: String(at('A02-2').result.chain?.stage), reason: reason('A02-2'), kind: 'DOWNSTREAM', categories: [1, 5], why: 'no approved coach wording for the condition, and the checked renderer has no sentence for it' },
@@ -1386,7 +1539,7 @@ test('the report: the ownership table, every run decision by decision with its c
     has('safeguard B fails on: OD-WORDING-FLIP, OD-WORDING-LENSES')
     has(`OPEN DISCONNECTIONS (${OPEN_DISCONNECTIONS.length}; printed as open disconnections, never as safeguards passing)`)
     assert.equal(lines.filter((l) => l.startsWith('- ') && OWNERSHIP_TABLE.some((o) => l.startsWith(`- ${o.decision}: owner `))).length, OWNERSHIP_TABLE.length)
-    has(`earliest remaining: consumed, with our CANDIDATE restatement (the knowledge as it stands): structure; Missing knowledge; and A configuration or rendering implementation limitation: ${stopsOf().find((s) => s.id === 'A02-0')!.why}`)
+    has(`earliest remaining: consumed, on the review pathway's K2 result, with our CANDIDATE restatement (the knowledge as it stands): structure; Missing knowledge; and A configuration or rendering implementation limitation: ${stopsOf().find((s) => s.id === 'A02-0')!.why}`)
     assert.ok(!/pass(es|ed)? (all|every)|all safeguards pass/i.test(text), 'no passing summary')
     assert.equal(text.indexOf(String.fromCharCode(34)), -1, 'no double quotation mark')
     const hit = lines.findIndex((l) => holdsGenderedPronoun(l))
@@ -1396,7 +1549,7 @@ test('the report: the ownership table, every run decision by decision with its c
     for (const id of ['A02-0', 'A02-1', 'A02-1b', 'A02-2', 'A02-D']) {
         let answer: ChainAnswer | null = null
         const result = runHandoff(caseOf(id), inputs, { build: (r) => (answer = realChain.build(r)) }, k)
-        const again = ownershipOf(safeguardRunOf(result, answer, true, { authorizedSet: [], recordKind: 'TEST_ONLY_RECORD', scoring: SCORING }))
+        const again = ownershipOf(safeguardRunOf(result, answer, true, { ...K2_FACTS, scoring: SCORING }))
         assert.equal(json(again), json(at(id).findings), id)
     }
     if (process.env.A02_SAFEGUARDS_OUT) fs.writeFileSync(process.env.A02_SAFEGUARDS_OUT, text)

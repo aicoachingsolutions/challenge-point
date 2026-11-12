@@ -4,8 +4,9 @@
  * written to production knowledge, or an authorization.
  *
  * The comparison (DESIGN-9 section 5, brief; no family analysis): TA02 runs through the same consumption as A02 (Steps 1 and 2 run by the
- * handoff and consumed by the chain's TEST-ONLY option), over our DRAFT restatement of RPC-003 and the DRAFT TA02 record, both read from the
- * TEST-ONLY draft store ta02-composition (as the handoff's A05 cases read it), each run labelled TA02's context pending: TA02-0 (the knowledge
+ * handoff and consumed by the chain's TEST-ONLY option), over our DRAFT restatement of RPC-003, read from the TEST-ONLY draft store
+ * ta02-composition (as the handoff's A05 cases read it), and, since stage W1 (b), the review pathway's K2 result in place of a per-goal record
+ * (the store's DRAFT TA02 record set aside, as A02's is), each run labelled TA02's context pending: TA02-0 (the knowledge
  * as it stands) and TA02-D (every condition item withheld, the LAW-11 stand-in, as A02-D). One test measures, from both goals' own results,
  * which decisions are shared and which differ, whether the two built outputs collapse into one activity, and that the TA02 runs' Game Form
  * and constraints are consumed and, since stage W1 (a) (11 November 2026), their Game Problem too: it governs the chain's lens hints (the
@@ -133,6 +134,9 @@ const TA02_RULINGS: CaseInput['rulings'] = [
     { ref: 'HO-07NOV-PURPOSE', entersAs: 'REPORT_ONLY', how: 'the purpose\'s source and approval evidence printed apart' },
     { ref: 'HO-23OCT-LAWS', entersAs: 'REPORT_ONLY', how: 'the Laws apply by default: nothing enters; the chain\'s laws account reports each law' },
     { ref: 'HO-07NOV-OFFSIDE-SCOPE', entersAs: 'REPORT_ONLY', how: 'the provisional no-offside ruling is scoped to the initial small-sided realization: nothing enters; the LAW-11 stand-in of TA02-D is a TEST-ONLY treatment, never this ruling generalized' },
+    // Stage W1 (b): the TA02 runs take K2's result as the A02 runs do (the same treatment, inherited from the A02 case each mirrors).
+    { ref: 'HO-07NOV-K2', entersAs: 'EMPTY_CONSTRAINT_SET', how: 'the review pathway\'s K2 result (no manipulation proposed for TA02) handed to the chain in place of a per-goal authorization record (TT-K2-RETAIN-FORM), as for A02: the empty set only; its rule and its limit are carried into the account and the report' },
+    { ref: 'A02-03NOV-DESIGN-AUTHORIZATION', entersAs: 'REPORT_ONLY', how: 'E5: our reading of it is why K2\'s result stands in for a per-goal record, as for A02' },
 ]
 const TA02_PENDING_NOTE = {
     section: 'standing' as const,
@@ -174,8 +178,8 @@ function ta02Case(baseId: 'A02-0' | 'A02-D', id: string): CaseInput {
         if (t.kind === 'DRAFT_STORE')
             return {
                 ...t,
-                what: `our DRAFT restatement of RPC-003 (CANDIDATE: ours, unreviewed) and the DRAFT TA02 record (no ruling field filled, an empty set, our finding of 27 October) read from the TEST-ONLY draft store ${TA02_STORE}, as the handoff's A05 cases read it`,
-                effect: 'the context\'s items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the record route governs the constraints with the DRAFT TA02 record\'s empty authorized set',
+                what: `our DRAFT restatement of RPC-003 (CANDIDATE: ours, unreviewed) read from the TEST-ONLY draft store ${TA02_STORE}, as the handoff's A05 cases read it; the store's DRAFT TA02 record (no ruling field filled, an empty set, our finding of 27 October) is held to the store's gate and set aside under TT-K2-RETAIN-FORM, as for A02`,
+                effect: 'the context\'s items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway\'s K2 result (TT-K2-RETAIN-FORM), as for A02',
                 why: 'RPC-003 has no production contract and TA02 no production record; writing either would change the live route',
                 rulingRefs: ['A02-10NOV-REUSE'],
             }
@@ -191,7 +195,7 @@ function ta02Case(baseId: 'A02-0' | 'A02-D', id: string): CaseInput {
         return t
     })
     if (baseId === 'A02-0') {
-        c.label = `${id}: TA02 with the knowledge as it stands and our DRAFT (CANDIDATE) restatement of RPC-003 (Steps 1 and 2 consumed by the chain, as for A02; the DRAFT TA02 record with an empty set); TA02's context pending`
+        c.label = `${id}: TA02 with the knowledge as it stands and our DRAFT (CANDIDATE) restatement of RPC-003 (Steps 1 and 2 consumed by the chain, as for A02; the review pathway's K2 result, no manipulation, in place of a per-goal record, as for A02); TA02's context pending`
         c.resultStanding = 'REUSE_COMPARISON_KNOWLEDGE_AS_IT_STANDS_TA02_CONTEXT_PENDING'
     } else {
         c.label = `${id}, diagnostic: as A02-D, every condition item of our restatement of RPC-003 withheld (TEST-ONLY), with the TEST-ONLY LAW-11 stand-in: plain GF2; TA02's context pending`
@@ -234,7 +238,7 @@ const ta02At = (id: string): Built => {
 /** The safeguard check (a02-safeguards.unit.ts) run on the TA02 runs: the same facts as the A02 base cases (an empty set, a TEST-ONLY record). */
 const ta02Safeguard = (id: string): { run: SafeguardRun; findings: Finding[] } => {
     const b = ta02At(id)
-    const run = safeguardRunOf(b.result, b.answer, true, { authorizedSet: [], recordKind: 'TEST_ONLY_RECORD', standIns: [], scoring: TA02_SCORING, engineRule: null })
+    const run = safeguardRunOf(b.result, b.answer, true, { ...S.K2_FACTS, standIns: [], scoring: TA02_SCORING, engineRule: null })
     return { run, findings: ownershipOf(run) }
 }
 const TA02_IDS = TA02_CASES.map((c) => c.id)
@@ -299,7 +303,7 @@ function comparisonOf(a: Pair, t: Pair): { rows: ReuseRow[]; differingLines: str
         const x = p.zero.result.consumption
         return x ? `Game Problem ${x.gameProblem?.gameProblemId} from ${x.gameProblem?.source}; scorer handed ${x.formCandidatesScored.join(', ')} (${x.formCandidatesFrom}); constraints ${x.constraintAuthority} [${x.constraintCandidateIds.join(', ')}]; size-rule bypass ${x.sizeRuleBypassed}` : 'none recorded'
     }
-    row('the consumption (what the chain records it was handed)', handed(a), handed(t), 'the same TEST-ONLY option and the same record route, each goal\'s DRAFT record with an empty set')
+    row('the consumption (what the chain records it was handed)', handed(a), handed(t), 'the same TEST-ONLY option and the same K2 result, the empty set, for each goal (each goal\'s DRAFT record set aside, since stage W1 (b))')
     row('the context', `${s1(a)?.contextId} '${nameOfContext(s1(a)?.contextId)}'`, `${s1(t)?.contextId} '${nameOfContext(s1(t)?.contextId)}'`, 'routed by the planning model and read by the chain from the same routing; TA02\'s context pending')
     const eventsOf = (p: Pair) => itemsOf(p, '*', 'V1').filter((v) => v.indexOf('[') === 0)
     const asSet = (vs: string[]) => vs.map((v) => v.slice(1, -1).split(', ').sort().join(', ')).join('; ')
@@ -391,6 +395,17 @@ const SELECTOR_HUNKS: Array<{ lines: string; at: number; holds: string; what: st
     { lines: '1061', at: 1061, holds: 'constraintSizes,', what: 'the sizes are handed to the enumeration' },
     { lines: '1083', at: 1083, holds: 'assertSelectionContract(bestLensCombo, bestConCombo, zeroConstraintCommitment, quotaBypassOwnSize)', what: 'the own size is handed to the size rule' },
 ]
+/**
+ * Stage W1 (b), 11 November 2026: the selector's places for the review pathway's K2 result, disclosed apart from the switch (they are not the
+ * switch), each held to the file's text. No production pool carries REVIEW_PATHWAY_K2 (the static test of upstream-consumption.unit.ts pins
+ * that selectFor's upstream branch alone writes it), so each reads every production pool exactly as before.
+ */
+const K2_SELECTOR_HUNKS: Array<{ lines: string; at: number; holds: string; what: string }> = [
+    { lines: '152', at: 152, holds: 'constraintAuthority: authority ? authority.authority : (\'VOCABULARY_POOL\' as const),', what: 'the pool\'s authority is read from the hint (AUTHORIZATION_RECORD for every production hint), so K2\'s is never relabelled' },
+    { lines: '168', at: 168, holds: 'source: authority ? authority.authority : \'GOAL_CANDIDATES\',', what: 'the pool\'s source likewise' },
+    { lines: '1029', at: 1029, holds: 'const authorizesNone = (recordBacked || reviewPathwayK2EmptySet(constraintPool)) && constraintPool.candidateIds.length === 0', what: 'the zero branch admits K2\'s result, as an empty set only (the quota bypass stays record-only, :1033)' },
+    { lines: '1186-1199', at: 1193, holds: 'function reviewPathwayK2EmptySet(pool: ConstraintPoolAccount): boolean {', what: 'the guard: false for every other pool, true for K2\'s empty set, and it throws for a K2 pool with any candidate (K2 authorizes no manipulation)' },
+]
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // The key: every identifier the report's frame and seven items use (names read from the knowledge files where they hold them)
@@ -440,7 +455,9 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'M6', means: 'one of the eight A01 safeguards Christian approved: no further value required, explicitly unrestricted, and a necessary value missing stay three distinct states' },
     { id: 'K2', means: 'the K2 wording we proposed (retaining a basic Game Form), approved by Christian for review-only use (received 7 November 2026, first reply); under it the review pathway proposes no manipulation where none has an authorized basis (appendix D, 5. Manipulations); quoted in item 5' },
     { id: 'E5', means: 'Christian\'s E5, design authorization (received 3 November 2026); quoted in item 5' },
-    { id: 'W1', means: 'stage W1 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 11 November 2026: (a) Step 1\'s Game Problem governs the chain\'s lens hints and matched signals on the isolated pathway' },
+    { id: 'W1', means: 'stage W1 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 11 November 2026: (a) Step 1\'s Game Problem governs the chain\'s lens hints and matched signals on the isolated pathway; (b) the review pathway\'s K2 result is consumed in place of a per-goal authorization record' },
+    { id: 'REVIEW_PATHWAY_K2', means: 'the constraints\' authority where the chain takes the review pathway\'s K2 result in place of a per-goal authorization record (TEST-ONLY, stage W1 (b)): the empty set only, never relabelled AUTHORIZATION_RECORD' },
+    { id: 'K2_NOT_TAKEN', means: 'a verdict (stage W1 (b)): the review pathway proposed no manipulation, so its K2 result applies, and a TEST-ONLY record of ours stood in for it (the DRAFT-record comparison arm; a detected disconnection, never a pass)' },
     { id: 'RC1.1', means: 'the version of the Representative Performance Context Library the program holds (its rows\' last verified version)' },
     { id: SELECTOR_FILE, family: true, means: 'the constraint selector\'s source file, with line numbers; any other name ending .ts is an engine source file, with line numbers, and a short hexadecimal string after one (its origin) is a commit, found by git blame, that introduced the rule or the part of it named beside it' },
     { id: 'TEST-ONLY', means: 'code, data or a treatment no route, controller or service reaches' },
@@ -535,7 +552,7 @@ const doctoredA02D = (() => {
     const d = S.at('A02-D')
     const doctored = copy(d.result)
     doctored.testOnlyTreatments = doctored.testOnlyTreatments.filter((t) => t.id !== 'TT-WITHHOLD-CONDITION')
-    return ownershipOf(safeguardRunOf(doctored, d.answer, true, { authorizedSet: [], recordKind: 'TEST_ONLY_RECORD', standIns: [], scoring: S.SCORING, engineRule: null }))
+    return ownershipOf(safeguardRunOf(doctored, d.answer, true, { ...S.K2_FACTS, standIns: [], scoring: S.SCORING, engineRule: null }))
 })()
 const entry = (id: string): OpenDisconnection => {
     const e = S.OPEN_DISCONNECTIONS.find((x) => x.id === id)
@@ -565,11 +582,11 @@ const valuePathRefusals = (clause: string) => {
 }
 
 /**
- * Batch A4 (the lead's decision, from the delivery review): a gap found in review that the safeguards cannot detect, said in items 1 and 3
- * and in the README's known limitations. It is not an open disconnection: an entry there lists the safeguards' measured verdicts, and the
- * ownership table gives the constraints to the authorization record, so no verdict of theirs reads the review pathway's K2 result.
+ * Batch A4 (the lead's decision, from the delivery review): a gap found in review that the safeguards could not detect, said in items 1 and 3
+ * and in the README's known limitations. Since stage W1 (b) (11 November 2026) the experiment path takes K2's result and the safeguards see the
+ * difference: their ownership row names every upstream result the chain can take, and a run where our record stood in reads K2_NOT_TAKEN.
  */
-const K2_NOT_TAKEN = 'Open, found in review, not detected by the safeguards: the checked pathway does not take the review pathway\'s proposal of no manipulation under K2 (item 5); the safeguards cannot see it because their ownership table gives the constraints to the authorization record (not an open disconnection: it has no measured verdict).'
+const K2_NOT_TAKEN = 'Taken since stage W1 (b) (11 November 2026), our reading, put to Christian (item 5): on the experiment path the checked pathway takes the review pathway\'s proposal of no manipulation under K2 in place of a per-goal authorization record (REVIEW_PATHWAY_K2, the empty set only, K2\'s limit carried into the account); the safeguards\' ownership row now names every upstream result the chain can take, and the DRAFT-record comparison arm, where our TEST-ONLY record stands in for K2\'s result, reads K2_NOT_TAKEN (a detected disconnection, never a pass).'
 
 function bodyLines(): string[] {
     const out: string[] = []
@@ -597,6 +614,8 @@ function bodyLines(): string[] {
     add('FIRST, FOR CHRISTIAN\'S DECISION: THE CONSTRAINT SELECTOR')
     add(`- To bypass the numerical quota in the isolated experiment, the constraint selector's source file (${SELECTOR_FILE}) gained one TEST-ONLY parameter, a switch that is off unless a caller passes it, in ${SELECTOR_HUNKS.length} places (each held to the file's text by this report's test):`)
     for (const h of SELECTOR_HUNKS) add(`   ${SELECTOR_FILE}:${h.lines}: ${h.what}`)
+    add(`- Since stage W1 (b) (11 November 2026), to take the review pathway's K2 result in place of a per-goal authorization record, the same file reads the pool's authority from the hint and admits K2's result only as the empty set, in ${K2_SELECTOR_HUNKS.length} places (each held to the file's text; production never hands it that authority):`)
+    for (const h of K2_SELECTOR_HUNKS) add(`   ${SELECTOR_FILE}:${h.lines}: ${h.what}`)
     add(`- No route, controller or service passes it (a registered static test reads every non-test source file). With it off, the selector's behaviour is compared with main's by the behaviour snapshot, ${RECORD_WORDS.disclosure}.`)
     const npWza = S.at('S4-NP+WZA/no-bypass').result.chain
     const npWzaSame = json([npWza?.outcome, npWza?.stage, npWza?.reasons, S.at('S4-NP+WZA/no-bypass').run.chain?.constraints]) === json([S.at('S4-NP+WZA').result.chain?.outcome, S.at('S4-NP+WZA').result.chain?.stage, S.at('S4-NP+WZA').result.chain?.reasons, S.at('S4-NP+WZA').run.chain?.constraints])
@@ -616,10 +635,10 @@ function bodyLines(): string[] {
         `Answer (OURS): on the isolated pathway, yes. The chain takes Step 2's form as its form, its scorer handed only that form; Step 2 chooses the form from Step 1's Game Problem (with Step 1's primary swapped to ${gp2.result.receive.step1?.primary.join(', ')}, the chain takes ${gp2.result.consumption?.form?.formId} as its form). Since stage W1 (a) (11 November 2026), Step 1's Game Problem also governs the chain's Game-Problem-dependent inputs, the lens hints and matched signals (${S.verdictOf('A02-0', 'GAME_PROBLEM')}; on ${gp2.id} the lens candidates are ${gp2.result.consumption?.hintsGameProblemId}'s Coverage row's ${gp2.result.consumption?.lensCandidateIds.length}, while the planning model's reading ${gp2.run.chain?.gameProblemId} stays in the account beside it, never in its place). The context is still read from the routing (open, below). The production route is unchanged and still picks A02's form from the wording.`,
     )
     add('Implemented and tested:')
-    add('- A TEST-ONLY option of the checked chain hands it Step 1\'s resolved Game Problem and Step 2\'s SELECTED form: its candidate forms become the routed context\'s declared forms filtered to Step 2\'s form (never replaced by it), a form outside them is refused, and its constraints come only from the authorization record. Since stage W1 (a), Step 1\'s Game Problem is handed on to the guided selection hints (one TEST-ONLY option no route passes), which read it as the approved Game Problem; the chain records which Game Problem governed its hints and the hints its selector was handed.')
+    add('- A TEST-ONLY option of the checked chain hands it Step 1\'s resolved Game Problem and Step 2\'s SELECTED form: its candidate forms become the routed context\'s declared forms filtered to Step 2\'s form (never replaced by it), a form outside them is refused, and its constraints come only from the authorization record or, since stage W1 (b), from the review pathway\'s K2 result in its place. Since stage W1 (a), Step 1\'s Game Problem is handed on to the guided selection hints (one TEST-ONLY option no route passes), which read it as the approved Game Problem; the chain records which Game Problem governed its hints and the hints its selector was handed.')
     add(`- The ${A02_RUN_IDS.length} A02 runs (${A02_RUN_IDS.join(', ')}): Step 1 ${s1?.status} ${s1?.primary.join(', ')} at ${s1?.contextId} (${s1?.basis}); Step 2 ${s2?.status} ${s2?.selected} (compatible: ${s2?.compatible.join(', ')}); the chain took ${a0.consumption?.form?.formId} as its form, its scorer handed only ${a0.consumption?.formCandidatesScored.join(', ')}; the handoff placed nothing.`)
     add(
-        `- On ${reachedChain.length} of the ${S.EXPERIMENT_RUNS.length} experiment runs (every one that reaches the chain): the Game Form reads CONSUMED (${verdictOn('GAME_FORM', 'CONSUMED')} runs), equal to Step 2's form, and the chain's own record shows its scorer was handed only it; the constraints read CONSUMED (${verdictOn('CONSTRAINTS', 'CONSUMED')} runs) against the authorized set of our TEST-ONLY DRAFT A02 record, or of a TEST-ONLY copy of it on the runs of item 4 (no ruling; the finding is ours), not against any decision of Step 1 or Step 2; Step 1's Game Problem reads CONSUMED (${verdictOn('GAME_PROBLEM', 'CONSUMED')} runs), and so does the Game Problem that governs the hints (${verdictOn('GAME_PROBLEM_HINTS', 'CONSUMED')} runs): the chain's own record shows Step 1's value governed its lens hints and matched signals (before stage W1 (a) the Game Problem read CARRIED_NOT_READ, carried in the account and read by no chain decision). The one other run (Step 1's primary swapped to GP-001) is reconsidered by Step 2, which retains ${S.at('GP-001').result.receive.step2?.compatible.join(', ')} with no basis to select, and stops before the chain.`,
+        `- On ${reachedChain.length} of the ${S.EXPERIMENT_RUNS.length} experiment runs (every one that reaches the chain): the Game Form reads CONSUMED (${verdictOn('GAME_FORM', 'CONSUMED')} runs), equal to Step 2's form, and the chain's own record shows its scorer was handed only it; the constraints read CONSUMED (${verdictOn('CONSTRAINTS', 'CONSUMED')} runs): on the review pathway's K2 result (the empty set, no record of ours; ${S.EXPERIMENT_RUNS.filter((id) => S.at(id).result.consumption?.constraintAuthority === 'REVIEW_PATHWAY_K2').length} runs), or, on the runs of item 4, against the authorized set of a TEST-ONLY copy of our DRAFT A02 record (no ruling; the finding is ours), never against a decision of Step 1 or Step 2; Step 1's Game Problem reads CONSUMED (${verdictOn('GAME_PROBLEM', 'CONSUMED')} runs), and so does the Game Problem that governs the hints (${verdictOn('GAME_PROBLEM_HINTS', 'CONSUMED')} runs): the chain's own record shows Step 1's value governed its lens hints and matched signals (before stage W1 (a) the Game Problem read CARRIED_NOT_READ, carried in the account and read by no chain decision). The one other run (Step 1's primary swapped to GP-001) is reconsidered by Step 2, which retains ${S.at('GP-001').result.receive.step2?.compatible.join(', ')} with no basis to select, and stops before the chain.`,
     )
     const legacyPicks = [...new Set(['GP-002/legacy', 'GF7-CELL/legacy'].map((id) => S.at(id).run.chain?.ownPick?.join(', ')))]
     const refusedAs = (id: string) => `refused at ${S.at(id).result.chain?.stage} (${(S.at(id).result.chain?.reasons ?? []).map(plain).join('; ')})`
@@ -701,7 +720,9 @@ function bodyLines(): string[] {
         'S4-NP/no-bypass': 'the lone Neutral Player without the switch',
         'S4-NP+WZA/no-bypass': 'two manipulations without the switch',
         'A02-2/CAR': 'A02-2 with GP-015\'s CAR ratings changed',
-        'W-DROPS-UPSTREAM': 'the wrapper that drops the handed decisions',
+        'W-DROPS-UPSTREAM': 'the wrapper that drops the handed decisions (on the DRAFT-record arm)',
+        // Stage W1 (b): the DRAFT-record comparison arm, kept beside K2's result.
+        ...Object.fromEntries(S.BASE_IDS.map((id) => [`${id}${S.DRAFT_ARM}`, `${id} on the DRAFT-record comparison arm (our record in place of K2's result: K2_NOT_TAKEN)`])),
     }
     const controlWords = (id: string) => {
         assert.ok(CONTROL_WORDS[id], `the control ${id} is described`)
@@ -724,7 +745,7 @@ function bodyLines(): string[] {
         `Answer (OURS): zero and one manipulation can be represented without the quota interfering where the record authorizes exactly that many. Where it authorizes two and only one of them passes the kept checks, the floor of 2 that remains for subsets stops the run (${flipRuns.join(', ')}). No manipulation is justified for A02 in anything we hold, so what is shown is the representation, not a justified configuration.`,
     )
     add('Implemented and tested:')
-    add(`- Zero: the ${A02_RUN_IDS.length} A02 runs commit the DRAFT record's empty set (constraints ${[...new Set(A02_RUN_IDS.map((id) => S.verdictOf(id, 'CONSTRAINTS')))].join(', ')}, none built): representable, not shown to be justified; the record's finding is ours: no manipulation has an authorized relationship to RPC-002 and GP-015 in held knowledge.`)
+    add(`- Zero: the ${A02_RUN_IDS.length} A02 runs commit the review pathway's K2 result, the empty set (constraints ${[...new Set(A02_RUN_IDS.map((id) => S.verdictOf(id, 'CONSTRAINTS')))].join(', ')}, none built, since stage W1 (b)): representable, not shown to be justified; K2's limit travels with the result into the account, ${cite('HO-07NOV-K2', 2)}. On the DRAFT-record comparison arm the same runs commit our DRAFT record's empty set (${[...new Set(A02_RUN_IDS.map((id) => S.verdictOf(`${id}${S.DRAFT_ARM}`, 'CONSTRAINTS')))].join(', ')}), with the same outcome, stage and reasons; the record's finding is ours: no manipulation has an authorized relationship to RPC-002 and GP-015 in held knowledge.`)
     const sameAsA02 = json(S.at('S4-NP').result.chain?.reasons) === json(a0.chain?.reasons) ? `, on the same lines as ${A02_RUN_IDS[0]}` : ''
     add(`- One: a lone Neutral Player in the DRAFT record's set (a TEST-ONLY relationship stand-in, TEST ASSUMPTION) is selected with the TEST-ONLY size-rule bypass (S4-NP: selected, then refused at ${S.at('S4-NP').result.chain?.stage}${sameAsA02}) and refused without it (S4-NP/no-bypass: refused at ${S.at('S4-NP/no-bypass').result.chain?.stage}, attributed to the size rule): the quota interfered, and the bypass removed only it.`)
     add(`- One, refused by kept checks: a lone Wide Zone Advantage or Turnover Reward is first refused by the foundation clause; Central Density Condition, alone and with Interception Reward, first by the package relationship check (row o); each attributed by re-running the selector's own exported package check on GF2 and each lens combination, which returns the first reason it meets (${S.QUOTA_REFUSED.map((id) => `${id} ${S.at(id).run.engineRule?.rule}`).join(', ')}).`)
@@ -749,17 +770,18 @@ function bodyLines(): string[] {
     add(`Christian asked: ${cite('A02-10NOV-REPORT', 4)}`)
     const first = seq.sequence[0]
     add(
-        `Answer (OURS): in reasoning order, the first blocker is that the checked pathway accepts manipulations only on a per-goal authorization record's authority (the live route hands it only goals with a record), which A02 lacks, and does not take the review pathway's K2 result (${cats(first.categories)}; the category ours): for every A02 run the review pathway proposes no manipulation (appendix D, 5. Manipulations) under K2, ${cite('HO-07NOV-K2', 1)}; Christian's E5 also bears on this stop, ${cite('A02-03NOV-DESIGN-AUTHORIZATION', 0)}; neither standing ruling is read here as deciding it (the request below). The experiment passes this stop only with our TEST-ONLY DRAFT record standing in for the review pathway's result (an empty set; the finding ours; no ruling). Past it, the earliest consequential blocker is the origin clause of High Press Escape's approved scoring condition (the sequence begins under established coordinated pressure): ${cats(seq.earliest.categories)}. A02-0's single refusal cites the origin clause's value and the control clause's referent together; placing the origin clause first is ours (an assumption, below).`,
+        `Answer (OURS): in reasoning order, the first stop is the production route's: it accepts manipulations only on a per-goal authorization record's authority (the live route hands it only goals with a record), which A02 lacks (${cats(first.categories)}; the category ours). On the isolated pathway, since stage W1 (b) (11 November 2026), the checked pathway takes the review pathway's K2 result in its place: for every A02 run the review pathway proposes no manipulation (appendix D, 5. Manipulations) under K2, ${cite('HO-07NOV-K2', 1)}, and E5 reads, ${cite('A02-03NOV-DESIGN-AUTHORIZATION', 1)}; taking K2's result for review is our reading of those two rulings (stated in the request below so Christian can reverse it), it yields only the empty set, and its limit travels with it, ${cite('HO-07NOV-K2', 2)}. Past that stop, standing on K2's result with no record of ours, the earliest consequential blocker is the origin clause of High Press Escape's approved scoring condition (the sequence begins under established coordinated pressure): ${cats(seq.earliest.categories)}. A02-0's single refusal cites the origin clause's value and the control clause's referent together; placing the origin clause first is ours (an assumption, below).`,
     )
     add('Implemented and tested (computed from the runs, in chain order):')
     for (const s of seq.sequence) add(`- ${plain(s.path)}: ${s.stage}: ${plain(s.reason)} [${cats(s.categories)}] ${s.passed ? `(passed by ${s.passedBy})` : '(remains)'}`)
     add(`- The first stop: ${plain(first.why)}.`)
-    add(`- Every experiment path past the first stop, and the zero-manipulation base of every A02 run, stands on our TEST-ONLY DRAFT A02 record (an empty set, or on item 4's runs a TEST-ONLY copy holding the stand-in manipulations; the finding ours, no ruling) in place of a per-goal authorization record, which A02 lacks; its empty set stands in for the review pathway's K2 result, which the checked pathway does not take.`)
+    const comparisonSame = S.BASE_IDS.every((id) => json([S.at(id).result.chain?.outcome, S.at(id).result.chain?.stage, S.at(id).result.chain?.reasons]) === json([S.at(`${id}${S.DRAFT_ARM}`).result.chain?.outcome, S.at(`${id}${S.DRAFT_ARM}`).result.chain?.stage, S.at(`${id}${S.DRAFT_ARM}`).result.chain?.reasons]))
+    add(`- Every consumed path past the first stop, and the zero-manipulation base of every A02 run, stands on the review pathway's K2 result (the empty set, REVIEW_PATHWAY_K2, no record of ours; on item 4's runs a TEST-ONLY copy of our DRAFT record holds the stand-in manipulations instead). The DRAFT-record comparison arm (${S.BASE_IDS.map((id) => `${id}${S.DRAFT_ARM}`).join(', ')}), with our TEST-ONLY record in place of K2's result as before stage W1 (b), ${comparisonSame ? 'stops where each K2 run stops, on the same reasons' : 'DOES NOT stop where the K2 runs stop'}, and reads K2_NOT_TAKEN.`)
     add(`- Earliest remaining: ${plain(seq.earliest.path)}: ${plain(seq.earliest.why)}.`)
     add('- Downstream, recorded and not investigated:')
     for (const s of seq.downstream) add(`   ${plain(s.path)}: ${s.stage} [${cats(s.categories)}]`)
     add(`The categories are Christian's: ${cite('A02-10NOV-FAILURE-SOURCES', 0)} ${S.CATEGORIES.slice(1).map((w) => quoted(w)).join(' ')}`)
-    add('Proposals: none. The requests: for the first blocker, Christian\'s decision whether, in the isolated experiment, the checked pathway may take the review pathway\'s K2 result (no manipulation proposed) in place of a per-goal authorization record; whether A02 needs any manipulation to represent High Press Escape stays open (item 2, questions 1 and 5). For the blocker past it, question 1 of item 2. Each is a request, not a proposal of knowledge.')
+    add('Proposals: none. The requests: for the first stop, our reading, which Christian may reverse: in the isolated experiment the checked pathway takes the review pathway\'s K2 result (no manipulation proposed) in place of a per-goal authorization record, under E5 and K2 (reversing it costs one treatment; the DRAFT-record arm is kept beside it); whether A02 needs any manipulation to represent High Press Escape stays open (item 2, questions 1 and 5). For the blocker past it, question 1 of item 2. Each is a request, not a proposal of knowledge.')
     add('Assumptions (OURS): the assignment of each stop to Christian\'s categories (the first blocker\'s included); the order of the questions; placing the origin clause before the control clause\'s referent, which A02-0\'s single refusal cites together.')
     add('Ecological suitability: not addressed: the first blocker is a question of decision authority, and the earliest consequential blocker a gap of knowledge and of a carrier; both are met before any activity is built.')
     add('')
@@ -769,7 +791,7 @@ function bodyLines(): string[] {
     const shared = COMPARISON.rows.filter((r) => r.kind === 'SHARED')
     const differs = COMPARISON.rows.filter((r) => r.kind === 'DIFFERS')
     add(`Answer (OURS): ${REUSE_FINDING}`)
-    add(`Implemented and tested: TA02 run through the same consumption (TA02-0, the knowledge as it stands; TA02-D, the diagnostic), over our DRAFT restatement of RPC-003 and the DRAFT TA02 record (TEST-ONLY draft store): ${[['its Game Problem', 'GAME_PROBLEM', 'reads'], ['its Game Form', 'GAME_FORM', 'reads'], ['its constraints', 'CONSTRAINTS', 'read']].map(([what, row, verb]) => `${what} ${verb} ${[...new Set(TA02_IDS.flatMap((id) => verdictsOf(ta02Safeguard(id).findings, row)))].join(', ')}`).join(', ')}. Measured from both goals' results (appendix C):`)
+    add(`Implemented and tested: TA02 run through the same consumption (TA02-0, the knowledge as it stands; TA02-D, the diagnostic), over our DRAFT restatement of RPC-003 (TEST-ONLY draft store) and, as for A02, the review pathway's K2 result in place of a per-goal record (the DRAFT TA02 record set aside): ${[['its Game Problem', 'GAME_PROBLEM', 'reads'], ['its Game Form', 'GAME_FORM', 'reads'], ['its constraints', 'CONSTRAINTS', 'read']].map(([what, row, verb]) => `${what} ${verb} ${[...new Set(TA02_IDS.flatMap((id) => verdictsOf(ta02Safeguard(id).findings, row)))].join(', ')}`).join(', ')}. Measured from both goals' results (appendix C):`)
     add(`- shared (${shared.length}): ${shared.map((r) => r.aspect).join('; ')}.`)
     add(`- differing (${differs.length}): ${differs.map((r) => r.aspect).join('; ')}.`)
     for (const r of differs.filter((x) => x.aspect === 'the context' || x.aspect.indexOf('the condition\'s') === 0)) add(`   ${r.aspect}: A02 ${plain(r.a02)} | TA02 ${plain(r.ta02)}`)
@@ -794,7 +816,7 @@ function bodyLines(): string[] {
     add('- The TEST-ONLY option is passed by no route, controller or service (a registered static test reads every non-test source file); with it absent, every one of the 13 Learning Goals builds exactly as the production entry builds it, and A01 with it is identical once its two TEST-ONLY account fields are set aside (registered tests).')
     add('- No production knowledge file holds our restatement of RPC-002 or the DRAFT A02 record, and A02 has no production record (tested).')
     add(`Recorded apart, not in this report: the regression on the committed tree (the type check, the whole suite, the behaviour snapshot against main's baseline, the bundle compared with main), in the evidence folder's regression record (${RECORD_WORDS.item7}).`)
-    add('Open: four bundled files differ from main by TEST-ONLY additions no route passes (the selector\'s are disclosed first, above; the guided selection hints\' one option since stage W1 (a)); isolation rests on the branch staying unmerged and undeployed.')
+    add('Open: five bundled files differ from main by TEST-ONLY additions no route passes (the selector\'s are disclosed first, above; the guided selection hints\' one option since stage W1 (a); the authority of the review pathway\'s K2 result in the types since stage W1 (b)); isolation rests on the branch staying unmerged and undeployed.')
     add('Proposals: none.')
     add('Assumptions (OURS): none beyond the TEST-ONLY option itself, which no route passes.')
     add('Ecological suitability: not addressed: an unchanged application is an engineering claim.')
@@ -846,6 +868,7 @@ function evidenceOf(a02Results: HandoffResult[], ta02Results: HandoffResult[]): 
         stage: 'DESIGN_REASONING_A02_FOUNDATIONAL_TEST',
         standing: 'TEST-ONLY review evidence; isolated; not deployed; not merged; not an authorization. Engineering evidence only: no run establishes ecological suitability or representative sufficiency.',
         selectorHunks: SELECTOR_HUNKS.map((h) => ({ file: SELECTOR_FILE, lines: h.lines, what: h.what })),
+        k2SelectorHunks: K2_SELECTOR_HUNKS.map((h) => ({ file: SELECTOR_FILE, lines: h.lines, what: h.what })),
         a01: { before: S.A01_BEFORE, afterSafeguards: S.A01_AFTER, afterTa02: A01_END },
         comparison: COMPARISON,
         reuseFinding: REUSE_FINDING,
@@ -933,7 +956,9 @@ test(`S5. reuse, brief: TA02 through the same consumption over our DRAFT restate
         assert.deepEqual([b.request?.consume?.gameProblem.gameProblemId, b.request?.consume?.gameForm.formId, b.request?.draftStore, b.request?.records], ['GP-015', 'GF2', TA02_STORE, 'PRODUCTION'], id)
         const r = b.result
         assert.deepEqual([r.receive.step1?.status, r.receive.step1?.basis, r.receive.step1?.primary, r.receive.step1?.contextId, r.receive.step2?.status, r.receive.step2?.selected, r.receive.step2?.compatible], ['RESOLVED', 'APPROVED_TRANSLATION', ['GP-015'], 'RPC-003', 'SELECTED', 'GF2', ['GF2']], id)
-        assert.deepEqual([r.consumption?.selectionObservedOnly, r.consumption?.formCandidatesScored, r.consumption?.constraintAuthority, r.consumption?.constraintCandidateIds], [true, ['GF2'], 'AUTHORIZATION_RECORD', []], id)
+        // Stage W1 (b), re-pinned openly: the constraints' authority was AUTHORIZATION_RECORD (the DRAFT TA02 record's empty set); the TA02 runs
+        // inherit TT-K2-RETAIN-FORM from the A02 case each mirrors and take K2's result, the empty set, with its limit carried.
+        assert.deepEqual([r.consumption?.selectionObservedOnly, r.consumption?.formCandidatesScored, r.consumption?.constraintAuthority, r.consumption?.constraintCandidateIds, r.consumption?.reviewManipulations?.limit], [true, ['GF2'], 'REVIEW_PATHWAY_K2', [], ruling('HO-07NOV-K2').words[2]], id)
         // The same safeguard check as the A02 runs: the owned decisions consumed; every detected disconnection listed; none stale.
         const { findings } = ta02Safeguard(id)
         // Re-pinned openly in stage W1 (a): the Game Problem was CARRIED_NOT_READ (read by no decision of the chain); Step 1's GP-015 now governs
@@ -1022,10 +1047,15 @@ test(`the report: the constraint selector disclosed first, each of its places he
     const disclosure = first('FIRST, FOR CHRISTIAN\'S DECISION: THE CONSTRAINT SELECTOR')
     assert.ok(disclosure > 0 && disclosure < first('KEY (') && first('KEY (') < lines.indexOf(HEADINGS[0]), 'the disclosure comes before the key and the items')
     const source = fs.readFileSync(SELECTOR_PATH, 'utf8').split('\n')
-    for (const h of SELECTOR_HUNKS) {
+    for (const h of [...SELECTOR_HUNKS, ...K2_SELECTOR_HUNKS]) {
         assert.ok(source[h.at - 1].includes(h.holds), `${SELECTOR_FILE}:${h.at} holds ${h.holds}`)
         assert.ok(lines.includes(`   ${SELECTOR_FILE}:${h.lines}: ${h.what}`), h.lines)
     }
+    // Stage W1 (b): every line of the selector naming K2's authority or its guard lies inside a disclosed K2 place.
+    const insideK2 = (n: number) => K2_SELECTOR_HUNKS.some((h) => n >= Number(h.lines.split('-')[0]) && n <= Number(h.lines.split('-')[1] ?? h.lines))
+    const namingK2 = source.map((l, n) => ({ n: n + 1, l })).filter((x) => x.l.indexOf('REVIEW_PATHWAY_K2') >= 0 || x.l.indexOf('reviewPathwayK2EmptySet') >= 0 || x.l.indexOf('authority.authority') >= 0)
+    assert.ok(namingK2.length > 0)
+    assert.deepEqual(namingK2.filter((x) => !insideK2(x.n)).map((x) => x.n), [], 'a line naming K2 outside the disclosed places')
     // Every line of the selector naming the switch, the own size or the sizes list lies inside a disclosed place (measured: none outside).
     const inside = (n: number) =>
         SELECTOR_HUNKS.some((h) => {
@@ -1132,7 +1162,7 @@ test('the evidence equals what this file generates, generated twice and identica
     assert.throws(() => recordWords({ status: 'RECORDED', build: null }), /a filled regression record names the build/)
     for (const d of DISPOSITION) assert.ok(readme.includes(`| ${d.id} | ${d.disposition} |`), `the README's disposition table holds ${d.id}`)
     for (const e of S.OPEN_DISCONNECTIONS) assert.ok(readme.includes(`| ${e.id} |`), `the README lists ${e.id}`)
-    for (const h of SELECTOR_HUNKS) assert.ok(readme.includes(`${SELECTOR_FILE}:${h.lines}`), `the README discloses ${SELECTOR_FILE}:${h.lines}`)
+    for (const h of [...SELECTOR_HUNKS, ...K2_SELECTOR_HUNKS]) assert.ok(readme.includes(`${SELECTOR_FILE}:${h.lines}`), `the README discloses ${SELECTOR_FILE}:${h.lines}`)
     // The README's counts are held to the runs (batch A2): the safeguard runs, the restatement's items, and the date of the reply about A02.
     // Batch A3: the lone runs the switch's removal would refuse (NF-02); the first stop and the DRAFT record standing in (RC3-N2); the TA02
     // stop's parallel as the report words it (NF-05). Batch A4, re-pinned openly: the DRAFT record stands in for the review pathway's K2
@@ -1147,10 +1177,13 @@ test('the evidence equals what this file generates, generated twice and identica
         `${a02Items.length} items, each quoting its approved row verbatim`,
         `'reply about A02, pasted 10 November 2026'`,
         `the lone Neutral Player runs of item 4 (${LONE_RUNS.join(', ')})`,
-        'A02 has no authorization record, and that is the first stop',
-        'stands in for the review pathway\'s K2 result, in place of a per-goal authorization record',
-        'is not among the open disconnections',
-        'never by the consumption (report item 5)',
+        // Stage W1 (b), re-pinned openly: were 'A02 has no authorization record, and that is the first stop', 'stands in for the review
+        // pathway's K2 result, in place of a per-goal authorization record', 'is not among the open disconnections' and 'never by the
+        // consumption (report item 5)'; the experiment path now takes K2's result and the DRAFT record stands in only on the comparison arm.
+        'A02 has no authorization record; on the production route that is the first stop',
+        'our DRAFT record stands in for the review pathway\'s K2 result, as before the stage',
+        'reads K2_NOT_TAKEN, a detected disconnection',
+        'by the consumption of the review pathway\'s K2 result (report item 5',
         'not a like-for-like parallel',
     ])
         assert.ok(readme.includes(phrase), `the README says ${phrase}`)

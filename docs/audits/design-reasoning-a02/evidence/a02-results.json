@@ -48,6 +48,28 @@
    "what": "the own size is handed to the size rule"
   }
  ],
+ "k2SelectorHunks": [
+  {
+   "file": "generateSelection.ts",
+   "lines": "152",
+   "what": "the pool's authority is read from the hint (AUTHORIZATION_RECORD for every production hint), so K2's is never relabelled"
+  },
+  {
+   "file": "generateSelection.ts",
+   "lines": "168",
+   "what": "the pool's source likewise"
+  },
+  {
+   "file": "generateSelection.ts",
+   "lines": "1029",
+   "what": "the zero branch admits K2's result, as an empty set only (the quota bypass stays record-only, :1033)"
+  },
+  {
+   "file": "generateSelection.ts",
+   "lines": "1186-1199",
+   "what": "the guard: false for every other pool, true for K2's empty set, and it throws for a K2 pool with any candidate (K2 authorizes no manipulation)"
+  }
+ ],
  "a01": {
   "before": "e526ec8000a968e5d17302c7a15096cec66746ef6ea339a9cfda3f923ecd8a97",
   "afterSafeguards": "e526ec8000a968e5d17302c7a15096cec66746ef6ea339a9cfda3f923ecd8a97",
@@ -93,9 +115,9 @@
    {
     "aspect": "the consumption (what the chain records it was handed)",
     "kind": "SHARED",
-    "a02": "Game Problem GP-015 from Step 1 (review pathway); scorer handed GF2 (SELECTION_TRACE_RANKING); constraints AUTHORIZATION_RECORD []; size-rule bypass false",
-    "ta02": "Game Problem GP-015 from Step 1 (review pathway); scorer handed GF2 (SELECTION_TRACE_RANKING); constraints AUTHORIZATION_RECORD []; size-rule bypass false",
-    "note": "the same TEST-ONLY option and the same record route, each goal's DRAFT record with an empty set"
+    "a02": "Game Problem GP-015 from Step 1 (review pathway); scorer handed GF2 (SELECTION_TRACE_RANKING); constraints REVIEW_PATHWAY_K2 []; size-rule bypass false",
+    "ta02": "Game Problem GP-015 from Step 1 (review pathway); scorer handed GF2 (SELECTION_TRACE_RANKING); constraints REVIEW_PATHWAY_K2 []; size-rule bypass false",
+    "note": "the same TEST-ONLY option and the same K2 result, the empty set, for each goal (each goal's DRAFT record set aside, since stage W1 (b))"
    },
    {
     "aspect": "the context",
@@ -212,9 +234,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-003",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -234,7 +257,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-003",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Possession Stability Opportunity",
       "Line-Breaking Opportunity",
@@ -247,7 +270,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -259,7 +282,13 @@
       ],
       "hintsSignals": [
        "signalGroup:F_possession_passing"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -351,7 +380,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -413,9 +442,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-003",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -431,7 +461,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-003",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Possession Stability Opportunity",
       "Line-Breaking Opportunity",
@@ -444,7 +474,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -456,7 +486,13 @@
       ],
       "hintsSignals": [
        "signalGroup:F_possession_passing"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -568,7 +604,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -1014,10 +1050,10 @@
   {
    "row": "CONSTRAINTS",
    "decision": "the constraints (manipulations)",
-   "owner": "Christian's authorization record, or a TEST-ONLY record whose finding is ours (printed distinctly)",
-   "input": "the record's authorized set (the record route)",
+   "owner": "the upstream result the chain takes, one of: Christian's authorization record (AUTHORIZATION_RECORD); the review pathway's K2 result where it proposes no manipulation (REVIEW_PATHWAY_K2, the empty set only, review-only, since stage W1 (b)); or a TEST-ONLY record whose finding is ours (AUTHORIZATION_RECORD, printed distinctly)",
+   "input": "the record's authorized set (the record route), or K2's result with its limit (in place of a per-goal record, never beside one); where the review pathway proposes no manipulation and a TEST-ONLY record of ours stood in, K2_NOT_TAKEN",
    "output": "the selection's candidate pool and the constraints built",
-   "authority": "Christian's ruling where Christian's record governs; none where the record is a TEST-ONLY one of ours"
+   "authority": "Christian's ruling where Christian's record governs; K2 (approved for review-only use, received 7 November 2026) with E5 (received 3 November 2026), our reading, where its result is taken; none where the record is a TEST-ONLY one of ours"
   },
   {
    "row": "SELECTION_OUTCOME",
@@ -1098,8 +1134,8 @@
   {
    "id": "ZERO_BRANCH",
    "check": "the zero branch: an evaluated empty set commits lenses with no constraint",
-   "where": "generateSelection.ts:811-815, :1030",
-   "origin": "1f18a02 (the branch, then switched by a per-record zeroConstraintRuling) and 487dc32 (the general-principle switch, :1030), 15 October 2026",
+   "where": "generateSelection.ts:811-815, :1029-1030",
+   "origin": "1f18a02 (the branch, then switched by a per-record zeroConstraintRuling) and 487dc32 (the general-principle switch, :1030), 15 October 2026; the review pathway's K2 result admitted as an empty set only at :1029 (TEST-ONLY, stage W1 (b), 11 November 2026)",
    "disposition": "KEPT_ENFORCED",
    "reported": null,
    "authority": "Christian's general principle of 15 October 2026 (a constraint is not mandatory unless justified)",
@@ -1244,7 +1280,7 @@
   {
    "id": "RESOLUTION_STATUS",
    "check": "the resolution status: a selection that did not resolve is refused",
-   "where": "run-bounded-selection.ts:398",
+   "where": "run-bounded-selection.ts:452",
    "origin": "3a5aeed, 8 October 2026",
    "disposition": "KEPT_ENFORCED",
    "reported": "wording-keyed (the matched signals)",
@@ -1267,7 +1303,7 @@
     "categories": [
      4
     ],
-    "why": "the checked pathway accepts manipulations only on a per-goal authorization record's authority (the live route hands it only a record-backed selection, live-activity.ts:55-56; with upstream decisions it refuses without one, run-bounded-selection.ts:338-339), and A02 has none; called on the production records, its candidates are A02's own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal's candidates), and they cannot be combined on any of RPC-002's declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the review pathway proposes no manipulation for A02 under K2 (approved for review-only use), and the checked pathway does not take that result; passed only by our TEST-ONLY DRAFT record standing in for that result (an empty set; on item 4's runs a TEST-ONLY copy of it holds the stand-in manipulations instead; the finding OURS, no ruling), never by the consumption; the category is OURS (an assumption)",
+    "why": "the production route accepts manipulations only on a per-goal authorization record's authority (the live route hands it only a record-backed selection, live-activity.ts:55-56), and A02 has none; called on the production records, its candidates are A02's own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal's candidates), and they cannot be combined on any of RPC-002's declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the production route is unchanged. On the isolated pathway, since stage W1 (b), the chain takes the review pathway's K2 result in place of a per-goal record (no manipulation proposed for A02; K2 approved for review-only use; our reading of E5, reversible: the DRAFT-record arm is kept as comparison and reads K2_NOT_TAKEN), and without K2 or a record it still refuses (run-bounded-selection.ts:389-390); L2 passes this stop on our TEST-ONLY DRAFT record (nothing consumed), NO-RESTATEMENT and A02-0 on K2's result with no record of ours; the category is OURS (an assumption)",
     "passed": true,
     "passedBy": "L2"
    },
@@ -1287,7 +1323,7 @@
    },
    {
     "id": "NO-RESTATEMENT",
-    "path": "consumed, with our DRAFT record and without the restatement",
+    "path": "consumed, on the review pathway's K2 result (no record of ours) and without the restatement",
     "stage": "knowledge",
     "reason": "the Representative Performance Context RPC-002 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game",
     "kind": "PATH",
@@ -1302,7 +1338,7 @@
    },
    {
     "id": "A02-0",
-    "path": "consumed, with our CANDIDATE restatement (the knowledge as it stands)",
+    "path": "consumed, on the review pathway's K2 result, with our CANDIDATE restatement (the knowledge as it stands)",
     "stage": "structure",
     "reason": "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-002:RPC-002-04.a::V5, c:restated:RPC-002:RPC-002-02.a::V6",
     "kind": "PATH",
@@ -1317,7 +1353,7 @@
   ],
   "earliest": {
    "id": "A02-0",
-   "path": "consumed, with our CANDIDATE restatement (the knowledge as it stands)",
+   "path": "consumed, on the review pathway's K2 result, with our CANDIDATE restatement (the knowledge as it stands)",
    "stage": "structure",
    "reason": "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-002:RPC-002-04.a::V5, c:restated:RPC-002:RPC-002-02.a::V6",
    "kind": "PATH",
@@ -1371,7 +1407,7 @@
   {
    "id": "A02-0",
    "kind": "EXPERIMENT",
-   "label": "A02 with the knowledge as it stands and our CANDIDATE restatement of RPC-002 (Steps 1 and 2 consumed by the chain; the DRAFT A02 record with an empty set)",
+   "label": "A02 with the knowledge as it stands and our CANDIDATE restatement of RPC-002 (Steps 1 and 2 consumed by the chain; the review pathway's K2 result, no manipulation, consumed in place of a per-goal authorization record)",
    "run": {
     "runId": "A02-0",
     "experiment": true,
@@ -1379,9 +1415,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -1401,7 +1438,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Possession Stability Opportunity",
       "Space Creation Opportunity",
@@ -1414,7 +1451,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -1427,7 +1464,13 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -1523,7 +1566,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -1587,9 +1630,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -1609,7 +1653,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Possession Stability Opportunity",
       "Space Creation Opportunity",
@@ -1622,7 +1666,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -1635,7 +1679,13 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -1743,7 +1793,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -1807,9 +1857,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -1829,7 +1880,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Possession Stability Opportunity",
       "Space Creation Opportunity",
@@ -1842,7 +1893,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -1855,7 +1906,13 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -1978,7 +2035,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -2042,9 +2099,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -2065,7 +2123,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Possession Stability Opportunity",
       "Space Creation Opportunity",
@@ -2078,7 +2136,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -2091,7 +2149,13 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -2214,7 +2278,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -2278,9 +2342,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -2296,7 +2361,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Possession Stability Opportunity",
       "Space Creation Opportunity",
@@ -2309,7 +2374,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -2322,7 +2387,13 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -2434,7 +2505,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -2488,6 +2559,1135 @@
    ]
   },
   {
+   "id": "A02-0/draft-record",
+   "kind": "CONTROL",
+   "label": "A02-0 on the DRAFT-record arm (comparison): our TEST-ONLY DRAFT A02 record (an empty set, the finding ours) stands in for the review pathway's K2 result, as before stage W1 (b)",
+   "run": {
+    "runId": "A02-0/draft-record",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": [],
+     "recordKind": "TEST_ONLY_RECORD",
+     "standIns": [],
+     "proposed": []
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "structure",
+     "reasons": [
+      "Gate A is FAIL",
+      "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+      "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-002:RPC-002-04.a::V5, c:restated:RPC-002:RPC-002-02.a::V6"
+     ],
+     "refusalVerdict": "RESTATEMENT-ONLY",
+     "ownPick": [
+      "GF2"
+     ],
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [],
+     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "lenses": [
+      "Possession Stability Opportunity",
+      "Space Creation Opportunity",
+      "Regain Opportunity"
+     ],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "SELECTION_TRACE_RANKING",
+      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintCandidateIds": [],
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ],
+      "k2": null
+     },
+     "contextInThisActivity": true,
+     "scoringCondition": null
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [
+      "RPC-002-02.a",
+      "RPC-002-02.b",
+      "RPC-002-03.a",
+      "RPC-002-03.b",
+      "RPC-002-03.c",
+      "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "resting": [],
+     "unestablished": [],
+     "resolved": [],
+     "withheld": [],
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-02.a",
+       "ref": "c:restated:RPC-002:RPC-002-02.a::V6"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
+    },
+    "engineRule": null
+   },
+   "findings": [
+    {
+     "runId": "A02-0/draft-record",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "A02-0/draft-record",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "A02-0/draft-record",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0/draft-record",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+     "consulted": "the chain's own pick: GF2"
+    },
+    {
+     "runId": "A02-0/draft-record",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "K2_NOT_TAKEN",
+     "why": "the review pathway proposed no manipulation, so its K2 result applies (the empty set), and the chain took a TEST-ONLY record (finding OURS) in its place (its set none); built none (a detected disconnection, never a pass: the comparison arm)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0/draft-record",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the selection committed; the chain's own checks then stopped the run at structure",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0/draft-record",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-02.a::V6: explicitly unresolved, never a pass",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0/draft-record",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0/draft-record",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
+     "consulted": null
+    },
+    {
+     "runId": "A02-0/draft-record",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "CITED_NOT_CARRIED",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried",
+     "consulted": "the requirement account is not on this run"
+    },
+    {
+     "runId": "A02-0/draft-record",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at structure)",
+     "consulted": null
+    }
+   ]
+  },
+  {
+   "id": "A02-1/draft-record",
+   "kind": "CONTROL",
+   "label": "A02-1 on the DRAFT-record arm (comparison): our TEST-ONLY DRAFT A02 record (an empty set, the finding ours) stands in for the review pathway's K2 result, as before stage W1 (b)",
+   "run": {
+    "runId": "A02-1/draft-record",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": [],
+     "recordKind": "TEST_ONLY_RECORD",
+     "standIns": [],
+     "proposed": []
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "structure",
+     "reasons": [
+      "Gate A is FAIL",
+      "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+      "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-002:RPC-002-04.a::V5"
+     ],
+     "refusalVerdict": "RESTATEMENT-ONLY",
+     "ownPick": [
+      "GF2"
+     ],
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [],
+     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "lenses": [
+      "Possession Stability Opportunity",
+      "Space Creation Opportunity",
+      "Regain Opportunity"
+     ],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "SELECTION_TRACE_RANKING",
+      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintCandidateIds": [],
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ],
+      "k2": null
+     },
+     "contextInThisActivity": true,
+     "scoringCondition": null
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [
+      "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "resting": [],
+     "unestablished": [],
+     "resolved": [],
+     "withheld": [
+      {
+       "itemId": "RPC-002-02.a",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      },
+      {
+       "itemId": "RPC-002-02.b",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      },
+      {
+       "itemId": "RPC-002-03.a",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      },
+      {
+       "itemId": "RPC-002-03.b",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      },
+      {
+       "itemId": "RPC-002-03.c",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      }
+     ],
+     "declarationTreatments": [],
+     "refusedOn": [
+      {
+       "itemId": "RPC-002-04.a",
+       "ref": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ]
+    },
+    "engineRule": null
+   },
+   "findings": [
+    {
+     "runId": "A02-1/draft-record",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "A02-1/draft-record",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "A02-1/draft-record",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "A02-1/draft-record",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+     "consulted": "the chain's own pick: GF2"
+    },
+    {
+     "runId": "A02-1/draft-record",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "K2_NOT_TAKEN",
+     "why": "the review pathway proposed no manipulation, so its K2 result applies (the empty set), and the chain took a TEST-ONLY record (finding OURS) in its place (its set none); built none (a detected disconnection, never a pass: the comparison arm)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-1/draft-record",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the selection committed; the chain's own checks then stopped the run at structure",
+     "consulted": null
+    },
+    {
+     "runId": "A02-1/draft-record",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "WITHHELD_BY_TREATMENT",
+     "why": "every constituting item withheld by TT-WITHHOLD-ORIGIN-PROGRESSION (a detected disconnection, never a pass)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-1/draft-record",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "WITHHELD_BY_TREATMENT",
+     "why": "every constituting item withheld by TT-WITHHOLD-ORIGIN-PROGRESSION (a detected disconnection, never a pass)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-1/draft-record",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "REFUSED_ON_CLAUSE_LINE",
+     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-002:RPC-002-04.a::V5: explicitly unresolved, never a pass",
+     "consulted": null
+    },
+    {
+     "runId": "A02-1/draft-record",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "CITED_NOT_CARRIED",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried",
+     "consulted": "the requirement account is not on this run"
+    },
+    {
+     "runId": "A02-1/draft-record",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at structure)",
+     "consulted": null
+    }
+   ]
+  },
+  {
+   "id": "A02-1b/draft-record",
+   "kind": "CONTROL",
+   "label": "A02-1b on the DRAFT-record arm (comparison): our TEST-ONLY DRAFT A02 record (an empty set, the finding ours) stands in for the review pathway's K2 result, as before stage W1 (b)",
+   "run": {
+    "runId": "A02-1b/draft-record",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": [],
+     "recordKind": "TEST_ONLY_RECORD",
+     "standIns": [],
+     "proposed": []
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "validation",
+     "reasons": [
+      "the sport's default-laws check (BY_MATERIALITY, [Christian's] reply filed 30 October 2026, item 4) holds this composed activity: 1 material adaptation is owed, which prevents approval",
+      "LAW-11 (Law 11 (Offside)) at the game: an adaptation is owed - the representation holds no row for it: a fixed halfway line: no register row holds the halfway line of Law 1, and the build-out activities' only halfway marking is the marked line the coach may move; nothing departs from the whole of it [MATERIAL, as classified in docs/audits/drafts/laws-materiality.DRAFT.json, standing DRAFT - OUR READING of [Christian's] materiality test, for [Christian's] review: not [Christian's] classification, and not production knowledge]",
+      "reported for review, not refused: LAW-8 (Law 8 (The Start and Restart of Play), the kick-off) at the game: an adaptation is owed - the representation holds no row for it: the centre mark a kick-off is taken from: no register row holds it; nothing departs from the whole of it [PROCEDURAL, as classified in docs/audits/drafts/laws-materiality.DRAFT.json, standing DRAFT - OUR READING of [Christian's] materiality test, for [Christian's] review: not [Christian's] classification, and not production knowledge]"
+     ],
+     "refusalVerdict": "NOT KNOWLEDGE",
+     "ownPick": [
+      "GF2"
+     ],
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [],
+     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "lenses": [
+      "Possession Stability Opportunity",
+      "Space Creation Opportunity",
+      "Regain Opportunity"
+     ],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "SELECTION_TRACE_RANKING",
+      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintCandidateIds": [],
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ],
+      "k2": null
+     },
+     "contextInThisActivity": true,
+     "scoringCondition": {
+      "state": "NOT_CLASSIFIED",
+      "rowId": "RPC-PROP-133",
+      "carried": false
+     }
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [
+      "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "resting": [
+      "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "unestablished": [
+      {
+       "itemId": "RPC-002-04.a",
+       "lineId": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ],
+     "resolved": [
+      "RPC-002-04.b"
+     ],
+     "withheld": [
+      {
+       "itemId": "RPC-002-02.a",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      },
+      {
+       "itemId": "RPC-002-02.b",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      },
+      {
+       "itemId": "RPC-002-03.a",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      },
+      {
+       "itemId": "RPC-002-03.b",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      },
+      {
+       "itemId": "RPC-002-03.c",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      }
+     ],
+     "declarationTreatments": [
+      {
+       "selectorClause": "control",
+       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE",
+       "row": "V5"
+      }
+     ],
+     "refusedOn": []
+    },
+    "engineRule": null
+   },
+   "findings": [
+    {
+     "runId": "A02-1b/draft-record",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "A02-1b/draft-record",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "A02-1b/draft-record",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "A02-1b/draft-record",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+     "consulted": "the chain's own pick: GF2"
+    },
+    {
+     "runId": "A02-1b/draft-record",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "K2_NOT_TAKEN",
+     "why": "the review pathway proposed no manipulation, so its K2 result applies (the empty set), and the chain took a TEST-ONLY record (finding OURS) in its place (its set none); built none (a detected disconnection, never a pass: the comparison arm)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-1b/draft-record",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the selection committed; the chain's own checks then stopped the run at validation",
+     "consulted": null
+    },
+    {
+     "runId": "A02-1b/draft-record",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "WITHHELD_BY_TREATMENT",
+     "why": "every constituting item withheld by TT-WITHHOLD-ORIGIN-PROGRESSION (a detected disconnection, never a pass)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-1b/draft-record",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "WITHHELD_BY_TREATMENT",
+     "why": "every constituting item withheld by TT-WITHHOLD-ORIGIN-PROGRESSION (a detected disconnection, never a pass)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-1b/draft-record",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "CARRIED_UNDER_TREATMENT",
+     "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them, carried only under TT-CONTROL-NO-FURTHER-VALUE, a declaration replaced: line(s) c:restated:RPC-002:RPC-002-04.a::V5 establish nothing (a detected disconnection, never a pass)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-1b/draft-record",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "CITED_NOT_CARRIED",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried (control only under a declared TEST-ONLY treatment)",
+     "consulted": "the requirement account's state NOT_CLASSIFIED (a limitation: no requirement bindings for RPC-PROP-133; never a pass)"
+    },
+    {
+     "runId": "A02-1b/draft-record",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the chain closed the open lines within their authored bounds (each line graded by the handoff)",
+     "consulted": null
+    }
+   ]
+  },
+  {
+   "id": "A02-2/draft-record",
+   "kind": "CONTROL",
+   "label": "A02-2 on the DRAFT-record arm (comparison): our TEST-ONLY DRAFT A02 record (an empty set, the finding ours) stands in for the review pathway's K2 result, as before stage W1 (b)",
+   "run": {
+    "runId": "A02-2/draft-record",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": [],
+     "recordKind": "TEST_ONLY_RECORD",
+     "standIns": [],
+     "proposed": []
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "refused",
+     "stage": "communication",
+     "reasons": [
+      "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].type (V4)",
+      "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value (V6)",
+      "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].type is established by the game and no instruction carries it",
+      "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value is established by the game and no instruction carries it"
+     ],
+     "refusalVerdict": "NOT KNOWLEDGE",
+     "ownPick": [
+      "GF2"
+     ],
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [],
+     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "lenses": [
+      "Possession Stability Opportunity",
+      "Space Creation Opportunity",
+      "Regain Opportunity"
+     ],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "SELECTION_TRACE_RANKING",
+      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintCandidateIds": [],
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ],
+      "k2": null
+     },
+     "contextInThisActivity": true,
+     "scoringCondition": {
+      "state": "NOT_CLASSIFIED",
+      "rowId": "RPC-PROP-133",
+      "carried": false
+     }
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [
+      "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "resting": [
+      "RPC-002-04.a",
+      "RPC-002-04.b"
+     ],
+     "unestablished": [
+      {
+       "itemId": "RPC-002-04.a",
+       "lineId": "c:restated:RPC-002:RPC-002-04.a::V5"
+      }
+     ],
+     "resolved": [
+      "RPC-002-04.b"
+     ],
+     "withheld": [
+      {
+       "itemId": "RPC-002-02.a",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      },
+      {
+       "itemId": "RPC-002-02.b",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      },
+      {
+       "itemId": "RPC-002-03.a",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      },
+      {
+       "itemId": "RPC-002-03.b",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      },
+      {
+       "itemId": "RPC-002-03.c",
+       "treatmentId": "TT-WITHHOLD-ORIGIN-PROGRESSION"
+      }
+     ],
+     "declarationTreatments": [
+      {
+       "selectorClause": "control",
+       "treatmentId": "TT-CONTROL-NO-FURTHER-VALUE",
+       "row": "V5"
+      }
+     ],
+     "refusedOn": []
+    },
+    "engineRule": null
+   },
+   "findings": [
+    {
+     "runId": "A02-2/draft-record",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "A02-2/draft-record",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "A02-2/draft-record",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "A02-2/draft-record",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+     "consulted": "the chain's own pick: GF2"
+    },
+    {
+     "runId": "A02-2/draft-record",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "K2_NOT_TAKEN",
+     "why": "the review pathway proposed no manipulation, so its K2 result applies (the empty set), and the chain took a TEST-ONLY record (finding OURS) in its place (its set none); built none (a detected disconnection, never a pass: the comparison arm)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-2/draft-record",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the selection committed; the chain's own checks then stopped the run at communication",
+     "consulted": null
+    },
+    {
+     "runId": "A02-2/draft-record",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "WITHHELD_BY_TREATMENT",
+     "why": "every constituting item withheld by TT-WITHHOLD-ORIGIN-PROGRESSION (a detected disconnection, never a pass)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-2/draft-record",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "WITHHELD_BY_TREATMENT",
+     "why": "every constituting item withheld by TT-WITHHOLD-ORIGIN-PROGRESSION (a detected disconnection, never a pass)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-2/draft-record",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "CARRIED_UNDER_TREATMENT",
+     "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them, carried only under TT-CONTROL-NO-FURTHER-VALUE, a declaration replaced: line(s) c:restated:RPC-002:RPC-002-04.a::V5 establish nothing (a detected disconnection, never a pass)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-2/draft-record",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "CITED_NOT_CARRIED",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried (control only under a declared TEST-ONLY treatment)",
+     "consulted": "the requirement account's state NOT_CLASSIFIED (a limitation: no requirement bindings for RPC-PROP-133; never a pass)"
+    },
+    {
+     "runId": "A02-2/draft-record",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the chain closed the open lines within their authored bounds (each line graded by the handoff)",
+     "consulted": null
+    }
+   ]
+  },
+  {
+   "id": "A02-D/draft-record",
+   "kind": "CONTROL",
+   "label": "A02-D on the DRAFT-record arm (comparison): our TEST-ONLY DRAFT A02 record (an empty set, the finding ours) stands in for the review pathway's K2 result, as before stage W1 (b)",
+   "run": {
+    "runId": "A02-D/draft-record",
+    "experiment": true,
+    "given": {
+     "gameProblemId": "GP-015",
+     "contextId": "RPC-002",
+     "formId": "GF2",
+     "authorizedSet": [],
+     "recordKind": "TEST_ONLY_RECORD",
+     "standIns": [],
+     "proposed": []
+    },
+    "handoffStop": null,
+    "chain": {
+     "outcome": "served",
+     "stage": null,
+     "reasons": [],
+     "refusalVerdict": null,
+     "ownPick": [
+      "GF2"
+     ],
+     "form": "GF2",
+     "gameProblemId": "GP-015",
+     "gameProblemStatus": "APPROVED",
+     "contextId": "RPC-002",
+     "constraints": [],
+     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "lenses": [
+      "Possession Stability Opportunity",
+      "Space Creation Opportunity",
+      "Regain Opportunity"
+     ],
+     "consumption": {
+      "gameProblemId": "GP-015",
+      "gameProblemSource": "Step 1 (review pathway)",
+      "formCandidatesScored": [
+       "GF2"
+      ],
+      "formCandidatesFrom": "SELECTION_TRACE_RANKING",
+      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintCandidateIds": [],
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ],
+      "k2": null
+     },
+     "contextInThisActivity": true,
+     "scoringCondition": {
+      "state": "NOT_CLASSIFIED",
+      "rowId": "RPC-PROP-133",
+      "carried": false
+     }
+    },
+    "scoring": {
+     "rowId": "RPC-PROP-133",
+     "clauses": [
+      {
+       "clause": "origin",
+       "items": [
+        "RPC-002-02.a",
+        "RPC-002-02.b"
+       ]
+      },
+      {
+       "clause": "progression",
+       "items": [
+        "RPC-002-03.a",
+        "RPC-002-03.b",
+        "RPC-002-03.c"
+       ]
+      },
+      {
+       "clause": "control",
+       "items": [
+        "RPC-002-04.a",
+        "RPC-002-04.b"
+       ]
+      }
+     ],
+     "derived": [],
+     "resting": [],
+     "unestablished": [],
+     "resolved": [],
+     "withheld": [
+      {
+       "itemId": "RPC-002-02.a",
+       "treatmentId": "TT-WITHHOLD-CONDITION"
+      },
+      {
+       "itemId": "RPC-002-02.b",
+       "treatmentId": "TT-WITHHOLD-CONDITION"
+      },
+      {
+       "itemId": "RPC-002-03.a",
+       "treatmentId": "TT-WITHHOLD-CONDITION"
+      },
+      {
+       "itemId": "RPC-002-03.b",
+       "treatmentId": "TT-WITHHOLD-CONDITION"
+      },
+      {
+       "itemId": "RPC-002-03.c",
+       "treatmentId": "TT-WITHHOLD-CONDITION"
+      },
+      {
+       "itemId": "RPC-002-04.a",
+       "treatmentId": "TT-WITHHOLD-CONDITION"
+      },
+      {
+       "itemId": "RPC-002-04.b",
+       "treatmentId": "TT-WITHHOLD-CONDITION"
+      }
+     ],
+     "declarationTreatments": [],
+     "refusedOn": []
+    },
+    "engineRule": null
+   },
+   "findings": [
+    {
+     "runId": "A02-D/draft-record",
+     "row": "GAME_PROBLEM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+     "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+    },
+    {
+     "runId": "A02-D/draft-record",
+     "row": "GAME_PROBLEM_HINTS",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+    },
+    {
+     "runId": "A02-D/draft-record",
+     "row": "CONTEXT",
+     "clause": null,
+     "verdict": "AGREES_INDEPENDENTLY",
+     "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+     "consulted": null
+    },
+    {
+     "runId": "A02-D/draft-record",
+     "row": "GAME_FORM",
+     "clause": null,
+     "verdict": "CONSUMED",
+     "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+     "consulted": "the chain's own pick: GF2"
+    },
+    {
+     "runId": "A02-D/draft-record",
+     "row": "CONSTRAINTS",
+     "clause": null,
+     "verdict": "K2_NOT_TAKEN",
+     "why": "the review pathway proposed no manipulation, so its K2 result applies (the empty set), and the chain took a TEST-ONLY record (finding OURS) in its place (its set none); built none (a detected disconnection, never a pass: the comparison arm)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-D/draft-record",
+     "row": "SELECTION_OUTCOME",
+     "clause": null,
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the selection committed and the chain served the run",
+     "consulted": null
+    },
+    {
+     "runId": "A02-D/draft-record",
+     "row": "SCORING",
+     "clause": "origin",
+     "verdict": "WITHHELD_BY_TREATMENT",
+     "why": "every constituting item withheld by TT-WITHHOLD-CONDITION (a detected disconnection, never a pass)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-D/draft-record",
+     "row": "SCORING",
+     "clause": "progression",
+     "verdict": "WITHHELD_BY_TREATMENT",
+     "why": "every constituting item withheld by TT-WITHHOLD-CONDITION (a detected disconnection, never a pass)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-D/draft-record",
+     "row": "SCORING",
+     "clause": "control",
+     "verdict": "WITHHELD_BY_TREATMENT",
+     "why": "every constituting item withheld by TT-WITHHOLD-CONDITION (a detected disconnection, never a pass)",
+     "consulted": null
+    },
+    {
+     "runId": "A02-D/draft-record",
+     "row": "SCORING_DISPLAY",
+     "clause": null,
+     "verdict": "CITED_NOT_CARRIED",
+     "why": "the account displays the approved condition as in this activity while origin, progression, control are not carried",
+     "consulted": "the requirement account's state NOT_CLASSIFIED (a limitation: no requirement bindings for RPC-PROP-133; never a pass)"
+    },
+    {
+     "runId": "A02-D/draft-record",
+     "row": "REALIZATION",
+     "clause": null,
+     "verdict": "LEGITIMATE_CHAIN_DECISION",
+     "why": "the chain closed the open lines within their authored bounds (each line graded by the handoff)",
+     "consulted": null
+    }
+   ]
+  },
+  {
    "id": "S4-NP",
    "kind": "EXPERIMENT",
    "label": "quota run NP",
@@ -2502,7 +3702,10 @@
       "tl-v0-constraint-neutral-player-condition"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -2552,7 +3755,8 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -2716,7 +3920,10 @@
       "tl-v0-constraint-wide-zone-advantage"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-wide-zone-advantage"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -2756,7 +3963,8 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -2912,7 +4120,10 @@
       "tl-v0-constraint-turnover-reward"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-turnover-reward"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -2952,7 +4163,8 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -3108,7 +4320,10 @@
       "tl-v0-constraint-central-density-condition"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-central-density-condition"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -3148,7 +4363,8 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -3305,7 +4521,11 @@
       "tl-v0-constraint-wide-zone-advantage"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-wide-zone-advantage"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -3357,7 +4577,8 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -3522,7 +4743,11 @@
       "tl-v0-constraint-turnover-reward"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-turnover-reward"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -3572,7 +4797,8 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -3720,7 +4946,11 @@
       "tl-v0-constraint-interception-reward"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-central-density-condition",
+      "tl-v0-constraint-interception-reward"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -3761,7 +4991,8 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -3917,7 +5148,10 @@
       "tl-v0-constraint-neutral-player-condition"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -3957,7 +5191,8 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -4109,7 +5344,11 @@
       "tl-v0-constraint-wide-zone-advantage"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-wide-zone-advantage"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -4161,7 +5400,8 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -4325,7 +5565,10 @@
       "tl-v0-constraint-neutral-player-condition"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -4371,7 +5614,8 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -4552,7 +5796,11 @@
       "tl-v0-constraint-wide-zone-advantage"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-wide-zone-advantage"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -4600,7 +5848,8 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -4776,9 +6025,10 @@
      "gameProblemId": "GP-002",
      "contextId": "RPC-002",
      "formId": "GF7",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -4796,7 +6046,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Line-Breaking Opportunity",
       "Finishing Opportunity",
@@ -4809,7 +6059,7 @@
        "GF7"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-002",
@@ -4827,7 +6077,13 @@
        "signalGroup:H_transition",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -4906,7 +6162,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -4972,7 +6228,8 @@
      "formId": "GF7",
      "authorizedSet": [],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -5065,9 +6322,10 @@
      "gameProblemId": "GP-001",
      "contextId": "RPC-002",
      "formId": null,
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": "alternatives retained; no basis to select",
     "chain": null,
@@ -5203,7 +6461,8 @@
      "formId": null,
      "authorizedSet": [],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": "alternatives retained; no basis to select",
     "chain": null,
@@ -5272,9 +6531,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF7",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -5292,7 +6552,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Possession Stability Opportunity",
       "Space Creation Opportunity",
@@ -5305,7 +6565,7 @@
        "GF7"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -5318,7 +6578,13 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -5397,7 +6663,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -5463,7 +6729,8 @@
      "formId": "GF7",
      "authorizedSet": [],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -5556,9 +6823,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -5577,7 +6845,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Possession Stability Opportunity",
       "Space Creation Opportunity",
@@ -5590,7 +6858,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -5603,7 +6871,13 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -5712,7 +6986,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -5776,9 +7050,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -5797,7 +7072,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Possession Stability Opportunity",
       "Space Creation Opportunity",
@@ -5810,7 +7085,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -5823,7 +7098,13 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -5932,7 +7213,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -5988,7 +7269,7 @@
   {
    "id": "NO-RESTATEMENT",
    "kind": "EXPERIMENT",
-   "label": "A02-0 consumed with the DRAFT record only: no restatement of RPC-002 in the store",
+   "label": "A02-0 consumed on the review pathway's K2 result without the restatement: the store copy holds only our DRAFT record, set aside under TT-K2-RETAIN-FORM",
    "run": {
     "runId": "NO-RESTATEMENT",
     "experiment": true,
@@ -5996,9 +7277,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -6016,7 +7298,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Possession Stability Opportunity",
       "Space Creation Opportunity",
@@ -6029,7 +7311,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -6042,7 +7324,13 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -6121,7 +7409,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -6185,9 +7473,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -6208,7 +7497,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Possession Stability Opportunity",
       "Space Creation Opportunity",
@@ -6221,7 +7510,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -6234,7 +7523,13 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -6357,7 +7652,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -6423,7 +7718,8 @@
      "formId": "GF2",
      "authorizedSet": null,
      "recordKind": "NONE",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -6512,7 +7808,8 @@
      "formId": "GF2",
      "authorizedSet": [],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -6607,7 +7904,8 @@
      "formId": "GF2",
      "authorizedSet": [],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -6704,7 +8002,8 @@
      "formId": "GF2",
      "authorizedSet": [],
      "recordKind": "CHRISTIANS_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -6801,7 +8100,8 @@
      "formId": "GF4",
      "authorizedSet": null,
      "recordKind": "NONE",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -6901,7 +8201,8 @@
      "formId": "GF2",
      "authorizedSet": [],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -6998,7 +8299,8 @@
      "formId": "GF4",
      "authorizedSet": null,
      "recordKind": "NONE",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -7097,7 +8399,8 @@
      "formId": "GF2",
      "authorizedSet": null,
      "recordKind": "NONE",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -7197,7 +8500,8 @@
      "formId": null,
      "authorizedSet": null,
      "recordKind": "NONE",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": "Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED",
     "chain": null,
@@ -7268,7 +8572,8 @@
      "formId": null,
      "authorizedSet": null,
      "recordKind": "NONE",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": "Step 1 is UNRESOLVED: TRANSLATION_UNPOPULATED; no form is placed",
     "chain": null,
@@ -7339,7 +8644,8 @@
      "formId": null,
      "authorizedSet": null,
      "recordKind": "NONE",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": "Step 1 is UNRESOLVED: TRANSLATION_UNPOPULATED; no form is placed",
     "chain": null,
@@ -7410,7 +8716,8 @@
      "formId": null,
      "authorizedSet": null,
      "recordKind": "NONE",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": "Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED",
     "chain": null,
@@ -7481,7 +8788,8 @@
      "formId": null,
      "authorizedSet": null,
      "recordKind": "NONE",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": "Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED",
     "chain": null,
@@ -7552,7 +8860,8 @@
      "formId": null,
      "authorizedSet": null,
      "recordKind": "NONE",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": "Step 1 is RESOLVED_NOT_RELATED_TO_CONTEXT: GAME_PROBLEM_NOT_RELATED_TO_CONTEXT; no form is placed",
     "chain": null,
@@ -7623,7 +8932,8 @@
      "formId": null,
      "authorizedSet": null,
      "recordKind": "NONE",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": "Step 1 is RESOLVED_NOT_RELATED_TO_CONTEXT: GAME_PROBLEM_NOT_RELATED_TO_CONTEXT; no form is placed",
     "chain": null,
@@ -7692,9 +9002,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -7714,7 +9025,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Line-Breaking Opportunity",
       "Possession Stability Opportunity",
@@ -7727,7 +9038,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -7742,7 +9053,13 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -7838,7 +9155,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -7902,9 +9219,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -7924,7 +9242,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Line-Breaking Opportunity",
       "Possession Stability Opportunity",
@@ -7937,7 +9255,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -7952,7 +9270,13 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -8060,7 +9384,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -8124,9 +9448,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -8147,7 +9472,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Line-Breaking Opportunity",
       "Possession Stability Opportunity",
@@ -8160,7 +9485,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -8175,7 +9500,13 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -8298,7 +9629,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -8366,7 +9697,10 @@
       "tl-v0-constraint-neutral-player-condition"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -8418,7 +9752,8 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -8582,7 +9917,10 @@
       "tl-v0-constraint-wide-zone-advantage"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-wide-zone-advantage"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -8624,7 +9962,8 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -8780,7 +10119,10 @@
       "tl-v0-constraint-turnover-reward"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-turnover-reward"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -8822,7 +10164,8 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -8978,7 +10321,10 @@
       "tl-v0-constraint-central-density-condition"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-central-density-condition"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -9020,7 +10366,8 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -9177,7 +10524,11 @@
       "tl-v0-constraint-wide-zone-advantage"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-wide-zone-advantage"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -9231,7 +10582,8 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -9396,7 +10748,11 @@
       "tl-v0-constraint-turnover-reward"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-turnover-reward"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -9439,7 +10795,8 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -9596,7 +10953,11 @@
       "tl-v0-constraint-interception-reward"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-central-density-condition",
+      "tl-v0-constraint-interception-reward"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -9639,7 +11000,8 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -9793,7 +11155,8 @@
      "formId": "GF2",
      "authorizedSet": [],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -9888,9 +11251,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -9910,7 +11274,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Line-Breaking Opportunity",
       "Possession Stability Opportunity",
@@ -9923,7 +11287,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -9938,7 +11302,13 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -10034,7 +11404,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -10098,9 +11468,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -10120,7 +11491,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Line-Breaking Opportunity",
       "Possession Stability Opportunity",
@@ -10133,7 +11504,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -10148,7 +11519,13 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -10256,7 +11633,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -10320,9 +11697,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -10343,7 +11721,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Line-Breaking Opportunity",
       "Possession Stability Opportunity",
@@ -10356,7 +11734,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -10371,7 +11749,13 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -10494,7 +11878,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -10562,7 +11946,10 @@
       "tl-v0-constraint-neutral-player-condition"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -10614,7 +12001,8 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -10778,7 +12166,10 @@
       "tl-v0-constraint-wide-zone-advantage"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-wide-zone-advantage"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -10820,7 +12211,8 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -10976,7 +12368,10 @@
       "tl-v0-constraint-turnover-reward"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-turnover-reward"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -11018,7 +12413,8 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -11174,7 +12570,10 @@
       "tl-v0-constraint-central-density-condition"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-central-density-condition"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -11216,7 +12615,8 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -11373,7 +12773,11 @@
       "tl-v0-constraint-wide-zone-advantage"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-wide-zone-advantage"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -11427,7 +12831,8 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -11592,7 +12997,11 @@
       "tl-v0-constraint-turnover-reward"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-neutral-player-condition",
+      "tl-v0-constraint-turnover-reward"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -11635,7 +13044,8 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -11792,7 +13202,11 @@
       "tl-v0-constraint-interception-reward"
      ],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": [
+      "tl-v0-constraint-central-density-condition",
+      "tl-v0-constraint-interception-reward"
+     ]
     },
     "handoffStop": null,
     "chain": {
@@ -11835,7 +13249,8 @@
        "signalGroup:F_possession_passing",
        "signalGroup:A_touch_receiving",
        "signalGroup:B_pressure"
-      ]
+      ],
+      "k2": null
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -11989,7 +13404,8 @@
      "formId": "GF2",
      "authorizedSet": [],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -12084,9 +13500,10 @@
      "gameProblemId": "GP-015",
      "contextId": "RPC-002",
      "formId": "GF2",
-     "authorizedSet": [],
-     "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "authorizedSet": null,
+     "recordKind": "NONE",
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -12106,7 +13523,7 @@
      "gameProblemStatus": "APPROVED",
      "contextId": "RPC-002",
      "constraints": [],
-     "constraintAuthority": "AUTHORIZATION_RECORD",
+     "constraintAuthority": "REVIEW_PATHWAY_K2",
      "lenses": [
       "Possession Stability Opportunity",
       "Space Creation Opportunity",
@@ -12119,7 +13536,7 @@
        "GF2"
       ],
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-      "constraintAuthority": "AUTHORIZATION_RECORD",
+      "constraintAuthority": "REVIEW_PATHWAY_K2",
       "constraintCandidateIds": [],
       "sizeRuleBypassed": false,
       "hintsGameProblemId": "GP-015",
@@ -12132,7 +13549,13 @@
        "signalGroup:B_pressure",
        "unresolvedLensTitle:Support Angle Opportunity",
        "unresolvedConstraintTitle:Pressure Condition"
-      ]
+      ],
+      "k2": {
+       "basis": "K2_REVIEW_ONLY",
+       "set": [],
+       "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+       "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+      }
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -12228,7 +13651,7 @@
      "row": "CONSTRAINTS",
      "clause": null,
      "verdict": "CONSUMED",
-     "why": "the candidates are exactly the authorized set of a TEST-ONLY record (finding OURS) (none); built none",
+     "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
      "consulted": null
     },
     {
@@ -12294,7 +13717,8 @@
      "formId": "GF2",
      "authorizedSet": [],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -12381,7 +13805,7 @@
   {
    "id": "W-DROPS-UPSTREAM",
    "kind": "CONTROL",
-   "label": "A02-0 under the same wording with a TEST-ONLY selectFor wrapper that drops the upstream decisions",
+   "label": "A02-0 on the DRAFT-record arm under the same wording with a TEST-ONLY selectFor wrapper that drops the upstream decisions",
    "run": {
     "runId": "W-DROPS-UPSTREAM",
     "experiment": true,
@@ -12391,7 +13815,8 @@
      "formId": "GF2",
      "authorizedSet": [],
      "recordKind": "TEST_ONLY_RECORD",
-     "standIns": []
+     "standIns": [],
+     "proposed": []
     },
     "handoffStop": null,
     "chain": {
@@ -12569,7 +13994,7 @@
  "a02Cases": [
   {
    "caseId": "A02-0",
-   "label": "A02 with the knowledge as it stands and our CANDIDATE restatement of RPC-002 (Steps 1 and 2 consumed by the chain; the DRAFT A02 record with an empty set)",
+   "label": "A02 with the knowledge as it stands and our CANDIDATE restatement of RPC-002 (Steps 1 and 2 consumed by the chain; the review pathway's K2 result, no manipulation, consumed in place of a per-goal authorization record)",
    "resultStanding": "KNOWLEDGE_AS_IT_STANDS_WITH_A_CANDIDATE_RESTATEMENT",
    "goalId": "A02",
    "receive": {
@@ -12786,6 +14211,36 @@
      "received": "7 November 2026, first reply",
      "provisional": true,
      "scope": "INITIAL_SMALL_SIDED_REALIZATION"
+    },
+    {
+     "ref": "HO-07NOV-K2",
+     "entersAs": "EMPTY_CONSTRAINT_SET",
+     "how": "the review pathway's K2 result (no manipulation proposed) handed to the chain in place of a per-goal authorization record (TT-K2-RETAIN-FORM): the empty set only, never an authorization of any manipulation; its rule and its limit are carried into the account and the report",
+     "words": [
+      "I approve your proposed K2 wording for review-only use, with the distinctions it preserves.",
+      "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+      "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+      "Compatible alternatives remain visible without an invented preference.",
+      "Secondary Game Problem requirements remain visible and are not silently promoted, discarded, or treated as satisfied.",
+      "Functional relationships that depend on actual play remain unverified.",
+      "The frequency, distribution, and quality of meaningful learning opportunities cannot be inferred solely from structural compatibility.",
+      "This should not yet become a production suitability rule."
+     ],
+     "received": "7 November 2026, first reply",
+     "provisional": false,
+     "scope": "REVIEW_ONLY"
+    },
+    {
+     "ref": "A02-03NOV-DESIGN-AUTHORIZATION",
+     "entersAs": "REPORT_ONLY",
+     "how": "E5: our reading of it, that the review pathway needs no separately authored record per Learning Goal, is why K2's result stands in for one; the DRAFT-record comparison arm is kept so Christian can reverse that reading",
+     "words": [
+      "I agree that a design package should not require a separately authored authorization record for every Learning Goal.",
+      "For the new reasoning stage, an approved Game Problem and context, supported by governed relationships and passing the required validation, should be sufficient to authorize a design package for review."
+     ],
+     "received": "3 November 2026",
+     "provisional": false,
+     "scope": "NEW_REASONING_STAGE"
     }
    ],
    "illustrative": [
@@ -12824,7 +14279,7 @@
      "id": "TT-CONSUMED-STEPS",
      "kind": "CONSUMED_STEPS",
      "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)",
-     "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route; Step 1's Game Problem is carried beside the chain's own reading, never in its place; nothing is placed",
+     "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed",
      "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes",
      "label": "TEST-ONLY",
      "rulingRefs": [
@@ -12834,13 +14289,30 @@
     {
      "id": "TT-DRAFT-STORE",
      "kind": "DRAFT_STORE",
-     "what": "the context's CANDIDATE restatement and the DRAFT A02 record (no ruling field filled, an empty set, our finding) read from the TEST-ONLY draft store a02-composition",
-     "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the record route governs the constraints with an empty authorized set",
+     "what": "the context's CANDIDATE restatement read from the TEST-ONLY draft store a02-composition; the store's DRAFT A02 record (no ruling field filled, an empty set, our finding) is held to the store's gate and set aside under TT-K2-RETAIN-FORM (it stands in only on the DRAFT-record comparison arm)",
+     "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), or, on the DRAFT-record comparison arm, from the record route with the record's empty authorized set",
      "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route",
      "label": "TEST-ONLY",
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ]
+    },
+    {
+     "id": "TT-K2-RETAIN-FORM",
+     "kind": "K2_RETAIN_FORM",
+     "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside",
+     "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass",
+     "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge",
+     "label": "TEST-ONLY",
+     "rulingRefs": [
+      "HO-07NOV-K2",
+      "A02-03NOV-DESIGN-AUTHORIZATION"
+     ],
+     "k2": {
+      "rulingRef": "HO-07NOV-K2",
+      "rule": 1,
+      "limit": 2
+     }
     }
    ],
    "notCarried": [
@@ -13096,7 +14568,7 @@
      "GF2"
     ],
     "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-    "constraintAuthority": "AUTHORIZATION_RECORD",
+    "constraintAuthority": "REVIEW_PATHWAY_K2",
     "constraintCandidateIds": [],
     "sizeRuleBypassed": false,
     "hintsGameProblemId": "GP-015",
@@ -13111,6 +14583,13 @@
      "unresolvedLensTitle:Support Angle Opportunity",
      "unresolvedConstraintTitle:Pressure Condition"
     ],
+    "reviewManipulations": {
+     "basis": "K2_REVIEW_ONLY",
+     "set": [],
+     "rule": "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+     "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+     "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+    },
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -13347,6 +14826,36 @@
      "received": "7 November 2026, first reply",
      "provisional": true,
      "scope": "INITIAL_SMALL_SIDED_REALIZATION"
+    },
+    {
+     "ref": "HO-07NOV-K2",
+     "entersAs": "EMPTY_CONSTRAINT_SET",
+     "how": "the review pathway's K2 result (no manipulation proposed) handed to the chain in place of a per-goal authorization record (TT-K2-RETAIN-FORM): the empty set only, never an authorization of any manipulation; its rule and its limit are carried into the account and the report",
+     "words": [
+      "I approve your proposed K2 wording for review-only use, with the distinctions it preserves.",
+      "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+      "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+      "Compatible alternatives remain visible without an invented preference.",
+      "Secondary Game Problem requirements remain visible and are not silently promoted, discarded, or treated as satisfied.",
+      "Functional relationships that depend on actual play remain unverified.",
+      "The frequency, distribution, and quality of meaningful learning opportunities cannot be inferred solely from structural compatibility.",
+      "This should not yet become a production suitability rule."
+     ],
+     "received": "7 November 2026, first reply",
+     "provisional": false,
+     "scope": "REVIEW_ONLY"
+    },
+    {
+     "ref": "A02-03NOV-DESIGN-AUTHORIZATION",
+     "entersAs": "REPORT_ONLY",
+     "how": "E5: our reading of it, that the review pathway needs no separately authored record per Learning Goal, is why K2's result stands in for one; the DRAFT-record comparison arm is kept so Christian can reverse that reading",
+     "words": [
+      "I agree that a design package should not require a separately authored authorization record for every Learning Goal.",
+      "For the new reasoning stage, an approved Game Problem and context, supported by governed relationships and passing the required validation, should be sufficient to authorize a design package for review."
+     ],
+     "received": "3 November 2026",
+     "provisional": false,
+     "scope": "NEW_REASONING_STAGE"
     }
    ],
    "illustrative": [
@@ -13385,7 +14894,7 @@
      "id": "TT-CONSUMED-STEPS",
      "kind": "CONSUMED_STEPS",
      "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)",
-     "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route; Step 1's Game Problem is carried beside the chain's own reading, never in its place; nothing is placed",
+     "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed",
      "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes",
      "label": "TEST-ONLY",
      "rulingRefs": [
@@ -13395,13 +14904,30 @@
     {
      "id": "TT-DRAFT-STORE",
      "kind": "DRAFT_STORE",
-     "what": "the context's CANDIDATE restatement and the DRAFT A02 record (no ruling field filled, an empty set, our finding) read from the TEST-ONLY draft store a02-composition",
-     "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the record route governs the constraints with an empty authorized set",
+     "what": "the context's CANDIDATE restatement read from the TEST-ONLY draft store a02-composition; the store's DRAFT A02 record (no ruling field filled, an empty set, our finding) is held to the store's gate and set aside under TT-K2-RETAIN-FORM (it stands in only on the DRAFT-record comparison arm)",
+     "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), or, on the DRAFT-record comparison arm, from the record route with the record's empty authorized set",
      "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route",
      "label": "TEST-ONLY",
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ]
+    },
+    {
+     "id": "TT-K2-RETAIN-FORM",
+     "kind": "K2_RETAIN_FORM",
+     "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside",
+     "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass",
+     "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge",
+     "label": "TEST-ONLY",
+     "rulingRefs": [
+      "HO-07NOV-K2",
+      "A02-03NOV-DESIGN-AUTHORIZATION"
+     ],
+     "k2": {
+      "rulingRef": "HO-07NOV-K2",
+      "rule": 1,
+      "limit": 2
+     }
     },
     {
      "id": "TT-WITHHOLD-ORIGIN-PROGRESSION",
@@ -13659,7 +15185,7 @@
      "GF2"
     ],
     "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-    "constraintAuthority": "AUTHORIZATION_RECORD",
+    "constraintAuthority": "REVIEW_PATHWAY_K2",
     "constraintCandidateIds": [],
     "sizeRuleBypassed": false,
     "hintsGameProblemId": "GP-015",
@@ -13674,6 +15200,13 @@
      "unresolvedLensTitle:Support Angle Opportunity",
      "unresolvedConstraintTitle:Pressure Condition"
     ],
+    "reviewManipulations": {
+     "basis": "K2_REVIEW_ONLY",
+     "set": [],
+     "rule": "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+     "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+     "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+    },
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -13905,6 +15438,36 @@
      "received": "7 November 2026, first reply",
      "provisional": true,
      "scope": "INITIAL_SMALL_SIDED_REALIZATION"
+    },
+    {
+     "ref": "HO-07NOV-K2",
+     "entersAs": "EMPTY_CONSTRAINT_SET",
+     "how": "the review pathway's K2 result (no manipulation proposed) handed to the chain in place of a per-goal authorization record (TT-K2-RETAIN-FORM): the empty set only, never an authorization of any manipulation; its rule and its limit are carried into the account and the report",
+     "words": [
+      "I approve your proposed K2 wording for review-only use, with the distinctions it preserves.",
+      "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+      "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+      "Compatible alternatives remain visible without an invented preference.",
+      "Secondary Game Problem requirements remain visible and are not silently promoted, discarded, or treated as satisfied.",
+      "Functional relationships that depend on actual play remain unverified.",
+      "The frequency, distribution, and quality of meaningful learning opportunities cannot be inferred solely from structural compatibility.",
+      "This should not yet become a production suitability rule."
+     ],
+     "received": "7 November 2026, first reply",
+     "provisional": false,
+     "scope": "REVIEW_ONLY"
+    },
+    {
+     "ref": "A02-03NOV-DESIGN-AUTHORIZATION",
+     "entersAs": "REPORT_ONLY",
+     "how": "E5: our reading of it, that the review pathway needs no separately authored record per Learning Goal, is why K2's result stands in for one; the DRAFT-record comparison arm is kept so Christian can reverse that reading",
+     "words": [
+      "I agree that a design package should not require a separately authored authorization record for every Learning Goal.",
+      "For the new reasoning stage, an approved Game Problem and context, supported by governed relationships and passing the required validation, should be sufficient to authorize a design package for review."
+     ],
+     "received": "3 November 2026",
+     "provisional": false,
+     "scope": "NEW_REASONING_STAGE"
     }
    ],
    "illustrative": [
@@ -13943,7 +15506,7 @@
      "id": "TT-CONSUMED-STEPS",
      "kind": "CONSUMED_STEPS",
      "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)",
-     "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route; Step 1's Game Problem is carried beside the chain's own reading, never in its place; nothing is placed",
+     "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed",
      "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes",
      "label": "TEST-ONLY",
      "rulingRefs": [
@@ -13953,13 +15516,30 @@
     {
      "id": "TT-DRAFT-STORE",
      "kind": "DRAFT_STORE",
-     "what": "the context's CANDIDATE restatement and the DRAFT A02 record (no ruling field filled, an empty set, our finding) read from the TEST-ONLY draft store a02-composition",
-     "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the record route governs the constraints with an empty authorized set",
+     "what": "the context's CANDIDATE restatement read from the TEST-ONLY draft store a02-composition; the store's DRAFT A02 record (no ruling field filled, an empty set, our finding) is held to the store's gate and set aside under TT-K2-RETAIN-FORM (it stands in only on the DRAFT-record comparison arm)",
+     "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), or, on the DRAFT-record comparison arm, from the record route with the record's empty authorized set",
      "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route",
      "label": "TEST-ONLY",
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ]
+    },
+    {
+     "id": "TT-K2-RETAIN-FORM",
+     "kind": "K2_RETAIN_FORM",
+     "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside",
+     "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass",
+     "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge",
+     "label": "TEST-ONLY",
+     "rulingRefs": [
+      "HO-07NOV-K2",
+      "A02-03NOV-DESIGN-AUTHORIZATION"
+     ],
+     "k2": {
+      "rulingRef": "HO-07NOV-K2",
+      "rule": 1,
+      "limit": 2
+     }
     },
     {
      "id": "TT-WITHHOLD-ORIGIN-PROGRESSION",
@@ -15493,7 +17073,7 @@
      "GF2"
     ],
     "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-    "constraintAuthority": "AUTHORIZATION_RECORD",
+    "constraintAuthority": "REVIEW_PATHWAY_K2",
     "constraintCandidateIds": [],
     "sizeRuleBypassed": false,
     "hintsGameProblemId": "GP-015",
@@ -15508,6 +17088,13 @@
      "unresolvedLensTitle:Support Angle Opportunity",
      "unresolvedConstraintTitle:Pressure Condition"
     ],
+    "reviewManipulations": {
+     "basis": "K2_REVIEW_ONLY",
+     "set": [],
+     "rule": "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+     "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+     "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+    },
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -15747,6 +17334,36 @@
      "received": "7 November 2026, first reply",
      "provisional": true,
      "scope": "INITIAL_SMALL_SIDED_REALIZATION"
+    },
+    {
+     "ref": "HO-07NOV-K2",
+     "entersAs": "EMPTY_CONSTRAINT_SET",
+     "how": "the review pathway's K2 result (no manipulation proposed) handed to the chain in place of a per-goal authorization record (TT-K2-RETAIN-FORM): the empty set only, never an authorization of any manipulation; its rule and its limit are carried into the account and the report",
+     "words": [
+      "I approve your proposed K2 wording for review-only use, with the distinctions it preserves.",
+      "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+      "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+      "Compatible alternatives remain visible without an invented preference.",
+      "Secondary Game Problem requirements remain visible and are not silently promoted, discarded, or treated as satisfied.",
+      "Functional relationships that depend on actual play remain unverified.",
+      "The frequency, distribution, and quality of meaningful learning opportunities cannot be inferred solely from structural compatibility.",
+      "This should not yet become a production suitability rule."
+     ],
+     "received": "7 November 2026, first reply",
+     "provisional": false,
+     "scope": "REVIEW_ONLY"
+    },
+    {
+     "ref": "A02-03NOV-DESIGN-AUTHORIZATION",
+     "entersAs": "REPORT_ONLY",
+     "how": "E5: our reading of it, that the review pathway needs no separately authored record per Learning Goal, is why K2's result stands in for one; the DRAFT-record comparison arm is kept so Christian can reverse that reading",
+     "words": [
+      "I agree that a design package should not require a separately authored authorization record for every Learning Goal.",
+      "For the new reasoning stage, an approved Game Problem and context, supported by governed relationships and passing the required validation, should be sufficient to authorize a design package for review."
+     ],
+     "received": "3 November 2026",
+     "provisional": false,
+     "scope": "NEW_REASONING_STAGE"
     }
    ],
    "illustrative": [
@@ -15785,7 +17402,7 @@
      "id": "TT-CONSUMED-STEPS",
      "kind": "CONSUMED_STEPS",
      "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)",
-     "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route; Step 1's Game Problem is carried beside the chain's own reading, never in its place; nothing is placed",
+     "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed",
      "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes",
      "label": "TEST-ONLY",
      "rulingRefs": [
@@ -15795,13 +17412,30 @@
     {
      "id": "TT-DRAFT-STORE",
      "kind": "DRAFT_STORE",
-     "what": "the context's CANDIDATE restatement and the DRAFT A02 record (no ruling field filled, an empty set, our finding) read from the TEST-ONLY draft store a02-composition",
-     "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the record route governs the constraints with an empty authorized set",
+     "what": "the context's CANDIDATE restatement read from the TEST-ONLY draft store a02-composition; the store's DRAFT A02 record (no ruling field filled, an empty set, our finding) is held to the store's gate and set aside under TT-K2-RETAIN-FORM (it stands in only on the DRAFT-record comparison arm)",
+     "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), or, on the DRAFT-record comparison arm, from the record route with the record's empty authorized set",
      "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route",
      "label": "TEST-ONLY",
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ]
+    },
+    {
+     "id": "TT-K2-RETAIN-FORM",
+     "kind": "K2_RETAIN_FORM",
+     "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside",
+     "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass",
+     "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge",
+     "label": "TEST-ONLY",
+     "rulingRefs": [
+      "HO-07NOV-K2",
+      "A02-03NOV-DESIGN-AUTHORIZATION"
+     ],
+     "k2": {
+      "rulingRef": "HO-07NOV-K2",
+      "rule": 1,
+      "limit": 2
+     }
     },
     {
      "id": "TT-WITHHOLD-ORIGIN-PROGRESSION",
@@ -17343,7 +18977,7 @@
      "GF2"
     ],
     "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-    "constraintAuthority": "AUTHORIZATION_RECORD",
+    "constraintAuthority": "REVIEW_PATHWAY_K2",
     "constraintCandidateIds": [],
     "sizeRuleBypassed": false,
     "hintsGameProblemId": "GP-015",
@@ -17358,6 +18992,13 @@
      "unresolvedLensTitle:Support Angle Opportunity",
      "unresolvedConstraintTitle:Pressure Condition"
     ],
+    "reviewManipulations": {
+     "basis": "K2_REVIEW_ONLY",
+     "set": [],
+     "rule": "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+     "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+     "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+    },
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -17597,6 +19238,36 @@
      "received": "7 November 2026, first reply",
      "provisional": true,
      "scope": "INITIAL_SMALL_SIDED_REALIZATION"
+    },
+    {
+     "ref": "HO-07NOV-K2",
+     "entersAs": "EMPTY_CONSTRAINT_SET",
+     "how": "the review pathway's K2 result (no manipulation proposed) handed to the chain in place of a per-goal authorization record (TT-K2-RETAIN-FORM): the empty set only, never an authorization of any manipulation; its rule and its limit are carried into the account and the report",
+     "words": [
+      "I approve your proposed K2 wording for review-only use, with the distinctions it preserves.",
+      "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+      "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+      "Compatible alternatives remain visible without an invented preference.",
+      "Secondary Game Problem requirements remain visible and are not silently promoted, discarded, or treated as satisfied.",
+      "Functional relationships that depend on actual play remain unverified.",
+      "The frequency, distribution, and quality of meaningful learning opportunities cannot be inferred solely from structural compatibility.",
+      "This should not yet become a production suitability rule."
+     ],
+     "received": "7 November 2026, first reply",
+     "provisional": false,
+     "scope": "REVIEW_ONLY"
+    },
+    {
+     "ref": "A02-03NOV-DESIGN-AUTHORIZATION",
+     "entersAs": "REPORT_ONLY",
+     "how": "E5: our reading of it, that the review pathway needs no separately authored record per Learning Goal, is why K2's result stands in for one; the DRAFT-record comparison arm is kept so Christian can reverse that reading",
+     "words": [
+      "I agree that a design package should not require a separately authored authorization record for every Learning Goal.",
+      "For the new reasoning stage, an approved Game Problem and context, supported by governed relationships and passing the required validation, should be sufficient to authorize a design package for review."
+     ],
+     "received": "3 November 2026",
+     "provisional": false,
+     "scope": "NEW_REASONING_STAGE"
     }
    ],
    "illustrative": [
@@ -17635,7 +19306,7 @@
      "id": "TT-CONSUMED-STEPS",
      "kind": "CONSUMED_STEPS",
      "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)",
-     "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route; Step 1's Game Problem is carried beside the chain's own reading, never in its place; nothing is placed",
+     "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed",
      "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes",
      "label": "TEST-ONLY",
      "rulingRefs": [
@@ -17645,13 +19316,30 @@
     {
      "id": "TT-DRAFT-STORE",
      "kind": "DRAFT_STORE",
-     "what": "the context's CANDIDATE restatement and the DRAFT A02 record (no ruling field filled, an empty set, our finding) read from the TEST-ONLY draft store a02-composition",
-     "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the record route governs the constraints with an empty authorized set",
+     "what": "the context's CANDIDATE restatement read from the TEST-ONLY draft store a02-composition; the store's DRAFT A02 record (no ruling field filled, an empty set, our finding) is held to the store's gate and set aside under TT-K2-RETAIN-FORM (it stands in only on the DRAFT-record comparison arm)",
+     "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), or, on the DRAFT-record comparison arm, from the record route with the record's empty authorized set",
      "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route",
      "label": "TEST-ONLY",
      "rulingRefs": [
       "A02-10NOV-CANDIDATE"
      ]
+    },
+    {
+     "id": "TT-K2-RETAIN-FORM",
+     "kind": "K2_RETAIN_FORM",
+     "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside",
+     "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass",
+     "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge",
+     "label": "TEST-ONLY",
+     "rulingRefs": [
+      "HO-07NOV-K2",
+      "A02-03NOV-DESIGN-AUTHORIZATION"
+     ],
+     "k2": {
+      "rulingRef": "HO-07NOV-K2",
+      "rule": 1,
+      "limit": 2
+     }
     },
     {
      "id": "TT-WITHHOLD-CONDITION",
@@ -19237,7 +20925,7 @@
      "GF2"
     ],
     "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-    "constraintAuthority": "AUTHORIZATION_RECORD",
+    "constraintAuthority": "REVIEW_PATHWAY_K2",
     "constraintCandidateIds": [],
     "sizeRuleBypassed": false,
     "hintsGameProblemId": "GP-015",
@@ -19252,6 +20940,13 @@
      "unresolvedLensTitle:Support Angle Opportunity",
      "unresolvedConstraintTitle:Pressure Condition"
     ],
+    "reviewManipulations": {
+     "basis": "K2_REVIEW_ONLY",
+     "set": [],
+     "rule": "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+     "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+     "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+    },
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -19274,7 +20969,7 @@
  "ta02Runs": [
   {
    "caseId": "TA02-0",
-   "label": "TA02-0: TA02 with the knowledge as it stands and our DRAFT (CANDIDATE) restatement of RPC-003 (Steps 1 and 2 consumed by the chain, as for A02; the DRAFT TA02 record with an empty set); TA02's context pending",
+   "label": "TA02-0: TA02 with the knowledge as it stands and our DRAFT (CANDIDATE) restatement of RPC-003 (Steps 1 and 2 consumed by the chain, as for A02; the review pathway's K2 result, no manipulation, in place of a per-goal record, as for A02); TA02's context pending",
    "resultStanding": "REUSE_COMPARISON_KNOWLEDGE_AS_IT_STANDS_TA02_CONTEXT_PENDING",
    "goalId": "TA02",
    "receive": {
@@ -19467,6 +21162,36 @@
      "received": "7 November 2026, first reply",
      "provisional": true,
      "scope": "INITIAL_SMALL_SIDED_REALIZATION"
+    },
+    {
+     "ref": "HO-07NOV-K2",
+     "entersAs": "EMPTY_CONSTRAINT_SET",
+     "how": "the review pathway's K2 result (no manipulation proposed for TA02) handed to the chain in place of a per-goal authorization record (TT-K2-RETAIN-FORM), as for A02: the empty set only; its rule and its limit are carried into the account and the report",
+     "words": [
+      "I approve your proposed K2 wording for review-only use, with the distinctions it preserves.",
+      "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+      "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+      "Compatible alternatives remain visible without an invented preference.",
+      "Secondary Game Problem requirements remain visible and are not silently promoted, discarded, or treated as satisfied.",
+      "Functional relationships that depend on actual play remain unverified.",
+      "The frequency, distribution, and quality of meaningful learning opportunities cannot be inferred solely from structural compatibility.",
+      "This should not yet become a production suitability rule."
+     ],
+     "received": "7 November 2026, first reply",
+     "provisional": false,
+     "scope": "REVIEW_ONLY"
+    },
+    {
+     "ref": "A02-03NOV-DESIGN-AUTHORIZATION",
+     "entersAs": "REPORT_ONLY",
+     "how": "E5: our reading of it is why K2's result stands in for a per-goal record, as for A02",
+     "words": [
+      "I agree that a design package should not require a separately authored authorization record for every Learning Goal.",
+      "For the new reasoning stage, an approved Game Problem and context, supported by governed relationships and passing the required validation, should be sufficient to authorize a design package for review."
+     ],
+     "received": "3 November 2026",
+     "provisional": false,
+     "scope": "NEW_REASONING_STAGE"
     }
    ],
    "illustrative": [
@@ -19505,7 +21230,7 @@
      "id": "TT-CONSUMED-STEPS",
      "kind": "CONSUMED_STEPS",
      "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)",
-     "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route; Step 1's Game Problem is carried beside the chain's own reading, never in its place; nothing is placed",
+     "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed",
      "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes",
      "label": "TEST-ONLY",
      "rulingRefs": [
@@ -19515,13 +21240,30 @@
     {
      "id": "TT-DRAFT-STORE",
      "kind": "DRAFT_STORE",
-     "what": "our DRAFT restatement of RPC-003 (CANDIDATE: ours, unreviewed) and the DRAFT TA02 record (no ruling field filled, an empty set, our finding of 27 October) read from the TEST-ONLY draft store ta02-composition, as the handoff's A05 cases read it",
-     "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the record route governs the constraints with the DRAFT TA02 record's empty authorized set",
+     "what": "our DRAFT restatement of RPC-003 (CANDIDATE: ours, unreviewed) read from the TEST-ONLY draft store ta02-composition, as the handoff's A05 cases read it; the store's DRAFT TA02 record (no ruling field filled, an empty set, our finding of 27 October) is held to the store's gate and set aside under TT-K2-RETAIN-FORM, as for A02",
+     "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), as for A02",
      "why": "RPC-003 has no production contract and TA02 no production record; writing either would change the live route",
      "label": "TEST-ONLY",
      "rulingRefs": [
       "A02-10NOV-REUSE"
      ]
+    },
+    {
+     "id": "TT-K2-RETAIN-FORM",
+     "kind": "K2_RETAIN_FORM",
+     "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside",
+     "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass",
+     "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge",
+     "label": "TEST-ONLY",
+     "rulingRefs": [
+      "HO-07NOV-K2",
+      "A02-03NOV-DESIGN-AUTHORIZATION"
+     ],
+     "k2": {
+      "rulingRef": "HO-07NOV-K2",
+      "rule": 1,
+      "limit": 2
+     }
     }
    ],
    "notCarried": [
@@ -19696,7 +21438,7 @@
      "GF2"
     ],
     "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-    "constraintAuthority": "AUTHORIZATION_RECORD",
+    "constraintAuthority": "REVIEW_PATHWAY_K2",
     "constraintCandidateIds": [],
     "sizeRuleBypassed": false,
     "hintsGameProblemId": "GP-015",
@@ -19710,6 +21452,13 @@
     "hintsSignals": [
      "signalGroup:F_possession_passing"
     ],
+    "reviewManipulations": {
+     "basis": "K2_REVIEW_ONLY",
+     "set": [],
+     "rule": "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+     "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+     "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+    },
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -19935,6 +21684,36 @@
      "received": "7 November 2026, first reply",
      "provisional": true,
      "scope": "INITIAL_SMALL_SIDED_REALIZATION"
+    },
+    {
+     "ref": "HO-07NOV-K2",
+     "entersAs": "EMPTY_CONSTRAINT_SET",
+     "how": "the review pathway's K2 result (no manipulation proposed for TA02) handed to the chain in place of a per-goal authorization record (TT-K2-RETAIN-FORM), as for A02: the empty set only; its rule and its limit are carried into the account and the report",
+     "words": [
+      "I approve your proposed K2 wording for review-only use, with the distinctions it preserves.",
+      "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+      "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+      "Compatible alternatives remain visible without an invented preference.",
+      "Secondary Game Problem requirements remain visible and are not silently promoted, discarded, or treated as satisfied.",
+      "Functional relationships that depend on actual play remain unverified.",
+      "The frequency, distribution, and quality of meaningful learning opportunities cannot be inferred solely from structural compatibility.",
+      "This should not yet become a production suitability rule."
+     ],
+     "received": "7 November 2026, first reply",
+     "provisional": false,
+     "scope": "REVIEW_ONLY"
+    },
+    {
+     "ref": "A02-03NOV-DESIGN-AUTHORIZATION",
+     "entersAs": "REPORT_ONLY",
+     "how": "E5: our reading of it is why K2's result stands in for a per-goal record, as for A02",
+     "words": [
+      "I agree that a design package should not require a separately authored authorization record for every Learning Goal.",
+      "For the new reasoning stage, an approved Game Problem and context, supported by governed relationships and passing the required validation, should be sufficient to authorize a design package for review."
+     ],
+     "received": "3 November 2026",
+     "provisional": false,
+     "scope": "NEW_REASONING_STAGE"
     }
    ],
    "illustrative": [
@@ -19973,7 +21752,7 @@
      "id": "TT-CONSUMED-STEPS",
      "kind": "CONSUMED_STEPS",
      "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)",
-     "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route; Step 1's Game Problem is carried beside the chain's own reading, never in its place; nothing is placed",
+     "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed",
      "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes",
      "label": "TEST-ONLY",
      "rulingRefs": [
@@ -19983,13 +21762,30 @@
     {
      "id": "TT-DRAFT-STORE",
      "kind": "DRAFT_STORE",
-     "what": "our DRAFT restatement of RPC-003 (CANDIDATE: ours, unreviewed) and the DRAFT TA02 record (no ruling field filled, an empty set, our finding of 27 October) read from the TEST-ONLY draft store ta02-composition, as the handoff's A05 cases read it",
-     "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the record route governs the constraints with the DRAFT TA02 record's empty authorized set",
+     "what": "our DRAFT restatement of RPC-003 (CANDIDATE: ours, unreviewed) read from the TEST-ONLY draft store ta02-composition, as the handoff's A05 cases read it; the store's DRAFT TA02 record (no ruling field filled, an empty set, our finding of 27 October) is held to the store's gate and set aside under TT-K2-RETAIN-FORM, as for A02",
+     "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), as for A02",
      "why": "RPC-003 has no production contract and TA02 no production record; writing either would change the live route",
      "label": "TEST-ONLY",
      "rulingRefs": [
       "A02-10NOV-REUSE"
      ]
+    },
+    {
+     "id": "TT-K2-RETAIN-FORM",
+     "kind": "K2_RETAIN_FORM",
+     "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside",
+     "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass",
+     "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge",
+     "label": "TEST-ONLY",
+     "rulingRefs": [
+      "HO-07NOV-K2",
+      "A02-03NOV-DESIGN-AUTHORIZATION"
+     ],
+     "k2": {
+      "rulingRef": "HO-07NOV-K2",
+      "rule": 1,
+      "limit": 2
+     }
     },
     {
      "id": "TT-WITHHOLD-CONDITION",
@@ -21512,7 +23308,7 @@
      "GF2"
     ],
     "formCandidatesFrom": "SELECTION_TRACE_RANKING",
-    "constraintAuthority": "AUTHORIZATION_RECORD",
+    "constraintAuthority": "REVIEW_PATHWAY_K2",
     "constraintCandidateIds": [],
     "sizeRuleBypassed": false,
     "hintsGameProblemId": "GP-015",
@@ -21526,6 +23322,13 @@
     "hintsSignals": [
      "signalGroup:F_possession_passing"
     ],
+    "reviewManipulations": {
+     "basis": "K2_REVIEW_ONLY",
+     "set": [],
+     "rule": "A compatible Game Form may be retained without additional manipulation when no such manipulation has an authorized basis.",
+     "limit": "Retaining a Game Form does not establish that it is optimal or sufficient for the Learning Goal.",
+     "cited": "HO-07NOV-K2, received 7 November 2026, first reply"
+    },
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [

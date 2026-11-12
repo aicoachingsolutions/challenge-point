@@ -20,7 +20,7 @@ import { sessionPlanningModel } from '../session-planning/session-planning-model
 import { GameProblemAuthority, guidedGoalText, guidedSelectionHints } from '../sport-module/guided-selection'
 import { constraintBalanceBucket, generateSelection, isSelectionKnowledgeGap, SelectionKnowledgeGap } from '../test-library'
 import type { LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
-import { learningGoalAuthorizations, realizationAlternativesOf } from '../test-library/learning-goal-authorizations'
+import { learningGoalAuthorizations, libraryConstraintPrinciple, realizationAlternativesOf } from '../test-library/learning-goal-authorizations'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
 import type { ProvisionalRealization } from './corpus'
 import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile, provisionalRealizationNamed } from './corpus'
@@ -178,11 +178,25 @@ export interface BoundedSelection extends KnowledgeSelection {
  *   - `quotaBypass`: the one numerical rule the authorization lets us bypass, in its words:
  *     "For the isolated A02 experiment, you may remove or bypass this unsupported numerical quota where necessary to test legitimate zero-, one-, or multiple-manipulation configurations."
  *     `generateSelection` receives this boolean and nothing else of the upstream decisions, and honours it only for an evaluated, record-backed set.
+ *   - `reviewManipulations` (stage W1 (b), 11 November 2026): the review pathway's K2 result, handed in place of a per-goal authorization
+ *     record where no record governs the goal: K2's rule and its limit in Christian's words (plain data, with the citation), and the set,
+ *     which must be empty: K2 retains the form without additional manipulation and can authorize none. Refused beside a record, with a
+ *     non-empty set and with the quota bypass; the constraints then carry the authority `REVIEW_PATHWAY_K2`, never `AUTHORIZATION_RECORD`.
  */
 export interface UpstreamDecisions {
     gameProblem: { gameProblemId: string; step1Basis: 'APPROVED_TRANSLATION' | 'SCOPED_RULING'; label: string }
     gameForm: { formId: string; standing: string; cells: { cell: string; grade: string }[] }
     quotaBypass?: boolean
+    reviewManipulations?: ReviewManipulations
+}
+
+/** TEST-ONLY (stage W1 (b)): the review pathway's K2 result as the chain consumes it: an empty set, K2's rule and its limit, and their citation. */
+export interface ReviewManipulations {
+    basis: 'K2_REVIEW_ONLY'
+    set: string[]
+    rule: string
+    limit: string
+    cited: string
 }
 
 /** TEST-ONLY: Step 1's Game Problem as a selection and an account carry it, beside (never in place of) the chain's own reading. */
@@ -213,6 +227,8 @@ export interface ConsumedRecord {
     hintsGoverned: boolean | null
     lensCandidateIds: string[]
     hintsSignals: string[]
+    /** Stage W1 (b): the review pathway's K2 result as consumed (its rule and limit carried into the account), or null where a record governed. */
+    reviewManipulations: ReviewManipulations | null
 }
 
 /** TEST-ONLY: an upstream object missing what the consumption reads is refused, never read partly. */
@@ -224,7 +240,22 @@ function upstreamRefusals(upstream: UpstreamDecisions): string[] {
     if (!filled(upstream?.gameForm?.formId) || !filled(upstream?.gameForm?.standing)) errors.push(`Step 2's form and its standing words`)
     if (!Array.isArray(upstream?.gameForm?.cells) || !upstream.gameForm.cells.length || !upstream.gameForm.cells.every(c => filled(c?.cell) && filled(c?.grade))) errors.push('the grade of every cell the form rests on')
     if (upstream?.quotaBypass !== undefined && typeof upstream.quotaBypass !== 'boolean') errors.push('quotaBypass as a boolean')
+    const k2 = upstream?.reviewManipulations
+    if (k2 !== undefined && (k2?.basis !== 'K2_REVIEW_ONLY' || !Array.isArray(k2?.set) || !filled(k2?.rule) || !filled(k2?.limit) || !filled(k2?.cited)))
+        errors.push(`the review pathway's K2 result with its basis (K2_REVIEW_ONLY), its set, its rule, its limit and their citation`)
     return errors
+}
+
+/**
+ * TEST-ONLY (stage W1 (b)): what K2's result may never be consumed with, each refused in its own words: a non-empty set (K2 yields no
+ * manipulation), the quota bypass (it is for a record's evaluated set only), and a record governing the goal (K2 stands in place of a record,
+ * never beside one).
+ */
+function reviewManipulationRefusals(goalId: string, k2: ReviewManipulations, quotaBypass: boolean, record: LearningGoalAuthorization | null): string | null {
+    if (k2.set.length) return `${goalId}: the review pathway's K2 result is consumed only as the empty set (K2 retains the form without additional manipulation and authorizes none), and this one names ${k2.set.join(', ')}`
+    if (quotaBypass) return `${goalId}: the TEST-ONLY quota bypass is honoured only for an authorization record's evaluated set, never beside the review pathway's K2 result`
+    if (record) return `${goalId}: the review pathway's K2 result is consumed only in place of a per-goal authorization record, and a record governs this goal (${record.learningGoalId}, ${record.knowledgeStatus === 'DRAFT' ? 'a DRAFT record' : 'a record'})`
+    return null
 }
 
 /**
@@ -335,10 +366,31 @@ export function selectFor(
         const gated: string[] = [...(guided.hints.candidateArchetypeIds ?? [])]
         const kept = gated.filter(id => id === formId)
         if (!kept.length) throw new Error(`${goalId}: Step 2's form ${formId} is not among the routed context's declared forms ${gated.join(', ')}`)
-        if (guided.hints.constraintAuthority?.authority !== 'AUTHORIZATION_RECORD' || !guided.authorization) {
-            throw new Error(`${goalId}: with upstream decisions the constraints come only from the goal's authorization record (the record route), and no record governs this goal, so its pool would be vocabulary-derived`)
+        const k2 = upstream.reviewManipulations
+        if (k2) {
+            /*
+             * TEST-ONLY (stage W1 (b), 11 November 2026): the review pathway's K2 result in place of a per-goal authorization record. Christian,
+             * received 3 November 2026: "For the new reasoning stage, an approved Game Problem and context, supported by governed relationships and
+             * passing the required validation, should be sufficient to authorize a design package for review."; and K2, approved for review-only
+             * use (received 7 November 2026, first reply): "A compatible Game Form may be retained without additional manipulation when no such
+             * manipulation has an authorized basis." So the candidates are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled
+             * AUTHORIZATION_RECORD), read under the one recorded principle of 15 October 2026 so the zero branch commits the form alone.
+             */
+            const refused = reviewManipulationRefusals(goalId, k2, upstream.quotaBypass === true, guided.authorization)
+            if (refused) throw new Error(refused)
+            const principle = libraryConstraintPrinciple()
+            hints = {
+                ...guided.hints,
+                candidateArchetypeIds: kept,
+                candidateConstraintIds: [],
+                constraintAuthority: { authority: 'REVIEW_PATHWAY_K2', learningGoalId: goalId, constraintPrinciple: { ruledOn: principle.ruledOn, by: principle.by, principle: principle.principle } },
+            }
+        } else {
+            if (guided.hints.constraintAuthority?.authority !== 'AUTHORIZATION_RECORD' || !guided.authorization) {
+                throw new Error(`${goalId}: with upstream decisions the constraints come only from the goal's authorization record (the record route), and no record governs this goal, so its pool would be vocabulary-derived`)
+            }
+            hints = { ...guided.hints, candidateArchetypeIds: kept }
         }
-        hints = { ...guided.hints, candidateArchetypeIds: kept }
     }
     const consumedGameProblem: ConsumedGameProblem | null = upstream
         ? { gameProblemId: upstream.gameProblem.gameProblemId, step1Basis: upstream.gameProblem.step1Basis, label: upstream.gameProblem.label, source: 'Step 1 (review pathway)' }
@@ -355,6 +407,8 @@ export function selectFor(
         hintsGoverned: guided.hintsGameProblem ? guided.hintsGameProblem.governed : null,
         lensCandidateIds: [...(hints.candidateAffordanceLensIds ?? [])],
         hintsSignals: [...(hints.matchedSignals ?? [])],
+        // Stage W1 (b): K2's result as consumed, its rule and limit carried into the account; null where a record governed.
+        reviewManipulations: upstream!.reviewManipulations ? (JSON.parse(JSON.stringify(upstream!.reviewManipulations)) as ReviewManipulations) : null,
     })
     let result: any
     try {
