@@ -8,7 +8,8 @@
  * TEST-ONLY draft store ta02-composition (as the handoff's A05 cases read it), each run labelled TA02's context pending: TA02-0 (the knowledge
  * as it stands) and TA02-D (every condition item withheld, the LAW-11 stand-in, as A02-D). One test measures, from both goals' own results,
  * which decisions are shared and which differ, whether the two built outputs collapse into one activity, and that the TA02 runs' Game Form
- * and constraints are consumed and their Game Problem carried, read by no decision (the safeguard check of a02-safeguards.unit.ts, run on them).
+ * and constraints are consumed and, since stage W1 (a) (11 November 2026), their Game Problem too: it governs the chain's lens hints (the
+ * safeguard check of a02-safeguards.unit.ts, run on them).
  *
  * The evidence (docs/audits/design-reasoning-a02/evidence/): `a02-report.txt`, organized by Christian's seven report items (each keeping the
  * implemented and tested behaviour apart from what stays open, our proposals, our assumptions and ecological suitability), then the detailed
@@ -237,12 +238,14 @@ const ta02Safeguard = (id: string): { run: SafeguardRun; findings: Finding[] } =
     return { run, findings: ownershipOf(run) }
 }
 const TA02_IDS = TA02_CASES.map((c) => c.id)
-/** The open disconnections the TA02 runs carry: the same three the A02 runs carry, measured on these runs (a detected disconnection, never a pass). */
-const TA02_DISCONNECTIONS: OpenDisconnection[] = ['OD-HINT-GAME-PROBLEM', 'OD-CONTEXT', 'OD-DISPLAY'].map((id) => {
+/**
+ * The open disconnections the TA02 runs carry: the same two the A02 runs carry, measured on these runs (a detected disconnection, never a pass).
+ * OD-HINT-GAME-PROBLEM left the list in stage W1 (a), 11 November 2026: Step 1's GP-015 now governs the TA02 runs' hints as it does A02's.
+ */
+const TA02_DISCONNECTIONS: OpenDisconnection[] = ['OD-CONTEXT', 'OD-DISPLAY'].map((id) => {
     const e = S.OPEN_DISCONNECTIONS.find((x) => x.id === id)
     assert.ok(e, id)
-    // An entry's measured pairs are measured again on these runs: the hint-governing reading equals Step 1's GP-015 on both by agreement.
-    return { ...copy(e), runs: [...TA02_IDS], ...(e.pairs ? { pairs: TA02_IDS.map((run) => ({ run, verdict: 'AGREES_INDEPENDENTLY' as const })) } : {}) }
+    return { ...copy(e), runs: [...TA02_IDS] }
 })
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -437,6 +440,7 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'M6', means: 'one of the eight A01 safeguards Christian approved: no further value required, explicitly unrestricted, and a necessary value missing stay three distinct states' },
     { id: 'K2', means: 'the K2 wording we proposed (retaining a basic Game Form), approved by Christian for review-only use (received 7 November 2026, first reply); under it the review pathway proposes no manipulation where none has an authorized basis (appendix D, 5. Manipulations); quoted in item 5' },
     { id: 'E5', means: 'Christian\'s E5, design authorization (received 3 November 2026); quoted in item 5' },
+    { id: 'W1', means: 'stage W1 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 11 November 2026: (a) Step 1\'s Game Problem governs the chain\'s lens hints and matched signals on the isolated pathway' },
     { id: 'RC1.1', means: 'the version of the Representative Performance Context Library the program holds (its rows\' last verified version)' },
     { id: SELECTOR_FILE, family: true, means: 'the constraint selector\'s source file, with line numbers; any other name ending .ts is an engine source file, with line numbers, and a short hexadecimal string after one (its origin) is a commit, found by git blame, that introduced the rule or the part of it named beside it' },
     { id: 'TEST-ONLY', means: 'code, data or a treatment no route, controller or service reaches' },
@@ -609,13 +613,13 @@ function bodyLines(): string[] {
     add(`Christian asked: ${cite('A02-10NOV-REPORT', 0)}`)
     const gp2 = S.at('GP-002')
     add(
-        `Answer (OURS): on the isolated pathway, yes for the Game Form: the chain takes Step 2's form as its form, its scorer handed only that form. The Game Problem reaches the chain only through Step 2's form: Step 2 chooses the form from Step 1's Game Problem (with Step 1's primary swapped to ${gp2.result.receive.step1?.primary.join(', ')}, the chain takes ${gp2.result.consumption?.form?.formId} as its form). The chain also carries Step 1's Game Problem in its account, but no chain decision reads it (${S.verdictOf('A02-0', 'GAME_PROBLEM')}): its Game-Problem-dependent inputs (the lens hints and matched signals) still read the planning model (OD-HINT-GAME-PROBLEM; on ${gp2.id} they read ${gp2.run.chain?.gameProblemId} while the account carries ${gp2.result.consumption?.gameProblem?.gameProblemId}), and the context is read from the routing (open, below). The production route is unchanged and still picks A02's form from the wording.`,
+        `Answer (OURS): on the isolated pathway, yes. The chain takes Step 2's form as its form, its scorer handed only that form; Step 2 chooses the form from Step 1's Game Problem (with Step 1's primary swapped to ${gp2.result.receive.step1?.primary.join(', ')}, the chain takes ${gp2.result.consumption?.form?.formId} as its form). Since stage W1 (a) (11 November 2026), Step 1's Game Problem also governs the chain's Game-Problem-dependent inputs, the lens hints and matched signals (${S.verdictOf('A02-0', 'GAME_PROBLEM')}; on ${gp2.id} the lens candidates are ${gp2.result.consumption?.hintsGameProblemId}'s Coverage row's ${gp2.result.consumption?.lensCandidateIds.length}, while the planning model's reading ${gp2.run.chain?.gameProblemId} stays in the account beside it, never in its place). The context is still read from the routing (open, below). The production route is unchanged and still picks A02's form from the wording.`,
     )
     add('Implemented and tested:')
-    add('- A TEST-ONLY option of the checked chain hands it Step 1\'s resolved Game Problem and Step 2\'s SELECTED form: its candidate forms become the routed context\'s declared forms filtered to Step 2\'s form (never replaced by it), a form outside them is refused, and its constraints come only from the authorization record.')
+    add('- A TEST-ONLY option of the checked chain hands it Step 1\'s resolved Game Problem and Step 2\'s SELECTED form: its candidate forms become the routed context\'s declared forms filtered to Step 2\'s form (never replaced by it), a form outside them is refused, and its constraints come only from the authorization record. Since stage W1 (a), Step 1\'s Game Problem is handed on to the guided selection hints (one TEST-ONLY option no route passes), which read it as the approved Game Problem; the chain records which Game Problem governed its hints and the hints its selector was handed.')
     add(`- The ${A02_RUN_IDS.length} A02 runs (${A02_RUN_IDS.join(', ')}): Step 1 ${s1?.status} ${s1?.primary.join(', ')} at ${s1?.contextId} (${s1?.basis}); Step 2 ${s2?.status} ${s2?.selected} (compatible: ${s2?.compatible.join(', ')}); the chain took ${a0.consumption?.form?.formId} as its form, its scorer handed only ${a0.consumption?.formCandidatesScored.join(', ')}; the handoff placed nothing.`)
     add(
-        `- On ${reachedChain.length} of the ${S.EXPERIMENT_RUNS.length} experiment runs (every one that reaches the chain): the Game Form reads CONSUMED (${verdictOn('GAME_FORM', 'CONSUMED')} runs), equal to Step 2's form, and the chain's own record shows its scorer was handed only it; the constraints read CONSUMED (${verdictOn('CONSTRAINTS', 'CONSUMED')} runs) against the authorized set of our TEST-ONLY DRAFT A02 record, or of a TEST-ONLY copy of it on the runs of item 4 (no ruling; the finding is ours), not against any decision of Step 1 or Step 2; Step 1's Game Problem is carried in the account and read by no chain decision: CARRIED_NOT_READ (${verdictOn('GAME_PROBLEM', 'CARRIED_NOT_READ')} runs, a detected disconnection). The one other run (Step 1's primary swapped to GP-001) is reconsidered by Step 2, which retains ${S.at('GP-001').result.receive.step2?.compatible.join(', ')} with no basis to select, and stops before the chain.`,
+        `- On ${reachedChain.length} of the ${S.EXPERIMENT_RUNS.length} experiment runs (every one that reaches the chain): the Game Form reads CONSUMED (${verdictOn('GAME_FORM', 'CONSUMED')} runs), equal to Step 2's form, and the chain's own record shows its scorer was handed only it; the constraints read CONSUMED (${verdictOn('CONSTRAINTS', 'CONSUMED')} runs) against the authorized set of our TEST-ONLY DRAFT A02 record, or of a TEST-ONLY copy of it on the runs of item 4 (no ruling; the finding is ours), not against any decision of Step 1 or Step 2; Step 1's Game Problem reads CONSUMED (${verdictOn('GAME_PROBLEM', 'CONSUMED')} runs), and so does the Game Problem that governs the hints (${verdictOn('GAME_PROBLEM_HINTS', 'CONSUMED')} runs): the chain's own record shows Step 1's value governed its lens hints and matched signals (before stage W1 (a) the Game Problem read CARRIED_NOT_READ, carried in the account and read by no chain decision). The one other run (Step 1's primary swapped to GP-001) is reconsidered by Step 2, which retains ${S.at('GP-001').result.receive.step2?.compatible.join(', ')} with no basis to select, and stops before the chain.`,
     )
     const legacyPicks = [...new Set(['GP-002/legacy', 'GF7-CELL/legacy'].map((id) => S.at(id).run.chain?.ownPick?.join(', ')))]
     const refusedAs = (id: string) => `refused at ${S.at(id).result.chain?.stage} (${(S.at(id).result.chain?.reasons ?? []).map(plain).join('; ')})`
@@ -624,10 +628,10 @@ function bodyLines(): string[] {
     )
     add(`- Wording: with the goal's wording rewritten twice (in the knowledge copy and in the row the chain reads; restored, the restore asserted), Steps 1 and 2 and the consumed form do not move (${json(S.at('A02-0~reversed').result.receive) === json(a0.receive) && json(S.at('A02-0~neutral').result.receive) === json(a0.receive) ? 'identical' : 'CHANGED'}), while the chain's own route moves from ${S.at('L2').run.chain?.ownPick?.join(', ')} to ${S.at('L2~reversed').run.chain?.ownPick?.join(', ')}, which proves the rewrite reached the chain.`)
     add('Open (detected and listed as open disconnections, never passes):')
-    for (const id of ['OD-HINT-GAME-PROBLEM', 'OD-CONTEXT', 'OD-A02-LEGACY-FORM']) add(`- ${id}: ${plain(entry(id).what)}`)
-    add('- the engine lenses still follow the wording, and on one two-manipulation set the wording decides the selection (item 3).')
+    for (const id of ['OD-CONTEXT', 'OD-A02-LEGACY-FORM']) add(`- ${id}: ${plain(entry(id).what)}`)
+    add('- the engine lenses still follow the wording where Step 1\'s Game Problem and the wording agree (the wording\'s own pool is kept then), and on one two-manipulation set the wording decides the selection (item 3).')
     add(K2_NOT_TAKEN)
-    add('Proposals (OURS, for Christian\'s decision): whether the Game Problem reading that governs the engine\'s lens hints should also be taken from Step 1; it lives in the guided selection module, which this experiment leaves untouched by design.')
+    add('Proposals: none in this item. The Game Problem reading that governs the engine\'s lens hints is now taken from Step 1 on the isolated pathway (stage W1 (a)), as engineering under the package Christian delegated; OD-HINT-GAME-PROBLEM, listed open before, is closed.')
     add('Assumptions (OURS): the consumption is itself a TEST-ONLY treatment (TT-CONSUMED-STEPS); GF2\'s Game Problem cell keeps its grade, CANDIDATE.')
     add('Ecological suitability: not established; consuming GF2 shows structural compatibility only.')
     add('')
@@ -678,7 +682,7 @@ function bodyLines(): string[] {
     add(`- The known failure: on L1 the chain refuses at selection on its own ${S.at('L1').run.chain?.form} before consuming Step 2's ${s2?.selected}: ${S.verdictOf('L1', 'GAME_FORM')}; the assertion every experiment run must pass fails on it: '${plain(failureOf(S.at('L1').findings).split(' | ')[1] ?? '')}'.`)
     const fails = (findings: Finding[]) => (failureOf(findings) === 'PASSED' ? 'the assertion PASSES on it' : 'the assertion fails on it')
     add(`- A comparable substitution: a test-only wrapper that drops the handed decisions, on a wording where the chain's own pick equals ${s2?.selected}: the form reads ${S.verdictOf('W-DROPS-UPSTREAM', 'GAME_FORM')} and ${fails(S.at('W-DROPS-UPSTREAM').findings)}; the same run with the decisions handed reads ${S.verdictOf('A02-0~pressure', 'GAME_FORM')} and ${failureOf(S.at('A02-0~pressure').findings) === 'PASSED' ? 'passes' : 'FAILS'}.`)
-    add(`- Dependency verification: a changed Game Problem and a moved cell are reconsidered by Step 2, whose form the chain consumes (item 1); the planning model's hint-governing reading stays GP-015 when Step 1 says GP-002 (${S.verdictOf('GP-002', 'GAME_PROBLEM_HINTS')}, listed), and the GP-002 the chain carries is read by no chain decision (${S.verdictOf('GP-002', 'GAME_PROBLEM')}).`)
+    add(`- Dependency verification: a changed Game Problem and a moved cell are reconsidered by Step 2, whose form the chain consumes (item 1); with Step 1 saying GP-002, the chain's hints follow GP-002 (${S.verdictOf('GP-002', 'GAME_PROBLEM_HINTS')}: its lens candidates are GP-002's Coverage row's, the divergent arm of test 3, whose negative control, the option not handed on, leaves them the wording's), while the planning model's reading GP-015 stays in the account beside it (the Game Problem ${S.verdictOf('GP-002', 'GAME_PROBLEM')}).`)
     for (const id of ['OD-WORDING-LENSES', 'OD-WORDING-FLIP']) add(`- Safeguard B fails on ${id}: ${plain(entry(id).what)}; before: ${plain(entry(id).measured?.before ?? '')}; after: ${plain(entry(id).measured?.after ?? '')}.`)
     add(`- Consumption tracing: with one cited event removed from our restatement, A02-2 moves from ${S.at('A02-2').result.chain?.stage} to ${S.at('A02-2/no-line-crossed').result.chain?.stage}, on the event line that item shaped; with A02-D's treatment declaration removed, its three clauses read ${[...new Set(doctoredA02D.filter((f) => f.row === 'SCORING').map((f) => f.verdict))].join(', ')} and ${fails(doctoredA02D)}; with GP-015's CAR ratings changed, the chain's result is identical (consulted, not determining).`)
     // The total is never read alone (R3-06, R4-09): it is split by where the runs run, each number counted from the runs.
@@ -790,7 +794,7 @@ function bodyLines(): string[] {
     add('- The TEST-ONLY option is passed by no route, controller or service (a registered static test reads every non-test source file); with it absent, every one of the 13 Learning Goals builds exactly as the production entry builds it, and A01 with it is identical once its two TEST-ONLY account fields are set aside (registered tests).')
     add('- No production knowledge file holds our restatement of RPC-002 or the DRAFT A02 record, and A02 has no production record (tested).')
     add(`Recorded apart, not in this report: the regression on the committed tree (the type check, the whole suite, the behaviour snapshot against main's baseline, the bundle compared with main), in the evidence folder's regression record (${RECORD_WORDS.item7}).`)
-    add('Open: three bundled files differ from main by TEST-ONLY additions no route passes (the selector\'s are disclosed first, above); isolation rests on the branch staying unmerged and undeployed.')
+    add('Open: four bundled files differ from main by TEST-ONLY additions no route passes (the selector\'s are disclosed first, above; the guided selection hints\' one option since stage W1 (a)); isolation rests on the branch staying unmerged and undeployed.')
     add('Proposals: none.')
     add('Assumptions (OURS): none beyond the TEST-ONLY option itself, which no route passes.')
     add('Ecological suitability: not addressed: an unchanged application is an engineering claim.')
@@ -908,7 +912,7 @@ const rowOf = (aspect: string): ReuseRow => {
     return r
 }
 
-test(`S5. reuse, brief: TA02 through the same consumption over our DRAFT restatement of RPC-003 (TA02's context pending); one comparison measured from both goals' results, the shared decisions (Step 1's GP-015, the CAR profile, Step 2's GF2 and its cell grade, the consumption, the events) against the differing ones (the context, the scoring condition and its clauses, where each stops, opposition, the lenses, the targets); the two diagnostic builds collapse into one activity; the TA02 runs' Game Form and constraints consumed and their Game Problem carried and read by no decision, their detected disconnections listed`, () => {
+test(`S5. reuse, brief: TA02 through the same consumption over our DRAFT restatement of RPC-003 (TA02's context pending); one comparison measured from both goals' results, the shared decisions (Step 1's GP-015, the CAR profile, Step 2's GF2 and its cell grade, the consumption, the events) against the differing ones (the context, the scoring condition and its clauses, where each stops, opposition, the lenses, the targets); the two diagnostic builds collapse into one activity; the TA02 runs' Game Form, constraints and Game Problem consumed (the Game Problem since stage W1 (a): it governs their hints), their detected disconnections listed`, () => {
     // The TA02 cases are held to the handoff's own validator; the store is admitted whole by its gate (loadDraftStore, above).
     assert.doesNotThrow(() => validateHandoffInputs(ta02Inputs))
     assert.deepEqual(
@@ -932,7 +936,9 @@ test(`S5. reuse, brief: TA02 through the same consumption over our DRAFT restate
         assert.deepEqual([r.consumption?.selectionObservedOnly, r.consumption?.formCandidatesScored, r.consumption?.constraintAuthority, r.consumption?.constraintCandidateIds], [true, ['GF2'], 'AUTHORIZATION_RECORD', []], id)
         // The same safeguard check as the A02 runs: the owned decisions consumed; every detected disconnection listed; none stale.
         const { findings } = ta02Safeguard(id)
-        assert.deepEqual(['GAME_PROBLEM', 'GAME_FORM', 'CONSTRAINTS'].map((row) => verdictsOf(findings, row).join(',')), ['CARRIED_NOT_READ', 'CONSUMED', 'CONSUMED'], id)
+        // Re-pinned openly in stage W1 (a): the Game Problem was CARRIED_NOT_READ (read by no decision of the chain); Step 1's GP-015 now governs
+        // the hints, so it and the hints read CONSUMED.
+        assert.deepEqual(['GAME_PROBLEM', 'GAME_PROBLEM_HINTS', 'GAME_FORM', 'CONSTRAINTS'].map((row) => verdictsOf(findings, row).join(',')), ['CONSUMED', 'CONSUMED', 'CONSUMED', 'CONSUMED'], id)
         assert.deepEqual(unlisted(findings, TA02_DISCONNECTIONS, ['EXPERIMENT']).map(ownershipMessage), [], id)
         // Never a TA02 configuration: each run carries the context-pending note.
         assert.ok(r.reportNotes.some((n) => n.text.indexOf('TA02\'s context pending') === 0), id)

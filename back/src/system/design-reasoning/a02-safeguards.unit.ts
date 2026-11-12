@@ -37,10 +37,12 @@ import path from 'node:path'
 
 import { loadDraftStore } from '../derivation/draft-store'
 import * as boundedSelection from '../derivation/run-bounded-selection'
+import { SIGNAL_GROUP_TO_GAME_PROBLEM } from '../knowledge-core/affordance-target-matrix'
 import { buildActivity } from '../rendering/build-activity'
 import { specializedRoleNames } from '../rendering/session-envelope'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { guidedGoalText, guidedSelectionHints } from '../sport-module/guided-selection'
+import { soccerModule } from '../sport-module/soccer-module'
 import { generateSelection } from '../test-library/generateSelection'
 import { testLibraryRegistry } from '../test-library/library/registry'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
@@ -104,6 +106,7 @@ const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
 const readJson = (file: string): any => JSON.parse(fs.readFileSync(file, 'utf8'))
 const json = (v: unknown) => JSON.stringify(v)
 const C = (s: string) => `tl-v0-constraint-${s}`
+const L = (s: string) => `tl-v0-lens-${s}`
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // The inputs: the A02 review data (as a02.unit.ts composes it) and the handoff's own data (for the legacy census)
@@ -531,18 +534,12 @@ const LENSES_AFTER = 'Line-Breaking Opportunity, Possession Stability Opportunit
 const QUOTA_RULES: Record<string, string> = { 'S4-WZA': 'FOUNDATION_CLAUSE', 'S4-TR': 'FOUNDATION_CLAUSE', 'S4-CDC': 'PACKAGE_ROW_O', 'S4-CDC+IR': 'PACKAGE_ROW_O' }
 const baseOf = (id: string) => id.split('~')[0]
 
+/*
+ * OD-HINT-GAME-PROBLEM was closed in stage W1 (a), 11 November 2026: Step 1's Game Problem now governs the lens hints and matched signals on the
+ * experiment path (guided-selection.ts `step1GameProblemId`), and the chain records which Game Problem did; every experiment run that reaches the
+ * chain reads GAME_PROBLEM_HINTS CONSUMED (test 1), so the entry would be stale (it listed AGREES_INDEPENDENTLY on 39 runs, CONTRADICTED on GP-002).
+ */
 export const OPEN_DISCONNECTIONS: OpenDisconnection[] = [
-    {
-        id: 'OD-HINT-GAME-PROBLEM',
-        what: 'the Game Problem reading that governs the engine lens hints and matched signals is still the planning model\'s (guided-selection.ts:228), not Step 1\'s: equal by agreement on the A02 runs, different where Step 1 differs; the Step 1 value the chain carries is read by no decision of the chain (the Game Problem row reads CARRIED_NOT_READ)',
-        scope: 'EXPERIMENT',
-        rows: ['GAME_PROBLEM_HINTS'],
-        verdicts: ['AGREES_INDEPENDENTLY', 'CONTRADICTED'],
-        runs: REACHED_CHAIN,
-        // Measured: CONTRADICTED only where Step 1 was swapped (GP-002); equal by agreement on every other run that reached the chain.
-        pairs: REACHED_CHAIN.map((run) => ({ run, verdict: run === 'GP-002' ? ('CONTRADICTED' as const) : ('AGREES_INDEPENDENTLY' as const) })),
-        evidence: 'every A02 run: the account reads APPROVED GP-015 from the planning model beside the carried Step 1 value; GP-002 (Step 1 swapped in a TEST copy): the planning model still reads GP-015 (CONTRADICTED) while the account carries GP-002. guided-selection.ts is not touched (DESIGN-9 section 0)',
-    },
     {
         id: 'OD-CONTEXT',
         what: 'the context is read by the chain from the planning routing itself; no record of consuming Step 1\'s context exists (equal by agreement: both read the same routing row)',
@@ -680,13 +677,21 @@ const STAND_IN_COUNTS: Array<[string, number]> = [
     ['S4-NP@A02-D', 7],
     ['S4-NP+WZA@A02-D', 25],
 ]
-/** The report's counts over all runs: violation verdicts and detected disconnections (measured), and the detected ones by verdict. */
-const REPORT_COUNTS: number[] = [171, 118]
-const DETECTED_BY_VERDICT = 'CARRIED_NOT_READ 43, ENGINE_RULE_DECIDED 14, CARRIED_UNDER_TREATMENT 5, WITHHELD_BY_TREATMENT 29, REFUSED_ON_CLAUSE_LINE 27'
-/** The same counts per group, in the order the runs are built: the experiment path, the controls, the legacy route (runs, violations, detected). */
+/**
+ * The report's counts over all runs: violation verdicts and detected disconnections (measured), and the detected ones by verdict. Re-pinned
+ * openly in stage W1 (a): [171, 118] -> [128, 75]; CARRIED_NOT_READ 43 -> none (the Game Problem rows of the 40 experiment runs reaching the
+ * chain and the 3 consuming controls now read CONSUMED); the violations fall by the 43 hints rows those runs read AGREES_INDEPENDENTLY (39 + 3)
+ * or CONTRADICTED (GP-002) before.
+ */
+const REPORT_COUNTS: number[] = [128, 75]
+const DETECTED_BY_VERDICT = 'ENGINE_RULE_DECIDED 14, CARRIED_UNDER_TREATMENT 5, WITHHELD_BY_TREATMENT 29, REFUSED_ON_CLAUSE_LINE 27'
+/**
+ * The same counts per group, in the order the runs are built: the experiment path, the controls, the legacy route (runs, violations, detected).
+ * Re-pinned in stage W1 (a): experiment [41, 105, 108] -> [41, 65, 68]; controls [4, 15, 10] -> [4, 12, 7]; legacy unchanged.
+ */
 const COUNTS_BY_GROUP: number[][] = [
-    [41, 105, 108],
-    [4, 15, 10],
+    [41, 65, 68],
+    [4, 12, 7],
     [21, 51, 0],
 ]
 const Q = String.fromCharCode(34)
@@ -696,10 +701,12 @@ const Q = String.fromCharCode(34)
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
 /**
- * The verdicts test 1 accepts for each owned decision: the Game Form and the constraints CONSUMED; the Game Problem CARRIED_NOT_READ (the
- * chain carries Step 1's value and no decision of it reads it: a detected disconnection, never CONSUMED); each NOT_REACHED where not reached.
+ * The verdicts test 1 accepts for each owned decision: the Game Form and the constraints CONSUMED; since stage W1 (a), 11 November 2026, the Game
+ * Problem and the Game Problem that governs the hints CONSUMED (re-pinned openly: the Game Problem was CARRIED_NOT_READ, a detected
+ * disconnection, while no decision of the chain read Step 1's value; the hints row was not held here and read AGREES_INDEPENDENTLY or
+ * CONTRADICTED, listed as OD-HINT-GAME-PROBLEM); each NOT_REACHED where not reached.
  */
-const OWNED: Record<string, string[]> = { GAME_PROBLEM: ['CARRIED_NOT_READ', 'NOT_REACHED'], GAME_FORM: ['CONSUMED', 'NOT_REACHED'], CONSTRAINTS: ['CONSUMED', 'NOT_REACHED'] }
+const OWNED: Record<string, string[]> = { GAME_PROBLEM: ['CONSUMED', 'NOT_REACHED'], GAME_PROBLEM_HINTS: ['CONSUMED', 'NOT_REACHED'], GAME_FORM: ['CONSUMED', 'NOT_REACHED'], CONSTRAINTS: ['CONSUMED', 'NOT_REACHED'] }
 export const EXPERIMENT_RUNS = [...runs.values()].filter((r) => r.kind === 'EXPERIMENT').map((r) => r.id)
 /** Test 1's assertion for one experiment run: each owned decision with an accepted verdict; every finding that must be listed is listed. Throws, naming each. */
 export function assertExperimentRun(findings: Finding[], entries: OpenDisconnection[] = OPEN_DISCONNECTIONS): void {
@@ -722,7 +729,7 @@ export const withheldOf = (id: string) => at(id).findings.filter((f) => f.verdic
 // Test 1
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-test('1. every experiment run: the Game Form and the constraints CONSUMED, the Game Problem CARRIED_NOT_READ (each NOT_REACHED where not reached); every violation and every lens-reading engine refusal listed as an open disconnection by its measured pair, and no entry stale; the legacy entries held the same way (reported only); every WITHHELD_BY_TREATMENT pinned per run; each decision reached by at least one run', () => {
+test('1. every experiment run: the Game Form, the constraints, the Game Problem and the Game Problem that governs the hints CONSUMED (each NOT_REACHED where not reached); every violation and every lens-reading engine refusal listed as an open disconnection by its measured pair, and no entry stale; the legacy entries held the same way (reported only); every WITHHELD_BY_TREATMENT pinned per run; each decision reached by at least one run', () => {
     assert.equal(EXPERIMENT_RUNS.length, 41, 'the experiment runs (measured)')
     for (const id of EXPERIMENT_RUNS) assertExperimentRun(at(id).findings)
     const experimentFindings = EXPERIMENT_RUNS.flatMap((id) => at(id).findings)
@@ -735,16 +742,20 @@ test('1. every experiment run: the Game Form and the constraints CONSUMED, the G
     assert.deepEqual(unlisted(legacyFindings, legacyEntries, ['LEGACY']).map(ownershipMessage), [], 'every legacy violation listed (reported only)')
     assert.deepEqual(stale(legacyFindings, legacyEntries), [], 'no legacy entry stale')
     // Bites, each on an in-memory doctored copy of a run's own facts: a legacy finding removed makes its entry stale; a contradiction of the
-    // hint-governing Game Problem on a run where none was measured fails; an engine refusal unattributed, or attributed to another rule, fails.
+    // hint-governing Game Problem fails; a run whose chain records no Game Problem governing its hints (the stage W1 (a) record absent) fails on
+    // both Game Problem rows; an engine refusal unattributed, or attributed to another rule, fails.
     assert.deepEqual(stale(legacyFindings.filter((f) => !(f.runId === 'TA01' && f.row === 'CONSTRAINTS')), legacyEntries), [{ entry: 'OD-LEGACY-VOCABULARY', run: 'TA01' }])
     const doctor = (id: string, change: (x: SafeguardRun) => void): Finding[] => {
         const x = copy(at(id).run)
         change(x)
         return ownershipOf(x)
     }
-    const hintContradicted = doctor('A02-0', (x) => (x.chain!.gameProblemId = 'GP-099'))
+    const hintContradicted = doctor('A02-0', (x) => (x.chain!.consumption!.hintsGameProblemId = 'GP-099'))
     assert.equal(hintContradicted.find((f) => f.row === 'GAME_PROBLEM_HINTS')?.verdict, 'CONTRADICTED')
     assert.throws(() => assertExperimentRun(hintContradicted), (e: Error) => e.message.includes('ownership: A02-0: the Game Problem reading that governs the engine lens hints and matched signals'))
+    const notRecorded = doctor('A02-0', (x) => (x.chain!.consumption!.hintsGameProblemId = null))
+    assert.deepEqual(['GAME_PROBLEM', 'GAME_PROBLEM_HINTS'].map((row) => notRecorded.find((f) => f.row === row)?.verdict), ['CARRIED_NOT_READ', 'AGREES_INDEPENDENTLY'])
+    assert.throws(() => assertExperimentRun(notRecorded), (e: Error) => e.message.includes('ownership: A02-0: the Game Problem owned by Step 1: CARRIED_NOT_READ'))
     assert.throws(() => assertExperimentRun(doctor('S4-WZA~reversed', (x) => (x.engineRule = null))), /ENGINE_RULE_DECIDED: refused at selection after consuming the form, by a rule not attributed to a kept check/)
     assert.throws(() => assertExperimentRun(doctor('S4-WZA~reversed', (x) => (x.engineRule = { rule: 'PACKAGE_ROW_K', how: 'doctored' }))), /ownership: S4-WZA~reversed: whether the selection commits/)
     // Every WITHHELD_BY_TREATMENT, pinned per run (a detected disconnection, never a pass).
@@ -834,14 +845,37 @@ test(`2. the known A02 failure is detected and rejected (the authorization, sect
 // Tests 3 and 4: dependency verification
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-test('3. dependency, Game Problem: GP-002 swapped into Step 1 (TEST ASSUMPTION) is reconsidered by Step 2 (SELECTED GF7), whose form the chain consumes (GF7), while the chain carries GP-002 from Step 1 as a record no decision reads (CARRIED_NOT_READ) and the planning model\'s reading GP-015 is CONTRADICTED (an open dependency); the legacy route on the same input stays on GF3; GP-001 is reconsidered and stops before the chain', () => {
+/** The candidate knowledge the sport module's Coverage row records for a Game Problem: its lens ids, and the signal groups mapping first to it. */
+const coverageOf = (gp: string) => {
+    const row = soccerModule.coverageForGameProblem(gp) as Record<string, unknown>
+    return {
+        coverageId: String(row['coverage_id']),
+        lenses: String(row['lens_ids']).split(';').map((s) => s.trim()).filter(Boolean),
+        groups: Object.entries(SIGNAL_GROUP_TO_GAME_PROBLEM).filter(([, gps]) => gps[0] === gp).map(([group]) => group),
+    }
+}
+const signalGroupsOf = (signals: string[] | undefined) => (signals ?? []).filter((s) => s.indexOf('signalGroup:') === 0)
+
+test('3. dependency, Game Problem, the divergent arm (stage W1 (a)): GP-002 swapped into Step 1 (TEST ASSUMPTION) is reconsidered by Step 2 (SELECTED GF7), whose form the chain consumes (GF7), and governs the chain\'s lens hints and matched signals (the lens candidates are its Coverage row\'s seven, the matched signal groups the groups mapping first to GP-002), while the planning model\'s reading GP-015 stays in the account, APPROVED, beside it; the legacy route on the same input stays on GF3; GP-001 is reconsidered and stops before the chain', () => {
     const r = at('GP-002')
     assert.deepEqual([r.result.receive.step1?.primary, r.result.receive.step2?.status, r.result.receive.step2?.selected, r.result.receive.step2?.compatible], [['GP-002'], 'SELECTED', 'GF7', ['GF7']])
     // Reconsideration, read from Step 2's result and the account (never from a difference in outcome): Step 2's statement changed with it.
     assert.notEqual(r.result.form.premise?.note, at('A02-0').result.form.premise?.note)
     assert.deepEqual([r.result.consumption?.gameProblem?.gameProblemId, r.result.consumption?.gameProblem?.source, r.result.consumption?.form?.formId, r.result.consumption?.formCandidatesScored], ['GP-002', 'Step 1 (review pathway)', 'GF7', ['GF7']])
-    assert.deepEqual([r.answer?.account?.gameProblem?.status, r.answer?.account?.gameProblem?.gameProblemId], ['APPROVED', 'GP-015'], 'the planning model\'s reading, beside the carried value')
-    assert.deepEqual([verdictOf('GP-002', 'GAME_PROBLEM'), verdictOf('GP-002', 'GAME_PROBLEM_HINTS'), verdictOf('GP-002', 'GAME_FORM'), verdictOf('GP-002', 'CONSTRAINTS')], ['CARRIED_NOT_READ', 'CONTRADICTED', 'CONSUMED', 'CONSUMED'])
+    assert.deepEqual([r.answer?.account?.gameProblem?.status, r.answer?.account?.gameProblem?.gameProblemId], ['APPROVED', 'GP-015'], 'the planning model\'s reading, beside Step 1\'s, never replaced by it (a TEST ASSUMPTION is never printed APPROVED)')
+    // The divergent arm: the hints follow Step 1's GP-002 (its Coverage row CV-002), not the planning model's GP-015 nor the wording.
+    const cv002 = coverageOf('GP-002')
+    assert.equal(cv002.coverageId, 'CV-002')
+    assert.equal(cv002.lenses.length, 7)
+    assert.deepEqual([r.result.consumption?.hintsGameProblemId, r.result.consumption?.hintsGoverned, r.result.consumption?.lensCandidateIds, signalGroupsOf(r.result.consumption?.hintsSignals)], ['GP-002', true, cv002.lenses, cv002.groups])
+    // The wording's own pool (A02-0, where Step 1 and the wording agree on GP-015) is the pressure group's three, which the arm no longer reads.
+    const own = at('A02-0').result.consumption
+    assert.deepEqual([own?.hintsGameProblemId, own?.hintsGoverned, own?.lensCandidateIds, signalGroupsOf(own?.hintsSignals)], ['GP-015', false, [L('possession-stability-opportunity'), L('regain-opportunity'), L('space-creation-opportunity')], ['signalGroup:B_pressure']])
+    assert.notDeepEqual(r.result.consumption?.lensCandidateIds, own?.lensCandidateIds)
+    // The engine lenses the arm committed are drawn from CV-002's pool (measured: Line-Breaking, Finishing, Possession Stability).
+    assert.deepEqual(r.answer?.observed?.lensIds, [L('line-breaking-opportunity'), L('finishing-opportunity'), L('possession-stability-opportunity')])
+    assert.ok(r.answer!.observed!.lensIds.every((id) => cv002.lenses.indexOf(id) >= 0))
+    assert.deepEqual([verdictOf('GP-002', 'GAME_PROBLEM'), verdictOf('GP-002', 'GAME_PROBLEM_HINTS'), verdictOf('GP-002', 'GAME_FORM'), verdictOf('GP-002', 'CONSTRAINTS')], ['CONSUMED', 'CONSUMED', 'CONSUMED', 'CONSUMED'])
     assert.deepEqual([r.result.chain?.stage, r.result.chain?.reasons], ['knowledge', ['the game form GF7 has no contribution contract']])
     // The bite: the chain's own route on the same swapped knowledge selects GF3.
     const legacy = at('GP-002/legacy')
@@ -908,6 +942,17 @@ test('5. wording only: the goal\'s wording rewritten (reversed, neutral) in the 
         if (entries[0] === lensesEntry) assert.deepEqual([ch.aspect, ch.before, ch.after], ['lenses', lensesEntry.measured!.before, lensesEntry.measured!.after], ch.run)
     }
     for (const e of [lensesEntry, flipEntry]) for (const run of e.runs) assert.ok(changes.some((ch) => ch.run === run), `${e.id}: ${run} still changes (no stale entry)`)
+    // Stage W1 (a): under both rewordings the Game Problem that governs the hints stays Step 1's GP-015, and the consumed Game Problem, the
+    // planning model's reading, the form, the context and the constraint candidates and authority do not move; the lens pool does move (the
+    // wording's own three where Step 1 and the wording agree; CV-015's five where the rewording infers no Game Problem): OD-WORDING-LENSES.
+    const cv015 = coverageOf('GP-015')
+    for (const w of ['reversed', 'neutral'])
+        for (const id of ['A02-0', 'A02-1', 'A02-2']) {
+            const held = (r: Run) => json([r.result.consumption?.hintsGameProblemId, r.result.consumption?.gameProblem, r.answer?.account?.gameProblem?.status, r.answer?.account?.gameProblem?.gameProblemId, r.run.chain?.form, r.run.chain?.contextId, r.result.consumption?.constraintAuthority, r.result.consumption?.constraintCandidateIds])
+            assert.equal(held(at(`${id}~${w}`)), held(at(id)), `${id}~${w}: the owned inputs do not move`)
+            assert.equal(at(`${id}~${w}`).result.consumption?.hintsGameProblemId, 'GP-015')
+            assert.deepEqual([at(id).result.consumption?.lensCandidateIds.length, at(`${id}~${w}`).result.consumption?.lensCandidateIds], [3, cv015.lenses], `${id}~${w}: the lens pool moves with the wording`)
+        }
     assert.deepEqual(
         [...new Set(changes.map((ch) => `${ch.run}: ${changes.filter((x) => x.run === ch.run).map((x) => x.aspect).join(', ')}`))],
         WORDING_CHANGES,
@@ -979,7 +1024,7 @@ const fixture = (): SafeguardRun => ({
         constraints: ['m1'],
         constraintAuthority: 'AUTHORIZATION_RECORD',
         lenses: ['L1', 'L2'],
-        consumption: { gameProblemId: 'G1', gameProblemSource: 'Step 1 (review pathway)', formCandidatesScored: ['F1'], formCandidatesFrom: 'SELECTION_TRACE_RANKING', constraintAuthority: 'AUTHORIZATION_RECORD', constraintCandidateIds: ['m1'], sizeRuleBypassed: true },
+        consumption: { gameProblemId: 'G1', gameProblemSource: 'Step 1 (review pathway)', formCandidatesScored: ['F1'], formCandidatesFrom: 'SELECTION_TRACE_RANKING', constraintAuthority: 'AUTHORIZATION_RECORD', constraintCandidateIds: ['m1'], sizeRuleBypassed: true, hintsGameProblemId: 'G1', lensCandidateIds: ['L1', 'L2'], hintsSignals: ['S1'] },
         contextInThisActivity: true,
         scoringCondition: { state: 'NOT_CLASSIFIED', rowId: 'R1', carried: false },
     },
@@ -990,13 +1035,17 @@ const verdictIn = (run: SafeguardRun, row: string) => ownershipOf(run).find((f) 
 
 test('7. the pure check returns each verdict on a minimal doctored fixture', () => {
     const base = fixture()
-    assert.deepEqual(['GAME_PROBLEM', 'GAME_FORM', 'CONSTRAINTS', 'SELECTION_OUTCOME', 'SCORING', 'SCORING_DISPLAY', 'REALIZATION'].map((row) => verdictIn(base, row).verdict), ['CARRIED_NOT_READ', 'CONSUMED', 'CONSUMED', 'LEGITIMATE_CHAIN_DECISION', 'CARRIED', 'CARRIED', 'LEGITIMATE_CHAIN_DECISION'])
-    assert.equal(classOf(verdictIn(base, 'GAME_PROBLEM')), 'DETECTED', 'the carried Game Problem no decision reads is never a pass')
+    // Re-pinned openly in stage W1 (a): the base fixture's chain records Step 1's G1 as governing its hints, so the Game Problem reads CONSUMED
+    // (was CARRIED_NOT_READ, when no such record existed); without the record it still reads CARRIED_NOT_READ (below).
+    assert.deepEqual(['GAME_PROBLEM', 'GAME_PROBLEM_HINTS', 'GAME_FORM', 'CONSTRAINTS', 'SELECTION_OUTCOME', 'SCORING', 'SCORING_DISPLAY', 'REALIZATION'].map((row) => verdictIn(base, row).verdict), ['CONSUMED', 'CONSUMED', 'CONSUMED', 'CONSUMED', 'LEGITIMATE_CHAIN_DECISION', 'CARRIED', 'CARRIED', 'LEGITIMATE_CHAIN_DECISION'])
     const v = (change: (x: SafeguardRun) => void, row: string): Finding => {
         const x = fixture()
         change(x)
         return verdictIn(x, row)
     }
+    const carried = v((x) => (x.chain!.consumption!.hintsGameProblemId = null), 'GAME_PROBLEM')
+    assert.deepEqual([carried.verdict, classOf(carried)], ['CARRIED_NOT_READ', 'DETECTED'], 'the carried Game Problem no decision reads is never a pass')
+    assert.equal(v((x) => (x.chain!.consumption!.gameProblemSource = 'elsewhere'), 'GAME_PROBLEM_HINTS').verdict, 'AGREES_INDEPENDENTLY', 'equal hints with no Step 1 source are never consumption')
     assert.equal(v((x) => (x.chain!.consumption!.formCandidatesScored = ['F1', 'F2']), 'GAME_FORM').verdict, 'AGREES_INDEPENDENTLY')
     assert.equal(v((x) => (x.chain!.form = 'F2'), 'GAME_FORM').verdict, 'CONTRADICTED')
     assert.equal(v((x) => Object.assign(x.chain!, { consumption: null, outcome: 'refused', stage: 'selection', form: 'F2', ownPick: null }), 'GAME_FORM').verdict, 'REFUSED_ON_OWN_CHOICE')
@@ -1042,7 +1091,8 @@ test('7. the pure check returns each verdict on a minimal doctored fixture', () 
     assert.equal(v((x) => Object.assign(x.chain!, { outcome: 'refused', stage: 'structure' }), 'REALIZATION').verdict, 'NOT_REACHED')
     assert.equal(v((x) => (x.chain!.form = null), 'GAME_FORM').verdict, 'MISSING')
     assert.equal(v((x) => (x.chain!.consumption!.gameProblemId = 'G2'), 'GAME_PROBLEM').verdict, 'CONTRADICTED')
-    assert.equal(v((x) => (x.chain!.gameProblemId = 'G2'), 'GAME_PROBLEM_HINTS').verdict, 'CONTRADICTED')
+    assert.equal(v((x) => (x.chain!.consumption!.hintsGameProblemId = 'G2'), 'GAME_PROBLEM_HINTS').verdict, 'CONTRADICTED')
+    assert.equal(v((x) => Object.assign(x.chain!, { gameProblemId: 'G2', consumption: { ...x.chain!.consumption!, hintsGameProblemId: null } }), 'GAME_PROBLEM_HINTS').verdict, 'CONTRADICTED', 'without the record, the planning model\'s reading against Step 1\'s')
     assert.equal(v((x) => (x.chain!.contextId = 'X2'), 'CONTEXT').verdict, 'CONTRADICTED')
     // Every verdict of the list is produced by some fixture above or the base (and a stage outside the order is refused, never guessed).
     assert.throws(() => ownershipOf({ ...fixture(), chain: { ...fixture().chain!, outcome: 'refused', stage: 'nowhere' } }), /the stage nowhere is not in the stage order/)
@@ -1174,9 +1224,13 @@ test('the disposition table: every selection check kept and enforced except the 
     holds('validate-constraint-package.ts', 326, 'A valid package requires a foundation constraint.')
     holds('validate-constraint-package.ts', 491, 'does not show a clear relationship to the selected affordance or open problem space')
     holds('validate-constraint-package.ts', 365, 'does not support the selected affordance tag group')
-    holds('derivation/run-bounded-selection.ts', 384, `if (resolutionStatus !== 'matched')`)
-    holds('sport-module/guided-selection.ts', 212, 'export function guidedSelectionHints')
-    holds('sport-module/guided-selection.ts', 228, 'governByApprovedGameProblem(learningGoalId')
+    // Re-pinned openly in stage W1 (a) (lines moved by the TEST-ONLY hunks added above them): 384 -> 398, 212 -> 218, 228 -> 238; and the
+    // TEST-ONLY call with Step 1's Game Problem, 246.
+    holds('derivation/run-bounded-selection.ts', 398, `if (resolutionStatus !== 'matched')`)
+    holds('sport-module/guided-selection.ts', 218, 'export function guidedSelectionHints')
+    holds('sport-module/guided-selection.ts', 238, 'governByApprovedGameProblem(learningGoalId')
+    holds('sport-module/guided-selection.ts', 246, 'governByApprovedGameProblem(learningGoalId, deriveInputConstraints(goalText), options.step1GameProblemId)')
+    holds('sport-module/guided-selection.ts', 131, 'export function governByApprovedGameProblem(')
     // Per run.
     const ran = (id: string) => Object.fromEntries(dispositionOf(at(id).run).map((d) => [d.id, d.ran]))
     const zero = 'not run on this path (zero branch, generateSelection.ts:811-815)'
@@ -1219,7 +1273,7 @@ export function stopsOf(): Stop[] {
             kind: 'PATH',
             // Batch A4 (the lead's decision, from the delivery review): read as decision authority [4], no longer Missing knowledge [1].
             categories: [4],
-            why: 'the checked pathway accepts manipulations only on a per-goal authorization record\'s authority (the live route hands it only a record-backed selection, live-activity.ts:55-56; with upstream decisions it refuses without one, run-bounded-selection.ts:329-330), and A02 has none; called on the production records, its candidates are A02\'s own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal\'s candidates), and they cannot be combined on any of RPC-002\'s declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the review pathway proposes no manipulation for A02 under K2 (approved for review-only use), and the checked pathway does not take that result; passed only by our TEST-ONLY DRAFT record standing in for that result (an empty set; on item 4\'s runs a TEST-ONLY copy of it holds the stand-in manipulations instead; the finding OURS, no ruling), never by the consumption; the category is OURS (an assumption)',
+            why: 'the checked pathway accepts manipulations only on a per-goal authorization record\'s authority (the live route hands it only a record-backed selection, live-activity.ts:55-56; with upstream decisions it refuses without one, run-bounded-selection.ts:338-339), and A02 has none; called on the production records, its candidates are A02\'s own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal\'s candidates), and they cannot be combined on any of RPC-002\'s declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the review pathway proposes no manipulation for A02 under K2 (approved for review-only use), and the checked pathway does not take that result; passed only by our TEST-ONLY DRAFT record standing in for that result (an empty set; on item 4\'s runs a TEST-ONLY copy of it holds the stand-in manipulations instead; the finding OURS, no ruling), never by the consumption; the category is OURS (an assumption)',
         },
         {
             id: 'L2',

@@ -168,8 +168,9 @@ export interface BoundedSelection extends KnowledgeSelection {
  * Handed only by `buildActivityUnderAuthorizationRecords`'s `upstream` option, which no route passes (a static test pins it:
  * `rendering/upstream-consumption.unit.ts`). Plain data: no module of the review pathway is imported to read it.
  *   - `gameProblem`: Step 1's resolved primary Game Problem and its basis, with the case's own label (TEST ASSUMPTION for a swap). Carried into
- *     the selection and the account as `consumedGameProblem`; never written to `gameProblem` (the planning model's reading, which still governs
- *     the lens hints and the matched signals in `guidedSelectionHints`) and never read by `provisionalOf`.
+ *     the selection and the account as `consumedGameProblem`; never written to `gameProblem` (the planning model's reading) and never read by
+ *     `provisionalOf`. Since stage W1 (a), 11 November 2026, it governs the lens hints and the matched signals: handed to `guidedSelectionHints`
+ *     as `step1GameProblemId` (the consumption record says which Game Problem governed them, `hintsGameProblemId`).
  *   - `gameForm`: Step 2's form, its standing words and the grade of every cell its selection rests on (GF2's GP-015 cell is CANDIDATE, our
  *     restatement of a DRAFT sport-module row): carried, never upgraded. The candidate forms become the context-gated list filtered to it
  *     (an intersection, never a replacement).
@@ -197,6 +198,9 @@ export interface ConsumedGameProblem {
  * ranked, read from the selection trace's ranking (`SELECTION_TRACE_RANKING`); where the selector refused before it returned a trace, the
  * candidate list selectFor handed it (`CANDIDATES_HANDED_TO_SELECTOR`), which is the list it scores. `constraintAuthority` and
  * `constraintCandidateIds`: the pool account's, from the trace or from the gap. `form`: Step 2's form as handed in, standing and grades kept.
+ * Stage W1 (a), 11 November 2026: `hintsGameProblemId` and `hintsGoverned`, the Game Problem that governed the hints and whether its Coverage
+ * row replaced the wording's candidates (read from `guidedSelectionHints`' `hintsGameProblem`, null where it returned none);
+ * `lensCandidateIds` and `hintsSignals`, the lens candidates and the matched signals of the hints handed to the selector, read from them.
  */
 export interface ConsumedRecord {
     formCandidatesScored: string[]
@@ -205,6 +209,10 @@ export interface ConsumedRecord {
     constraintAuthority: ConstraintAuthority
     constraintCandidateIds: string[]
     quotaBypass: boolean
+    hintsGameProblemId: string | null
+    hintsGoverned: boolean | null
+    lensCandidateIds: string[]
+    hintsSignals: string[]
 }
 
 /** TEST-ONLY: an upstream object missing what the consumption reads is refused, never read partly. */
@@ -312,7 +320,8 @@ export function selectFor(
      * coach could reach. An approved rule carried by one caller and not the other is the same loss as
      * an authored field dropped by a projection; it is closed the same way, by having one source.
      */
-    const guided = guidedSelectionHints(goalId, text, records, provisionalIds, drafts ? { draftsAdmitted: true } : {})
+    // TEST-ONLY (stage W1 (a)): with upstream decisions, Step 1's Game Problem governs the Game-Problem-dependent hints; without, nothing is added.
+    const guided = guidedSelectionHints(goalId, text, records, provisionalIds, { ...(drafts ? { draftsAdmitted: true } : {}), ...(upstream ? { step1GameProblemId: upstream.gameProblem.gameProblemId } : {}) })
     /**
      * TEST-ONLY (A02 experiment, S1(b) and S1(c)): with upstream decisions, the candidate forms are the context-gated list FILTERED to Step 2's
      * form, an intersection and never a replacement, so a form the routed context does not declare is refused here in its own words; and the
@@ -341,6 +350,11 @@ export function selectFor(
         constraintAuthority: pool.constraintAuthority,
         constraintCandidateIds: [...pool.candidateIds],
         quotaBypass: upstream!.quotaBypass === true,
+        // Stage W1 (a): which Game Problem governed the hints, and the hints handed to the selector, read from them (never from the request).
+        hintsGameProblemId: guided.hintsGameProblem?.gameProblemId ?? null,
+        hintsGoverned: guided.hintsGameProblem ? guided.hintsGameProblem.governed : null,
+        lensCandidateIds: [...(hints.candidateAffordanceLensIds ?? [])],
+        hintsSignals: [...(hints.matchedSignals ?? [])],
     })
     let result: any
     try {

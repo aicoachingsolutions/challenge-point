@@ -79,6 +79,31 @@ const a01At = (players: number, keepers: number) => ({ kind: 'learning-goal' as 
 const NEUTRAL_PLAYER = 'tl-v0-constraint-neutral-player-condition'
 const RPC_002_NOT_CONTRACTED = 'the Representative Performance Context RPC-002 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game'
 const TEST_ONLY_FIELDS = ['consumedGameProblem', 'consumed']
+/**
+ * Stage W1 (a), 11 November 2026: what the consumption record says of the hints (measured): the Game Problem that governed them (Step 1's),
+ * whether its Coverage row replaced the wording's candidates, and the lens candidates and matched signals the selector was handed.
+ */
+const A01_HINTS = {
+    hintsGameProblemId: 'GP-005',
+    hintsGoverned: true,
+    lensCandidateIds: ['tl-v0-lens-space-exploitation-opportunity', 'tl-v0-lens-space-creation-opportunity', 'tl-v0-lens-line-breaking-opportunity', 'tl-v0-lens-possession-stability-opportunity'],
+    hintsSignals: ['signalGroup:G_overload', 'unresolvedLensTitle:Support Angle Opportunity', 'unresolvedConstraintTitle:Pressure Condition'],
+}
+/** Test 7d, measured (stage W1 (a)): the option's identifiers named per file, and the guided selection hints' lines that name them. */
+const RUN_BOUNDED_SELECTION_NAMES: Record<string, number> = { consumed: 7, consumedGameProblem: 10, hintsGameProblem: 3, hintsGameProblemId: 2, hintsGoverned: 2, hintsSignals: 2, lensCandidateIds: 2, quotaBypass: 7, step1GameProblemId: 1, upstream: 25, UpstreamDecisions: 4 }
+const GUIDED_SELECTION_NAMES: Record<string, number> = { hintsGameProblem: 2, step1GameProblemId: 3 }
+const GUIDED_SELECTION_LINES: string[] = [
+    'hintsGameProblem?: GameProblemAuthority',
+    'options: { draftsAdmitted?: boolean; step1GameProblemId?: string } = {},',
+    'const step1 = options.step1GameProblemId === undefined ? null : governByApprovedGameProblem(learningGoalId, deriveInputConstraints(goalText), options.step1GameProblemId)',
+    '...(step1 ? { hintsGameProblem: step1.gameProblem } : {}),',
+]
+const A02_HINTS = {
+    hintsGameProblemId: 'GP-015',
+    hintsGoverned: false,
+    lensCandidateIds: ['tl-v0-lens-possession-stability-opportunity', 'tl-v0-lens-regain-opportunity', 'tl-v0-lens-space-creation-opportunity'],
+    hintsSignals: ['signalGroup:B_pressure', 'unresolvedLensTitle:Support Angle Opportunity', 'unresolvedConstraintTitle:Pressure Condition'],
+}
 
 /** A TEST-ONLY DRAFT A02 record in a temporary folder, loaded through the draft store's gate: no ruling field (the gate requires that of a record we drafted). */
 function storeWith(authorizedConstraints: string[] | null): DraftStoreContents {
@@ -180,9 +205,11 @@ test('A01: byte-identical with the option, with and without the quota bypass, at
             assert.equal(json(withoutTestOnlyFields(built.activity)), json(production), `A01 ${players}/${keepers}, quotaBypass ${quotaBypass}: identical`)
             const account: any = built.activity.account
             assert.deepEqual(account.consumedGameProblem, { gameProblemId: 'GP-005', step1Basis: 'APPROVED_TRANSLATION', label: 'as resolved by Step 1 (review pathway)', source: 'Step 1 (review pathway)' })
+            // Stage W1 (a), re-pinned openly (the record gained four fields): Step 1's GP-005 governed the hints, as the planning model's
+            // GP-005 does on the production route (governed there too), so the selection is unchanged.
             assert.deepEqual(
                 { ...account.consumed, form: account.consumed.form.formId },
-                { formCandidatesScored: ['GF2'], formCandidatesFrom: 'SELECTION_TRACE_RANKING', form: 'GF2', constraintAuthority: 'AUTHORIZATION_RECORD', constraintCandidateIds: [], quotaBypass },
+                { formCandidatesScored: ['GF2'], formCandidatesFrom: 'SELECTION_TRACE_RANKING', form: 'GF2', constraintAuthority: 'AUTHORIZATION_RECORD', constraintCandidateIds: [], quotaBypass, ...A01_HINTS },
             )
         }
     }
@@ -218,6 +245,7 @@ test(`consumption on A02 (TEST-ONLY empty DRAFT record): Step 2's form, read fro
         constraintAuthority: 'AUTHORIZATION_RECORD',
         constraintCandidateIds: [],
         quotaBypass: false,
+        ...A02_HINTS,
     })
     // The cell GF2's selection rests on keeps its grade: CANDIDATE, never upgraded.
     assert.deepEqual(
@@ -314,7 +342,7 @@ test('the quota bypass: honoured only for an evaluated, record-backed set, throw
     assert.match(without.reasons[0], /^selection: A02: a knowledge gap \(NO_COMPATIBLE_COMBINATION\) - the goal's designated knowledge cannot be combined into a selection on GF2;/)
     assert.deepEqual(
         { ...without.account.consumed!, form: without.account.consumed!.form.formId },
-        { formCandidatesScored: ['GF2'], formCandidatesFrom: 'CANDIDATES_HANDED_TO_SELECTOR', form: 'GF2', constraintAuthority: 'AUTHORIZATION_RECORD', constraintCandidateIds: [NEUTRAL_PLAYER], quotaBypass: false },
+        { formCandidatesScored: ['GF2'], formCandidatesFrom: 'CANDIDATES_HANDED_TO_SELECTOR', form: 'GF2', constraintAuthority: 'AUTHORIZATION_RECORD', constraintCandidateIds: [NEUTRAL_PLAYER], quotaBypass: false, ...A02_HINTS },
     )
     assert.equal(without.account.consumedGameProblem?.gameProblemId, 'GP-015', 'the gap path carries the consumed Game Problem too')
     const bypassed = a02Build(loneStore, { upstream: upstreamOf('GF2', { quotaBypass: true }) }).activity as RefusedActivity
@@ -350,10 +378,13 @@ test('statically: production cannot reach the option (identifiers, positional ar
     assert.ok([`from '../design-reasoning/stage1'`, `require('../design-reasoning/handoff')`, `import ( '../design-reasoning/forms' )`].every(text => IMPORTS_REVIEW.test(text)), 'the scan sees each import form')
     assert.deepEqual(files.filter(file => !relative(file).startsWith(REVIEW_PATHWAY) && IMPORTS_REVIEW.test(fs.readFileSync(file, 'utf8'))).map(relative), [])
 
-    const NAMES = new Set(['upstream', 'consumedGameProblem', 'consumed', 'quotaBypass', 'quotaBypassOwnSize', 'UpstreamDecisions'])
+    // Stage W1 (a), 11 November 2026: the identifiers of Step 1's Game Problem governing the hints join the scan (the option field, the hints'
+    // authority and the consumption record's four fields).
+    const NAMES = new Set(['upstream', 'consumedGameProblem', 'consumed', 'quotaBypass', 'quotaBypassOwnSize', 'UpstreamDecisions', 'step1GameProblemId', 'hintsGameProblem', 'hintsGameProblemId', 'hintsGoverned', 'lensCandidateIds', 'hintsSignals'])
     const POSITION: Record<string, number> = { selectFor: 6, generateSelection: 3, build: 18 }
     const named = new Map<string, Map<string, number>>()
     const namedLines = new Map<string, Map<number, string>>()
+    const linesOfNamed = (file: string) => [...(namedLines.get(file) ?? new Map<number, string>()).entries()].sort((a, b) => a[0] - b[0]).map(entry => entry[1])
     const calls: string[] = []
     const references: string[] = []
     const callersOfTheEntry: string[] = []
@@ -469,14 +500,22 @@ test('statically: production cannot reach the option (identifiers, positional ar
     assert.match(fs.readFileSync(path.join(SRC, 'system', 'derivation', 'run-contract-coverage.ts'), 'utf8'), /export type CoverageSelector = \(goalId: string, situationId: string \| null\) => BoundedSelection/)
     // 7c. No non-unit module calls the TEST-ONLY entry.
     assert.deepEqual(callersOfTheEntry, [])
-    // 7d. Only the three bundled files name the option's identifiers; the selector names only its boolean.
-    assert.deepEqual([...named.keys()].sort(), ['system/derivation/run-bounded-selection.ts', 'system/rendering/build-activity.ts', 'system/test-library/generateSelection.ts'])
+    // 7d. Outside the review pathway (whose modules no production module imports, above), only the bundled files name the option's identifiers;
+    // the selector names only its boolean. Stage W1 (a), 11 November 2026, re-pinned openly: the guided selection hints joins them (the
+    // TEST-ONLY `step1GameProblemId` option and the `hintsGameProblem` it returns), and the review pathway's handoff, report and safeguards
+    // read the consumption record's new fields (they were not named before because the scan's names did not include those fields).
+    assert.deepEqual([...named.keys()].filter((file) => !file.startsWith(REVIEW_PATHWAY)).sort(), ['system/derivation/run-bounded-selection.ts', 'system/rendering/build-activity.ts', 'system/sport-module/guided-selection.ts', 'system/test-library/generateSelection.ts'])
+    assert.deepEqual([...named.keys()].filter((file) => file.startsWith(REVIEW_PATHWAY)).sort(), ['system/design-reasoning/handoff-report.ts', 'system/design-reasoning/handoff.ts', 'system/design-reasoning/safeguards.ts'])
     // Counted per file (measured 10 November 2026, B1), so a new reference anywhere is a visible change; the selector names none but its boolean.
     const countsOf = (file: string) => Object.fromEntries([...(named.get(file) ?? new Map<string, number>()).entries()].sort((a, b) => a[0].localeCompare(b[0])))
     assert.deepEqual(countsOf('system/test-library/generateSelection.ts'), { quotaBypass: 3, quotaBypassOwnSize: 10 })
     assert.deepEqual(countsOf('system/rendering/build-activity.ts'), { consumed: 7, consumedGameProblem: 7, upstream: 6, UpstreamDecisions: 4 })
-    assert.deepEqual(countsOf('system/derivation/run-bounded-selection.ts'), { consumed: 7, consumedGameProblem: 10, quotaBypass: 7, upstream: 23, UpstreamDecisions: 4 })
-    const linesOf = (file: string) => [...(namedLines.get(file) ?? new Map<number, string>()).entries()].sort((a, b) => a[0] - b[0]).map(entry => entry[1])
+    // Stage W1 (a), re-pinned openly: run-bounded-selection.ts was { consumed: 7, consumedGameProblem: 10, quotaBypass: 7, upstream: 23, UpstreamDecisions: 4 }.
+    assert.deepEqual(countsOf('system/derivation/run-bounded-selection.ts'), RUN_BOUNDED_SELECTION_NAMES)
+    assert.deepEqual(countsOf('system/sport-module/guided-selection.ts'), GUIDED_SELECTION_NAMES)
+    // The guided selection's lines: the returned authority's declaration, the option, its read, and the return.
+    assert.deepEqual(linesOfNamed('system/sport-module/guided-selection.ts'), GUIDED_SELECTION_LINES)
+    const linesOf = linesOfNamed
     // The build's lines: the type import, the two optional account fields and their copies, and the option's declaration, threading and guard.
     assert.deepEqual(linesOf('system/rendering/build-activity.ts'), [
         `import type { ConsumedGameProblem, ConsumedRecord, UpstreamDecisions } from '../derivation/run-bounded-selection'`,

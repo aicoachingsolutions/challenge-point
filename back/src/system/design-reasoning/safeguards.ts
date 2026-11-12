@@ -13,9 +13,11 @@
  *   - `OWNERSHIP_TABLE`: each consequential decision with its owner, input, output and authority (principle A, decision ownership).
  *   - `ownershipOf`: one verdict per decision row for one run. CONSUMED needs the value equal to the upstream decision AND the run's own
  *     evidence that the decision was made from it (the chain's TEST-ONLY consumption record: the forms its scorer was handed, the record's
- *     pool); equal values without that evidence are AGREES_INDEPENDENTLY, never consumption (principle C). The Game Problem the chain carries
- *     from Step 1 is read by no decision of the chain, so it reads CARRIED_NOT_READ, never CONSUMED (Christian's authorization, section 3: a
- *     citation the engine ignores is insufficient; a deliberate departure from DESIGN-9 section 3's marker). The other verdicts: CONTRADICTED,
+ *     pool, the Game Problem that governed its hints); equal values without that evidence are AGREES_INDEPENDENTLY, never consumption
+ *     (principle C). A Game Problem the chain carries from Step 1 and no decision of the chain reads reads CARRIED_NOT_READ, never CONSUMED
+ *     (Christian's authorization, section 3: a citation the engine ignores is insufficient); since stage W1 (a), 11 November 2026, Step 1's
+ *     Game Problem governs the chain's lens hints and matched signals, and the chain records which Game Problem did, so the Game Problem and
+ *     the hints read CONSUMED where that record names Step 1's (CARRIED_NOT_READ remains for a run without that record). The other verdicts: CONTRADICTED,
  *     REFUSED_ON_OWN_CHOICE, UNAUTHORIZED_SOURCE, ENGINE_RULE_DECIDED (with its attribution, on a refusal whose basis is NOT KNOWLEDGE),
  *     CARRIED (every open item of the clause derived and resolved, no declaration replaced) / CARRIED_UNDER_TREATMENT / WITHHELD_BY_TREATMENT /
  *     REFUSED_ON_CLAUSE_LINE / CITED_NOT_CARRIED per clause of the cited approved row and for the account's display, NOT_REACHED (the run
@@ -50,16 +52,16 @@ export const OWNERSHIP_TABLE: Array<{ row: DecisionRow; decision: string; owner:
         decision: 'the Game Problem',
         owner: 'Step 1',
         input: 'the goal id, the approved translation or a scoped ruling, the routing',
-        output: 'the resolved primary Game Problem, carried by the chain beside its own reading',
+        output: 'the resolved primary Game Problem, carried by the chain beside its own reading and read by the chain\'s hints (the next row)',
         authority: 'the approved translation, or the scoped ruling it rests on',
     },
     {
         row: 'GAME_PROBLEM_HINTS',
         decision: 'the Game Problem reading that governs the engine lens hints and matched signals',
-        owner: 'Step 1 (an open dependency: the chain still reads the planning model itself)',
-        input: 'the planning model, read inside the guided selection hints',
-        output: 'the lens hints and the matched signals the resolution check reads',
-        authority: 'none over an owned decision: reported, never switched',
+        owner: 'Step 1 (since stage W1 (a), 11 November 2026, on the experiment path)',
+        input: 'Step 1\'s resolved primary Game Problem, handed to the guided selection hints as the approved one (TEST-ONLY); the planning model\'s reading stays in the account beside it',
+        output: 'the lens hints and the matched signals the resolution check reads, recorded with the Game Problem that governed them',
+        authority: 'Christian\'s rule of 13 October 2026 (the approved Game Problem translation governs where it disagrees with the wording), applied with Step 1\'s resolution of that translation',
     },
     {
         row: 'CONTEXT',
@@ -183,7 +185,8 @@ export interface SafeguardRun {
         constraints: string[]
         constraintAuthority: string | null
         lenses: string[]
-        consumption: null | { gameProblemId: string | null; gameProblemSource: string | null; formCandidatesScored: string[]; formCandidatesFrom: string; constraintAuthority: string; constraintCandidateIds: string[]; sizeRuleBypassed: boolean }
+        /** Stage W1 (a): `hintsGameProblemId`, the Game Problem the chain recorded as governing its lens hints (null where it recorded none). */
+        consumption: null | { gameProblemId: string | null; gameProblemSource: string | null; formCandidatesScored: string[]; formCandidatesFrom: string; constraintAuthority: string; constraintCandidateIds: string[]; sizeRuleBypassed: boolean; hintsGameProblemId: string | null; lensCandidateIds: string[]; hintsSignals: string[] }
         contextInThisActivity: boolean | null
         scoringCondition: { state: string; rowId: string | null; carried: boolean } | null
     }
@@ -285,6 +288,9 @@ export function safeguardRunOf(r: HandoffResult, a: ChainAnswer | null, experime
                                 constraintAuthority: consumption.constraintAuthority,
                                 constraintCandidateIds: [...consumption.constraintCandidateIds],
                                 sizeRuleBypassed: consumption.sizeRuleBypassed,
+                                hintsGameProblemId: consumption.hintsGameProblemId ?? null,
+                                lensCandidateIds: [...(consumption.lensCandidateIds ?? [])],
+                                hintsSignals: [...(consumption.hintsSignals ?? [])],
                             }
                           : null,
                       contextInThisActivity: a.observed ? a.observed.contextInThisActivity : null,
@@ -340,27 +346,47 @@ export function ownershipOf(run: SafeguardRun): Finding[] {
     const notRun = run.handoffStop ? `the handoff stopped before the chain (${run.handoffStop})` : 'the chain was not run'
     const x = c?.consumption ?? null
 
-    // The Game Problem: the chain's record of Step 1's value is a carried record, read by no decision of the chain (CARRIED_NOT_READ, a detected
+    // The Game Problem: the chain's record of Step 1's value. Where the chain also records that Step 1's value governed its lens hints (stage W1
+    // (a)), a decision of the chain read it: CONSUMED. Without that record it is a carried record no decision reads (CARRIED_NOT_READ, a detected
     // disconnection, never CONSUMED: the authorization's section 3, a citation the engine ignores is insufficient).
+    const hintsByStep1 = !!x && x.hintsGameProblemId !== null && x.hintsGameProblemId === x.gameProblemId && x.gameProblemSource === 'Step 1 (review pathway)'
     if (!c) push('GAME_PROBLEM', 'NOT_REACHED', notRun)
     else if (x && x.gameProblemId !== null) {
         if (x.gameProblemId !== u.gameProblemId) push('GAME_PROBLEM', 'CONTRADICTED', `the chain carried ${x.gameProblemId} where Step 1 resolved ${u.gameProblemId ?? 'none'}`)
         else if (x.gameProblemSource !== 'Step 1 (review pathway)') push('GAME_PROBLEM', 'AGREES_INDEPENDENTLY', `equal to Step 1, and the chain's record names no Step 1 source (${x.gameProblemSource ?? 'none'})`)
+        else if (hintsByStep1)
+            push(
+                'GAME_PROBLEM',
+                'CONSUMED',
+                `the chain carries Step 1's ${x.gameProblemId} (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place`,
+                `the chain's own reading (planning model): ${c.gameProblemStatus ?? 'none'} ${c.gameProblemId ?? 'none'}`,
+            )
         else
             push(
                 'GAME_PROBLEM',
                 'CARRIED_NOT_READ',
-                `the chain carries Step 1's ${x.gameProblemId} as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)`,
+                `the chain carries Step 1's ${x.gameProblemId} as a record (source Step 1, review pathway); no decision of the chain reads it (its record names ${x.hintsGameProblemId === null ? 'no Game Problem' : x.hintsGameProblemId} as governing its hints); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)`,
                 `the chain's own reading (planning model): ${c.gameProblemStatus ?? 'none'} ${c.gameProblemId ?? 'none'}`,
             )
     } else if (c.gameProblemStatus === null) push('GAME_PROBLEM', 'MISSING', 'the chain was run and its account carries no Game Problem')
     else if (c.gameProblemId === u.gameProblemId) push('GAME_PROBLEM', 'AGREES_INDEPENDENTLY', `the chain's own reading (${c.gameProblemStatus} ${c.gameProblemId}, the planning model, which also governs the hints) equals Step 1's, and nothing records Step 1's value as consumed`)
     else push('GAME_PROBLEM', 'CONTRADICTED', `the chain's own reading is ${c.gameProblemStatus} ${c.gameProblemId ?? 'none'}; Step 1 resolved ${u.gameProblemId ?? 'none'}`)
 
-    // The hint-governing reading (experiment runs only; on the legacy route the row above is that reading).
+    // The hint-governing reading (experiment runs only; on the legacy route the row above is that reading). CONSUMED only where the chain's own
+    // record names the Game Problem that governed its hints and it is Step 1's (stage W1 (a)); without that record, the planning model's reading.
     if (run.experiment) {
         if (!c) push('GAME_PROBLEM_HINTS', 'NOT_REACHED', notRun)
-        else if (c.gameProblemStatus === null) push('GAME_PROBLEM_HINTS', 'MISSING', 'the chain was run and its account carries no Game Problem reading')
+        else if (x && x.hintsGameProblemId !== null) {
+            if (x.hintsGameProblemId !== u.gameProblemId) push('GAME_PROBLEM_HINTS', 'CONTRADICTED', `the chain's record names ${x.hintsGameProblemId} as governing its lens hints and matched signals, where Step 1 resolved ${u.gameProblemId ?? 'none'}`)
+            else if (!hintsByStep1) push('GAME_PROBLEM_HINTS', 'AGREES_INDEPENDENTLY', `the chain's record names ${x.hintsGameProblemId} as governing its hints, equal to Step 1's, and does not show it was Step 1's value (the carried value ${x.gameProblemId ?? 'none'}, source ${x.gameProblemSource ?? 'none'})`)
+            else
+                push(
+                    'GAME_PROBLEM_HINTS',
+                    'CONSUMED',
+                    `Step 1's ${x.hintsGameProblemId} governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: ${list(x.lensCandidateIds)}; matched signals: ${list(x.hintsSignals)})`,
+                    `the planning model's reading, kept in the account: ${c.gameProblemStatus ?? 'none'} ${c.gameProblemId ?? 'none'}`,
+                )
+        } else if (c.gameProblemStatus === null) push('GAME_PROBLEM_HINTS', 'MISSING', 'the chain was run and its account carries no Game Problem reading')
         else if (c.gameProblemId === u.gameProblemId) push('GAME_PROBLEM_HINTS', 'AGREES_INDEPENDENTLY', `the planning model's reading (${c.gameProblemStatus} ${c.gameProblemId}) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption`)
         else push('GAME_PROBLEM_HINTS', 'CONTRADICTED', `the planning model's reading (${c.gameProblemStatus} ${c.gameProblemId ?? 'none'}) governs the lens hints and matched signals, where Step 1 resolved ${u.gameProblemId ?? 'none'}`)
     }
@@ -619,7 +645,7 @@ export interface DispositionRow {
 export const DISPOSITION: DispositionRow[] = [
     { id: 'RECORD_POOL', check: 'the pool: the record\'s authorized set replaces the goal\'s own candidate constraints (which no record authorizes; the engine labels their authority VOCABULARY_POOL), minus holds', where: 'generateSelection.ts:135-190; guided-selection.ts (the record route)', origin: 'dc98ecb, 14 October 2026 (authorized constraints only); 1f18a02, 15 October 2026 (the record route)', disposition: 'KEPT_ENFORCED', reported: null, authority: 'Christian\'s 14 and 15 October rulings (constraints only from the goal\'s authorized set)', readsLenses: false, reads: 'nothing of the wording', path: 'EVERY_SELECTION', marks: [], control: 'the quota runs: the pool equals the authorized set (asserted)' },
     { id: 'TOKEN_CHECK', check: 'the token check: the wording must hold a non-stopword token', where: 'generateSelection.ts:931-937', origin: '3980188, 3 May 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed: a wording-only change can trigger it', authority: 'none found; engine rule', readsLenses: false, reads: 'the wording\'s tokens', path: 'EVERY_SELECTION', marks: [], control: 'none run here (no wording without a token is used)' },
-    { id: 'LENS_HINTS', check: 'the lens hints and matched signals of the guided selection', where: 'guided-selection.ts:212-228 (governByApprovedGameProblem, :125)', origin: 'c725117, 13 October 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed: the engine lenses (ENGINE_LENS) follow the wording', authority: 'none over an owned decision (the lenses are engine inputs; the context\'s affordance targets were deferred by Christian on 13 September)', readsLenses: true, reads: 'the wording, and the planning model\'s Game Problem', path: 'EVERY_SELECTION', marks: [], control: 'the wording test: the lens list changes under every rewording (an open disconnection)' },
+    { id: 'LENS_HINTS', check: 'the lens hints and matched signals of the guided selection', where: 'guided-selection.ts:218-246 (governByApprovedGameProblem, :131)', origin: 'c725117, 13 October 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed: the engine lenses (ENGINE_LENS) follow the wording', authority: 'none over an owned decision (the lenses are engine inputs; the context\'s affordance targets were deferred by Christian on 13 September)', readsLenses: true, reads: 'the wording, and the Game Problem that governs the hints (Step 1\'s on the experiment path since stage W1 (a); the planning model\'s on the legacy route)', path: 'EVERY_SELECTION', marks: [], control: 'the wording test: the lens list changes under every rewording (an open disconnection)' },
     { id: 'ZERO_BRANCH', check: 'the zero branch: an evaluated empty set commits lenses with no constraint', where: 'generateSelection.ts:811-815, :1030', origin: '1f18a02 (the branch, then switched by a per-record zeroConstraintRuling) and 487dc32 (the general-principle switch, :1030), 15 October 2026', disposition: 'KEPT_ENFORCED', reported: null, authority: 'Christian\'s general principle of 15 October 2026 (a constraint is not mandatory unless justified)', readsLenses: false, reads: 'nothing of the wording', path: 'EMPTY_SET', marks: [], control: 'the base cases (empty set) commit through it' },
     { id: 'SIZE_RULE', check: 'the numerical size rule: 2 to 4 constraints', where: 'generateSelection.ts:719-721 (assertSelectionContract), :835 (the sizes enumerated)', origin: '3980188, 3 May 2026', disposition: 'BYPASSED_SIZE_RULE_ONLY', reported: 'bypassed only under the TEST-ONLY SIZE_RULE_BYPASS treatment (the authorization\'s section 5); under the bypass the sizes enumerated are the set\'s own size and 2 to 4, so for a set of 2 to 4 a one-manipulation subset is never tried (the floor of 2 remains for subsets)', authority: 'none found; engine rule', readsLenses: false, reads: 'nothing of the wording', path: 'NON_EMPTY_SET', marks: [], control: 'a lone manipulation is refused without the bypass and selected with it' },
     { id: 'ROLE_MIX', check: 'the role mix', where: 'generateSelection.ts:590-612, applied :839', origin: '3980188, 3 May 2026 (the rule, :590-612); dc98ecb, 14 October 2026 (its needs read over the goal\'s pool, :819-827, applied :839)', disposition: 'KEPT_ENFORCED', reported: 'reported with its source and authority (the authorization\'s section 5); it refuses no set run here: a set of 1 or 2 is enumerated only whole, and its needs are read over the pool (generateSelection.ts:827, :835-836, :590-612)', authority: 'none found for the rule; the pool-relative reading of its needs is our reading of Christian\'s 14 October ruling (constraints only from the goal\'s designated candidates), not a ruling on the role mix', readsLenses: true, reads: 'the constraint scores of each lens combination (the wording\'s tokens and the lens slugs, generateSelection.ts:572-580, :817-827)', path: 'NON_EMPTY_SET', marks: [], control: 'none needed: read from the code, it refuses no set run here (no observer is added to the selector)' },
@@ -630,7 +656,7 @@ export const DISPOSITION: DispositionRow[] = [
     { id: 'BOUNDED_SEARCH', check: 'the bounded search: 3 lenses, 2 constraints per bucket', where: 'generateSelection.ts:635-690', origin: 'ded8aaa, 13 May 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine performance heuristic, reported (it can drop an authorized constraint beyond 2 per bucket)', authority: 'none found; engine heuristic', readsLenses: true, reads: 'the lens and constraint scores', path: 'NON_EMPTY_SET', marks: [], control: 'none needed here (no set holds more than 2 per bucket)' },
     { id: 'LENS_RULE', check: 'the lens rule: 2 or 3 lenses', where: 'generateSelection.ts:704-709, :801', origin: '3980188, 3 May 2026', disposition: 'KEPT_ENFORCED', reported: 'a numerical engine rule on lenses, reported (the authorization\'s section 5 names manipulations only)', authority: 'none found; engine rule', readsLenses: true, reads: 'the lens candidates', path: 'COMMITTED_SELECTION', marks: [], control: 'every committed selection holds 3 lenses' },
     { id: 'COMMIT_RULE', check: 'the commit rule: the highest-scoring possibility, ties to the smallest key', where: 'generateSelection.ts:868-876', origin: '1f01d41, 8 July 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine heuristic, reported (commit all or choose stays open)', authority: 'none found; engine heuristic', readsLenses: true, reads: 'the lens and constraint scores', path: 'COMMITTED_SELECTION', marks: [], control: 'every committed non-empty set was committed whole (asserted)' },
-    { id: 'RESOLUTION_STATUS', check: 'the resolution status: a selection that did not resolve is refused', where: 'run-bounded-selection.ts:384', origin: '3a5aeed, 8 October 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed (the matched signals)', authority: 'Christian\'s ruling of 8 October 2026 (unresolved selections must not proceed)', readsLenses: false, reads: 'the matched signals of the wording', path: 'COMMITTED_SELECTION', marks: [], control: 'none refused in these runs' },
+    { id: 'RESOLUTION_STATUS', check: 'the resolution status: a selection that did not resolve is refused', where: 'run-bounded-selection.ts:398', origin: '3a5aeed, 8 October 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed (the matched signals)', authority: 'Christian\'s ruling of 8 October 2026 (unresolved selections must not proceed)', readsLenses: false, reads: 'the matched signals of the wording', path: 'COMMITTED_SELECTION', marks: [], control: 'none refused in these runs' },
 ]
 
 /** The rule a package refusal is recognized by: the one disposition row whose marks every given reason holds, or null. */

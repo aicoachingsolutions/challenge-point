@@ -531,6 +531,11 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
                   constraintAuthority: String(recorded.constraintAuthority),
                   constraintCandidateIds: [...recorded.constraintCandidateIds],
                   sizeRuleBypassed: recorded.quotaBypass === true,
+                  // Stage W1 (a): which Game Problem governed the hints, and the hints the selector was handed, as the build recorded them.
+                  hintsGameProblemId: recorded.hintsGameProblemId,
+                  hintsGoverned: recorded.hintsGoverned,
+                  lensCandidateIds: [...recorded.lensCandidateIds],
+                  hintsSignals: [...recorded.hintsSignals],
                   selectionObservedOnly: observedOnly,
                   draftStatus: activity.draftKnowledge?.status ?? null,
               }

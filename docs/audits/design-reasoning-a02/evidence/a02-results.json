@@ -249,7 +249,17 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -308,17 +318,17 @@
      "runId": "TA02-0",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "TA02-0",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity; matched signals: signalGroup:F_possession_passing)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "TA02-0",
@@ -436,7 +446,17 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -515,17 +535,17 @@
      "runId": "TA02-D",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "TA02-D",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity; matched signals: signalGroup:F_possession_passing)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "TA02-D",
@@ -603,223 +623,6 @@
   }
  ],
  "openDisconnections": [
-  {
-   "id": "OD-HINT-GAME-PROBLEM",
-   "what": "the Game Problem reading that governs the engine lens hints and matched signals is still the planning model's (guided-selection.ts:228), not Step 1's: equal by agreement on the A02 runs, different where Step 1 differs; the Step 1 value the chain carries is read by no decision of the chain (the Game Problem row reads CARRIED_NOT_READ)",
-   "scope": "EXPERIMENT",
-   "rows": [
-    "GAME_PROBLEM_HINTS"
-   ],
-   "verdicts": [
-    "AGREES_INDEPENDENTLY",
-    "CONTRADICTED"
-   ],
-   "runs": [
-    "A02-0",
-    "A02-1",
-    "A02-1b",
-    "A02-2",
-    "A02-D",
-    "S4-NP",
-    "S4-WZA",
-    "S4-TR",
-    "S4-CDC",
-    "S4-NP+WZA",
-    "S4-NP+TR",
-    "S4-CDC+IR",
-    "S4-NP@A02-D",
-    "S4-NP+WZA@A02-D",
-    "GP-002",
-    "GF7-CELL",
-    "A02-2/narrowed",
-    "A02-2/no-line-crossed",
-    "NO-RESTATEMENT",
-    "A02-0~reversed",
-    "A02-1~reversed",
-    "A02-2~reversed",
-    "S4-NP~reversed",
-    "S4-WZA~reversed",
-    "S4-TR~reversed",
-    "S4-CDC~reversed",
-    "S4-NP+WZA~reversed",
-    "S4-NP+TR~reversed",
-    "S4-CDC+IR~reversed",
-    "A02-0~neutral",
-    "A02-1~neutral",
-    "A02-2~neutral",
-    "S4-NP~neutral",
-    "S4-WZA~neutral",
-    "S4-TR~neutral",
-    "S4-CDC~neutral",
-    "S4-NP+WZA~neutral",
-    "S4-NP+TR~neutral",
-    "S4-CDC+IR~neutral",
-    "A02-0~pressure"
-   ],
-   "pairs": [
-    {
-     "run": "A02-0",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "A02-1",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "A02-1b",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "A02-2",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "A02-D",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-NP",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-WZA",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-TR",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-CDC",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-NP+WZA",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-NP+TR",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-CDC+IR",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-NP@A02-D",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-NP+WZA@A02-D",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "GP-002",
-     "verdict": "CONTRADICTED"
-    },
-    {
-     "run": "GF7-CELL",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "A02-2/narrowed",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "A02-2/no-line-crossed",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "NO-RESTATEMENT",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "A02-0~reversed",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "A02-1~reversed",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "A02-2~reversed",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-NP~reversed",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-WZA~reversed",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-TR~reversed",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-CDC~reversed",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-NP+WZA~reversed",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-NP+TR~reversed",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-CDC+IR~reversed",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "A02-0~neutral",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "A02-1~neutral",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "A02-2~neutral",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-NP~neutral",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-WZA~neutral",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-TR~neutral",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-CDC~neutral",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-NP+WZA~neutral",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-NP+TR~neutral",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "S4-CDC+IR~neutral",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "A02-0~pressure",
-     "verdict": "AGREES_INDEPENDENTLY"
-    }
-   ],
-   "evidence": "every A02 run: the account reads APPROVED GP-015 from the planning model beside the carried Step 1 value; GP-002 (Step 1 swapped in a TEST copy): the planning model still reads GP-015 (CONTRADICTED) while the account carries GP-002. guided-selection.ts is not touched (DESIGN-9 section 0)"
-  },
   {
    "id": "OD-CONTEXT",
    "what": "the context is read by the chain from the planning routing itself; no record of consuming Step 1's context exists (equal by agreement: both read the same routing row)",
@@ -1143,33 +946,6 @@
  ],
  "ta02OpenDisconnections": [
   {
-   "id": "OD-HINT-GAME-PROBLEM",
-   "what": "the Game Problem reading that governs the engine lens hints and matched signals is still the planning model's (guided-selection.ts:228), not Step 1's: equal by agreement on the A02 runs, different where Step 1 differs; the Step 1 value the chain carries is read by no decision of the chain (the Game Problem row reads CARRIED_NOT_READ)",
-   "scope": "EXPERIMENT",
-   "rows": [
-    "GAME_PROBLEM_HINTS"
-   ],
-   "verdicts": [
-    "AGREES_INDEPENDENTLY",
-    "CONTRADICTED"
-   ],
-   "runs": [
-    "TA02-0",
-    "TA02-D"
-   ],
-   "pairs": [
-    {
-     "run": "TA02-0",
-     "verdict": "AGREES_INDEPENDENTLY"
-    },
-    {
-     "run": "TA02-D",
-     "verdict": "AGREES_INDEPENDENTLY"
-    }
-   ],
-   "evidence": "every A02 run: the account reads APPROVED GP-015 from the planning model beside the carried Step 1 value; GP-002 (Step 1 swapped in a TEST copy): the planning model still reads GP-015 (CONTRADICTED) while the account carries GP-002. guided-selection.ts is not touched (DESIGN-9 section 0)"
-  },
-  {
    "id": "OD-CONTEXT",
    "what": "the context is read by the chain from the planning routing itself; no record of consuming Step 1's context exists (equal by agreement: both read the same routing row)",
    "scope": "EXPERIMENT",
@@ -1208,16 +984,16 @@
    "decision": "the Game Problem",
    "owner": "Step 1",
    "input": "the goal id, the approved translation or a scoped ruling, the routing",
-   "output": "the resolved primary Game Problem, carried by the chain beside its own reading",
+   "output": "the resolved primary Game Problem, carried by the chain beside its own reading and read by the chain's hints (the next row)",
    "authority": "the approved translation, or the scoped ruling it rests on"
   },
   {
    "row": "GAME_PROBLEM_HINTS",
    "decision": "the Game Problem reading that governs the engine lens hints and matched signals",
-   "owner": "Step 1 (an open dependency: the chain still reads the planning model itself)",
-   "input": "the planning model, read inside the guided selection hints",
-   "output": "the lens hints and the matched signals the resolution check reads",
-   "authority": "none over an owned decision: reported, never switched"
+   "owner": "Step 1 (since stage W1 (a), 11 November 2026, on the experiment path)",
+   "input": "Step 1's resolved primary Game Problem, handed to the guided selection hints as the approved one (TEST-ONLY); the planning model's reading stays in the account beside it",
+   "output": "the lens hints and the matched signals the resolution check reads, recorded with the Game Problem that governed them",
+   "authority": "Christian's rule of 13 October 2026 (the approved Game Problem translation governs where it disagrees with the wording), applied with Step 1's resolution of that translation"
   },
   {
    "row": "CONTEXT",
@@ -1308,13 +1084,13 @@
   {
    "id": "LENS_HINTS",
    "check": "the lens hints and matched signals of the guided selection",
-   "where": "guided-selection.ts:212-228 (governByApprovedGameProblem, :125)",
+   "where": "guided-selection.ts:218-246 (governByApprovedGameProblem, :131)",
    "origin": "c725117, 13 October 2026",
    "disposition": "KEPT_ENFORCED",
    "reported": "wording-keyed: the engine lenses (ENGINE_LENS) follow the wording",
    "authority": "none over an owned decision (the lenses are engine inputs; the context's affordance targets were deferred by Christian on 13 September)",
    "readsLenses": true,
-   "reads": "the wording, and the planning model's Game Problem",
+   "reads": "the wording, and the Game Problem that governs the hints (Step 1's on the experiment path since stage W1 (a); the planning model's on the legacy route)",
    "path": "EVERY_SELECTION",
    "marks": [],
    "control": "the wording test: the lens list changes under every rewording (an open disconnection)"
@@ -1468,7 +1244,7 @@
   {
    "id": "RESOLUTION_STATUS",
    "check": "the resolution status: a selection that did not resolve is refused",
-   "where": "run-bounded-selection.ts:384",
+   "where": "run-bounded-selection.ts:398",
    "origin": "3a5aeed, 8 October 2026",
    "disposition": "KEPT_ENFORCED",
    "reported": "wording-keyed (the matched signals)",
@@ -1491,7 +1267,7 @@
     "categories": [
      4
     ],
-    "why": "the checked pathway accepts manipulations only on a per-goal authorization record's authority (the live route hands it only a record-backed selection, live-activity.ts:55-56; with upstream decisions it refuses without one, run-bounded-selection.ts:329-330), and A02 has none; called on the production records, its candidates are A02's own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal's candidates), and they cannot be combined on any of RPC-002's declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the review pathway proposes no manipulation for A02 under K2 (approved for review-only use), and the checked pathway does not take that result; passed only by our TEST-ONLY DRAFT record standing in for that result (an empty set; on item 4's runs a TEST-ONLY copy of it holds the stand-in manipulations instead; the finding OURS, no ruling), never by the consumption; the category is OURS (an assumption)",
+    "why": "the checked pathway accepts manipulations only on a per-goal authorization record's authority (the live route hands it only a record-backed selection, live-activity.ts:55-56; with upstream decisions it refuses without one, run-bounded-selection.ts:338-339), and A02 has none; called on the production records, its candidates are A02's own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal's candidates), and they cannot be combined on any of RPC-002's declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the review pathway proposes no manipulation for A02 under K2 (approved for review-only use), and the checked pathway does not take that result; passed only by our TEST-ONLY DRAFT record standing in for that result (an empty set; on item 4's runs a TEST-ONLY copy of it holds the stand-in manipulations instead; the finding OURS, no ruling), never by the consumption; the category is OURS (an assumption)",
     "passed": true,
     "passedBy": "L2"
    },
@@ -1640,7 +1416,18 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -1703,17 +1490,17 @@
      "runId": "A02-0",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-0",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-0",
@@ -1837,7 +1624,18 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -1912,17 +1710,17 @@
      "runId": "A02-1",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-1",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-1",
@@ -2046,7 +1844,18 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -2136,17 +1945,17 @@
      "runId": "A02-1b",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-1b",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-1b",
@@ -2271,7 +2080,18 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -2361,17 +2181,17 @@
      "runId": "A02-2",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-2",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-2",
@@ -2491,7 +2311,18 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -2570,17 +2401,17 @@
      "runId": "A02-D",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-D",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-D",
@@ -2710,7 +2541,18 @@
       "constraintCandidateIds": [
        "tl-v0-constraint-neutral-player-condition"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -2773,17 +2615,17 @@
      "runId": "S4-NP",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-NP",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-NP",
@@ -2903,7 +2745,18 @@
       "constraintCandidateIds": [
        "tl-v0-constraint-wide-zone-advantage"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -2952,17 +2805,17 @@
      "runId": "S4-WZA",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-WZA",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-WZA",
@@ -3088,7 +2941,18 @@
       "constraintCandidateIds": [
        "tl-v0-constraint-turnover-reward"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -3137,17 +3001,17 @@
      "runId": "S4-TR",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-TR",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-TR",
@@ -3273,7 +3137,18 @@
       "constraintCandidateIds": [
        "tl-v0-constraint-central-density-condition"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -3322,17 +3197,17 @@
      "runId": "S4-CDC",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-CDC",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-CDC",
@@ -3471,7 +3346,18 @@
        "tl-v0-constraint-neutral-player-condition",
        "tl-v0-constraint-wide-zone-advantage"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -3534,17 +3420,17 @@
      "runId": "S4-NP+WZA",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-NP+WZA",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-NP+WZA",
@@ -3675,7 +3561,18 @@
        "tl-v0-constraint-neutral-player-condition",
        "tl-v0-constraint-turnover-reward"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -3721,17 +3618,17 @@
      "runId": "S4-NP+TR",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-NP+TR",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-NP+TR",
@@ -3853,7 +3750,18 @@
        "tl-v0-constraint-central-density-condition",
        "tl-v0-constraint-interception-reward"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -3902,17 +3810,17 @@
      "runId": "S4-CDC+IR",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-CDC+IR",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-CDC+IR",
@@ -4038,7 +3946,18 @@
       "constraintCandidateIds": [
        "tl-v0-constraint-neutral-player-condition"
       ],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -4087,17 +4006,17 @@
      "runId": "S4-NP/no-bypass",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-NP/no-bypass",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-NP/no-bypass",
@@ -4231,7 +4150,18 @@
        "tl-v0-constraint-neutral-player-condition",
        "tl-v0-constraint-wide-zone-advantage"
       ],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -4294,17 +4224,17 @@
      "runId": "S4-NP+WZA/no-bypass",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-NP+WZA/no-bypass",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-NP+WZA/no-bypass",
@@ -4430,7 +4360,18 @@
       "constraintCandidateIds": [
        "tl-v0-constraint-neutral-player-condition"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -4509,17 +4450,17 @@
      "runId": "S4-NP@A02-D",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-NP@A02-D",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-NP@A02-D",
@@ -4648,7 +4589,18 @@
        "tl-v0-constraint-neutral-player-condition",
        "tl-v0-constraint-wide-zone-advantage"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -4727,17 +4679,17 @@
      "runId": "S4-NP+WZA@A02-D",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-NP+WZA@A02-D",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-NP+WZA@A02-D",
@@ -4846,9 +4798,9 @@
      "constraints": [],
      "constraintAuthority": "AUTHORIZATION_RECORD",
      "lenses": [
-      "Possession Stability Opportunity",
-      "Space Creation Opportunity",
-      "Regain Opportunity"
+      "Line-Breaking Opportunity",
+      "Finishing Opportunity",
+      "Possession Stability Opportunity"
      ],
      "consumption": {
       "gameProblemId": "GP-002",
@@ -4859,7 +4811,23 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-002",
+      "lensCandidateIds": [
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-transition-attack-opportunity",
+       "tl-v0-lens-finishing-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-delay-or-deny-opportunity",
+       "tl-v0-lens-possession-stability-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:D_break_lines",
+       "signalGroup:H_transition",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -4905,17 +4873,17 @@
      "runId": "GP-002",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-002 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-002 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "GP-002",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "CONTRADICTED",
-     "why": "the planning model's reading (APPROVED GP-015) governs the lens hints and matched signals, where Step 1 resolved GP-002",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-002 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-line-breaking-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-transition-attack-opportunity, tl-v0-lens-finishing-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-delay-or-deny-opportunity, tl-v0-lens-possession-stability-opportunity; matched signals: signalGroup:D_break_lines, signalGroup:H_transition, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "GP-002",
@@ -5339,7 +5307,18 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -5385,17 +5364,17 @@
      "runId": "GF7-CELL",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "GF7-CELL",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "GF7-CELL",
@@ -5613,7 +5592,18 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -5689,17 +5679,17 @@
      "runId": "A02-2/narrowed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-2/narrowed",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-2/narrowed",
@@ -5822,7 +5812,18 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -5898,17 +5899,17 @@
      "runId": "A02-2/no-line-crossed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-2/no-line-crossed",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-2/no-line-crossed",
@@ -6030,7 +6031,18 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -6076,17 +6088,17 @@
      "runId": "NO-RESTATEMENT",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "NO-RESTATEMENT",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "NO-RESTATEMENT",
@@ -6211,7 +6223,18 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -6301,17 +6324,17 @@
      "runId": "A02-2/CAR",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-2/CAR",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-2/CAR",
@@ -7706,7 +7729,20 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -7769,17 +7805,17 @@
      "runId": "A02-0~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-0~reversed",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-0~reversed",
@@ -7903,7 +7939,20 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -7978,17 +8027,17 @@
      "runId": "A02-1~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-1~reversed",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-1~reversed",
@@ -8113,7 +8162,20 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -8203,17 +8265,17 @@
      "runId": "A02-2~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-2~reversed",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-2~reversed",
@@ -8343,7 +8405,20 @@
       "constraintCandidateIds": [
        "tl-v0-constraint-neutral-player-condition"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -8406,17 +8481,17 @@
      "runId": "S4-NP~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-NP~reversed",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-NP~reversed",
@@ -8536,7 +8611,20 @@
       "constraintCandidateIds": [
        "tl-v0-constraint-wide-zone-advantage"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -8585,17 +8673,17 @@
      "runId": "S4-WZA~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-WZA~reversed",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-WZA~reversed",
@@ -8721,7 +8809,20 @@
       "constraintCandidateIds": [
        "tl-v0-constraint-turnover-reward"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -8770,17 +8871,17 @@
      "runId": "S4-TR~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-TR~reversed",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-TR~reversed",
@@ -8906,7 +9007,20 @@
       "constraintCandidateIds": [
        "tl-v0-constraint-central-density-condition"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -8955,17 +9069,17 @@
      "runId": "S4-CDC~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-CDC~reversed",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-CDC~reversed",
@@ -9104,7 +9218,20 @@
        "tl-v0-constraint-neutral-player-condition",
        "tl-v0-constraint-wide-zone-advantage"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -9167,17 +9294,17 @@
      "runId": "S4-NP+WZA~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-NP+WZA~reversed",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-NP+WZA~reversed",
@@ -9299,7 +9426,20 @@
        "tl-v0-constraint-neutral-player-condition",
        "tl-v0-constraint-turnover-reward"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -9348,17 +9488,17 @@
      "runId": "S4-NP+TR~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-NP+TR~reversed",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-NP+TR~reversed",
@@ -9486,7 +9626,20 @@
        "tl-v0-constraint-central-density-condition",
        "tl-v0-constraint-interception-reward"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -9535,17 +9688,17 @@
      "runId": "S4-CDC+IR~reversed",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-CDC+IR~reversed",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-CDC+IR~reversed",
@@ -9772,7 +9925,20 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -9835,17 +10001,17 @@
      "runId": "A02-0~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-0~neutral",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-0~neutral",
@@ -9969,7 +10135,20 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -10044,17 +10223,17 @@
      "runId": "A02-1~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-1~neutral",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-1~neutral",
@@ -10179,7 +10358,20 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": {
@@ -10269,17 +10461,17 @@
      "runId": "A02-2~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-2~neutral",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-2~neutral",
@@ -10409,7 +10601,20 @@
       "constraintCandidateIds": [
        "tl-v0-constraint-neutral-player-condition"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -10472,17 +10677,17 @@
      "runId": "S4-NP~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-NP~neutral",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-NP~neutral",
@@ -10602,7 +10807,20 @@
       "constraintCandidateIds": [
        "tl-v0-constraint-wide-zone-advantage"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -10651,17 +10869,17 @@
      "runId": "S4-WZA~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-WZA~neutral",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-WZA~neutral",
@@ -10787,7 +11005,20 @@
       "constraintCandidateIds": [
        "tl-v0-constraint-turnover-reward"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -10836,17 +11067,17 @@
      "runId": "S4-TR~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-TR~neutral",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-TR~neutral",
@@ -10972,7 +11203,20 @@
       "constraintCandidateIds": [
        "tl-v0-constraint-central-density-condition"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -11021,17 +11265,17 @@
      "runId": "S4-CDC~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-CDC~neutral",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-CDC~neutral",
@@ -11170,7 +11414,20 @@
        "tl-v0-constraint-neutral-player-condition",
        "tl-v0-constraint-wide-zone-advantage"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -11233,17 +11490,17 @@
      "runId": "S4-NP+WZA~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-NP+WZA~neutral",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-NP+WZA~neutral",
@@ -11365,7 +11622,20 @@
        "tl-v0-constraint-neutral-player-condition",
        "tl-v0-constraint-turnover-reward"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -11414,17 +11684,17 @@
      "runId": "S4-NP+TR~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-NP+TR~neutral",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-NP+TR~neutral",
@@ -11552,7 +11822,20 @@
        "tl-v0-constraint-central-density-condition",
        "tl-v0-constraint-interception-reward"
       ],
-      "sizeRuleBypassed": true
+      "sizeRuleBypassed": true,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:F_possession_passing",
+       "signalGroup:A_touch_receiving",
+       "signalGroup:B_pressure"
+      ]
      },
      "contextInThisActivity": false,
      "scoringCondition": null
@@ -11601,17 +11884,17 @@
      "runId": "S4-CDC+IR~neutral",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "S4-CDC+IR~neutral",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "S4-CDC+IR~neutral",
@@ -11838,7 +12121,18 @@
       "formCandidatesFrom": "SELECTION_TRACE_RANKING",
       "constraintAuthority": "AUTHORIZATION_RECORD",
       "constraintCandidateIds": [],
-      "sizeRuleBypassed": false
+      "sizeRuleBypassed": false,
+      "hintsGameProblemId": "GP-015",
+      "lensCandidateIds": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-regain-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "hintsSignals": [
+       "signalGroup:B_pressure",
+       "unresolvedLensTitle:Support Angle Opportunity",
+       "unresolvedConstraintTitle:Pressure Condition"
+      ]
      },
      "contextInThisActivity": true,
      "scoringCondition": null
@@ -11901,17 +12195,17 @@
      "runId": "A02-0~pressure",
      "row": "GAME_PROBLEM",
      "clause": null,
-     "verdict": "CARRIED_NOT_READ",
-     "why": "the chain carries Step 1's GP-015 as a record (source Step 1, review pathway); no decision of the chain reads it (run-bounded-selection.ts:334-336 builds it from the request; it is only copied into the account, build-activity.ts:726, :754); Step 1's Game Problem reaches the chain's decisions only through Step 2's form (row GAME_FORM)",
+     "verdict": "CONSUMED",
+     "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
     },
     {
      "runId": "A02-0~pressure",
      "row": "GAME_PROBLEM_HINTS",
      "clause": null,
-     "verdict": "AGREES_INDEPENDENTLY",
-     "why": "the planning model's reading (APPROVED GP-015) still governs the lens hints and matched signals; it equals Step 1's by agreement, not consumption",
-     "consulted": null
+     "verdict": "CONSUMED",
+     "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+     "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
     },
     {
      "runId": "A02-0~pressure",
@@ -12805,6 +13099,18 @@
     "constraintAuthority": "AUTHORIZATION_RECORD",
     "constraintCandidateIds": [],
     "sizeRuleBypassed": false,
+    "hintsGameProblemId": "GP-015",
+    "hintsGoverned": false,
+    "lensCandidateIds": [
+     "tl-v0-lens-possession-stability-opportunity",
+     "tl-v0-lens-regain-opportunity",
+     "tl-v0-lens-space-creation-opportunity"
+    ],
+    "hintsSignals": [
+     "signalGroup:B_pressure",
+     "unresolvedLensTitle:Support Angle Opportunity",
+     "unresolvedConstraintTitle:Pressure Condition"
+    ],
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -13356,6 +13662,18 @@
     "constraintAuthority": "AUTHORIZATION_RECORD",
     "constraintCandidateIds": [],
     "sizeRuleBypassed": false,
+    "hintsGameProblemId": "GP-015",
+    "hintsGoverned": false,
+    "lensCandidateIds": [
+     "tl-v0-lens-possession-stability-opportunity",
+     "tl-v0-lens-regain-opportunity",
+     "tl-v0-lens-space-creation-opportunity"
+    ],
+    "hintsSignals": [
+     "signalGroup:B_pressure",
+     "unresolvedLensTitle:Support Angle Opportunity",
+     "unresolvedConstraintTitle:Pressure Condition"
+    ],
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -15178,6 +15496,18 @@
     "constraintAuthority": "AUTHORIZATION_RECORD",
     "constraintCandidateIds": [],
     "sizeRuleBypassed": false,
+    "hintsGameProblemId": "GP-015",
+    "hintsGoverned": false,
+    "lensCandidateIds": [
+     "tl-v0-lens-possession-stability-opportunity",
+     "tl-v0-lens-regain-opportunity",
+     "tl-v0-lens-space-creation-opportunity"
+    ],
+    "hintsSignals": [
+     "signalGroup:B_pressure",
+     "unresolvedLensTitle:Support Angle Opportunity",
+     "unresolvedConstraintTitle:Pressure Condition"
+    ],
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -17016,6 +17346,18 @@
     "constraintAuthority": "AUTHORIZATION_RECORD",
     "constraintCandidateIds": [],
     "sizeRuleBypassed": false,
+    "hintsGameProblemId": "GP-015",
+    "hintsGoverned": false,
+    "lensCandidateIds": [
+     "tl-v0-lens-possession-stability-opportunity",
+     "tl-v0-lens-regain-opportunity",
+     "tl-v0-lens-space-creation-opportunity"
+    ],
+    "hintsSignals": [
+     "signalGroup:B_pressure",
+     "unresolvedLensTitle:Support Angle Opportunity",
+     "unresolvedConstraintTitle:Pressure Condition"
+    ],
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -18898,6 +19240,18 @@
     "constraintAuthority": "AUTHORIZATION_RECORD",
     "constraintCandidateIds": [],
     "sizeRuleBypassed": false,
+    "hintsGameProblemId": "GP-015",
+    "hintsGoverned": false,
+    "lensCandidateIds": [
+     "tl-v0-lens-possession-stability-opportunity",
+     "tl-v0-lens-regain-opportunity",
+     "tl-v0-lens-space-creation-opportunity"
+    ],
+    "hintsSignals": [
+     "signalGroup:B_pressure",
+     "unresolvedLensTitle:Support Angle Opportunity",
+     "unresolvedConstraintTitle:Pressure Condition"
+    ],
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -19345,6 +19699,17 @@
     "constraintAuthority": "AUTHORIZATION_RECORD",
     "constraintCandidateIds": [],
     "sizeRuleBypassed": false,
+    "hintsGameProblemId": "GP-015",
+    "hintsGoverned": false,
+    "lensCandidateIds": [
+     "tl-v0-lens-possession-stability-opportunity",
+     "tl-v0-lens-space-creation-opportunity",
+     "tl-v0-lens-space-exploitation-opportunity",
+     "tl-v0-lens-line-breaking-opportunity"
+    ],
+    "hintsSignals": [
+     "signalGroup:F_possession_passing"
+    ],
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [
@@ -21150,6 +21515,17 @@
     "constraintAuthority": "AUTHORIZATION_RECORD",
     "constraintCandidateIds": [],
     "sizeRuleBypassed": false,
+    "hintsGameProblemId": "GP-015",
+    "hintsGoverned": false,
+    "lensCandidateIds": [
+     "tl-v0-lens-possession-stability-opportunity",
+     "tl-v0-lens-space-creation-opportunity",
+     "tl-v0-lens-space-exploitation-opportunity",
+     "tl-v0-lens-line-breaking-opportunity"
+    ],
+    "hintsSignals": [
+     "signalGroup:F_possession_passing"
+    ],
     "selectionObservedOnly": true,
     "draftStatus": "BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED",
     "draftItemsDerived": [

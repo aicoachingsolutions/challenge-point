@@ -66,6 +66,12 @@ export interface GuidedSelectionHints {
      * selection actually used, never a second read of it.
      */
     authorization: LearningGoalAuthorization | null
+    /**
+     * TEST-ONLY (the isolated A02 experiment, stage W1 (a), 11 November 2026): present only where Step 1's resolved Game Problem was handed in
+     * (`options.step1GameProblemId`); the authority that governed the lens hints and matched signals, read with Step 1's Game Problem as the
+     * approved one. `gameProblem` above stays the planning model's reading. Absent on every production call.
+     */
+    hintsGameProblem?: GameProblemAuthority
 }
 
 const SIGNAL_GROUP = 'signalGroup:'
@@ -218,16 +224,29 @@ export function guidedSelectionHints(
      * builds over a TEST-ONLY set of realizations (`buildActivityUnderAuthorizationRecords` with `realizations`). Absent: the file's.
      */
     provisionalIds?: string[],
-    /** B2 (28 October 2026), TEST-ONLY: a draft store's DRAFT records are admitted, under their own inverted gate (never skipped). */
-    options: { draftsAdmitted?: boolean } = {},
+    /**
+     * B2 (28 October 2026), TEST-ONLY: a draft store's DRAFT records are admitted, under their own inverted gate (never skipped).
+     * `step1GameProblemId`, TEST-ONLY (the isolated A02 experiment, stage W1 (a)): Step 1's resolved Game Problem, handed only by `selectFor`
+     * under its `upstream` option; the Game-Problem-dependent hints are then governed by it (see `hintsGameProblem`).
+     */
+    options: { draftsAdmitted?: boolean; step1GameProblemId?: string } = {},
 ): GuidedSelectionHints {
     // Records handed in are held to the loader's own gate (G1 review, 15 October 2026): a test copy that authorized
     // a held or excluded constraint, or cited no ruling, used to be read unchecked — the gate guarded only the file.
     const damaged = validateLearningGoalAuthorizations(records, undefined, undefined, provisionalIds, options)
     if (damaged.length) throw new Error(`the authorization records failed their integrity gate: ${damaged.join(' | ')}`)
     const governed = governByApprovedGameProblem(learningGoalId, deriveInputConstraints(goalText))
+    /*
+     * TEST-ONLY (the isolated A02 experiment, stage W1 (a)): where Step 1's resolved Game Problem is handed in, it decides the hints that depend
+     * on a Game Problem, through the same function and its existing third parameter. Christian, received 13 October 2026: "Yes, the approved
+     * Game Problem translation should govern wherever it disagrees with inference from Learning Goal wording." Step 1 is the stage that resolves
+     * that translation, so the chain reading the planning model again beside it was a disconnection between two authorized stages. The planning
+     * model's reading still fills `gameProblem` (never printed as Step 1's, and a TEST ASSUMPTION handed in is never printed APPROVED by it).
+     */
+    const step1 = options.step1GameProblemId === undefined ? null : governByApprovedGameProblem(learningGoalId, deriveInputConstraints(goalText), options.step1GameProblemId)
+    const hintsFrom = step1 ?? governed
     const authorization = learningGoalAuthorization(learningGoalId, records)
-    const authorized = authorization ? hintsUnderAuthorization(governed.hints, authorization) : governed.hints
+    const authorized = authorization ? hintsUnderAuthorization(hintsFrom.hints, authorization) : hintsFrom.hints
     const route = sessionPlanningModel.rpcRouting().find((entry) => entry.learningGoalId === learningGoalId)
     const contextId = route?.rpcId ? String(route.rpcId) : null
     return {
@@ -235,5 +254,6 @@ export function guidedSelectionHints(
         contextId,
         gameProblem: governed.gameProblem,
         authorization,
+        ...(step1 ? { hintsGameProblem: step1.gameProblem } : {}),
     }
 }

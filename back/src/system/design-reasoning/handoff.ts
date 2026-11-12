@@ -693,6 +693,9 @@ export interface ChainAnswer {
      * `constraintAuthority` and `constraintCandidateIds`: whose authority the candidate constraints carried, and which they were.
      * `sizeRuleBypassed`: whether the TEST-ONLY bypass of the numerical size rule was in force. `selectionObservedOnly`: the wiring's
      * selection hook only observed (the build throws on a change). `draftStatus`: the build's own label for a build made from the draft store.
+     * Stage W1 (a), 11 November 2026: `hintsGameProblemId` and `hintsGoverned`, the Game Problem that governed the lens hints and matched
+     * signals and whether its Coverage row replaced the wording's candidates (null where the chain recorded none); `lensCandidateIds` and
+     * `hintsSignals`, the lens candidates and matched signals of the hints the chain's selector was handed.
      */
     consumption?: {
         gameProblem: { gameProblemId: string; basis: string; label: string; source: string } | null
@@ -702,6 +705,10 @@ export interface ChainAnswer {
         constraintAuthority: string
         constraintCandidateIds: string[]
         sizeRuleBypassed: boolean
+        hintsGameProblemId: string | null
+        hintsGoverned: boolean | null
+        lensCandidateIds: string[]
+        hintsSignals: string[]
         /** True where the hook ran and only observed; null where it never ran (the selection returned nothing). */
         selectionObservedOnly: boolean | null
         draftStatus: string | null
