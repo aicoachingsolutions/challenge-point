@@ -305,7 +305,7 @@
   ],
   "sentencesIdentical": true
  },
- "reuseFinding": "Measured, the Game Problem and Game Form reasoning is shared without any new structure: both goals resolve to GP-015 through their own approved translation rows, and Step 2 selects GF2 through GF2's same GP-015 cell (graded CANDIDATE in both), each over its own context's declared-form rows; the same TEST-ONLY consumption carries both results to the chain. On the affordance side only the CAR profile Step 1 consults is shared, and it determines nothing downstream; the engine lenses, scored from each goal's wording, differ, and each context's affordance targets stay deferred. What would set the two contexts apart lives in each context's own rows (its identity, its opposition and its scoring condition), which the chain applies after the shared reasoning, through each context's restatement: the existing architecture already has that place. It does not execute yet: as the knowledge stands both goals stop at structure on their own restatements, A02 on its control clause's referent and its origin clause's value, TA02 on its origin clause's value alone; TA02's control items, which restate the possession condition of a clause Christian wrote as an example, have been held as examples since the merge of the program branch (11 November 2026), as Christian's first reply of 7 November, section 4, asked: “Similarly, do not convert \"maintaining attacking possession\" into a separate mandatory scoring requirement without identifying an authoritative basis.” (received 7 November 2026, first reply). With every condition item withheld the two built activities collapse into one plain GF2 activity (identical coach text; identical configuration lines but one transition value's source). So the existing relationships appear capable of the reuse Christian describes; what keeps the two contexts from collapsing is the missing operational interpretation and carrier of each context's condition, not a missing goal-family structure.",
+ "reuseFinding": "Measured, the Game Problem and Game Form reasoning is shared without any new structure: both goals resolve to GP-015 through their own approved translation rows, and Step 2 selects GF2 through GF2's same GP-015 cell (graded CANDIDATE in both), each over its own context's declared-form rows; the same TEST-ONLY consumption carries both results to the chain. On the affordance side only the CAR profile Step 1 consults is shared, and it determines nothing downstream; the engine lenses, scored from each goal's wording, differ, and each context's affordance targets stay deferred. What would set the two contexts apart lives in each context's own rows (its identity, its opposition and its scoring condition), which the chain applies after the shared reasoning, through each context's restatement: the existing architecture already has that place. A swap control measures it (stage W5): with the two restatements exchanged on the chain's copy, each goal stops where the other stopped and its restatement's rows move with it, while the shared reasoning does not move. It does not execute yet: as the knowledge stands both goals stop at structure on their own restatements, A02 on its control clause's referent and its origin clause's value, TA02 on its origin clause's value alone; TA02's control items, which restate the possession condition of a clause Christian wrote as an example, have been held as examples since the merge of the program branch (11 November 2026), as Christian's first reply of 7 November, section 4, asked: “Similarly, do not convert \"maintaining attacking possession\" into a separate mandatory scoring requirement without identifying an authoritative basis.” (received 7 November 2026, first reply). With every condition item withheld the two built activities collapse into one plain GF2 activity (identical coach text; identical configuration lines but one transition value's source). So the existing relationships appear capable of the reuse Christian describes; what keeps the two contexts from collapsing is the missing operational interpretation and carrier of each context's condition, not a missing goal-family structure.",
  "ta02Safeguards": [
   {
    "id": "TA02-0",
@@ -1120,6 +1120,408 @@
    "evidence": "build-activity.ts:641 reads only whether the context's contract is selected; on these runs no clause is carried, or only the control clause under a declared treatment; the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass"
   }
  ],
+ "w5": {
+  "swapComparison": {
+   "rows": [
+    {
+     "aspect": "Step 1: the resolved Game Problem",
+     "kind": "SHARED",
+     "a02": "RESOLVED GP-015 (APPROVED_TRANSLATION)",
+     "ta02": "RESOLVED GP-015 (APPROVED_TRANSLATION)",
+     "note": "each from its own goal's approved translation row in the planning model"
+    },
+    {
+     "aspect": "Step 1: the CAR profile it consults",
+     "kind": "SHARED",
+     "a02": "GP-015 PRIMARY FOI E, OP E, SA E, CIO E (Approved; SA flagged for field validation)",
+     "ta02": "GP-015 PRIMARY FOI E, OP E, SA E, CIO E (Approved; SA flagged for field validation)",
+     "note": "consulted in Step 1 only: the checked pathway resolves CAR in shadow mode, and changing these ratings changes nothing in the chain (measured in item 3)"
+    },
+    {
+     "aspect": "Step 2: the Game Form result",
+     "kind": "SHARED",
+     "a02": "SELECTED GF2 (compatible: GF2)",
+     "ta02": "SELECTED GF2 (compatible: GF2)",
+     "note": "from the same relationship: GF2's Game Problem cell names GP-015"
+    },
+    {
+     "aspect": "Step 2: the grade of GF2's Game Problem cell",
+     "kind": "SHARED",
+     "a02": "CANDIDATE",
+     "ta02": "CANDIDATE",
+     "note": "our restatement of the DRAFT module; Christian has left its approval unresolved"
+    },
+    {
+     "aspect": "Step 2: the cells its result rests on",
+     "kind": "DIFFERS",
+     "a02": "relationships RPC-REL-002 APPROVED, relationships RPC-REL-020 APPROVED, relationships RPC-REL-021 APPROVED, relationships RPC-REL-022 APPROVED, engine_translation A02 APPROVED",
+     "ta02": "relationships RPC-REL-003 APPROVED, relationships RPC-REL-027 APPROVED, relationships RPC-REL-028 APPROVED, relationships RPC-REL-029 APPROVED, engine_translation TA02 APPROVED",
+     "note": "shared: knowledge GAK-0015 APPROVED, game_forms GF2 CANDIDATE, game_forms GF3 CANDIDATE, game_forms GF7 CANDIDATE, D3-4NOV RULING; the rest are each goal's own translation row and its context's own declared-form relationships"
+    },
+    {
+     "aspect": "the consumption (what the chain records it was handed)",
+     "kind": "SHARED",
+     "a02": "Game Problem GP-015 from Step 1 (review pathway); scorer handed GF2 (SELECTION_TRACE_RANKING); constraints REVIEW_PATHWAY_K2 []; size-rule bypass false",
+     "ta02": "Game Problem GP-015 from Step 1 (review pathway); scorer handed GF2 (SELECTION_TRACE_RANKING); constraints REVIEW_PATHWAY_K2 []; size-rule bypass false",
+     "note": "the same TEST-ONLY option and the same K2 result, the empty set, for each goal (each goal's DRAFT record set aside, since stage W1 (b))"
+    },
+    {
+     "aspect": "the context",
+     "kind": "DIFFERS",
+     "a02": "RPC-002 'High Press Escape'",
+     "ta02": "RPC-003 'Attack Development'",
+     "note": "routed by the planning model and read by the chain from the same routing; TA02's context pending"
+    },
+    {
+     "aspect": "the approved scoring events (our restatement, as a set)",
+     "kind": "SHARED",
+     "a02": "'gate', 'line_crossed', 'target_player', 'target_zone_entered'",
+     "ta02": "'gate', 'line_crossed', 'target_player', 'target_zone_entered'",
+     "note": "the same four kinds; restated in the approved order of each context: ['target_zone_entered', 'line_crossed', 'gate', 'target_player'] | ['line_crossed', 'target_zone_entered', 'gate', 'target_player']"
+    },
+    {
+     "aspect": "the built scoring event (diagnostic runs)",
+     "kind": "SHARED",
+     "a02": "'line_crossed' within ['line_crossed', 'target_zone_entered']",
+     "ta02": "'line_crossed' within ['line_crossed', 'target_zone_entered']",
+     "note": "narrowed by restated:RPC-002 RPC-003-03.a NARROWS, restated:RPC-002 RPC-003-05 NARROWS | by restated:RPC-003 RPC-002-01.a NARROWS (the chain's own records); the value is closed by a realization choices file of ours, not knowledge"
+    },
+    {
+     "aspect": "the approved scoring condition (its row, on the diagnostic runs)",
+     "kind": "DIFFERS",
+     "a02": "RPC-PROP-133: NOT_CLASSIFIED, carried no",
+     "ta02": "RPC-PROP-134: NOT_CLASSIFIED, carried no",
+     "note": "the chain is handed no requirement bindings for either row on these runs (none exists for RPC-002; a DRAFT set of ours for RPC-003 sits outside the store and the handoff's wiring does not hand it), so the requirement account cannot classify the condition; nothing carries it"
+    },
+    {
+     "aspect": "the condition's origin clause (our restatement's values)",
+     "kind": "DIFFERS",
+     "a02": "'the attack's starting condition'",
+     "ta02": "'established coordinated pressure'",
+     "note": "the value is declared NOT_AUTHORED in both restatements; neither origin has a carrier"
+    },
+    {
+     "aspect": "the condition's progression clause (our restatement's values)",
+     "kind": "DIFFERS",
+     "a02": "'a more advanced representative area', 'more advanced'",
+     "ta02": "'the pressing line', 'beyond'",
+     "note": "carried as open text and a value; not executed in either built game; TA02's items (RPC-003-11.a to 11.c) restate the clause Christian wrote as an example (13 September) and, since the merge of the program branch (11 November 2026), are held as examples (SUPPORTING, TYPICAL_EXAMPLE), constituting no condition"
+    },
+    {
+     "aspect": "the condition's control clause (our restatement's values)",
+     "kind": "DIFFERS",
+     "a02": "'while maintaining attacking possession'",
+     "ta02": "'retains possession through the next action'",
+     "note": "the referent is UNDECLARED in both restatements; TA02's items (RPC-003-12.a, 12.b) restate the possession condition of a clause Christian wrote as an example (13 September) and, since the merge of the program branch (11 November 2026), are held as examples (SUPPORTING, TYPICAL_EXAMPLE), so TA02 constitutes no control clause (before that merge RPC-003-12.a made it required, contrary to Christian's first reply of 7 November, section 4)"
+    },
+    {
+     "aspect": "where the knowledge as it stands stops",
+     "kind": "DIFFERS",
+     "a02": "structure: c:restated:RPC-002:RPC-003-10.a::V6 (RESTATEMENT-ONLY)",
+     "ta02": "structure: c:restated:RPC-003:RPC-002-04.a::V5, c:restated:RPC-003:RPC-002-02.a::V6 (RESTATEMENT-ONLY)",
+     "note": "the same stage, each on its own context's restatement: A02 on two kinds of line, the control clause's referent and the origin clause's value; TA02 on the origin clause's value alone, since the merge of the program branch (11 November 2026) holds our RPC-003 control items as examples (before that merge TA02 also stopped on the control line, our item RPC-003-12.a, which made the illustrative clause's possession condition a required one, contrary to Christian's first reply of 7 November, section 4, quoted in item 6)"
+    },
+    {
+     "aspect": "opposition (our restatement's participant rows)",
+     "kind": "DIFFERS",
+     "a02": "RPC-003-01.a COUNT '2' (STRUCTURAL); RPC-003-01.b EXISTS 'an opposing team that can deny, redirect or reverse progression (play)' (OUTSIDE_BOUNDARY); lines resting on them in the diagnostic build: 0",
+     "ta02": "RPC-002-05 EXISTS 'an opposing team applying established coordinated high pressure, the defining condition (play)' (OUTSIDE_BOUNDARY); RPC-002-06 EXISTS 'pressure that meaningfully compresses time, space and available action (play)' (OUTSIDE_BOUNDARY); lines resting on them in the diagnostic build: 0",
+     "note": "recorded in each restatement; no line of either built game rests on them, so neither built game carries its context's opposition"
+    },
+    {
+     "aspect": "the engine lenses (wording-derived engine inputs)",
+     "kind": "DIFFERS",
+     "a02": "Possession Stability Opportunity, Space Creation Opportunity, Regain Opportunity",
+     "ta02": "Possession Stability Opportunity, Line-Breaking Opportunity, Space Creation Opportunity",
+     "note": "scored from each goal's wording; not an owned decision; with an empty authorized set they decide no selection"
+    },
+    {
+     "aspect": "the context's affordance targets (the library's mapping rows)",
+     "kind": "DIFFERS",
+     "a02": "RPC-MAP-097, RPC-MAP-098, RPC-MAP-099, RPC-MAP-100, RPC-MAP-101, RPC-MAP-102: DEFERRED",
+     "ta02": "RPC-MAP-103, RPC-MAP-104, RPC-MAP-105, RPC-MAP-106, RPC-MAP-107: DEFERRED",
+     "note": "every one DEFERRED (Christian, 13 September: not to be inferred to reach runtime), so no engine reads them; names in both lists: 'Progression lane', 'Third-player support'"
+    },
+    {
+     "aspect": "the configuration lines (diagnostic runs)",
+     "kind": "DIFFERS",
+     "a02": "41 lines",
+     "ta02": "41 lines",
+     "note": "identical except: c:restated:GF2:GF2-07.a::T7: 'true' [restated:RPC-002 RPC-003-09.a] class 3 | true [SD-14 (records Christian's decisions of 18 September on revision 2)] class 2"
+    },
+    {
+     "aspect": "the coach text (diagnostic runs)",
+     "kind": "SHARED",
+     "a02": "8 sentences",
+     "ta02": "8 sentences",
+     "note": "identical, sentence for sentence"
+    },
+    {
+     "aspect": "the laws owed an adaptation (diagnostic runs)",
+     "kind": "SHARED",
+     "a02": "LAW-8, LAW-11",
+     "ta02": "LAW-8, LAW-11",
+     "note": "the same laws, under the same TEST-ONLY LAW-11 stand-in"
+    }
+   ],
+   "differingLines": [
+    "c:restated:GF2:GF2-07.a::T7: 'true' [restated:RPC-002 RPC-003-09.a] class 3 | true [SD-14 (records Christian's decisions of 18 September on revision 2)] class 2"
+   ],
+   "sentencesIdentical": true
+  },
+  "swapMoves": [
+   {
+    "aspect": "Step 1: the resolved Game Problem",
+    "move": "shared"
+   },
+   {
+    "aspect": "Step 1: the CAR profile it consults",
+    "move": "shared"
+   },
+   {
+    "aspect": "Step 2: the Game Form result",
+    "move": "shared"
+   },
+   {
+    "aspect": "Step 2: the grade of GF2's Game Problem cell",
+    "move": "shared"
+   },
+   {
+    "aspect": "Step 2: the cells its result rests on",
+    "move": "stays"
+   },
+   {
+    "aspect": "the consumption (what the chain records it was handed)",
+    "move": "shared"
+   },
+   {
+    "aspect": "the context",
+    "move": "stays"
+   },
+   {
+    "aspect": "the approved scoring events (our restatement, as a set)",
+    "move": "shared"
+   },
+   {
+    "aspect": "the built scoring event (diagnostic runs)",
+    "move": "shared"
+   },
+   {
+    "aspect": "the approved scoring condition (its row, on the diagnostic runs)",
+    "move": "stays"
+   },
+   {
+    "aspect": "the condition's origin clause (our restatement's values)",
+    "move": "swaps"
+   },
+   {
+    "aspect": "the condition's progression clause (our restatement's values)",
+    "move": "swaps"
+   },
+   {
+    "aspect": "the condition's control clause (our restatement's values)",
+    "move": "swaps"
+   },
+   {
+    "aspect": "where the knowledge as it stands stops",
+    "move": "swaps"
+   },
+   {
+    "aspect": "opposition (our restatement's participant rows)",
+    "move": "swaps"
+   },
+   {
+    "aspect": "the engine lenses (wording-derived engine inputs)",
+    "move": "stays"
+   },
+   {
+    "aspect": "the context's affordance targets (the library's mapping rows)",
+    "move": "stays"
+   },
+   {
+    "aspect": "the configuration lines (diagnostic runs)",
+    "move": "swaps"
+   },
+   {
+    "aspect": "the coach text (diagnostic runs)",
+    "move": "shared"
+   },
+   {
+    "aspect": "the laws owed an adaptation (diagnostic runs)",
+    "move": "shared"
+   }
+  ],
+  "swapRuns": [
+   {
+    "id": "A02-0/swap",
+    "outcome": "refused",
+    "stage": "structure",
+    "cited": [
+     "c:restated:RPC-002:RPC-003-10.a::V6"
+    ]
+   },
+   {
+    "id": "A02-D/swap",
+    "outcome": "served",
+    "stage": null,
+    "cited": []
+   },
+   {
+    "id": "TA02-0/swap",
+    "outcome": "refused",
+    "stage": "structure",
+    "cited": [
+     "c:restated:RPC-003:RPC-002-04.a::V5",
+     "c:restated:RPC-003:RPC-002-02.a::V6"
+    ]
+   },
+   {
+    "id": "TA02-D/swap",
+    "outcome": "served",
+    "stage": null,
+    "cited": []
+   }
+  ],
+  "distinctions": [
+   {
+    "aspect": "Step 2: the cells its result rests on",
+    "group": "not a distinction"
+   },
+   {
+    "aspect": "the context",
+    "group": "executing"
+   },
+   {
+    "aspect": "the approved scoring condition (its row, on the diagnostic runs)",
+    "group": "recorded, not executing"
+   },
+   {
+    "aspect": "the condition's origin clause (our restatement's values)",
+    "group": "recorded, not executing"
+   },
+   {
+    "aspect": "the condition's progression clause (our restatement's values)",
+    "group": "recorded, not executing"
+   },
+   {
+    "aspect": "the condition's control clause (our restatement's values)",
+    "group": "recorded, not executing"
+   },
+   {
+    "aspect": "where the knowledge as it stands stops",
+    "group": "executing"
+   },
+   {
+    "aspect": "opposition (our restatement's participant rows)",
+    "group": "recorded, not executing"
+   },
+   {
+    "aspect": "the engine lenses (wording-derived engine inputs)",
+    "group": "not a distinction"
+   },
+   {
+    "aspect": "the context's affordance targets (the library's mapping rows)",
+    "group": "recorded, not executing"
+   },
+   {
+    "aspect": "the configuration lines (diagnostic runs)",
+    "group": "executing"
+   }
+  ],
+  "ta02Binding": {
+   "before": [
+    "RPC-003-01.a",
+    "RPC-003-01.b",
+    "RPC-003-02",
+    "RPC-003-03.a",
+    "RPC-003-03.b",
+    "RPC-003-04.b",
+    "RPC-003-05",
+    "RPC-003-06",
+    "RPC-003-08",
+    "RPC-003-09.a",
+    "RPC-003-09.b",
+    "RPC-003-10.a",
+    "RPC-003-10.b",
+    "RPC-003-11.a",
+    "RPC-003-11.b",
+    "RPC-003-11.c",
+    "RPC-003-12.a",
+    "RPC-003-12.b",
+    "RPC-003-14.a",
+    "RPC-003-14.b",
+    "RPC-003-15"
+   ],
+   "now": [
+    "RPC-003-01.a",
+    "RPC-003-01.b",
+    "RPC-003-03.a",
+    "RPC-003-03.b",
+    "RPC-003-04.b",
+    "RPC-003-05",
+    "RPC-003-06",
+    "RPC-003-08",
+    "RPC-003-09.a",
+    "RPC-003-09.b",
+    "RPC-003-10.a",
+    "RPC-003-10.b",
+    "RPC-003-14.a",
+    "RPC-003-14.b",
+    "RPC-003-15"
+   ],
+   "keptAsExamples": [
+    "RPC-003-02",
+    "RPC-003-11.a",
+    "RPC-003-11.b",
+    "RPC-003-11.c",
+    "RPC-003-12.a",
+    "RPC-003-12.b"
+   ],
+   "keptBinding": [
+    "RPC-003-05",
+    "RPC-003-10.a",
+    "RPC-003-10.b"
+   ],
+   "defects": []
+  },
+  "ta02ExampleItemsCited": [
+   {
+    "id": "TA02-0",
+    "cited": []
+   },
+   {
+    "id": "TA02-D",
+    "cited": []
+   }
+  ],
+  "ta02PreMergeClass": {
+   "outcome": "refused",
+   "stage": "structure",
+   "cited": [
+    "c:restated:RPC-003:RPC-003-12.a::V5",
+    "c:restated:RPC-003:RPC-003-10.a::V6"
+   ],
+   "exampleItemsCited": [
+    "RPC-003-12.a"
+   ]
+  },
+  "ta02CoverageLenses": {
+   "lensCandidateIds": [
+    "tl-v0-lens-possession-stability-opportunity",
+    "tl-v0-lens-space-creation-opportunity",
+    "tl-v0-lens-space-exploitation-opportunity",
+    "tl-v0-lens-line-breaking-opportunity",
+    "tl-v0-lens-regain-opportunity"
+   ],
+   "committed": [
+    "tl-v0-lens-possession-stability-opportunity",
+    "tl-v0-lens-line-breaking-opportunity",
+    "tl-v0-lens-space-creation-opportunity"
+   ],
+   "from": "STEP1_COVERAGE_ROW"
+  },
+  "carrierMechanismNames": []
+ },
  "ownership": [
   {
    "row": "GAME_PROBLEM",

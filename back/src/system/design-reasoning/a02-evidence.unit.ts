@@ -12,6 +12,15 @@
  * and constraints are consumed and, since stage W1 (a) (11 November 2026), their Game Problem too: it governs the chain's lens hints (the
  * safeguard check of a02-safeguards.unit.ts, run on them).
  *
+ * Stage W5 of the A02 package (12 November 2026), U3 (b) after the merge of the program branch, one more test: (1) the shared rows SHARED;
+ * (2) TA02's binding items (REQUIRED or EXCLUSION) are those before the merge less exactly the six example-only items, RPC-003-05, 10.a and
+ * 10.b kept; (3) no TA02 refusal cites an example-only item, with a TEST-ONLY copy of the store in the pre-merge class as its bite; (4) the swap
+ * control: A02 over our restatement of RPC-003 and TA02 over our restatement of RPC-002, exchanged on the chain's copy after both stores' gates
+ * (handoff-chain.unit.ts, RestatementSwap), each row classed shared, swaps or stays; (5) the collapse kept visible, each differing row grouped by
+ * a measured predicate and printed 'distinctions recorded, not executing'; and stages W1 to W4 where they apply to TA02 (TA02-0 under
+ * GP_COVERAGE_LENSES; the switch not applicable; the carriers' mechanism read for context names). Row (6), B13 over the RPC-002 store, is in
+ * requirement-bindings.unit.ts. The swap runs, the pre-merge class run and the GP_COVERAGE_LENSES run are built once per process.
+ *
  * The evidence (docs/audits/design-reasoning-a02/evidence/): `a02-report.txt`, organized by Christian's seven report items (each keeping the
  * implemented and tested behaviour apart from what stays open, our proposals, our assumptions and ecological suitability), then the detailed
  * texts the A02 tests generate; and `a02-results.json`. Both are generated here twice (the second time from a second build of the A02 cases
@@ -24,6 +33,7 @@
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 
 import { loadDraftStore } from '../derivation/draft-store'
@@ -32,7 +42,7 @@ import * as S from './a02-safeguards.unit'
 import { citedDateOf } from './assembly'
 import { foundationalTestText } from './foundational-test'
 import { CaseInput, ChainAnswer, ChainRequest, HandoffChain, HandoffResult, runHandoff, runHandoffCases, validateHandoffInputs } from './handoff'
-import { holdsGenderedPronoun, realChain } from './handoff-chain.unit'
+import { chainWith, holdsGenderedPronoun, realChain, swappedStore } from './handoff-chain.unit'
 import { handoffReportText, plain, quoted, show } from './handoff-report'
 import { carRequirementNames, cell, committedKnowledge } from './knowledge'
 import { blockerSequence, classOf, detectedByVerdict, DISPOSITION, Finding, OpenDisconnection, ownershipMessage, ownershipOf, OWNERSHIP_TABLE, SafeguardRun, safeguardRunOf, stale, unlisted, DETECTED_VERDICTS, VIOLATION_VERDICTS } from './safeguards'
@@ -375,6 +385,352 @@ const COMPARISON = comparisonOf(
     pairOf('TA02', ta02At('TA02-0'), ta02At('TA02-D'), ta02Safeguard('TA02-D').run.chain?.lenses ?? []),
 )
 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Stage W5 of the A02 package (12 November 2026): reuse, U3 (b) rows (1) to (6), now that the program branch is merged. Christian:
+// "Investigating whether A02 and TA02 can reuse common reasoning without losing their contextual distinctions." (received 11 November 2026,
+// second reply); "We should not force artificial activity differences merely because the Learning Goals have different names." (reply about
+// A02, pasted 10 November 2026). TEST-ONLY; no TA02 configuration (its context is pending); nothing here is knowledge.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
+/** (1) The rows the two goals must share: Step 1, Step 2, the cell grade, the consumption, and the CAR profile Step 1 only consults. */
+const SHARED_ROWS = [
+    'Step 1: the resolved Game Problem',
+    'Step 1: the CAR profile it consults',
+    'Step 2: the Game Form result',
+    'Step 2: the grade of GF2\'s Game Problem cell',
+    'the consumption (what the chain records it was handed)',
+]
+
+/**
+ * (2) TA02's binding items (strictness REQUIRED or EXCLUSION) in our restatement of RPC-003 before the merge of the program branch, measured on
+ * the A02 line before it (2bc198f, docs/audits/drafts/ta02-composition/rpc-003-contract.DRAFT.json): 17 REQUIRED and 4 EXCLUSION.
+ */
+const TA02_BINDING_BEFORE = [
+    'RPC-003-01.a', 'RPC-003-01.b', 'RPC-003-02', 'RPC-003-03.a', 'RPC-003-03.b', 'RPC-003-04.b', 'RPC-003-05', 'RPC-003-06', 'RPC-003-08', 'RPC-003-09.a', 'RPC-003-09.b',
+    'RPC-003-10.a', 'RPC-003-10.b', 'RPC-003-11.a', 'RPC-003-11.b', 'RPC-003-11.c', 'RPC-003-12.a', 'RPC-003-12.b', 'RPC-003-14.a', 'RPC-003-14.b', 'RPC-003-15',
+]
+/**
+ * The six items that rest only on the corrected row's example, kept as examples since the merge (requirement-bindings.unit.ts, B13b, pins the
+ * same six by its own reading), each with the valueStatus it held before the merge (2bc198f); the strictness of each was REQUIRED.
+ */
+const TA02_EXAMPLE_ONLY: Record<string, string> = {
+    'RPC-003-02': 'N/A',
+    'RPC-003-11.a': 'N/A',
+    'RPC-003-11.b': 'REQUIRED_RANGE',
+    'RPC-003-11.c': 'REQUIRED_RANGE',
+    'RPC-003-12.a': 'N/A',
+    'RPC-003-12.b': 'REQUIRED_RANGE',
+}
+/**
+ * Independently authorized conditions the correction must keep binding: the exclusion 'possession alone' (RPC-003-05) and the origin clause
+ * (RPC-003-10.a, 10.b). Christian: "Do not remove independently authorized structural or scoring conditions" (received 11 November 2026,
+ * second reply).
+ */
+const TA02_KEPT = ['RPC-003-05', 'RPC-003-10.a', 'RPC-003-10.b']
+const BINDING = ['REQUIRED', 'EXCLUSION']
+const bindingIds = (items: any[]): string[] => items.filter((i) => BINDING.indexOf(String(i.strictness)) >= 0).map((i) => String(i.itemId))
+/** Every way a restatement's items depart from 'before minus exactly the example-only items, the independently authorized ones kept'. */
+function bindingDefects(items: any[]): string[] {
+    const now = bindingIds(items)
+    const expected = TA02_BINDING_BEFORE.filter((id) => !(id in TA02_EXAMPLE_ONLY))
+    const out: string[] = []
+    for (const id of expected) if (now.indexOf(id) < 0) out.push(`${id} is no longer binding`)
+    for (const id of now) if (expected.indexOf(id) < 0) out.push(`${id} is binding and is not among the items binding before the merge less the example-only items`)
+    for (const id of TA02_KEPT) if (now.indexOf(id) < 0) out.push(`${id}, an independently authorized condition, is not kept binding`)
+    for (const id of Object.keys(TA02_EXAMPLE_ONLY)) {
+        const item = items.find((i) => String(i.itemId) === id)
+        if (!item) out.push(`${id} is gone, and its provenance with it`)
+        else if (item.strictness !== 'SUPPORTING' || item.valueStatus !== 'TYPICAL_EXAMPLE') out.push(`${id} is not kept as an example (${item.strictness}, ${item.valueStatus})`)
+    }
+    return out
+}
+
+/** (3) The example-only items a run's refusal cites (its basis's cited lines and its reasons, as c:<contract>:<item>::<row> or [c:<contract>:<item>]). */
+const exampleItemsCited = (r: HandoffResult): string[] =>
+    Object.keys(TA02_EXAMPLE_ONLY).filter((id) => [...(r.refusalBasis?.cited ?? []).map((c) => c.ref), ...(r.chain?.reasons ?? [])].some((x) => x.indexOf(`:${id}::`) >= 0 || x.indexOf(`:${id}]`) >= 0))
+/**
+ * The bite of (3): TA02-0 over a TEST-ONLY copy of the store with the six items put back to the class they held before the merge (strictness
+ * REQUIRED, each its pre-merge valueStatus; every quotation as the corrected row reads now, so the store's gate admits it whole), in a folder of
+ * the system's temporary directory, removed after the run. Nothing is written to the drafts.
+ */
+function ta02OverPreMergeClass(): Built {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'a02-evidence-w5-'))
+    try {
+        const from = path.join(WT, 'docs', 'audits', 'drafts', TA02_STORE)
+        const contract = JSON.parse(fs.readFileSync(path.join(from, 'rpc-003-contract.DRAFT.json'), 'utf8'))
+        for (const item of contract.contractEntry.result.items as any[])
+            if (item.id in TA02_EXAMPLE_ONLY) {
+                item.strictness = 'REQUIRED'
+                item.valueStatus = TA02_EXAMPLE_ONLY[item.id]
+            }
+        fs.writeFileSync(path.join(dir, 'rpc-003-contract.DRAFT.json'), JSON.stringify(contract, null, 2))
+        fs.copyFileSync(path.join(from, 'ta02-authorization.DRAFT.json'), path.join(dir, 'ta02-authorization.DRAFT.json'))
+        assert.doesNotThrow(() => loadDraftStore(dir), 'the store\'s gate admits the copy whole')
+        const c = ta02Case('A02-0', 'TA02-0/pre-merge-class')
+        c.chain.draftStore = dir
+        let answer: ChainAnswer | null = null
+        const result = runHandoff(c, ta02Inputs, { build: (r) => (answer = realChain.build(r)) }, k)
+        return { result, answer }
+    } finally {
+        fs.rmSync(dir, { recursive: true, force: true })
+    }
+}
+const TA02_PRE_MERGE_CLASS = ta02OverPreMergeClass()
+
+/**
+ * (4) The swap control: A02 over our restatement of RPC-003, TA02 over our restatement of RPC-002, each on the chain's copy of its own store
+ * (handoff-chain.unit.ts, RestatementSwap: both stores held to their own gates first, the other context's restatement then put in place of the
+ * routed context's under its id, its items' ids and sources kept). Everything else is the run it mirrors: the same goal, wording, routing,
+ * Steps 1 and 2, consumption, K2's result and session; on the diagnostic, the other restatement's condition items withheld.
+ */
+/**
+ * Why the swap is made on the chain's copy and not as a copy on disk (measured, never loosened): the store's gate refuses our restatement of
+ * RPC-003 relabelled as RPC-002's, because no item constituting a scoring condition then cites RPC-002's approved condition row; the same file
+ * not relabelled is admitted (the control). Each copy in a folder of the system's temporary directory, removed after.
+ */
+function relabelledCopyGate(relabel: boolean): string {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'a02-evidence-w5-swap-'))
+    try {
+        const contract = JSON.parse(fs.readFileSync(path.join(WT, 'docs', 'audits', 'drafts', TA02_STORE, 'rpc-003-contract.DRAFT.json'), 'utf8'))
+        if (relabel) contract.contractEntry.name = 'RPC-002 High Press Escape'
+        fs.writeFileSync(path.join(dir, 'rpc-003-contract.DRAFT.json'), JSON.stringify(contract, null, 2))
+        try {
+            loadDraftStore(dir)
+            return 'ADMITTED'
+        } catch (error) {
+            return (error as Error).message
+        }
+    } finally {
+        fs.rmSync(dir, { recursive: true, force: true })
+    }
+}
+const SWAP_TREATMENT = 'TT-SWAP-RESTATEMENT'
+const A02_CONTRACT = 'restated:RPC-002'
+const A02_STORE = 'a02-composition'
+const A02_CONDITION_ITEMS = S.SCORING.clauses.flatMap((c) => c.items)
+const a02StoreItems = loadDraftStore(A02_STORE).contracts.find((c) => c.contractId === A02_CONTRACT)!.items as any[]
+interface SwapSide {
+    goal: 'A02' | 'TA02'
+    into: string
+    store: string
+    fromStore: string
+    fromContract: string
+    fromItems: any[]
+    fromConditionItems: string[]
+    fromName: string
+}
+const SWAP_SIDES: SwapSide[] = [
+    { goal: 'A02', into: A02_CONTRACT, store: A02_STORE, fromStore: TA02_STORE, fromContract: TA02_CONTRACT, fromItems: ta02Items, fromConditionItems: TA02_CONDITION_ITEMS, fromName: 'our DRAFT restatement of RPC-003 (Attack Development)' },
+    { goal: 'TA02', into: TA02_CONTRACT, store: TA02_STORE, fromStore: A02_STORE, fromContract: A02_CONTRACT, fromItems: a02StoreItems, fromConditionItems: A02_CONDITION_ITEMS, fromName: 'our CANDIDATE restatement of RPC-002 (High Press Escape)' },
+]
+const SWAP = '/swap'
+function swapCase(side: SwapSide, base: CaseInput): CaseInput {
+    const c = copy(base)
+    delete c.basedOn
+    c.id = `${base.id}${SWAP}`
+    c.label = `${c.id}: the swap control (TEST-ONLY): ${base.id} with ${side.fromName} in place of its routed context's own restatement, on the chain's copy; never a configuration of either goal`
+    c.resultStanding = 'SWAP_CONTROL_TEST_ONLY_NEVER_A_CONFIGURATION'
+    c.testOnlyTreatments = c.testOnlyTreatments.map((t) => {
+        if (t.kind === 'DRAFT_STORE')
+            return {
+                ...t,
+                id: SWAP_TREATMENT,
+                what: `the TEST-ONLY draft store ${side.store}, read through its gate, with ${side.fromName} (read through the gate of ${side.fromStore}) put in place of ${side.into} on the chain's copy, under that id; its items' ids and sources kept`,
+                effect: `the chain derives the routed context from the other context's restatement; every other input is the run's own`,
+                why: 'the swap control of the reuse comparison: whether the differences between the two goals come from each context\'s knowledge or from the goals\' names',
+                rulingRefs: ['A02-10NOV-REUSE'],
+            }
+        if (t.kind === 'WITHHOLD_ITEMS') return { ...t, itemIds: [...side.fromConditionItems], what: `every condition item of ${side.fromName} withheld from derivation, on the chain's copy, after the swap` }
+        return t
+    })
+    if (!c.rulings.some((r) => r.ref === 'A02-10NOV-REUSE')) c.rulings.push({ ref: 'A02-10NOV-REUSE', entersAs: 'REPORT_ONLY', how: 'the swap control of the reuse comparison: the two contexts\' restatements exchanged on the chain\'s copy; none of its words enters the chain as a value' })
+    c.notCarried = [{ id: 'UN-SWAP-CONTROL', what: 'the routed context\'s own restatement', rulingRefs: ['A02-10NOV-REUSE'], where: `replaced on the chain's copy by ${side.fromName}: a control, never a configuration`, label: 'UNRESOLVED' }]
+    c.reportNotes = [{ section: 'standing', text: 'The swap control: the two contexts\' restatements exchanged on the chain\'s copy (TEST-ONLY); never a configuration of either goal;' }]
+    return c
+}
+const SWAP_CASES = SWAP_SIDES.flatMap((side) => {
+    const bases = side.goal === 'A02' ? ['A02-0', 'A02-D'].map((id) => copy(inputs.cases.find((x) => x.id === id)!)) : TA02_CASES
+    return bases.map((b) => ({ side, c: swapCase(side, b) }))
+})
+const swapInputs = { ...ta02Inputs, cases: [...ta02Inputs.cases, ...SWAP_CASES.map((x) => x.c)] }
+function buildSwap(): Map<string, Built> {
+    const out = new Map<string, Built>()
+    for (const { side, c } of SWAP_CASES) {
+        const chain = chainWith({ swap: { treatmentId: SWAP_TREATMENT, into: side.into, fromStore: side.fromStore, fromContract: side.fromContract } })
+        let answer: ChainAnswer | null = null
+        const result = runHandoff(c, swapInputs, { build: (r) => (answer = chain.build(r)) }, k)
+        out.set(c.id, { result, answer })
+    }
+    return out
+}
+const swapBuilt = buildSwap()
+const swapAt = (id: string): Built => {
+    const b = swapBuilt.get(id)
+    assert.ok(b, id)
+    return b
+}
+const lensesOf = (b: Built): string[] => [...(b.answer?.account?.affordanceLenses ?? [])]
+const swapPair = (side: SwapSide): Pair => {
+    const [zero, diag] = side.goal === 'A02' ? ['A02-0', 'A02-D'] : ['TA02-0', 'TA02-D']
+    return { goal: side.goal, zero: swapAt(`${zero}${SWAP}`), diag: swapAt(`${diag}${SWAP}`), contractId: side.into, items: side.fromItems, lenses: lensesOf(swapAt(`${diag}${SWAP}`)) }
+}
+const SWAP_PAIRS = SWAP_SIDES.map(swapPair)
+const SWAP_COMPARISON = comparisonOf(SWAP_PAIRS[0], SWAP_PAIRS[1])
+
+type SwapClass = 'shared' | 'swaps' | 'stays' | 'other'
+/** A value with the two restatements' contract ids read as one (under the swap the other context's items carry the routed context's id). */
+const unlabelled = (s: string): string => s.split(A02_CONTRACT).join('<restatement>').split(TA02_CONTRACT).join('<restatement>')
+/** The two sides of the configuration lines' difference (its row's values are counts; the difference is in the lines). */
+const lineSides = (cmp: { differingLines: string[] }): [string, string] => {
+    const sides = cmp.differingLines.map((l) => {
+        const at = l.indexOf(': ')
+        const [x, y] = l.slice(at + 2).split(' | ')
+        return [`${l.slice(0, at)}: ${x}`, `${l.slice(0, at)}: ${y}`]
+    })
+    return [sides.map((s) => s[0]).join('; '), sides.map((s) => s[1]).join('; ')]
+}
+/**
+ * How each row moves under the swap: 'shared' (shared before and after, values unchanged), 'swaps' (each goal now reads what the other read),
+ * 'stays' (each goal reads what it read: the row comes from the goal or its routing, not the restatement), 'other' (anything else).
+ */
+function swapClasses(before: ReturnType<typeof comparisonOf>, after: ReturnType<typeof comparisonOf>): Array<{ aspect: string; move: SwapClass }> {
+    return before.rows.map((b) => {
+        const a = after.rows.find((x) => x.aspect === b.aspect)
+        if (!a) return { aspect: b.aspect, move: 'other' as SwapClass }
+        const lines = b.aspect === 'the configuration lines (diagnostic runs)'
+        const [ba, bt] = (lines ? lineSides(before) : [b.a02, b.ta02]).map(unlabelled)
+        const [aa, at] = (lines ? lineSides(after) : [a.a02, a.ta02]).map(unlabelled)
+        let move: SwapClass = 'other'
+        if (b.kind === 'SHARED') move = a.kind === 'SHARED' && aa === ba && at === bt ? 'shared' : 'other'
+        else if (ba !== bt && aa === bt && at === ba) move = 'swaps'
+        else if (aa === ba && at === bt) move = 'stays'
+        return { aspect: b.aspect, move }
+    })
+}
+const SWAP_CLASSES = swapClasses(COMPARISON, SWAP_COMPARISON)
+const rowsThat = (move: SwapClass) => SWAP_CLASSES.filter((x) => x.move === move).map((x) => x.aspect)
+
+/**
+ * (5) The diagnostic collapse kept visible: each differing row of the comparison put in one group by a measured predicate. 'executing': the
+ * difference reaches a run's outcome or a built line; 'recorded, not executing': each context's knowledge records it, and no line of either
+ * goal's runs rests on it (nothing carries it); 'not a distinction': an engine input or a row's name, with the same result.
+ */
+type Group = 'executing' | 'recorded, not executing' | 'not a distinction' | 'unassigned'
+const restingOn = (p: Pair, ids: string[]): number =>
+    [p.zero, p.diag].reduce((n, b) => n + b.result.lines.filter((l) => l.premises.some((x) => ids.some((id) => x.ref === `${p.contractId} ${id}`))).length, 0)
+const clauseIds = (p: Pair, clause: string) => p.items.filter((i) => String(i.selector) === `type=${clause}`).map((i) => String(i.itemId))
+function distinctionsOf(cmp: ReturnType<typeof comparisonOf>, a: Pair, t: Pair): Array<{ aspect: string; group: Group }> {
+    const both = (f: (p: Pair) => boolean) => f(a) && f(t)
+    const groupOf = (aspect: string): Group => {
+        if (aspect === 'where the knowledge as it stands stops') return json(a.zero.result.refusalBasis?.cited) !== json(t.zero.result.refusalBasis?.cited) ? 'executing' : 'unassigned'
+        if (aspect === 'the configuration lines (diagnostic runs)') return cmp.differingLines.length > 0 ? 'executing' : 'unassigned'
+        if (aspect === 'the context') return both((p) => (p.zero.answer?.contracts ?? []).some((c) => c.origin === 'DRAFT_STORE' && c.contractId === p.contractId)) ? 'executing' : 'unassigned'
+        const clause = ['origin', 'progression', 'control'].find((c) => aspect === `the condition's ${c} clause (our restatement's values)`)
+        if (clause) return both((p) => restingOn(p, clauseIds(p, clause)) === 0) ? 'recorded, not executing' : 'executing'
+        if (aspect === 'opposition (our restatement\'s participant rows)') return both((p) => restingOn(p, p.items.filter((i) => String(i.row) === 'P1').map((i) => String(i.itemId))) === 0) ? 'recorded, not executing' : 'executing'
+        if (aspect === 'the approved scoring condition (its row, on the diagnostic runs)') return both((p) => p.diag.answer?.observed?.scoringCondition?.carried === false) ? 'recorded, not executing' : 'executing'
+        if (aspect === 'the context\'s affordance targets (the library\'s mapping rows)') return both((p) => affordanceTargets(String(p.zero.result.receive.step1?.contextId)).every((x) => x.status === 'DEFERRED')) ? 'recorded, not executing' : 'executing'
+        if (aspect === 'the engine lenses (wording-derived engine inputs)') return both((p) => (p.zero.result.consumption?.constraintCandidateIds ?? ['?']).length === 0) ? 'not a distinction' : 'executing'
+        if (aspect === 'Step 2: the cells its result rests on') return cmp.rows.find((r) => r.aspect === 'Step 2: the Game Form result')?.kind === 'SHARED' ? 'not a distinction' : 'executing'
+        return 'unassigned'
+    }
+    return cmp.rows.filter((r) => r.kind === 'DIFFERS').map((r) => ({ aspect: r.aspect, group: groupOf(r.aspect) }))
+}
+const A02_PAIR = pairOf('A02', a02Built('A02-0'), a02Built('A02-D'), S.at('A02-D').run.chain?.lenses ?? [])
+const TA02_PAIR = pairOf('TA02', ta02At('TA02-0'), ta02At('TA02-D'), ta02Safeguard('TA02-D').run.chain?.lenses ?? [])
+const DISTINCTIONS = distinctionsOf(COMPARISON, A02_PAIR, TA02_PAIR)
+const inGroup = (group: Group, ds = DISTINCTIONS) => ds.filter((d) => d.group === group).map((d) => d.aspect)
+const NOT_EXECUTING_WORDS = 'distinctions recorded, not executing'
+
+/** W1 (c1) applied to TA02: TA02-0 under the declared TEST-ONLY treatment GP_COVERAGE_LENSES (the lens candidates from Step 1's Coverage row). */
+const TA02_GPCL = (() => {
+    const c = ta02Case('A02-0', `TA02-0${S.GPCL}`)
+    c.label = `${c.id}: TA02-0 with the TEST-ONLY treatment GP_COVERAGE_LENSES (the lens candidates and signal groups from Step 1's Coverage row); TA02's context pending`
+    c.resultStanding = 'TEST_ONLY_TREATMENT_NEVER_A_TA02_CONFIGURATION'
+    c.testOnlyTreatments.push(copy(S.COVERAGE_LENSES))
+    let answer: ChainAnswer | null = null
+    const result = runHandoff(c, { ...ta02Inputs, cases: [...ta02Inputs.cases, c] }, { build: (r) => (answer = realChain.build(r)) }, k)
+    return { result, answer } as Built
+})()
+
+/**
+ * W4 applied to TA02: the carriers are not run for TA02 (a carrier for its origin would be a TA02 configuration, and its context is pending);
+ * the mechanism they run on names no context, so one mechanism could carry both contexts' origin values once Christian's knowledge exists. Held
+ * by a reading of each top-level block of the mechanism: no context id, goal id of the two goals, or context name.
+ */
+const CARRIER_MECHANISM: Array<[string, string[]]> = [
+    ['derivation/gates.ts', ['episodeScopesOf', 'episodeCheckDecides', 'WHILE_STATE_CLAUSE', 'whileStateClause', 'BEYOND_LINE_CLAUSE', 'beyondLineClause']],
+    ['derivation/run-bounded-selection.ts', ['registerWith']],
+    ['derivation/draft-store.ts', ['loadIllustrativeCarriers', 'withIllustrativeCarriers']],
+]
+const TOP_LEVEL = ['export ', 'function ', 'const ', 'let ', 'interface ', 'type ', '/**', '//']
+const CONTEXT_NAMES = ['High Press', 'Attack Development', 'A02', 'TA02']
+/** The top-level block of a source text that declares `name`, from its line to the next top-level line; null where none declares it. */
+function topLevelBlock(source: string, name: string): string | null {
+    const lines = source.split(/\r?\n/)
+    const starts = (l: string) => TOP_LEVEL.some((p) => l.indexOf(p) === 0)
+    const at = lines.findIndex((l) => starts(l) && (l.includes(`function ${name}(`) || l.includes(`const ${name} =`)))
+    if (at < 0) return null
+    let end = at + 1
+    while (end < lines.length && !starts(lines[end])) end++
+    return lines.slice(at, end).join('\n')
+}
+/** The context ids, goal ids and context names a block names. */
+const contextNamesIn = (block: string): string[] => [...new Set([...(block.match(/RPC-\d{3}/g) ?? []), ...CONTEXT_NAMES.filter((n) => new RegExp(`\\b${n}\\b`).test(block))])]
+const carrierMechanismNames = (read: (file: string) => string = (file) => fs.readFileSync(path.join(HERE, '..', file), 'utf8')): string[] =>
+    CARRIER_MECHANISM.flatMap(([file, names]) =>
+        names.map((name) => {
+            const block = topLevelBlock(read(file), name)
+            return block === null ? `${file} ${name}: not found` : contextNamesIn(block).map((n) => `${file} ${name}: ${n}`).join('; ')
+        }),
+    ).filter(Boolean)
+
+const shortLens = (id: unknown) => String(id).split('tl-v0-lens-').join('').split('-opportunity').join('')
+const citedOf = (r: HandoffResult) => (r.refusalBasis?.cited ?? []).map((c) => c.ref).join(', ')
+/** Item 6's stage-W5 sentences, each built from its measurement (a sentence the measurement contradicts says so in capitals). */
+function w5Lines(): string[] {
+    const now = bindingIds(ta02Items)
+    const examples = Object.keys(TA02_EXAMPLE_ONLY)
+    const defects = bindingDefects(ta02Items)
+    const t0 = ta02At('TA02-0').result
+    const pm = TA02_PRE_MERGE_CLASS.result
+    const stopOf = (id: string) => `${swapAt(id).result.refusal?.stage} on ${citedOf(swapAt(id).result)}`
+    const swapped = rowsThat('other').length === 0 && rowsThat('swaps').indexOf('where the knowledge as it stands stops') >= 0
+    const gA = S.at(`A02-0${S.GPCL}`)
+    const samePool = json(TA02_GPCL.result.consumption?.lensCandidateIds) === json(gA.result.consumption?.lensCandidateIds)
+    const sameCommitted = json(TA02_GPCL.answer?.observed?.lensIds) === json(gA.answer?.observed?.lensIds)
+    const carriers = carrierMechanismNames()
+    return [
+        `- TA02's binding items (strictness REQUIRED or EXCLUSION; stage W5): ${now.length} since the merge of the program branch (11 November 2026), ${TA02_BINDING_BEFORE.length} before it; ${defects.length === 0 ? `the difference is exactly the ${examples.length} items that rest only on the corrected row's example (${examples.join(', ')}), each kept as an example with its provenance` : `NOT exactly the example-only items: ${defects.join('; ')}`}; kept binding: ${TA02_KEPT.join(', ')} (the exclusion of possession alone and the origin clause), which no example authorizes.`,
+        `- No TA02 refusal cites an example-only item (${TA02_IDS.map((id) => `${id}: ${exampleItemsCited(ta02At(id).result).join(', ') || 'none'}`).join('; ')}); TA02-0, re-measured, is refused at ${t0.refusal?.stage} on ${citedOf(t0)} alone. The negative control: over a TEST-ONLY copy of the store with those items put back to their class before the merge, TA02-0 is refused at ${pm.refusal?.stage} on ${citedOf(pm)} (example-only items cited: ${exampleItemsCited(pm).join(', ') || 'none'}).`,
+        `- The swap control (stage W5, TEST-ONLY: the two contexts' restatements exchanged on the chain's copy, after each store's own gate admitted it whole; every other input each run's own): A02 then stops at ${stopOf(`A02-0${SWAP}`)}, where TA02 stopped, and TA02 at ${stopOf(`TA02-0${SWAP}`)}, where A02 stopped; ${swapped ? 'the rows that come from each context\'s restatement swap' : 'NOT every row from the restatements swaps'} (${rowsThat('swaps').join('; ')}); the shared rows do not move (${rowsThat('shared').join('; ')}); the rows read from the goal or its routing stay (${rowsThat('stays').join('; ')}). So the differences between the two goals' runs come from each context's knowledge and its routing, not from the goals' names: ${cite('A02-10NOV-REUSE', 2)}`,
+        `- ${NOT_EXECUTING_WORDS}: ${inGroup('recorded, not executing').join('; ')}. Executing: ${inGroup('executing').join('; ')}. Not a distinction (an engine input, or a row's name with the same result): ${inGroup('not a distinction').join('; ')}. So today the two contexts stay apart in a run only where each stops (and in the source of one transition line): with every condition item withheld (the diagnostic), the two built activities collapse into one (${COMPARISON.sentencesIdentical ? 'identical coach text' : 'different coach text'}), the outcome Christian asked to avoid: ${cite('A02-10NOV-REUSE', 3)}`,
+        `- Stages W1 to W4 where they apply to TA02 (no TA02 configuration; its context pending): K2's result in place of a per-goal record, and Step 1's Game Problem governing the hints, as for A02 (above). Under GP_COVERAGE_LENSES (TEST-ONLY), TA02-0's lens candidates are ${samePool ? 'the pool A02-0 has under it' : 'NOT the pool A02-0 has under it'}, CV-015's ${(TA02_GPCL.result.consumption?.lensCandidateIds ?? []).length}, and the lenses committed are ${sameCommitted ? 'the same three in the same order' : 'NOT the same'} (${(TA02_GPCL.answer?.observed?.lensIds ?? []).map(shortLens).join(', ')}): the lens difference above comes from the wording alone. The quota switch and FOUNDATION_PRESENCE_BYPASS do not apply: both goals take K2's empty set, which the zero branch commits before any size, role-mix or package check. The High Press Escape coach-rule correction is RPC-002's; the action-word check reads both restatements. The ILLUSTRATIVE carriers are not run for TA02 (a carrier of its origin would configure TA02): their mechanism ${carriers.length === 0 ? 'names no context, neither goal and no context name' : `NAMES ${carriers.join('; ')}`} (read block by block), so one mechanism could carry either context's origin value once Christian's knowledge exists.`,
+    ]
+}
+/** Appendix C's stage-W5 part: the swap control row by row, the swap runs, the distinctions, TA02's binding items, TA02 under GP_COVERAGE_LENSES. */
+function w5Appendix(): string[] {
+    const out: string[] = []
+    out.push('THE SWAP CONTROL (stage W5; TEST-ONLY: A02 over our restatement of RPC-003, TA02 over our restatement of RPC-002, each on the chain\'s copy of its own store; how each row moves: shared, swaps, stays):')
+    for (const r of SWAP_COMPARISON.rows) {
+        out.push(`- ${r.aspect}: ${SWAP_CLASSES.find((x) => x.aspect === r.aspect)?.move}`)
+        out.push(`   A02 over RPC-003's restatement: ${plain(r.a02)}`)
+        out.push(`   TA02 over RPC-002's restatement: ${plain(r.ta02)}`)
+    }
+    out.push(`the configuration lines that differ under the swap: ${SWAP_COMPARISON.differingLines.map(plain).join('; ') || 'none'}`)
+    for (const id of [...swapBuilt.keys()]) {
+        const r = swapAt(id).result
+        out.push(`- ${id}: ${r.chain?.outcome}${r.chain?.stage ? ` at ${r.chain.stage}` : ''}${r.refusalBasis ? ` on ${citedOf(r)} (${r.refusalBasis.verdict})` : ''}; ${r.lines.length} lines, ${r.sentences.length} sentences`)
+    }
+    out.push(`THE DISTINCTIONS (stage W5; each differing row of the comparison above, by a measured predicate):`)
+    for (const g of ['executing', 'recorded, not executing', 'not a distinction'] as Group[]) out.push(`- ${g === 'recorded, not executing' ? NOT_EXECUTING_WORDS : g}: ${inGroup(g).join('; ')}`)
+    out.push(`TA02'S BINDING ITEMS (stage W5; strictness REQUIRED or EXCLUSION): before the merge of the program branch ${TA02_BINDING_BEFORE.join(', ')}; since it ${bindingIds(ta02Items).join(', ')}; kept as examples ${Object.keys(TA02_EXAMPLE_ONLY).join(', ')}; defects: ${bindingDefects(ta02Items).join('; ') || 'none'}`)
+    out.push(`TA02-0 over the TEST-ONLY copy with the example-only items in their class before the merge (the negative control): ${TA02_PRE_MERGE_CLASS.result.chain?.outcome} at ${TA02_PRE_MERGE_CLASS.result.chain?.stage} on ${citedOf(TA02_PRE_MERGE_CLASS.result)}`)
+    out.push(`TA02-0 under GP_COVERAGE_LENSES (stage W5, the treatment of stage W1 (c1)): ${TA02_GPCL.result.chain?.outcome} at ${TA02_GPCL.result.chain?.stage}; lens candidates ${(TA02_GPCL.result.consumption?.lensCandidateIds ?? []).map(shortLens).join(', ')}; committed ${(TA02_GPCL.answer?.observed?.lensIds ?? []).map(shortLens).join(', ')}`)
+    out.push('')
+    return out
+}
+
 /** A01, built by the production entry after the TA02 runs (beside the safeguard test's before and after). */
 const A01_END = S.a01Hash()
 
@@ -490,6 +846,9 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'E5', means: 'Christian\'s E5, design authorization (received 3 November 2026); quoted in item 5' },
     { id: 'W1', means: 'stage W1 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 11 November 2026: (a) Step 1\'s Game Problem governs the chain\'s lens hints and matched signals on the isolated pathway; (b) the review pathway\'s K2 result is consumed in place of a per-goal authorization record; (c1) the TEST-ONLY treatment GP_COVERAGE_LENSES, both lens arms measured' },
     { id: 'W2', means: 'stage W2 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 11 November 2026: quotas against justified validation; under the TEST-ONLY switch the authorized set is taken whole, its pool uncapped and every selected member validated, and foundation presence is bypassed only under FOUNDATION_PRESENCE_BYPASS' },
+    // Stage W5 (12 November 2026): item 6 names stages W4 and W5.
+    { id: 'W4', means: 'stage W4 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 11 November 2026: ILLUSTRATIVE carriers (TEST-ONLY, never knowledge) for High Press Escape\'s origin and progression clauses and both third-clause alternatives, run by their own registered test, not in this report' },
+    { id: 'W5', means: 'stage W5 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 12 November 2026: the reuse comparison after the merge of the program branch: TA02\'s binding items, the example-only items no refusal cites, the swap control, the distinctions recorded and executing, and stages W1 to W4 where they apply to TA02' },
     { id: 'FOUNDATION_PRESENCE_BYPASS', means: 'a TEST-ONLY treatment (stage W2), declared beside the switch on the quota runs: a package need hold no foundation (structure-role) member; our classification of foundation presence as a quota, which Christian can reverse by its removal (its reversal arm, /foundation-kept, is kept beside it)' },
     { id: 'MEMBER_PRESENCE', means: 'a selection check added under the switch (stage W2, a tightening): a set any member of which is absent from the checked package (it holds one member per role, and drops a consequence scoring 12 or less) is refused, never committed unvalidated' },
     { id: 'PACKAGE_OTHER', means: 'the other package checks of the selection (rows h-j, l-n, p: a one-sided package, vague language, compliance-heavy members and the like)' },
@@ -861,6 +1220,8 @@ function bodyLines(): string[] {
     add(`- differing (${differs.length}): ${differs.map((r) => r.aspect).join('; ')}.`)
     for (const r of differs.filter((x) => x.aspect === 'the context' || x.aspect.indexOf('the condition\'s') === 0)) add(`   ${r.aspect}: A02 ${plain(r.a02)} | TA02 ${plain(r.ta02)}`)
     add(`- the two diagnostic builds: ${COMPARISON.sentencesIdentical ? 'identical coach text' : 'different coach text'}, and configuration lines identical but ${COMPARISON.differingLines.length} (${COMPARISON.differingLines.map((l) => l.split(': ')[0]).join(', ')}: the same transition value, from a different source).`)
+    // Stage W5 (12 November 2026): U3 (b) rows (2) to (5) and stages W1 to W4 where they apply to TA02, each sentence built from its measurement.
+    for (const l of w5Lines()) add(l)
     add(`Open: TA02's context is pending. ${cite('TA02-27OCT-CONTEXT', 0)} ${cite('TA02-28OCT-DEFERRED', 0)} The TA02 runs measure the reuse on the planning model's routing as it stands; neither is a TA02 configuration.`)
     add(
         `Since the merge of the program branch (11 November 2026): the 13 September correction of Attack Development's approved scoring condition (RPC-PROP-134, restoring the words that make its final clause an example) is in the program's library on this branch, under Christian's approval of the canonical correction (received 11 November 2026, first reply), and our DRAFT restatement of RPC-003 holds the example's items as examples, under Christian's reply received 11 November 2026 (second reply), item 3; the TA02 runs read RPC-PROP-134 as this branch holds it, with the restored words. Christian asked for its verification against the original 13 September email, ${cite('HO-07NOV-SCORING-ROW', 0)}; that verification was done against that email as Joe pasted it on 13 and 14 September (two identical copies): the original holds the words that make the final clause an example, so the colon the RC1.1 workbook held until that correction was our transcription. Nothing here changes the live application: neither branch is merged into the live line or deployed.`,
@@ -892,6 +1253,10 @@ function bodyLines(): string[] {
 const REUSE_FINDING = [
     `Measured, the Game Problem and Game Form reasoning is shared without any new structure: both goals resolve to GP-015 through their own approved translation rows, and Step 2 selects GF2 through GF2's same GP-015 cell (graded CANDIDATE in both), each over its own context's declared-form rows; the same TEST-ONLY consumption carries both results to the chain. On the affordance side only the CAR profile Step 1 consults is shared, and it determines nothing downstream; the engine lenses, scored from each goal's wording, differ, and each context's affordance targets stay deferred.`,
     `What would set the two contexts apart lives in each context's own rows (its identity, its opposition and its scoring condition), which the chain applies after the shared reasoning, through each context's restatement: the existing architecture already has that place.`,
+    // Stage W5 (12 November 2026): the swap control, said only as measured.
+    rowsThat('other').length === 0 && rowsThat('swaps').indexOf('where the knowledge as it stands stops') >= 0
+        ? `A swap control measures it (stage W5): with the two restatements exchanged on the chain's copy, each goal stops where the other stopped and its restatement's rows move with it, while the shared reasoning does not move.`
+        : `A swap control (stage W5) does NOT show the rows of the restatements moving with them.`,
     `It does not execute yet: as the knowledge stands both goals stop at structure on their own restatements, A02 on its control clause's referent and its origin clause's value, TA02 on its origin clause's value alone; TA02's control items, which restate the possession condition of a clause Christian wrote as an example, have been held as examples since the merge of the program branch (11 November 2026), as Christian's first reply of 7 November, section 4, asked: ${cite('HO-07NOV-SCORING-ROW', 4)}.`,
     `With every condition item withheld the two built activities collapse into one plain GF2 activity (identical coach text; identical configuration lines but one transition value's source).`,
     `So the existing relationships appear capable of the reuse Christian describes; what keeps the two contexts from collapsing is the missing operational interpretation and carrier of each context's condition, not a missing goal-family structure.`,
@@ -910,6 +1275,7 @@ function appendixC(): string[] {
     for (const id of TA02_IDS) for (const f of ta02Safeguard(id).findings) out.push(`- ${id} ${f.row}${f.clause ? ` (${f.clause})` : ''}: ${f.verdict} [${classOf(f)}]: ${plain(f.why)}`)
     out.push(`open disconnections carried by the TA02 runs: ${TA02_DISCONNECTIONS.map((e) => e.id).join(', ')}`)
     out.push('')
+    out.push(...w5Appendix())
     return out
 }
 
@@ -942,6 +1308,18 @@ function evidenceOf(a02Results: HandoffResult[], ta02Results: HandoffResult[]): 
         ta02Safeguards: TA02_IDS.map((id) => ({ id, ...ta02Safeguard(id) })),
         openDisconnections: S.OPEN_DISCONNECTIONS,
         ta02OpenDisconnections: TA02_DISCONNECTIONS,
+        // Stage W5 (12 November 2026): the reuse comparison after the merge.
+        w5: {
+            swapComparison: SWAP_COMPARISON,
+            swapMoves: SWAP_CLASSES,
+            swapRuns: [...swapBuilt.keys()].map((id) => ({ id, outcome: swapAt(id).result.chain?.outcome ?? null, stage: swapAt(id).result.chain?.stage ?? null, cited: (swapAt(id).result.refusalBasis?.cited ?? []).map((c) => c.ref) })),
+            distinctions: DISTINCTIONS,
+            ta02Binding: { before: TA02_BINDING_BEFORE, now: bindingIds(ta02Items), keptAsExamples: Object.keys(TA02_EXAMPLE_ONLY), keptBinding: TA02_KEPT, defects: bindingDefects(ta02Items) },
+            ta02ExampleItemsCited: TA02_IDS.map((id) => ({ id, cited: exampleItemsCited(ta02At(id).result) })),
+            ta02PreMergeClass: { outcome: TA02_PRE_MERGE_CLASS.result.chain?.outcome ?? null, stage: TA02_PRE_MERGE_CLASS.result.chain?.stage ?? null, cited: (TA02_PRE_MERGE_CLASS.result.refusalBasis?.cited ?? []).map((c) => c.ref), exampleItemsCited: exampleItemsCited(TA02_PRE_MERGE_CLASS.result) },
+            ta02CoverageLenses: { lensCandidateIds: TA02_GPCL.result.consumption?.lensCandidateIds ?? [], committed: TA02_GPCL.answer?.observed?.lensIds ?? [], from: TA02_GPCL.result.consumption?.hintsLensesFrom ?? null },
+            carrierMechanismNames: carrierMechanismNames(),
+        },
         ownership: OWNERSHIP_TABLE,
         disposition: DISPOSITION,
         blocker: blockerSequence(S.stopsOf()),
@@ -961,6 +1339,17 @@ if (process.env.A02_EVIDENCE_MEASURE) {
     const lines: string[] = []
     for (const r of COMPARISON.rows) lines.push(`${r.kind} | ${r.aspect} | A02: ${r.a02} | TA02: ${r.ta02} | ${r.note}`)
     lines.push(`differing lines: ${json(COMPARISON.differingLines)}; sentences identical: ${COMPARISON.sentencesIdentical}`)
+    // Stage W5: the swap control, the binding items, the distinctions, the pre-merge class bite, TA02 under GP_COVERAGE_LENSES, the carriers.
+    for (const r of SWAP_COMPARISON.rows) lines.push(`SWAP ${r.kind} | ${r.aspect} | A02: ${r.a02} | TA02: ${r.ta02}`)
+    lines.push(`swap differing lines: ${json(SWAP_COMPARISON.differingLines)}; sentences identical: ${SWAP_COMPARISON.sentencesIdentical}`)
+    for (const x of SWAP_CLASSES) lines.push(`MOVE ${x.move} | ${x.aspect}`)
+    for (const d of DISTINCTIONS) lines.push(`GROUP ${d.group} | ${d.aspect}`)
+    for (const id of [...swapBuilt.keys()]) lines.push(`${id}: ${swapAt(id).result.chain?.outcome} ${swapAt(id).result.chain?.stage} ${json((swapAt(id).result.refusalBasis?.cited ?? []).map((c) => c.ref))} sentences ${swapAt(id).result.sentences.length} lines ${swapAt(id).result.lines.length}`)
+    lines.push(`binding now ${json(bindingIds(ta02Items))}; defects ${json(bindingDefects(ta02Items))}`)
+    lines.push(`pre-merge class: ${TA02_PRE_MERGE_CLASS.result.chain?.outcome} ${TA02_PRE_MERGE_CLASS.result.chain?.stage} ${json((TA02_PRE_MERGE_CLASS.result.refusalBasis?.cited ?? []).map((c) => c.ref))} example items cited ${json(exampleItemsCited(TA02_PRE_MERGE_CLASS.result))}`)
+    lines.push(`TA02 runs example items cited ${json(TA02_IDS.map((id) => exampleItemsCited(ta02At(id).result)))}`)
+    lines.push(`TA02-0+GPCL: ${TA02_GPCL.result.chain?.outcome} ${TA02_GPCL.result.chain?.stage}; lens candidates ${json(TA02_GPCL.result.consumption?.lensCandidateIds)} from ${TA02_GPCL.result.consumption?.hintsLensesFrom}; committed ${json(TA02_GPCL.answer?.observed?.lensIds)}; A02-0+GPCL ${json(S.at(`A02-0${S.GPCL}`).result.consumption?.lensCandidateIds)} committed ${json(S.at(`A02-0${S.GPCL}`).answer?.observed?.lensIds)}`)
+    lines.push(`carrier mechanism names: ${json(carrierMechanismNames())}`)
     for (const id of TA02_IDS) for (const f of ta02Safeguard(id).findings) lines.push(`${id} ${f.row}${f.clause ? `(${f.clause})` : ''} ${f.verdict} [${classOf(f)}] ${f.why}`)
     lines.push(`identifiers in the body not in the key: ${json(identifiersOf(BODY).filter((t) => !keyOf(t)))}`)
     lines.push(`key entries the body does not use: ${json(KEY.filter((e) => !identifiersOf(BODY).some((t) => (e.family ? t.indexOf(e.id) === 0 : t === e.id)) && BODY.indexOf(e.id) < 0).map((e) => e.id))}`)
@@ -1074,6 +1463,152 @@ test(`S5. reuse, brief: TA02 through the same consumption over our DRAFT restate
     const a = pairOf('A02', a02Built('A02-0'), a02Built('A02-D'), S.at('A02-D').run.chain?.lenses ?? [])
     assert.deepEqual([...new Set(comparisonOf(a, a).rows.map((r) => r.kind))], ['SHARED'])
     // A01 unchanged by the TA02 runs.
+    assert.deepEqual([S.A01_BEFORE, S.A01_AFTER], [A01_END, A01_END])
+})
+
+/** Stage W5: how each row moves under the swap (measured 12 November 2026). */
+const SWAP_MOVES: Record<SwapClass, string[]> = {
+    shared: [
+        ...SHARED_ROWS.slice(0, 4),
+        'the consumption (what the chain records it was handed)',
+        'the approved scoring events (our restatement, as a set)',
+        'the built scoring event (diagnostic runs)',
+        'the coach text (diagnostic runs)',
+        'the laws owed an adaptation (diagnostic runs)',
+    ],
+    swaps: [
+        'the condition\'s origin clause (our restatement\'s values)',
+        'the condition\'s progression clause (our restatement\'s values)',
+        'the condition\'s control clause (our restatement\'s values)',
+        'where the knowledge as it stands stops',
+        'opposition (our restatement\'s participant rows)',
+        'the configuration lines (diagnostic runs)',
+    ],
+    stays: [
+        'Step 2: the cells its result rests on',
+        'the context',
+        'the approved scoring condition (its row, on the diagnostic runs)',
+        'the engine lenses (wording-derived engine inputs)',
+        'the context\'s affordance targets (the library\'s mapping rows)',
+    ],
+    other: [],
+}
+/** Stage W5: the differing rows by group (measured 12 November 2026). */
+const GROUPS: Record<Group, string[]> = {
+    executing: ['the context', 'where the knowledge as it stands stops', 'the configuration lines (diagnostic runs)'],
+    'recorded, not executing': [
+        'the approved scoring condition (its row, on the diagnostic runs)',
+        'the condition\'s origin clause (our restatement\'s values)',
+        'the condition\'s progression clause (our restatement\'s values)',
+        'the condition\'s control clause (our restatement\'s values)',
+        'opposition (our restatement\'s participant rows)',
+        'the context\'s affordance targets (the library\'s mapping rows)',
+    ],
+    'not a distinction': ['Step 2: the cells its result rests on', 'the engine lenses (wording-derived engine inputs)'],
+    unassigned: [],
+}
+
+test(`W5 (A02 package, 12 November 2026). reuse after the merge of the program branch, U3 (b) rows (1) to (5) (row (6), B13 over the RPC-002 store, is in requirement-bindings.unit.ts): (1) the shared rows SHARED; (2) TA02's binding items are those before the merge less exactly the six example-only items, RPC-003-05, 10.a and 10.b kept (bite: dropping 05 fails); (3) no TA02 refusal cites an example-only item, TA02-0 re-measured (bite: the pre-merge class copy cites 12.a); (4) the swap control: the rows from the restatements and the stops swap, the shared rows do not move, the rows of the goal and its routing stay (bites: no swap, a moved shared row); (5) the collapse kept visible, 'distinctions recorded, not executing' (bite: a line resting on an opposition item); stages W1 to W4 where they apply to TA02 (GP_COVERAGE_LENSES run; the switch not applicable; the carriers' mechanism names no context, with its bite)`, () => {
+    const item = (id: string) => ta02Items.find((i) => String(i.itemId) === id)
+    // (1) The shared rows, K2's result among what the consumption row holds (stage W1 (b)), the CAR profile consulted only.
+    for (const aspect of SHARED_ROWS) assert.equal(rowOf(aspect).kind, 'SHARED', aspect)
+    assert.ok(rowOf('the consumption (what the chain records it was handed)').a02.includes('constraints REVIEW_PATHWAY_K2 []; size-rule bypass false'))
+    assert.ok(rowOf('Step 1: the CAR profile it consults').note.indexOf('consulted in Step 1 only') === 0)
+
+    // (2) TA02's binding items: before the merge less exactly the six example-only items; the independently authorized ones kept.
+    assert.deepEqual([TA02_BINDING_BEFORE.length, bindingIds(ta02Items).length], [21, 15])
+    assert.deepEqual(bindingIds(ta02Items), TA02_BINDING_BEFORE.filter((id) => !(id in TA02_EXAMPLE_ONLY)))
+    assert.deepEqual(bindingDefects(ta02Items), [])
+    assert.deepEqual([item('RPC-003-05')?.strictness, item('RPC-003-05')?.row, item('RPC-003-05')?.value], ['EXCLUSION', 'V1', 'possession alone'])
+    assert.deepEqual(['RPC-003-10.a', 'RPC-003-10.b'].map((id) => [item(id)?.strictness, item(id)?.selector]), [['REQUIRED', 'type=origin'], ['REQUIRED', 'type=origin']])
+    // The bites (TEST-ONLY copies of the items, never written): 05 dropped, 05 made SUPPORTING, 12.a made REQUIRED again, 12.a deleted.
+    assert.deepEqual(bindingDefects(ta02Items.filter((i) => i.itemId !== 'RPC-003-05')), ['RPC-003-05 is no longer binding', 'RPC-003-05, an independently authorized condition, is not kept binding'])
+    assert.deepEqual(bindingDefects(copy(ta02Items).map((i) => (i.itemId === 'RPC-003-05' ? { ...i, strictness: 'SUPPORTING' } : i))), ['RPC-003-05 is no longer binding', 'RPC-003-05, an independently authorized condition, is not kept binding'])
+    assert.deepEqual(bindingDefects(copy(ta02Items).map((i) => (i.itemId === 'RPC-003-12.a' ? { ...i, strictness: 'REQUIRED' } : i))), [
+        'RPC-003-12.a is binding and is not among the items binding before the merge less the example-only items',
+        'RPC-003-12.a is not kept as an example (REQUIRED, TYPICAL_EXAMPLE)',
+    ])
+    assert.deepEqual(bindingDefects(ta02Items.filter((i) => i.itemId !== 'RPC-003-12.a')), ['RPC-003-12.a is gone, and its provenance with it'])
+
+    // (3) No TA02 refusal cites an example-only item; TA02-0 re-measured; the pre-merge class copy cites 12.a (the bite).
+    for (const id of TA02_IDS) assert.deepEqual(exampleItemsCited(ta02At(id).result), [], id)
+    const t0 = ta02At('TA02-0').result
+    assert.deepEqual([t0.chain?.outcome, t0.chain?.stage, t0.refusalBasis?.cited.map((c) => c.ref)], ['refused', 'structure', ['c:restated:RPC-003:RPC-003-10.a::V6']])
+    const pm = TA02_PRE_MERGE_CLASS.result
+    assert.deepEqual([pm.chain?.outcome, pm.chain?.stage, pm.refusalBasis?.verdict, pm.refusalBasis?.cited.map((c) => c.ref)], ['refused', 'structure', 'RESTATEMENT-ONLY', ['c:restated:RPC-003:RPC-003-12.a::V5', 'c:restated:RPC-003:RPC-003-10.a::V6']])
+    assert.deepEqual(exampleItemsCited(pm), ['RPC-003-12.a'], 'bite: the pre-merge class copy is caught citing RPC-003-12.a')
+
+    // (4) The swap control. The cases are held to the handoff's own validator; each swap run keeps its own goal, routing, Steps 1 and 2 and
+    // consumption, and derives the routed context from the other context's restatement (its items under the routed id).
+    assert.doesNotThrow(() => validateHandoffInputs(swapInputs))
+    assert.deepEqual([...swapBuilt.keys()], ['A02-0/swap', 'A02-D/swap', 'TA02-0/swap', 'TA02-D/swap'])
+    for (const { side, c } of SWAP_CASES) {
+        const b = swapAt(c.id)
+        const own = side.goal === 'A02' ? a02Built(c.id.split(SWAP).join('')) : ta02At(c.id.split(SWAP).join(''))
+        assert.deepEqual([b.result.goalId, json(b.result.receive), json(b.result.consumption?.form), b.result.consumption?.constraintAuthority], [own.result.goalId, json(own.result.receive), json(own.result.consumption?.form), 'REVIEW_PATHWAY_K2'], c.id)
+        const derived = (b.answer?.contracts ?? []).find((x) => x.contractId === side.into)
+        assert.equal(derived?.origin, 'DRAFT_STORE', c.id)
+        assert.ok((derived?.items ?? []).every((i) => side.fromItems.some((f) => String(f.itemId) === i.itemId)), `${c.id}: the routed context derived from the other restatement's items only`)
+        assert.ok(b.result.testOnlyTreatments.some((t) => t.id === SWAP_TREATMENT), `${c.id}: the swap is a declared TEST-ONLY treatment`)
+    }
+    // How each row moves (measured).
+    for (const move of ['shared', 'swaps', 'stays', 'other'] as SwapClass[]) assert.deepEqual(rowsThat(move), SWAP_MOVES[move], move)
+    for (const r of COMPARISON.rows.filter((x) => x.kind === 'SHARED')) assert.equal(SWAP_CLASSES.find((x) => x.aspect === r.aspect)?.move, 'shared', r.aspect)
+    // The stops swap: each goal now stops on the other's lines, the restatement's id aside.
+    assert.deepEqual(
+        [`A02-0${SWAP}`, `TA02-0${SWAP}`].map((id) => unlabelled(citedOf(swapAt(id).result))),
+        [unlabelled(citedOf(t0)), unlabelled(citedOf(S.at('A02-0').result))],
+    )
+    // The diagnostic builds swap line for line: TA02 over RPC-002's restatement builds A02-D's lines exactly; A02 over RPC-003's builds
+    // TA02-D's, the restatement's id aside; the coach text is one text throughout.
+    const keys = (r: HandoffResult) => r.lines.map((l) => unlabelled(`${l.lineId} ${lineKey(l)}`))
+    assert.deepEqual(keys(swapAt(`TA02-D${SWAP}`).result), keys(S.at('A02-D').result))
+    assert.deepEqual(keys(swapAt(`A02-D${SWAP}`).result), keys(ta02At('TA02-D').result))
+    assert.equal(SWAP_COMPARISON.sentencesIdentical, true)
+    // The bites: compared with no swap at all, no row swaps (the context rows read 'stays'); a shared row that moves is 'other'; the
+    // exchange refuses a missing contract and a contract exchanged with itself.
+    const noSwap = swapClasses(COMPARISON, COMPARISON)
+    assert.deepEqual([noSwap.filter((x) => x.move === 'swaps').length, SWAP_MOVES.swaps.every((a) => noSwap.find((x) => x.aspect === a)?.move === 'stays')], [0, true], 'bite: without the swap the restatement rows stay')
+    const moved = copy(SWAP_COMPARISON)
+    moved.rows.find((r) => r.aspect === 'Step 1: the resolved Game Problem')!.ta02 = 'RESOLVED GP-099 (APPROVED_TRANSLATION)'
+    assert.equal(swapClasses(COMPARISON, moved).find((x) => x.aspect === 'Step 1: the resolved Game Problem')?.move, 'other', 'bite: a shared row that moves under the swap is caught')
+    const store = loadDraftStore(A02_STORE, { recordsSetAsideBy: 'TT-K2-RETAIN-FORM' })
+    assert.throws(() => swappedStore(store, store, { treatmentId: 'TT-X', into: 'restated:RPC-099', fromStore: A02_STORE, fromContract: A02_CONTRACT }), /holds no contract restated:RPC-099/)
+    assert.throws(() => swappedStore(store, store, { treatmentId: 'TT-X', into: A02_CONTRACT, fromStore: A02_STORE, fromContract: A02_CONTRACT }), /exchanges two different restatements/)
+    // Why on the chain's copy: the store's gate refuses the relabelled copy on disk (RPC-002's approved condition row cited by no constituting
+    // item), and admits the same file not relabelled (the control).
+    assert.equal(relabelledCopyGate(false), 'ADMITTED')
+    assert.ok(relabelledCopyGate(true).includes('row RPC-PROP-133 for RPC-002 is cited by no item constituting a scoring condition'), 'the gate refuses a relabelled restatement')
+
+    // (5) The collapse kept visible: each differing row in one group, by a measured predicate; the report says it in those words.
+    for (const group of ['executing', 'recorded, not executing', 'not a distinction', 'unassigned'] as Group[]) assert.deepEqual(inGroup(group), GROUPS[group], group)
+    assert.ok(FIRST.report.split('\n').some((l) => l.indexOf(`- ${NOT_EXECUTING_WORDS}: ${GROUPS['recorded, not executing'].join('; ')}.`) === 0), 'item 6 prints the distinctions recorded, not executing')
+    // The bite: one line of A02-D's build resting on an opposition item moves opposition to 'executing'.
+    const doctored = copy(A02_PAIR.diag.result)
+    doctored.lines = [...doctored.lines, { ...doctored.lines[0], lineId: 'probe::P1', premises: [{ ...doctored.lines[0].premises[0], ref: `${A02_CONTRACT} RPC-002-05` }] }]
+    const bit = distinctionsOf(COMPARISON, { ...A02_PAIR, diag: { result: doctored, answer: A02_PAIR.diag.answer } }, TA02_PAIR)
+    assert.equal(bit.find((d) => d.aspect === 'opposition (our restatement\'s participant rows)')?.group, 'executing', 'bite: a line resting on an opposition item is executing')
+
+    // Stages W1 to W4 where they apply to TA02. W1 (c1): under GP_COVERAGE_LENSES TA02-0's lens pool and committed lenses are A02-0's under it
+    // (CV-015's five; the same three in the same order), while without it the lens rows differ (the comparison's own row: the negative control).
+    const gA = S.at(`A02-0${S.GPCL}`)
+    assert.deepEqual([TA02_GPCL.result.consumption?.hintsLensesFrom, TA02_GPCL.result.consumption?.lensCandidateIds.length], ['STEP1_COVERAGE_ROW', 5])
+    assert.deepEqual([TA02_GPCL.result.consumption?.lensCandidateIds, TA02_GPCL.answer?.observed?.lensIds], [gA.result.consumption?.lensCandidateIds, gA.answer?.observed?.lensIds])
+    assert.deepEqual((TA02_GPCL.answer?.observed?.lensIds ?? []).map(shortLens), ['possession-stability', 'line-breaking', 'space-creation'])
+    assert.equal(rowOf('the engine lenses (wording-derived engine inputs)').kind, 'DIFFERS', 'without the treatment the lenses follow each goal\'s wording')
+    // W2: the switch and FOUNDATION_PRESENCE_BYPASS are not declared on any TA02 run, which commit K2's empty set (the zero branch).
+    for (const id of TA02_IDS) {
+        const r = ta02At(id).result
+        assert.deepEqual([r.consumption?.sizeRuleBypassed, r.consumption?.constraintCandidateIds, r.testOnlyTreatments.filter((t) => t.kind === 'SIZE_RULE_BYPASS' || t.kind === 'FOUNDATION_PRESENCE_BYPASS').length], [false, [], 0], id)
+    }
+    // W4: the carriers' mechanism names no context, neither goal and no context name; the bite: a copy of a block naming RPC-003 is caught,
+    // and a block the reading cannot find is named.
+    assert.deepEqual(carrierMechanismNames(), [])
+    const real = (file: string) => fs.readFileSync(path.join(HERE, '..', file), 'utf8')
+    const named = carrierMechanismNames((file) => (file === 'derivation/gates.ts' ? real(file).replace('function whileStateClause(ctx: GateContext, probe: Probe, typed: BeginConditionReferent)', 'function whileStateClause(ctx: GateContext, probe: Probe, typed: BeginConditionReferent) /* RPC-003 */') : real(file)))
+    assert.deepEqual(named, ['derivation/gates.ts whileStateClause: RPC-003'], 'bite: a context id in the mechanism is caught')
+    assert.deepEqual(carrierMechanismNames((file) => (file === 'derivation/draft-store.ts' ? real(file).split('withIllustrativeCarriers').join('withCarriers') : real(file))), ['derivation/draft-store.ts withIllustrativeCarriers: not found'])
+    // A01 unchanged by the stage's runs (A01_END is built after them).
     assert.deepEqual([S.A01_BEFORE, S.A01_AFTER], [A01_END, A01_END])
 })
 

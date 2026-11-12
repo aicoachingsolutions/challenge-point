@@ -373,10 +373,38 @@ function classificationWith(s: { law: string; materiality: string }): LawsMateri
 }
 
 /**
- * The chain wired for the handoff. `heldTo` is the classification the harness holds a REPORT check to: our DRAFT classification, except in
- * test E3, which holds it to a labelled TEST-ONLY stand-in to show the hold's refusing branch.
+ * **The swap control's TEST-ONLY exchange of one context's restatement for another's, on the chain's copy** (stage W5 of the A02 package, 12
+ * November 2026, U3 (b) (4)). Christian: "Investigating whether A02 and TA02 can reuse common reasoning without losing their contextual
+ * distinctions." (received 11 November 2026, second reply). Both stores are held to their own gates first (each admitted whole, records set aside
+ * under K2's treatment as the case's own store is); then the content of `fromContract` (its items, declarations and relationship rules, ids and
+ * sources kept, so every line still names the other context's items and rows) takes the place of `into` in the store the chain derives from,
+ * under `into`'s id. A copy on disk could not do this: the store's gate ties a restatement to its own context's approved scoring condition row,
+ * so a relabelled copy is refused there, and the gate is never loosened. Nothing is written; no route reaches this (a unit file).
  */
-export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolean } = {}): HandoffChain {
+export interface RestatementSwap {
+    treatmentId: string
+    /** The contract the chain derives from for the routed context, replaced on the copy. */
+    into: string
+    /** The draft store folder holding the restatement that takes its place, and that restatement's contract id. */
+    fromStore: string
+    fromContract: string
+}
+export function swappedStore(drafts: DraftStoreContents, from: DraftStoreContents, swap: RestatementSwap): DraftStoreContents {
+    const target = drafts.contracts.find((c) => c.contractId === swap.into)
+    if (!target) throw new Error(`treatment ${swap.treatmentId}: the store ${drafts.folder} holds no contract ${swap.into}`)
+    const source = from.contracts.find((c) => c.contractId === swap.fromContract)
+    if (!source) throw new Error(`treatment ${swap.treatmentId}: the store ${from.folder} holds no contract ${swap.fromContract}`)
+    if (source.contractId === target.contractId) throw new Error(`treatment ${swap.treatmentId}: a swap exchanges two different restatements`)
+    const replacement: LoadedContract = { ...copy(source), contractId: target.contractId, objectId: target.objectId }
+    return { ...drafts, contracts: drafts.contracts.map((c) => (c === target ? replacement : c)) }
+}
+
+/**
+ * The chain wired for the handoff. `heldTo` is the classification the harness holds a REPORT check to: our DRAFT classification, except in
+ * test E3, which holds it to a labelled TEST-ONLY stand-in to show the hold's refusing branch. `swap` (stage W5, the swap control only): see
+ * `RestatementSwap`; only on a consuming request that reads a draft store.
+ */
+export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolean; swap?: RestatementSwap } = {}): HandoffChain {
     return {
     build(request: ChainRequest): ChainAnswer {
         const vehicle = request.vehicle
@@ -420,6 +448,11 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
         // W4 (A02 package): each ILLUSTRATIVE carrier treatment adds its groups to the store, on this copy, in the case's order (held to the gate first).
         if (request.illustrative && (!drafts || !consume)) throw new Error(`case ${request.caseId}: ILLUSTRATIVE carriers are added only to a consuming request's draft store`)
         for (const t of request.illustrative ?? []) drafts = withIllustrativeCarriers(drafts!, loadIllustrativeCarriers(path.resolve(WT, t.file)), t.groups, t.treatmentId)
+        // W5 (A02 package): the swap control, on this copy, after both stores' gates (see `RestatementSwap`).
+        if (opts.swap) {
+            if (!drafts || !consume) throw new Error(`case ${request.caseId}: the swap control exchanges restatements only in a consuming request's draft store`)
+            drafts = swappedStore(drafts, loadDraftStore(opts.swap.fromStore, consume.k2 ? { recordsSetAsideBy: consume.k2.treatmentId } : {}), opts.swap)
+        }
         const draftIds = new Set((drafts?.contracts ?? []).map((c) => c.contractId))
         let scorerPick: string[] | null = null
         let seen: ChainAnswer['contracts'] = []

@@ -11,8 +11,8 @@
  * Pinned: the real file passes (B1); each check refuses (B2); a malformed file throws, and so does a TEST-ONLY build handed one (B3); the
  * bundle carries the file (B4); the TEST-ONLY draft bindings pass in DRAFT mode only, and merge with the production file only in MERGED mode
  * (B5-B8, the R-engine review's M1); every workbook the gate reads is a bundled module, and only the bindings are read from disk (B9, M2);
- * no REQUIRED restatement rests only on an example (B13, 11 November 2026), and what rests only on one is kept as one (B13b, S2); no
- * restatement names an action word its cited rows lack (B13c, A02 package W3).
+ * no REQUIRED restatement rests only on an example (B13, 11 November 2026; both TEST-ONLY draft stores since A02 package W5), and what rests
+ * only on one is kept as one (B13b, S2); no restatement names an action word its cited rows lack (B13c, A02 package W3).
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/requirement-bindings.unit.ts
  */
@@ -71,6 +71,8 @@ const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
 const production = loadRequirementBindings()
 const { file: _file, mode: _mode, ...raw } = production
 const store = loadDraftStore('ta02-composition')
+// A02 package W5 (12 November 2026): read here so B13 reads it as well as B13c (moved up from B13c, unchanged).
+const a02Store = loadDraftStore('a02-composition')
 const draft = loadDraftRequirementBindings(store)
 const { file: _draftFile, mode: _draftMode, ...draftRaw } = draft
 const context = () => raw.contexts[0]
@@ -391,7 +393,7 @@ test('B9: requirement-bindings.ts reads only the bindings from disk; every workb
  * possession-retention requirement from that example." and item 4 names the class: "A restatement should not acquire stronger
  * authority or impose stricter requirements than its governing source supports." (received 11 November 2026). Our restatements of
  * the workbook's condition rows are the requirement bindings (the production file, RPC-001, and the TEST-ONLY RPC-003 draft) and
- * the TEST-ONLY draft contract items. Not read here: A01's production contract items (docs/audits/conformance/stage-b/contracts.json,
+ * the TEST-ONLY draft contract items (RPC-003's; since A02 package W5, 12 November 2026, RPC-002's as well). Not read here: A01's production contract items (docs/audits/conformance/stage-b/contracts.json,
  * RPC-001-07, 10.a, 10.b, 18.a-18.g, 19.a and 19.b, as corpus-restatements.json restates them). They also restate RPC-PROP-132 but
  * carry no structured source. A marker added to RPC-PROP-132 is caught by C1b (rpc-library.unit.ts). None of the restatements read
  * here may be REQUIRED on words its row gives only as an example (example-clauses.ts):
@@ -439,13 +441,16 @@ const quotations = (text: string): string[] => [...text.matchAll(/"([^"]+)"|“(
  * row that holds it, is an example, or its value is words those rows give as an example. A source citing a row of the RPC library's
  * properties is read against the whole row.
  */
-/** The texts of the rows a draft item cites: a row of the RPC library's properties read whole, any other source by the words it quotes. */
-const citedRowTexts = (item: any): string[] =>
+/**
+ * The texts of the rows a draft item cites: a row of the RPC library's properties read whole, any other source by the words it quotes. A02
+ * package W5 (12 November 2026): the library row is read through `readRow` (the library itself unless a test hands a TEST-ONLY copy of a row).
+ */
+const citedRowTexts = (item: any, readRow: (rowId: string) => string | undefined = rowText): string[] =>
     (item.source ?? []).map((source: any) =>
-        source.file === LIBRARY_FILE && source.table === 'properties' ? rowText(String(source.rowId).trim().split(/\s+/)[0]) ?? String(source.text) : String(source.text),
+        source.file === LIBRARY_FILE && source.table === 'properties' ? readRow(String(source.rowId).trim().split(/\s+/)[0]) ?? String(source.text) : String(source.text),
     )
-const restsOnlyOnAnExample = (item: any): boolean => {
-    const texts: string[] = citedRowTexts(item)
+const restsOnlyOnAnExample = (item: any, readRow: (rowId: string) => string | undefined = rowText): boolean => {
+    const texts: string[] = citedRowTexts(item, readRow)
     // Each quotation of its evidence, read in every cited row that holds it: true where every such reading is an example.
     const readings = quotations(String(item.basisEvidence ?? ''))
         .map(quotation => texts.map(text => spanIsExample(text, quotation)).filter(reading => reading !== null))
@@ -454,7 +459,7 @@ const restsOnlyOnAnExample = (item: any): boolean => {
     const valueIsAnExample = typeof item.value === 'string' && item.value !== 'N/A' && texts.some(text => spanIsExample(text, item.value) === true)
     return evidenceIsAnExample || valueIsAnExample
 }
-test('B13 (11 November 2026): no REQUIRED restatement rests only on words its row gives as an example, outside the pinned list (empty since S2); none in the production bindings (RPC-001)', () => {
+test('B13 (11 November 2026): no REQUIRED restatement rests only on words its row gives as an example, outside the pinned list (empty since S2); none in the production bindings (RPC-001); since A02 package W5, both TEST-ONLY draft stores (the RPC-002 restatement too, none found; its bite: a marker inserted in a copy of RPC-PROP-133 is caught at 04.b)', () => {
     const found: string[] = []
     assert.equal(spanIsExample(rowText('RPC-PROP-134') ?? '', 'while maintaining attacking possession'), true, 'the reading still sees the example of the corrected row')
 
@@ -474,19 +479,35 @@ test('B13 (11 November 2026): no REQUIRED restatement rests only on words its ro
         }
     }
 
+    // A02 package W5 (12 November 2026): both TEST-ONLY draft stores, the RPC-002 restatement's (a02-composition) as well as RPC-003's.
     let itemsRead = 0
-    for (const contract of store.contracts) {
-        for (const item of contract.items as any[]) {
-            if (item.strictness !== 'REQUIRED') continue
-            itemsRead++
-            if (restsOnlyOnAnExample(item)) found.push(String(item.itemId))
+    let rpc002Read = 0
+    for (const contracts of [store.contracts, a02Store.contracts]) {
+        for (const contract of contracts) {
+            for (const item of contract.items as any[]) {
+                if (item.strictness !== 'REQUIRED') continue
+                itemsRead++
+                if (contract.contractId === 'restated:RPC-002') rpc002Read++
+                if (restsOnlyOnAnExample(item)) found.push(String(item.itemId))
+            }
         }
     }
 
     // 6 since S2: the production file's 4 (RPC-001) and the draft's origin and not-possession-alone.
     assert.ok(partsRead >= 6 && itemsRead > 0, `the check read what it holds to account (${partsRead} parts quoting a row, ${itemsRead} REQUIRED items)`)
+    // W5, measured: every item of the RPC-002 restatement is REQUIRED (10), and none rests on an example (RPC-PROP-133 holds no marker).
+    assert.equal(rpc002Read, 10, 'B13 read the RPC-002 restatement\'s REQUIRED items')
     assert.deepEqual(found.filter(entry => entry.startsWith('PRODUCTION')), [], 'no production binding part (RPC-001, A01) rests on an example')
     assert.deepEqual(found.sort(), Object.keys(RESTATED_FROM_AN_EXAMPLE).sort(), 'what rests only on the corrected row\'s example is exactly the pinned list')
+
+    // W5, the bite: a TEST-ONLY copy of RPC-PROP-133's text with a marker inserted before its third clause (never written) is caught at
+    // RPC-002-04.b, the control value, and at 04.a, whose evidence quotes that clause; every other RPC-002 item still passes.
+    const third = 'the attacking team retains possession through the next action'
+    const row133 = rowText('RPC-PROP-133') ?? ''
+    assert.ok(row133.includes(`, and ${third}.`), 'RPC-PROP-133 still ends on its third clause')
+    const withMarker = (rowId: string) => (rowId === 'RPC-PROP-133' ? row133.replace(`, and ${third}`, `, and for example, ${third}`) : rowText(rowId))
+    const caught = (a02Store.contracts[0]!.items as any[]).filter(item => item.strictness === 'REQUIRED' && restsOnlyOnAnExample(item, withMarker)).map(item => String(item.itemId))
+    assert.deepEqual(caught, ['RPC-002-04.a', 'RPC-002-04.b'], 'bite: a marker inserted in a copy of RPC-PROP-133 is caught at 04.b (and 04.a)')
 })
 
 /**
@@ -535,7 +556,6 @@ test('B13b (S2, 11 November 2026): what rests only on an example is exactly the 
  * sees words, not meaning.
  */
 const ACTION_WORDS_BEYOND_THEIR_ROWS: Record<string, string> = {}
-const a02Store = loadDraftStore('a02-composition')
 /** The specific action classes an item's value or quoted evidence names that no row it cites names. */
 const actionClassesBeyondCitedRows = (item: any): string[] => {
     const values: string[] = Array.isArray(item.value) ? item.value.map(String) : typeof item.value === 'string' ? [item.value] : []

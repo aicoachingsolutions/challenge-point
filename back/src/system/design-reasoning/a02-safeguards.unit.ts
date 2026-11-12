@@ -228,7 +228,8 @@ export function withoutK2(c: CaseInput): CaseInput {
 const takesK2 = (c: CaseInput) => c.testOnlyTreatments.some((t) => t.kind === 'K2_RETAIN_FORM')
 /** Stage W1 (c1): the declared TEST-ONLY treatment that takes the lens candidates and signal groups from Step 1's Coverage row in both branches. */
 export const GPCL = '+GPCL'
-const COVERAGE_LENSES = {
+// Exported in stage W5 (12 November 2026): the TA02 run of the reuse comparison declares the same treatment (a02-evidence.unit.ts).
+export const COVERAGE_LENSES = {
     id: 'TT-GP-COVERAGE-LENSES',
     kind: 'GP_COVERAGE_LENSES' as const,
     what: 'the chain\'s lens candidates and matched signal groups taken from Step 1\'s Game Problem Coverage row in both branches (where Step 1 and the wording agree too); the forms and the constraints untouched',
