@@ -247,6 +247,25 @@ class Probe {
         return cell
     }
 
+    /**
+     * Read a line leaving **no trace** on the check: no subject, no block, no pending or missing entry. Only for a clause that must first
+     * find whether it applies at all, so a game it does not apply to keeps exactly the result it had (fix F of the A02 package, after
+     * verification V1, 12 November 2026: W4's beyond clause found its conditions through `peek`, which still records a subject, and A01's
+     * derivation result gained five subjects on GA-RELATIVE-PLACEMENT though no clause was added). A clause that applies records the lines
+     * it decides on through `cell` or `peek` as before. `cell` only appends to these lists, so cutting each back to its length restores it.
+     */
+    look(lineId: string): Cell {
+        const lengths = [this.subjects.length, this.pendingOn.length, this.blockedBy.length, this.missing.length]
+        const kinds = new Set(this.blockKind.keys())
+        const cell = this.cell(lineId)
+        this.subjects.length = lengths[0]
+        this.pendingOn.length = lengths[1]
+        this.blockedBy.length = lengths[2]
+        this.missing.length = lengths[3]
+        for (const kind of [...this.blockKind.keys()]) if (!kinds.has(kind)) this.blockKind.delete(kind)
+        return cell
+    }
+
     /** §1.9: "A value outside this table, or an operation this table does not define, is refused." */
     refuse(kind: RefusalRecord['kind'], cause: string, lineIds: string[], openQuestion: RefusalRecord['openQuestion'] = null): void {
         this.refusals.push({
@@ -3758,16 +3777,26 @@ function beyondLineClause(ctx: GateContext, probe: Probe): { clauses: ClauseResu
     const lines: { condition: string; line: ElementClass }[] = []
     const malformed: string[] = []
     for (const condition of classesOn(ctx, 'V3')) {
-        const value = probe.peek(lineOf(condition.classId, 'V6'))
+        // Fix F (verification V1): whether a condition qualifies is read with `look`, which records nothing, so a game with no condition beyond a
+        // typed line keeps its earlier result (A01's had gained five subjects); a qualifying condition's value and referent lines are recorded.
+        const valueLine = lineOf(condition.classId, 'V6')
+        const value = probe.look(valueLine)
         if (value.state !== 'DERIVED' || String(value.value) !== 'beyond') continue
-        const referents = probe.peek(lineOf(condition.classId, 'V5'))
+        const referentLine = lineOf(condition.classId, 'V5')
+        const referents = probe.look(referentLine)
         if (referents.state !== 'DERIVED') continue
+        let qualifies = false
         for (const written of Array.isArray(referents.value) ? referents.value : [referents.value]) {
             if (!structuralRefOf(written)) continue
+            qualifies = true
             const line = referentClass(ctx, written)
             if (!line) malformed.push(`${condition.classId} names no held element`)
             else if (line.row !== 'S2') malformed.push(`${condition.classId} names ${line.classId}, which is not a line or region of the space`)
             else lines.push({ condition: condition.classId, line })
+        }
+        if (qualifies) {
+            probe.peek(valueLine)
+            probe.peek(referentLine)
         }
     }
     if (!lines.length && !malformed.length) return { clauses: [], why: '' }
