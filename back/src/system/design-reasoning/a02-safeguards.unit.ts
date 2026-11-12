@@ -1352,7 +1352,9 @@ test('registered; the stage file joins no chain import, and the wiring is a unit
     const registry = readJson(path.resolve(HERE, '..', '..', '..', 'scripts', 'unit-tests.json')) as string[]
     assert.ok(registry.includes('./src/system/design-reasoning/a02-safeguards.unit.ts'))
     const source = fs.readFileSync(path.join(HERE, 'safeguards.ts'), 'utf8')
-    const imports = source.split('\n').filter((l) => l.startsWith('import '))
+    // Lines split on either line end (stage W0, 11 November 2026): a checkout under core.autocrlf=true writes this file with CRLF, and a split
+    // on '\n' alone left a carriage return on the import line, so the check failed on the line end, not on an import.
+    const imports = source.split(/\r?\n/).filter((l) => l.startsWith('import '))
     assert.deepEqual(imports, [`import { ChainAnswer, HandoffResult } from './handoff'`])
     assert.deepEqual([...DECISION_ROWS], OWNERSHIP_TABLE.map((o) => o.row))
 })

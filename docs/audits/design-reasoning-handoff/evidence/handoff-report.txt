@@ -68,11 +68,11 @@ F1 (N7:150-151): First: the A05 runs go end to end through Steps 1 and 2 and the
 F2 (N7:150-151): First: A01 through the handoff, with its production records and realizations, gives buildActivity's 29 instructions, text and from-paths
    shows: the same mechanism carries A01 to exactly the checked game a coach is served
    implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
-F3 (N7:155-157, N7:163-166): A05-0, the knowledge as it stands: refused at structure on the drafted origin and control lines
-   shows: with the knowledge as it stands, the chain refuses A05 at structure and the refusal names the drafted lines; nothing is filled in to make it generate
+F3 (N7:155-157, N7:163-166): A05-0, the knowledge as it stands: refused at structure on the drafted origin line alone (the drafted control items are examples since the merged correction)
+   shows: with the knowledge as it stands, the chain refuses A05 at structure and the refusal names the drafted line; nothing is filled in to make it generate
    implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
-F4 (N7:33-37): A05-1, the starting-condition reading as a TEST-ONLY treatment: refused at structure on the drafted control line alone (measured; our plan expected a refusal at communication)
-   shows: the provisional state reading, carried only as a labelled TEST-ONLY withholding of the origin items, leaves the drafted control line refused at structure
+F4 (N7:33-37): A05-1, the starting-condition reading as a TEST-ONLY treatment: the chain would serve it, the same game as A05-2, and never A05's result (measured since the merged correction; before it, refused at structure on the drafted control line)
+   shows: the provisional state reading, carried only as a labelled TEST-ONLY withholding of the origin items, leaves no drafted line refused once the control items are examples: the game is A05-2's, served only under the TEST-ONLY treatments
    implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
 F5 (N7:41-46): A05-2, CONDITIONAL and never A05's result: the chain would serve it, with the no-offside sentence, the review-only zone sentence and the kick-off reported
    shows: what the handoff produces once the 13 September wording is verified and corrected offline: a conditional diagnostic, never A05's result
@@ -347,7 +347,7 @@ C4 (N7:16, N7:155-157): refusal controls and the rest of the 13 goals: where Ste
    measured: A02: RESOLVED; Step 2 SELECTED GF2; selection: selection: A02: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF3; unfilled roles: shaping; held by ruling: none. Nothing was drawn from outside the goal's candidates.
    measured: TA02: RESOLVED; Step 2 SELECTED GF2; knowledge: the Representative Performance Context RPC-003 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game
    measured: A02 has no production record, so the chain's own bounded selection draws on the goal's own candidates; it refuses (NO_COMPATIBLE_COMBINATION) on GF3, before the handoff places the form Step 2 selected (GF2): the handoff's selection step, which runs only on a selection the chain made, never runs (no form placed, no scorer pick read), and the knowledge stage, where a context without a contract is refused (D02, TA02), is not reached
-   measured: TA02, DRAFT (with the TEST-ONLY draft store ta02-composition, as A05-0 uses it; not a production run): RESOLVED; Step 2 SELECTED GF2; structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6; what it rests on: RESTATEMENT-ONLY (2 AUTHORED (DRAFT store item)): the same drafted lines as A05-0
+   measured: TA02, DRAFT (with the TEST-ONLY draft store ta02-composition, as A05-0 uses it; not a production run): RESOLVED; Step 2 SELECTED GF2; structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6; what it rests on: RESTATEMENT-ONLY (1 AUTHORED (DRAFT store item)): the same drafted line as A05-0
    measured: with the cases (A05, A01, TA01), these 10 goals cover all 13 Learning Goals of the planning file, each run from one place (the WHERE EACH LEARNING GOAL STOPS block)
 
 -- The coach-served end-line restart (the time-boxed attempt; Christian's first reply of 7 November, section 7)
@@ -355,10 +355,10 @@ R1 (N7:96-98, N7:101): the time-boxed attempt: the coach-served end-line restart
    shows: the restart Christian asked for, typed as TEST-ONLY realization items in Christian's words on A05-1 and A05-2: where the checked chain stops, and what a diagnostic TEST ASSUMPTION would meet next
    implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
    measured: A05-2 with the restart items (end-line trigger, last-touch partition for each team, the team that did not touch it last, the coach as taker, a served ball, play stopped and resumed, the location under N7:89): refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:provisional:A05-H1:A05-H1-T1-1::T7
-   measured: A05-1 with the same items: refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 2 unresolved properties are neither an authorized choice nor an authorized claim: c:provisional:A05-H1:A05-H1-T1-1::T7, c:restated:RPC-003:RPC-003-12.a::V5
+   measured: A05-1 with the same items: refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:provisional:A05-H1:A05-H1-T1-1::T7
    measured: no ruling of Christian's says whether this restart begins an episode, so no episode item is added to any case; the restart does not compose from Christian's words, and no DRAFT restart sentence was added to the review-only wording
-   measured: diagnostic only, never a case: with a TEST ASSUMPTION that the restart begins an episode and the coach-decided location closed, A05-2 passes structure, realization and validation and is refused at communication (7 fidelity reasons: no instruction carries the restart's last touch, award, taker, method, play state or location; the renderer names no coach as taker and has no served-ball phrase); A05-1 is still refused at structure on the drafted control line alone
-   measured: what the refusals rest on: A05-2 NOT KNOWLEDGE (a gap: the refusal cites no item, only a line nobody established); A05-1 RESTATEMENT-ONLY (every cited item is ours and unreviewed (1 AUTHORED (DRAFT store item)), with no ruling of Christian's among them; 1 cited line nobody established (a gap), listed after); the restart items are graded by Christian's own label for this restart (illustrative), not by the basis the realization gate requires of them
+   measured: diagnostic only, never a case: with a TEST ASSUMPTION that the restart begins an episode and the coach-decided location closed, A05-2 passes structure, realization and validation and is refused at communication (7 fidelity reasons: no instruction carries the restart's last touch, award, taker, method, play state or location; the renderer names no coach as taker and has no served-ball phrase); A05-1 meets the same: refused at communication on the same 7 fidelity reasons (since the merged correction its drafted control items are examples; before it, A05-1 was still refused at structure on the drafted control line)
+   measured: what the refusals rest on: A05-2 NOT KNOWLEDGE (a gap: the refusal cites no item, only a line nobody established); A05-1 NOT KNOWLEDGE (a gap: the refusal cites no item, only a line nobody established); the restart items are graded by Christian's own label for this restart (illustrative), not by the basis the realization gate requires of them
    measured: no engine feature was built (the attempt is time-boxed); the restart stays described in the report only, under the unexpected limitations of the checked pathway
 
 -- Provenance handling (section 13)
@@ -405,53 +405,41 @@ E4 (N7:15): the gap rule's copies of the chain's own rules are held to classify.
    implemented: yes (the handoff mechanism with the real checked chain, through the unit test's wiring); passing engineering test: yes; ecological suitability: not established
    measured: classify.ts's GENERAL_REQUIREMENTS: ['NOT_AUTHORED', 'EXCLUDED', 'CLAIMED']; the stage file's REQUIREMENT_DECLARATIONS: ['NOT_AUTHORED', 'EXCLUDED', 'CLAIMED']
    measured: classify.ts's scope rule, found once in its source text and mirrored by the wiring: 'const scopeReaches = (d: DeclarationReach) => d.scope !== 'OWN_INVOLVEMENT' || cls.fromItem.contractId === d.contractId'
-   measured: over the owed lines the refusal readings read: 19 declarations on 8 lines; 5 own-involvement declarations (restated:VARIABLE-TARGET-CONDITION), of which the scope rule keeps 0 from reaching the element, so applying it changes no reading in the evidence
+   measured: over the owed lines the refusal readings read: 15 declarations on 7 lines; 5 own-involvement declarations (restated:VARIABLE-TARGET-CONDITION), of which the scope rule keeps 0 from reaching the element, so applying it changes no reading in the evidence
 
 WHERE EACH LEARNING GOAL STOPS (13 goals; OURS: each value read from the measured run named in brackets: a case, or the test that ran it)
 - A01: Step 1 RESOLVED, context RPC-001; Step 2 COMPATIBLE_ALTERNATIVES, selected none, compatible GF2, GF3, GF7; form NAMED GF2; stops: configuration and text (the chain would serve it) [case A01; PRODUCTION_RECORDS]
 - A02: Step 1 RESOLVED, context RPC-002; Step 2 SELECTED GF2; form SELECTED_BY_STEP_2 GF2, never placed: the chain's own selection refused first; stops: the chain refuses at selection: 'selection: A02: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF3; unfilled roles: shaping; held by ruling: none. Nothing was drawn from outside the goal's candidates.' [test C4; PRODUCTION_RECORDS]
 - A03: Step 1 RESOLVED, context RPC-004; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED, selected none; form STOP; stops: the handoff, before the chain: Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED [test C4; PRODUCTION_RECORDS]
 - A04: Step 1 UNRESOLVED, context RPC-004; Step 2 NOT_EVALUATED, selected none; form STOP; stops: the handoff, before the chain: Step 1 is UNRESOLVED: TRANSLATION_UNPOPULATED; no form is placed [test C4; PRODUCTION_RECORDS]
-- A05: Step 1 RESOLVED, context RPC-003; Step 2 COMPATIBLE_ALTERNATIVES, selected none, compatible GF2, GF3, GF7; form NAMED GF2; stops: A05-0 [case A05-0; A05_AS_THE_KNOWLEDGE_STANDS]: the chain refuses at structure: '2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6'; A05-1 [case A05-1; A05_UNDER_TEST_ONLY_TREATMENTS]: the chain refuses at structure: '1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5'; A05-2 [case A05-2; CONDITIONAL_NOT_A05_RESULT]: configuration and text (the chain would serve it)
+- A05: Step 1 RESOLVED, context RPC-003; Step 2 COMPATIBLE_ALTERNATIVES, selected none, compatible GF2, GF3, GF7; form NAMED GF2; stops: A05-0 [case A05-0; A05_AS_THE_KNOWLEDGE_STANDS]: the chain refuses at structure: '1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6'; A05-1 [case A05-1; A05_UNDER_TEST_ONLY_TREATMENTS]: configuration and text (the chain would serve it); A05-2 [case A05-2; CONDITIONAL_NOT_A05_RESULT]: configuration and text (the chain would serve it)
 - A06: Step 1 UNRESOLVED, context RPC-005; Step 2 NOT_EVALUATED, selected none; form STOP; stops: the handoff, before the chain: Step 1 is UNRESOLVED: TRANSLATION_UNPOPULATED; no form is placed [test C4; PRODUCTION_RECORDS]
 - D01: Step 1 RESOLVED, context RPC-008; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED, selected none; form STOP; stops: the handoff, before the chain: Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED [test C4; PRODUCTION_RECORDS]
 - D02: Step 1 RESOLVED, context RPC-007; Step 2 SELECTED GF4; form SELECTED_BY_STEP_2 GF4; stops: the chain refuses at knowledge: 'the Representative Performance Context RPC-007 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game' [test C4; PRODUCTION_RECORDS]
 - D03: Step 1 RESOLVED, context RPC-008; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED, selected none; form STOP; stops: the handoff, before the chain: Step 2 is NO_GOVERNED_RELATIONSHIP_ESTABLISHED: NO_GOVERNED_RELATIONSHIP_ESTABLISHED [test C4; PRODUCTION_RECORDS]
 - TA01: Step 1 RESOLVED, context RPC-006; Step 2 SELECTED GF4; form SELECTED_BY_STEP_2 GF4; stops: the chain refuses at knowledge: 'the Representative Performance Context RPC-006 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game' [case TA01; PRODUCTION_RECORDS]
-- TA02: Step 1 RESOLVED, context RPC-003; Step 2 SELECTED GF2; form SELECTED_BY_STEP_2 GF2; stops: CONTROL-TA02 [test C4; PRODUCTION_RECORDS]: the chain refuses at knowledge: 'the Representative Performance Context RPC-003 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game'; CONTROL-TA02-DRAFT [test C4, DRAFT; DRAFT_STORE_NOT_A_PRODUCTION_RUN]: the chain refuses at structure: '2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6'
+- TA02: Step 1 RESOLVED, context RPC-003; Step 2 SELECTED GF2; form SELECTED_BY_STEP_2 GF2; stops: CONTROL-TA02 [test C4; PRODUCTION_RECORDS]: the chain refuses at knowledge: 'the Representative Performance Context RPC-003 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game'; CONTROL-TA02-DRAFT [test C4, DRAFT; DRAFT_STORE_NOT_A_PRODUCTION_RUN]: the chain refuses at structure: '1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6'
 - TD01: Step 1 RESOLVED_NOT_RELATED_TO_CONTEXT, context RPC-007; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED, selected none; form STOP; stops: the handoff, before the chain: Step 1 is RESOLVED_NOT_RELATED_TO_CONTEXT: GAME_PROBLEM_NOT_RELATED_TO_CONTEXT; no form is placed [test C4; PRODUCTION_RECORDS]
 - TD02: Step 1 RESOLVED_NOT_RELATED_TO_CONTEXT, context RPC-007; Step 2 NO_GOVERNED_RELATIONSHIP_ESTABLISHED, selected none; form STOP; stops: the handoff, before the chain: Step 1 is RESOLVED_NOT_RELATED_TO_CONTEXT: GAME_PROBLEM_NOT_RELATED_TO_CONTEXT; no form is placed [test C4; PRODUCTION_RECORDS]
 
-REFUSALS AND WHAT THEY REST ON (28: 7 RESTATEMENT-ONLY, 0 MIXED, 21 NOT KNOWLEDGE; counted from the entries below). OURS, read from each refusal's own reasons and, for a refusal met before any game exists, from the chain's own account behind it (each failing check's own result; each owed line's classification, with the chain's own reach of the line's element for each declaration it was decided over; each open line's permitted alternatives and the items the chain names as bounding it); no check is changed by it (Christian's second reply of 7 November: "No changes to validation behavior are authorized by this email."). The build returns no game at such a refusal, so the unit test runs the chain's own derivation again on the input the build derived from (build-activity's input assembly replicated in the test only) and reads nothing unless it reproduces the build's reasons word for word (at structure the Gate A reasons, at realization the realizer's reasons); otherwise the test fails. A RESTATEMENT-ONLY refusal rests only on items that are ours and unreviewed (our restatements, which are CANDIDATE, DRAFT store items, and assumptions in our restatements): it may be conservative without establishing that the configuration violates approved knowledge. Each cited line is read back to the item that establishes its element, or, for an open line refused for being outside its permitted set (a reason saying the value is not one of the permitted alternatives) whose bounding items the chain names (its narrowing items or bounds), to those items, with the element's item named as not bounding it; each cited item prints its class. The chain's words are kept apart from ours: its line verdict NOT_AUTHORED means nothing authored the line's value, and the chain's reason 'declared gap' is not our gap. The gap rule (OURS): a cited owed line is listed apart as a line nobody established (a gap) when no requirement declaration (NOT_AUTHORED, EXCLUDED or CLAIMED) among those the chain decided it over reaches the line's element class by the chain's own reach function (derivation/reach.ts reaches(), applied by the test to the element class) and the chain's own scope rule; a requirement counts as reaching when its scope reaches the class (an own-involvement declaration reaches only the classes its own object forms) and that function does not answer FALSE, as the chain's classification keeps a requirement in force against a class (classify.ts governingDeclarations, whose requirement kinds this stage file copies and whose scope rule the test wiring mirrors, each held to classify.ts's source text, the mirror's own text included, by an engineering check under TESTS; undetermined is never rounded to false). Every other cited owed line prints which requirement declarations reach its element (which declaration owes it), and, where the chain decided it row-wide, that no contract establishing the element states anything explicit that reaches it. The verdict is computed over the cited items, and a refusal citing only gaps is NOT KNOWLEDGE. Every verdict prints its basis mix.
+REFUSALS AND WHAT THEY REST ON (27: 5 RESTATEMENT-ONLY, 0 MIXED, 22 NOT KNOWLEDGE; counted from the entries below). OURS, read from each refusal's own reasons and, for a refusal met before any game exists, from the chain's own account behind it (each failing check's own result; each owed line's classification, with the chain's own reach of the line's element for each declaration it was decided over; each open line's permitted alternatives and the items the chain names as bounding it); no check is changed by it (Christian's second reply of 7 November: "No changes to validation behavior are authorized by this email."). The build returns no game at such a refusal, so the unit test runs the chain's own derivation again on the input the build derived from (build-activity's input assembly replicated in the test only) and reads nothing unless it reproduces the build's reasons word for word (at structure the Gate A reasons, at realization the realizer's reasons); otherwise the test fails. A RESTATEMENT-ONLY refusal rests only on items that are ours and unreviewed (our restatements, which are CANDIDATE, DRAFT store items, and assumptions in our restatements): it may be conservative without establishing that the configuration violates approved knowledge. Each cited line is read back to the item that establishes its element, or, for an open line refused for being outside its permitted set (a reason saying the value is not one of the permitted alternatives) whose bounding items the chain names (its narrowing items or bounds), to those items, with the element's item named as not bounding it; each cited item prints its class. The chain's words are kept apart from ours: its line verdict NOT_AUTHORED means nothing authored the line's value, and the chain's reason 'declared gap' is not our gap. The gap rule (OURS): a cited owed line is listed apart as a line nobody established (a gap) when no requirement declaration (NOT_AUTHORED, EXCLUDED or CLAIMED) among those the chain decided it over reaches the line's element class by the chain's own reach function (derivation/reach.ts reaches(), applied by the test to the element class) and the chain's own scope rule; a requirement counts as reaching when its scope reaches the class (an own-involvement declaration reaches only the classes its own object forms) and that function does not answer FALSE, as the chain's classification keeps a requirement in force against a class (classify.ts governingDeclarations, whose requirement kinds this stage file copies and whose scope rule the test wiring mirrors, each held to classify.ts's source text, the mirror's own text included, by an engineering check under TESTS; undetermined is never rounded to false). Every other cited owed line prints which requirement declarations reach its element (which declaration owes it), and, where the chain decided it row-wide, that no contract establishing the element states anything explicit that reaches it. The verdict is computed over the cited items, and a refusal citing only gaps is NOT KNOWLEDGE. Every verdict prints its basis mix.
 Pointer: A05-0 and C2 reproduce cases (1) and (2) of our separate correction report to Christian; that report also covers our DRAFT LAW-11 materiality reading, which the GF2 structural cases here pass only under a TEST-ONLY stand-in (TT-LAW-11-STAND-IN).
 - case A05-0: stage structure; obstructs the configuration pathway: yes: the case's configuration stops here (A05_AS_THE_KNOWLEDGE_STANDS)
-   what it rests on (OURS): RESTATEMENT-ONLY: every cited item is ours and unreviewed (2 AUTHORED (DRAFT store item)), with no ruling of Christian's among them; codes GA-NO-FAILED-LINE
-     basis mix of the cited items: 2 AUTHORED (DRAFT store item)
-     cites c:restated:RPC-003:RPC-003-12.a::V5 (found in its reasons): its element is established by item RPC-003-12.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, class 3, 'DRAFT knowledge (ours, unreviewed)'; source: the context library (rpc-library.rc1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)
-       the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)
-       which declaration owes it (OURS, read from the chain's reach and scope rule): the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)
+   what it rests on (OURS): RESTATEMENT-ONLY: every cited item is ours and unreviewed (1 AUTHORED (DRAFT store item)), with no ruling of Christian's among them; codes GA-NO-FAILED-LINE
+     basis mix of the cited items: 1 AUTHORED (DRAFT store item)
      cites c:restated:RPC-003:RPC-003-10.a::V6 (found in its reasons): its element is established by item RPC-003-10.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, class 3, 'DRAFT knowledge (ours, unreviewed)'; source: the context library (rpc-library.rc1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)
        the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:RPC-003 NOT_AUTHORED (type=origin) [the chain's reach of the element: TRUE]
        which declaration owes it (OURS, read from the chain's reach and scope rule): the requirement declaration reaching the element: restated:RPC-003 NOT_AUTHORED (type=origin), a declaration of the contract establishing the element
-- case A05-1: stage structure; obstructs the configuration pathway: yes: the case's configuration stops here (A05_UNDER_TEST_ONLY_TREATMENTS)
-   what it rests on (OURS): RESTATEMENT-ONLY: every cited item is ours and unreviewed (1 AUTHORED (DRAFT store item)), with no ruling of Christian's among them; codes GA-NO-FAILED-LINE
-     basis mix of the cited items: 1 AUTHORED (DRAFT store item)
-     cites c:restated:RPC-003:RPC-003-12.a::V5 (found in its reasons): its element is established by item RPC-003-12.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, class 3, 'DRAFT knowledge (ours, unreviewed)'; source: the context library (rpc-library.rc1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)
-       the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)
-       which declaration owes it (OURS, read from the chain's reach and scope rule): the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)
 - case TA01: stage knowledge; obstructs the configuration pathway: yes: the case's configuration stops here (PRODUCTION_RECORDS)
    what it rests on (OURS): NOT KNOWLEDGE: the refusal cites no item: a missing contract; codes knowledge refusal
      basis mix of the cited items: none
-- test R1 (A05-2 with the restart items in Christian's words): stage structure; obstructs the configuration pathway: not for the configurations the chain would serve, which are built without the restart; but it is a structural refusal, so it is not reported as a refinement. Those configurations (A05-2 and the two GF2 structural cases) hold no restart for a ball over an end line: game::RP1 (the dead-ball restart policy) is not established in any of them; in A05-2 Laws 16 and 17 read not applicable at both ends (no goals), and the GF2 laws accounts owe neither; no departure from either is recorded. Christian's first reply of 7 November, section 5, says a game without conventional goals may require a different end-line restart, as an example of a structural adaptation needed to make a Game Form playable, which is still to be examined for unintended effects; whether its absence is a foundational blocker is Christian's to place. The restart's exact distance, the coach's location and the delivery need not become canonical knowledge and may stay coach-adjustable (Christian's first reply of 7 November, sections 7 and 8); the second reply, section 5, adds that exact restart locations should not delay core generation unless they present a material structural, safety or representative-integrity problem
+- test R1 (A05-2 with the restart items in Christian's words): stage structure; obstructs the configuration pathway: not for the configurations the chain would serve, which are built without the restart; but it is a structural refusal, so it is not reported as a refinement. Those configurations (A05-1 and A05-2, under their TEST-ONLY treatments, and the two GF2 structural cases) hold no restart for a ball over an end line: game::RP1 (the dead-ball restart policy) is not established in any of them; in A05-1 and A05-2 Laws 16 and 17 read not applicable at both ends (no goals), and the GF2 laws accounts owe neither; no departure from either is recorded. Christian's first reply of 7 November, section 5, says a game without conventional goals may require a different end-line restart, as an example of a structural adaptation needed to make a Game Form playable, which is still to be examined for unintended effects; whether its absence is a foundational blocker is Christian's to place. The restart's exact distance, the coach's location and the delivery need not become canonical knowledge and may stay coach-adjustable (Christian's first reply of 7 November, sections 7 and 8); the second reply, section 5, adds that exact restart locations should not delay core generation unless they present a material structural, safety or representative-integrity problem
    what it rests on (OURS): NOT KNOWLEDGE: a gap: the refusal cites no item, only a line nobody established; codes GA-NO-FAILED-LINE
      basis mix of the cited items: none
      a line nobody established (a gap): c:provisional:A05-H1:A05-H1-T1-1::T7: the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'claimed but unresolved', decided over the declarations restated:GF2 UNDECLARED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (trigger=POSSESSION_CHANGE) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (trigger ∈ {START, SCORE, OUT_END_LINE, OUT_TOUCHLINE}) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row); its reason 'claimed but unresolved' comes row-wide from a requirement declaration that does not reach this element: restated:RPC-003 CLAIMED (trigger=POSSESSION_CHANGE), whose selector does not reach it (the chain's own reach: FALSE); no requirement declaration reaches it, so nobody established it: a line nobody established (a gap); its element is established by item A05-H1-T1-1 of provisional:A05-H1, basis OWNER_RULING; graded REALIZATION_ITEM, class 5, 'ILLUSTRATIVE (for this offline test only; to be replaced before any production use)' (Christian's own label for what these items type is illustrative (HO-07NOV-RESTART, received 7 November 2026, first reply); these items are our TEST-ONLY typing, for a diagnostic, of the restart that ruling asks for; the realization gate types such items OWNER_RULING only because a provisional realization's items must carry that basis, and that typing is not changed)
-- test R1 (A05-1 with the restart items in Christian's words): stage structure; obstructs the configuration pathway: not for the configurations the chain would serve, which are built without the restart; but it is a structural refusal, so it is not reported as a refinement. Those configurations (A05-2 and the two GF2 structural cases) hold no restart for a ball over an end line: game::RP1 (the dead-ball restart policy) is not established in any of them; in A05-2 Laws 16 and 17 read not applicable at both ends (no goals), and the GF2 laws accounts owe neither; no departure from either is recorded. Christian's first reply of 7 November, section 5, says a game without conventional goals may require a different end-line restart, as an example of a structural adaptation needed to make a Game Form playable, which is still to be examined for unintended effects; whether its absence is a foundational blocker is Christian's to place. The restart's exact distance, the coach's location and the delivery need not become canonical knowledge and may stay coach-adjustable (Christian's first reply of 7 November, sections 7 and 8); the second reply, section 5, adds that exact restart locations should not delay core generation unless they present a material structural, safety or representative-integrity problem
-   what it rests on (OURS): RESTATEMENT-ONLY: every cited item is ours and unreviewed (1 AUTHORED (DRAFT store item)), with no ruling of Christian's among them; 1 cited line nobody established (a gap), listed after; codes GA-NO-FAILED-LINE
-     basis mix of the cited items: 1 AUTHORED (DRAFT store item)
-     cites c:restated:RPC-003:RPC-003-12.a::V5 (found in its reasons): its element is established by item RPC-003-12.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, class 3, 'DRAFT knowledge (ours, unreviewed)'; source: the context library (rpc-library.rc1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)
-       the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)
-       which declaration owes it (OURS, read from the chain's reach and scope rule): the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)
+- test R1 (A05-1 with the restart items in Christian's words): stage structure; obstructs the configuration pathway: not for the configurations the chain would serve, which are built without the restart; but it is a structural refusal, so it is not reported as a refinement. Those configurations (A05-1 and A05-2, under their TEST-ONLY treatments, and the two GF2 structural cases) hold no restart for a ball over an end line: game::RP1 (the dead-ball restart policy) is not established in any of them; in A05-1 and A05-2 Laws 16 and 17 read not applicable at both ends (no goals), and the GF2 laws accounts owe neither; no departure from either is recorded. Christian's first reply of 7 November, section 5, says a game without conventional goals may require a different end-line restart, as an example of a structural adaptation needed to make a Game Form playable, which is still to be examined for unintended effects; whether its absence is a foundational blocker is Christian's to place. The restart's exact distance, the coach's location and the delivery need not become canonical knowledge and may stay coach-adjustable (Christian's first reply of 7 November, sections 7 and 8); the second reply, section 5, adds that exact restart locations should not delay core generation unless they present a material structural, safety or representative-integrity problem
+   what it rests on (OURS): NOT KNOWLEDGE: a gap: the refusal cites no item, only a line nobody established; codes GA-NO-FAILED-LINE
+     basis mix of the cited items: none
      a line nobody established (a gap): c:provisional:A05-H1:A05-H1-T1-1::T7: the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'claimed but unresolved', decided over the declarations restated:GF2 UNDECLARED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (trigger=POSSESSION_CHANGE) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (trigger ∈ {START, SCORE, OUT_END_LINE, OUT_TOUCHLINE}) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row); its reason 'claimed but unresolved' comes row-wide from a requirement declaration that does not reach this element: restated:RPC-003 CLAIMED (trigger=POSSESSION_CHANGE), whose selector does not reach it (the chain's own reach: FALSE); no requirement declaration reaches it, so nobody established it: a line nobody established (a gap); its element is established by item A05-H1-T1-1 of provisional:A05-H1, basis OWNER_RULING; graded REALIZATION_ITEM, class 5, 'ILLUSTRATIVE (for this offline test only; to be replaced before any production use)' (Christian's own label for what these items type is illustrative (HO-07NOV-RESTART, received 7 November 2026, first reply); these items are our TEST-ONLY typing, for a diagnostic, of the restart that ruling asks for; the realization gate types such items OWNER_RULING only because a provisional realization's items must carry that basis, and that typing is not changed)
 - test R1, diagnostic only (A05-2 with the restart items and a TEST ASSUMPTION that the restart begins an episode; it ran only under that assumption): stage communication; obstructs the configuration pathway: no for any case: a diagnostic under a TEST ASSUMPTION; it shows what a restart the coach serves would meet next: the checked renderer names no coach as taker and has no served-ball phrase
    what it rests on (OURS): NOT KNOWLEDGE: the refusal cites no item: a renderer capability gap: the checked renderer has no sentence for what the game establishes (fidelity Q3); codes fidelity Q3
@@ -539,12 +527,9 @@ Pointer: A05-0 and C2 reproduce cases (1) and (2) of our separate correction rep
 - test C4 (TA02): stage knowledge; obstructs the configuration pathway: yes for TA02: its context has no contract; nothing is fabricated to pass it
    what it rests on (OURS): NOT KNOWLEDGE: the refusal cites no item: a missing contract; codes knowledge refusal
      basis mix of the cited items: none
-- test C4 (TA02, DRAFT: with the TEST-ONLY draft store): stage structure; obstructs the configuration pathway: yes for TA02 with the draft store: our drafted lines stop it at structure, as in A05-0; without the draft store it stops earlier, at knowledge; nothing is fabricated to pass it
-   what it rests on (OURS): RESTATEMENT-ONLY: every cited item is ours and unreviewed (2 AUTHORED (DRAFT store item)), with no ruling of Christian's among them; codes GA-NO-FAILED-LINE
-     basis mix of the cited items: 2 AUTHORED (DRAFT store item)
-     cites c:restated:RPC-003:RPC-003-12.a::V5 (found in its reasons): its element is established by item RPC-003-12.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, class 3, 'DRAFT knowledge (ours, unreviewed)'; source: the context library (rpc-library.rc1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)
-       the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)
-       which declaration owes it (OURS, read from the chain's reach and scope rule): the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)
+- test C4 (TA02, DRAFT: with the TEST-ONLY draft store): stage structure; obstructs the configuration pathway: yes for TA02 with the draft store: our drafted origin line stops it at structure, as in A05-0; without the draft store it stops earlier, at knowledge; nothing is fabricated to pass it
+   what it rests on (OURS): RESTATEMENT-ONLY: every cited item is ours and unreviewed (1 AUTHORED (DRAFT store item)), with no ruling of Christian's among them; codes GA-NO-FAILED-LINE
+     basis mix of the cited items: 1 AUTHORED (DRAFT store item)
      cites c:restated:RPC-003:RPC-003-10.a::V6 (found in its reasons): its element is established by item RPC-003-10.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, class 3, 'DRAFT knowledge (ours, unreviewed)'; source: the context library (rpc-library.rc1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)
        the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:RPC-003 NOT_AUTHORED (type=origin) [the chain's reach of the element: TRUE]
        which declaration owes it (OURS, read from the chain's reach and scope rule): the requirement declaration reaching the element: restated:RPC-003 NOT_AUTHORED (type=origin), a declaration of the contract establishing the element
@@ -723,7 +708,7 @@ Result standing: A05_AS_THE_KNOWLEDGE_STANDS
    outcome: refused at structure: The game this goal selects is not yet described completely enough to be set up.
    - Gate A is FAIL
    - a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
-   - 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6
+   - 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6
    context: the chain's context equals Step 1's (RPC-003)
    Game Problems: the chain's account reads UNRESOLVED none (inferred from wording: GP-015 'Maintain Possession'); Step 1: primary GP-001, secondary GP-002; no line of the chain reads a Game Problem; a difference is reported, never switched
    affordance lenses: Possession Stability Opportunity; Line-Breaking Opportunity; Space Creation Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection
@@ -746,18 +731,15 @@ Result standing: A05_AS_THE_KNOWLEDGE_STANDS
    stage structure
    - Gate A is FAIL
    - a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
-   - 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6
-   what it rests on (OURS): RESTATEMENT-ONLY: every cited item is ours and unreviewed (2 AUTHORED (DRAFT store item)), with no ruling of Christian's among them; codes GA-NO-FAILED-LINE
-     basis mix of the cited items: 2 AUTHORED (DRAFT store item)
-     cites c:restated:RPC-003:RPC-003-12.a::V5 (found in its reasons): its element is established by item RPC-003-12.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, class 3, 'DRAFT knowledge (ours, unreviewed)'; source: the context library (rpc-library.rc1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)
-       the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)
-       which declaration owes it (OURS, read from the chain's reach and scope rule): the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)
+   - 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6
+   what it rests on (OURS): RESTATEMENT-ONLY: every cited item is ours and unreviewed (1 AUTHORED (DRAFT store item)), with no ruling of Christian's among them; codes GA-NO-FAILED-LINE
+     basis mix of the cited items: 1 AUTHORED (DRAFT store item)
      cites c:restated:RPC-003:RPC-003-10.a::V6 (found in its reasons): its element is established by item RPC-003-10.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, class 3, 'DRAFT knowledge (ours, unreviewed)'; source: the context library (rpc-library.rc1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)
        the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:RPC-003 NOT_AUTHORED (type=origin) [the chain's reach of the element: TRUE]
        which declaration owes it (OURS, read from the chain's reach and scope rule): the requirement declaration reaching the element: restated:RPC-003 NOT_AUTHORED (type=origin), a declaration of the contract establishing the element
 
 13. Gaps (7)
-   - the chain refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6
+   - the chain refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6
    - NC-RESTART the coach-served end-line restart: not carried (UNEXPECTED_LIMITATION)
    - NC-STARTING the starting condition read as the state of the attack: not carried (KNOWLEDGE_OR_CAPABILITY_GAP)
    - NC-KICKOFF the ordinary kick-off and 9.15 m: not carried (REPRESENTATION_GAP)
@@ -849,41 +831,291 @@ Result standing: A05_UNDER_TEST_ONLY_TREATMENTS
    none proposed: nothing is added (K2, approved for review-only use); the configuration is the form's own
 
 6. The checked chain
-   outcome: refused at structure: The game this goal selects is not yet described completely enough to be set up.
-   - Gate A is FAIL
-   - a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
-   - 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5
+   outcome: the chain would serve it (a TEST-ONLY run; nothing here reaches a coach)
    context: the chain's context equals Step 1's (RPC-003)
    Game Problems: the chain's account reads UNRESOLVED none (inferred from wording: GP-015 'Maintain Possession'); Step 1: primary GP-001, secondary GP-002; no line of the chain reads a Game Problem; a difference is reported, never switched
    affordance lenses: Possession Stability Opportunity; Line-Breaking Opportunity; Space Creation Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection
    constraints in the selection: none
+   fidelity violations on the text: 0
 
-7. Configuration lines (0)
+7. Configuration lines (58)
+   c:restated:GF2:GF2-03.e::S5 | space.regions[c:restated:GF2:GF2-03.e].position.along | 'attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior'
+     class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind A
+     premise: restated:GF2 GF2-04: class 3: Candidate or provisional knowledge; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) | source: the Soccer Module workbook (soccer-module.rc1-v3.json); the source's standing as the review pathway reads its status fields (OURS): DRAFT (the module's own status, module_status DRAFT; the review pathway reads its Game Form rows as CANDIDATE)
+     premise: restated:GF2 TEST-ONLY-DEPTH-NEAR (TEST-ONLY stand-in SI-DEPTH-NEAR): the extent: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | GF2 authors no depth for a target zone and no ruling of Christian's gives one for this case; the chain carries a depth only as a contract item, so a labelled TEST-ONLY stand-in item carries the illustrative 5 m. Never knowledge.
+   c:restated:GF2:GF2-03.f::S5 | space.regions[c:restated:GF2:GF2-03.f].position.along | 'attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior'
+     class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind A
+     premise: restated:GF2 GF2-04: class 3: Candidate or provisional knowledge; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) | source: the Soccer Module workbook (soccer-module.rc1-v3.json); the source's standing as the review pathway reads its status fields (OURS): DRAFT (the module's own status, module_status DRAFT; the review pathway reads its Game Form rows as CANDIDATE)
+     premise: restated:GF2 TEST-ONLY-DEPTH-FAR (TEST-ONLY stand-in SI-DEPTH-FAR): the extent: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | As the near zone's depth.
+   c:restated:GF2:GF2-07.a::T6 | transitions[c:restated:GF2:GF2-07.a].playState | 'CONTINUE'
+     class 3: Candidate or provisional knowledge; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) | decision kind A | a default (an alternative exists)
+     premise: restated:GF2 GF2-17: class 3: Candidate or provisional knowledge; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) | source: the Soccer Module workbook (soccer-module.rc1-v3.json); the source's standing as the review pathway reads its status fields (OURS): DRAFT (the module's own status, module_status DRAFT; the review pathway reads its Game Form rows as CANDIDATE)
+   c:restated:GF2:GF2-07.a::T7 | transitions[c:restated:GF2:GF2-07.a].startsEpisode | 'true'
+     class 3: Candidate or provisional knowledge; DRAFT knowledge (ours, unreviewed) | decision kind B
+     premise: restated:RPC-003 RPC-003-09.a: class 3: Candidate or provisional knowledge; DRAFT knowledge (ours, unreviewed) | source: the context library (rpc-library.rc1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)
+   c:restated:GF2:GF2-08.c::J2 | objectives[c:restated:GF2:GF2-08.c].reference | {structuralRef: {contractId: 'restated:GF2', itemId: 'GF2-03.f'}, asAuthored: 'the target at the opposite end from this team own end: the objective-area region of GF2-03.f'}
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: restated:GF2 GF2-08.d: class 2: An explicit scoped ruling; RULING | the item's evidence, verbatim: Christian, 2026-10-09: 'allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure', with the designation pair approved the same day as 'distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity' and 'each team attacks the target opposite its own assigned end, regardless of possession changes'. New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.
+   c:restated:GF2:GF2-08.c::J3 | objectives[c:restated:GF2:GF2-08.c].team | 'TEAM_AT_AXIS_START'
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: restated:GF2 GF2-08.c: class 2: An explicit scoped ruling; RULING | the item's evidence, verbatim: Christian, 2026-10-09: 'allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure', with the designation pair approved the same day as 'distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity' and 'each team attacks the target opposite its own assigned end, regardless of possession changes'. New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.
+   c:restated:GF2:GF2-08.c::J4 | objectives[c:restated:GF2:GF2-08.c].role | 'PRIMARY_SCORING'
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: restated:GF2 GF2-08.c: class 2: An explicit scoped ruling; RULING | the item's evidence, verbatim: Christian, 2026-10-09: 'allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure', with the designation pair approved the same day as 'distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity' and 'each team attacks the target opposite its own assigned end, regardless of possession changes'. New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.
+   c:restated:GF2:GF2-08.e::J2 | objectives[c:restated:GF2:GF2-08.e].reference | {structuralRef: {contractId: 'restated:GF2', itemId: 'GF2-03.e'}, asAuthored: 'the target at the opposite end from this team own end: the objective-area region of GF2-03.e'}
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: restated:GF2 GF2-08.f: class 2: An explicit scoped ruling; RULING | the item's evidence, verbatim: Christian, 2026-10-09: 'allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure', with the designation pair approved the same day as 'distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity' and 'each team attacks the target opposite its own assigned end, regardless of possession changes'. New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.
+   c:restated:GF2:GF2-08.e::J3 | objectives[c:restated:GF2:GF2-08.e].team | 'TEAM_AT_AXIS_END'
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: restated:GF2 GF2-08.e: class 2: An explicit scoped ruling; RULING | the item's evidence, verbatim: Christian, 2026-10-09: 'allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure', with the designation pair approved the same day as 'distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity' and 'each team attacks the target opposite its own assigned end, regardless of possession changes'. New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.
+   c:restated:GF2:GF2-08.e::J4 | objectives[c:restated:GF2:GF2-08.e].role | 'PRIMARY_SCORING'
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: restated:GF2 GF2-08.e: class 2: An explicit scoped ruling; RULING | the item's evidence, verbatim: Christian, 2026-10-09: 'allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure', with the designation pair approved the same day as 'distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity' and 'each team attacks the target opposite its own assigned end, regardless of possession changes'. New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.
+   c:sport-profile:soccer:SPORT-SOCCER-01::O2 | objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind | 'ball'
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: sport-profile:soccer SPORT-SOCCER-01: class 2: An explicit scoped ruling; RULING | the item's evidence, verbatim: {'quote':'For this pilot scope it should establish only constitutive sport structure now demonstrated to be required: the game's functional object is a ball.','sourceId':'Christian, 2026-10-06'}
+   game::E1 | envelope.players | 12
+     class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind A (contextual)
+     premise: session input: E1 = 12: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+   game::E2 | envelope.area.length_m | 40
+     class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind A (contextual)
+     premise: session input: E2 = 40: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+   game::E3 | envelope.area.width_m | 30
+     class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind A (contextual)
+     premise: session input: E3 = 30: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+   game::E4 | envelope.duration_min | 18
+     class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind A (contextual)
+     premise: session input: E4 = 18: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+   game::S1 | space.axis | 'the longer envelope dimension'
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: SD-11 (records Christian's decisions of 18 September on revision 2): class 2: An explicit scoped ruling; RULING
+   game::V2 | value.primaryEvent.value | 1
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: SD-25 (records Christian's rulings of 20 September closing the collision exercise): class 2: An explicit scoped ruling; RULING
+   c:restated:GF2:GF2-03.e::S3 | space.regions[c:restated:GF2:GF2-03.e].noun | 'zone'
+     class 3: Candidate or provisional knowledge; RULING, provisional | decision kind A
+     premise: c:restated:GF2:GF2-03.e::S3 = 'zone' on HO-28OCT-ENDZONE: class 3: Candidate or provisional knowledge; RULING, provisional
+   c:restated:GF2:GF2-03.f::S3 | space.regions[c:restated:GF2:GF2-03.f].noun | 'zone'
+     class 3: Candidate or provisional knowledge; RULING, provisional | decision kind A
+     premise: c:restated:GF2:GF2-03.f::S3 = 'zone' on HO-28OCT-ENDZONE: class 3: Candidate or provisional knowledge; RULING, provisional
+   game::V1 | value.primaryEvent.kind | 'target_zone_entered'
+     class 3: Candidate or provisional knowledge; RULING, provisional | decision kind A
+     premise: game::V1 = 'target_zone_entered' on HO-28OCT-PROVISIONAL: class 3: Candidate or provisional knowledge; RULING, provisional
+   game::PS1 | possession.team | 'c:restated:GF2:GF2-14.a#1'
+     no class claimed; the coach decides | decision kind C
+     premise: game::PS1: the coach decides: no class claimed; the coach decides
+   c:restated:GF2:GF2-03.e::S6 | space.regions[c:restated:GF2:GF2-03.e].position.across | 'extends across the axis: the target lies across the direction of progression'
+     class 6: An unsupported or unresolved relationship; OURS: assumption in our restatement | decision kind B | a justified default (ONLY_MEMBER_OF_AUTHORED_BOUND), resting on an ASSUMED bound
+     premise: the one value the line's authored bound admits, a bound ASSUMED in our restatement, closed by the justified-default rule ONLY_MEMBER_OF_AUTHORED_BOUND: class 6: An unsupported or unresolved relationship; OURS: assumption in our restatement
+   c:restated:GF2:GF2-03.f::S6 | space.regions[c:restated:GF2:GF2-03.f].position.across | 'extends across the axis: the target lies across the direction of progression'
+     class 6: An unsupported or unresolved relationship; OURS: assumption in our restatement | decision kind B | a justified default (ONLY_MEMBER_OF_AUTHORED_BOUND), resting on an ASSUMED bound
+     premise: the one value the line's authored bound admits, a bound ASSUMED in our restatement, closed by the justified-default rule ONLY_MEMBER_OF_AUTHORED_BOUND: class 6: An unsupported or unresolved relationship; OURS: assumption in our restatement
+   c:restated:GF2:GF2-03.e::S4 | space.regions[c:restated:GF2:GF2-03.e].functions | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: c:restated:GF2:GF2-03.e::S4: nothing establishes it (not constrained): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   c:restated:GF2:GF2-03.e::S7 | space.regions[c:restated:GF2:GF2-03.e].ofObject | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: c:restated:GF2:GF2-03.e::S7: nothing establishes it (no coverage): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   c:restated:GF2:GF2-03.f::S4 | space.regions[c:restated:GF2:GF2-03.f].functions | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: c:restated:GF2:GF2-03.f::S4: nothing establishes it (not constrained): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   c:restated:GF2:GF2-03.f::S7 | space.regions[c:restated:GF2:GF2-03.f].ofObject | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: c:restated:GF2:GF2-03.f::S7: nothing establishes it (no coverage): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   c:sport-profile:soccer:SPORT-SOCCER-01::O3 | objects[c:sport-profile:soccer:SPORT-SOCCER-01].count | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: c:sport-profile:soccer:SPORT-SOCCER-01::O3: nothing establishes it (not constrained): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   game::B10 | blocks.endAssignment | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: game::B10: nothing establishes it (no coverage): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   game::P5 | performers.neutrals.count | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: game::P5: nothing establishes it (not constrained): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   game::P6a | performers.neutrals.affiliation.on | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: game::P6a: nothing establishes it (not constrained): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   game::P6b | performers.neutrals.affiliation.joins | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: game::P6b: nothing establishes it (not constrained): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   game::P6c | performers.neutrals.affiliation.takesEffect | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: game::P6c: nothing establishes it (not constrained): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   game::P7 | performers.neutrals.distinguishable | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: game::P7: nothing establishes it (not constrained): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   game::RP1 | restartPolicy.deadBall | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: game::RP1: nothing establishes it (no coverage): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2 | performers.teams[c:restated:GF2:GF2-14.a#1].outfieldCount | 6
+     class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind B | entailed by the chain: entailed from the session and the authored equality: 12 session performers over 2 teams, with equality authored on P2
+     premise: restated:GF2 GF2-14.a: class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) | source: the Game Archetype Workbook (game-archetype-workbook.rc1.1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the Game Archetype Workbook RC1.1)
+     premise: session input: players = 12: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+   assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P3 | performers.teams[c:restated:GF2:GF2-14.a#1].goalkeeper | 0
+     class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind B | entailed by the chain: no selected knowledge establishes goalkeeper in this game (P3 is not constrained); the session has 0 available, which covers it and is not itself instantiated into the game; the register declares P3 a specialized role
+     premise: restated:GF2 GF2-14.a: class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) | source: the Game Archetype Workbook (game-archetype-workbook.rc1.1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the Game Archetype Workbook RC1.1)
+     premise: session input: players = 12: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+   assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2 | performers.teams[c:restated:GF2:GF2-14.a#2].outfieldCount | 6
+     class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind B | entailed by the chain: entailed from the session and the authored equality: 12 session performers over 2 teams, with equality authored on P2
+     premise: restated:GF2 GF2-14.a: class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) | source: the Game Archetype Workbook (game-archetype-workbook.rc1.1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the Game Archetype Workbook RC1.1)
+     premise: session input: players = 12: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+   assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P3 | performers.teams[c:restated:GF2:GF2-14.a#2].goalkeeper | 0
+     class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind B | entailed by the chain: no selected knowledge establishes goalkeeper in this game (P3 is not constrained); the session has 0 available, which covers it and is not itself instantiated into the game; the register declares P3 a specialized role
+     premise: restated:GF2 GF2-14.a: class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) | source: the Game Archetype Workbook (game-archetype-workbook.rc1.1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the Game Archetype Workbook RC1.1)
+     premise: session input: players = 12: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+   c:restated:GF2:GF2-14.a::members | performers.teams[] | 2
+     class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) | decision kind B | an element the class establishes
+     premise: restated:GF2 GF2-14.a: class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) | source: the Game Archetype Workbook (game-archetype-workbook.rc1.1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the Game Archetype Workbook RC1.1)
+   defaultLaws:LAW-8 | defaultLaws.laws[LAW-8] | 'ADAPTATION_OWED'
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind B
+     premise: LAW-8: an adaptation is owed (the laws account names why): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   defaultLaws:LAW-8-DB | defaultLaws.laws[LAW-8-DB] | 'APPLIES'
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: LAW-8-DB APPLIES: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   defaultLaws:LAW-8-DB:applied | defaultLaws.applied[LAW-8-DB] | 'APPLIES'
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: LAW-8-DB APPLIES: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   defaultLaws:LAW-11 | defaultLaws.laws[LAW-11] | 'DEPARTED'
+     class 3: Candidate or provisional knowledge; RULING, provisional | decision kind A
+     premise: LAW-11 departed from, WHOLE, on HO-29OCT-PROVISIONAL, HO-28OCT-PROVISIONAL, HO-07NOV-OFFSIDE-SCOPE: class 3: Candidate or provisional knowledge; RULING, provisional
+   defaultLaws:LAW-12-GK | defaultLaws.laws[LAW-12-GK] | 'NOT_APPLICABLE'
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: LAW-12-GK NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   defaultLaws:LAW-14:end 0 | defaultLaws.laws[LAW-14] | 'NOT_APPLICABLE'
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: LAW-14 NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   defaultLaws:LAW-14:end 1 | defaultLaws.laws[LAW-14] | 'NOT_APPLICABLE'
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: LAW-14 NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   defaultLaws:LAW-13 | defaultLaws.laws[LAW-13] | 'APPLIES'
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: LAW-13 APPLIES: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   defaultLaws:LAW-13:applied | defaultLaws.applied[LAW-13] | 'APPLIES'
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: LAW-13 APPLIES: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   defaultLaws:LAW-15 | defaultLaws.laws[LAW-15] | 'APPLIES'
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: LAW-15 APPLIES: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   defaultLaws:LAW-15:applied | defaultLaws.applied[LAW-15] | 'APPLIES'
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: LAW-15 APPLIES: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   defaultLaws:LAW-16:end 0 | defaultLaws.laws[LAW-16] | 'NOT_APPLICABLE'
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: LAW-16 NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   defaultLaws:LAW-16:end 1 | defaultLaws.laws[LAW-16] | 'NOT_APPLICABLE'
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: LAW-16 NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   defaultLaws:LAW-17:end 0 | defaultLaws.laws[LAW-17] | 'NOT_APPLICABLE'
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: LAW-17 NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   defaultLaws:LAW-17:end 1 | defaultLaws.laws[LAW-17] | 'NOT_APPLICABLE'
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: LAW-17 NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   defaultLaws:LAW-4-GK | defaultLaws.laws[LAW-4-GK] | 'NOT_APPLICABLE'
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: LAW-4-GK NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   defaultLaws:owed | defaultLaws.owed | ['LAW-8']
+     class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding | decision kind B
+     premise: the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026): class 2: An explicit scoped ruling; RULING
+     premise: the owed list OWED_LIST: our DRAFT per-law encoding in the Sport Profile's default-laws block: class 3: Candidate or provisional knowledge; DRAFT: our per-law encoding
+   session::roles | envelope.roles | {goalkeeper: 0}
+     class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind B
+     premise: session input: specialized roles = 0: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
 
-8. Coach text (0 sentences; none)
+8. Coach text (9 sentences; the text the chain would serve, in a TEST-ONLY run)
+   [Set up] Mark out an area 40 m long by 30 m wide
+     wording DRAFT; status DERIVED; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+     joins: game::E2, game::E3
+   [Set up] Mark a 5 m end zone across the full width at each end
+     wording DRAFT (review-only, DRAFT, not served to any coach); status STARTING; class 6: An unsupported or unresolved relationship; OURS: assumption in our restatement
+     other classes and labels among its lines: class 3: Candidate or provisional knowledge; RULING, provisional / class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) / class 2: An explicit scoped ruling; RULING
+     joins: c:restated:GF2:GF2-03.e::S3, c:restated:GF2:GF2-03.e::S5, c:restated:GF2:GF2-03.e::S6, c:restated:GF2:GF2-03.f::S3, c:restated:GF2:GF2-03.f::S5, c:restated:GF2:GF2-03.f::S6, c:restated:GF2:GF2-08.e::J2, c:restated:GF2:GF2-08.c::J2
+   [Players] Divide 12 players into 2 teams of 6, with no goalkeepers
+     wording DRAFT; status DERIVED; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+     other classes and labels among its lines: class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)
+     joins: game::E1, c:restated:GF2:GF2-14.a::members, assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2, assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2, session::roles, assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P3, assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P3
+   [How it works] Pick which team starts with the ball and tell both teams before you start
+     wording DRAFT; status COACH_CHOICE; class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)
+     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
+     joins: game::PS1, c:restated:GF2:GF2-14.a::members, c:sport-profile:soccer:SPORT-SOCCER-01::O2
+   [How it works] When possession changes, play carries on without a stoppage, and each team keeps attacking the same target
+     wording APPROVED; status STARTING; class 3: Candidate or provisional knowledge; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / DRAFT knowledge (ours, unreviewed)
+     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
+     joins: c:restated:GF2:GF2-07.a::T6, c:restated:GF2:GF2-08.c::J3, c:restated:GF2:GF2-07.a::T7, c:restated:GF2:GF2-08.c::J2, c:restated:GF2:GF2-08.e::J2
+     through its element: transitions[c:restated:GF2:GF2-07.a].selector (the element of c:restated:GF2:GF2-07.a; class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json))
+   [How it works] There is no offside
+     wording DRAFT; status DERIVED; class 3: Candidate or provisional knowledge; RULING, provisional
+     joins: defaultLaws:LAW-11
+   [How to score] A team scores 1 point by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside
+     wording DRAFT; status STARTING; class 3: Candidate or provisional knowledge; RULING, provisional
+     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
+     joins: game::V1, game::V2, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:restated:GF2:GF2-03.f::S3, c:restated:GF2:GF2-03.e::S3, c:restated:GF2:GF2-08.c::J4
+   [How to score] Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game
+     wording DRAFT; status DERIVED; class 3: Candidate or provisional knowledge; RULING, provisional
+     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
+     joins: c:restated:GF2:GF2-08.c::J3, c:restated:GF2:GF2-08.c::J2, c:restated:GF2:GF2-08.c::J4, c:restated:GF2:GF2-08.e::J3, c:restated:GF2:GF2-08.e::J2, c:restated:GF2:GF2-08.e::J4, c:restated:GF2:GF2-03.f::S3, c:restated:GF2:GF2-03.e::S3
+   [When it ends] Play for 18 minutes
+     wording DRAFT; status DERIVED; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+     joins: game::E4
 
 9. Diagram
-   none
+   the checked chain's diagram verdict: would be served (a TEST-ONLY run; nothing here reaches a coach); the review model's verdict: DRAWN
+   area {lengthM: 40, widthM: 30}; counts ['2 teams of 6']; legend ['target zone']
+   zones [{zone: 'c:restated:GF2:GF2-03.e', along: {from: 0, to: 5}, across: {from: 0, to: 30}}, {zone: 'c:restated:GF2:GF2-03.f', along: {from: 35, to: 40}, across: {from: 0, to: 30}}]
+   illustrative values on this diagram: players '12, no specialized role' (IL-PLAYERS); area '40 x 30 m' (IL-AREA); end-zone depth '5 m at each end' (IL-DEPTH) (see 14. Illustrative values)
 
 10. Laws account
-   none
+   mode REPORT (the TEST-ONLY realization's check), held by the harness to our DRAFT classification
+   owed: LAW-8
+   reported for review: LAW-8 at the game: an adaptation is owed; PROCEDURAL under our DRAFT classification (docs/audits/drafts/laws-materiality.DRAFT.json: our reading, for Christian's review; not a ruling)
+   defaultLaws:LAW-8: ADAPTATION_OWED
+   defaultLaws:LAW-8-DB: APPLIES
+   defaultLaws:LAW-11: DEPARTED (departed from on the realization)
+   defaultLaws:LAW-12-GK: NOT_APPLICABLE
+   defaultLaws:LAW-14:end 0: NOT_APPLICABLE
+   defaultLaws:LAW-14:end 1: NOT_APPLICABLE
+   defaultLaws:LAW-13: APPLIES
+   defaultLaws:LAW-15: APPLIES
+   defaultLaws:LAW-16:end 0: NOT_APPLICABLE
+   defaultLaws:LAW-16:end 1: NOT_APPLICABLE
+   defaultLaws:LAW-17:end 0: NOT_APPLICABLE
+   defaultLaws:LAW-17:end 1: NOT_APPLICABLE
+   defaultLaws:LAW-4-GK: NOT_APPLICABLE
 
 11. Requirement account
-   none (the build stopped before the context-scoring guard, or no context role)
+   status REPORT_ONLY; contract DRAFT
+   no scoring-condition component is carried
 
 12. Refusal
-   stage structure
-   - Gate A is FAIL
-   - a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
-   - 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5
-   what it rests on (OURS): RESTATEMENT-ONLY: every cited item is ours and unreviewed (1 AUTHORED (DRAFT store item)), with no ruling of Christian's among them; codes GA-NO-FAILED-LINE
-     basis mix of the cited items: 1 AUTHORED (DRAFT store item)
-     cites c:restated:RPC-003:RPC-003-12.a::V5 (found in its reasons): its element is established by item RPC-003-12.a of restated:RPC-003 (the TEST-ONLY draft store), basis AUTHORED; graded DRAFT_ITEM, class 3, 'DRAFT knowledge (ours, unreviewed)'; source: the context library (rpc-library.rc1.json); the source's standing as the review pathway reads its status fields (OURS): APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)
-       the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)
-       which declaration owes it (OURS, read from the chain's reach and scope rule): the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)
+   none: the chain would serve it (a TEST-ONLY run; nothing here reaches a coach)
 
-13. Gaps (7)
-   - the chain refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5
+13. Gaps (19)
+   - c:restated:GF2:GF2-03.e::S4 (space.regions[c:restated:GF2:GF2-03.e].functions): not established
+   - c:restated:GF2:GF2-03.e::S7 (space.regions[c:restated:GF2:GF2-03.e].ofObject): not established
+   - c:restated:GF2:GF2-03.f::S4 (space.regions[c:restated:GF2:GF2-03.f].functions): not established
+   - c:restated:GF2:GF2-03.f::S7 (space.regions[c:restated:GF2:GF2-03.f].ofObject): not established
+   - c:sport-profile:soccer:SPORT-SOCCER-01::O3 (objects[c:sport-profile:soccer:SPORT-SOCCER-01].count): not established
+   - game::B10 (blocks.endAssignment): not established
+   - game::P5 (performers.neutrals.count): not established
+   - game::P6a (performers.neutrals.affiliation.on): not established
+   - game::P6b (performers.neutrals.affiliation.joins): not established
+   - game::P6c (performers.neutrals.affiliation.takesEffect): not established
+   - game::P7 (performers.neutrals.distinguishable): not established
+   - game::RP1 (restartPolicy.deadBall): not established
+   - defaultLaws:LAW-8: LAW-8: an adaptation is owed (the laws account names why)
    - NC-RESTART the coach-served end-line restart: not carried (UNEXPECTED_LIMITATION)
    - NC-STARTING the starting condition read as the state of the attack: not carried (KNOWLEDGE_OR_CAPABILITY_GAP)
    - NC-KICKOFF the ordinary kick-off and 9.15 m: not carried (REPRESENTATION_GAP)
@@ -899,8 +1131,8 @@ Result standing: A05_UNDER_TEST_ONLY_TREATMENTS
    - IL-DEPTH end-zone depth: '5 m at each end'; two TEST-ONLY stand-in items (SI-DEPTH-NEAR, SI-DEPTH-FAR); permitted by HO-05NOV-ILLUSTRATIVE
    - IL-RESTART the coach-served end-line restart: 'a coach-served ball after the ball goes over an end line, to the team that did not touch it last'; not carried: described in the report only; permitted by HO-07NOV-RESTART
    stand-in items (2):
-   - SI-DEPTH-NEAR (ILLUSTRATIVE): determines no line; GF2 authors no depth for a target zone and no ruling of Christian's gives one for this case; the chain carries a depth only as a contract item, so a labelled TEST-ONLY stand-in item carries the illustrative 5 m. Never knowledge.
-   - SI-DEPTH-FAR (ILLUSTRATIVE): determines no line; As the near zone's depth.
+   - SI-DEPTH-NEAR (ILLUSTRATIVE): determines c:restated:GF2:GF2-03.e::S5; GF2 authors no depth for a target zone and no ruling of Christian's gives one for this case; the chain carries a depth only as a contract item, so a labelled TEST-ONLY stand-in item carries the illustrative 5 m. Never knowledge.
+   - SI-DEPTH-FAR (ILLUSTRATIVE): determines c:restated:GF2:GF2-03.f::S5; As the near zone's depth.
 
 15. TEST-ONLY treatments (5)
    - TT-RECORD [TEST-ONLY] a TEST-ONLY authorization record for the goal, built from the case's rulings, in memory. Effect: the chain selects the form and the context with no constraint, and gates the record and its realization exactly as a production record. Why: the goal has no production record; writing one would switch its live route

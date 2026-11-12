@@ -31,8 +31,8 @@
    "id": "F3",
    "group": "First: the pathways connect (Christian's first reply of 7 November, section 11)",
    "cites": "N7:155-157, N7:163-166",
-   "shows": "with the knowledge as it stands, the chain refuses A05 at structure and the refusal names the drafted lines; nothing is filled in to make it generate",
-   "title": "A05-0, the knowledge as it stands: refused at structure on the drafted origin and control lines",
+   "shows": "with the knowledge as it stands, the chain refuses A05 at structure and the refusal names the drafted line; nothing is filled in to make it generate",
+   "title": "A05-0, the knowledge as it stands: refused at structure on the drafted origin line alone (the drafted control items are examples since the merged correction)",
    "measured": [],
    "verdict": "passing engineering test"
   },
@@ -40,8 +40,8 @@
    "id": "F4",
    "group": "First: the pathways connect (Christian's first reply of 7 November, section 11)",
    "cites": "N7:33-37",
-   "shows": "the provisional state reading, carried only as a labelled TEST-ONLY withholding of the origin items, leaves the drafted control line refused at structure",
-   "title": "A05-1, the starting-condition reading as a TEST-ONLY treatment: refused at structure on the drafted control line alone (measured; our plan expected a refusal at communication)",
+   "shows": "the provisional state reading, carried only as a labelled TEST-ONLY withholding of the origin items, leaves no drafted line refused once the control items are examples: the game is A05-2's, served only under the TEST-ONLY treatments",
+   "title": "A05-1, the starting-condition reading as a TEST-ONLY treatment: the chain would serve it, the same game as A05-2, and never A05's result (measured since the merged correction; before it, refused at structure on the drafted control line)",
    "measured": [],
    "verdict": "passing engineering test"
   },
@@ -454,7 +454,7 @@
     "A02: RESOLVED; Step 2 SELECTED GF2; selection: selection: A02: a knowledge gap (NO_COMPATIBLE_COMBINATION) - the goal's designated knowledge cannot be combined into a selection on GF3; unfilled roles: shaping; held by ruling: none. Nothing was drawn from outside the goal's candidates.",
     "TA02: RESOLVED; Step 2 SELECTED GF2; knowledge: the Representative Performance Context RPC-003 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game",
     "A02 has no production record, so the chain's own bounded selection draws on the goal's own candidates; it refuses (NO_COMPATIBLE_COMBINATION) on GF3, before the handoff places the form Step 2 selected (GF2): the handoff's selection step, which runs only on a selection the chain made, never runs (no form placed, no scorer pick read), and the knowledge stage, where a context without a contract is refused (D02, TA02), is not reached",
-    "TA02, DRAFT (with the TEST-ONLY draft store ta02-composition, as A05-0 uses it; not a production run): RESOLVED; Step 2 SELECTED GF2; structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6; what it rests on: RESTATEMENT-ONLY (2 AUTHORED (DRAFT store item)): the same drafted lines as A05-0",
+    "TA02, DRAFT (with the TEST-ONLY draft store ta02-composition, as A05-0 uses it; not a production run): RESOLVED; Step 2 SELECTED GF2; structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6; what it rests on: RESTATEMENT-ONLY (1 AUTHORED (DRAFT store item)): the same drafted line as A05-0",
     "with the cases (A05, A01, TA01), these 10 goals cover all 13 Learning Goals of the planning file, each run from one place (the WHERE EACH LEARNING GOAL STOPS block)"
    ],
    "verdict": "passing engineering test"
@@ -467,10 +467,10 @@
    "title": "the time-boxed attempt: the coach-served end-line restart in Christian's words does not compose; where it stops, pinned",
    "measured": [
     "A05-2 with the restart items (end-line trigger, last-touch partition for each team, the team that did not touch it last, the coach as taker, a served ball, play stopped and resumed, the location under N7:89): refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:provisional:A05-H1:A05-H1-T1-1::T7",
-    "A05-1 with the same items: refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 2 unresolved properties are neither an authorized choice nor an authorized claim: c:provisional:A05-H1:A05-H1-T1-1::T7, c:restated:RPC-003:RPC-003-12.a::V5",
+    "A05-1 with the same items: refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:provisional:A05-H1:A05-H1-T1-1::T7",
     "no ruling of Christian's says whether this restart begins an episode, so no episode item is added to any case; the restart does not compose from Christian's words, and no DRAFT restart sentence was added to the review-only wording",
-    "diagnostic only, never a case: with a TEST ASSUMPTION that the restart begins an episode and the coach-decided location closed, A05-2 passes structure, realization and validation and is refused at communication (7 fidelity reasons: no instruction carries the restart's last touch, award, taker, method, play state or location; the renderer names no coach as taker and has no served-ball phrase); A05-1 is still refused at structure on the drafted control line alone",
-    "what the refusals rest on: A05-2 NOT KNOWLEDGE (a gap: the refusal cites no item, only a line nobody established); A05-1 RESTATEMENT-ONLY (every cited item is ours and unreviewed (1 AUTHORED (DRAFT store item)), with no ruling of Christian's among them; 1 cited line nobody established (a gap), listed after); the restart items are graded by Christian's own label for this restart (illustrative), not by the basis the realization gate requires of them",
+    "diagnostic only, never a case: with a TEST ASSUMPTION that the restart begins an episode and the coach-decided location closed, A05-2 passes structure, realization and validation and is refused at communication (7 fidelity reasons: no instruction carries the restart's last touch, award, taker, method, play state or location; the renderer names no coach as taker and has no served-ball phrase); A05-1 meets the same: refused at communication on the same 7 fidelity reasons (since the merged correction its drafted control items are examples; before it, A05-1 was still refused at structure on the drafted control line)",
+    "what the refusals rest on: A05-2 NOT KNOWLEDGE (a gap: the refusal cites no item, only a line nobody established); A05-1 NOT KNOWLEDGE (a gap: the refusal cites no item, only a line nobody established); the restart items are graded by Christian's own label for this restart (illustrative), not by the basis the realization gate requires of them",
     "no engine feature was built (the attempt is time-boxed); the restart stays described in the report only, under the unexpected limitations of the checked pathway"
    ],
    "verdict": "passing engineering test"
@@ -587,7 +587,7 @@
    "measured": [
     "classify.ts's GENERAL_REQUIREMENTS: ['NOT_AUTHORED', 'EXCLUDED', 'CLAIMED']; the stage file's REQUIREMENT_DECLARATIONS: ['NOT_AUTHORED', 'EXCLUDED', 'CLAIMED']",
     "classify.ts's scope rule, found once in its source text and mirrored by the wiring: 'const scopeReaches = (d: DeclarationReach) => d.scope !== 'OWN_INVOLVEMENT' || cls.fromItem.contractId === d.contractId'",
-    "over the owed lines the refusal readings read: 19 declarations on 8 lines; 5 own-involvement declarations (restated:VARIABLE-TARGET-CONDITION), of which the scope rule keeps 0 from reaching the element, so applying it changes no reading in the evidence"
+    "over the owed lines the refusal readings read: 15 declarations on 7 lines; 5 own-involvement declarations (restated:VARIABLE-TARGET-CONDITION), of which the scope rule keeps 0 from reaching the element, so applying it changes no reading in the evidence"
    ],
    "verdict": "passing engineering test"
   }
@@ -8987,23 +8987,6 @@
     ],
     "cited": [
      {
-      "ref": "c:restated:RPC-003:RPC-003-12.a::V5",
-      "contractId": "restated:RPC-003",
-      "itemId": "RPC-003-12.a",
-      "basis": "AUTHORED",
-      "origin": "DRAFT_STORE",
-      "premiseKind": "DRAFT_ITEM",
-      "label": "DRAFT knowledge (ours, unreviewed)",
-      "sixClass": 3,
-      "note": null,
-      "source": "the context library (rpc-library.rc1.json)",
-      "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
-      "via": "its reasons",
-      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
-      "owedBy": "the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)",
-      "elementNotBounding": null
-     },
-     {
       "ref": "c:restated:RPC-003:RPC-003-10.a::V6",
       "contractId": "restated:RPC-003",
       "itemId": "RPC-003-10.a",
@@ -9022,44 +9005,11 @@
      }
     ],
     "gaps": [],
-    "mix": "2 AUTHORED (DRAFT store item)",
-    "verdict": "RESTATEMENT-ONLY",
-    "why": "every cited item is ours and unreviewed (2 AUTHORED (DRAFT store item)), with no ruling of Christian's among them"
-   },
-   "obstructs": "yes: the case's configuration stops here (A05_AS_THE_KNOWLEDGE_STANDS)"
-  },
-  {
-   "where": "case A05-1",
-   "basis": {
-    "stage": "structure",
-    "codes": [
-     "GA-NO-FAILED-LINE"
-    ],
-    "cited": [
-     {
-      "ref": "c:restated:RPC-003:RPC-003-12.a::V5",
-      "contractId": "restated:RPC-003",
-      "itemId": "RPC-003-12.a",
-      "basis": "AUTHORED",
-      "origin": "DRAFT_STORE",
-      "premiseKind": "DRAFT_ITEM",
-      "label": "DRAFT knowledge (ours, unreviewed)",
-      "sixClass": 3,
-      "note": null,
-      "source": "the context library (rpc-library.rc1.json)",
-      "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
-      "via": "its reasons",
-      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
-      "owedBy": "the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)",
-      "elementNotBounding": null
-     }
-    ],
-    "gaps": [],
     "mix": "1 AUTHORED (DRAFT store item)",
     "verdict": "RESTATEMENT-ONLY",
     "why": "every cited item is ours and unreviewed (1 AUTHORED (DRAFT store item)), with no ruling of Christian's among them"
    },
-   "obstructs": "yes: the case's configuration stops here (A05_UNDER_TEST_ONLY_TREATMENTS)"
+   "obstructs": "yes: the case's configuration stops here (A05_AS_THE_KNOWLEDGE_STANDS)"
   },
   {
    "where": "case TA01",
@@ -9095,7 +9045,7 @@
     "verdict": "NOT KNOWLEDGE",
     "why": "a gap: the refusal cites no item, only a line nobody established"
    },
-   "obstructs": "not for the configurations the chain would serve, which are built without the restart; but it is a structural refusal, so it is not reported as a refinement. Those configurations (A05-2 and the two GF2 structural cases) hold no restart for a ball over an end line: game::RP1 (the dead-ball restart policy) is not established in any of them; in A05-2 Laws 16 and 17 read not applicable at both ends (no goals), and the GF2 laws accounts owe neither; no departure from either is recorded. Christian's first reply of 7 November, section 5, says a game without conventional goals may require a different end-line restart, as an example of a structural adaptation needed to make a Game Form playable, which is still to be examined for unintended effects; whether its absence is a foundational blocker is Christian's to place. The restart's exact distance, the coach's location and the delivery need not become canonical knowledge and may stay coach-adjustable (Christian's first reply of 7 November, sections 7 and 8); the second reply, section 5, adds that exact restart locations should not delay core generation unless they present a material structural, safety or representative-integrity problem"
+   "obstructs": "not for the configurations the chain would serve, which are built without the restart; but it is a structural refusal, so it is not reported as a refinement. Those configurations (A05-1 and A05-2, under their TEST-ONLY treatments, and the two GF2 structural cases) hold no restart for a ball over an end line: game::RP1 (the dead-ball restart policy) is not established in any of them; in A05-1 and A05-2 Laws 16 and 17 read not applicable at both ends (no goals), and the GF2 laws accounts owe neither; no departure from either is recorded. Christian's first reply of 7 November, section 5, says a game without conventional goals may require a different end-line restart, as an example of a structural adaptation needed to make a Game Form playable, which is still to be examined for unintended effects; whether its absence is a foundational blocker is Christian's to place. The restart's exact distance, the coach's location and the delivery need not become canonical knowledge and may stay coach-adjustable (Christian's first reply of 7 November, sections 7 and 8); the second reply, section 5, adds that exact restart locations should not delay core generation unless they present a material structural, safety or representative-integrity problem"
   },
   {
    "where": "test R1 (A05-1 with the restart items in Christian's words)",
@@ -9104,25 +9054,7 @@
     "codes": [
      "GA-NO-FAILED-LINE"
     ],
-    "cited": [
-     {
-      "ref": "c:restated:RPC-003:RPC-003-12.a::V5",
-      "contractId": "restated:RPC-003",
-      "itemId": "RPC-003-12.a",
-      "basis": "AUTHORED",
-      "origin": "DRAFT_STORE",
-      "premiseKind": "DRAFT_ITEM",
-      "label": "DRAFT knowledge (ours, unreviewed)",
-      "sixClass": 3,
-      "note": null,
-      "source": "the context library (rpc-library.rc1.json)",
-      "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
-      "via": "its reasons",
-      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
-      "owedBy": "the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)",
-      "elementNotBounding": null
-     }
-    ],
+    "cited": [],
     "gaps": [
      {
       "ref": "c:provisional:A05-H1:A05-H1-T1-1::T7",
@@ -9130,11 +9062,11 @@
       "element": "its element is established by item A05-H1-T1-1 of provisional:A05-H1, basis OWNER_RULING; graded REALIZATION_ITEM, class 5, 'ILLUSTRATIVE (for this offline test only; to be replaced before any production use)' (Christian's own label for what these items type is illustrative (HO-07NOV-RESTART, received 7 November 2026, first reply); these items are our TEST-ONLY typing, for a diagnostic, of the restart that ruling asks for; the realization gate types such items OWNER_RULING only because a provisional realization's items must carry that basis, and that typing is not changed)"
      }
     ],
-    "mix": "1 AUTHORED (DRAFT store item)",
-    "verdict": "RESTATEMENT-ONLY",
-    "why": "every cited item is ours and unreviewed (1 AUTHORED (DRAFT store item)), with no ruling of Christian's among them; 1 cited line nobody established (a gap), listed after"
+    "mix": "none",
+    "verdict": "NOT KNOWLEDGE",
+    "why": "a gap: the refusal cites no item, only a line nobody established"
    },
-   "obstructs": "not for the configurations the chain would serve, which are built without the restart; but it is a structural refusal, so it is not reported as a refinement. Those configurations (A05-2 and the two GF2 structural cases) hold no restart for a ball over an end line: game::RP1 (the dead-ball restart policy) is not established in any of them; in A05-2 Laws 16 and 17 read not applicable at both ends (no goals), and the GF2 laws accounts owe neither; no departure from either is recorded. Christian's first reply of 7 November, section 5, says a game without conventional goals may require a different end-line restart, as an example of a structural adaptation needed to make a Game Form playable, which is still to be examined for unintended effects; whether its absence is a foundational blocker is Christian's to place. The restart's exact distance, the coach's location and the delivery need not become canonical knowledge and may stay coach-adjustable (Christian's first reply of 7 November, sections 7 and 8); the second reply, section 5, adds that exact restart locations should not delay core generation unless they present a material structural, safety or representative-integrity problem"
+   "obstructs": "not for the configurations the chain would serve, which are built without the restart; but it is a structural refusal, so it is not reported as a refinement. Those configurations (A05-1 and A05-2, under their TEST-ONLY treatments, and the two GF2 structural cases) hold no restart for a ball over an end line: game::RP1 (the dead-ball restart policy) is not established in any of them; in A05-1 and A05-2 Laws 16 and 17 read not applicable at both ends (no goals), and the GF2 laws accounts owe neither; no departure from either is recorded. Christian's first reply of 7 November, section 5, says a game without conventional goals may require a different end-line restart, as an example of a structural adaptation needed to make a Game Form playable, which is still to be examined for unintended effects; whether its absence is a foundational blocker is Christian's to place. The restart's exact distance, the coach's location and the delivery need not become canonical knowledge and may stay coach-adjustable (Christian's first reply of 7 November, sections 7 and 8); the second reply, section 5, adds that exact restart locations should not delay core generation unless they present a material structural, safety or representative-integrity problem"
   },
   {
    "where": "test R1, diagnostic only (A05-2 with the restart items and a TEST ASSUMPTION that the restart begins an episode; it ran only under that assumption)",
@@ -9617,23 +9549,6 @@
     ],
     "cited": [
      {
-      "ref": "c:restated:RPC-003:RPC-003-12.a::V5",
-      "contractId": "restated:RPC-003",
-      "itemId": "RPC-003-12.a",
-      "basis": "AUTHORED",
-      "origin": "DRAFT_STORE",
-      "premiseKind": "DRAFT_ITEM",
-      "label": "DRAFT knowledge (ours, unreviewed)",
-      "sixClass": 3,
-      "note": null,
-      "source": "the context library (rpc-library.rc1.json)",
-      "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
-      "via": "its reasons",
-      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
-      "owedBy": "the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)",
-      "elementNotBounding": null
-     },
-     {
       "ref": "c:restated:RPC-003:RPC-003-10.a::V6",
       "contractId": "restated:RPC-003",
       "itemId": "RPC-003-10.a",
@@ -9652,11 +9567,11 @@
      }
     ],
     "gaps": [],
-    "mix": "2 AUTHORED (DRAFT store item)",
+    "mix": "1 AUTHORED (DRAFT store item)",
     "verdict": "RESTATEMENT-ONLY",
-    "why": "every cited item is ours and unreviewed (2 AUTHORED (DRAFT store item)), with no ruling of Christian's among them"
+    "why": "every cited item is ours and unreviewed (1 AUTHORED (DRAFT store item)), with no ruling of Christian's among them"
    },
-   "obstructs": "yes for TA02 with the draft store: our drafted lines stop it at structure, as in A05-0; without the draft store it stops earlier, at knowledge; nothing is fabricated to pass it"
+   "obstructs": "yes for TA02 with the draft store: our drafted origin line stops it at structure, as in A05-0; without the draft store it stops earlier, at knowledge; nothing is fabricated to pass it"
   },
   {
    "where": "test E3 (A05-2 held to a TEST-ONLY stand-in classification: LAW-8 MATERIAL)",
@@ -10263,7 +10178,7 @@
     "reasons": [
      "Gate A is FAIL",
      "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
-     "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6"
+     "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6"
     ],
     "scorerPick": "GF2 (the chain's own keyword-scorer pick: not used; the handoff placed GF2)",
     "contextComparison": "the chain's context equals Step 1's (RPC-003)",
@@ -10287,7 +10202,7 @@
     "reasons": [
      "Gate A is FAIL",
      "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
-     "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6"
+     "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6"
     ]
    },
    "refusalBasis": {
@@ -10296,23 +10211,6 @@
      "GA-NO-FAILED-LINE"
     ],
     "cited": [
-     {
-      "ref": "c:restated:RPC-003:RPC-003-12.a::V5",
-      "contractId": "restated:RPC-003",
-      "itemId": "RPC-003-12.a",
-      "basis": "AUTHORED",
-      "origin": "DRAFT_STORE",
-      "premiseKind": "DRAFT_ITEM",
-      "label": "DRAFT knowledge (ours, unreviewed)",
-      "sixClass": 3,
-      "note": null,
-      "source": "the context library (rpc-library.rc1.json)",
-      "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
-      "via": "its reasons",
-      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
-      "owedBy": "the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)",
-      "elementNotBounding": null
-     },
      {
       "ref": "c:restated:RPC-003:RPC-003-10.a::V6",
       "contractId": "restated:RPC-003",
@@ -10332,12 +10230,12 @@
      }
     ],
     "gaps": [],
-    "mix": "2 AUTHORED (DRAFT store item)",
+    "mix": "1 AUTHORED (DRAFT store item)",
     "verdict": "RESTATEMENT-ONLY",
-    "why": "every cited item is ours and unreviewed (2 AUTHORED (DRAFT store item)), with no ruling of Christian's among them"
+    "why": "every cited item is ours and unreviewed (1 AUTHORED (DRAFT store item)), with no ruling of Christian's among them"
    },
    "gaps": [
-    "the chain refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6",
+    "the chain refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6",
     "NC-RESTART the coach-served end-line restart: not carried (UNEXPECTED_LIMITATION)",
     "NC-STARTING the starting condition read as the state of the attack: not carried (KNOWLEDGE_OR_CAPABILITY_GAP)",
     "NC-KICKOFF the ordinary kick-off and 9.15 m: not carried (REPRESENTATION_GAP)",
@@ -10950,70 +10848,2013 @@
    "reportNotes": [],
    "opportunities": "Productive, recurring opportunities to meet the intended Game Problem: not established (no approved relationship ties a Game Problem to any line)",
    "chain": {
-    "outcome": "refused",
-    "stage": "structure",
-    "summary": "The game this goal selects is not yet described completely enough to be set up.",
-    "reasons": [
-     "Gate A is FAIL",
-     "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
-     "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5"
-    ],
+    "outcome": "served",
+    "stage": null,
+    "summary": null,
+    "reasons": [],
     "scorerPick": "GF2 (the chain's own keyword-scorer pick: not used; the handoff placed GF2)",
     "contextComparison": "the chain's context equals Step 1's (RPC-003)",
     "gameProblemComparison": "the chain's account reads UNRESOLVED none (inferred from wording: GP-015 'Maintain Possession'); Step 1: primary GP-001, secondary GP-002; no line of the chain reads a Game Problem; a difference is reported, never switched",
     "gameProblemOverride": null,
     "affordanceLenses": "Possession Stability Opportunity; Line-Breaking Opportunity; Space Creation Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection",
     "constraints": [],
-    "fidelityViolations": null
+    "fidelityViolations": 0
    },
    "manipulations": [],
-   "lines": [],
-   "sentences": [],
-   "sentencesServed": null,
+   "lines": [
+    {
+     "lineId": "c:restated:GF2:GF2-03.e::S5",
+     "path": "space.regions[c:restated:GF2:GF2-03.e].position.along",
+     "kind": "DERIVED",
+     "value": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+     "premises": [
+      {
+       "kind": "RESTATED_ITEM",
+       "ref": "restated:GF2 GF2-04",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json)",
+       "source": "the Soccer Module workbook (soccer-module.rc1-v3.json)",
+       "sourceStanding": "DRAFT (the module's own status, module_status DRAFT; the review pathway reads its Game Form rows as CANDIDATE)"
+      },
+      {
+       "kind": "STAND_IN",
+       "ref": "restated:GF2 TEST-ONLY-DEPTH-NEAR (TEST-ONLY stand-in SI-DEPTH-NEAR): the extent",
+       "standing": "ILLUSTRATIVE",
+       "provisional": false,
+       "sixClass": 5,
+       "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "note": "GF2 authors no depth for a target zone and no ruling of Christian's gives one for this case; the chain carries a depth only as a contract item, so a labelled TEST-ONLY stand-in item carries the illustrative 5 m. Never knowledge."
+      }
+     ],
+     "sixClass": 5,
+     "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+     "decisionKind": "A",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-03.f::S5",
+     "path": "space.regions[c:restated:GF2:GF2-03.f].position.along",
+     "kind": "DERIVED",
+     "value": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+     "premises": [
+      {
+       "kind": "RESTATED_ITEM",
+       "ref": "restated:GF2 GF2-04",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json)",
+       "source": "the Soccer Module workbook (soccer-module.rc1-v3.json)",
+       "sourceStanding": "DRAFT (the module's own status, module_status DRAFT; the review pathway reads its Game Form rows as CANDIDATE)"
+      },
+      {
+       "kind": "STAND_IN",
+       "ref": "restated:GF2 TEST-ONLY-DEPTH-FAR (TEST-ONLY stand-in SI-DEPTH-FAR): the extent",
+       "standing": "ILLUSTRATIVE",
+       "provisional": false,
+       "sixClass": 5,
+       "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+       "note": "As the near zone's depth."
+      }
+     ],
+     "sixClass": 5,
+     "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+     "decisionKind": "A",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-07.a::T6",
+     "path": "transitions[c:restated:GF2:GF2-07.a].playState",
+     "kind": "DERIVED",
+     "value": "CONTINUE",
+     "premises": [
+      {
+       "kind": "RESTATED_ITEM",
+       "ref": "restated:GF2 GF2-17",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json)",
+       "source": "the Soccer Module workbook (soccer-module.rc1-v3.json)",
+       "sourceStanding": "DRAFT (the module's own status, module_status DRAFT; the review pathway reads its Game Form rows as CANDIDATE)"
+      }
+     ],
+     "sixClass": 3,
+     "label": "our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json)",
+     "decisionKind": "A",
+     "decisionKindContextual": false,
+     "note": "a default (an alternative exists)"
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-07.a::T7",
+     "path": "transitions[c:restated:GF2:GF2-07.a].startsEpisode",
+     "kind": "DERIVED",
+     "value": "true",
+     "premises": [
+      {
+       "kind": "DRAFT_ITEM",
+       "ref": "restated:RPC-003 RPC-003-09.a",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT knowledge (ours, unreviewed)",
+       "source": "the context library (rpc-library.rc1.json)",
+       "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT knowledge (ours, unreviewed)",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-08.c::J2",
+     "path": "objectives[c:restated:GF2:GF2-08.c].reference",
+     "kind": "DERIVED",
+     "value": {
+      "structuralRef": {
+       "contractId": "restated:GF2",
+       "itemId": "GF2-03.f"
+      },
+      "asAuthored": "the target at the opposite end from this team own end: the objective-area region of GF2-03.f"
+     },
+     "premises": [
+      {
+       "kind": "KNOWLEDGE_RULING_ITEM",
+       "ref": "restated:GF2 GF2-08.d",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING",
+       "note": "the item's evidence, verbatim: Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records."
+      }
+     ],
+     "sixClass": 2,
+     "label": "RULING",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-08.c::J3",
+     "path": "objectives[c:restated:GF2:GF2-08.c].team",
+     "kind": "DERIVED",
+     "value": "TEAM_AT_AXIS_START",
+     "premises": [
+      {
+       "kind": "KNOWLEDGE_RULING_ITEM",
+       "ref": "restated:GF2 GF2-08.c",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING",
+       "note": "the item's evidence, verbatim: Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records."
+      }
+     ],
+     "sixClass": 2,
+     "label": "RULING",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-08.c::J4",
+     "path": "objectives[c:restated:GF2:GF2-08.c].role",
+     "kind": "DERIVED",
+     "value": "PRIMARY_SCORING",
+     "premises": [
+      {
+       "kind": "KNOWLEDGE_RULING_ITEM",
+       "ref": "restated:GF2 GF2-08.c",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING",
+       "note": "the item's evidence, verbatim: Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records."
+      }
+     ],
+     "sixClass": 2,
+     "label": "RULING",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-08.e::J2",
+     "path": "objectives[c:restated:GF2:GF2-08.e].reference",
+     "kind": "DERIVED",
+     "value": {
+      "structuralRef": {
+       "contractId": "restated:GF2",
+       "itemId": "GF2-03.e"
+      },
+      "asAuthored": "the target at the opposite end from this team own end: the objective-area region of GF2-03.e"
+     },
+     "premises": [
+      {
+       "kind": "KNOWLEDGE_RULING_ITEM",
+       "ref": "restated:GF2 GF2-08.f",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING",
+       "note": "the item's evidence, verbatim: Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records."
+      }
+     ],
+     "sixClass": 2,
+     "label": "RULING",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-08.e::J3",
+     "path": "objectives[c:restated:GF2:GF2-08.e].team",
+     "kind": "DERIVED",
+     "value": "TEAM_AT_AXIS_END",
+     "premises": [
+      {
+       "kind": "KNOWLEDGE_RULING_ITEM",
+       "ref": "restated:GF2 GF2-08.e",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING",
+       "note": "the item's evidence, verbatim: Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records."
+      }
+     ],
+     "sixClass": 2,
+     "label": "RULING",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-08.e::J4",
+     "path": "objectives[c:restated:GF2:GF2-08.e].role",
+     "kind": "DERIVED",
+     "value": "PRIMARY_SCORING",
+     "premises": [
+      {
+       "kind": "KNOWLEDGE_RULING_ITEM",
+       "ref": "restated:GF2 GF2-08.e",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING",
+       "note": "the item's evidence, verbatim: Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records."
+      }
+     ],
+     "sixClass": 2,
+     "label": "RULING",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:sport-profile:soccer:SPORT-SOCCER-01::O2",
+     "path": "objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind",
+     "kind": "DERIVED",
+     "value": "ball",
+     "premises": [
+      {
+       "kind": "KNOWLEDGE_RULING_ITEM",
+       "ref": "sport-profile:soccer SPORT-SOCCER-01",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING",
+       "note": "the item's evidence, verbatim: {\"quote\":\"For this pilot scope it should establish only constitutive sport structure now demonstrated to be required: the game's functional object is a ball.\",\"sourceId\":\"Christian, 2026-10-06\"}"
+      }
+     ],
+     "sixClass": 2,
+     "label": "RULING",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "game::E1",
+     "path": "envelope.players",
+     "kind": "DERIVED",
+     "value": 12,
+     "premises": [
+      {
+       "kind": "SESSION_ILLUSTRATIVE",
+       "ref": "session input: E1 = 12",
+       "standing": "ILLUSTRATIVE",
+       "provisional": false,
+       "sixClass": 5,
+       "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "sixClass": 5,
+     "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+     "decisionKind": "A",
+     "decisionKindContextual": true,
+     "note": null
+    },
+    {
+     "lineId": "game::E2",
+     "path": "envelope.area.length_m",
+     "kind": "DERIVED",
+     "value": 40,
+     "premises": [
+      {
+       "kind": "SESSION_ILLUSTRATIVE",
+       "ref": "session input: E2 = 40",
+       "standing": "ILLUSTRATIVE",
+       "provisional": false,
+       "sixClass": 5,
+       "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "sixClass": 5,
+     "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+     "decisionKind": "A",
+     "decisionKindContextual": true,
+     "note": null
+    },
+    {
+     "lineId": "game::E3",
+     "path": "envelope.area.width_m",
+     "kind": "DERIVED",
+     "value": 30,
+     "premises": [
+      {
+       "kind": "SESSION_ILLUSTRATIVE",
+       "ref": "session input: E3 = 30",
+       "standing": "ILLUSTRATIVE",
+       "provisional": false,
+       "sixClass": 5,
+       "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "sixClass": 5,
+     "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+     "decisionKind": "A",
+     "decisionKindContextual": true,
+     "note": null
+    },
+    {
+     "lineId": "game::E4",
+     "path": "envelope.duration_min",
+     "kind": "DERIVED",
+     "value": 18,
+     "premises": [
+      {
+       "kind": "SESSION_ILLUSTRATIVE",
+       "ref": "session input: E4 = 18",
+       "standing": "ILLUSTRATIVE",
+       "provisional": false,
+       "sixClass": 5,
+       "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "sixClass": 5,
+     "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+     "decisionKind": "A",
+     "decisionKindContextual": true,
+     "note": null
+    },
+    {
+     "lineId": "game::S1",
+     "path": "space.axis",
+     "kind": "DERIVED",
+     "value": "the longer envelope dimension",
+     "premises": [
+      {
+       "kind": "STANDING_DECISION",
+       "ref": "SD-11 (records Christian's decisions of 18 September on revision 2)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      }
+     ],
+     "sixClass": 2,
+     "label": "RULING",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "game::V2",
+     "path": "value.primaryEvent.value",
+     "kind": "DERIVED",
+     "value": 1,
+     "premises": [
+      {
+       "kind": "STANDING_DECISION",
+       "ref": "SD-25 (records Christian's rulings of 20 September closing the collision exercise)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      }
+     ],
+     "sixClass": 2,
+     "label": "RULING",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-03.e::S3",
+     "path": "space.regions[c:restated:GF2:GF2-03.e].noun",
+     "kind": "CHOICE",
+     "value": "zone",
+     "premises": [
+      {
+       "kind": "CASE_CHOICE_RULING",
+       "ref": "c:restated:GF2:GF2-03.e::S3 = 'zone' on HO-28OCT-ENDZONE",
+       "standing": "RULING",
+       "provisional": true,
+       "sixClass": 3,
+       "label": "RULING, provisional"
+      }
+     ],
+     "sixClass": 3,
+     "label": "RULING, provisional",
+     "decisionKind": "A",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-03.f::S3",
+     "path": "space.regions[c:restated:GF2:GF2-03.f].noun",
+     "kind": "CHOICE",
+     "value": "zone",
+     "premises": [
+      {
+       "kind": "CASE_CHOICE_RULING",
+       "ref": "c:restated:GF2:GF2-03.f::S3 = 'zone' on HO-28OCT-ENDZONE",
+       "standing": "RULING",
+       "provisional": true,
+       "sixClass": 3,
+       "label": "RULING, provisional"
+      }
+     ],
+     "sixClass": 3,
+     "label": "RULING, provisional",
+     "decisionKind": "A",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "game::V1",
+     "path": "value.primaryEvent.kind",
+     "kind": "CHOICE",
+     "value": "target_zone_entered",
+     "premises": [
+      {
+       "kind": "CASE_CHOICE_RULING",
+       "ref": "game::V1 = 'target_zone_entered' on HO-28OCT-PROVISIONAL",
+       "standing": "RULING",
+       "provisional": true,
+       "sixClass": 3,
+       "label": "RULING, provisional"
+      }
+     ],
+     "sixClass": 3,
+     "label": "RULING, provisional",
+     "decisionKind": "A",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "game::PS1",
+     "path": "possession.team",
+     "kind": "CHOICE",
+     "value": "c:restated:GF2:GF2-14.a#1",
+     "premises": [
+      {
+       "kind": "COACH",
+       "ref": "game::PS1: the coach decides",
+       "standing": null,
+       "provisional": false,
+       "sixClass": null,
+       "label": "the coach decides"
+      }
+     ],
+     "sixClass": null,
+     "label": "the coach decides",
+     "decisionKind": "C",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-03.e::S6",
+     "path": "space.regions[c:restated:GF2:GF2-03.e].position.across",
+     "kind": "CHOICE",
+     "value": "extends across the axis: the target lies across the direction of progression",
+     "premises": [
+      {
+       "kind": "ASSUMED_BOUND",
+       "ref": "the one value the line's authored bound admits, a bound ASSUMED in our restatement, closed by the justified-default rule ONLY_MEMBER_OF_AUTHORED_BOUND",
+       "standing": "OURS",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "OURS: assumption in our restatement"
+      }
+     ],
+     "sixClass": 6,
+     "label": "OURS: assumption in our restatement",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": "a justified default (ONLY_MEMBER_OF_AUTHORED_BOUND), resting on an ASSUMED bound"
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-03.f::S6",
+     "path": "space.regions[c:restated:GF2:GF2-03.f].position.across",
+     "kind": "CHOICE",
+     "value": "extends across the axis: the target lies across the direction of progression",
+     "premises": [
+      {
+       "kind": "ASSUMED_BOUND",
+       "ref": "the one value the line's authored bound admits, a bound ASSUMED in our restatement, closed by the justified-default rule ONLY_MEMBER_OF_AUTHORED_BOUND",
+       "standing": "OURS",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "OURS: assumption in our restatement"
+      }
+     ],
+     "sixClass": 6,
+     "label": "OURS: assumption in our restatement",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": "a justified default (ONLY_MEMBER_OF_AUTHORED_BOUND), resting on an ASSUMED bound"
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-03.e::S4",
+     "path": "space.regions[c:restated:GF2:GF2-03.e].functions",
+     "kind": "NOT_ESTABLISHED",
+     "value": null,
+     "premises": [
+      {
+       "kind": "UNRESOLVED",
+       "ref": "c:restated:GF2:GF2-03.e::S4: nothing establishes it (not constrained)",
+       "standing": "UNRESOLVED",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "UNRESOLVED: no authorized value; needs a knowledge decision"
+      }
+     ],
+     "sixClass": 6,
+     "label": "UNRESOLVED: no authorized value; needs a knowledge decision",
+     "decisionKind": null,
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-03.e::S7",
+     "path": "space.regions[c:restated:GF2:GF2-03.e].ofObject",
+     "kind": "NOT_ESTABLISHED",
+     "value": null,
+     "premises": [
+      {
+       "kind": "UNRESOLVED",
+       "ref": "c:restated:GF2:GF2-03.e::S7: nothing establishes it (no coverage)",
+       "standing": "UNRESOLVED",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "UNRESOLVED: no authorized value; needs a knowledge decision"
+      }
+     ],
+     "sixClass": 6,
+     "label": "UNRESOLVED: no authorized value; needs a knowledge decision",
+     "decisionKind": null,
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-03.f::S4",
+     "path": "space.regions[c:restated:GF2:GF2-03.f].functions",
+     "kind": "NOT_ESTABLISHED",
+     "value": null,
+     "premises": [
+      {
+       "kind": "UNRESOLVED",
+       "ref": "c:restated:GF2:GF2-03.f::S4: nothing establishes it (not constrained)",
+       "standing": "UNRESOLVED",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "UNRESOLVED: no authorized value; needs a knowledge decision"
+      }
+     ],
+     "sixClass": 6,
+     "label": "UNRESOLVED: no authorized value; needs a knowledge decision",
+     "decisionKind": null,
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-03.f::S7",
+     "path": "space.regions[c:restated:GF2:GF2-03.f].ofObject",
+     "kind": "NOT_ESTABLISHED",
+     "value": null,
+     "premises": [
+      {
+       "kind": "UNRESOLVED",
+       "ref": "c:restated:GF2:GF2-03.f::S7: nothing establishes it (no coverage)",
+       "standing": "UNRESOLVED",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "UNRESOLVED: no authorized value; needs a knowledge decision"
+      }
+     ],
+     "sixClass": 6,
+     "label": "UNRESOLVED: no authorized value; needs a knowledge decision",
+     "decisionKind": null,
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "c:sport-profile:soccer:SPORT-SOCCER-01::O3",
+     "path": "objects[c:sport-profile:soccer:SPORT-SOCCER-01].count",
+     "kind": "NOT_ESTABLISHED",
+     "value": null,
+     "premises": [
+      {
+       "kind": "UNRESOLVED",
+       "ref": "c:sport-profile:soccer:SPORT-SOCCER-01::O3: nothing establishes it (not constrained)",
+       "standing": "UNRESOLVED",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "UNRESOLVED: no authorized value; needs a knowledge decision"
+      }
+     ],
+     "sixClass": 6,
+     "label": "UNRESOLVED: no authorized value; needs a knowledge decision",
+     "decisionKind": null,
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "game::B10",
+     "path": "blocks.endAssignment",
+     "kind": "NOT_ESTABLISHED",
+     "value": null,
+     "premises": [
+      {
+       "kind": "UNRESOLVED",
+       "ref": "game::B10: nothing establishes it (no coverage)",
+       "standing": "UNRESOLVED",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "UNRESOLVED: no authorized value; needs a knowledge decision"
+      }
+     ],
+     "sixClass": 6,
+     "label": "UNRESOLVED: no authorized value; needs a knowledge decision",
+     "decisionKind": null,
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "game::P5",
+     "path": "performers.neutrals.count",
+     "kind": "NOT_ESTABLISHED",
+     "value": null,
+     "premises": [
+      {
+       "kind": "UNRESOLVED",
+       "ref": "game::P5: nothing establishes it (not constrained)",
+       "standing": "UNRESOLVED",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "UNRESOLVED: no authorized value; needs a knowledge decision"
+      }
+     ],
+     "sixClass": 6,
+     "label": "UNRESOLVED: no authorized value; needs a knowledge decision",
+     "decisionKind": null,
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "game::P6a",
+     "path": "performers.neutrals.affiliation.on",
+     "kind": "NOT_ESTABLISHED",
+     "value": null,
+     "premises": [
+      {
+       "kind": "UNRESOLVED",
+       "ref": "game::P6a: nothing establishes it (not constrained)",
+       "standing": "UNRESOLVED",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "UNRESOLVED: no authorized value; needs a knowledge decision"
+      }
+     ],
+     "sixClass": 6,
+     "label": "UNRESOLVED: no authorized value; needs a knowledge decision",
+     "decisionKind": null,
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "game::P6b",
+     "path": "performers.neutrals.affiliation.joins",
+     "kind": "NOT_ESTABLISHED",
+     "value": null,
+     "premises": [
+      {
+       "kind": "UNRESOLVED",
+       "ref": "game::P6b: nothing establishes it (not constrained)",
+       "standing": "UNRESOLVED",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "UNRESOLVED: no authorized value; needs a knowledge decision"
+      }
+     ],
+     "sixClass": 6,
+     "label": "UNRESOLVED: no authorized value; needs a knowledge decision",
+     "decisionKind": null,
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "game::P6c",
+     "path": "performers.neutrals.affiliation.takesEffect",
+     "kind": "NOT_ESTABLISHED",
+     "value": null,
+     "premises": [
+      {
+       "kind": "UNRESOLVED",
+       "ref": "game::P6c: nothing establishes it (not constrained)",
+       "standing": "UNRESOLVED",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "UNRESOLVED: no authorized value; needs a knowledge decision"
+      }
+     ],
+     "sixClass": 6,
+     "label": "UNRESOLVED: no authorized value; needs a knowledge decision",
+     "decisionKind": null,
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "game::P7",
+     "path": "performers.neutrals.distinguishable",
+     "kind": "NOT_ESTABLISHED",
+     "value": null,
+     "premises": [
+      {
+       "kind": "UNRESOLVED",
+       "ref": "game::P7: nothing establishes it (not constrained)",
+       "standing": "UNRESOLVED",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "UNRESOLVED: no authorized value; needs a knowledge decision"
+      }
+     ],
+     "sixClass": 6,
+     "label": "UNRESOLVED: no authorized value; needs a knowledge decision",
+     "decisionKind": null,
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "game::RP1",
+     "path": "restartPolicy.deadBall",
+     "kind": "NOT_ESTABLISHED",
+     "value": null,
+     "premises": [
+      {
+       "kind": "UNRESOLVED",
+       "ref": "game::RP1: nothing establishes it (no coverage)",
+       "standing": "UNRESOLVED",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "UNRESOLVED: no authorized value; needs a knowledge decision"
+      }
+     ],
+     "sixClass": 6,
+     "label": "UNRESOLVED: no authorized value; needs a knowledge decision",
+     "decisionKind": null,
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2",
+     "path": "performers.teams[c:restated:GF2:GF2-14.a#1].outfieldCount",
+     "kind": "ENTAILED",
+     "value": 6,
+     "premises": [
+      {
+       "kind": "RESTATED_ITEM",
+       "ref": "restated:GF2 GF2-14.a",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "source": "the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "sourceStanding": "APPROVED (the review pathway's standing for the Game Archetype Workbook RC1.1)"
+      },
+      {
+       "kind": "SESSION_ILLUSTRATIVE",
+       "ref": "session input: players = 12",
+       "standing": "ILLUSTRATIVE",
+       "provisional": false,
+       "sixClass": 5,
+       "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "sixClass": 5,
+     "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": "entailed by the chain: entailed from the session and the authored equality: 12 session performers over 2 teams, with equality authored on P2"
+    },
+    {
+     "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P3",
+     "path": "performers.teams[c:restated:GF2:GF2-14.a#1].goalkeeper",
+     "kind": "ENTAILED",
+     "value": 0,
+     "premises": [
+      {
+       "kind": "RESTATED_ITEM",
+       "ref": "restated:GF2 GF2-14.a",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "source": "the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "sourceStanding": "APPROVED (the review pathway's standing for the Game Archetype Workbook RC1.1)"
+      },
+      {
+       "kind": "SESSION_ILLUSTRATIVE",
+       "ref": "session input: players = 12",
+       "standing": "ILLUSTRATIVE",
+       "provisional": false,
+       "sixClass": 5,
+       "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "sixClass": 5,
+     "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": "entailed by the chain: no selected knowledge establishes goalkeeper in this game (P3 is not constrained); the session has 0 available, which covers it and is not itself instantiated into the game; the register declares P3 a specialized role"
+    },
+    {
+     "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2",
+     "path": "performers.teams[c:restated:GF2:GF2-14.a#2].outfieldCount",
+     "kind": "ENTAILED",
+     "value": 6,
+     "premises": [
+      {
+       "kind": "RESTATED_ITEM",
+       "ref": "restated:GF2 GF2-14.a",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "source": "the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "sourceStanding": "APPROVED (the review pathway's standing for the Game Archetype Workbook RC1.1)"
+      },
+      {
+       "kind": "SESSION_ILLUSTRATIVE",
+       "ref": "session input: players = 12",
+       "standing": "ILLUSTRATIVE",
+       "provisional": false,
+       "sixClass": 5,
+       "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "sixClass": 5,
+     "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": "entailed by the chain: entailed from the session and the authored equality: 12 session performers over 2 teams, with equality authored on P2"
+    },
+    {
+     "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P3",
+     "path": "performers.teams[c:restated:GF2:GF2-14.a#2].goalkeeper",
+     "kind": "ENTAILED",
+     "value": 0,
+     "premises": [
+      {
+       "kind": "RESTATED_ITEM",
+       "ref": "restated:GF2 GF2-14.a",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "source": "the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "sourceStanding": "APPROVED (the review pathway's standing for the Game Archetype Workbook RC1.1)"
+      },
+      {
+       "kind": "SESSION_ILLUSTRATIVE",
+       "ref": "session input: players = 12",
+       "standing": "ILLUSTRATIVE",
+       "provisional": false,
+       "sixClass": 5,
+       "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "sixClass": 5,
+     "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": "entailed by the chain: no selected knowledge establishes goalkeeper in this game (P3 is not constrained); the session has 0 available, which covers it and is not itself instantiated into the game; the register declares P3 a specialized role"
+    },
+    {
+     "lineId": "c:restated:GF2:GF2-14.a::members",
+     "path": "performers.teams[]",
+     "kind": "INSTANTIATION",
+     "value": 2,
+     "premises": [
+      {
+       "kind": "RESTATED_ITEM",
+       "ref": "restated:GF2 GF2-14.a",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "source": "the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+       "sourceStanding": "APPROVED (the review pathway's standing for the Game Archetype Workbook RC1.1)"
+      }
+     ],
+     "sixClass": 3,
+     "label": "our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": "an element the class establishes"
+    },
+    {
+     "lineId": "defaultLaws:LAW-8",
+     "path": "defaultLaws.laws[LAW-8]",
+     "kind": "LAW",
+     "value": "ADAPTATION_OWED",
+     "premises": [
+      {
+       "kind": "UNRESOLVED",
+       "ref": "LAW-8: an adaptation is owed (the laws account names why)",
+       "standing": "UNRESOLVED",
+       "provisional": false,
+       "sixClass": 6,
+       "label": "UNRESOLVED: no authorized value; needs a knowledge decision"
+      }
+     ],
+     "sixClass": 6,
+     "label": "UNRESOLVED: no authorized value; needs a knowledge decision",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-8-DB",
+     "path": "defaultLaws.laws[LAW-8-DB]",
+     "kind": "LAW",
+     "value": "APPLIES",
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "LAW-8-DB APPLIES: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-8-DB:applied",
+     "path": "defaultLaws.applied[LAW-8-DB]",
+     "kind": "LAW",
+     "value": "APPLIES",
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "LAW-8-DB APPLIES: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-11",
+     "path": "defaultLaws.laws[LAW-11]",
+     "kind": "LAW",
+     "value": "DEPARTED",
+     "premises": [
+      {
+       "kind": "LAW_DEPARTURE",
+       "ref": "LAW-11 departed from, WHOLE, on HO-29OCT-PROVISIONAL, HO-28OCT-PROVISIONAL, HO-07NOV-OFFSIDE-SCOPE",
+       "standing": "RULING",
+       "provisional": true,
+       "sixClass": 3,
+       "label": "RULING, provisional"
+      }
+     ],
+     "sixClass": 3,
+     "label": "RULING, provisional",
+     "decisionKind": "A",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-12-GK",
+     "path": "defaultLaws.laws[LAW-12-GK]",
+     "kind": "LAW",
+     "value": "NOT_APPLICABLE",
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "LAW-12-GK NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-14:end 0",
+     "path": "defaultLaws.laws[LAW-14]",
+     "kind": "LAW",
+     "value": "NOT_APPLICABLE",
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "LAW-14 NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-14:end 1",
+     "path": "defaultLaws.laws[LAW-14]",
+     "kind": "LAW",
+     "value": "NOT_APPLICABLE",
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "LAW-14 NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-13",
+     "path": "defaultLaws.laws[LAW-13]",
+     "kind": "LAW",
+     "value": "APPLIES",
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "LAW-13 APPLIES: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-13:applied",
+     "path": "defaultLaws.applied[LAW-13]",
+     "kind": "LAW",
+     "value": "APPLIES",
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "LAW-13 APPLIES: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-15",
+     "path": "defaultLaws.laws[LAW-15]",
+     "kind": "LAW",
+     "value": "APPLIES",
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "LAW-15 APPLIES: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-15:applied",
+     "path": "defaultLaws.applied[LAW-15]",
+     "kind": "LAW",
+     "value": "APPLIES",
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "LAW-15 APPLIES: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-16:end 0",
+     "path": "defaultLaws.laws[LAW-16]",
+     "kind": "LAW",
+     "value": "NOT_APPLICABLE",
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "LAW-16 NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-16:end 1",
+     "path": "defaultLaws.laws[LAW-16]",
+     "kind": "LAW",
+     "value": "NOT_APPLICABLE",
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "LAW-16 NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-17:end 0",
+     "path": "defaultLaws.laws[LAW-17]",
+     "kind": "LAW",
+     "value": "NOT_APPLICABLE",
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "LAW-17 NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-17:end 1",
+     "path": "defaultLaws.laws[LAW-17]",
+     "kind": "LAW",
+     "value": "NOT_APPLICABLE",
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "LAW-17 NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:LAW-4-GK",
+     "path": "defaultLaws.laws[LAW-4-GK]",
+     "kind": "LAW",
+     "value": "NOT_APPLICABLE",
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "LAW-4-GK NOT_APPLICABLE: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "defaultLaws:owed",
+     "path": "defaultLaws.owed",
+     "kind": "LAW",
+     "value": [
+      "LAW-8"
+     ],
+     "premises": [
+      {
+       "kind": "LAWS_DEFAULT_PRINCIPLE",
+       "ref": "the Laws apply by default (HO-23OCT-LAWS, received 23 October 2026)",
+       "standing": "RULING",
+       "provisional": false,
+       "sixClass": 2,
+       "label": "RULING"
+      },
+      {
+       "kind": "LAWS_ENCODING",
+       "ref": "the owed list OWED_LIST: our DRAFT per-law encoding in the Sport Profile's default-laws block",
+       "standing": "CANDIDATE",
+       "provisional": false,
+       "sixClass": 3,
+       "label": "DRAFT: our per-law encoding"
+      }
+     ],
+     "sixClass": 3,
+     "label": "DRAFT: our per-law encoding",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    },
+    {
+     "lineId": "session::roles",
+     "path": "envelope.roles",
+     "kind": "SESSION_ROLES",
+     "value": {
+      "goalkeeper": 0
+     },
+     "premises": [
+      {
+       "kind": "SESSION_ILLUSTRATIVE",
+       "ref": "session input: specialized roles = 0",
+       "standing": "ILLUSTRATIVE",
+       "provisional": false,
+       "sixClass": 5,
+       "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      }
+     ],
+     "sixClass": 5,
+     "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+     "decisionKind": "B",
+     "decisionKindContextual": false,
+     "note": null
+    }
+   ],
+   "sentences": [
+    {
+     "section": "Set up",
+     "block": null,
+     "text": "Mark out an area 40 m long by 30 m wide",
+     "status": "DERIVED",
+     "wording": "DRAFT",
+     "reviewOnly": false,
+     "from": [
+      "envelope.area.length_m",
+      "envelope.area.width_m"
+     ],
+     "joined": [
+      "game::E2",
+      "game::E3"
+     ],
+     "throughElement": [],
+     "unjoined": [],
+     "sixClass": 5,
+     "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+     "otherLabels": []
+    },
+    {
+     "section": "Set up",
+     "block": null,
+     "text": "Mark a 5 m end zone across the full width at each end",
+     "status": "STARTING",
+     "wording": "DRAFT",
+     "reviewOnly": true,
+     "from": [
+      "space.regions[c:restated:GF2:GF2-03.e].noun",
+      "space.regions[c:restated:GF2:GF2-03.e].position.along",
+      "space.regions[c:restated:GF2:GF2-03.e].position.across",
+      "space.regions[c:restated:GF2:GF2-03.f].noun",
+      "space.regions[c:restated:GF2:GF2-03.f].position.along",
+      "space.regions[c:restated:GF2:GF2-03.f].position.across",
+      "objectives[c:restated:GF2:GF2-08.e].reference",
+      "objectives[c:restated:GF2:GF2-08.c].reference"
+     ],
+     "joined": [
+      "c:restated:GF2:GF2-03.e::S3",
+      "c:restated:GF2:GF2-03.e::S5",
+      "c:restated:GF2:GF2-03.e::S6",
+      "c:restated:GF2:GF2-03.f::S3",
+      "c:restated:GF2:GF2-03.f::S5",
+      "c:restated:GF2:GF2-03.f::S6",
+      "c:restated:GF2:GF2-08.e::J2",
+      "c:restated:GF2:GF2-08.c::J2"
+     ],
+     "throughElement": [],
+     "unjoined": [],
+     "sixClass": 6,
+     "label": "OURS: assumption in our restatement",
+     "otherLabels": [
+      "class 3: Candidate or provisional knowledge; RULING, provisional",
+      "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+      "class 2: An explicit scoped ruling; RULING"
+     ]
+    },
+    {
+     "section": "Players",
+     "block": null,
+     "text": "Divide 12 players into 2 teams of 6, with no goalkeepers",
+     "status": "DERIVED",
+     "wording": "DRAFT",
+     "reviewOnly": false,
+     "from": [
+      "envelope.players",
+      "performers.teams",
+      "performers.teams[].outfieldCount",
+      "envelope.roles",
+      "performers.teams[].goalkeeper"
+     ],
+     "joined": [
+      "game::E1",
+      "c:restated:GF2:GF2-14.a::members",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2",
+      "session::roles",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P3",
+      "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P3"
+     ],
+     "throughElement": [],
+     "unjoined": [],
+     "sixClass": 5,
+     "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+     "otherLabels": [
+      "class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)"
+     ]
+    },
+    {
+     "section": "How it works",
+     "block": null,
+     "text": "Pick which team starts with the ball and tell both teams before you start",
+     "status": "COACH_CHOICE",
+     "wording": "DRAFT",
+     "reviewOnly": false,
+     "from": [
+      "possession.team",
+      "performers.teams",
+      "objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind"
+     ],
+     "joined": [
+      "game::PS1",
+      "c:restated:GF2:GF2-14.a::members",
+      "c:sport-profile:soccer:SPORT-SOCCER-01::O2"
+     ],
+     "throughElement": [],
+     "unjoined": [],
+     "sixClass": 3,
+     "label": "our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)",
+     "otherLabels": [
+      "class 2: An explicit scoped ruling; RULING"
+     ]
+    },
+    {
+     "section": "How it works",
+     "block": null,
+     "text": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same target",
+     "status": "STARTING",
+     "wording": "APPROVED",
+     "reviewOnly": false,
+     "from": [
+      "transitions[c:restated:GF2:GF2-07.a].playState",
+      "transitions[c:restated:GF2:GF2-07.a].selector",
+      "objectives[c:restated:GF2:GF2-08.c].team",
+      "transitions",
+      "objectives[c:restated:GF2:GF2-08.c].reference",
+      "objectives[c:restated:GF2:GF2-08.e].reference"
+     ],
+     "joined": [
+      "c:restated:GF2:GF2-07.a::T6",
+      "c:restated:GF2:GF2-08.c::J3",
+      "c:restated:GF2:GF2-07.a::T7",
+      "c:restated:GF2:GF2-08.c::J2",
+      "c:restated:GF2:GF2-08.e::J2"
+     ],
+     "throughElement": [
+      "transitions[c:restated:GF2:GF2-07.a].selector (the element of c:restated:GF2:GF2-07.a; class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json))"
+     ],
+     "unjoined": [],
+     "sixClass": 3,
+     "label": "our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / DRAFT knowledge (ours, unreviewed)",
+     "otherLabels": [
+      "class 2: An explicit scoped ruling; RULING"
+     ]
+    },
+    {
+     "section": "How it works",
+     "block": null,
+     "text": "There is no offside",
+     "status": "DERIVED",
+     "wording": "DRAFT",
+     "reviewOnly": false,
+     "from": [
+      "defaultLaws.laws[LAW-11]"
+     ],
+     "joined": [
+      "defaultLaws:LAW-11"
+     ],
+     "throughElement": [],
+     "unjoined": [],
+     "sixClass": 3,
+     "label": "RULING, provisional",
+     "otherLabels": []
+    },
+    {
+     "section": "How to score",
+     "block": null,
+     "text": "A team scores 1 point by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside",
+     "status": "STARTING",
+     "wording": "DRAFT",
+     "reviewOnly": false,
+     "from": [
+      "value.primaryEvent.kind",
+      "value.primaryEvent.value",
+      "objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind",
+      "space.regions[c:restated:GF2:GF2-03.f].noun",
+      "space.regions[c:restated:GF2:GF2-03.e].noun",
+      "objectives[c:restated:GF2:GF2-08.c].role"
+     ],
+     "joined": [
+      "game::V1",
+      "game::V2",
+      "c:sport-profile:soccer:SPORT-SOCCER-01::O2",
+      "c:restated:GF2:GF2-03.f::S3",
+      "c:restated:GF2:GF2-03.e::S3",
+      "c:restated:GF2:GF2-08.c::J4"
+     ],
+     "throughElement": [],
+     "unjoined": [],
+     "sixClass": 3,
+     "label": "RULING, provisional",
+     "otherLabels": [
+      "class 2: An explicit scoped ruling; RULING"
+     ]
+    },
+    {
+     "section": "How to score",
+     "block": null,
+     "text": "Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
+     "status": "DERIVED",
+     "wording": "DRAFT",
+     "reviewOnly": false,
+     "from": [
+      "objectives[c:restated:GF2:GF2-08.c].team",
+      "objectives[c:restated:GF2:GF2-08.c].reference",
+      "objectives[c:restated:GF2:GF2-08.c].role",
+      "objectives[c:restated:GF2:GF2-08.e].team",
+      "objectives[c:restated:GF2:GF2-08.e].reference",
+      "objectives[c:restated:GF2:GF2-08.e].role",
+      "space.regions[c:restated:GF2:GF2-03.f].noun",
+      "space.regions[c:restated:GF2:GF2-03.e].noun"
+     ],
+     "joined": [
+      "c:restated:GF2:GF2-08.c::J3",
+      "c:restated:GF2:GF2-08.c::J2",
+      "c:restated:GF2:GF2-08.c::J4",
+      "c:restated:GF2:GF2-08.e::J3",
+      "c:restated:GF2:GF2-08.e::J2",
+      "c:restated:GF2:GF2-08.e::J4",
+      "c:restated:GF2:GF2-03.f::S3",
+      "c:restated:GF2:GF2-03.e::S3"
+     ],
+     "throughElement": [],
+     "unjoined": [],
+     "sixClass": 3,
+     "label": "RULING, provisional",
+     "otherLabels": [
+      "class 2: An explicit scoped ruling; RULING"
+     ]
+    },
+    {
+     "section": "When it ends",
+     "block": null,
+     "text": "Play for 18 minutes",
+     "status": "DERIVED",
+     "wording": "DRAFT",
+     "reviewOnly": false,
+     "from": [
+      "envelope.duration_min"
+     ],
+     "joined": [
+      "game::E4"
+     ],
+     "throughElement": [],
+     "unjoined": [],
+     "sixClass": 5,
+     "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+     "otherLabels": []
+    }
+   ],
+   "sentencesServed": true,
    "withheld": [],
-   "laws": null,
-   "lawEntries": [],
-   "requirementAccount": null,
-   "diagram": null,
-   "refusal": {
-    "stage": "structure",
-    "reasons": [
-     "Gate A is FAIL",
-     "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
-     "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5"
+   "laws": {
+    "mode": "REPORT (the TEST-ONLY realization's check), held by the harness to our DRAFT classification",
+    "owed": [
+     "LAW-8"
+    ],
+    "reportedForReview": [
+     "LAW-8 at the game: an adaptation is owed; PROCEDURAL under our DRAFT classification (docs/audits/drafts/laws-materiality.DRAFT.json: our reading, for Christian's review; not a ruling)"
     ]
    },
-   "refusalBasis": {
-    "stage": "structure",
-    "codes": [
-     "GA-NO-FAILED-LINE"
+   "lawEntries": [
+    {
+     "lineId": "defaultLaws:LAW-8",
+     "law": "LAW-8",
+     "status": "ADAPTATION_OWED",
+     "removedByRealization": false
+    },
+    {
+     "lineId": "defaultLaws:LAW-8-DB",
+     "law": "LAW-8-DB",
+     "status": "APPLIES",
+     "removedByRealization": false
+    },
+    {
+     "lineId": "defaultLaws:LAW-11",
+     "law": "LAW-11",
+     "status": "DEPARTED",
+     "removedByRealization": true
+    },
+    {
+     "lineId": "defaultLaws:LAW-12-GK",
+     "law": "LAW-12-GK",
+     "status": "NOT_APPLICABLE",
+     "removedByRealization": false
+    },
+    {
+     "lineId": "defaultLaws:LAW-14:end 0",
+     "law": "LAW-14",
+     "status": "NOT_APPLICABLE",
+     "removedByRealization": false
+    },
+    {
+     "lineId": "defaultLaws:LAW-14:end 1",
+     "law": "LAW-14",
+     "status": "NOT_APPLICABLE",
+     "removedByRealization": false
+    },
+    {
+     "lineId": "defaultLaws:LAW-13",
+     "law": "LAW-13",
+     "status": "APPLIES",
+     "removedByRealization": false
+    },
+    {
+     "lineId": "defaultLaws:LAW-15",
+     "law": "LAW-15",
+     "status": "APPLIES",
+     "removedByRealization": false
+    },
+    {
+     "lineId": "defaultLaws:LAW-16:end 0",
+     "law": "LAW-16",
+     "status": "NOT_APPLICABLE",
+     "removedByRealization": false
+    },
+    {
+     "lineId": "defaultLaws:LAW-16:end 1",
+     "law": "LAW-16",
+     "status": "NOT_APPLICABLE",
+     "removedByRealization": false
+    },
+    {
+     "lineId": "defaultLaws:LAW-17:end 0",
+     "law": "LAW-17",
+     "status": "NOT_APPLICABLE",
+     "removedByRealization": false
+    },
+    {
+     "lineId": "defaultLaws:LAW-17:end 1",
+     "law": "LAW-17",
+     "status": "NOT_APPLICABLE",
+     "removedByRealization": false
+    },
+    {
+     "lineId": "defaultLaws:LAW-4-GK",
+     "law": "LAW-4-GK",
+     "status": "NOT_APPLICABLE",
+     "removedByRealization": false
+    }
+   ],
+   "requirementAccount": {
+    "status": "REPORT_ONLY",
+    "contract": "DRAFT",
+    "components": []
+   },
+   "diagram": {
+    "served": true,
+    "verdict": "DRAWN",
+    "area": {
+     "lengthM": 40,
+     "widthM": 30
+    },
+    "counts": [
+     "2 teams of 6"
     ],
-    "cited": [
+    "legend": [
+     "target zone"
+    ],
+    "zones": [
      {
-      "ref": "c:restated:RPC-003:RPC-003-12.a::V5",
-      "contractId": "restated:RPC-003",
-      "itemId": "RPC-003-12.a",
-      "basis": "AUTHORED",
-      "origin": "DRAFT_STORE",
-      "premiseKind": "DRAFT_ITEM",
-      "label": "DRAFT knowledge (ours, unreviewed)",
-      "sixClass": 3,
-      "note": null,
-      "source": "the context library (rpc-library.rc1.json)",
-      "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
-      "via": "its reasons",
-      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
-      "owedBy": "the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)",
-      "elementNotBounding": null
+      "zone": "c:restated:GF2:GF2-03.e",
+      "along": {
+       "from": 0,
+       "to": 5
+      },
+      "across": {
+       "from": 0,
+       "to": 30
+      }
+     },
+     {
+      "zone": "c:restated:GF2:GF2-03.f",
+      "along": {
+       "from": 35,
+       "to": 40
+      },
+      "across": {
+       "from": 0,
+       "to": 30
+      }
      }
     ],
-    "gaps": [],
-    "mix": "1 AUTHORED (DRAFT store item)",
-    "verdict": "RESTATEMENT-ONLY",
-    "why": "every cited item is ours and unreviewed (1 AUTHORED (DRAFT store item)), with no ruling of Christian's among them"
+    "findings": [],
+    "dimensions": [
+     {
+      "kind": "AREA_LENGTH",
+      "axis": "along",
+      "from": 0,
+      "to": 40,
+      "quantity": 40,
+      "path": "envelope.area.length_m",
+      "of": null,
+      "label": {
+       "text": "40 m",
+       "status": "DRAFT",
+       "carriedBy": null
+      }
+     },
+     {
+      "kind": "AREA_WIDTH",
+      "axis": "across",
+      "from": 0,
+      "to": 30,
+      "quantity": 30,
+      "path": "envelope.area.width_m",
+      "of": null,
+      "label": {
+       "text": "30 m",
+       "status": "DRAFT",
+       "carriedBy": null
+      }
+     },
+     {
+      "kind": "ZONE_DEPTH",
+      "axis": "along",
+      "from": 0,
+      "to": 5,
+      "quantity": 5,
+      "path": "space.regions[c:restated:GF2:GF2-03.e].position.along",
+      "of": "c:restated:GF2:GF2-03.e",
+      "label": {
+       "text": "5 m",
+       "status": "DRAFT",
+       "carriedBy": null
+      }
+     },
+     {
+      "kind": "ZONE_DEPTH",
+      "axis": "along",
+      "from": 35,
+      "to": 40,
+      "quantity": 5,
+      "path": "space.regions[c:restated:GF2:GF2-03.f].position.along",
+      "of": "c:restated:GF2:GF2-03.f",
+      "label": {
+       "text": "5 m",
+       "status": "DRAFT",
+       "carriedBy": null
+      }
+     }
+    ],
+    "targets": [
+     {
+      "objective": "c:restated:GF2:GF2-08.c",
+      "region": "c:restated:GF2:GF2-03.f",
+      "attackedBy": "TEAM_AT_AXIS_START",
+      "along": {
+       "from": 35,
+       "to": 40
+      },
+      "across": {
+       "from": 0,
+       "to": 30
+      },
+      "line": false,
+      "markedZone": "c:restated:GF2:GF2-03.f",
+      "label": {
+       "text": "target zone",
+       "status": "CHRISTIANS_TERM",
+       "carriedBy": null
+      },
+      "cites": [
+       "objectives[c:restated:GF2:GF2-08.c].team",
+       "objectives[c:restated:GF2:GF2-08.c].reference",
+       "space.regions[c:restated:GF2:GF2-03.f].noun",
+       "space.regions[c:restated:GF2:GF2-03.f].position.along",
+       "space.regions[c:restated:GF2:GF2-03.f].position.across"
+      ]
+     },
+     {
+      "objective": "c:restated:GF2:GF2-08.e",
+      "region": "c:restated:GF2:GF2-03.e",
+      "attackedBy": "TEAM_AT_AXIS_END",
+      "along": {
+       "from": 0,
+       "to": 5
+      },
+      "across": {
+       "from": 0,
+       "to": 30
+      },
+      "line": false,
+      "markedZone": "c:restated:GF2:GF2-03.e",
+      "label": {
+       "text": "target zone",
+       "status": "CHRISTIANS_TERM",
+       "carriedBy": null
+      },
+      "cites": [
+       "objectives[c:restated:GF2:GF2-08.e].team",
+       "objectives[c:restated:GF2:GF2-08.e].reference",
+       "space.regions[c:restated:GF2:GF2-03.e].noun",
+       "space.regions[c:restated:GF2:GF2-03.e].position.along",
+       "space.regions[c:restated:GF2:GF2-03.e].position.across"
+      ]
+     }
+    ],
+    "teams": [
+     {
+      "key": "TEAM_AT_AXIS_START",
+      "role": null,
+      "designation": "TEAM_AT_AXIS_START",
+      "handle": "c:restated:GF2:GF2-14.a#1",
+      "position": 0,
+      "label": null,
+      "noun": null,
+      "counts": [],
+      "start": null,
+      "attacks": [
+       {
+        "end": 40,
+        "target": "c:restated:GF2:GF2-03.f",
+        "objective": "c:restated:GF2:GF2-08.c",
+        "cites": [
+         "objectives[c:restated:GF2:GF2-08.c].team",
+         "objectives[c:restated:GF2:GF2-08.c].reference"
+        ]
+       }
+      ]
+     },
+     {
+      "key": "TEAM_AT_AXIS_END",
+      "role": null,
+      "designation": "TEAM_AT_AXIS_END",
+      "handle": "c:restated:GF2:GF2-14.a#2",
+      "position": 1,
+      "label": null,
+      "noun": null,
+      "counts": [],
+      "start": null,
+      "attacks": [
+       {
+        "end": 0,
+        "target": "c:restated:GF2:GF2-03.e",
+        "objective": "c:restated:GF2:GF2-08.e",
+        "cites": [
+         "objectives[c:restated:GF2:GF2-08.e].team",
+         "objectives[c:restated:GF2:GF2-08.e].reference"
+        ]
+       }
+      ]
+     }
+    ]
    },
+   "refusal": null,
+   "refusalBasis": null,
    "gaps": [
-    "the chain refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5",
+    "c:restated:GF2:GF2-03.e::S4 (space.regions[c:restated:GF2:GF2-03.e].functions): not established",
+    "c:restated:GF2:GF2-03.e::S7 (space.regions[c:restated:GF2:GF2-03.e].ofObject): not established",
+    "c:restated:GF2:GF2-03.f::S4 (space.regions[c:restated:GF2:GF2-03.f].functions): not established",
+    "c:restated:GF2:GF2-03.f::S7 (space.regions[c:restated:GF2:GF2-03.f].ofObject): not established",
+    "c:sport-profile:soccer:SPORT-SOCCER-01::O3 (objects[c:sport-profile:soccer:SPORT-SOCCER-01].count): not established",
+    "game::B10 (blocks.endAssignment): not established",
+    "game::P5 (performers.neutrals.count): not established",
+    "game::P6a (performers.neutrals.affiliation.on): not established",
+    "game::P6b (performers.neutrals.affiliation.joins): not established",
+    "game::P6c (performers.neutrals.affiliation.takesEffect): not established",
+    "game::P7 (performers.neutrals.distinguishable): not established",
+    "game::RP1 (restartPolicy.deadBall): not established",
+    "defaultLaws:LAW-8: LAW-8: an adaptation is owed (the laws account names why)",
     "NC-RESTART the coach-served end-line restart: not carried (UNEXPECTED_LIMITATION)",
     "NC-STARTING the starting condition read as the state of the attack: not carried (KNOWLEDGE_OR_CAPABILITY_GAP)",
     "NC-KICKOFF the ordinary kick-off and 9.15 m: not carried (REPRESENTATION_GAP)",
@@ -11026,20 +12867,35 @@
      "id": "SI-DEPTH-NEAR",
      "label": "ILLUSTRATIVE",
      "why": "GF2 authors no depth for a target zone and no ruling of Christian's gives one for this case; the chain carries a depth only as a contract item, so a labelled TEST-ONLY stand-in item carries the illustrative 5 m. Never knowledge.",
-     "determines": []
+     "determines": [
+      "c:restated:GF2:GF2-03.e::S5"
+     ]
     },
     {
      "id": "SI-DEPTH-FAR",
      "label": "ILLUSTRATIVE",
      "why": "As the near zone's depth.",
-     "determines": []
+     "determines": [
+      "c:restated:GF2:GF2-03.f::S5"
+     ]
     }
    ],
    "counts": {
-    "lines": 0,
-    "byClass": {},
-    "byKind": {},
-    "sentences": 0
+    "lines": 58,
+    "byClass": {
+     "class 5": 11,
+     "class 3": 22,
+     "class 2": 9,
+     "no class (the coach decides)": 1,
+     "class 6": 15
+    },
+    "byKind": {
+     "A": 11,
+     "B": 34,
+     "C": 1,
+     "no kind": 12
+    },
+    "sentences": 9
    }
   },
   {

@@ -137,21 +137,21 @@
     "kind": "DIFFERS",
     "a02": "'the pressing line', 'beyond'",
     "ta02": "'a more advanced representative area', 'more advanced'",
-    "note": "carried as open text and a value; not executed in either built game; TA02's item (RPC-003-11.a) restates the clause Christian wrote as an example (13 September), which the pending 13 September correction is to restore as illustrative"
+    "note": "carried as open text and a value; not executed in either built game; TA02's items (RPC-003-11.a to 11.c) restate the clause Christian wrote as an example (13 September) and, since the merge of the program branch (11 November 2026), are held as examples (SUPPORTING, TYPICAL_EXAMPLE), constituting no condition"
    },
    {
     "aspect": "the condition's control clause (our restatement's values)",
     "kind": "DIFFERS",
     "a02": "'retains possession through the next action'",
     "ta02": "'while maintaining attacking possession'",
-    "note": "the referent is UNDECLARED in both restatements; TA02's item (RPC-003-12.a) makes required the possession condition of a clause Christian wrote as an example (13 September), contrary to Christian's first reply of 7 November, section 4"
+    "note": "the referent is UNDECLARED in both restatements; TA02's items (RPC-003-12.a, 12.b) restate the possession condition of a clause Christian wrote as an example (13 September) and, since the merge of the program branch (11 November 2026), are held as examples (SUPPORTING, TYPICAL_EXAMPLE), so TA02 constitutes no control clause (before that merge RPC-003-12.a made it required, contrary to Christian's first reply of 7 November, section 4)"
    },
    {
     "aspect": "where the knowledge as it stands stops",
     "kind": "DIFFERS",
     "a02": "structure: c:restated:RPC-002:RPC-002-04.a::V5, c:restated:RPC-002:RPC-002-02.a::V6 (RESTATEMENT-ONLY)",
-    "ta02": "structure: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6 (RESTATEMENT-ONLY)",
-    "note": "the same stage and the same two kinds of line, the control clause's referent and the origin clause's value, each on its own context's restatement; not like for like: on TA02's side the control line is our item RPC-003-12.a, which makes the illustrative clause's possession condition a required one, contrary to Christian's first reply of 7 November, section 4 (quoted in item 6)"
+    "ta02": "structure: c:restated:RPC-003:RPC-003-10.a::V6 (RESTATEMENT-ONLY)",
+    "note": "the same stage, each on its own context's restatement: A02 on two kinds of line, the control clause's referent and the origin clause's value; TA02 on the origin clause's value alone, since the merge of the program branch (11 November 2026) holds our RPC-003 control items as examples (before that merge TA02 also stopped on the control line, our item RPC-003-12.a, which made the illustrative clause's possession condition a required one, contrary to Christian's first reply of 7 November, section 4, quoted in item 6)"
    },
    {
     "aspect": "opposition (our restatement's participant rows)",
@@ -201,7 +201,7 @@
   ],
   "sentencesIdentical": true
  },
- "reuseFinding": "Measured, the Game Problem and Game Form reasoning is shared without any new structure: both goals resolve to GP-015 through their own approved translation rows, and Step 2 selects GF2 through GF2's same GP-015 cell (graded CANDIDATE in both), each over its own context's declared-form rows; the same TEST-ONLY consumption carries both results to the chain. On the affordance side only the CAR profile Step 1 consults is shared, and it determines nothing downstream; the engine lenses, scored from each goal's wording, differ, and each context's affordance targets stay deferred. What would set the two contexts apart lives in each context's own rows (its identity, its opposition and its scoring condition), which the chain applies after the shared reasoning, through each context's restatement: the existing architecture already has that place. It does not execute yet: as the knowledge stands both goals stop at structure on the same two kinds of line of their own restatements, but not like for like: on TA02's side the control line is our item RPC-003-12.a, which makes the possession condition of a clause Christian wrote as an example a required one, contrary to Christian's first reply of 7 November, section 4: “Similarly, do not convert \"maintaining attacking possession\" into a separate mandatory scoring requirement without identifying an authoritative basis.” (received 7 November 2026, first reply). With every condition item withheld the two built activities collapse into one plain GF2 activity (identical coach text; identical configuration lines but one transition value's source). So the existing relationships appear capable of the reuse Christian describes; what keeps the two contexts from collapsing is the missing operational interpretation and carrier of each context's condition, not a missing goal-family structure.",
+ "reuseFinding": "Measured, the Game Problem and Game Form reasoning is shared without any new structure: both goals resolve to GP-015 through their own approved translation rows, and Step 2 selects GF2 through GF2's same GP-015 cell (graded CANDIDATE in both), each over its own context's declared-form rows; the same TEST-ONLY consumption carries both results to the chain. On the affordance side only the CAR profile Step 1 consults is shared, and it determines nothing downstream; the engine lenses, scored from each goal's wording, differ, and each context's affordance targets stay deferred. What would set the two contexts apart lives in each context's own rows (its identity, its opposition and its scoring condition), which the chain applies after the shared reasoning, through each context's restatement: the existing architecture already has that place. It does not execute yet: as the knowledge stands both goals stop at structure on their own restatements, A02 on its control clause's referent and its origin clause's value, TA02 on its origin clause's value alone; TA02's control items, which restate the possession condition of a clause Christian wrote as an example, have been held as examples since the merge of the program branch (11 November 2026), as Christian's first reply of 7 November, section 4, asked: “Similarly, do not convert \"maintaining attacking possession\" into a separate mandatory scoring requirement without identifying an authoritative basis.” (received 7 November 2026, first reply). With every condition item withheld the two built activities collapse into one plain GF2 activity (identical coach text; identical configuration lines but one transition value's source). So the existing relationships appear capable of the reuse Christian describes; what keeps the two contexts from collapsing is the missing operational interpretation and carrier of each context's condition, not a missing goal-family structure.",
  "ta02Safeguards": [
   {
    "id": "TA02-0",
@@ -223,7 +223,7 @@
      "reasons": [
       "Gate A is FAIL",
       "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
-      "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6"
+      "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6"
      ],
      "refusalVerdict": "RESTATEMENT-ONLY",
      "ownPick": [
@@ -298,10 +298,6 @@
       {
        "itemId": "RPC-003-10.a",
        "ref": "c:restated:RPC-003:RPC-003-10.a::V6"
-      },
-      {
-       "itemId": "RPC-003-12.a",
-       "ref": "c:restated:RPC-003:RPC-003-12.a::V5"
       }
      ]
     },
@@ -376,8 +372,8 @@
      "runId": "TA02-0",
      "row": "SCORING",
      "clause": "control",
-     "verdict": "REFUSED_ON_CLAUSE_LINE",
-     "why": "the chain refused at structure on this clause's line(s) c:restated:RPC-003:RPC-003-12.a::V5: explicitly unresolved, never a pass",
+     "verdict": "NOT_REACHED",
+     "why": "no game was built (the run stopped at structure), and the refusal cites none of this clause's lines",
      "consulted": null
     },
     {
@@ -6891,7 +6887,7 @@
      "reasons": [
       "Gate A is FAIL",
       "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
-      "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6"
+      "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6"
      ],
      "refusalVerdict": "RESTATEMENT-ONLY",
      "ownPick": [
@@ -19187,11 +19183,11 @@
     },
     {
      "id": "UN-TA02-CONDITION",
-     "what": "the origin value and the control referent of RPC-003's approved scoring condition",
+     "what": "the origin value of RPC-003's approved scoring condition (and the control referent its example names, which no line owes since the merge of 11 November 2026)",
      "rulingRefs": [
       "A02-10NOV-TREATMENTS"
      ],
-     "where": "our DRAFT restatement of RPC-003 declares the origin value NOT_AUTHORED and leaves the control referent UNDECLARED, so TA02-0 is refused on those two lines, as A02-0 is on RPC-002's; TA02-D withholds every condition item. Not like for like: TA02's progression and control items (RPC-003-11.a, RPC-003-12.a) restate the clause Christian wrote as an example on 13 September, which the pending 13 September correction is to restore as illustrative, and RPC-003-12.a makes its possession condition a required control clause, which Christian's first reply of 7 November, section 4, says not to do without an authoritative basis (quoted in item 6); the restatement is unchanged here",
+     "where": "our DRAFT restatement of RPC-003 declares the origin value NOT_AUTHORED, so TA02-0 is refused on that line alone (A02-0 is refused on RPC-002's control referent and origin value); TA02-D withholds every condition item. Not like for like: TA02's progression and control items (RPC-003-11.a to 11.c, RPC-003-12.a and 12.b) restate the clause Christian wrote as an example on 13 September; since the merge of the program branch (11 November 2026) they are held as examples (SUPPORTING, TYPICAL_EXAMPLE), under Christian's reply received 11 November 2026 (second reply), item 3, so they constitute no condition and the control referent, still UNDECLARED, is owed by no line. Before that merge RPC-003-12.a made the example's possession condition a required control clause, which Christian's first reply of 7 November, section 4, says not to do without an authoritative basis (quoted in item 6), and TA02-0 was refused on that referent as well",
      "label": "UNRESOLVED"
     }
    ],
@@ -19221,7 +19217,7 @@
     "reasons": [
      "Gate A is FAIL",
      "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
-     "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6"
+     "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6"
     ],
     "scorerPick": "consumption run: the chain's scorer ranked only GF2 (read from SELECTION_TRACE_RANKING), its candidate forms filtered to Step 2's GF2; the handoff placed no form",
     "contextComparison": "the chain's context equals Step 1's (RPC-003)",
@@ -19245,7 +19241,7 @@
     "reasons": [
      "Gate A is FAIL",
      "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
-     "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6"
+     "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6"
     ]
    },
    "refusalBasis": {
@@ -19254,23 +19250,6 @@
      "GA-NO-FAILED-LINE"
     ],
     "cited": [
-     {
-      "ref": "c:restated:RPC-003:RPC-003-12.a::V5",
-      "contractId": "restated:RPC-003",
-      "itemId": "RPC-003-12.a",
-      "basis": "AUTHORED",
-      "origin": "DRAFT_STORE",
-      "premiseKind": "DRAFT_ITEM",
-      "label": "DRAFT knowledge (ours, unreviewed)",
-      "sixClass": 3,
-      "note": null,
-      "source": "the context library (rpc-library.rc1.json)",
-      "sourceStanding": "APPROVED (the review pathway's standing for the context library RC1.1, read from runtime_status ACTIVE; not by itself a dated approval)",
-      "via": "its reasons",
-      "chainReading": "the chain's line verdict NOT_AUTHORED (nothing authored its value), its reason 'declared gap', decided over the declarations restated:GF2 NON_CLAIMED (*) [the chain's reach of the element: TRUE]; restated:GF2 NOT_AUTHORED (*) [the chain's reach of the element: TRUE]; restated:RPC-003 CLAIMED (type ∈ {origin, progression}) [the chain's reach of the element: FALSE]; restated:RPC-003 UNDECLARED (type=control) [the chain's reach of the element: TRUE] (row-wide: every declaration on the row)",
-      "owedBy": "the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)",
-      "elementNotBounding": null
-     },
      {
       "ref": "c:restated:RPC-003:RPC-003-10.a::V6",
       "contractId": "restated:RPC-003",
@@ -19290,14 +19269,14 @@
      }
     ],
     "gaps": [],
-    "mix": "2 AUTHORED (DRAFT store item)",
+    "mix": "1 AUTHORED (DRAFT store item)",
     "verdict": "RESTATEMENT-ONLY",
-    "why": "every cited item is ours and unreviewed (2 AUTHORED (DRAFT store item)), with no ruling of Christian's among them"
+    "why": "every cited item is ours and unreviewed (1 AUTHORED (DRAFT store item)), with no ruling of Christian's among them"
    },
    "gaps": [
-    "the chain refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6",
+    "the chain refused at structure: Gate A is FAIL; a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE; 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6",
     "UN-TA02-CONTEXT TA02's own context: not carried (UNRESOLVED)",
-    "UN-TA02-CONDITION the origin value and the control referent of RPC-003's approved scoring condition: not carried (UNRESOLVED)"
+    "UN-TA02-CONDITION the origin value of RPC-003's approved scoring condition (and the control referent its example names, which no line owes since the merge of 11 November 2026): not carried (UNRESOLVED)"
    ],
    "standIns": [],
    "counts": {
@@ -19699,11 +19678,11 @@
     },
     {
      "id": "UN-TA02-CONDITION",
-     "what": "the origin value and the control referent of RPC-003's approved scoring condition",
+     "what": "the origin value of RPC-003's approved scoring condition (and the control referent its example names, which no line owes since the merge of 11 November 2026)",
      "rulingRefs": [
       "A02-10NOV-TREATMENTS"
      ],
-     "where": "our DRAFT restatement of RPC-003 declares the origin value NOT_AUTHORED and leaves the control referent UNDECLARED, so TA02-0 is refused on those two lines, as A02-0 is on RPC-002's; TA02-D withholds every condition item. Not like for like: TA02's progression and control items (RPC-003-11.a, RPC-003-12.a) restate the clause Christian wrote as an example on 13 September, which the pending 13 September correction is to restore as illustrative, and RPC-003-12.a makes its possession condition a required control clause, which Christian's first reply of 7 November, section 4, says not to do without an authoritative basis (quoted in item 6); the restatement is unchanged here",
+     "where": "our DRAFT restatement of RPC-003 declares the origin value NOT_AUTHORED, so TA02-0 is refused on that line alone (A02-0 is refused on RPC-002's control referent and origin value); TA02-D withholds every condition item. Not like for like: TA02's progression and control items (RPC-003-11.a to 11.c, RPC-003-12.a and 12.b) restate the clause Christian wrote as an example on 13 September; since the merge of the program branch (11 November 2026) they are held as examples (SUPPORTING, TYPICAL_EXAMPLE), under Christian's reply received 11 November 2026 (second reply), item 3, so they constitute no condition and the control referent, still UNDECLARED, is owed by no line. Before that merge RPC-003-12.a made the example's possession condition a required control clause, which Christian's first reply of 7 November, section 4, says not to do without an authoritative basis (quoted in item 6), and TA02-0 was refused on that referent as well",
      "label": "UNRESOLVED"
     }
    ],
@@ -21091,7 +21070,7 @@
     "game::P7 (performers.neutrals.distinguishable): not established",
     "game::RP1 (restartPolicy.deadBall): not established",
     "UN-TA02-CONTEXT TA02's own context: not carried (UNRESOLVED)",
-    "UN-TA02-CONDITION the origin value and the control referent of RPC-003's approved scoring condition: not carried (UNRESOLVED)"
+    "UN-TA02-CONDITION the origin value of RPC-003's approved scoring condition (and the control referent its example names, which no line owes since the merge of 11 November 2026): not carried (UNRESOLVED)"
    ],
    "standIns": [],
    "counts": {

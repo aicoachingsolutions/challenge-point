@@ -14,8 +14,10 @@
  *     experiment hand-authored (`assembly-experiment.review.json`) is never read: its loaded value is made to throw on any read while the
  *     runs repeat, and every file read is watched; the results are identical. A01 through the handoff, with its production records and
  *     realizations, gives exactly `buildActivity`'s 29 instructions, text and from-paths.
- *   - Each case's outcome (A05-0 and A05-1 at structure, A05-2 served as a conditional diagnostic only, A01 served, the two structural cases
- *     served, TA01 at knowledge).
+ *   - Each case's outcome (A05-0 at structure; A05-1 served under its TEST-ONLY treatments and A05-2 served as a conditional diagnostic, neither
+ *     A05's result; A01 served, the two structural cases served, TA01 at knowledge). Re-pinned at the merge of the program branch (08223ea, 11
+ *     November 2026): our DRAFT restatement's control items (RPC-003-12.a, 12.b) are examples there (SUPPORTING, TYPICAL_EXAMPLE), so the
+ *     drafted control line no longer stops A05-0 or A05-1 (it did before: A05-0 on the origin and control lines, A05-1 on the control line).
  *   - Provenance: the grading map per kind; no line graded APPROVED from a restatement of ours; an ILLUSTRATIVE premise never above class 5;
  *     a TEST-ONLY stand-in never above its declared label; the illustrative depth's label on every sentence citing the zone's depth; the
  *     purpose's source and approval evidence printed apart; the grading tables checked against the specification, the contracts and the
@@ -129,8 +131,8 @@ const CHECKS = 'Engineering checks of the handoff itself'
 const LISTED: Record<string, TestMeta> = {
     'First: the A05 runs go end to end through Steps 1 and 2 and the chain with the hand-authored record never read': { id: 'F1', group: FIRST, cites: 'N7:150-151', shows: 'the A05 cases are received, resolved by Steps 1 and 2, and run through the checked chain; the hand-authored A05 record is unreadable while they run and the results are identical' },
     'First: A01 through the handoff, with its production records and realizations, gives buildActivity\'s 29 instructions, text and from-paths': { id: 'F2', group: FIRST, cites: 'N7:150-151', shows: 'the same mechanism carries A01 to exactly the checked game a coach is served' },
-    'A05-0, the knowledge as it stands: refused at structure on the drafted origin and control lines': { id: 'F3', group: FIRST, cites: 'N7:155-157, N7:163-166', shows: 'with the knowledge as it stands, the chain refuses A05 at structure and the refusal names the drafted lines; nothing is filled in to make it generate' },
-    'A05-1, the starting-condition reading as a TEST-ONLY treatment: refused at structure on the drafted control line alone (measured; our plan expected a refusal at communication)': { id: 'F4', group: FIRST, cites: 'N7:33-37', shows: 'the provisional state reading, carried only as a labelled TEST-ONLY withholding of the origin items, leaves the drafted control line refused at structure' },
+    'A05-0, the knowledge as it stands: refused at structure on the drafted origin line alone (the drafted control items are examples since the merged correction)': { id: 'F3', group: FIRST, cites: 'N7:155-157, N7:163-166', shows: 'with the knowledge as it stands, the chain refuses A05 at structure and the refusal names the drafted line; nothing is filled in to make it generate' },
+    'A05-1, the starting-condition reading as a TEST-ONLY treatment: the chain would serve it, the same game as A05-2, and never A05\'s result (measured since the merged correction; before it, refused at structure on the drafted control line)': { id: 'F4', group: FIRST, cites: 'N7:33-37', shows: 'the provisional state reading, carried only as a labelled TEST-ONLY withholding of the origin items, leaves no drafted line refused once the control items are examples: the game is A05-2\'s, served only under the TEST-ONLY treatments' },
     'A05-2, CONDITIONAL and never A05\'s result: the chain would serve it, with the no-offside sentence, the review-only zone sentence and the kick-off reported': { id: 'F5', group: FIRST, cites: 'N7:41-46', shows: 'what the handoff produces once the 13 September wording is verified and corrected offline: a conditional diagnostic, never A05\'s result' },
     'the chain would serve the structural cases (no Learning Goal) through the same mechanism; TA01 stops at knowledge with Step 2\'s form': { id: 'F6', group: FIRST, cites: 'N7:150-151, N7:158-161', shows: 'the same mechanism carries the two structural cases to a game the chain would serve, and stops TA01 at knowledge with the form Step 2 selected' },
     'the grading map, pinned per kind': { id: 'P1', group: PROVENANCE, cites: 'N7:15, N7:133-134', shows: 'every kind of determining premise has one fixed grading (OURS, for Christian\'s review)' },
@@ -362,30 +364,39 @@ test('First: A01 through the handoff, with its production records and realizatio
 // Each case's outcome, as measured
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-test('A05-0, the knowledge as it stands: refused at structure on the drafted origin and control lines', () => {
+test('A05-0, the knowledge as it stands: refused at structure on the drafted origin line alone (the drafted control items are examples since the merged correction)', () => {
     const r = byCase(resultsOnce(), 'A05-0')
     assert.deepEqual([r.chain?.outcome, r.chain?.stage], ['refused', 'structure'])
-    assert.deepEqual(r.chain?.reasons, ['Gate A is FAIL', 'a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE', '2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6'])
+    // Re-pinned at the merge (08223ea, 11 November 2026). Before: '2 unresolved properties ...: c:restated:RPC-003:RPC-003-12.a::V5,
+    // c:restated:RPC-003:RPC-003-10.a::V6'. After: the origin's value alone, because RPC-003-12.a (the control type) is SUPPORTING,
+    // TYPICAL_EXAMPLE in our DRAFT restatement since Christian's reply received 11 November 2026 (second reply), item 3, and so no longer
+    // constitutes a control condition whose referent (V5) is owed.
+    assert.deepEqual(r.chain?.reasons, ['Gate A is FAIL', 'a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE', '1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6'])
     assert.deepEqual([r.sentences.length, r.lines.length, r.sentencesServed], [0, 0, null])
-    // Review of 7 November, round 2 (measured): a requirement declaration of the chain's reaches each line's element (restated:GF2's
-    // NOT_AUTHORED on V5, our DRAFT contract's NOT_AUTHORED on V6), so neither is a gap; both are read through their DRAFT items.
-    assert.deepEqual([r.refusalBasis?.verdict, r.refusalBasis?.cited.map((x) => [x.ref, x.premiseKind]), r.refusalBasis?.gaps], ['RESTATEMENT-ONLY', [['c:restated:RPC-003:RPC-003-12.a::V5', 'DRAFT_ITEM'], ['c:restated:RPC-003:RPC-003-10.a::V6', 'DRAFT_ITEM']], []])
-    // Round 3 (measured): which declaration owes each line. V6: our DRAFT contract's own NOT_AUTHORED (type=origin). V5: only restated:GF2's
-    // NOT_AUTHORED (*), our CANDIDATE restatement's, applied row-wide because our DRAFT contract states nothing explicit that reaches the control
-    // element (its CLAIMED does not reach it; its UNDECLARED (type=control) is recorded silence).
-    const [v5, v6] = r.refusalBasis?.cited ?? []
+    // Review of 7 November, round 2 (measured): a requirement declaration of the chain's reaches the line's element (our DRAFT contract's
+    // NOT_AUTHORED on V6), so it is not a gap; it is read through its DRAFT item. Re-pinned at the merge: before, V5 was cited first as well
+    // ([12.a::V5, DRAFT_ITEM], [10.a::V6, DRAFT_ITEM]); after, [10.a::V6, DRAFT_ITEM] alone.
+    assert.deepEqual([r.refusalBasis?.verdict, r.refusalBasis?.cited.map((x) => [x.ref, x.premiseKind]), r.refusalBasis?.gaps], ['RESTATEMENT-ONLY', [['c:restated:RPC-003:RPC-003-10.a::V6', 'DRAFT_ITEM']], []])
+    // Round 3 (measured): which declaration owes the line. V6: our DRAFT contract's own NOT_AUTHORED (type=origin). (Before the merge V5 was
+    // owed too, by restated:GF2's NOT_AUTHORED (*) applied row-wide; that line is no longer owed.)
+    const [v6] = r.refusalBasis?.cited ?? []
     assert.equal(v6?.owedBy, 'the requirement declaration reaching the element: restated:RPC-003 NOT_AUTHORED (type=origin), a declaration of the contract establishing the element')
-    assert.equal(v5?.owedBy, 'the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED (*), a declaration of another contract; applied row-wide, because no contract establishing the element (restated:RPC-003) states anything explicit that reaches it: its declarations on the row are CLAIMED (type ∈ {origin, progression}) [reach FALSE]; UNDECLARED (type=control) [reach TRUE] (UNDECLARED is recorded silence: the element is left undeclared)')
 })
 
-test('A05-1, the starting-condition reading as a TEST-ONLY treatment: refused at structure on the drafted control line alone (measured; our plan expected a refusal at communication)', () => {
+test('A05-1, the starting-condition reading as a TEST-ONLY treatment: the chain would serve it, the same game as A05-2, and never A05\'s result (measured since the merged correction; before it, refused at structure on the drafted control line)', () => {
     const r = byCase(resultsOnce(), 'A05-1')
-    assert.deepEqual([r.chain?.outcome, r.chain?.stage], ['refused', 'structure'])
-    assert.deepEqual(r.chain?.reasons, ['Gate A is FAIL', 'a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE', '1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5'])
+    const a052 = byCase(resultsOnce(), 'A05-2')
+    // Re-pinned at the merge (08223ea, 11 November 2026). Before: refused at structure, '1 unresolved property ...:
+    // c:restated:RPC-003:RPC-003-12.a::V5', RESTATEMENT-ONLY on [12.a::V5, DRAFT_ITEM]. After: served, because with the origin items withheld
+    // (TT-ORIGIN-WITHHELD) the only drafted line left was the control referent, and RPC-003-12.a is now an example (SUPPORTING,
+    // TYPICAL_EXAMPLE) that constitutes no condition. A05-2's further withholding (TT-FINAL-CLAUSE-EXAMPLE) withholds items that are no
+    // longer requirements, so the two runs build the same game: measured, not assumed.
+    assert.deepEqual([r.chain?.outcome, r.chain?.stage, r.refusal, r.refusalBasis], ['served', null, null, null])
+    assert.equal(r.resultStanding, 'A05_UNDER_TEST_ONLY_TREATMENTS')
     assert.ok(r.testOnlyTreatments.some((t) => t.id === 'TT-ORIGIN-WITHHELD'))
-    assert.deepEqual([r.refusalBasis?.verdict, r.refusalBasis?.cited.map((x) => [x.ref, x.premiseKind]), r.refusalBasis?.gaps], ['RESTATEMENT-ONLY', [['c:restated:RPC-003:RPC-003-12.a::V5', 'DRAFT_ITEM']], []])
-    // Round 3 (measured): V5 is owed as in A05-0, by restated:GF2's NOT_AUTHORED applied row-wide.
-    assert.equal(r.refusalBasis?.cited[0].owedBy, byCase(resultsOnce(), 'A05-0').refusalBasis?.cited[0].owedBy)
+    assert.deepEqual(r.sentences.map((s) => `[${s.section}] ${s.text}`), a052.sentences.map((s) => `[${s.section}] ${s.text}`))
+    assert.deepEqual(r.lines.map((l) => [l.lineId, l.value, l.sixClass, l.label]), a052.lines.map((l) => [l.lineId, l.value, l.sixClass, l.label]))
+    assert.deepEqual([r.sentences.length, r.lines.length, r.laws?.owed, r.requirementAccount, r.diagram?.verdict, r.diagram?.served], [9, 58, ['LAW-8'], { status: 'REPORT_ONLY', contract: 'DRAFT', components: [] }, 'DRAWN', true])
 })
 
 test('A05-2, CONDITIONAL and never A05\'s result: the chain would serve it, with the no-offside sentence, the review-only zone sentence and the kick-off reported', () => {
@@ -664,14 +675,18 @@ test('the time-boxed attempt: the coach-served end-line restart in Christian\'s 
         `fidelity Q3: ${T}.placement.region is established by the game and no instruction carries it`,
         `fidelity Q3: ${T}.startsEpisode was excluded as accounting metadata, but its operational consequence(s) ${T}.playState, ${T}.awardedTo reached no instruction — so the exclusion is not permitted`,
     ])
-    // A05-1 (S3b): the same items, in Christian's words, on the run that keeps the drafted control items: refused at structure on both the
-    // drafted control line and the restart's episode line; with the diagnostic TEST ASSUMPTION and the location closed, the control line alone.
+    // A05-1 (S3b): the same items, in Christian's words, on the run that keeps the drafted control items as drafted. Re-pinned at the merge
+    // (08223ea, 11 November 2026): the drafted control items are examples there (RPC-003-12.a SUPPORTING, TYPICAL_EXAMPLE), so A05-1 meets
+    // what A05-2 meets. Before: refused at structure on both the restart's episode line and the drafted control line ('2 unresolved
+    // properties ...: ...T1-1::T7, c:restated:RPC-003:RPC-003-12.a::V5'), and, with the diagnostic TEST ASSUMPTION and the location closed, at
+    // structure on the control line alone. After: refused at structure on the episode line alone, and, under the diagnostic, at communication
+    // on the same fidelity reasons as A05-2.
     const a051 = build(items, false, 'A05-1') as RefusedActivity
     const a051Contracts = seenContracts
-    assert.deepEqual([a051.outcome, a051.stage, a051.reasons], ['refused', 'structure', ['Gate A is FAIL', 'a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE', '2 unresolved properties are neither an authorized choice nor an authorized claim: c:provisional:A05-H1:A05-H1-T1-1::T7, c:restated:RPC-003:RPC-003-12.a::V5']])
+    assert.deepEqual([a051.outcome, a051.stage, a051.reasons], ['refused', 'structure', ['Gate A is FAIL', 'a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE', '1 unresolved property is neither an authorized choice nor an authorized claim: c:provisional:A05-H1:A05-H1-T1-1::T7']])
     const a051Detail = detailOfLast(a051)
     const a051Diagnostic = build([...items, T7_STAND_IN], true, 'A05-1') as RefusedActivity
-    assert.deepEqual([a051Diagnostic.outcome, a051Diagnostic.stage, a051Diagnostic.reasons], ['refused', 'structure', ['Gate A is FAIL', 'a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE', '1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5']])
+    assert.deepEqual([a051Diagnostic.outcome, a051Diagnostic.stage, a051Diagnostic.reasons], ['refused', 'communication', diagnostic.reasons])
     // What the refusals in Christian's words rest on (Christian's second reply of 7 November, section 2). The restart items are graded by
     // Christian's own label for this restart, which the test reads from the ruling's words (the realization gate types them OWNER_RULING
     // only because a provisional realization's items must carry that basis; that typing is not changed).
@@ -682,8 +697,9 @@ test('the time-boxed attempt: the coach-served end-line restart in Christian\'s 
     const diagnosticBasis = refusalBasisOfBuild(caseById('A05-2'), inputs, 'communication', diagnostic.reasons, diagnosticContracts, { labelled })
     // Measured (review of 7 November, round 2; the gap rule is the chain's own reach, `refusalDetailOf`): the episode line was decided row-wide,
     // and its only requirement declaration, our restatement's claim on possession-change transitions, does not reach the restart's element by the
-    // chain's own reach function (FALSE), so no requirement declaration reaches it: a gap. The drafted control line is reached by restated:GF2's
-    // NOT_AUTHORED declaration (TRUE), so it is read through its DRAFT item, as in A05-0 and A05-1.
+    // chain's own reach function (FALSE), so no requirement declaration reaches it: a gap. Before the merge the drafted control line was
+    // reached by restated:GF2's NOT_AUTHORED declaration (TRUE) and read through its DRAFT item, as in A05-0 and A05-1; since the merge it is
+    // no longer an owed line of A05-1 at all.
     const T7 = 'c:provisional:A05-H1:A05-H1-T1-1::T7'
     const V5 = 'c:restated:RPC-003:RPC-003-12.a::V5'
     const reachOf = (d: NonNullable<ChainAnswer['refusalDetail']>, lineId: string) => {
@@ -692,16 +708,21 @@ test('the time-boxed attempt: the coach-served end-line restart in Christian\'s 
     }
     assert.deepEqual(reachOf(inWordsDetail, T7), ['claimed but unresolved', true, [['restated:GF2', 'UNDECLARED', 'TRUE'], ['restated:RPC-003', 'CLAIMED', 'FALSE'], ['restated:RPC-003', 'UNDECLARED', 'TRUE']]])
     assert.deepEqual(reachOf(a051Detail, T7), reachOf(inWordsDetail, T7))
-    assert.deepEqual(reachOf(a051Detail, V5), ['declared gap', true, [['restated:GF2', 'NON_CLAIMED', 'TRUE'], ['restated:GF2', 'NOT_AUTHORED', 'TRUE'], ['restated:RPC-003', 'CLAIMED', 'FALSE'], ['restated:RPC-003', 'UNDECLARED', 'TRUE']]])
+    // Re-pinned at the merge. Before: reachOf(a051Detail, V5) was ['declared gap', true, [[restated:GF2, NON_CLAIMED, TRUE], [restated:GF2,
+    // NOT_AUTHORED, TRUE], [restated:RPC-003, CLAIMED, FALSE], [restated:RPC-003, UNDECLARED, TRUE]]]. After: V5 is not an owed line.
+    assert.deepEqual([a051Detail.owedLines.some((l) => l.lineId === V5), inWordsDetail.owedLines.some((l) => l.lineId === V5)], [false, false])
     assert.deepEqual([inWordsBasis.verdict, inWordsBasis.cited.map((x) => x.ref), inWordsBasis.gaps.map((g) => g.ref), inWordsBasis.mix], ['NOT KNOWLEDGE', [], [T7], 'none'])
-    assert.deepEqual([a051Basis.verdict, a051Basis.cited.map((x) => [x.ref, x.basis, x.premiseKind]), a051Basis.gaps.map((g) => g.ref), a051Basis.mix], ['RESTATEMENT-ONLY', [['c:restated:RPC-003:RPC-003-12.a::V5', 'AUTHORED', 'DRAFT_ITEM']], [T7], '1 AUTHORED (DRAFT store item)'])
+    // Re-pinned at the merge. Before: ['RESTATEMENT-ONLY', [[c:restated:RPC-003:RPC-003-12.a::V5, AUTHORED, DRAFT_ITEM]], [T7], '1 AUTHORED
+    // (DRAFT store item)']. After: A05-2's reading, the restart's episode line alone, a gap (NOT KNOWLEDGE).
+    assert.deepEqual([a051Basis.verdict, a051Basis.cited.map((x) => [x.ref, x.basis, x.premiseKind]), a051Basis.gaps.map((g) => g.ref), a051Basis.mix], ['NOT KNOWLEDGE', [], [T7], 'none'])
     assert.ok(inWordsBasis.gaps[0].element.indexOf(VALUE_LABELS.ILLUSTRATIVE) >= 0, 'the restart item is graded ILLUSTRATIVE, by Christian\'s label')
     assert.deepEqual([diagnosticBasis.verdict, diagnosticBasis.why], ['NOT KNOWLEDGE', 'the refusal cites no item: a renderer capability gap: the checked renderer has no sentence for what the game establishes (fidelity Q3)'])
     // The configurations the chain would serve hold no restart for a ball over an end line (asserted, not assumed).
-    for (const id of ['A05-2', 'GF2-ZONES', 'GF2-LINES']) assert.ok(byCase(resultsOnce(), id).gaps.indexOf('game::RP1 (restartPolicy.deadBall): not established') >= 0, `${id}: no dead-ball restart policy is established`)
-    assert.deepEqual(byCase(resultsOnce(), 'A05-2').lawEntries.filter((e) => e.law === 'LAW-16' || e.law === 'LAW-17').map((e) => [e.lineId, e.status]), [['defaultLaws:LAW-16:end 0', 'NOT_APPLICABLE'], ['defaultLaws:LAW-16:end 1', 'NOT_APPLICABLE'], ['defaultLaws:LAW-17:end 0', 'NOT_APPLICABLE'], ['defaultLaws:LAW-17:end 1', 'NOT_APPLICABLE']])
+    // Re-pinned at the merge: A05-1 is now a configuration the chain would serve, so it joins A05-2 here (before: A05-2 and the two GF2 cases).
+    for (const id of ['A05-1', 'A05-2', 'GF2-ZONES', 'GF2-LINES']) assert.ok(byCase(resultsOnce(), id).gaps.indexOf('game::RP1 (restartPolicy.deadBall): not established') >= 0, `${id}: no dead-ball restart policy is established`)
+    for (const id of ['A05-1', 'A05-2']) assert.deepEqual(byCase(resultsOnce(), id).lawEntries.filter((e) => e.law === 'LAW-16' || e.law === 'LAW-17').map((e) => [e.lineId, e.status]), [['defaultLaws:LAW-16:end 0', 'NOT_APPLICABLE'], ['defaultLaws:LAW-16:end 1', 'NOT_APPLICABLE'], ['defaultLaws:LAW-17:end 0', 'NOT_APPLICABLE'], ['defaultLaws:LAW-17:end 1', 'NOT_APPLICABLE']], id)
     for (const id of ['GF2-ZONES', 'GF2-LINES']) assert.ok((byCase(resultsOnce(), id).laws?.owed ?? []).every((o) => o.slice(0, 6) !== 'LAW-16' && o.slice(0, 6) !== 'LAW-17'), `${id}: no goal-line or corner adaptation is owed`)
-    const obstructs = 'not for the configurations the chain would serve, which are built without the restart; but it is a structural refusal, so it is not reported as a refinement. Those configurations (A05-2 and the two GF2 structural cases) hold no restart for a ball over an end line: game::RP1 (the dead-ball restart policy) is not established in any of them; in A05-2 Laws 16 and 17 read not applicable at both ends (no goals), and the GF2 laws accounts owe neither; no departure from either is recorded. Christian\'s first reply of 7 November, section 5, says a game without conventional goals may require a different end-line restart, as an example of a structural adaptation needed to make a Game Form playable, which is still to be examined for unintended effects; whether its absence is a foundational blocker is Christian\'s to place. The restart\'s exact distance, the coach\'s location and the delivery need not become canonical knowledge and may stay coach-adjustable (Christian\'s first reply of 7 November, sections 7 and 8); the second reply, section 5, adds that exact restart locations should not delay core generation unless they present a material structural, safety or representative-integrity problem'
+    const obstructs = 'not for the configurations the chain would serve, which are built without the restart; but it is a structural refusal, so it is not reported as a refinement. Those configurations (A05-1 and A05-2, under their TEST-ONLY treatments, and the two GF2 structural cases) hold no restart for a ball over an end line: game::RP1 (the dead-ball restart policy) is not established in any of them; in A05-1 and A05-2 Laws 16 and 17 read not applicable at both ends (no goals), and the GF2 laws accounts owe neither; no departure from either is recorded. Christian\'s first reply of 7 November, section 5, says a game without conventional goals may require a different end-line restart, as an example of a structural adaptation needed to make a Game Form playable, which is still to be examined for unintended effects; whether its absence is a foundational blocker is Christian\'s to place. The restart\'s exact distance, the coach\'s location and the delivery need not become canonical knowledge and may stay coach-adjustable (Christian\'s first reply of 7 November, sections 7 and 8); the second reply, section 5, adds that exact restart locations should not delay core generation unless they present a material structural, safety or representative-integrity problem'
     testRefusals.push({ where: 'test R1 (A05-2 with the restart items in Christian\'s words)', basis: inWordsBasis, obstructs })
     testRefusals.push({ where: 'test R1 (A05-1 with the restart items in Christian\'s words)', basis: a051Basis, obstructs })
     testRefusals.push({
@@ -713,7 +734,7 @@ test('the time-boxed attempt: the coach-served end-line restart in Christian\'s 
         `A05-2 with the restart items (end-line trigger, last-touch partition for each team, the team that did not touch it last, the coach as taker, a served ball, play stopped and resumed, the location under N7:89): refused at structure: ${(inWords as RefusedActivity).reasons.join('; ')}`,
         `A05-1 with the same items: refused at structure: ${a051.reasons.join('; ')}`,
         'no ruling of Christian\'s says whether this restart begins an episode, so no episode item is added to any case; the restart does not compose from Christian\'s words, and no DRAFT restart sentence was added to the review-only wording',
-        `diagnostic only, never a case: with a TEST ASSUMPTION that the restart begins an episode and the coach-decided location closed, A05-2 passes structure, realization and validation and is refused at communication (${diagnostic.reasons.length} fidelity reasons: no instruction carries the restart's last touch, award, taker, method, play state or location; the renderer names no coach as taker and has no served-ball phrase); A05-1 is still refused at structure on the drafted control line alone`,
+        `diagnostic only, never a case: with a TEST ASSUMPTION that the restart begins an episode and the coach-decided location closed, A05-2 passes structure, realization and validation and is refused at communication (${diagnostic.reasons.length} fidelity reasons: no instruction carries the restart's last touch, award, taker, method, play state or location; the renderer names no coach as taker and has no served-ball phrase); A05-1 meets the same: refused at ${a051Diagnostic.stage} on the same ${a051Diagnostic.reasons.length} fidelity reasons (since the merged correction its drafted control items are examples; before it, A05-1 was still refused at structure on the drafted control line)`,
         `what the refusals rest on: A05-2 ${inWordsBasis.verdict} (${inWordsBasis.why}); A05-1 ${a051Basis.verdict} (${a051Basis.why}); the restart items are graded by Christian's own label for this restart (illustrative), not by the basis the realization gate requires of them`,
         'no engine feature was built (the attempt is time-boxed); the restart stays described in the report only, under the unexpected limitations of the checked pathway',
     ]
@@ -1323,10 +1344,13 @@ test(
             }),
         )
         goalStopRuns.push({ goalId: 'TA02', where: 'test C4, DRAFT', result: draft })
-        // Measured, then pinned: refused at structure on the same two drafted lines as A05-0, and read RESTATEMENT-ONLY from the DRAFT store items.
+        // Measured, then pinned: refused at structure on the same drafted line as A05-0, and read RESTATEMENT-ONLY from the DRAFT store item.
+        // Re-pinned at the merge (08223ea, 11 November 2026). Before: '2 AUTHORED (DRAFT store item)', cited [12.a::V5, DRAFT_ITEM] and
+        // [10.a::V6, DRAFT_ITEM] (the drafted control and origin lines). After: '1 AUTHORED (DRAFT store item)', [10.a::V6, DRAFT_ITEM] alone,
+        // because RPC-003-12.a is an example (SUPPORTING, TYPICAL_EXAMPLE) in our DRAFT restatement and constitutes no control condition.
         assert.deepEqual([draft.form.decision, draft.form.formId, draft.chain?.outcome, draft.refusal?.stage, draft.refusal?.reasons], ['SELECTED_BY_STEP_2', 'GF2', 'refused', 'structure', byCase(resultsOnce(), 'A05-0').refusal?.reasons])
-        assert.deepEqual([draft.refusalBasis?.verdict, draft.refusalBasis?.mix, draft.refusalBasis?.cited.map((x) => [x.ref, x.premiseKind]), draft.refusalBasis?.gaps], ['RESTATEMENT-ONLY', '2 AUTHORED (DRAFT store item)', [['c:restated:RPC-003:RPC-003-12.a::V5', 'DRAFT_ITEM'], ['c:restated:RPC-003:RPC-003-10.a::V6', 'DRAFT_ITEM']], []])
-        if (draft.refusalBasis) testRefusals.push({ where: 'test C4 (TA02, DRAFT: with the TEST-ONLY draft store)', basis: draft.refusalBasis, obstructs: 'yes for TA02 with the draft store: our drafted lines stop it at structure, as in A05-0; without the draft store it stops earlier, at knowledge; nothing is fabricated to pass it' })
+        assert.deepEqual([draft.refusalBasis?.verdict, draft.refusalBasis?.mix, draft.refusalBasis?.cited.map((x) => [x.ref, x.premiseKind]), draft.refusalBasis?.gaps], ['RESTATEMENT-ONLY', '1 AUTHORED (DRAFT store item)', [['c:restated:RPC-003:RPC-003-10.a::V6', 'DRAFT_ITEM']], []])
+        if (draft.refusalBasis) testRefusals.push({ where: 'test C4 (TA02, DRAFT: with the TEST-ONLY draft store)', basis: draft.refusalBasis, obstructs: 'yes for TA02 with the draft store: our drafted origin line stops it at structure, as in A05-0; without the draft store it stops earlier, at knowledge; nothing is fabricated to pass it' })
         // Every goal of the planning file is run once in the sweep: the cases (A01, A05's three runs, TA01) and the goals above (asserted again
         // where the block is built).
         const caseGoals = [...new Set(resultsOnce().filter((r) => r.goalId).map((r) => r.goalId as string))]
@@ -1335,7 +1359,7 @@ test(
         return [
             ...out,
             a02Note,
-            `TA02, DRAFT (with the TEST-ONLY draft store ta02-composition, as A05-0 uses it; not a production run): ${draft.receive.step1?.status}; Step 2 ${draft.receive.step2?.status} ${draft.receive.step2?.selected}; ${draft.refusal?.stage}: ${draft.refusal?.reasons.join('; ')}; what it rests on: ${draft.refusalBasis?.verdict} (${draft.refusalBasis?.mix}): the same drafted lines as A05-0`,
+            `TA02, DRAFT (with the TEST-ONLY draft store ta02-composition, as A05-0 uses it; not a production run): ${draft.receive.step1?.status}; Step 2 ${draft.receive.step2?.status} ${draft.receive.step2?.selected}; ${draft.refusal?.stage}: ${draft.refusal?.reasons.join('; ')}; what it rests on: ${draft.refusalBasis?.verdict} (${draft.refusalBasis?.mix}): the same drafted line as A05-0`,
             `with the cases (${caseGoals.join(', ')}), these ${Object.keys(runs).length} goals cover all ${all.length} Learning Goals of the planning file, each run from one place (the WHERE EACH LEARNING GOAL STOPS block)`,
         ]
     },
@@ -1463,7 +1487,12 @@ test(
         const ownContracts = [...new Set(own.map((g) => g.contractId))]
         // Measured, then pinned: the scope rule, now applied, changes no reading in the evidence (every own-involvement declaration met is its
         // element's own object's: the variable target condition's, on lines its item VARTARGET-13.a forms).
-        assert.deepEqual([seen.size, new Set(all.map((g) => g.lineId)).size, own.length, ownContracts, kept.length], [19, 8, 5, ['restated:VARIABLE-TARGET-CONDITION'], 0])
+        // Re-pinned at the merge (08223ea, 11 November 2026): 19 declarations on 8 lines before, 15 on 7 after. The line gone is the drafted
+        // control referent, c:restated:RPC-003:RPC-003-12.a::V5, which no reading meets once RPC-003-12.a is an example (SUPPORTING,
+        // TYPICAL_EXAMPLE); its four declarations were restated:GF2 NON_CLAIMED and NOT_AUTHORED, restated:RPC-003 CLAIMED and UNDECLARED
+        // (test R1's pin before the merge). The own-involvement counts do not move.
+        assert.deepEqual([seen.size, new Set(all.map((g) => g.lineId)).size, own.length, ownContracts, kept.length], [15, 7, 5, ['restated:VARIABLE-TARGET-CONDITION'], 0])
+        assert.equal(all.some((g) => g.lineId === 'c:restated:RPC-003:RPC-003-12.a::V5'), false, 'the drafted control referent is read by no refusal reading')
         return [
             `classify.ts's GENERAL_REQUIREMENTS: ${literal[0].slice(PREFIX.length)}; the stage file's REQUIREMENT_DECLARATIONS: ${ours}`,
             `classify.ts's scope rule, found once in its source text and mirrored by the wiring: '${SCOPE_RULE_SOURCE}'`,

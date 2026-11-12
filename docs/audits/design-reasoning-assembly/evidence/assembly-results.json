@@ -2299,8 +2299,8 @@
       },
       {
         "path": "scoring.qualifyingCondition.workbookText",
-        "value": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
-        "rendered": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+        "value": "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.",
+        "rendered": "Purposeful advancement from the attack's starting condition rather than possession alone—for example, reaching a more advanced representative area while maintaining attacking possession.",
         "howReached": "READ_BY_CODE",
         "declaredStatus": "CANDIDATE",
         "computed": false,
