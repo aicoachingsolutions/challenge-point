@@ -23,7 +23,7 @@
  * It names what is missing and fills nothing in. It never scores or ranks anything: it is not a selection
  * input. The event kinds and condition types are data; this file names none of them.
  */
-import { CheckResult, EPISODE_SCOPES } from '../derivation/gates'
+import { CheckResult, episodeCheckDecides } from '../derivation/gates'
 import { RELATIONSHIP_CONFIRMED } from '../derivation/realization-deferral'
 import { RegisterIndex } from '../derivation/register'
 import { CONDITION_ROW, conditionScopeNotEvaluable, EVALUABLE_CONDITION_SCOPE } from '../derivation/resolved-game'
@@ -56,7 +56,8 @@ export const EPISODE_REACHABLE_CHECK = 'GA-EPISODE-REACHABLE'
  * reader that would.
  */
 export function episodeConfirmed(scope: unknown, check: CheckResult | undefined): boolean {
-    if (!check || check.checkId !== EPISODE_REACHABLE_CHECK || typeof scope !== 'string' || !EPISODE_SCOPES.includes(scope)) return false
+    // W4 (A02 package): the scopes the check decides (`episodeCheckDecides`: the approved one, or an ILLUSTRATIVE one of a TEST-ONLY register copy).
+    if (!check || check.checkId !== EPISODE_REACHABLE_CHECK || typeof scope !== 'string' || !episodeCheckDecides(scope)) return false
     if (check.verdict !== 'PASS' || !check.clauses.length || !check.clauses.every(clause => clause.verdict === 'PASS')) return false
     const reach = check.clauses[0]
     return reach.basis !== 'NO_APPLICABLE_INSTANCES' && Number(reach.instances) > 0

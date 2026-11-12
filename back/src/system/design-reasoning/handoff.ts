@@ -146,7 +146,7 @@ export interface StandInInput {
  * 2026), FOUNDATION_PRESENCE_BYPASS acts on the request, only beside SIZE_RULE_BYPASS: the package check need find no foundation member (our
  * classification of foundation presence as a quota, reversible by removing it; every selected member is still validated under the switch).
  */
-export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION', 'SIZE_RULE_BYPASS', 'K2_RETAIN_FORM', 'GP_COVERAGE_LENSES', 'FOUNDATION_PRESENCE_BYPASS'] as const
+export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION', 'SIZE_RULE_BYPASS', 'K2_RETAIN_FORM', 'GP_COVERAGE_LENSES', 'FOUNDATION_PRESENCE_BYPASS', 'ILLUSTRATIVE_CARRIERS'] as const
 
 export interface TreatmentInput {
     id: string
@@ -164,6 +164,12 @@ export interface TreatmentInput {
     standIn?: { law: string; materiality: string }
     /** K2_RETAIN_FORM only (stage W1 (b)): the ruling holding K2 and the indexes of its rule and of its limit among that ruling's words. */
     k2?: { rulingRef: string; rule: number; limit: number }
+    /**
+     * ILLUSTRATIVE_CARRIERS only (stage W4 of the foundational package, 11 November 2026): the ILLUSTRATIVE carrier file (`draft-store.ts`
+     * `loadIllustrativeCarriers`, a path under docs/audits/drafts) and the groups of it this treatment adds to the case's draft store, on the
+     * chain's copy only. Only beside CONSUMED_STEPS and a draft store; its label begins ILLUSTRATIVE.
+     */
+    carriers?: { file: string; groups: string[] }
 }
 
 export interface ProposedManipulation {
@@ -430,6 +436,12 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
                     errors.push(`${at}: treatment ${t.id} replaces a declaration: it names its contract and the declaration (row, selector, from, to; a qualifier only as words), and no items`)
             } else if (t.kind !== 'WITHHOLD_ITEMS' && (t.contractId !== undefined || t.itemIds !== undefined)) errors.push(`${at}: treatment ${t.id} names a contract or items, and only WITHHOLD_ITEMS acts on them (REPLACE_DECLARATION names a contract and one of its declarations)`)
             if (isObject(t) && t.declaration !== undefined && t.kind !== 'REPLACE_DECLARATION') errors.push(`${at}: treatment ${String(t.id)} names a declaration, and only REPLACE_DECLARATION replaces one`)
+            // W4 (foundational package): ILLUSTRATIVE carriers name their file and groups, are labelled ILLUSTRATIVE, and only this kind names carriers.
+            if (isObject(t) && (t.carriers !== undefined || t.kind === 'ILLUSTRATIVE_CARRIERS')) {
+                const k = t.carriers as Record<string, unknown> | undefined
+                if (t.kind !== 'ILLUSTRATIVE_CARRIERS' || !isObject(k) || !filled(k.file) || !Array.isArray(k.groups) || !k.groups.length || !(k.groups as unknown[]).every(filled) || !String(t.label).startsWith('ILLUSTRATIVE'))
+                    errors.push(`${at}: treatment ${String(t.id)}: ILLUSTRATIVE carriers belong only to ILLUSTRATIVE_CARRIERS, which names its file and at least one group (carriers: file, groups) and is labelled ILLUSTRATIVE`)
+            }
             if (isObject(t) && t.standIn !== undefined && (t.kind !== 'LAWS_CLASSIFICATION' || !isObject(t.standIn) || !filled(t.standIn.law) || (t.standIn.materiality !== 'PROCEDURAL' && t.standIn.materiality !== 'MATERIAL')))
                 errors.push(`${at}: treatment ${String(t.id)}: a stand-in for one law's materiality belongs only to LAWS_CLASSIFICATION and names the law and PROCEDURAL or MATERIAL`)
         }
@@ -459,6 +471,8 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
         if (k2.length > 1 || (k2.length && !ofKind('CONSUMED_STEPS').length)) errors.push(`${at}: K2_RETAIN_FORM is declared at most once, and only beside CONSUMED_STEPS`)
         // Stage W1 (c1): the Coverage-row lenses, once, only on a consuming run (they need Step 1's Game Problem).
         if (ofKind('GP_COVERAGE_LENSES').length > 1 || (ofKind('GP_COVERAGE_LENSES').length && !ofKind('CONSUMED_STEPS').length)) errors.push(`${at}: GP_COVERAGE_LENSES is declared at most once, and only beside CONSUMED_STEPS`)
+        // W4 (foundational package): ILLUSTRATIVE carriers are added only to a consuming run's draft store.
+        if (ofKind('ILLUSTRATIVE_CARRIERS').length && (!ofKind('CONSUMED_STEPS').length || !isObject(merged.chain) || !filled(merged.chain.draftStore))) errors.push(`${at}: ILLUSTRATIVE_CARRIERS adds to a draft store, only on a run that consumes Steps 1 and 2 and reads one`)
         if (k2.length && ofKind('SIZE_RULE_BYPASS').length) errors.push(`${at}: K2_RETAIN_FORM is never declared beside SIZE_RULE_BYPASS (K2's result is the empty set; the bypass is for a record's evaluated set)`)
         if (k2.length && (merged.record !== null && merged.record !== undefined || (isObject(merged.chain) && merged.chain.records === 'TEST_ONLY'))) errors.push(`${at}: K2_RETAIN_FORM stands in place of a per-goal authorization record, never beside one (the case has a TEST-ONLY record)`)
         if (k2.length && manipulations.some((m) => m.relationship !== undefined)) errors.push(`${at}: K2_RETAIN_FORM is handed only where no proposed manipulation has a relationship (placed or entering by the record route): K2 yields no manipulation`)
@@ -619,6 +633,8 @@ export interface ChainRequest {
     replaceDeclarations?: Array<{ contractId: string; row: string; selector: string; from: string; to: string; qualifier: string | null; treatmentId: string }>
     /** Present only where the case declares LAWS_CLASSIFICATION: the chain's laws check reads our DRAFT classification, with the stand-in where one is named. */
     laws?: { standIn: { law: string; materiality: string } | null; treatmentId: string }
+    /** Present only where the case declares ILLUSTRATIVE_CARRIERS treatments (W4): each adds its groups to the draft store, on the chain's copy. */
+    illustrative?: Array<{ file: string; groups: string[]; treatmentId: string }>
 }
 
 /** One configuration line as the chain answered it (from the realized game's fixture), in the chain's own words. */
@@ -792,6 +808,7 @@ export const PREMISE_KINDS = [
     'ASSUMED_ITEM',
     'ENGINE_ONLY_ITEM',
     'DRAFT_ITEM',
+    'ILLUSTRATIVE_ITEM',
     'REALIZATION_ITEM',
     'STANDING_DECISION',
     'CASE_CHOICE_RULING',
@@ -825,6 +842,7 @@ export const GRADING_MAP: Record<PremiseKind, { standing: Standing | null; label
     ASSUMED_ITEM: { standing: 'OURS', label: 'OURS: assumption in our restatement', what: 'a contract item with basis ASSUMED; what rests on it inherits it' },
     ENGINE_ONLY_ITEM: { standing: 'OURS', label: 'OURS: engine convention', what: 'a contract item with basis ENGINE_ONLY' },
     DRAFT_ITEM: { standing: 'CANDIDATE', label: 'DRAFT knowledge (ours, unreviewed)', what: 'an item of a DRAFT contract read from the TEST-ONLY draft store' },
+    ILLUSTRATIVE_ITEM: { standing: 'ILLUSTRATIVE', label: `${VALUE_LABELS.ILLUSTRATIVE}: a TEST-ONLY carrier, not knowledge`, what: 'an item an ILLUSTRATIVE carrier treatment added to the draft store (category ILLUSTRATIVE, W4): graded by its category, never by its basis' },
     REALIZATION_ITEM: { standing: 'RULING', label: 'RULING', what: 'an item of a provisional realization quoting Christian, graded by its ruling (class 3 where provisional)' },
     STANDING_DECISION: { standing: 'RULING', label: 'RULING', what: 'an engine standing decision that records a ruling of Christian\'s (the table is data, checked against the specification); one that records none is OURS: engine convention' },
     CASE_CHOICE_RULING: { standing: 'RULING', label: 'RULING', what: 'a choice the case supplies for an open line, on a ruling of Christian\'s (class 3 where provisional)' },
@@ -1065,7 +1083,7 @@ export interface HandoffResult {
      * shaping (`draftShaped`: the line, its value, and each 'contract item relation'). Null where the chain's account recorded no consumption
      * (a refusal before the selection returned anything): that absence is itself printed.
      */
-    consumption?: (NonNullable<ChainAnswer['consumption']> & { draftItemsDerived: string[]; draftShaped: Array<{ lineId: string; value: unknown; by: string[] }> }) | null
+    consumption?: (NonNullable<ChainAnswer['consumption']> & { draftItemsDerived: string[]; draftShaped: Array<{ lineId: string; value: unknown; by: string[] }>; illustrativeItemsDerived?: string[] }) | null
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -1198,6 +1216,8 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
             return { contractId: t.contractId as string, row: d.row, selector: d.selector, from: d.from, to: d.to, qualifier: d.qualifier ?? null, treatmentId: t.id }
         })
     const lawsTreatment = c.testOnlyTreatments.find((t) => t.kind === 'LAWS_CLASSIFICATION')
+    // W4 (foundational package): each ILLUSTRATIVE carrier treatment, in the case's order, with its file and groups.
+    const illustrative = c.testOnlyTreatments.filter((t) => t.kind === 'ILLUSTRATIVE_CARRIERS' && t.carriers).map((t) => ({ file: t.carriers!.file, groups: [...t.carriers!.groups], treatmentId: t.id }))
     let consume: ChainRequest['consume'] | undefined
     if (c.testOnlyTreatments.some((t) => t.kind === 'CONSUMED_STEPS')) {
         const g = s1?.gameForm
@@ -1250,6 +1270,7 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
         ...(recordRoute.length ? { recordRoute } : {}),
         ...(replaceDeclarations.length ? { replaceDeclarations } : {}),
         ...(lawsTreatment ? { laws: { standIn: lawsTreatment.standIn ? { ...lawsTreatment.standIn } : null, treatmentId: lawsTreatment.id } } : {}),
+        ...(illustrative.length ? { illustrative } : {}),
     }
 }
 
@@ -1303,6 +1324,8 @@ function itemPremise(ctx: GradingContext, contractId: string, itemId: string): P
     const item = contract?.items.find((x) => x.itemId === itemId)
     if (!contract || !item) return premise('UNRESOLVED', `${ref}: the item is not among the contracts the chain derived from`)
     const cited = sourcesCited(ctx, item.basisEvidence)
+    // W4 (foundational package): an ILLUSTRATIVE carrier is graded by its category before anything else (never as a draft restatement).
+    if (item.category === 'ILLUSTRATIVE') return premise('ILLUSTRATIVE_ITEM', ref)
     if (contract.origin === 'DRAFT_STORE') return premise('DRAFT_ITEM', ref, cited)
     const labelled = ctx.labelled.find((l) => l.contractId === contractId && l.itemIds.indexOf(itemId) >= 0)
     if (labelled) {
@@ -1582,6 +1605,7 @@ export function refusalBasisOfBuild(
 const MIX_WORDS: Partial<Record<PremiseKind, string>> = {
     RESTATED_ITEM: 'restated item',
     DRAFT_ITEM: 'DRAFT store item',
+    ILLUSTRATIVE_ITEM: 'ILLUSTRATIVE carrier',
     ASSUMED_ITEM: 'assumed item',
     ASSUMED_BOUND: 'assumed bound',
     KNOWLEDGE_RULING_ITEM: 'ruling item',
@@ -1964,7 +1988,11 @@ export function runHandoff(c: CaseInput, inputs: HandoffInputs, chain: HandoffCh
                   consumption: recorded
                       ? {
                             ...deepCopy(recorded),
-                            draftItemsDerived: answer.contracts.filter((x) => x.origin === 'DRAFT_STORE').flatMap((x) => x.items.map((i) => `${x.contractId} ${i.itemId}`)),
+                            draftItemsDerived: answer.contracts.filter((x) => x.origin === 'DRAFT_STORE').flatMap((x) => x.items.filter((i) => i.category !== 'ILLUSTRATIVE').map((i) => `${x.contractId} ${i.itemId}`)),
+                            // W4 (foundational package): ILLUSTRATIVE carriers listed apart, present only where a carrier treatment added any.
+                            ...(answer.contracts.some((x) => x.items.some((i) => i.category === 'ILLUSTRATIVE'))
+                                ? { illustrativeItemsDerived: answer.contracts.flatMap((x) => x.items.filter((i) => i.category === 'ILLUSTRATIVE').map((i) => `${x.contractId} ${i.itemId} (ILLUSTRATIVE)`)) }
+                                : {}),
                             draftShaped: answer.lines.filter((l) => l.draftShapedBy && l.draftShapedBy.length).map((l) => ({ lineId: l.lineId, value: deepCopy(l.value), by: (l.draftShapedBy ?? []).map((d) => `${d.contractId} ${d.itemId} ${d.relation}`) })),
                         }
                       : null,

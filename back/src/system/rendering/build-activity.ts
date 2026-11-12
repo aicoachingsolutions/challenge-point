@@ -47,7 +47,7 @@ import { MissingParticipant, missingParticipantsIn, PARTICIPANTS_CHECK } from '.
 import { roleBlocksOf } from '../derivation/role-blocks'
 import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, DraftStoreContents, GoalSelectionGap, knowledgeKey, KnowledgeSelection, realizationOf, selectFor } from '../derivation/run-bounded-selection'
 import type { ConsumedGameProblem, ConsumedRecord, UpstreamDecisions } from '../derivation/run-bounded-selection'
-import { DRAFT_KNOWLEDGE, DRAFT_KNOWLEDGE_VERSION, LoadedContract, RoleBlock } from '../derivation/types'
+import { DRAFT_KNOWLEDGE, DRAFT_KNOWLEDGE_VERSION, ILLUSTRATIVE, isDraftCategory, LoadedContract, RoleBlock } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, ObjectAvailabilityRefusal, objectAvailabilityRefusal, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
 import { boundRegionAccountOf, BoundRegionRefusal, boundRegionRefusalAfter, boundRegionRefusalBefore } from '../realization/bound-region-check'
@@ -493,7 +493,7 @@ export interface DraftKnowledgeAccount {
     /** The draft records the selection was offered (their goals). */
     records: string[]
     /** Every contract of this build's derivation input that the store loaded, with its items; empty where the build stopped before. */
-    contracts: { contractId: string; items: string[] }[]
+    contracts: { contractId: string; items: string[]; illustrativeItems?: string[] }[]
     /** Every draft declaration of this build's derivation input (a declaration can resolve lines on another contract's elements). */
     declarations: { contractId: string; row: string; selector: string | null; declaration: string; note: string | null }[]
     /**
@@ -1408,7 +1408,7 @@ function relevanceOfBuilt(
  * build last assembled (after any TEST-ONLY alteration, so it describes what was derived), the selection, and the game as built.
  */
 function draftKnowledgeAccountOf(store: DraftStoreContents, built: ActivityBuild & { fixture: Record<string, unknown> | null }, derived: LoadedContract[] | null): DraftKnowledgeAccount {
-    const isDraft = (contract: LoadedContract) => contract.knowledgeVersion === DRAFT_KNOWLEDGE_VERSION || (contract.items ?? []).some(item => item.category === DRAFT_KNOWLEDGE)
+    const isDraft = (contract: LoadedContract) => contract.knowledgeVersion === DRAFT_KNOWLEDGE_VERSION || (contract.items ?? []).some(item => isDraftCategory(item.category)) // W4: a carrier too, never knowledge
     const input = derived ?? []
     const activity = built.activity
     const composed: RenderedActivity =
@@ -1422,10 +1422,10 @@ function draftKnowledgeAccountOf(store: DraftStoreContents, built: ActivityBuild
         status: 'BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED',
         store: { folder: store.folder, files: [...store.files], notRead: store.notRead.map(entry => ({ ...entry })) },
         records: store.records.map(record => record.learningGoalId),
-        contracts: input.filter(isDraft).map(contract => ({ contractId: contract.contractId, items: (contract.items ?? []).filter(item => item.category === DRAFT_KNOWLEDGE).map(item => item.itemId) })),
+        contracts: input.filter(isDraft).map(contract => ({ contractId: contract.contractId, items: (contract.items ?? []).filter(item => item.category === DRAFT_KNOWLEDGE).map(item => item.itemId), ...((contract.items ?? []).some(item => item.category === ILLUSTRATIVE) ? { illustrativeItems: (contract.items ?? []).filter(item => item.category === ILLUSTRATIVE).map(item => item.itemId) } : {}) })), // W4: ILLUSTRATIVE carriers listed apart, only where added
         declarations: input.flatMap(contract =>
             ((contract.declarations ?? []) as any[])
-                .filter(declaration => declaration?.category === DRAFT_KNOWLEDGE)
+                .filter(declaration => isDraftCategory(declaration?.category))
                 .map(declaration => ({ contractId: contract.contractId, row: String(declaration.row), selector: declaration.selector ?? null, declaration: String(declaration.declaration), note: declaration.note ?? null })),
         ),
         elements:
@@ -1564,7 +1564,7 @@ function build(
                 request.situationId ?? null,
                 records,
                 realizations ? realizations.map(realization => realization.provisionalId) : undefined,
-                drafts ? { contracts: drafts.store.contracts, draftsAdmitted: true } : undefined,
+                drafts ? { contracts: drafts.store.contracts, draftsAdmitted: true, ...(drafts.store.registerOverlay ? { registerOverlay: drafts.store.registerOverlay } : {}) } : undefined, // W4: the carriers' register overlay, only where the TEST-ONLY store carries one
                 upstream ?? undefined,
             )
         } catch (error) {

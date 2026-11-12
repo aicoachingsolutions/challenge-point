@@ -59,7 +59,7 @@ import { knowledgeKey } from './knowledge-key'
 import { AUDITS_DIR } from './knowledge-root'
 import { indexRegister } from './register'
 import { DraftStoreContents } from './run-bounded-selection'
-import { ContractItem, DRAFT_KNOWLEDGE, DRAFT_KNOWLEDGE_VERSION, LoadedContract, ROLE_YIELD_KEY } from './types'
+import { ContractItem, DRAFT_KNOWLEDGE, DRAFT_KNOWLEDGE_VERSION, ILLUSTRATIVE, LoadedContract, ROLE_YIELD_KEY } from './types'
 
 export const DRAFTS_DIR = path.join(AUDITS_DIR, 'drafts')
 
@@ -506,6 +506,156 @@ function contractOf(name: string, entry: any, reasons: string[], ctx: ContractCo
         if (!citing.length) reasons.push(at(`the workbook's ${PRIMARY_SCORING_CONDITION} row ${rowId} for ${objectId} is cited by no item constituting a scoring condition, so the drafted context would not carry its approved scoring condition`))
     }
     return contract
+}
+
+/**
+ * **TEST-ONLY: ILLUSTRATIVE carriers — values of ours that make a gap executable, never knowledge** — stage W4 of the A02 package (U2 b1, b2,
+ * b3), 11 November 2026. Christian's second reply received 11 November 2026 delegates "Testing legitimate configuration alternatives using
+ * clearly labeled provisional or illustrative knowledge."; the register says a begin-condition referent is written only by a ruled restatement
+ * (C58), so nothing here is a restatement: each group is a labelled TEST-ONLY alternative a case adds by a declared treatment
+ * (ILLUSTRATIVE_CARRIERS), standing for what an approved answer must supply.
+ *
+ * One file of its own folder (`docs/audits/drafts/a02-illustrative/`, so no draft store's contents change), held to this gate and refused WHOLE
+ * on any defect: a standing that does not say DRAFT, ILLUSTRATIVE and TEST-ONLY; an item basis other than AUTHORED (OWNER_RULING claims a
+ * ruling, refused by name; ASSUMED and ENGINE_ONLY establish nothing, so they could not carry what they illustrate); an item claiming a source
+ * row, carrying what only a ruling or a realization writes (`FORBIDDEN_ITEM_KEYS`), without our reasoning (`fitNote`), or whose `basisEvidence`
+ * does not begin 'ILLUSTRATIVE'; an id a production contract, the Sport Profile or a provisional realization uses, or one used twice; a
+ * geometric value copied from a production provisional realization's item on the same row (A01's rulings are A01's alone); an episode scope the
+ * register already holds, or not named 'ILLUSTRATIVE_...'; a group naming no contract, or an unknown key. Every item and declaration admitted is
+ * stamped ILLUSTRATIVE (`types.ts`), never DRAFT_KNOWLEDGE.
+ */
+export interface IllustrativeGroup {
+    id: string
+    what: string
+    addsTo: string
+    replaces: string[]
+    items: ContractItem[]
+    declarations: { row: string; selector: string; from: string; to: string; qualifier?: string }[]
+    /** Lines the group's items entail, so a realization-choices file's choice for them is set aside on the chain's copy (a choice for a line no longer open is refused). */
+    setsAsideChoices: string[]
+}
+export interface IllustrativeCarriers {
+    file: string
+    episodeScopes: string[]
+    groups: IllustrativeGroup[]
+}
+export const ILLUSTRATIVE_CARRIERS_FILE = path.join(DRAFTS_DIR, 'a02-illustrative', 'a02-illustrative.DRAFT.json')
+const GROUP_KEYS = ['id', 'what', 'addsTo', 'replaces', 'items', 'declarations', 'setsAsideChoices']
+const ILLUSTRATIVE_ITEM_KEYS = ['id', 'row', 'selector', 'requirement', 'value', 'valueStatus', 'strictness', 'scope', 'basis', 'basisEvidence', 'checkability', 'structuralClause', 'fitNote', 'typedBound']
+
+export function loadIllustrativeCarriers(file: string = ILLUSTRATIVE_CARRIERS_FILE): IllustrativeCarriers {
+    const reasons: string[] = []
+    let raw: any
+    try {
+        raw = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^﻿/, ''))
+    } catch (error) {
+        throw new DraftStoreRefused(file, [`the ILLUSTRATIVE carriers do not parse: ${error instanceof Error ? error.message : String(error)}`])
+    }
+    const standing = String(raw?.standing ?? '')
+    if (!standing.startsWith('DRAFT') || !standing.includes('ILLUSTRATIVE') || !standing.includes('TEST-ONLY')) reasons.push(`the standing does not say DRAFT, ILLUSTRATIVE and TEST-ONLY (${JSON.stringify(raw?.standing ?? null)})`)
+    const body = raw?.illustrative
+    if (!isObject(body) || body.label !== 'ILLUSTRATIVE') reasons.push('the file holds no illustrative block labelled ILLUSTRATIVE')
+    const register = loadRegister()
+    const scopes: string[] = ((register.vocabularies?.contractEnums?.scope ?? []) as unknown[]).map(String)
+    const episodeScopes: string[] = []
+    for (const entry of Array.isArray(body?.episodeScopes) ? body.episodeScopes : []) {
+        const scope = String(entry?.scope ?? '')
+        if (!scope.startsWith('ILLUSTRATIVE_') || !filled(entry?.why)) reasons.push(`an episode scope is named 'ILLUSTRATIVE_...' and says why (${JSON.stringify(entry)})`)
+        else if (scopes.includes(scope)) reasons.push(`the episode scope ${scope} is already a scope of the register`)
+        else episodeScopes.push(scope)
+    }
+    const production = [...loadCorpusContracts(), ...loadSportProfile(), ...loadProvisionalRealizations()]
+    const productionItems = new Set(production.flatMap(contract => (contract.items ?? []).map(item => String(item.itemId))))
+    const realizationValues = new Map<string, string[]>()
+    for (const item of loadProvisionalRealizations().flatMap(contract => contract.items ?? [])) realizationValues.set(String(item.row), [...(realizationValues.get(String(item.row)) ?? []), JSON.stringify(item.value)])
+    // An offset measured for the same element (row and selector) as a production provisional realization's: A01's 20 m pressure reference is A01's.
+    const offsetsOf = (value: unknown): string[] => (isObject(value) && isObject(value.offsetM) ? [JSON.stringify(value.offsetM)] : [])
+    const offsetKey = (row: unknown, selector: unknown, offset: string) => `${String(row)}|${String(selector)}|${offset}`
+    const realizationOffsets = new Set(loadProvisionalRealizations().flatMap(contract => (contract.items ?? []).flatMap(item => offsetsOf(item.value).map(offset => offsetKey(item.row, item.selector, offset)))))
+    const seen = new Set<string>()
+    const groups: IllustrativeGroup[] = []
+    for (const group of Array.isArray(body?.groups) ? body.groups : []) {
+        const at = (what: string) => `group ${String(group?.id ?? '(no id)')}: ${what}`
+        for (const key of Object.keys(group ?? {})) if (!GROUP_KEYS.includes(key)) reasons.push(at(`unknown key ${key}`))
+        if (!filled(group?.id) || !filled(group?.what) || !filled(group?.addsTo)) reasons.push(at('names no id, what it carries, or the contract it adds to'))
+        if (!Array.isArray(group?.replaces) || !Array.isArray(group?.items) || !Array.isArray(group?.declarations) || !(group.items.length || group.declarations.length)) reasons.push(at('holds no list of replaced items, items and declarations, or carries nothing'))
+        const items: ContractItem[] = []
+        for (const item of Array.isArray(group?.items) ? group.items : []) {
+            const id = String(item?.id ?? '')
+            const where = (what: string) => at(`item ${id || '(no id)'} ${what}`)
+            for (const key of Object.keys(item ?? {})) if (!ILLUSTRATIVE_ITEM_KEYS.includes(key)) reasons.push(where(`carries ${key}, which an ILLUSTRATIVE carrier never writes`))
+            for (const key of FORBIDDEN_ITEM_KEYS) if (item && typeof item === 'object' && key in item) reasons.push(where(`carries ${key}, which only a ruled restatement or a provisional realization writes`))
+            if (!filled(item?.id) || !filled(item?.row)) reasons.push(where('has no id or row'))
+            else if (productionItems.has(id)) reasons.push(where('uses an id a production contract, the Sport Profile or a provisional realization already uses'))
+            else if (seen.has(id)) reasons.push(where('is used twice in the file'))
+            seen.add(id)
+            if (item?.basis === 'OWNER_RULING') reasons.push(where('claims OWNER_RULING: an ILLUSTRATIVE carrier never claims a ruling of Christian\'s'))
+            else if (item?.basis !== 'AUTHORED') reasons.push(where(`has basis ${JSON.stringify(item?.basis ?? null)}: an ILLUSTRATIVE carrier is AUTHORED so it establishes what it illustrates (ASSUMED and ENGINE_ONLY establish nothing); its category, never its basis, says what it is`))
+            if (!filled(item?.fitNote)) reasons.push(where('carries no reasoning of ours (fitNote)'))
+            if (!String(item?.basisEvidence ?? '').startsWith('ILLUSTRATIVE')) reasons.push(where("has basisEvidence that does not begin 'ILLUSTRATIVE'"))
+            if (item?.scope && String(item.scope).startsWith('ILLUSTRATIVE_') && !episodeScopes.includes(String(item.scope))) reasons.push(where(`is scoped ${item.scope}, an episode scope the file does not declare`))
+            if (['S5', 'S6', 'P10'].includes(String(item?.row)) && (realizationValues.get(String(item.row)) ?? []).includes(JSON.stringify(item.value))) reasons.push(where(`copies the value a production provisional realization holds on ${item.row}`))
+            if (offsetsOf(item?.value).some(offset => realizationOffsets.has(offsetKey(item.row, item.selector, offset)))) reasons.push(where(`copies an offset a production provisional realization holds for the same element (${offsetsOf(item.value).join(', ')})`))
+            const { id: _id, ...rest } = item ?? {}
+            items.push({ itemId: id, ...rest, category: ILLUSTRATIVE } as ContractItem)
+        }
+        const declarations: IllustrativeGroup['declarations'] = []
+        for (const d of Array.isArray(group?.declarations) ? group.declarations : []) {
+            if (!filled(d?.row) || !filled(d?.selector) || !filled(d?.from) || !filled(d?.to) || (d.qualifier !== undefined && !filled(d.qualifier))) reasons.push(at(`a declaration replacement names its row, selector, from and to (${JSON.stringify(d)})`))
+            else declarations.push({ row: d.row, selector: d.selector, from: d.from, to: d.to, ...(d.qualifier ? { qualifier: d.qualifier } : {}) })
+        }
+        if (group?.setsAsideChoices !== undefined && (!Array.isArray(group.setsAsideChoices) || !group.setsAsideChoices.every(filled))) reasons.push(at('setsAsideChoices is a list of line ids'))
+        groups.push({ id: String(group?.id), what: String(group?.what), addsTo: String(group?.addsTo), replaces: Array.isArray(group?.replaces) ? group.replaces.map(String) : [], items, declarations, setsAsideChoices: Array.isArray(group?.setsAsideChoices) ? group.setsAsideChoices.map(String) : [] })
+    }
+    if (!groups.length) reasons.push('the file holds no group')
+    if (new Set(groups.map(g => g.id)).size !== groups.length) reasons.push('a group id is used twice')
+    if (reasons.length) throw new DraftStoreRefused(file, reasons)
+    const repository = path.resolve(SYSTEM_DIR, '..', '..', '..')
+    const shown = path.relative(repository, path.resolve(file)).split(path.sep).join('/')
+    return { file: shown.startsWith('..') ? path.basename(file) : shown, episodeScopes, groups }
+}
+
+/**
+ * **TEST-ONLY: a draft store with ILLUSTRATIVE carrier groups added, by a declared treatment** (W4). On a deep copy: each group's replaced items
+ * are taken out of the draft contract it adds to (each must be there), its items added (stamped ILLUSTRATIVE), and each of its declaration
+ * replacements made on exactly one declaration (stamped ILLUSTRATIVE, its note naming the group and the treatment). The episode scopes the
+ * chosen groups use go to the register copy the build derives over (`registerOverlay`). Throws, naming the defect, on an unknown group, a
+ * contract the store does not hold, a replaced item it does not hold, an id clash, or a declaration that is not exactly one.
+ */
+export function withIllustrativeCarriers(store: DraftStoreContents, carriers: IllustrativeCarriers, groupIds: string[], treatmentId: string): DraftStoreContents {
+    const next = JSON.parse(JSON.stringify(store)) as DraftStoreContents
+    if (!groupIds.length) throw new Error(`treatment ${treatmentId}: ILLUSTRATIVE carriers are added by naming at least one group`)
+    const used = new Set<string>()
+    const items: string[] = []
+    const setsAsideChoices: string[] = []
+    for (const id of groupIds) {
+        const group = carriers.groups.find(g => g.id === id)
+        if (!group) throw new Error(`treatment ${treatmentId}: ${carriers.file} holds no ILLUSTRATIVE group ${id}`)
+        setsAsideChoices.push(...group.setsAsideChoices)
+        const contract = next.contracts.find(c => c.contractId === group.addsTo)
+        if (!contract) throw new Error(`treatment ${treatmentId}: group ${id} adds to ${group.addsTo}, which the draft store ${store.folder} does not hold`)
+        for (const replaced of group.replaces) {
+            if (!contract.items.some(i => i.itemId === replaced)) throw new Error(`treatment ${treatmentId}: group ${id} replaces ${replaced}, which ${group.addsTo} does not hold`)
+            contract.items = contract.items.filter(i => i.itemId !== replaced)
+        }
+        for (const item of group.items) {
+            if (contract.items.some(i => i.itemId === item.itemId)) throw new Error(`treatment ${treatmentId}: group ${id} adds ${item.itemId}, which ${group.addsTo} already holds`)
+            contract.items.push(JSON.parse(JSON.stringify(item)))
+            items.push(`${group.addsTo} ${item.itemId}`)
+            for (const scope of carriers.episodeScopes) if (JSON.stringify(item).includes(`"${scope}"`)) used.add(scope)
+        }
+        const declarations = (contract.declarations ?? []) as any[]
+        for (const d of group.declarations) {
+            const hits = declarations.filter(x => x.row === d.row && x.selector === d.selector && x.declaration === d.from)
+            if (hits.length !== 1) throw new Error(`treatment ${treatmentId}: group ${id}: ${group.addsTo} holds ${hits.length} declarations ${d.from} on ${d.row} (${d.selector}), and a carrier replaces exactly one`)
+            declarations[declarations.indexOf(hits[0])] = { ...hits[0], declaration: d.to, ...(d.qualifier ? { qualifier: d.qualifier } : {}), category: ILLUSTRATIVE, note: `ILLUSTRATIVE carrier ${id} (TEST-ONLY treatment ${treatmentId}), no ruling: ${String(hits[0].note ?? '')}` }
+        }
+    }
+    // Each treatment's carriers are listed apart, in the order the treatments were applied; the overlay holds every scope any of them uses.
+    next.illustrative = [...(store.illustrative ?? []), { treatmentId, file: carriers.file, groups: [...groupIds], items, setsAsideChoices }]
+    const scopes = [...new Set([...(store.registerOverlay?.episodeScopes ?? []), ...carriers.episodeScopes.filter(s => used.has(s))])]
+    if (scopes.length) next.registerOverlay = { episodeScopes: scopes, treatmentId: [...new Set([...(store.registerOverlay ? store.registerOverlay.treatmentId.split('+') : []), ...(used.size ? [treatmentId] : [])])].join('+') }
+    return next
 }
 
 /** One drafted authorization record, gated and stamped; null where a defect stops it. */

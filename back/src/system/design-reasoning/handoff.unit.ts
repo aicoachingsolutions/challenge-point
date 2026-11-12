@@ -454,6 +454,8 @@ test('the grading map, pinned per kind', () => {
             'ASSUMED_ITEM OURS',
             'ENGINE_ONLY_ITEM OURS',
             'DRAFT_ITEM CANDIDATE',
+            // Re-pinned openly (A02 package W4, 11 November 2026): the ILLUSTRATIVE carrier, graded by its category, class 5, never knowledge.
+            'ILLUSTRATIVE_ITEM ILLUSTRATIVE',
             'REALIZATION_ITEM RULING',
             'STANDING_DECISION RULING',
             'CASE_CHOICE_RULING RULING',

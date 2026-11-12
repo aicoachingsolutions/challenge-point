@@ -532,7 +532,9 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'TEST ASSUMPTION', means: 'Christian\'s class 4: a stated test assumption, never knowledge' },
     { id: 'UNAUTHORIZED_SOURCE', means: 'a verdict: constraints built from a source the authorization record does not authorize (the goal\'s own candidate constraints where no record authorizes them, VOCABULARY_POOL, or a constraint outside the record\'s set)' },
     { id: 'violation verdict', means: `a verdict that fails the assertion every experiment run must pass: ${VIOLATION_VERDICTS.map((v) => (v === 'MISSING' ? 'MISSING (a reached decision without its record)' : v)).join(', ')}, or ENGINE_RULE_DECIDED where no kept check is attributed; each one on the experiment path is listed as an open disconnection` },
-    { id: 'detected disconnection', means: `a verdict printed as an open finding, never a pass and never a violation: ${DETECTED_VERDICTS.join(', ')}, or ENGINE_RULE_DECIDED attributed to a kept check` },
+    // A02 package W4 (11 November 2026): CARRIED_UNDER_ILLUSTRATION (detected, never a pass) is read only on the carrier runs of
+    // a02-carriers.unit.ts, which this report does not hold yet (W6 consolidates them), so the key lists the verdicts this report's runs can read.
+    { id: 'detected disconnection', means: `a verdict printed as an open finding, never a pass and never a violation: ${DETECTED_VERDICTS.filter((v) => v !== 'CARRIED_UNDER_ILLUSTRATION').join(', ')}, or ENGINE_RULE_DECIDED attributed to a kept check` },
     // The chain's stages a run of this report stops at, in chain order (R4-11): a run is refused at the first stage whose check fails.
     { id: 'selection', means: 'the chain\'s stage that chooses the engine lenses and the constraints on the candidate forms (on the legacy route also the form); refused where no combination passes its checks' },
     { id: 'knowledge', means: 'the stage after selection that checks the knowledge the build needs; in these runs, that the form, the context and each authorized constraint have a contribution contract' },

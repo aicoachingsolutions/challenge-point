@@ -26,6 +26,7 @@ import {
     NamedDiagnostic,
     RefusalRecord,
     DRAFT_KNOWLEDGE,
+    ILLUSTRATIVE,
     ResolutionLine,
     RunReport,
     SupportRef,
@@ -171,6 +172,8 @@ export interface EmitInput {
     diagnostics: NamedDiagnostic[]
     /** B2: the items of the input the TEST-ONLY draft store loaded (`contractId:itemId`), for `draftShapedBy`; absent or empty elsewhere. */
     draftItems?: ReadonlySet<string>
+    /** W4 (A02 package, TEST-ONLY): those of `draftItems` stamped ILLUSTRATIVE, so a line one of them shapes says ILLUSTRATIVE, never DRAFT. */
+    illustrativeItems?: ReadonlySet<string>
 }
 
 /**
@@ -255,7 +258,7 @@ export function emit(input: EmitInput): DerivationResult | StampedHalt {
                       (support): support is Extract<SupportRef, { kind: 'CONTRACT_ITEM' }> => support.kind === 'CONTRACT_ITEM' && input.draftItems!.has(`${support.contractId}:${support.itemId}`),
                   )
                 : []
-            if (shaping.length) entry.draftShapedBy = shaping.map(support => ({ ...support, category: DRAFT_KNOWLEDGE }))
+            if (shaping.length) entry.draftShapedBy = shaping.map(support => ({ ...support, category: input.illustrativeItems?.has(`${support.contractId}:${support.itemId}`) ? ILLUSTRATIVE : DRAFT_KNOWLEDGE }))
         }
         if (entry.lineState === 'CONDITIONAL' && (classified?.conditionalOn || line.conditionalOn)) {
             entry.conditionalOn = classified?.conditionalOn ?? line.conditionalOn

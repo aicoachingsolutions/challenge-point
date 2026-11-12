@@ -70,12 +70,12 @@
  * Sport-neutral: rows, terms, kinds and values are data; no goal, context, team, line or sport term is written here.
  */
 import { ItemOutcome } from '../derivation/forward'
-import { CheckResult, EPISODE_SCOPES } from '../derivation/gates'
+import { CheckResult, episodeCheckDecides } from '../derivation/gates'
 import { knowledgeKey } from '../derivation/knowledge-key'
 import { RegisterIndex } from '../derivation/register'
 import { CONDITION_ROW, splitPath } from '../derivation/resolved-game'
 import { parseSelector } from '../derivation/selector'
-import { beginConditionReferentOf, DRAFT_KNOWLEDGE, ElementClass, ForwardResult, LoadedContract, relationalReferentOf, structuralRefOf } from '../derivation/types'
+import { beginConditionReferentOf, ElementClass, isDraftCategory, ForwardResult, LoadedContract, relationalReferentOf, structuralRefOf } from '../derivation/types'
 import { PRIMARY_SCORING_CONDITION, rpcLibrary } from '../sport-module/rpc-library'
 import { ConditionReading, conditionReadingOf, EPISODE_REACHABLE_CHECK, EventKindReading } from './context-scoring-guard'
 import {
@@ -691,7 +691,7 @@ function conditionEvidenceOf(condition: ConditionReading, check: CheckResult | u
     const episode = `whether the finished game begins the ${scope} episode ${item} is authored for cannot be established`
     if (!check) return { unverified: `the episode check (${EPISODE_REACHABLE_CHECK}) was not given, so ${episode}` }
     if (check.checkId !== EPISODE_REACHABLE_CHECK) return { unverified: `the check given is ${check.checkId}, not the episode check (${EPISODE_REACHABLE_CHECK}), so ${episode}` }
-    if (!EPISODE_SCOPES.includes(scope)) return { unverified: `the episode check (${EPISODE_REACHABLE_CHECK}) does not decide the ${scope} scope, so whether ${item} governs this game cannot be established` }
+    if (!episodeCheckDecides(scope)) return { unverified: `the episode check (${EPISODE_REACHABLE_CHECK}) does not decide the ${scope} scope, so whether ${item} governs this game cannot be established` }
     if (!check.clauses.length) return { unverified: `the episode check (${EPISODE_REACHABLE_CHECK}) holds no clause, so ${episode}` }
     const reach = check.clauses[0]
     // A check that ran and decided FAIL is a demonstration, and the note says which clause decided it and what that clause decides (its own words).
@@ -1120,7 +1120,7 @@ export function blockRequirementAccountOf(input: BlockRequirementInputs): BlockR
             cause: causeKind ? { kind: causeKind, detail: describeFacets(facets) } : null,
             byConstruction: carriers.some(carrier => carrier.byConstruction),
             vacuous: carriers.length > 0 && carriers.every(carrier => carrier.survives.vacuous),
-            restsOnDraftKnowledge: carriers.some(carrier => carrier.category === DRAFT_KNOWLEDGE),
+            restsOnDraftKnowledge: carriers.some(carrier => isDraftCategory(carrier.category)),
         })
     }
 

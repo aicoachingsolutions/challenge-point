@@ -31,7 +31,7 @@ import { roleHolderNames } from '../derivation/designation'
 import type { BoundRegionAccount } from '../realization/bound-region-check'
 import type { DefaultLawsAccount } from '../realization/default-laws-check'
 import { CREDIT_BEGINS_CLAUSE, CREDIT_ENDS_CLAUSE } from '../derivation/gates'
-import { DRAFT_KNOWLEDGE, LoadedContract } from '../derivation/types'
+import { DRAFT_KNOWLEDGE, ILLUSTRATIVE, LoadedContract } from '../derivation/types'
 import { contractCoverage } from '../derivation/run-bounded-selection'
 import { loadCorpusContracts } from '../derivation/corpus'
 import { parseSelector } from '../derivation/selector'
@@ -413,6 +413,10 @@ const overlaps = (a: { from: number; to: number } | null, b: { from: number; to:
 export function itemSource(ref: { contractId: string; itemId: string }, items: Map<string, any>, category: unknown): EvidenceSource {
     const item = items.get(`${ref.contractId}::${ref.itemId}`)
     const basis = item?.basis ? String(item.basis) : null
+    // W4 (A02 package, TEST-ONLY data only): an ILLUSTRATIVE carrier is DRAFT before anything else is read, and says it is not knowledge.
+    if (category === ILLUSTRATIVE || item?.category === ILLUSTRATIVE) {
+        return { layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'DRAFT', ref: `${ref.contractId}::${ref.itemId}`, detail: 'ILLUSTRATIVE: a TEST-ONLY carrier of ours, not knowledge, standing for what an approved answer must supply' }
+    }
     // B2 (28 October 2026): a draft item is DRAFT before anything else is read; its basis says what it was drafted with, never that it is approved.
     if (category === DRAFT_KNOWLEDGE || item?.category === DRAFT_KNOWLEDGE) {
         return { layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'DRAFT', ref: `${ref.contractId}::${ref.itemId}`, detail: `DRAFT knowledge awaiting his review (drafted with basis ${basis ?? 'none'})` }
@@ -526,8 +530,10 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
         const coach = choice.value && typeof choice.value === 'object' && 'coachDecides' in choice.value
         // B2 (28 October 2026; the review's M6): each draft item that narrowed or bounded the line the choice closed, as itself (DRAFT), before
         // the choice's own authority, so a line a draft shaped is never graded as approved alone.
-        for (const ref of (choice.draftShapedBy ?? []) as { contractId?: string; itemId?: string }[]) {
-            found.push({ ...itemSource({ contractId: String(ref.contractId), itemId: String(ref.itemId) }, items, DRAFT_KNOWLEDGE), detail: `narrows or bounds what choice ${choice.lineId} may take: DRAFT knowledge awaiting his review` })
+        for (const ref of (choice.draftShapedBy ?? []) as { contractId?: string; itemId?: string; category?: string }[]) {
+            // W4 (A02 package): a shaping ILLUSTRATIVE carrier is named as one (absent elsewhere, so every other line reads as before).
+            if (ref.category === ILLUSTRATIVE) found.push({ ...itemSource({ contractId: String(ref.contractId), itemId: String(ref.itemId) }, items, ILLUSTRATIVE), detail: `narrows or bounds what choice ${choice.lineId} may take: ILLUSTRATIVE, a TEST-ONLY carrier of ours, not knowledge` })
+            else found.push({ ...itemSource({ contractId: String(ref.contractId), itemId: String(ref.itemId) }, items, DRAFT_KNOWLEDGE), detail: `narrows or bounds what choice ${choice.lineId} may take: DRAFT knowledge awaiting his review` })
         }
         if (choice.category === DRAFT_KNOWLEDGE) found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'DRAFT', ref: `choice ${choice.lineId}`, detail: 'a DRAFT realization choice awaiting his review' })
         else if (choice.category === 'PROVISIONAL_REALIZATION_CHOICE') found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: `choice ${choice.lineId}`, detail: coach ? 'the coach decides at the session' : null })

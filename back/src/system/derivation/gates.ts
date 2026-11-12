@@ -1295,6 +1295,72 @@ function gaTriggerReachable(ctx: GateContext): CheckOutcome {
 export const EPISODE_SCOPES = ['BUILD_OUT_EPISODE']
 
 /**
+ * **The episode scopes of the register a game is derived over** — stage W4 of the A02 package (U2 b1), 11 November 2026. The approved one
+ * (`EPISODE_SCOPES`, SD-36), and any the register lists in `contractEnums.illustrativeEpisodeScope`, which only a TEST-ONLY copy of the
+ * register holds (`run-bounded-selection.ts` `registerWith`, from ILLUSTRATIVE carriers of the draft store): the production register lists
+ * none, so every production game reads exactly `EPISODE_SCOPES`. An ILLUSTRATIVE scope is never approved: "an episode scope is added only by
+ * Christian's approval" (SD-36 is the only one).
+ */
+export function episodeScopesOf(index: RegisterIndex): string[] {
+    const illustrative = index.contractEnums?.illustrativeEpisodeScope
+    return [...EPISODE_SCOPES, ...(Array.isArray(illustrative) ? illustrative.filter(scope => String(scope).startsWith(ILLUSTRATIVE_EPISODE_SCOPE_PREFIX)).map(String) : [])]
+}
+
+/**
+ * W4 (U2 b1): **does the episode check decide this scope?**, for the readers that hold the check's result but not the register it ran over (the
+ * context-scoring guard, the requirement account). The approved scope, or an ILLUSTRATIVE one: a scope spelled 'ILLUSTRATIVE_...' exists only on
+ * a TEST-ONLY register copy (`registerWith`), since the production register lists none (pinned by a02-carriers.unit.ts) and the loader refuses
+ * an item scope the register does not list, so no production game reaches the second arm.
+ */
+export const ILLUSTRATIVE_EPISODE_SCOPE_PREFIX = 'ILLUSTRATIVE_'
+export const episodeCheckDecides = (scope: string): boolean => EPISODE_SCOPES.includes(scope) || scope.startsWith(ILLUSTRATIVE_EPISODE_SCOPE_PREFIX)
+
+/**
+ * **A state the episode begins under: each `whileState` placement re-established at every beginning of the episode** — stage W4 of the A02
+ * package (U2 b1), 11 November 2026, TEST-ONLY data only (no production begin condition carries `whileState`). The arms pick the transitions
+ * that begin the episode (`buildOutStarters`); a state written beside them is a conjunct, and it holds at each such transition only where the
+ * placement it names is re-established there: P10a CONDITIONAL_RESET (register: "re-established at every transition that begins the episode
+ * P10b names") with P10b this episode. A placement timed INITIAL holds at the start of the activity only, so it says nothing of a later
+ * beginning: FAIL. Names no held start placement: FAIL. Timing or episode open: DEFERRED; otherwise not established: NOT_EVALUABLE.
+ * Appended only where a typed begin condition carries a state, so every other game's clauses read exactly as they did.
+ */
+export const WHILE_STATE_CLAUSE = 'every state a begin condition holds while is a start placement re-established at every beginning of its episode'
+function whileStateClause(ctx: GateContext, probe: Probe, typed: BeginConditionReferent): { clause: ClauseResult; why: string } {
+    const states = typed.whileState ?? []
+    const failed: string[] = []
+    let open = false
+    let blocked = false
+    const held: string[] = []
+    for (const state of states) {
+        const placement = referentClass(ctx, state)
+        const named = `${state.structuralRef.contractId}::${state.structuralRef.itemId}`
+        if (!placement || placement.row !== 'P8') {
+            failed.push(`${named} names no start placement the game holds`)
+            continue
+        }
+        const timing = probe.cell(lineOf(placement.classId, 'P10a'))
+        if (timing.state === 'OPEN') open = true
+        else if (timing.state !== 'DERIVED') blocked = true
+        else if (String(timing.value) !== 'CONDITIONAL_RESET') failed.push(`${placement.classId} is timed ${String(timing.value)}: it holds at the start only, never at a later beginning of ${typed.beginsEpisodeOf}`)
+        else {
+            const episode = probe.cell(lineOf(placement.classId, 'P10b'))
+            if (episode.state === 'OPEN') open = true
+            else if (episode.state !== 'DERIVED') blocked = true
+            else if (String(episode.value) !== typed.beginsEpisodeOf) failed.push(`${placement.classId} is re-established when ${String(episode.value)} begins, not ${typed.beginsEpisodeOf}`)
+            else held.push(placement.classId)
+        }
+    }
+    const clause = failed.length
+        ? fail(WHILE_STATE_CLAUSE, states.length)
+        : blocked
+          ? notEvaluable(WHILE_STATE_CLAUSE)
+          : open
+            ? deferred(WHILE_STATE_CLAUSE, 'the timing and episode of each start placement the begin condition holds while')
+            : pass(WHILE_STATE_CLAUSE, states.length)
+    return { clause, why: `; the begin condition holds while ${states.length} state(s): ${held.length ? `${held.join(', ')} re-established at each beginning` : 'none re-established'}${failed.length ? `; ${failed.join('; ')}` : ''}` }
+}
+
+/**
  * The transitions of the game that meet a begin-condition referent (C58), decided line by line, never guessed. A transition
  * is ruled out where an established value says it is not such a restart; it is undecided where a value it needs is still an
  * open choice (realization will close it, and the clause defers); and it blocks where a value it needs is a gap.
@@ -1651,7 +1717,8 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
     const probe = new Probe(ctx, 'GA-EPISODE-REACHABLE')
     const scopeOf = (cls: ElementClass) =>
         String((ctx.contracts.find(c => c.contractId === cls.fromItem.contractId)?.items ?? []).find(i => i.itemId === cls.fromItem.itemId)?.scope ?? '')
-    const scoped = ctx.classes.filter(c => c.row === 'V3' && EPISODE_SCOPES.includes(scopeOf(c)))
+    const episodes = episodeScopesOf(ctx.index)
+    const scoped = ctx.classes.filter(c => c.row === 'V3' && episodes.includes(scopeOf(c)))
     /** The typed begin condition an episode-scoped condition holds for its own episode (C58), for the given scope. */
     const typedFor = (scope: string): BeginConditionReferent | undefined =>
         scoped
@@ -1699,10 +1766,12 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
                   : awardees.some(a => a.cell.state !== 'DERIVED') || found.blocked.length
                     ? notEvaluable(AWARDEE)
                     : pass(AWARDEE, awardees.length)
+        // W4 (U2 b1): the state clause, appended only where the typed begin condition carries a state (TEST-ONLY data only).
+        const state = typed.whileState ? whileStateClause(ctx, probe, typed) : null
         return result(
             'GA-EPISODE-REACHABLE',
             probe,
-            [reach, awardee, resets.clause, ...credit.clauses],
+            [reach, awardee, resets.clause, ...credit.clauses, ...(state ? [state.clause] : [])],
             `${scoped.length} condition(s) are authored for an episode — ${named}; the begin condition is typed (${typed.asAuthored ?? 'C58'}): ` +
                 `${found.starters.length} transition(s) begin one (${found.starters.map(s => `${s.classId}: ${s.trigger}`).join('; ') || 'none'})` +
                 (found.starters.length ? `, awarded to ${keys.join(', ') || 'no established team'}` : '') +
@@ -1710,7 +1779,8 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
                 (found.blocked.length ? `; ${found.blocked.length} blocked on a gap: ${found.blocked.join('; ')}` : '') +
                 (found.ruledOut.length ? `; ruled out: ${found.ruledOut.join('; ')}` : '') +
                 resets.why +
-                credit.why,
+                credit.why +
+                (state ? state.why : ''),
         )
     }
 
@@ -2490,7 +2560,7 @@ function alsoCountsClauses(ctx: GateContext, probe: Probe): { clauses: ClauseRes
     const transitionsOn = (value: string) => classesOn(ctx, 'T1').filter(transition => String(termsOf(transition).trigger) === value)
     const scopeOf = (cls: ElementClass) => String((ctx.contracts.find(c => c.contractId === cls.fromItem.contractId)?.items ?? []).find(i => i.itemId === cls.fromItem.itemId)?.scope ?? '')
     const conditions = classesOn(ctx, 'V3')
-    const episodeScopes = [...new Set(conditions.map(scopeOf).filter(scope => EPISODE_SCOPES.includes(scope)))]
+    const episodeScopes = [...new Set(conditions.map(scopeOf).filter(scope => episodeScopesOf(ctx.index).includes(scope)))]
     // The typed begin condition an episode-scoped condition holds for its own episode (C58), read as GA-EPISODE-REACHABLE reads it.
     const typedFor = (scope: string): BeginConditionReferent | undefined =>
         conditions
@@ -2690,7 +2760,7 @@ function alsoCountsClauses(ctx: GateContext, probe: Probe): { clauses: ClauseRes
     const wholeGame: string[] = []
     for (const condition of conditions) {
         const scope = scopeOf(condition)
-        if (EPISODE_SCOPES.includes(scope)) continue
+        if (episodeScopesOf(ctx.index).includes(scope)) continue
         if (scope === 'WHOLE_GAME' || scope === '') {
             whole.fail = true
             wholeGame.push(condition.classId)
@@ -3671,6 +3741,91 @@ function quietInterval(probe: Probe, lineId: string): Interval | null {
  *
  * Generic: it names no element, no team and no sport; the relation and its test are the register's.
  */
+/**
+ * **A condition 'beyond' a typed line: met only where each scoring team's primary objective lies beyond that line for that team** — stage W4 of
+ * the A02 package (U2 b2), 11 November 2026, TEST-ONLY data only. Before it, a condition whose referent was typed to a marked line (SD-98) and
+ * whose value was 'beyond' was read by GA-ONE-PRIMARY-EVENT only for the line being positioned: no gate related the event to the line (measured
+ * on the A02 runs: the progression clause passed as words). One clause, over every condition of the primary event (V3) whose value (V6) is
+ * 'beyond' and whose referent (V5) is a typed reference to a held line or region (S2): for each team the game holds that holds an end, the
+ * primary objective it attacks (the register's `targetOf`) lies at or past the line's far edge in its attacking direction (RC-21's test) on
+ * the realized geometry. The line is never the target itself (C54: a progression reference and a pressure reference are two references): a
+ * referent naming a team's own target FAILS. DEFERRED while a position is not yet realized; NOT_EVALUABLE where no team holding an end attacks
+ * exactly one objective. Appended only where such a condition exists (no production game holds one: A01's progression referent is relational),
+ * so every other game's clauses read exactly as they did.
+ */
+export const BEYOND_LINE_CLAUSE = "every condition 'beyond' a typed line is met only where each scoring team's primary objective lies beyond that line, and never names that objective itself"
+function beyondLineClause(ctx: GateContext, probe: Probe): { clauses: ClauseResult[]; why: string } {
+    const lines: { condition: string; line: ElementClass }[] = []
+    const malformed: string[] = []
+    for (const condition of classesOn(ctx, 'V3')) {
+        const value = probe.peek(lineOf(condition.classId, 'V6'))
+        if (value.state !== 'DERIVED' || String(value.value) !== 'beyond') continue
+        const referents = probe.peek(lineOf(condition.classId, 'V5'))
+        if (referents.state !== 'DERIVED') continue
+        for (const written of Array.isArray(referents.value) ? referents.value : [referents.value]) {
+            if (!structuralRefOf(written)) continue
+            const line = referentClass(ctx, written)
+            if (!line) malformed.push(`${condition.classId} names no held element`)
+            else if (line.row !== 'S2') malformed.push(`${condition.classId} names ${line.classId}, which is not a line or region of the space`)
+            else lines.push({ condition: condition.classId, line })
+        }
+    }
+    if (!lines.length && !malformed.length) return { clauses: [], why: '' }
+    const spec = ctx.index.targetOf
+    const teams = new Map<string, string>()
+    // The register's designations by their own spelling (each list entry's name before its gloss), and the role holders of the role block.
+    const designations = [...ctx.index.teamDesignations.map(entry => entry.split(' (')[0].trim()), ...roleHolderNames(ctx.index)]
+    for (const designation of designations) {
+        const team = holdsAnEnd(ctx.index, designation) ? teamOf(ctx, designation) : null
+        if (team && !teams.has(team)) teams.set(team, designation)
+    }
+    const broken = [...malformed]
+    let unplaced = 0
+    let unknown = 0
+    for (const { condition, line } of lines) {
+        const x = quietInterval(probe, lineOf(line.classId, 'S5'))
+        for (const designation of teams.values()) {
+            const attacking = spec
+                ? classesOn(ctx, spec.objectivesRow).filter(objective => {
+                      const role = probe.peek(lineOf(objective.classId, spec.roleRow))
+                      const by = probe.peek(lineOf(objective.classId, spec.teamRow))
+                      return role.state === 'DERIVED' && String(role.value) === spec.role && by.state === 'DERIVED' && designationKey(ctx.index, by.value) === teamOf(ctx, designation)
+                  })
+                : []
+            const reference = attacking.length === 1 && spec ? probe.peek(lineOf(attacking[0].classId, spec.referenceRow)) : null
+            const target = reference && reference.state === 'DERIVED' ? referentClass(ctx, reference.value) : undefined
+            if (!target) {
+                unknown++
+                continue
+            }
+            if (target.classId === line.classId) {
+                broken.push(`${condition}: its line ${line.classId} is the target ${designation} attacks (C54: the progression reference is not the target)`)
+                continue
+            }
+            const t = ownTargetInterval(ctx, probe, designation)
+            const direction = attackDirection(ctx, probe, designation)
+            if (!x || !t || direction === null) {
+                unplaced++
+                continue
+            }
+            const holds = direction > 0 ? compare(t.lo, x.hi) >= 0 : compare(t.hi, x.lo) <= 0
+            if (!holds) broken.push(`${condition}: the target ${designation} attacks (${target.classId}) is not beyond ${line.classId} in its attacking direction`)
+        }
+    }
+    const instances = lines.length * Math.max(teams.size, 1)
+    // Teams and their objectives are individuated at realization: until then none resolves, so the clause is owed, never passed; after it, a
+    // deferral is not a pass either (the post-realization gate holds every clause to its realized verdict).
+    const clause = broken.length
+        ? fail(BEYOND_LINE_CLAUSE, instances)
+        : unplaced || unknown || !teams.size
+          ? deferred(BEYOND_LINE_CLAUSE, 'the realized position of each typed line a condition is beyond, the teams that hold an end, and the target each attacks')
+          : pass(BEYOND_LINE_CLAUSE, instances)
+    return {
+        clauses: [clause],
+        why: `; ${lines.length} condition(s) beyond a typed line (${lines.map(l => `${l.condition} beyond ${l.line.classId}`).join('; ') || 'none'}), read for ${teams.size} team(s) holding an end` + (broken.length ? `: ${broken.join('; ')}` : '') + (unknown ? `; ${unknown} team(s) attack no single objective` : ''),
+    }
+}
+
 function gaRelativePlacement(ctx: GateContext): CheckOutcome {
     const NAMES = 'every relative position names a held element and a registered team designation'
     const HOLDS = 'every relative position holds of the realized geometry'
@@ -3729,7 +3884,9 @@ function gaRelativePlacement(ctx: GateContext): CheckOutcome {
     const own = inside.length ? fail(OWN_TARGET, applicable) : notYet ? deferred(OWN_TARGET, 'the realized start region of each placement and the target its group attacks') : pass(OWN_TARGET, applicable)
     const ownWhy = applicable ? `; ${applicable} start placement(s) for a team that attacks a target` + (inside.length ? `: ${inside.join('; ')}` : '') + (notYet ? `; ${notYet} not yet placed` : '') : ''
 
-    if (!total) return result('GA-RELATIVE-PLACEMENT', probe, [pass(NAMES, 0), pass(HOLDS, 0), own], 'no position in this game is stated relative to another element or to a team' + ownWhy)
+    // W4 (U2 b2): appended only where a condition is beyond a typed line (TEST-ONLY data only), so every other game reads as before.
+    const beyond = beyondLineClause(ctx, probe)
+    if (!total) return result('GA-RELATIVE-PLACEMENT', probe, [pass(NAMES, 0), pass(HOLDS, 0), own, ...beyond.clauses], 'no position in this game is stated relative to another element or to a team' + ownWhy + beyond.why)
 
     const dangling: string[] = []
     let openText = false
@@ -3784,11 +3941,12 @@ function gaRelativePlacement(ctx: GateContext): CheckOutcome {
     return result(
         'GA-RELATIVE-PLACEMENT',
         probe,
-        [names, holds, own],
+        [names, holds, own, ...beyond.clauses],
         `${relations.length} relative position(s), ${fromEnds.length} measured from a team's end line; ${dangling.length} name nothing held or registered; ${broken.length} broken on the realized geometry` +
             (broken.length ? `: ${broken.join('; ')}` : '') +
             (unplaced ? `; ${unplaced} not yet placed` : '') +
-            ownWhy,
+            ownWhy +
+            beyond.why,
     )
 }
 

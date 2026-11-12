@@ -76,7 +76,7 @@ export interface KnowledgeSelection {
      * makes of a selection. Set only by `buildActivityUnderAuthorizationRecords` given a draft store; absent on every production selection,
      * so contract coverage, the derivation input and its provenance stamp read exactly what they read before.
      */
-    draftContracts?: LoadedContract[]
+    draftContracts?: LoadedContract[]; draftRegisterOverlay?: RegisterOverlay // W4 (TEST-ONLY): the ILLUSTRATIVE episode scopes of a carrier-composed store, see `registerWith`
 }
 
 /**
@@ -94,7 +94,7 @@ export interface DraftStoreContents {
     /** The draft contracts: knowledge version `draft`, every item and declaration category DRAFT_KNOWLEDGE. */
     contracts: LoadedContract[]
     /** The draft records: each `knowledgeStatus: 'DRAFT'`, citing no ruling. */
-    records: LearningGoalAuthorization[]
+    records: LearningGoalAuthorization[]; illustrative?: IllustrativeCarriersAdded[]; registerOverlay?: RegisterOverlay // W4 (TEST-ONLY): only on a carrier-composed store
 }
 
 /**
@@ -343,7 +343,7 @@ export function selectFor(
      * B2, TEST-ONLY: the draft store's contracts, and that its DRAFT records are admitted (`validateLearningGoalAuthorizations`
      * `draftsAdmitted`). Absent on every production call, which selects exactly as before.
      */
-    drafts?: { contracts: LoadedContract[]; draftsAdmitted: true },
+    drafts?: { contracts: LoadedContract[]; draftsAdmitted: true; registerOverlay?: RegisterOverlay },
     /**
      * TEST-ONLY (the isolated A02 experiment, `UpstreamDecisions`): Step 1's Game Problem and Step 2's form, consumed; and the boolean that
      * bypasses the size rule. Handed only by `buildActivityUnderAuthorizationRecords`'s `upstream` option. Absent on every production call,
@@ -517,7 +517,7 @@ export function selectFor(
         selected,
         ...contractCoverage(selected, drafts?.contracts ?? []),
         // B2, TEST-ONLY: carried so every later reader of this selection (derivation's input, its stamp) reads the same draft contracts.
-        ...(drafts ? { draftContracts: JSON.parse(JSON.stringify(drafts.contracts)) as LoadedContract[] } : {}),
+        ...(drafts ? { draftContracts: JSON.parse(JSON.stringify(drafts.contracts)) as LoadedContract[] } : {}), ...(drafts?.registerOverlay ? { draftRegisterOverlay: JSON.parse(JSON.stringify(drafts.registerOverlay)) as RegisterOverlay } : {}), // W4 (TEST-ONLY): the overlay only of a carrier-composed store
         practiceSituations: (sessionPlanningModel.practiceSituationsFor(goalId) as any[]).map(p => ({ id: p.ID, name: p['Practice Situation'] })),
         chosenSituation,
         gameProblem: guided.gameProblem,
@@ -545,7 +545,7 @@ export function selectFor(
  * It reads only WHICH objects were selected, so it takes exactly that — a goal's selection and a mechanism
  * demonstration's are the same thing to derivation, which has never known what a goal is.
  */
-export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected' | 'authorization' | 'realization' | 'draftContracts'>): DerivationInput {
+export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected' | 'authorization' | 'realization' | 'draftContracts' | 'draftRegisterOverlay'>): DerivationInput {
     const wanted = new Set(selection.selected.map(s => key(s.id)))
     /**
      * **His provisional realization joins only where the goal's record names it** — 15 October 2026 (stage K2). Christian,
@@ -585,7 +585,7 @@ export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected
         // different player count, a script trying a second area — silently changed every later run in
         // the process. A session envelope is session input; two runs do not share one.
         envelope: JSON.parse(JSON.stringify(CORPUS_ENVELOPE)),
-        register: loadRegister(),
+        register: registerWith(loadRegister(), selection.draftRegisterOverlay), // W4 (TEST-ONLY): a copy only where the selection carries an overlay; the register itself otherwise
         derivationRules: { version: 'rev-5' },
     }
 }
@@ -657,4 +657,43 @@ if (runAsScript) {
         byRow.set(row, (byRow.get(row) ?? 0) + 1)
     }
     for (const [row, n] of [...byRow.entries()].sort((a, b) => b[1] - a[1])) console.log(`  ${String(n).padStart(3)}  ${row}`)
+}
+
+/**
+ * **TEST-ONLY: the ILLUSTRATIVE episode scopes a draft store's carriers name** — stage W4 of the foundational package (U2 b1), 11 November 2026.
+ * Set only on a draft store the TEST-ONLY draft store module composed with carriers (`DraftStoreContents.registerOverlay`), carried by the
+ * selection (`KnowledgeSelection.draftRegisterOverlay`); `derivationInputFor` then derives over a COPY of the register with each scope added to
+ * `contractEnums.scope` and listed in `contractEnums.illustrativeEpisodeScope` (read by the gates' `episodeScopesOf`). The register file is never
+ * written, and every production selection carries no overlay, so it derives over the register itself, exactly as before.
+ */
+export interface RegisterOverlay {
+    episodeScopes: string[]
+    treatmentId: string
+}
+
+/** TEST-ONLY (W4): the ILLUSTRATIVE carriers one treatment added to a draft store (`DraftStoreContents.illustrative`), in the order applied. */
+export interface IllustrativeCarriersAdded {
+    treatmentId: string
+    file: string
+    groups: string[]
+    items: string[]
+    setsAsideChoices: string[]
+}
+
+/**
+ * TEST-ONLY (W4): the register copy a build derives over, with the overlay's episode scopes; the register object itself where there is none. The
+ * version is stamped so a game derived over a copy is never digested as one derived over the file.
+ */
+export function registerWith(register: any, overlay: RegisterOverlay | undefined): any {
+    if (!overlay) return register
+    const copy = JSON.parse(JSON.stringify(register))
+    const enums = copy.vocabularies?.contractEnums ?? copy.contractEnums
+    if (!enums || !Array.isArray(enums.scope)) throw new Error('the register holds no contractEnums.scope to add an ILLUSTRATIVE episode scope to')
+    for (const scope of overlay.episodeScopes) {
+        if (enums.scope.includes(scope)) throw new Error(`the ILLUSTRATIVE episode scope ${scope} is already a scope of the register`)
+        enums.scope.push(scope)
+    }
+    enums.illustrativeEpisodeScope = [...overlay.episodeScopes]
+    copy.version = `${String(register.version)}+ILLUSTRATIVE(${overlay.treatmentId})`
+    return copy
 }

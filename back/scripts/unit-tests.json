@@ -156,6 +156,7 @@
     "./src/system/rendering/upstream-consumption.unit.ts",
     "./src/system/design-reasoning/handoff-chain.unit.ts",
     "./src/system/design-reasoning/a02.unit.ts",
+    "./src/system/design-reasoning/a02-carriers.unit.ts",
     "./src/system/design-reasoning/a02-safeguards.unit.ts",
     "./src/system/design-reasoning/a02-evidence.unit.ts"
 ]

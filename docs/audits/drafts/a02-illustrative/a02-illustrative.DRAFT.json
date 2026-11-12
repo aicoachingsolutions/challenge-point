@@ -1,0 +1,90 @@
+{
+  "standing": "DRAFT - ILLUSTRATIVE, TEST-ONLY: values of ours that make High Press Escape's knowledge gaps executable on the isolated A02 pathway (stage W4 of the A02 package, 11 November 2026). Not knowledge, not a restatement, not a design, never approved, never served: each group stands for what an approved answer of Christian's must supply, and is added to a run only by a declared TEST-ONLY treatment (ILLUSTRATIVE_CARRIERS). The register says a begin-condition referent is written only by a ruled restatement (C58), so nothing here is one. Every value is ours; none copies A01's provisional realization (its 20 m pressure reference, its placements, or any other ruling of Christian's for A01).",
+  "about": "Christian's second reply received 11 November 2026 delegates \"Testing legitimate configuration alternatives using clearly labeled provisional or illustrative knowledge.\" The groups: IL-START (one START transition, taken by a player of the team at the start end of the axis), IL-LINE (a marked line, the illustrative pressing line), IL-PLACEMENT (the other team's start placement relative to that line, re-established at every beginning of the illustrative episode), IL-ORIGIN-STATE (the origin clause as a begin condition holding while that placement holds, in place of RPC-002-02.a and 02.b on the chain's copy only), IL-PROGRESSION-TYPED (the progression referent typed to the line, in place of RPC-002-03.b on the chain's copy only), IL-CONTROL-RELATIONAL (the control clause's referent as a relational referent, one of the two third-clause alternatives). The data run one direction only (the team at the start end of the axis escapes at START): an illustration, not a design. The questions each group stands in for are Christian's: Q1 (the observable start of established coordinated pressure), Q-scope (whether the condition governs every score or only scores inside a sequence begun under it), Q-structure (symmetric GF2 or role blocks), Q2 (the pressing line), Q3 (the third clause).",
+  "illustrative": {
+    "label": "ILLUSTRATIVE",
+    "episodeScopes": [
+      {
+        "scope": "ILLUSTRATIVE_PRESSURE_SEQUENCE",
+        "why": "ILLUSTRATIVE, named by us: a sequence begun under the illustrative state. Added only to a TEST-ONLY copy of the register for one build; the one approved episode scope is BUILD_OUT_EPISODE (SD-36), and an episode scope is added only by Christian's approval. Stands in for Q-scope."
+      }
+    ],
+    "groups": [
+      {
+        "id": "IL-START",
+        "what": "one START transition: play starts stopped and resumes, it begins an episode, the ball is awarded to the team at the start end of the axis and a player of that team takes it, wherever the taker chooses",
+        "addsTo": "restated:RPC-002",
+        "replaces": [],
+        "setsAsideChoices": ["game::PS1"],
+        "items": [
+          { "id": "IL-T1-1", "row": "T1", "selector": "trigger=START", "requirement": "EXISTS", "value": "N/A", "valueStatus": "N/A", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: no source; a START transition, which GF2 does not author (T1 UNDECLARED for START).", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: the arm of the illustrative begin condition needs a restart that begins an episode; Q1 decides whether the observable start is a set-up at a start, a coach-called start or a judgement in play." },
+          { "id": "IL-T6-1", "row": "T6", "selector": "trigger=START", "requirement": "EQUALS", "value": "STOP_RESUME", "valueStatus": "REQUIRED_RANGE", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: no source; the start is a restart (play stopped, then resumed).", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: buildOutStarters reads only a STOP_RESUME transition as a beginning." },
+          { "id": "IL-T7-1", "row": "T7", "selector": "trigger=START", "requirement": "EQUALS", "value": "true", "valueStatus": "REQUIRED_RANGE", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: no source; the start begins an episode.", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: a transition that begins no episode is ruled out as a beginning." },
+          { "id": "IL-T2-1", "row": "T2", "selector": "trigger=START", "requirement": "EQUALS", "value": "TEAM_AT_AXIS_START", "valueStatus": "REQUIRED_RANGE", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: no source; one direction only, the team at the start end of the axis escapes.", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: GF2 makes neither team the pressing team (Q-structure); this picks one direction for the illustration only." },
+          { "id": "IL-T3-1", "row": "T3", "selector": "trigger=START", "requirement": "EQUALS", "value": "a player of the team in this element's T2", "valueStatus": "REQUIRED_RANGE", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: no source; any player of the awarded team takes the start (the register's participant form PERFORMER_OF_AWARDED_TEAM).", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: a taker the register identifies, so the begin condition's arm can be met; GF2 holds no specialized role." },
+          { "id": "IL-T4-1", "row": "T4", "selector": "trigger=START", "requirement": "RANGE", "value": "a location the coach chooses short of the illustrative pressing line", "valueStatus": "REQUIRED_RANGE", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: no source; where the start is taken, a bound the coach chooses within.", "checkability": "PARTLY_STRUCTURAL", "structuralClause": "Structural: none (open text, a bound only). Outside: the place of the start.", "fitNote": "OURS: open text as a bound, closed by the case's ILLUSTRATIVE choice for the coach; open text establishes no place (SD-63)." },
+          { "id": "IL-T5-1", "row": "T5", "selector": "trigger=START", "requirement": "EQUALS", "value": "TAKER_CHOOSES", "valueStatus": "REQUIRED_RANGE", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: no source; the taker chooses how the ball is put into play.", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: a closed-list member of the register (T5.method version 3)." }
+        ],
+        "declarations": []
+      },
+      {
+        "id": "IL-LINE",
+        "what": "a marked line across the area, 12 m from the end line the team at the start end of the axis defends: the illustrative pressing line, its own element",
+        "addsTo": "restated:RPC-002",
+        "replaces": [],
+        "items": [
+          { "id": "IL-S2-1", "row": "S2", "selector": "noun=line & functions ∋ perceptual-reference", "requirement": "EXISTS", "value": "N/A", "valueStatus": "N/A", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: no source; a marked line standing for the pressing line of RPC-PROP-133.", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: RPC-002 authors no marked pressing line; the defenders' line in play is a player position, which V5 excludes. Q2 decides whether the pressing line may be a marked reference at all." },
+          { "id": "IL-S5-1", "row": "S5", "selector": "noun=line & functions ∋ perceptual-reference", "requirement": "POSITIONED", "value": { "term": "own end (of team T)", "forTeam": "TEAM_AT_AXIS_START", "offsetM": { "from": 12, "to": 12 }, "asAuthored": "ILLUSTRATIVE: 12 m from the end line the team at the start end defends" }, "valueStatus": "REQUIRED_RANGE", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: no source; where the line sits (never A01's 20 m).", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: a distance chosen for a 40 m area so the line is inside it; Q2 decides where the pressing line sits." },
+          { "id": "IL-S6-1", "row": "S6", "selector": "noun=line & functions ∋ perceptual-reference", "requirement": "POSITIONED", "value": { "term": "full extent (of an axis)", "asAuthored": "ILLUSTRATIVE: touchline to touchline" }, "valueStatus": "REQUIRED_RANGE", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: no source; the line runs across the whole area.", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: a line across the area." }
+        ],
+        "declarations": []
+      },
+      {
+        "id": "IL-PLACEMENT",
+        "what": "the start placement of the team at the end of the axis: between the illustrative pressing line and the end line the other team defends, re-established at every beginning of the illustrative episode",
+        "addsTo": "restated:RPC-002",
+        "replaces": [],
+        "items": [
+          { "id": "IL-P8-1", "row": "P8", "selector": "group=TEAM_AT_AXIS_END", "requirement": "EXISTS", "value": "N/A", "valueStatus": "N/A", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: no source; the pressing team's start placement.", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: the only state the register can check at a start is a set-up (a start placement); pressure judged in play stays outside the boundary (Q1)." },
+          { "id": "IL-P10-1", "row": "P10", "selector": "group=TEAM_AT_AXIS_END", "requirement": "EQUALS", "value": { "term": "beyond X (for team T)", "of": { "structuralRef": { "contractId": "restated:RPC-002", "itemId": "IL-S2-1" }, "asAuthored": "the illustrative pressing line" }, "forTeam": "TEAM_AT_AXIS_END", "asAuthored": "ILLUSTRATIVE: between the line and the end line the other team defends" }, "valueStatus": "REQUIRED_RANGE", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: no source; the pressing team starts high, beyond the line in its own attacking direction.", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: a relationship-based start (RC-21), never A01's placements." },
+          { "id": "IL-P10a-1", "row": "P10a", "selector": "group=TEAM_AT_AXIS_END", "requirement": "EQUALS", "value": "CONDITIONAL_RESET", "valueStatus": "REQUIRED_RANGE", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: no source; the placement is re-established at every beginning of the illustrative episode.", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: the state clause needs the placement re-established at each beginning; INITIAL would hold at the start only." },
+          { "id": "IL-P10b-1", "row": "P10b", "selector": "group=TEAM_AT_AXIS_END", "requirement": "EQUALS", "value": "ILLUSTRATIVE_PRESSURE_SEQUENCE", "valueStatus": "REQUIRED_RANGE", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: no source; the episode whose beginnings re-establish the placement.", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: the illustrative episode scope (Q-scope)." }
+        ],
+        "declarations": []
+      },
+      {
+        "id": "IL-ORIGIN-STATE",
+        "what": "the origin clause carried as a begin condition: a sequence begins at a restart taken by a player of the awarded team (the arm) while the illustrative start placement holds (the state); RPC-002-02.a and 02.b are taken out of the chain's copy only (the restatement on disk is unchanged)",
+        "addsTo": "restated:RPC-002",
+        "replaces": ["RPC-002-02.a", "RPC-002-02.b"],
+        "items": [
+          { "id": "IL-02.a", "row": "V3", "selector": "type=origin", "requirement": "EXISTS", "value": "N/A", "valueStatus": "N/A", "strictness": "REQUIRED", "scope": "ILLUSTRATIVE_PRESSURE_SEQUENCE", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: stands for RPC-002-02.a (our CANDIDATE restatement of RPC-PROP-133's origin clause) scoped to the illustrative episode.", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: the episode scope is the illustrative one (Q-scope); the restatement's own item stays WHOLE_GAME on disk." },
+          { "id": "IL-02.b", "row": "V5", "selector": "type=origin", "requirement": "EQUALS", "value": { "beginsEpisodeOf": "ILLUSTRATIVE_PRESSURE_SEQUENCE", "arms": [{ "takenBy": "a player of the team in this element's T2" }], "whileState": [{ "structuralRef": { "contractId": "restated:RPC-002", "itemId": "IL-P8-1" } }], "asAuthored": "ILLUSTRATIVE: a restart taken by a player of the awarded team, while the pressing team is set up beyond the illustrative pressing line" }, "valueStatus": "REQUIRED_RANGE", "strictness": "REQUIRED", "scope": "ILLUSTRATIVE_PRESSURE_SEQUENCE", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: stands for RPC-002-02.b ('established coordinated pressure', open text) as a begin condition with a state.", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: established coordinated pressure is not a start placement; this carries only a set-up that holds when a sequence starts. Q1 decides the observable start." }
+        ],
+        "declarations": []
+      },
+      {
+        "id": "IL-PROGRESSION-TYPED",
+        "what": "the progression clause's referent typed to the illustrative pressing line (SD-98), in place of RPC-002-03.b's open text on the chain's copy only",
+        "addsTo": "restated:RPC-002",
+        "replaces": ["RPC-002-03.b"],
+        "items": [
+          { "id": "IL-03.b", "row": "V5", "selector": "type=progression", "requirement": "EQUALS", "value": { "structuralRef": { "contractId": "restated:RPC-002", "itemId": "IL-S2-1" }, "asAuthored": "ILLUSTRATIVE: the illustrative pressing line" }, "valueStatus": "REQUIRED_RANGE", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: stands for RPC-002-03.b ('the pressing line', open text) typed to a marked line.", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: the line, never the target (C54: the progression reference and the pressure reference are two references). Q2." }
+        ],
+        "declarations": []
+      },
+      {
+        "id": "IL-CONTROL-RELATIONAL",
+        "what": "the control clause's referent as a relational referent (the C57-like form): the reference of the objective the scoring team attacks; one of the two third-clause alternatives, beside the existing TT-CONTROL-NO-FURTHER-VALUE",
+        "addsTo": "restated:RPC-002",
+        "replaces": [],
+        "items": [
+          { "id": "IL-04.r", "row": "V5", "selector": "type=control", "requirement": "EQUALS", "value": { "objectiveReferenceOf": "SCORING_TEAM", "role": "PRIMARY_SCORING", "asAuthored": "ILLUSTRATIVE: the target the scoring team attacks" }, "valueStatus": "REQUIRED_RANGE", "strictness": "REQUIRED", "scope": "WHOLE_GAME", "basis": "AUTHORED", "basisEvidence": "ILLUSTRATIVE: stands for a referent of 'retains possession through the next action', which our restatement leaves UNDECLARED.", "checkability": "STRUCTURAL", "structuralClause": "whole item", "fitNote": "OURS: the relational form exists (register V5 version 2); whether the clause needs a referent at all, or no further value, is Q3." }
+        ],
+        "declarations": [
+          { "row": "V5", "selector": "type=control", "from": "UNDECLARED", "to": "CLAIMED" }
+        ]
+      }
+    ]
+  }
+}

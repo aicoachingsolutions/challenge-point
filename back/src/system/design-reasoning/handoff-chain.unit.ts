@@ -36,7 +36,7 @@ import path from 'node:path'
 import { governingDeclarations } from '../derivation/classify'
 import { loadProvisionalRealizations } from '../derivation/corpus'
 import { LawsMateriality } from '../derivation/default-laws'
-import { loadDraftStore, loadLawsMateriality } from '../derivation/draft-store'
+import { loadDraftStore, loadIllustrativeCarriers, loadLawsMateriality, withIllustrativeCarriers } from '../derivation/draft-store'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { knowledgeKey } from '../derivation/knowledge-key'
@@ -416,7 +416,10 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
         }
         const realizations = request.realization ? gatedRealizations(realizationEntry(request.realization)) : undefined
         // Stage W1 (b): under K2's result the draft store is read without its records (each still held to the gate, listed as not read).
-        const drafts: DraftStoreContents | undefined = request.draftStore ? loadDraftStore(request.draftStore, consume?.k2 ? { recordsSetAsideBy: consume.k2.treatmentId } : {}) : undefined
+        let drafts: DraftStoreContents | undefined = request.draftStore ? loadDraftStore(request.draftStore, consume?.k2 ? { recordsSetAsideBy: consume.k2.treatmentId } : {}) : undefined
+        // W4 (A02 package): each ILLUSTRATIVE carrier treatment adds its groups to the store, on this copy, in the case's order (held to the gate first).
+        if (request.illustrative && (!drafts || !consume)) throw new Error(`case ${request.caseId}: ILLUSTRATIVE carriers are added only to a consuming request's draft store`)
+        for (const t of request.illustrative ?? []) drafts = withIllustrativeCarriers(drafts!, loadIllustrativeCarriers(path.resolve(WT, t.file)), t.groups, t.treatmentId)
         const draftIds = new Set((drafts?.contracts ?? []).map((c) => c.contractId))
         let scorerPick: string[] | null = null
         let seen: ChainAnswer['contracts'] = []
@@ -481,6 +484,12 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
         }
         const alterSupplied = (supplied: SuppliedRealization) => {
             chosenBy = choicesFileOf(supplied)
+            // W4 (A02 package): a line an ILLUSTRATIVE carrier entails (the opening possession its START awards) is no longer open, so a choices
+            // file's choice for it is set aside on this copy, named by the carrier group; nothing else is removed.
+            for (const lineId of (drafts?.illustrative ?? []).flatMap((x) => x.setsAsideChoices)) {
+                supplied.choices = supplied.choices.filter((c) => c.lineId !== lineId)
+                chosenBy.delete(lineId)
+            }
             for (const ch of request.choices) {
                 const existing = supplied.choices.find((c) => c.lineId === ch.lineId)
                 if (existing) {

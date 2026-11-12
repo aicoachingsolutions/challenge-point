@@ -105,13 +105,14 @@ const GUIDED_SELECTION_NAMES: Record<string, number> = { coverageLenses: 2, cove
 /**
  * Test 7, measured (stage W1 (b)): every string literal REVIEW_PATHWAY_K2 in a non-test source file, and the one place it is written. Stage W2,
  * re-pinned openly (the same literals, moved by the stage's hunks above them): run-bounded-selection.ts:391 -> :402, safeguards.ts:459 -> :471
- * and :698 -> :748, generateSelection.ts:1194 -> :1206.
+ * and :698 -> :748, generateSelection.ts:1194 -> :1206. Stage W4 (11 November 2026), re-pinned openly the same way: safeguards.ts:471 -> :476
+ * and :748 -> :759 (the same two literals, moved by the CARRIED_UNDER_ILLUSTRATION hunks above them).
  */
 const K2_WRITTEN: string[] = ['system/derivation/run-bounded-selection.ts:402 WRITTEN in selectFor under upstream']
 const K2_LITERALS: string[] = [
     'system/derivation/run-bounded-selection.ts:402 WRITTEN in selectFor under upstream',
-    'system/design-reasoning/safeguards.ts:471 READ',
-    'system/design-reasoning/safeguards.ts:748 READ',
+    'system/design-reasoning/safeguards.ts:476 READ',
+    'system/design-reasoning/safeguards.ts:759 READ',
     'system/rendering/build-activity.ts:171 TYPE',
     'system/test-library/generateSelection.ts:1206 READ',
     'system/test-library/types.ts:134 TYPE',

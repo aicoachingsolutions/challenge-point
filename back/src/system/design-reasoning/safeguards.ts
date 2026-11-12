@@ -141,6 +141,7 @@ export const VERDICTS = [
     'ENGINE_RULE_DECIDED',
     'CARRIED',
     'CARRIED_UNDER_TREATMENT',
+    'CARRIED_UNDER_ILLUSTRATION',
     'WITHHELD_BY_TREATMENT',
     'REFUSED_ON_CLAUSE_LINE',
     'NOT_REACHED',
@@ -223,6 +224,8 @@ export interface SafeguardRun {
         withheld: Array<{ itemId: string; treatmentId: string }>
         /** Declaration replacements by declared TEST-ONLY treatments: the clause, the treatment and the register row whose declaration it replaced. */
         declarationTreatments: Array<{ selectorClause: string; treatmentId: string; row: string | null }>
+        /** W4 (foundational package): the clause items the chain's contracts carry with the category ILLUSTRATIVE; absent (none) on every earlier run. */
+        illustrative?: string[]
         /** The items a line of which the run's refusal cites (its refusal basis's cited lines, or else its reasons), with the line cited. */
         refusedOn: Array<{ itemId: string; ref: string }>
     }
@@ -244,6 +247,8 @@ export function safeguardRunOf(r: HandoffResult, a: ChainAnswer | null, experime
     const ref = (itemId: string) => (scoring ? `${scoring.contractId} ${itemId}` : itemId)
     const allItems = scoring ? scoring.clauses.flatMap((c) => c.items) : []
     const derived = scoring && a ? allItems.filter((id) => a.contracts.some((c) => c.contractId === scoring.contractId && c.origin === 'DRAFT_STORE' && c.items.some((i) => i.itemId === id))) : []
+    // W4 (foundational package): read from the category the chain's own contracts carry (an ILLUSTRATIVE carrier), never from an id or a case's data.
+    const illustrative = scoring && a ? allItems.filter((id) => a.contracts.some((c) => c.contractId === scoring.contractId && c.items.some((i) => i.itemId === id && i.category === 'ILLUSTRATIVE'))) : []
     const resting = scoring ? allItems.filter((id) => r.lines.some((l) => l.kind !== 'NOT_ESTABLISHED' && l.premises.some((p) => p.ref === ref(id))) || (r.consumption?.draftShaped ?? []).some((s) => s.by.some((b) => b.split(' ').slice(0, 2).join(' ') === ref(id)))) : []
     const lineOf = (itemId: string) => (scoring ? `c:${scoring.contractId}:${itemId}::` : '')
     const unestablished = scoring ? allItems.flatMap((id) => r.lines.filter((l) => l.kind === 'NOT_ESTABLISHED' && l.lineId.indexOf(lineOf(id)) === 0).map((l) => ({ itemId: id, lineId: l.lineId }))) : []
@@ -318,7 +323,7 @@ export function safeguardRunOf(r: HandoffResult, a: ChainAnswer | null, experime
                       scoringCondition: a.observed?.scoringCondition ? { ...a.observed.scoringCondition } : null,
                   }
                 : null,
-        scoring: scoring ? { rowId: scoring.rowId, clauses: scoring.clauses.map((c) => ({ clause: c.clause, items: [...c.items] })), derived, resting, unestablished, resolved, withheld, declarationTreatments, refusedOn } : null,
+        scoring: scoring ? { rowId: scoring.rowId, clauses: scoring.clauses.map((c) => ({ clause: c.clause, items: [...c.items] })), derived, resting, unestablished, resolved, withheld, declarationTreatments, refusedOn, ...(illustrative.length ? { illustrative } : {}) } : null,
         engineRule: facts.engineRule ? { ...facts.engineRule } : null,
     }
 }
@@ -557,7 +562,13 @@ export function ownershipOf(run: SafeguardRun): Finding[] {
                 const treatments = [...new Set(declared.map((d) => d.treatmentId))].join(', ')
                 const notCarriedWhy = (id: string) =>
                     `${id} (${s.derived.indexOf(id) < 0 ? 'not derived' : s.resting.indexOf(id) < 0 ? 'derived, and no line rests on it' : `line(s) ${linesOf(id).join(', ')} establish nothing`})`
-                if (!notCarried.length && !declared.length) {
+                // W4 (foundational package): a clause any of whose items is an ILLUSTRATIVE carrier is carried only under the illustration, never a pass,
+                // whatever else holds (read from the category the chain's contracts carry, never from the item's id or the case's treatments).
+                const illustrated = open.filter((id) => (s.illustrative ?? []).indexOf(id) >= 0)
+                if (illustrated.length && (!notCarried.length || notCarried.every(underTreatment))) {
+                    v = 'CARRIED_UNDER_ILLUSTRATION'
+                    why = `${open.join(', ')} entered derivation and lines of the built game rest on ${open.length === 1 ? 'it' : 'them'}, and ${illustrated.join(', ')} ${illustrated.length === 1 ? 'is an ILLUSTRATIVE carrier' : 'are ILLUSTRATIVE carriers'} (TEST-ONLY, not knowledge)${declared.length ? `, with a declaration replaced by ${treatments}` : ''} (a detected disconnection, never a pass)`
+                } else if (!notCarried.length && !declared.length) {
                     v = 'CARRIED'
                     why = `${carried.join(', ')} entered derivation and lines of the built game rest on ${carried.length === 1 ? 'it' : 'them'}; none of ${carried.length === 1 ? 'its' : 'their'} lines is NOT_ESTABLISHED`
                 } else if (declared.length && notCarried.every(underTreatment)) {
@@ -598,7 +609,7 @@ export function ownershipOf(run: SafeguardRun): Finding[] {
 export const VIOLATION_VERDICTS: Verdict[] = ['AGREES_INDEPENDENTLY', 'CONTRADICTED', 'REFUSED_ON_OWN_CHOICE', 'UNAUTHORIZED_SOURCE', 'CITED_NOT_CARRIED', 'MISSING']
 
 /** The verdicts printed as a detected disconnection, never a pass (beside a kept engine rule's refusal). */
-export const DETECTED_VERDICTS: Verdict[] = ['CARRIED_NOT_READ', 'WITHHELD_BY_TREATMENT', 'CARRIED_UNDER_TREATMENT', 'REFUSED_ON_CLAUSE_LINE', 'K2_NOT_TAKEN']
+export const DETECTED_VERDICTS: Verdict[] = ['CARRIED_NOT_READ', 'WITHHELD_BY_TREATMENT', 'CARRIED_UNDER_TREATMENT', 'CARRIED_UNDER_ILLUSTRATION', 'REFUSED_ON_CLAUSE_LINE', 'K2_NOT_TAKEN']
 
 /** PASS, DETECTED (printed as a detected disconnection, never a pass) or VIOLATION. */
 export function classOf(f: Finding): 'PASS' | 'DETECTED' | 'VIOLATION' {

@@ -19,7 +19,7 @@
  *
  * Sport-neutral: it reads the fixture and the rendering, never a knowledge object by name.
  */
-import { DRAFT_KNOWLEDGE } from '../derivation/types'
+import { isDraftCategory } from '../derivation/types'
 import { FidelityFinding } from './fidelity'
 import { approvedTemplateSentences } from './approved-wording'
 import { approvedSentences, Instruction, RenderedActivity, WithheldField } from './render-concrete-game'
@@ -94,7 +94,7 @@ function draftSourcesOf(fixture: any, paths: string[], draftItems: ReadonlySet<s
     for (const path of paths) {
         for (const derived of status.derived ?? []) {
             if (derived?.path !== path) continue
-            for (const support of derived.support ?? []) if (support?.category === DRAFT_KNOWLEDGE) found.add(keyOf(support))
+            for (const support of derived.support ?? []) if (isDraftCategory(support?.category)) found.add(keyOf(support))
         }
         for (const choice of status.choices ?? []) {
             if (choice?.path !== path) continue
@@ -124,7 +124,7 @@ function draftSourcesOf(fixture: any, paths: string[], draftItems: ReadonlySet<s
  * (B2 review) the contracts the games were derived from, whose DRAFT_KNOWLEDGE items an entailment or instantiation may rest on.
  */
 export function reviewDraftOf(fixtures: any[], rendered: RenderedActivity, violations: FidelityFinding[], contracts: { contractId: string; items?: { itemId: string; category?: unknown }[] }[] = []): ReviewDraft {
-    const draftItems = new Set(contracts.flatMap(contract => (contract.items ?? []).filter(item => item.category === DRAFT_KNOWLEDGE).map(item => `${contract.contractId}::${item.itemId}`)))
+    const draftItems = new Set(contracts.flatMap(contract => (contract.items ?? []).filter(item => isDraftCategory(item.category)).map(item => `${contract.contractId}::${item.itemId}`)))
     const approved = fixtures.flatMap(fixture => approvedSentences(fixture?.game ?? {}))
     // Stage M4 (17 October 2026): a sentence that IS one of his approved template sentences, word for word, is approved wording too
     // (approved-wording.ts approvedTemplateSentences); the same template filled with any other value stays DRAFT.
