@@ -195,6 +195,8 @@ interface Block {
     geometry: Map<string, any>
     lengthM: number
     widthM: number
+    /** Package 5 (13 November 2026, the two-team check): the block's laws account, as the build recorded it (read by question (ii) only). */
+    laws: any[]
 }
 function blocksOf(built: any): Block[] {
     const blocks: any[] = built?.fixture?.roleBlocks?.blocks ?? []
@@ -205,6 +207,7 @@ function blocksOf(built: any): Block[] {
         geometry: new Map<string, any>(((fixture.status?.geometry ?? []) as any[]).map((g) => [g.path, g.geometry])),
         lengthM: Number(fixture.envelope?.lengthM),
         widthM: Number(fixture.envelope?.widthM),
+        laws: (fixture.defaultLaws?.laws ?? []) as any[],
     })
     if (blocks.length) return blocks.map((b) => of(b.fixture, `block ${b.blockId}`, b.holders as Record<string, string>))
     return built?.fixture?.game ? [of(built.fixture, 'the one game', null)] : []
@@ -263,6 +266,31 @@ export interface Walkthrough {
     count: number
 }
 
+/**
+ * Package 5 (13 November 2026, the lead's build item B8): the walkthrough re-expressed per configuration. Christian's four questions stay the
+ * same; what a fact expects of the game is the configuration's. The default is HPE-1's shape, so every predicate and every word of the baseline
+ * is as pinned (its evidence regenerates byte-identical). HPE-2's shape: the pressing team's target an end zone beginning at the escaping team's
+ * end line (1b, 1d, 4c, 4d), the ball over an end line awarded to the team that did not touch it last (1e; RPC-PROP-026 read through it), the
+ * origin and progression values its draft store holds (4a, read from the store by the caller, never typed in a predicate), and the end
+ * assignment (game.blocks: which end each role plays from, nothing else) read as an element that instructs no team (2c, 3d; probe N2 found it
+ * outside the known kinds). Which shape a run has is the caller's to say; the predicates read only the realized game and the chain's account.
+ */
+export interface WalkthroughShape {
+    id: 'HPE-1' | 'HPE-2'
+    /** The pressing team's target: a line on the escaping team's end line (HPE-1) or an end zone beginning at it (HPE-2). */
+    pressingTarget: 'line' | 'zone'
+    /** The award when the ball goes over an end line: the escaping team whoever touched it last (HPE-1), or the team that did not touch it last (HPE-2). */
+    endLine: 'TO_ESCAPING' | 'NOT_LAST_TOUCH'
+    /** The origin and progression values the configuration's draft store holds (4a). */
+    origin: string
+    progression: string
+    /** Element kinds outside the walkthrough's known set that the configuration adds and that instruct no team ('blocks': the end assignment only). */
+    knownKinds: string[]
+}
+export const HPE1_SHAPE: WalkthroughShape = { id: 'HPE-1', pressingTarget: 'line', endLine: 'TO_ESCAPING', origin: 'established coordinated pressure', progression: 'beyond', knownKinds: [] }
+/** The end assignment is an element that instructs no team only while it holds nothing but which end each role plays from. */
+const endAssignmentOnly = (blocks: unknown): boolean => !!blocks && typeof blocks === 'object' && !Array.isArray(blocks) && Object.keys(blocks).join(',') === 'endAssignment'
+
 /** One fact read in every block: holds only where it holds in each (a run with no realized game holds none). */
 function fact(m: Made, blocks: Block[], id: string, what: string, read: (b: Block) => { holds: boolean; said: string; paths: string[] }): Fact {
     if (!blocks.length) return { id, what, holds: false, evidence: ['no realized game'], cites: [] }
@@ -277,8 +305,9 @@ function fact(m: Made, blocks: Block[], id: string, what: string, read: (b: Bloc
 }
 
 /** The walkthrough of one run, from its built game and the chain's account (never a sentence). */
-export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer = m.answer): Walkthrough {
+export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer = m.answer, shape: WalkthroughShape = HPE1_SHAPE): Walkthrough {
     const blocks = blocksOf(built)
+    const zoneShape = shape.pressingTarget === 'zone'
     const approved = rpcLibrary.scoringEventsForContext('RPC-002')
     const escapingOf = (b: Block) => roleOf(b.game, 'ESCAPING')
     const pressingOf = (b: Block) => roleOf(b.game, 'PRESSING')
@@ -293,16 +322,28 @@ export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer
         const holds = !!p && !!e && p.exchange === 'COACH_CALLS' && !!b.holders?.PRESSING && b.holders.PRESSING !== b.holders.ESCAPING
         return { holds, said: holds ? `the pressing role is held by ${b.holders!.PRESSING}, the escaping role by ${b.holders!.ESCAPING}, exchanged when the coach calls it` : 'no team holds a pressing role', paths: p ? [rolePath(p, 'activityRole'), rolePath(p, 'exchange')] : [] }
     })
-    const f1b = fact(m, blocks, '1b', "the pressing team scores only by its own event, over the line at the end the escaping team defends, with the ball: so a regain near that end is its shortest route to a point", (b) => {
+    // Package 5 (B8): HPE-2's pressing target is an end zone beginning at the escaping team's end line; the kind's approval (RPC-002 approves the
+    // event kind for its scoring events) is kept apart from the role's (for the pressing role the event is PROPOSED, question Q2).
+    const what1b = zoneShape
+        ? "the pressing team scores only by its own event, into the end zone at the end the escaping team defends (an event kind RPC-002 approves for its scoring events; for the pressing role PROPOSED, question Q2): so a regain near that end is its shortest route to a point"
+        : "the pressing team scores only by its own event, over the line at the end the escaping team defends, with the ball: so a regain near that end is its shortest route to a point"
+    const f1b = fact(m, blocks, '1b', what1b, (b) => {
         const p = pressingOf(b)
         const o = objectiveOf(b.game, b.holders?.PRESSING)
         const target = regionOfRef(b.game, o?.reference)
         const along = interval(b, target, 'along')
         const escEnd = endOf(b, b.holders?.ESCAPING)
-        const holds = !!p && !!p.scoresBy && approved.includes(String(p.scoresBy)) && target?.noun === 'line' && !!along && along.from === escEnd && along.to === escEnd
+        const event = !!p && !!p.scoresBy && approved.includes(String(p.scoresBy))
+        const atEnd = zoneShape
+            ? target?.noun === 'zone' && !!along && along.from !== along.to && (Math.min(along.from, along.to) === escEnd || Math.max(along.from, along.to) === escEnd)
+            : target?.noun === 'line' && !!along && along.from === escEnd && along.to === escEnd
+        const holds = event && atEnd
+        const ok = zoneShape
+            ? `its event ${p?.scoresBy} (a kind RPC-002 approves for its scoring events; for this role PROPOSED), its target the zone over ${show(along)}, at the end the escaping team defends (${escEnd} m)`
+            : `its event ${p?.scoresBy} (an approved event of the context), its target the line at ${escEnd} m, the end the escaping team defends`
         return {
             holds,
-            said: holds ? `its event ${p.scoresBy} (an approved event of the context), its target the line at ${escEnd} m, the end the escaping team defends` : `the pressing team's score: event ${p?.scoresBy ?? 'none of its own'}, target ${target?.noun ?? 'none'} at ${show(along)}`,
+            said: holds ? ok : `the pressing team's score: event ${p?.scoresBy ?? 'none of its own'}, target ${target?.noun ?? 'none'} at ${show(along)}`,
             paths: [...(p ? [rolePath(p, 'scoresBy')] : []), ...(o ? [objPath(o, 'reference')] : []), ...(target ? [`${regionPath(target)}.noun`, `${regionPath(target)}.position.along`] : [])],
         }
     })
@@ -318,7 +359,10 @@ export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer
      * reads the targets' positions only: both teams' targets lie at or near one end (each begins within the half of the area at that end), and
      * where the game holds roles that end is the one the escaping team defends. Plain GF2's targets are the two end lines, one at each end.
      */
-    const f1d = fact(m, blocks, '1d', "both teams' targets lie at or near one end, the end the escaping team defends: the pressing team's at that end line, the escaping team's beginning at the marked line near it (play concentrated at one end, not two mirrored attacks; read from the targets' positions, never their nouns)", (b) => {
+    const what1d = zoneShape
+        ? "both teams' targets lie at or near one end, the end the escaping team defends: the pressing team's end zone at that end, the escaping team's beginning at the marked line near it (play concentrated at one end, not two mirrored attacks; read from the targets' positions, never their nouns)"
+        : "both teams' targets lie at or near one end, the end the escaping team defends: the pressing team's at that end line, the escaping team's beginning at the marked line near it (play concentrated at one end, not two mirrored attacks; read from the targets' positions, never their nouns)"
+    const f1d = fact(m, blocks, '1d', what1d, (b) => {
         const targets = ((b.game.objectives ?? []) as any[]).filter((o) => o.role === 'PRIMARY_SCORING').map((o) => regionOfRef(b.game, o.reference)).filter(Boolean)
         const reach = (r: any, end: number) => {
             const i = interval(b, r, 'along')
@@ -341,11 +385,27 @@ export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer
     const triggerOf = (t: any) => ((t.selector ?? []) as any[]).find((s) => s.attribute === 'trigger')?.value
     // FIX (V4 L9), re-pinned openly: '(the recurrence: the PROPOSED restart, question Q6)'; coordination is not established, so the request is
     // not shown met: the restart is our PROPOSED answer to it.
-    const f1e = fact(m, blocks, '1e', 'play restarts with the escaping team at the start, after each point and when the ball goes over an end line, so the problem begins again near its own end (our PROPOSED answer to the recurrence: the restart, question Q6)', (b) => {
-        const ts = ((b.game.transitions ?? []) as any[]).filter((t) => restartTriggers.includes(triggerOf(t)) && t.playState === 'STOP_RESUME' && t.awardedTo === 'ROLE_HOLDER_ESCAPING')
-        const found = restartTriggers.filter((x) => ts.some((t) => triggerOf(t) === x))
-        const holds = found.length === restartTriggers.length && !!b.holders?.ESCAPING
-        return { holds, said: holds ? `restarts awarded to the escaping team (${b.holders!.ESCAPING}) at ${found.join(', ')}` : `restarts awarded to the escaping team at: ${found.join(', ') || 'none'}`, paths: ts.flatMap((t) => [`transitions[${t.elementId}].awardedTo`, `transitions[${t.elementId}].playState`]) }
+    // Package 5 (B8): in HPE-2 the escaping team restarts at the start and after each point (and at the coach's restart, where the game holds it),
+    // and the ball over an end line goes to the team that did not touch it last (the possession game's own award, GF2-16.a).
+    const escapingTriggers = shape.endLine === 'NOT_LAST_TOUCH' ? ['START', 'SCORE'] : restartTriggers
+    const what1e =
+        shape.endLine === 'NOT_LAST_TOUCH'
+            ? "play restarts with the escaping team at the start and after each point, so the problem begins again near its own end, and the ball over an end line goes to the team that did not touch it last, so no team gets back a ball it put out (the restart PROPOSED, question Q6; the end-line award the possession game's own, GF2-16.a)"
+            : 'play restarts with the escaping team at the start, after each point and when the ball goes over an end line, so the problem begins again near its own end (our PROPOSED answer to the recurrence: the restart, question Q6)'
+    const f1e = fact(m, blocks, '1e', what1e, (b) => {
+        const all = ((b.game.transitions ?? []) as any[]).filter((t) => t.playState === 'STOP_RESUME')
+        const ts = all.filter((t) => escapingTriggers.includes(triggerOf(t)) && t.awardedTo === 'ROLE_HOLDER_ESCAPING')
+        const found = escapingTriggers.filter((x) => ts.some((t) => triggerOf(t) === x))
+        if (shape.endLine !== 'NOT_LAST_TOUCH') {
+            const holds = found.length === escapingTriggers.length && !!b.holders?.ESCAPING
+            return { holds, said: holds ? `restarts awarded to the escaping team (${b.holders!.ESCAPING}) at ${found.join(', ')}` : `restarts awarded to the escaping team at: ${found.join(', ') || 'none'}`, paths: ts.flatMap((t) => [`transitions[${t.elementId}].awardedTo`, `transitions[${t.elementId}].playState`]) }
+        }
+        const endLine = all.filter((t) => triggerOf(t) === 'OUT_END_LINE')
+        const byLastTouch = endLine.length > 0 && endLine.every((t) => t.awardedTo === 'NOT_LAST_TOUCH')
+        const others = all.filter((t) => !restartTriggers.includes(triggerOf(t)) && t.awardedTo === 'ROLE_HOLDER_ESCAPING').map((t) => triggerOf(t))
+        const holds = found.length === escapingTriggers.length && byLastTouch && !!b.holders?.ESCAPING
+        const said = `restarts awarded to the escaping team (${b.holders?.ESCAPING ?? 'no team'}) at ${found.join(', ') || 'none'}${others.length ? ` and at ${others.join(', ')}` : ''}; over an end line to ${endLine.length ? endLine.map((t) => (t.awardedTo === 'NOT_LAST_TOUCH' ? 'the team that did not touch the ball last' : String(t.awardedTo))).join(', ') : 'no restart'}`
+        return { holds, said, paths: [...ts, ...endLine].flatMap((t) => [`transitions[${t.elementId}].awardedTo`, `transitions[${t.elementId}].playState`]) }
     })
 
     // Q2: how players encounter information about that pressure.
@@ -363,12 +423,20 @@ export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer
         const holds = line?.noun === 'line' && near && fullWidth(b, line) && reference
         return { holds, said: line ? `the ${line.noun} at ${along?.from} m (the escaping team's end at ${escEnd} m), across ${show(interval(b, line, 'across'))}${reference ? ', a perceptual reference' : ''}` : 'no marked line the condition is stated beyond', paths: line ? [`${regionPath(line)}.noun`, `${regionPath(line)}.position.along`, `${regionPath(line)}.position.across`, `${regionPath(line)}.functions`] : [] }
     })
-    const otherKinds = (b: Block) => Object.keys(b.game).filter((k) => KNOWN_ELEMENT_KINDS.indexOf(k) < 0)
+    // Package 5 (B8): an element kind the configuration adds that instructs no team (HPE-2: the end assignment) is known only while it holds
+    // nothing but which end each role plays from; anything more in it is an element of another kind again.
+    const shapeKnows = (b: Block, k: string) => shape.knownKinds.includes(k) && (k !== 'blocks' || endAssignmentOnly(b.game.blocks))
+    const otherKinds = (b: Block) => Object.keys(b.game).filter((k) => KNOWN_ELEMENT_KINDS.indexOf(k) < 0 && !shapeKnows(b, k))
+    const knownByShape = (b: Block) => Object.keys(b.game).filter((k) => KNOWN_ELEMENT_KINDS.indexOf(k) < 0 && shapeKnows(b, k))
     const constraintsOf = () => (answer.account?.constraints ?? null) as string[] | null
-    const f2c = fact(m, blocks, '2c', 'no element tells either team how to press or how to escape: no constraint or manipulation is applied (the review pathway\'s K2 result, the empty set) and the game holds no element of another kind (no restriction, no zone with an access rule)', (b) => {
+    const what2c = shape.knownKinds.length
+        ? "no element tells either team how to press or how to escape: no constraint or manipulation is applied (the review pathway's K2 result, the empty set) and the game holds no element of another kind (no restriction, no zone with an access rule; the end assignment, which says only which end each role plays from, instructs no team)"
+        : 'no element tells either team how to press or how to escape: no constraint or manipulation is applied (the review pathway\'s K2 result, the empty set) and the game holds no element of another kind (no restriction, no zone with an access rule)'
+    const f2c = fact(m, blocks, '2c', what2c, (b) => {
         const constraints = constraintsOf()
         const holds = !!constraints && constraints.length === 0 && otherKinds(b).length === 0
-        return { holds, said: `constraints ${show(constraints)} under ${answer.observed?.constraintAuthority ?? 'no authority'}; element kinds outside the known set: ${otherKinds(b).join(', ') || 'none'}`, paths: [] }
+        const known = knownByShape(b)
+        return { holds, said: `constraints ${show(constraints)} under ${answer.observed?.constraintAuthority ?? 'no authority'}; element kinds outside the known set: ${otherKinds(b).join(', ') || 'none'}${known.length ? `; read as instructing no team: ${known.map((k) => `${k} ${show(b.game[k])}`).join(', ')}` : ''}`, paths: [] }
     })
 
     // Q3: what genuine escape opportunities exist.
@@ -405,11 +473,16 @@ export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer
     // restart, a change of possession and a new attack apart, received 8 November 2026); the predicate is unchanged.
     // FIX (V4 L1), re-pinned openly: 'only in a possession that began against coordinated pressure' was stricter than the condition (the sequence
     // begins when the pressure is faced, not when the possession starts); the predicate is unchanged.
-    const f4a = fact(m, blocks, '4a', 'the escaping team scores only if, in that possession, it faced coordinated pressure before scoring, and only beyond the marked line (the conditions on its event, the whole game)', (b) => {
+    // Package 5 (B8): the origin and progression values are the configuration's (HPE-1's as pinned; HPE-2's read from its draft store by the caller).
+    const what4a =
+        shape.id === 'HPE-2'
+            ? "the escaping team scores only by the crossing that escapes the press its attempt began under: its event carries the origin value tying the pressure to this crossing, and the progression is over the marked line (the conditions on its event, the whole game; a crossing after the press has dropped off: question Q4)"
+            : 'the escaping team scores only if, in that possession, it faced coordinated pressure before scoring, and only beyond the marked line (the conditions on its event, the whole game)'
+    const f4a = fact(m, blocks, '4a', what4a, (b) => {
         const origin = conditionOf(b.game, 'origin')
         const progression = conditionOf(b.game, 'progression')
         const line = escapeLineOf(b.game)
-        const holds = origin?.value === 'established coordinated pressure' && progression?.value === 'beyond' && line?.noun === 'line' && !!escapingOf(b) && !escapingOf(b).scoresBy
+        const holds = origin?.value === shape.origin && progression?.value === shape.progression && line?.noun === 'line' && !!escapingOf(b) && !escapingOf(b).scoresBy
         return {
             holds,
             said: origin || progression ? `origin '${origin?.value ?? 'none'}', progression '${progression?.value ?? 'none'}' the ${line?.noun ?? 'no referent'}` : 'no condition on the scoring event',
@@ -421,15 +494,23 @@ export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer
         const holds = control?.value === 'retains possession through the next action'
         return { holds, said: control ? `control '${control.value}'` : 'no control condition', paths: control ? [`value.primaryEvent.conditions[${control.elementId}].value`] : [] }
     })
-    const f4c = fact(m, blocks, '4c', "losing the ball exposes the escaping team's own end line to the pressing team's score at once (the pressing team's target at that end, and play continuing on the change of possession)", (b) => ({
+    const what4c = zoneShape
+        ? "losing the ball near its own end exposes the escaping team's end zone to the pressing team's score at once (the pressing team's target at that end, and play continuing on the change of possession)"
+        : "losing the ball exposes the escaping team's own end line to the pressing team's score at once (the pressing team's target at that end, and play continuing on the change of possession)"
+    const f4c = fact(m, blocks, '4c', what4c, (b) => ({
         holds: f1b.holds && f1c.holds,
         said: f1b.holds && f1c.holds ? "read from 1b and 1c" : 'the pressing team has no target at the escaping team\'s end, or play does not continue',
         paths: [],
     }))
-    const f4d = fact(m, blocks, '4d', "the pressing team's own success is meaningful only as a regain carried over the escaping team's end line: its own event, which takes none of the escaping team's conditions", (b) => {
+    const what4d = zoneShape
+        ? "the pressing team's own success is meaningful only as a regain carried or received under control into the end zone at the escaping team's end: its own event, which takes none of the escaping team's conditions"
+        : "the pressing team's own success is meaningful only as a regain carried over the escaping team's end line: its own event, which takes none of the escaping team's conditions"
+    const f4d = fact(m, blocks, '4d', what4d, (b) => {
         const p = pressingOf(b)
         const holds = !!p?.scoresBy && f1b.holds
-        return { holds, said: holds ? `the pressing role scores by its own ${p.scoresBy}, so the conditions on the primary event do not bind it` : 'the pressing team has no event of its own', paths: p ? [rolePath(p, 'scoresBy')] : [] }
+        // Package 5 (B8, probe finding): where the pressing team has its own event and 1b fails on its target, the evidence says so (it said 'no
+        // event of its own', false of an end-zone game read as HPE-1's); where it has none, the words are as before.
+        return { holds, said: holds ? `the pressing role scores by its own ${p.scoresBy}, so the conditions on the primary event do not bind it` : p?.scoresBy ? `its own event ${p.scoresBy}, but its target is not where 1b reads it (1b does not hold)` : 'the pressing team has no event of its own', paths: p ? [rolePath(p, 'scoresBy')] : [] }
     })
 
     const factSets = [
@@ -473,27 +554,45 @@ export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer
         { ...rowOf('RPC-PROP-024'), verdict: f3b.holds && f3d.holds ? 'held' : 'not held', reading: f3b.holds && f3d.holds ? "held by the marked line and the target across the full width, no option removed (3b, 3d); which lanes are open is the live press's, and the room beyond the line is set by the placement rule, PROPOSED and applied by the coach (question Q1)" : 'the line or the target does not run the full width, or an element removes an option (3b or 3d does not hold)', cites: f3b.cites },
         { ...rowOf('RPC-PROP-025'), verdict: f3b.holds && f1c.holds && f4b.holds ? 'held' : f3b.holds ? 'partly held' : 'not held', reading: f3b.holds ? `weak-side opportunities held by the full-width line and target (3b): a switch reaches the target anywhere across; recovery behaviour ${f1c.holds && f4b.holds ? 'held while play continues on a turnover and the escaping team must still keep the ball through its next action (1c, 4b), so a recovering press can still win it' : 'not held: play stops on a turnover, or no continuation is required'}${f1e.holds ? '; after a point play restarts (1e)' : ''}` : 'the line or the target does not run the full width (3b does not hold)', cites: [...f3b.cites, ...f4b.cites] },
         // FIX (V4 finding 1), re-pinned openly: 'punished' read only the control condition and 4c; the end-line restart is read too.
-        {
-            ...rowOf('RPC-PROP-026'),
-            verdict: !f4b.holds ? 'not punished' : endLineToEscaping ? 'partly punished' : 'punished',
-            reading: f4b.holds
-                ? `a clearance that loses the ball in play scores nothing (the control condition, 4b)${f4c.holds ? ", and a ball lost near the escaping team's end gives the pressing team a short route to its point (4c)" : ''}${endLineToEscaping ? "; but a clearance over either end line, whoever touched the ball last, returns it to the escaping team at the restart (1e, PROPOSED Q6), and a defender can stop the pressing team's dribble the same way, where the possession game's own award (GF2-16.a) gives the ball to the team that did not touch it last" : ''}`
-                : 'no continuation is required, so a clearance that reaches the target scores',
-            cites: [...f4b.cites, ...(endLineToEscaping ? cite(m, endLinePaths) : [])],
-        },
+        // Package 5 (B8): in HPE-2's shape the end-line restart is by last touch (1e), and the row reads one case more, the long ball that stays in
+        // play and is lost far from the escaping team's end (cheap wherever the pressing team's only target is at that end, 1b), so the verdict is
+        // 'partly punished' there; HPE-1's predicate is as pinned (V4) and does not read that case.
+        shape.id === 'HPE-2'
+            ? {
+                  ...rowOf('RPC-PROP-026'),
+                  verdict: !f4b.holds ? 'not punished' : endLineToEscaping || f1b.holds ? 'partly punished' : 'punished',
+                  reading: f4b.holds
+                      ? `a clearance that loses the ball in play scores nothing (the control condition, 4b)${f4c.holds ? ", and a ball lost near the escaping team's end gives the pressing team a short route to its point (4c)" : ''}${endLineToEscaping ? "; but a clearance over either end line, whoever touched the ball last, returns it to the escaping team at the restart" : endLineRestarts.length ? '; a ball put over either end line goes to the team that did not touch it last, at a restart from the feet (1e, GF2-16.a)' : ''}${f1b.holds ? "; but a long ball that stays in play and is lost far from the escaping team's end costs only the ball, the pressing team's only target being at that end (1b)" : ''}`
+                      : 'no continuation is required, so a clearance that reaches the target scores',
+                  cites: [...f4b.cites, ...cite(m, endLinePaths)],
+              }
+            : {
+                  ...rowOf('RPC-PROP-026'),
+                  verdict: !f4b.holds ? 'not punished' : endLineToEscaping ? 'partly punished' : 'punished',
+                  reading: f4b.holds
+                      ? `a clearance that loses the ball in play scores nothing (the control condition, 4b)${f4c.holds ? ", and a ball lost near the escaping team's end gives the pressing team a short route to its point (4c)" : ''}${endLineToEscaping ? "; but a clearance over either end line, whoever touched the ball last, returns it to the escaping team at the restart (1e, PROPOSED Q6), and a defender can stop the pressing team's dribble the same way, where the possession game's own award (GF2-16.a) gives the ball to the team that did not touch it last" : ''}`
+                      : 'no continuation is required, so a clearance that reaches the target scores',
+                  cites: [...f4b.cites, ...(endLineToEscaping ? cite(m, endLinePaths) : [])],
+              },
         // FIX (V4 finding 3), re-pinned openly: 'rewarded by the approved event itself ... as the approved High Press Escape rules count' overstated
         // the standing: the event kind is approved for RPC-002, its vocabulary description's meaning for RPC-002 is not (read, not typed), and
         // the live High Press Escape rules are live text, not Christian's approved wording.
         { ...rowOf('RPC-PROP-027'), verdict: lonePlayerDribbleScores ? 'rewarded' : 'not rewarded', reading: lonePlayerDribbleScores ? `rewarded by the event's vocabulary description, which counts one player dribbling ('${eventWords(kindOf(blocks[0]))}'; its meaning for RPC-002 is ${meaningStanding})${escapingOf(blocks[0]) ? ', and which the live High Press Escape rules follow in counting a player who dribbles over the line or into the zone' : ''}; the event kind itself is approved for RPC-002; nothing asks for more than one player, so a lone dribble ${f4b.holds ? 'past the line that keeps the ball' : 'to the target'} scores. A tension between RPC-002's approved degenerate-solution row and the event's ${meaningStanding} meaning, for Christian's ecological review: reported, not fixed` : 'the scoring event does not count a lone dribble', cites: cite(m, ['value.primaryEvent.kind']) },
         { ...rowOf('RPC-PROP-028'), verdict: 'not addressed', reading: "no element reads how the escaping team's support moves: static support that collapses the escape options is neither rewarded nor punished; it only fails to score", cites: [] },
-        { ...rowOf('RPC-PROP-029'), verdict: noRestriction ? 'not punished' : 'not read', reading: noRestriction ? `no element limits backward circulation: possession that never ${f3a.holds ? 'crosses the line' : 'reaches the target'} scores nothing and costs nothing${f4c.holds ? ", except that a ball lost near the escaping team's own end exposes its end line (4c)" : ''}` : 'an element of another kind is in the game; not read here', cites: [] },
+        { ...rowOf('RPC-PROP-029'), verdict: noRestriction ? 'not punished' : 'not read', reading: noRestriction ? `no element limits backward circulation: possession that never ${f3a.holds ? 'crosses the line' : 'reaches the target'} scores nothing and costs nothing${f4c.holds ? `, except that a ball lost near the escaping team's own end exposes its ${zoneShape ? 'end zone' : 'end line'} (4c)` : ''}` : 'an element of another kind is in the game; not read here', cites: [] },
     ]
     // Question 3: the LAW-11 arms beside it (decision W3): the built arm read from the laws account, the other described, not built.
+    // Package 5 (B8): HPE-2's other arms are Decision 5's (Christian, received 13 November 2026, declined a rule placing attacking players).
     const law11 = answer.lines.find((l) => l.lineId === 'defaultLaws:LAW-11')
     const arms = law11
         ? [
               `built (PROPOSED, question Q3; LAW-11 ${String(law11.value)}): no offside, so an escaping player may wait beyond the line for a long ball, which our own DRAFT laws reading names as material ('${LAW11_BYPASS}', laws-materiality.DRAFT.json): the escape could bypass the press`,
-              'described, not built: escaping players stay short of the line until a teammate plays the ball beyond it, which keeps the escape an interaction with the press, at the cost of one more rule for the coach to judge',
+              ...(shape.id === 'HPE-2'
+                  ? [
+                        'described, not built: the default Law 11 with a marked halfway line (NEW in the engine), which would bind a receiver parked beyond the line and a pressing player parked in the end zone, and leave a reception just beyond the marked line untouched',
+                        'described, not built: a target-form change beyond the line (a target limited in depth, gates or a target player: a GF2 knowledge decision, NEW), the next lever only if long-ball points dominate in review',
+                    ]
+                  : ['described, not built: escaping players stay short of the line until a teammate plays the ball beyond it, which keeps the escape an interaction with the press, at the cost of one more rule for the coach to judge']),
           ]
         : []
 
@@ -545,7 +644,8 @@ export function walkthroughLines(w: Walkthrough): string[] {
             for (const r of a.rows) out.push(`      ${r.rowId} '${r.words}': ${r.verdict.toUpperCase()}: ${r.reading}${r.cites.length ? `; elements: ${r.cites.join('; ')}` : ''}`)
         }
         if (a.arms.length) {
-            out.push("   beside question Q3, LAW-11's two arms:")
+            // Package 5 (B8): HPE-2 describes two other arms (Decision 5), so the count is read, not typed ('two' for HPE-1, as pinned).
+            out.push(`   beside question Q3, LAW-11's ${['no', 'one', 'two', 'three', 'four'][a.arms.length] ?? String(a.arms.length)} arms:`)
             for (const arm of a.arms) out.push(`      - ${arm}`)
         }
         for (const limit of a.limits) out.push(`   limit: ${limit}`)
@@ -553,6 +653,178 @@ export function walkthroughLines(w: Walkthrough): string[] {
     const tally = (verdict: string) => w.answers.flatMap((a) => a.rows).filter((r) => r.verdict === verdict).length
     // FIX (V4 L8, finding 1), re-pinned openly: question 1's summary named pressure 'established'; the tally counts 'partly punished'.
     out.push(`${w.runId}: the structural facts of ${w.count} of 4 questions hold${w.answers[0].established ? ' (question 1: a pressing role and a reason to press, structural; coordination not established, judged by the coach)' : ''}; RPC-002's information rows: ${tally('held')} held, ${tally('partly held')} partly held, ${tally('not held')} not held; its degenerate solutions: ${tally('punished')} punished, ${tally('partly punished')} partly punished, ${tally('rewarded')} rewarded, ${tally('not punished')} not punished, ${tally('not addressed')} not addressed`)
+    return out
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Package 5 (13 November 2026, the lead's build items B10 and B11): the two-team check, beside the four questions
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
+/*
+ * Christian, received 11 November 2026 (second reply), asked what safeguard could have detected a problem before it affected an activity; the
+ * critical finding of the reply received 13 November 2026 is one the four questions did not catch (they read each role's elements, not how the
+ * two teams' choices meet). This check reads the realized game for the 13 November concerns, each question a PROPOSED diagnostic of ours,
+ * reported and GATING NOTHING: no build, test or evidence elsewhere reads its result as a pass or a refusal. It reads only the realized game in
+ * every role block (and the laws account the build recorded for it), never a sentence. Every reading of an event's ways rests on the event's
+ * vocabulary description, whose meaning for RPC-002 is UNREVIEWED (primary-scoring.ts eventMeaningStanding).
+ *   (i)   each role scores by an event reachable by more than one kind of action, in the realized geometry (a reception 'beyond' a line needs room
+ *         beyond it inside the area; 'inside' a zone needs depth): a FINDING where a role has one way only;
+ *   (ii)  no dead-ball award returns the ball to the team that put it out: a FINDING for each restart over a line awarded to a fixed role with no
+ *         last-touch qualifier;
+ *   (iii) the pressing role's target lies at the escaping team's end (a hypothesis resting on A01's shape, A01 scope): a FINDING where it does not;
+ *   (iv)  whether one role's eligibility depends on the other role's choice, and what the configuration gives when that role declines: REPORTED;
+ *   (v)   for each role, what the rules give a team that leads: REPORTED.
+ */
+export const TWO_TEAM_QUESTIONS: ReadonlyArray<{ id: string; question: string }> = [
+    { id: 'i', question: 'each role has a scoring event reachable by more than one kind of action' },
+    { id: 'ii', question: 'no dead-ball award returns the ball to the team that put it out' },
+    { id: 'iii', question: "the pressing role's target lies at the escaping team's end region (a hypothesis resting on A01's shape, A01 scope)" },
+    { id: 'iv', question: "whether one role's eligibility depends on the other role's choice, and what the configuration gives when that role declines" },
+    { id: 'v', question: 'for each role, what the rules give a team that leads' },
+]
+export interface TwoTeamAnswer {
+    id: string
+    question: string
+    /** FINDING or NO FINDING for (i) to (iii); REPORTED for (iv) and (v); NOT READ where the run holds no role blocks. */
+    kind: 'FINDING' | 'NO FINDING' | 'REPORTED' | 'NOT READ'
+    evidence: string[]
+}
+export interface TwoTeamCheck {
+    runId: string
+    answers: TwoTeamAnswer[]
+    findings: string[]
+}
+const ROLE_TOKENS = ['ESCAPING', 'PRESSING'] as const
+const OUT_TRIGGERS = ['OUT_END_LINE', 'OUT_TOUCHLINE']
+/** An event's ways, read from its vocabulary description (split at ', or '), each named by what it asks of a player. */
+function waysOf(kind: string): Array<{ way: string; words: string }> {
+    const description = kind ? displayCell(committedKnowledge(), { source: 'contexts', table: 'controlled_vocabulary', row: `scoring_event ${kind}`, column: 'description' }).text : ''
+    return description
+        .split(', or ')
+        .map((words) => words.trim())
+        .filter(Boolean)
+        .map((words) => ({ way: actionClassesIn(words).includes('dribble') ? 'a dribble' : words.includes('receives') ? 'a reception' : 'another action', words }))
+}
+
+/** The two-team check of one run, read from its realized game in every role block. */
+export function twoTeamCheckOf(runId: string, built: any): TwoTeamCheck {
+    const blocks = blocksOf(built).filter((b) => b.holders)
+    const triggerOf = (t: any) => ((t.selector ?? []) as any[]).find((s) => s.attribute === 'trigger')?.value
+    const roleOf2 = (b: Block, token: string) => ((b.game.activityRoles ?? []) as any[]).find((r) => r.activityRole === token) ?? null
+    const targetOf = (b: Block, token: string) => regionOfRef(b.game, objectiveOf(b.game, b.holders?.[token])?.reference)
+    const attackedEnd = (b: Block, token: string) => (b.holders?.[token] === 'TEAM_AT_AXIS_START' ? b.lengthM : 0)
+    const notRead = (id: string): TwoTeamAnswer => ({ ...TWO_TEAM_QUESTIONS.find((q) => q.id === id)!, kind: 'NOT READ', evidence: ['no role blocks: the check reads a game played in role blocks'] })
+    if (!blocks.length) return { runId, answers: TWO_TEAM_QUESTIONS.map((q) => notRead(q.id)), findings: [] }
+    const q = (id: string) => TWO_TEAM_QUESTIONS.find((x) => x.id === id)!
+
+    // (i) the ways each role's event can be completed, in the realized geometry.
+    const i: string[] = []
+    const iFindings: string[] = []
+    for (const b of blocks)
+        for (const token of ROLE_TOKENS) {
+            const role = roleOf2(b, token)
+            const kind = String(role?.scoresBy ?? b.game.value?.primaryEvent?.kind ?? '')
+            const target = targetOf(b, token)
+            const along = interval(b, target, 'along')
+            const end = attackedEnd(b, token)
+            const reachable = (way: string): string | null => {
+                if (!target || !along) return 'no target'
+                if (way === 'a dribble') return null
+                if (way !== 'a reception') return 'not read'
+                if (target.noun === 'zone') return Math.abs(along.to - along.from) > 0 ? null : 'the zone has no depth'
+                if (target.noun === 'line') return Math.abs(end - along.from) > 0 ? null : `the line lies on the end line the team attacks (${end} m): there is no room beyond it inside the area`
+                return 'not read'
+            }
+            const ways = waysOf(kind)
+            const open = ways.filter((w) => reachable(w.way) === null).map((w) => w.way)
+            const shut = ways.filter((w) => reachable(w.way) !== null).map((w) => `${w.way} (${reachable(w.way)})`)
+            const said = `${b.tag}, the ${token.toLowerCase()} team: ${kind || 'no event'}, its target the ${target?.noun ?? 'none'} over ${show(along)}: reachable by ${open.join(' or ') || 'nothing'}${shut.length ? `; not by ${shut.join(', ')}` : ''}`
+            i.push(said)
+            if (open.length < 2) iFindings.push(`(i) ${said}`)
+        }
+
+    // (ii) the restarts over a line, and the side line's law where no restart is written for it.
+    const ii: string[] = []
+    const iiFindings: string[] = []
+    for (const b of blocks) {
+        const outs = ((b.game.transitions ?? []) as any[]).filter((t) => OUT_TRIGGERS.includes(triggerOf(t)) && t.playState === 'STOP_RESUME')
+        for (const t of outs) {
+            const fixed = String(t.awardedTo ?? '').startsWith('ROLE_HOLDER_')
+            const keyed = !!t.qualifiers?.lastTouch && t.qualifiers.lastTouch !== 'EACH_TEAM' && t.qualifiers.lastTouch !== t.awardedTo
+            const said = `${b.tag}: the ball over ${triggerOf(t) === 'OUT_END_LINE' ? 'an end line' : 'a side line'} (transitions[${t.elementId}]) goes to ${t.awardedTo === 'NOT_LAST_TOUCH' ? 'the team that did not touch it last' : String(t.awardedTo)}${fixed && !keyed ? ', whoever touched it last' : ''}`
+            ii.push(said)
+            if (fixed && !keyed) iiFindings.push(`(ii) ${said}`)
+        }
+        if (!outs.some((t) => triggerOf(t) === 'OUT_TOUCHLINE')) {
+            const law15 = b.laws.filter((l) => l.law === 'LAW-15').map((l) => l.status)
+            ii.push(`${b.tag}: the ball over a side line: no restart written, so the Laws (LAW-15 ${law15.join(', ') || 'not in the account'}: a throw-in against the team that touched it last)`)
+        }
+    }
+
+    // (iii) where the pressing role's target lies.
+    const iii: string[] = []
+    const iiiFindings: string[] = []
+    for (const b of blocks) {
+        const target = targetOf(b, 'PRESSING')
+        const along = interval(b, target, 'along')
+        const escEnd = endOf(b, b.holders?.ESCAPING)
+        const atEnd = !!along && (Math.min(along.from, along.to) === escEnd || Math.max(along.from, along.to) === escEnd)
+        const said = `${b.tag}: the pressing team's target, the ${target?.noun ?? 'none'} over ${show(along)}; the escaping team's end line at ${escEnd} m`
+        iii.push(said)
+        if (!atEnd) iiiFindings.push(`(iii) ${said}`)
+    }
+
+    // (iv) the escaping role's eligibility, and what the game gives when the pressing role declines to press together.
+    const iv: string[] = []
+    let depends = false
+    for (const b of blocks) {
+        const origin = conditionOf(b.game, 'origin')
+        const escaping = roleOf2(b, 'ESCAPING')
+        const onPressure = !!origin && String(origin.value).includes('pressure') && !!escaping && !escaping.scoresBy
+        depends = depends || onPressure
+        const ts = (b.game.transitions ?? []) as any[]
+        const coachRestart = ts.filter((t) => triggerOf(t) === 'COACH_JUDGED_EPISODE_CONCLUSION' && t.awardedTo === 'ROLE_HOLDER_ESCAPING')
+        const exchange = escaping?.exchange ?? null
+        const gives = [
+            ...(exchange ? [`the roles exchanged when ${exchange === 'COACH_CALLS' ? 'the coach calls the next block (no set block length)' : exchange}${b.game.blocks?.endAssignment ? `, the teams' ends ${String(b.game.blocks.endAssignment).toLowerCase()}` : ''}`] : []),
+            ...(coachRestart.length ? [`the coach's restart (COACH_JUDGED_EPISODE_CONCLUSION, transitions[${coachRestart[0].elementId}]), awarded to the escaping team`] : []),
+        ]
+        iv.push(
+            onPressure
+                ? `${b.tag}: every escaping-team point carries the origin condition '${origin.value}', pressure only the pressing team can supply: the escaping team's eligibility depends on the pressing team's choice. When the pressing team declines, the game gives ${gives.length ? gives.join('; and ') : 'nothing'}; no element gives an unpressed escaping team a point`
+                : `${b.tag}: no condition ties the escaping team's points to the pressing team's choice${origin ? ` (origin '${origin.value}')` : ''}`,
+        )
+    }
+
+    // (v) what the rules give a team that leads, in each role.
+    const v: string[] = []
+    for (const b of blocks) {
+        const value = b.game.value ?? {}
+        const readers = [...Object.keys(value).filter((k) => k !== 'primaryEvent').map((k) => `value.${k}`), ...((value.primaryEvent?.conditions ?? []) as any[]).filter((c) => String(c.type).includes('score')).map((c) => `a ${c.type} condition`)]
+        const exchange = roleOf2(b, 'ESCAPING')?.exchange ?? null
+        const lasts = exchange === 'COACH_CALLS' ? 'until the coach calls the next block' : 'for the whole game'
+        v.push(
+            `${b.tag}: ${readers.length ? `elements that read the score: ${readers.join(', ')}` : 'no element reads the score, so a lead changes nothing in the game'}; a leading pressing team may decline to press together${depends ? ', and the escaping team then cannot score (iv)' : ''}, ${lasts}; a leading escaping team is obliged to nothing (no element requires it to score) and may keep the ball or play long, ${lasts}`,
+        )
+    }
+
+    const answers: TwoTeamAnswer[] = [
+        { ...q('i'), kind: iFindings.length ? 'FINDING' : 'NO FINDING', evidence: i },
+        { ...q('ii'), kind: iiFindings.length ? 'FINDING' : 'NO FINDING', evidence: ii },
+        { ...q('iii'), kind: iiiFindings.length ? 'FINDING' : 'NO FINDING', evidence: iii },
+        { ...q('iv'), kind: 'REPORTED', evidence: iv },
+        { ...q('v'), kind: 'REPORTED', evidence: v },
+    ]
+    return { runId, answers, findings: [...iFindings, ...iiFindings, ...iiiFindings] }
+}
+export function twoTeamLines(c: TwoTeamCheck): string[] {
+    const out: string[] = []
+    for (const a of c.answers) {
+        out.push(`(${a.id}) ${a.question}: ${a.kind}`)
+        for (const e of a.evidence) out.push(`      ${e}`)
+    }
+    const flagged = ['i', 'ii', 'iii'].filter((id) => c.answers.find((a) => a.id === id)!.kind === 'FINDING')
+    out.push(`${c.runId}: a finding on ${flagged.length ? flagged.map((id) => `(${id})`).join(' and ') : 'none'} of (i) to (iii) (${c.findings.length} block reading${c.findings.length === 1 ? '' : 's'}); (iv) and (v) reported; PROPOSED diagnostics, gating nothing`)
     return out
 }
 
