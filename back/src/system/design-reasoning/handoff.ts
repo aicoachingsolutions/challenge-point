@@ -1524,10 +1524,14 @@ function linePremises(ctx: GradingContext, line: ChainLine): { premises: Premise
         const principle = rulingOf(ctx.inputs, ctx.inputs.grading.lawsDefault.principleRef)
         if (line.lawStatus === 'DEPARTED' && line.removedByRealization) {
             const departure = ctx.c.realization?.departures.find((d) => d.law === line.law)
+            // Stage B3 of the complete-activity package: a departure carried by the case's PROPOSED configuration (its laws block, read only
+            // under lawDepartures) is ours, PROPOSED, for Christian's approval: never graded as a ruling of a production provisional realization.
+            const proposedLaws = ctx.c.testOnlyTreatments.find((t) => t.kind === 'PROPOSED_CONFIGURATION' && t.proposed?.lawDepartures === true)
             if (departure) {
                 const provisional = departure.rulingRefs.some((ref) => rulingOf(ctx.inputs, ref).provisional)
                 premises.push(premise('LAW_DEPARTURE', `${line.law} departed from, ${departure.extent}, on ${departure.rulingRefs.join(', ')}`, { provisional }))
-            } else premises.push(premise('LAW_DEPARTURE', `${line.law} departed from on a production provisional realization`, { provisional: true }))
+            } else if (proposedLaws) premises.push(premise('PROPOSED_ITEM', `${line.law} departed from on our PROPOSED configuration (${proposedLaws.id}: its laws block; ours, not a ruling)`))
+            else premises.push(premise('LAW_DEPARTURE', `${line.law} departed from on a production provisional realization`, { provisional: true }))
         } else if (line.lawStatus === 'DEPARTED') {
             premises.push(premise('REALIZATION_ITEM', `${line.law} departed from by a provisional realization's items`, { provisional: true }))
         } else if (line.lawStatus === 'ADAPTATION_OWED') {

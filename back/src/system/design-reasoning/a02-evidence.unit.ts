@@ -38,12 +38,13 @@ import path from 'node:path'
 
 import { loadDraftStore } from '../derivation/draft-store'
 import { experiment, inputs, items as a02Items, quotedSpans } from './a02.unit'
+import { appendixF, B3, B3_RUN_IDS, buildB3, GF2W, Made as B3Made, materialEffects, REVIEW_RUN, rewordingRows, safeguardFindings, SAFEGUARD_RUNS, walkthroughOf } from './a02-acceptance.unit'
 import { CARRIER_RUN_IDS, carrierResult } from './a02-carriers.unit'
 import * as S from './a02-safeguards.unit'
 import { citedDateOf } from './assembly'
 import { foundationalTestText } from './foundational-test'
 import { CaseInput, ChainAnswer, ChainRequest, HandoffChain, HandoffResult, runHandoff, runHandoffCases, validateHandoffInputs } from './handoff'
-import { chainWith, holdsGenderedPronoun, realChain, swappedStore } from './handoff-chain.unit'
+import { chainWith, holdsGenderedPronoun, realChain, swappedStore, withoutGenderedPronouns } from './handoff-chain.unit'
 import { handoffReportText, plain, quoted, show } from './handoff-report'
 import { carRequirementNames, cell, committedKnowledge } from './knowledge'
 import { blockerSequence, classOf, detectedByVerdict, DISPOSITION, Finding, OpenDisconnection, ownershipMessage, ownershipOf, OWNERSHIP_TABLE, SafeguardRun, safeguardRunOf, stale, unlisted, DETECTED_VERDICTS, VIOLATION_VERDICTS } from './safeguards'
@@ -781,6 +782,9 @@ const stopRowOf = (id: string, group: string, r: HandoffResult, rule: { rule?: s
 })
 const S_GROUP: Record<S.Kind, string> = { EXPERIMENT: 'A02 experiment path', CONTROL: 'A02 control', LEGACY: 'legacy route' }
 const CARRIER_GROUP = 'ILLUSTRATIVE carriers, TEST-ONLY'
+// Stage B3 of the complete-activity package (12 November 2026): the PROPOSED configuration's runs, its rewordings and the walkthrough's
+// negative control (a02-acceptance.unit.ts), each run's stop read here as every other run's is.
+const B3_GROUP = 'PROPOSED configuration A02-HPE1, TEST-ONLY'
 const runsWord = (n: number) => `${n} run${n === 1 ? '' : 's'}`
 /** The safeguard test's legacy census of other goals: reported only, never classified in this package. */
 const groupOfRun = (r: S.Run): string => (r.kind !== 'LEGACY' ? S_GROUP[r.kind] : r.result.goalId === 'A02' ? 'A02 legacy route' : r.result.goalId === 'TA02' ? 'TA02 legacy route' : 'census of other goals')
@@ -792,6 +796,7 @@ function allStopRows(): StopRow[] {
         stopRowOf(TA02_PRE_MERGE_CLASS.result.caseId, 'TA02 negative control', TA02_PRE_MERGE_CLASS.result),
         ...[...swapBuilt.keys()].map((id) => stopRowOf(id, 'swap control', swapAt(id).result)),
         ...CARRIER_RUN_IDS.map((id) => stopRowOf(id, CARRIER_GROUP, carrierResult(id))),
+        ...B3_RUN_IDS.map((id) => stopRowOf(id, B3_GROUP, B3.get(id)!.result)),
     ]
 }
 /** Item 2's smallest-source questions by number (the words are held to the questions' own text by test W6). */
@@ -836,7 +841,8 @@ const STOP_CLASSES: StopClass[] = [
         stop: 'validation: GA-RELATIVE-PLACEMENT holds of nothing (PASS_VACUOUS): the rebased ILLUSTRATIVE carriers place the line from an end line only, so no position of the game is stated relative to another element',
         categories: [5],
         owner: 'ENGINEERING',
-        whose: 'a configuration limitation of our ILLUSTRATIVE carriers (TEST-ONLY, never knowledge), recorded in stage W4; the check is kept as it stands (never loosened) and its general treatment of a placement that holds of nothing is the lead\'s; A02-HPE1 states the escaping team\'s target beyond the line and passes it',
+        // Stage B3, re-pinned openly (the words only): 'superseded by A02-HPE1 (stage B1)' added; the class and its runs are unchanged.
+        whose: 'a configuration limitation of our ILLUSTRATIVE carriers (TEST-ONLY, never knowledge), recorded in stage W4; the check is kept as it stands (never loosened) and its general treatment of a placement that holds of nothing is the lead\'s; superseded by A02-HPE1 (stage B1), which states the escaping team\'s target beyond the line and passes it',
         matches: (r) => r.stage === 'validation' && says(r, 'GA-RELATIVE-PLACEMENT') && says(r, 'PASS_VACUOUS'),
     },
     {
@@ -870,6 +876,23 @@ const STOP_CLASSES: StopClass[] = [
         owner: 'CHRISTIAN',
         whose: `approved coach wording for the condition's clauses (${question(2)}; none is held for RPC-002, and our CANDIDATE through the next action is not approved wording); the rendering part (no sentence carries a clause) is engineering that waits on that wording and on ${question(1)}`,
         matches: (r) => r.stage === 'communication' && r.reasons.some((x) => x.indexOf('awaiting approved wording') === 0),
+    },
+    // Stage B3 (12 November 2026): the two communication stops of the PROPOSED configuration's runs, measured (a02-acceptance.unit.ts).
+    {
+        id: 'proposed-awaiting-wording',
+        stop: 'communication: in each role block of the PROPOSED configuration\'s realized game, the condition\'s fields await approved wording (the run carries none of our CANDIDATE wording), and fidelity finds the escape line set out by no sentence',
+        categories: [1, 5],
+        owner: 'CHRISTIAN',
+        whose: `approved coach wording for the condition (${question(2)}); the review-level run A02-HPE1 says the condition in our CANDIDATE wording, held for Christian's review; the escape line's sentence is the renderer limit of the class below`,
+        matches: (r) => r.stage === 'communication' && r.treatments.indexOf('TT-CANDIDATE-WORDING') < 0 && r.reasons.some((x) => x.indexOf(': awaiting approved wording: value.primaryEvent.conditions') > 0),
+    },
+    {
+        id: 'renderer-limits',
+        stop: 'communication: the review-level run passes structure, realization and validation, says the condition in our CANDIDATE wording, and is refused on four limits of the production renderer (the escape line never set out, the renderer reading the production register; the pressing team\'s sentence citing the first objective\'s role; no sentence saying what each team attacks for a zone beside a line; the pressing team\'s target named only in Role exchange)',
+        categories: [5],
+        owner: 'ENGINEERING',
+        whose: 'three renderer changes, measured in stage B2 and not committed, serve the run with no fidelity violation and the behaviour snapshot unchanged: one TEST-ONLY, two on the production path (one adding a DRAFT sentence, which may be Christian\'s); whether to apply them is the lead\'s decision, Christian\'s for the sentence',
+        matches: (r) => r.stage === 'communication' && r.treatments.indexOf('TT-CANDIDATE-WORDING') >= 0 && r.reasons.some((x) => x.indexOf(': fidelity Q') > 0),
     },
     {
         id: 'served-diagnostic',
@@ -1018,7 +1041,7 @@ function appendixE(): string[] {
     const out: string[] = []
     const groupsIn = (rows: StopRow[]) => [...new Set(rows.map((r) => r.group))]
     out.push('APPENDIX E: EVERY RUN\'S EARLIEST STOP (stage W6, 12 November 2026; computed from the runs; each stop\'s category and whose it is are OURS, for Christian\'s review)')
-    out.push(`How to read: each run stops at the first stage whose check refuses it, or is served; each stop is read in Christian's failure-source categories (our reading, as in item 5) and said to be Christian's knowledge, engineering, or neither (a control's or a stand-in's intended effect, a TEST copy of the knowledge, or another goal). ${STOPS.rows.length} runs: the ${S.runs.size} safeguard runs (appendix B: ${groupsIn(STOPS.rows.filter((r) => S.runs.has(r.id))).join(', ')}), the TA02 runs, the TA02 negative control and the swap runs (appendix C), and the ${CARRIER_RUN_IDS.length} ILLUSTRATIVE carrier runs of stage W4 (TEST-ONLY, never knowledge; pinned by their own registered test): ${CARRIER_RUN_IDS.join(', ')}.`)
+    out.push(`How to read: each run stops at the first stage whose check refuses it, or is served; each stop is read in Christian's failure-source categories (our reading, as in item 5) and said to be Christian's knowledge, engineering, or neither (a control's or a stand-in's intended effect, a TEST copy of the knowledge, or another goal). ${STOPS.rows.length} runs: the ${S.runs.size} safeguard runs (appendix B: ${groupsIn(STOPS.rows.filter((r) => S.runs.has(r.id))).join(', ')}), the TA02 runs, the TA02 negative control and the swap runs (appendix C), the ${CARRIER_RUN_IDS.length} ILLUSTRATIVE carrier runs of stage W4 (TEST-ONLY, never knowledge; pinned by their own registered test): ${CARRIER_RUN_IDS.join(', ')}, and, since stage B3, the ${B3_RUN_IDS.length} runs of the PROPOSED configuration A02-HPE1, its rewordings and the walkthrough's negative control (appendix F; pinned by their own registered test): ${B3_RUN_IDS.join(', ')}.`)
     for (const c of STOP_CLASSES) {
         const rows = runsOfClass(c.id)
         out.push(`- ${c.id} (${runsWord(rows.length)}): ${c.stop} [${catsOf(c.categories)}]; ${OWNER_WORDS[c.owner]}: ${c.whose}`)
@@ -1030,6 +1053,7 @@ function appendixE(): string[] {
     out.push(`- A02 with the TEST-ONLY treatments of the condition: A02-1 ${clsOf('A02-1')}; A02-1b ${clsOf('A02-1b')}; A02-2 ${clsOf('A02-2')}; A02-D ${clsOf('A02-D')}`)
     out.push(`- A02 with the ILLUSTRATIVE carriers on (stage W4, rebased in stage B1: the progression clause carried by the carriers, the origin and control clauses by our CANDIDATE restatement): ${CARRIER_RUN_IDS.map((id) => `${id} ${clsOf(id)}`).join('; ')}`)
     out.push(`- TA02, the knowledge as it stands (TA02-0): ${clsOf('TA02-0')}; its diagnostic (TA02-D): ${clsOf('TA02-D')}`)
+    out.push(`- A02 under the PROPOSED configuration (stages B1 to B3, TEST-ONLY, for Christian's review): the review-level run ${REVIEW_RUN} ${clsOf(REVIEW_RUN)}; without our CANDIDATE wording (A02-HPE1-S) ${clsOf('A02-HPE1-S')}; without the PROPOSED LAW-11 departure (A02-HPE1-L) ${clsOf('A02-HPE1-L')}; under the rewordings ${B3_RUN_IDS.filter((id) => id.indexOf('~') > 0).map((id) => `${id} ${clsOf(id)}`).join('; ')}; the walkthrough's negative control ${GF2W} ${clsOf(GF2W)}`)
     out.push('WHOSE EACH STOP IS:')
     for (const owner of ['CHRISTIAN', 'ENGINEERING', 'NEITHER'] as Owner[]) {
         const classes = STOP_CLASSES.filter((c) => c.owner === owner)
@@ -1037,6 +1061,9 @@ function appendixE(): string[] {
     }
     const engineeringOnA02 = A02_CONDITION_RUNS.filter((r) => openStop(r))
     out.push(`- the ${A02_CONDITION_RUNS.length} A02 runs of the knowledge as it stands, under TEST-ONLY treatments of its condition only, or with the carriers on (${A02_CONDITION_RUNS.map((r) => r.id).join(', ')}): ${engineeringOnA02.length === 0 ? `none stops on engineering; each stops on Christian's knowledge or is the served diagnostic (${[...new Set(A02_CONDITION_RUNS.map((r) => r.cls))].join(', ')})` : `ENGINEERING OR UNCLASSIFIED STOPS REMAIN: ${engineeringOnA02.map((r) => `${r.id} ${r.cls}`).join('; ')}`}`)
+    // Stage B3: the PROPOSED configuration's runs, told apart from the runs of the knowledge as it stands.
+    const b3Rows = STOPS.rows.filter((r) => r.group === B3_GROUP)
+    out.push(`- the ${b3Rows.length} runs of the PROPOSED configuration (stage B3): ${b3Rows.filter((r) => openStop(r)).length ? `engineering stops on ${b3Rows.filter((r) => openStop(r)).map((r) => `${r.id} ${r.cls}`).join(', ')} (the lead's decision on the measured renderer changes, appendix F)` : 'no engineering stop'}; the others ${b3Rows.filter((r) => !openStop(r)).map((r) => `${r.id} ${r.cls}`).join(', ')}`)
     out.push('Development findings only: no stop here, and no run served, validates an activity ecologically.')
     out.push('')
     return out
@@ -1162,7 +1189,11 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'W4', means: 'stage W4 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 11 November 2026: ILLUSTRATIVE carriers (TEST-ONLY, never knowledge) for High Press Escape\'s origin and progression clauses and both third-clause alternatives, run by their own registered test; their stops are in appendix E (stage W6)' },
     { id: 'A02-IL-', family: true, means: 'a carrier run of stage W4 (TEST-ONLY), rebased in stage B1 on A02-0 with our CANDIDATE restatement: the progression clause carried by ILLUSTRATIVE carriers (A02-IL-2), or so under our DRAFT Laws reading (A02-IL-2L)' },
     { id: 'B1', means: 'stage B1 of the A02 complete-activity package (engineering Christian delegated, received 11 November 2026, second reply), built 12 November 2026: our CANDIDATE restatement of Christian\'s rulings received 12 November 2026, the PROPOSED configuration A02-HPE1, the carriers rebased' },
-    { id: 'A02-HPE1', means: 'the PROPOSED configuration of stage B1 for A02 (TEST-ONLY, never knowledge, for Christian\'s review): roles held for a block, an escape line realizing the pressing line, the escaping team\'s target beyond it, the pressing team\'s own PROPOSED scoring event; measured by its own registered test' },
+    // Stage B3, re-pinned openly: the entry ended 'measured by its own registered test'; the run is in appendix F since stage B3.
+    { id: 'A02-HPE1', means: 'the PROPOSED configuration of stage B1 for A02 (TEST-ONLY, never knowledge, for Christian\'s review): roles held for a block, an escape line realizing the pressing line, the escaping team\'s target beyond it, the pressing team\'s own PROPOSED scoring event; with stage B2\'s CANDIDATE wording and PROPOSED LAW-11 departure, the review-level run; measured by its own registered tests and in appendix F' },
+    { id: 'B2', means: 'stage B2 of the A02 complete-activity package (engineering Christian delegated, received 11 November 2026, second reply), built 12 November 2026: our CANDIDATE coach wording, the PROPOSED LAW-11 departure, the APPROVED / CANDIDATE / DRAFT markers and the review-level label' },
+    { id: 'B3', means: 'stage B3 of the A02 complete-activity package (engineering Christian delegated, received 11 November 2026, second reply), built 12 November 2026: the review-level activity in four parts, Christian\'s acceptance walkthrough read from the built game\'s structure, the rewordings and the safeguard check on the PROPOSED configuration\'s runs (appendix F)' },
+    { id: 'A02-GF2W', means: 'the walkthrough\'s negative control (stage B3): GF2 as A02-D builds it, without the PROPOSED configuration, our CANDIDATE wording printed beside its text, entering no structure' },
     { id: 'A02-12NOV-', family: true, means: 'a ruling of Christian\'s received 12 November 2026, quoted in appendix A (A02-12NOV-PRESSURE: the start under pressure; A02-12NOV-NEXT-ACTION: the next action)' },
     { id: 'GA-', family: true, means: 'a Gate A check of the derivation engine (GA-ONE-PRIMARY-EVENT: one primary scoring event; GA-REFERENCE-INTEGRITY: each reference names an element of the game; GA-RELATIVE-PLACEMENT: each relative position holds of the realized geometry)' },
     { id: 'A02-0+GPCL', family: true, means: 'A02-0 under the TEST-ONLY treatment GP_COVERAGE_LENSES (stage W1 (c1)); ~reversed, ~neutral: under a reworded goal' },
@@ -1254,6 +1285,8 @@ function identifiersOf(text: string): string[] {
 
 // Stage B1 (12 November 2026): the run order now holds the two PROPOSED A02-HPE1 runs, measured in a02-hpe1.unit.ts; this report and the
 // safeguards' runs stay on the five base runs until stage B3 adds the new runs and their appendix (the design's stage B3).
+// Stage B3: the PROPOSED configuration's runs (with the review-level run of stage B2) are built by a02-acceptance.unit.ts and reported in
+// appendix F (their stops in appendix E); appendix A, the safeguards' runs and the items' counts stay on the five base runs.
 const A02_RUN_IDS = (experiment.runOrder as string[]).filter((id) => S.BASE_IDS.includes(id))
 const reachedChain = S.EXPERIMENT_RUNS.filter((id) => S.at(id).run.chain !== null)
 const verdictOn = (row: string, verdict: string) => reachedChain.filter((id) => S.verdictOf(id, row) === verdict).length
@@ -1313,6 +1346,19 @@ const valuePathRefusals = (clause: string) => {
  * difference: their ownership row names every upstream result the chain can take, and a run where our record stood in reads K2_NOT_TAKEN.
  */
 const K2_NOT_TAKEN = 'Taken since stage W1 (b) (11 November 2026), our reading, put to Christian (item 5): on the experiment path the checked pathway takes the review pathway\'s proposal of no manipulation under K2 in place of a per-goal authorization record (REVIEW_PATHWAY_K2, the empty set only, K2\'s limit carried into the account); the safeguards\' ownership row now names every upstream result the chain can take, and the DRAFT-record comparison arm, where our TEST-ONLY record stands in for K2\'s result, reads K2_NOT_TAKEN (a detected disconnection, never a pass).'
+
+/**
+ * Stage B3 (12 November 2026), re-pinned openly: item 2's last sentence read 'Under the PROPOSED configuration A02-HPE1 (stage B1, TEST-ONLY,
+ * never knowledge; measured by its own registered test, not in this report) a game is realized in both role blocks and stops at
+ * communication.'; the runs are in appendix F now, and the sentence is built from them.
+ */
+function b3Sentence(): string {
+    const review = B3.get(REVIEW_RUN)!
+    const w = walkthroughOf(review)
+    const control = walkthroughOf(B3.get(GF2W)!)
+    const material = materialEffects(rewordingRows())
+    return `Under the PROPOSED configuration A02-HPE1 (stages B1 and B2, TEST-ONLY, never knowledge, for Christian's review; appendix F, stage B3) a game is realized in both role blocks, and the review-level run, our CANDIDATE wording said, is refused at ${review.answer.stage} on four limits of the production renderer, so it is printed as the draft an administrator sees, never as served; read from that game's structure, Christian's acceptance walkthrough finds ${w.count} of 4 questions established (the negative control A02-GF2W, plain GF2 with our wording beside it, ${control.count} of 4), and the two rewordings move ${material.length === 0 ? 'no knowledge-governed result' : `KNOWLEDGE-GOVERNED RESULTS: ${material.join('; ')}`}.`
+}
 
 function bodyLines(): string[] {
     const out: string[] = []
@@ -1392,7 +1438,7 @@ function bodyLines(): string[] {
         // Stage B1, re-pinned openly: the first sentence read 'stops at structure on two clauses of the approved scoring condition, which enter
         // derivation through our CANDIDATE restatement'; since stage B1 that restatement carries the origin and the control clauses (Christian's
         // rulings received 12 November 2026), and the stop is the progression clause's referent.
-        `Answer (OURS): partly. As the knowledge stands no game is built: ${A02_RUN_IDS[0]} stops at ${a0.refusal?.stage} on the progression clause's referent, the pressing line (open text), the origin and control clauses being carried by our CANDIDATE restatement of Christian's rulings received 12 November 2026. A game is built here only under labelled TEST-ONLY treatments of the condition (${builtRuns.join(', ')}); there the approved scoring events bound the event line, and the value within them is our realization choice, not knowledge. Nothing in such a game carries established pressure. Under the PROPOSED configuration A02-HPE1 (stage B1, TEST-ONLY, never knowledge; measured by its own registered test, not in this report) a game is realized in both role blocks and stops at communication.`,
+        `Answer (OURS): partly. As the knowledge stands no game is built: ${A02_RUN_IDS[0]} stops at ${a0.refusal?.stage} on the progression clause's referent, the pressing line (open text), the origin and control clauses being carried by our CANDIDATE restatement of Christian's rulings received 12 November 2026. A game is built here only under labelled TEST-ONLY treatments of the condition (${builtRuns.join(', ')}); there the approved scoring events bound the event line, and the value within them is our realization choice, not knowledge. Nothing in such a game carries established pressure. ${b3Sentence()}`,
     )
     add('Implemented and tested:')
     add(`- Our CANDIDATE restatement of RPC-002 in the TEST-ONLY draft store: ${a02Items.length} items, each quoting its approved row verbatim (the store's gate refuses a copy that does not); none of it is in production knowledge. Rows restated: ${[...new Set(a02Items.flatMap((i) => i.sources.map((s) => s.rowId)))].join(', ')}.`)
@@ -1632,11 +1678,24 @@ interface Evidence {
     report: string
     json: string
 }
-function evidenceOf(a02Results: HandoffResult[], ta02Results: HandoffResult[]): Evidence {
+/** Stage B3: the results of the stage-B3 runs (a02-acceptance.unit.ts), from the build `from` (the first or the second). */
+function b3Results(from: Map<string, B3Made>) {
+    const rows = rewordingRows(from)
+    return {
+        // The pending entries keep the guard's words, printed without a gendered pronoun (as the chain prints its own sentences).
+        runs: B3_RUN_IDS.map((id) => ({ id, outcome: from.get(id)!.answer.outcome, stage: from.get(id)!.answer.stage ?? null, treatments: from.get(id)!.result.testOnlyTreatments.map((t) => t.id), pendingApproval: (from.get(id)!.answer.reviewLevel?.pendingApproval ?? []).map((e) => ({ ...e, finding: withoutGenderedPronouns(e.finding) })) })),
+        walkthrough: walkthroughOf(from.get(REVIEW_RUN)!),
+        negativeControl: walkthroughOf(from.get(GF2W)!),
+        rewordings: { rows, materialEffects: materialEffects(rows) },
+        safeguards: SAFEGUARD_RUNS.map((id) => ({ id, findings: safeguardFindings(from.get(id)!) })),
+        // (The runs' full handoff results are printed in appendix F, F7, not serialized here.)
+    }
+}
+function evidenceOf(a02Results: HandoffResult[], ta02Results: HandoffResult[], b3: Map<string, B3Made> = B3): Evidence {
     const report = [
         ...bodyLines(),
         'APPENDIX A: THE A02 CASES IN DETAIL (the runs, what each refusal rests on, the restatement item by item, UNRESOLVED, the questions, the Essential Representative Relationships)',
-        // Stage B1: the base runs only (A02_RUN_IDS); the A02-HPE1 runs are stage B3's.
+        // Stage B1: the base runs only (A02_RUN_IDS); the A02-HPE1 runs are stage B3's (appendix F).
         ...foundationalTestText(a02Results, inputs, { ...experiment, runOrder: A02_RUN_IDS }, a02Items),
         'APPENDIX B: THE SAFEGUARDS IN DETAIL',
         ...S.reportLines(),
@@ -1646,6 +1705,8 @@ function evidenceOf(a02Results: HandoffResult[], ta02Results: HandoffResult[]): 
         handoffReportText([...a02Results, ...ta02Results], ta02Inputs, []),
         // Stage W6 (12 November 2026): every run's earliest stop, the carrier runs of stage W4 included.
         ...appendixE(),
+        // Stage B3 (12 November 2026): the complete-activity package's evidence, from the build handed in (the second generation rebuilds it).
+        ...appendixF(b3),
     ].join('\n')
     const results = {
         stage: 'DESIGN_REASONING_A02_FOUNDATIONAL_TEST',
@@ -1683,6 +1744,8 @@ function evidenceOf(a02Results: HandoffResult[], ta02Results: HandoffResult[]): 
         safeguardRuns: [...S.runs.values()].map((r) => ({ id: r.id, kind: r.kind, label: r.label, run: r.run, findings: r.findings })),
         a02Cases: a02Results,
         ta02Runs: ta02Results,
+        // Stage B3 (12 November 2026): the PROPOSED configuration's runs, the walkthrough, the rewordings and the safeguard check on them.
+        b3: b3Results(b3),
     }
     return { report: `${report}\n`, json: `${JSON.stringify(results, null, 1)}\n` }
 }
@@ -1980,15 +2043,20 @@ test(`W5 (A02 package, 12 November 2026). reuse after the merge of the program b
 // Stage B1, re-pinned openly: origin-and-control's 21 runs are pressing-line's, in the same order; control-referent's 4 are
 // laws-unclassified's; law-11 loses A02-IL-2L and coach-wording loses the retired carrier runs A02-IL-1, A02-IL-2 and A02-IL-2r; the rebased
 // A02-IL-2 and A02-IL-2L are carrier-placement's.
+// Stage B3, re-pinned openly (measured, scratchpad pkg3/B3): the six stage-B3 runs are added to the rows. law-11 gains A02-HPE1-L (was
+// A02-1b, A02-1b/draft-record); served-diagnostic gains A02-GF2W (was the seven above); the two new classes hold A02-HPE1-S
+// (proposed-awaiting-wording) and A02-HPE1 with its two rewordings (renderer-limits). No other class moves.
 const STOP_CLASS_RUNS: Record<string, string[]> = {
     'pressing-line': ['A02-0', 'A02-0/draft-record', 'S4-NP', 'S4-NP+WZA', 'S4-NP+WZA/no-bypass', 'L3', 'A02-0+GPCL', 'A02-0~reversed', 'S4-NP~reversed', 'S4-NP+WZA~reversed', 'L2~reversed', 'A02-0+GPCL~reversed', 'A02-0~neutral', 'S4-NP~neutral', 'S4-NP+WZA~neutral', 'L2~neutral', 'A02-0+GPCL~neutral', 'A02-0~pressure', 'L2~pressure', 'W-DROPS-UPSTREAM', 'TA02-0/swap'],
     'laws-unclassified': ['A02-1', 'A02-1/draft-record', 'A02-1~reversed', 'A02-1~neutral'],
     'carrier-placement': ['A02-IL-2', 'A02-IL-2L'],
     'ta02-origin': ['TA02-0', 'TA02-0+GPCL', 'A02-0/swap'],
     'example-made-required': ['TA02-0/pre-merge-class'],
-    'law-11': ['A02-1b', 'A02-1b/draft-record'],
+    'law-11': ['A02-1b', 'A02-1b/draft-record', 'A02-HPE1-L'],
     'coach-wording': ['A02-2', 'A02-2/draft-record', 'A02-2/CAR', 'A02-2~reversed', 'A02-2~neutral'],
-    'served-diagnostic': ['A02-D', 'A02-D/draft-record', 'S4-NP@A02-D', 'S4-NP+WZA@A02-D', 'TA02-D', 'A02-D/swap', 'TA02-D/swap'],
+    'proposed-awaiting-wording': ['A02-HPE1-S'],
+    'renderer-limits': ['A02-HPE1', 'A02-HPE1~reversed', 'A02-HPE1~neutral'],
+    'served-diagnostic': ['A02-D', 'A02-D/draft-record', 'S4-NP@A02-D', 'S4-NP+WZA@A02-D', 'TA02-D', 'A02-D/swap', 'TA02-D/swap', 'A02-GF2W'],
     'wording-flip': ['S4-NP+TR~reversed', 'S4-NP+TR~neutral'],
     'kept-check': ['S4-WZA', 'S4-TR', 'S4-CDC', 'S4-CDC+IR', 'S4-WZA~reversed', 'S4-TR~reversed', 'S4-CDC~reversed', 'S4-CDC+IR~reversed', 'S4-WZA~neutral', 'S4-TR~neutral', 'S4-CDC~neutral', 'S4-CDC+IR~neutral'],
     'member-presence': ['S4-NP+CDC', 'S4-NP+WZA+CDC'],
@@ -2008,7 +2076,8 @@ test('W6 (A02 package, 12 November 2026). every run\'s earliest stop (the safegu
     // Every run in exactly one class; every class used; one row per run.
     assert.deepEqual([STOPS.unclassified, STOPS.ambiguous, STOPS.unused], [[], [], []])
     assert.equal(new Set(STOPS.rows.map((r) => r.id)).size, STOPS.rows.length, 'one row per run')
-    assert.equal(STOPS.rows.length, S.runs.size + TA02_IDS.length + 2 + swapBuilt.size + CARRIER_RUN_IDS.length, 'every run of the four sources')
+    // Stage B3, re-pinned openly: a fifth source, the stage-B3 runs (was the four sources, without B3_RUN_IDS).
+    assert.equal(STOPS.rows.length, S.runs.size + TA02_IDS.length + 2 + swapBuilt.size + CARRIER_RUN_IDS.length + B3_RUN_IDS.length, 'every run of the five sources')
     // Each class's runs, pinned.
     assert.deepEqual(Object.fromEntries(STOP_CLASSES.map((c) => [c.id, runsOfClass(c.id).map((r) => r.id)])), STOP_CLASS_RUNS)
     // The earliest stop by arm.
@@ -2018,6 +2087,16 @@ test('W6 (A02 package, 12 November 2026). every run\'s earliest stop (the safegu
         // carrier runs coach-wording three times and law-11, then ta02-origin, served-diagnostic).
         ['pressing-line', 'pressing-line', 'laws-unclassified', 'law-11', 'coach-wording', 'served-diagnostic', 'carrier-placement', 'carrier-placement', 'ta02-origin', 'served-diagnostic'],
     )
+    // Stage B3: the earliest stop of each stage-B3 run (measured): the review-level run and its rewordings on the renderer's limits
+    // (engineering, the lead's decision), A02-HPE1-S awaiting approved wording, A02-HPE1-L on LAW-11, the negative control served.
+    assert.deepEqual(B3_RUN_IDS.map((id) => [id, clsOf(id)]), [
+        ['A02-HPE1', 'renderer-limits'],
+        ['A02-HPE1-S', 'proposed-awaiting-wording'],
+        ['A02-HPE1-L', 'law-11'],
+        ['A02-GF2W', 'served-diagnostic'],
+        ['A02-HPE1~reversed', 'renderer-limits'],
+        ['A02-HPE1~neutral', 'renderer-limits'],
+    ])
     // What item 2, item 5 and the A02-0 stop's why say of the carriers, held to the runs: each gets past structure and realization.
     for (const id of CARRIER_RUN_IDS) assert.ok(['validation', 'communication'].indexOf(String(carrierResult(id).chain?.stage)) >= 0, id)
     // Stage B1, re-pinned openly: the why named the W4 carriers of the origin clause (retired); it names the PROPOSED A02-HPE1 configuration.
@@ -2141,8 +2220,9 @@ test(`the report: the constraint selector disclosed first, each of its places he
         assert.ok(parts.every((p, m) => p > 0 && (m === 0 || p > parts[m - 1])), `${HEADINGS[n]}: its parts told apart, in order (${parts.join(', ')})`)
     })
     assert.ok(lines.some((l) => l.includes(cite('A02-10NOV-REPORT', 7))), 'the distinction Christian asked for is quoted')
-    // Stage W6: appendix E (every run's earliest stop) after appendix D.
-    const appendices = ['APPENDIX A:', 'APPENDIX B:', 'APPENDIX C:', 'APPENDIX D:', 'APPENDIX E:'].map(first)
+    // Stage W6: appendix E (every run's earliest stop) after appendix D. Stage B3, re-pinned openly: appendix F (the complete-activity
+    // package) after appendix E (was the five appendices A to E).
+    const appendices = ['APPENDIX A:', 'APPENDIX B:', 'APPENDIX C:', 'APPENDIX D:', 'APPENDIX E:', 'APPENDIX F:'].map(first)
     assert.ok(appendices.every((s, n) => s > starts[6] && (n === 0 || s > appendices[n - 1])), 'the appendices, in order, after the seven items')
     // Quotation marks: every double-quoted span (typographic ones read whole first) is, verbatim, words of a ruling the inputs hold.
     const words = new Set(inputs.rulings.flatMap((r) => r.words))
@@ -2186,9 +2266,11 @@ test('the evidence equals what this file generates, generated twice and identica
     const again = buildTa02()
     // Stage B1: the second build is held to the same runs as the first (A02_RUN_IDS, the base runs; the A02-HPE1 runs are stage B3's).
     const allAgain = runHandoffCases(inputs, realChain, committedKnowledge())
+    // Stage B3: the stage-B3 runs rebuilt too, so appendix F and the results' b3 come from a second build.
     const second = evidenceOf(
         A02_RUN_IDS.map((id) => allAgain.find((r) => r.caseId === id)!),
         TA02_IDS.map((id) => again.get(id)!.result),
+        buildB3(),
     )
     assert.equal(second.json, FIRST.json, 'two builds, identical results')
     assert.equal(second.report, FIRST.report, 'two builds, identical report')

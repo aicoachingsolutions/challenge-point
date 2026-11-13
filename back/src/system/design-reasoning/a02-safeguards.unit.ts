@@ -343,7 +343,7 @@ const WORDINGS: Record<string, () => Record<string, string>> = {
     pressure: () => ({ 'Learning Goal': 'Play Through Pressure', 'Coach Definition': 'Continue progressing in immediate pressure.' }),
 }
 const restores: string[] = []
-function reworded<T>(name: string, f: (kk: DesignKnowledge) => T): T {
+export function reworded<T>(name: string, f: (kk: DesignKnowledge) => T): T {
     const replacement = WORDINGS[name]()
     const kk = committedKnowledge()
     Object.assign(kk.planning.learning_goals.find((g) => cell(g, 'ID') === 'A02') as Record<string, unknown>, replacement)

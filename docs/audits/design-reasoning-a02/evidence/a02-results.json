@@ -1576,7 +1576,7 @@
      "A configuration or rendering implementation limitation."
     ],
     "owner": "ENGINEERING",
-    "whose": "a configuration limitation of our ILLUSTRATIVE carriers (TEST-ONLY, never knowledge), recorded in stage W4; the check is kept as it stands (never loosened) and its general treatment of a placement that holds of nothing is the lead's; A02-HPE1 states the escaping team's target beyond the line and passes it",
+    "whose": "a configuration limitation of our ILLUSTRATIVE carriers (TEST-ONLY, never knowledge), recorded in stage W4; the check is kept as it stands (never loosened) and its general treatment of a placement that holds of nothing is the lead's; superseded by A02-HPE1 (stage B1), which states the escaping team's target beyond the line and passes it",
     "runs": [
      "A02-IL-2",
      "A02-IL-2L"
@@ -1620,7 +1620,8 @@
     "whose": "question 3 of item 2: LAW-11 for A02; the refusal rests on our DRAFT materiality reading, not a classification of Christian's",
     "runs": [
      "A02-1b",
-     "A02-1b/draft-record"
+     "A02-1b/draft-record",
+     "A02-HPE1-L"
     ]
    },
    {
@@ -1641,6 +1642,33 @@
     ]
    },
    {
+    "id": "proposed-awaiting-wording",
+    "stop": "communication: in each role block of the PROPOSED configuration's realized game, the condition's fields await approved wording (the run carries none of our CANDIDATE wording), and fidelity finds the escape line set out by no sentence",
+    "categories": [
+     "Missing knowledge.",
+     "A configuration or rendering implementation limitation."
+    ],
+    "owner": "CHRISTIAN",
+    "whose": "approved coach wording for the condition (question 2 of item 2); the review-level run A02-HPE1 says the condition in our CANDIDATE wording, held for Christian's review; the escape line's sentence is the renderer limit of the class below",
+    "runs": [
+     "A02-HPE1-S"
+    ]
+   },
+   {
+    "id": "renderer-limits",
+    "stop": "communication: the review-level run passes structure, realization and validation, says the condition in our CANDIDATE wording, and is refused on four limits of the production renderer (the escape line never set out, the renderer reading the production register; the pressing team's sentence citing the first objective's role; no sentence saying what each team attacks for a zone beside a line; the pressing team's target named only in Role exchange)",
+    "categories": [
+     "A configuration or rendering implementation limitation."
+    ],
+    "owner": "ENGINEERING",
+    "whose": "three renderer changes, measured in stage B2 and not committed, serve the run with no fidelity violation and the behaviour snapshot unchanged: one TEST-ONLY, two on the production path (one adding a DRAFT sentence, which may be Christian's); whether to apply them is the lead's decision, Christian's for the sentence",
+    "runs": [
+     "A02-HPE1",
+     "A02-HPE1~reversed",
+     "A02-HPE1~neutral"
+    ]
+   },
+   {
     "id": "served-diagnostic",
     "stop": "served: every condition item withheld (TEST-ONLY)",
     "categories": [],
@@ -1653,7 +1681,8 @@
      "S4-NP+WZA@A02-D",
      "TA02-D",
      "A02-D/swap",
-     "TA02-D/swap"
+     "TA02-D/swap",
+     "A02-GF2W"
     ]
    },
    {
@@ -2632,6 +2661,62 @@
     ],
     "rules": [],
     "cls": "carrier-placement"
+   },
+   {
+    "id": "A02-HPE1",
+    "group": "PROPOSED configuration A02-HPE1, TEST-ONLY",
+    "stage": "communication",
+    "cited": [
+     "GF2-03.f::undefined"
+    ],
+    "rules": [],
+    "cls": "renderer-limits"
+   },
+   {
+    "id": "A02-HPE1-S",
+    "group": "PROPOSED configuration A02-HPE1, TEST-ONLY",
+    "stage": "communication",
+    "cited": [
+     "GF2-03.f::undefined"
+    ],
+    "rules": [],
+    "cls": "proposed-awaiting-wording"
+   },
+   {
+    "id": "A02-HPE1-L",
+    "group": "PROPOSED configuration A02-HPE1, TEST-ONLY",
+    "stage": "validation",
+    "cited": [],
+    "rules": [],
+    "cls": "law-11"
+   },
+   {
+    "id": "A02-GF2W",
+    "group": "PROPOSED configuration A02-HPE1, TEST-ONLY",
+    "stage": "served",
+    "cited": [],
+    "rules": [],
+    "cls": "served-diagnostic"
+   },
+   {
+    "id": "A02-HPE1~reversed",
+    "group": "PROPOSED configuration A02-HPE1, TEST-ONLY",
+    "stage": "communication",
+    "cited": [
+     "GF2-03.f::undefined"
+    ],
+    "rules": [],
+    "cls": "renderer-limits"
+   },
+   {
+    "id": "A02-HPE1~neutral",
+    "group": "PROPOSED configuration A02-HPE1, TEST-ONLY",
+    "stage": "communication",
+    "cited": [
+     "GF2-03.f::undefined"
+    ],
+    "rules": [],
+    "cls": "renderer-limits"
    }
   ]
  },
@@ -28398,5 +28483,1229 @@
     ]
    }
   }
- ]
+ ],
+ "b3": {
+  "runs": [
+   {
+    "id": "A02-HPE1",
+    "outcome": "refused",
+    "stage": "communication",
+    "treatments": [
+     "TT-CONSUMED-STEPS",
+     "TT-DRAFT-STORE",
+     "TT-K2-RETAIN-FORM",
+     "TT-PROPOSED-HPE1-LAWS",
+     "TT-PROPOSED-PENDING",
+     "TT-CANDIDATE-WORDING"
+    ],
+    "pendingApproval": [
+     {
+      "treatmentId": "TT-PROPOSED-PENDING",
+      "item": "proposed:A02-HPE1::A02-HPE1-B9-1",
+      "questionId": "Q2",
+      "finding": "the role PRESSING (c:proposed:A02-HPE1:A02-HPE1-B1-2) scores by its own event \"line_crossed\" on proposed:A02-HPE1::A02-HPE1-B9-1, whose basis is AUTHORED: the Representative Performance Context RPC-002 approves line_crossed, target_zone_entered, gate, target_player, so a role's own way to score stands only on [Christian's] explicit ruling (OWNER_RULING)",
+      "blocks": [
+       "ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END",
+       "ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "A02-HPE1-S",
+    "outcome": "refused",
+    "stage": "communication",
+    "treatments": [
+     "TT-CONSUMED-STEPS",
+     "TT-DRAFT-STORE",
+     "TT-K2-RETAIN-FORM",
+     "TT-LAW-11-STAND-IN",
+     "TT-PROPOSED-HPE1",
+     "TT-PROPOSED-PENDING"
+    ],
+    "pendingApproval": [
+     {
+      "treatmentId": "TT-PROPOSED-PENDING",
+      "item": "proposed:A02-HPE1::A02-HPE1-B9-1",
+      "questionId": "Q2",
+      "finding": "the role PRESSING (c:proposed:A02-HPE1:A02-HPE1-B1-2) scores by its own event \"line_crossed\" on proposed:A02-HPE1::A02-HPE1-B9-1, whose basis is AUTHORED: the Representative Performance Context RPC-002 approves line_crossed, target_zone_entered, gate, target_player, so a role's own way to score stands only on [Christian's] explicit ruling (OWNER_RULING)",
+      "blocks": [
+       "ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END",
+       "ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "A02-HPE1-L",
+    "outcome": "refused",
+    "stage": "validation",
+    "treatments": [
+     "TT-CONSUMED-STEPS",
+     "TT-DRAFT-STORE",
+     "TT-K2-RETAIN-FORM",
+     "TT-LAWS-DRAFT",
+     "TT-PROPOSED-HPE1",
+     "TT-PROPOSED-PENDING"
+    ],
+    "pendingApproval": [
+     {
+      "treatmentId": "TT-PROPOSED-PENDING",
+      "item": "proposed:A02-HPE1::A02-HPE1-B9-1",
+      "questionId": "Q2",
+      "finding": "the role PRESSING (c:proposed:A02-HPE1:A02-HPE1-B1-2) scores by its own event \"line_crossed\" on proposed:A02-HPE1::A02-HPE1-B9-1, whose basis is AUTHORED: the Representative Performance Context RPC-002 approves line_crossed, target_zone_entered, gate, target_player, so a role's own way to score stands only on [Christian's] explicit ruling (OWNER_RULING)",
+      "blocks": [
+       "ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END",
+       "ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "A02-GF2W",
+    "outcome": "served",
+    "stage": null,
+    "treatments": [
+     "TT-CONSUMED-STEPS",
+     "TT-DRAFT-STORE",
+     "TT-K2-RETAIN-FORM",
+     "TT-WITHHOLD-CONDITION",
+     "TT-LAW-11-STAND-IN"
+    ],
+    "pendingApproval": []
+   },
+   {
+    "id": "A02-HPE1~reversed",
+    "outcome": "refused",
+    "stage": "communication",
+    "treatments": [
+     "TT-CONSUMED-STEPS",
+     "TT-DRAFT-STORE",
+     "TT-K2-RETAIN-FORM",
+     "TT-PROPOSED-HPE1-LAWS",
+     "TT-PROPOSED-PENDING",
+     "TT-CANDIDATE-WORDING"
+    ],
+    "pendingApproval": [
+     {
+      "treatmentId": "TT-PROPOSED-PENDING",
+      "item": "proposed:A02-HPE1::A02-HPE1-B9-1",
+      "questionId": "Q2",
+      "finding": "the role PRESSING (c:proposed:A02-HPE1:A02-HPE1-B1-2) scores by its own event \"line_crossed\" on proposed:A02-HPE1::A02-HPE1-B9-1, whose basis is AUTHORED: the Representative Performance Context RPC-002 approves line_crossed, target_zone_entered, gate, target_player, so a role's own way to score stands only on [Christian's] explicit ruling (OWNER_RULING)",
+      "blocks": [
+       "ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END",
+       "ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "A02-HPE1~neutral",
+    "outcome": "refused",
+    "stage": "communication",
+    "treatments": [
+     "TT-CONSUMED-STEPS",
+     "TT-DRAFT-STORE",
+     "TT-K2-RETAIN-FORM",
+     "TT-PROPOSED-HPE1-LAWS",
+     "TT-PROPOSED-PENDING",
+     "TT-CANDIDATE-WORDING"
+    ],
+    "pendingApproval": [
+     {
+      "treatmentId": "TT-PROPOSED-PENDING",
+      "item": "proposed:A02-HPE1::A02-HPE1-B9-1",
+      "questionId": "Q2",
+      "finding": "the role PRESSING (c:proposed:A02-HPE1:A02-HPE1-B1-2) scores by its own event \"line_crossed\" on proposed:A02-HPE1::A02-HPE1-B9-1, whose basis is AUTHORED: the Representative Performance Context RPC-002 approves line_crossed, target_zone_entered, gate, target_player, so a role's own way to score stands only on [Christian's] explicit ruling (OWNER_RULING)",
+      "blocks": [
+       "ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END",
+       "ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START"
+      ]
+     }
+    ]
+   }
+  ],
+  "walkthrough": {
+   "runId": "A02-HPE1",
+   "answers": [
+    {
+     "n": 1,
+     "question": "where coordinated pressure comes from",
+     "facts": [
+      {
+       "id": "1a",
+       "what": "one team presses for the whole block: a role held until the coach calls the exchange, the other team holding the other role",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: the pressing role is held by TEAM_AT_AXIS_END, the escaping role by TEAM_AT_AXIS_START, exchanged when the coach calls it",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: the pressing role is held by TEAM_AT_AXIS_START, the escaping role by TEAM_AT_AXIS_END, exchanged when the coach calls it"
+       ],
+       "cites": [
+        "activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-2].activityRole [PROPOSED]",
+        "activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-2].exchange [PROPOSED]"
+       ]
+      },
+      {
+       "id": "1b",
+       "what": "the pressing team scores only by its own event, over the line at the end the escaping team defends, with the ball: so a regain near that end is its shortest route to a point",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: its event line_crossed (an approved event of the context), its target the line at 0 m, the end the escaping team defends",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: its event line_crossed (an approved event of the context), its target the line at 40 m, the end the escaping team defends"
+       ],
+       "cites": [
+        "activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-2].scoresBy [PROPOSED]",
+        "objectives[c:restated:GF2:GF2-08.e].reference [RULING (Christian's, recorded on the knowledge item)]",
+        "space.regions[c:restated:GF2:GF2-03.e].noun [PROPOSED]",
+        "space.regions[c:restated:GF2:GF2-03.e].position.along [CANDIDATE (our restatement of the knowledge workbooks)]",
+        "objectives[c:restated:GF2:GF2-08.c].reference [RULING (Christian's, recorded on the knowledge item)]",
+        "space.regions[c:restated:GF2:GF2-03.f].noun [PROPOSED]",
+        "space.regions[c:restated:GF2:GF2-03.f].position.along [CANDIDATE (our restatement of the knowledge workbooks) + PROPOSED]"
+       ]
+      },
+      {
+       "id": "1c",
+       "what": "play continues on every change of possession: a regain is at once a chance to score, and the team that lost the ball is next to its own end line",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: on a change of possession play continues (no stoppage, no restart)",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: on a change of possession play continues (no stoppage, no restart)"
+       ],
+       "cites": [
+        "transitions[c:restated:GF2:GF2-07.a].playState [CANDIDATE (our restatement of the knowledge workbooks)]"
+       ]
+      },
+      {
+       "id": "1d",
+       "what": "the two teams' targets differ: the pressing team's is the escaping team's end line, the escaping team's a region beyond the marked line (an asymmetric game, not two mirrored attacks)",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: the escaping team attacks a zone, the pressing team a line",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: the escaping team attacks a zone, the pressing team a line"
+       ],
+       "cites": [
+        "space.regions[c:restated:GF2:GF2-03.f].noun [PROPOSED]",
+        "space.regions[c:restated:GF2:GF2-03.e].noun [PROPOSED]"
+       ]
+      }
+     ],
+     "established": true
+    },
+    {
+     "n": 2,
+     "question": "how players encounter information about that pressure",
+     "facts": [
+      {
+       "id": "2a",
+       "what": "every player plays live, in equal numbers: two teams of equal outfield count, no goalkeeper, no neutral player, no player limited in what may be done",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: teams 6 v 6",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: teams 6 v 6"
+       ],
+       "cites": [
+        "performers.teams[c:restated:GF2:GF2-14.a#1].outfieldCount [CANDIDATE (our restatement of the knowledge workbooks) + ILLUSTRATIVE (session value)]",
+        "performers.teams[c:restated:GF2:GF2-14.a#2].outfieldCount [CANDIDATE (our restatement of the knowledge workbooks) + ILLUSTRATIVE (session value)]"
+       ]
+      },
+      {
+       "id": "2b",
+       "what": "a marked line across the full width, near the escaping team's own end, which the PROPOSED item names a perceptual reference (its selector; the realized functions field itself holds no value, not constrained): the place where the press has to be beaten is visible",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: the line at 12 m (the escaping team's end at 0 m), across {from: 0, to: 30}, a perceptual reference",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: the line at 28 m (the escaping team's end at 40 m), across {from: 0, to: 30}, a perceptual reference"
+       ],
+       "cites": [
+        "space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].noun [PROPOSED]",
+        "space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along [ILLUSTRATIVE]",
+        "space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across [PROPOSED]",
+        "space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].functions [NOT_ESTABLISHED]"
+       ]
+      },
+      {
+       "id": "2c",
+       "what": "no element tells either team how to press or how to escape: no constraint or manipulation is applied (the review pathway's K2 result, the empty set) and the game holds no element of another kind (no restriction, no zone with an access rule)",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: constraints [] under REVIEW_PATHWAY_K2; element kinds outside the known set: none",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: constraints [] under REVIEW_PATHWAY_K2; element kinds outside the known set: none"
+       ],
+       "cites": []
+      }
+     ],
+     "established": true
+    },
+    {
+     "n": 3,
+     "question": "what genuine escape opportunities exist",
+     "facts": [
+      {
+       "id": "3a",
+       "what": "the escaping team's target is the whole region beyond the marked line, to the far end line",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: the escaping team's target: the zone over {from: 12, to: 40}; the line at 12, the far end line at 40 m",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: the escaping team's target: the zone over {from: 0, to: 28}; the line at 28, the far end line at 0 m"
+       ],
+       "cites": [
+        "objectives[c:restated:GF2:GF2-08.c].reference [RULING (Christian's, recorded on the knowledge item)]",
+        "space.regions[c:restated:GF2:GF2-03.f].noun [PROPOSED]",
+        "space.regions[c:restated:GF2:GF2-03.f].position.along [CANDIDATE (our restatement of the knowledge workbooks) + PROPOSED]",
+        "objectives[c:restated:GF2:GF2-08.e].reference [RULING (Christian's, recorded on the knowledge item)]",
+        "space.regions[c:restated:GF2:GF2-03.e].noun [PROPOSED]",
+        "space.regions[c:restated:GF2:GF2-03.e].position.along [CANDIDATE (our restatement of the knowledge workbooks)]"
+       ]
+      },
+      {
+       "id": "3b",
+       "what": "the line and the target run the full width: escape is possible anywhere across the area",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: the line across {from: 0, to: 30}, the target across {from: 0, to: 30}",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: the line across {from: 0, to: 30}, the target across {from: 0, to: 30}"
+       ],
+       "cites": [
+        "space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across [PROPOSED]",
+        "space.regions[c:restated:GF2:GF2-03.f].position.across [OURS (the one value a bound assumed in our restatement admits)]",
+        "space.regions[c:restated:GF2:GF2-03.e].position.across [OURS (the one value a bound assumed in our restatement admits)]"
+       ]
+      },
+      {
+       "id": "3c",
+       "what": "the escaping team's scoring event is one of the context's approved scoring events (RPC-002), and enters the region beyond the line (target_zone_entered: the event's meaning, a dribble in or a controlled reception there, is said by our restatement and the renderer, not read here)",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: the primary event target_zone_entered (approved for RPC-002), scored by the escaping team",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: the primary event target_zone_entered (approved for RPC-002), scored by the escaping team"
+       ],
+       "cites": [
+        "value.primaryEvent.kind [PROPOSED]"
+       ]
+      },
+      {
+       "id": "3d",
+       "what": "no element removes a passing or dribbling option: the form's own exclusion of rules removing passing options (GF2-22) is among the knowledge the chain derived from, and no constraint or element of another kind is applied",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: GF2-22 derived from; constraints []; other element kinds: none",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: GF2-22 derived from; constraints []; other element kinds: none"
+       ],
+       "cites": []
+      }
+     ],
+     "established": true
+    },
+    {
+     "n": 4,
+     "question": "how the game's consequences make successful solutions meaningful",
+     "facts": [
+      {
+       "id": "4a",
+       "what": "the escaping team scores only from an attack that began against coordinated pressure, and only beyond the marked line (the conditions on its event, the whole game)",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: origin 'established coordinated pressure', progression 'beyond' the line",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: origin 'established coordinated pressure', progression 'beyond' the line"
+       ],
+       "cites": [
+        "value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value [CANDIDATE (our restatement)]",
+        "value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].referents [CANDIDATE (our restatement)]",
+        "value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].value [CANDIDATE (our restatement)]"
+       ]
+      },
+      {
+       "id": "4b",
+       "what": "and only if it keeps the ball through its next action: a ball merely cleared or played into the region and lost scores nothing",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: control 'retains possession through the next action'",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: control 'retains possession through the next action'"
+       ],
+       "cites": [
+        "value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value [CANDIDATE (our restatement)]"
+       ]
+      },
+      {
+       "id": "4c",
+       "what": "losing the ball exposes the escaping team's own end line to the pressing team's score at once (the pressing team's target at that end, and play continuing on the change of possession)",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: read from 1b and 1c",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: read from 1b and 1c"
+       ],
+       "cites": []
+      },
+      {
+       "id": "4d",
+       "what": "the pressing team's own success is meaningful only as a regain carried over the escaping team's end line: its own event, which takes none of the escaping team's conditions",
+       "holds": true,
+       "evidence": [
+        "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: the pressing role scores by its own line_crossed, so the conditions on the primary event do not bind it",
+        "block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: the pressing role scores by its own line_crossed, so the conditions on the primary event do not bind it"
+       ],
+       "cites": [
+        "activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-2].scoresBy [PROPOSED]"
+       ]
+      }
+     ],
+     "established": true
+    }
+   ],
+   "count": 4
+  },
+  "negativeControl": {
+   "runId": "A02-GF2W",
+   "answers": [
+    {
+     "n": 1,
+     "question": "where coordinated pressure comes from",
+     "facts": [
+      {
+       "id": "1a",
+       "what": "one team presses for the whole block: a role held until the coach calls the exchange, the other team holding the other role",
+       "holds": false,
+       "evidence": [
+        "the one game: DOES NOT HOLD: no team holds a pressing role"
+       ],
+       "cites": []
+      },
+      {
+       "id": "1b",
+       "what": "the pressing team scores only by its own event, over the line at the end the escaping team defends, with the ball: so a regain near that end is its shortest route to a point",
+       "holds": false,
+       "evidence": [
+        "the one game: DOES NOT HOLD: the pressing team's score: event none of its own, target none at none"
+       ],
+       "cites": []
+      },
+      {
+       "id": "1c",
+       "what": "play continues on every change of possession: a regain is at once a chance to score, and the team that lost the ball is next to its own end line",
+       "holds": true,
+       "evidence": [
+        "the one game: on a change of possession play continues (no stoppage, no restart)"
+       ],
+       "cites": [
+        "transitions[c:restated:GF2:GF2-07.a].playState [CANDIDATE (our restatement of the knowledge workbooks)]"
+       ]
+      },
+      {
+       "id": "1d",
+       "what": "the two teams' targets differ: the pressing team's is the escaping team's end line, the escaping team's a region beyond the marked line (an asymmetric game, not two mirrored attacks)",
+       "holds": false,
+       "evidence": [
+        "the one game: DOES NOT HOLD: no two role targets that differ"
+       ],
+       "cites": []
+      }
+     ],
+     "established": false
+    },
+    {
+     "n": 2,
+     "question": "how players encounter information about that pressure",
+     "facts": [
+      {
+       "id": "2a",
+       "what": "every player plays live, in equal numbers: two teams of equal outfield count, no goalkeeper, no neutral player, no player limited in what may be done",
+       "holds": true,
+       "evidence": [
+        "the one game: teams 6 v 6"
+       ],
+       "cites": [
+        "performers.teams[c:restated:GF2:GF2-14.a#1].outfieldCount [CANDIDATE (our restatement of the knowledge workbooks) + ILLUSTRATIVE (session value)]",
+        "performers.teams[c:restated:GF2:GF2-14.a#2].outfieldCount [CANDIDATE (our restatement of the knowledge workbooks) + ILLUSTRATIVE (session value)]"
+       ]
+      },
+      {
+       "id": "2b",
+       "what": "a marked line across the full width, near the escaping team's own end, which the PROPOSED item names a perceptual reference (its selector; the realized functions field itself holds no value, not constrained): the place where the press has to be beaten is visible",
+       "holds": false,
+       "evidence": [
+        "the one game: DOES NOT HOLD: no marked line the condition is stated beyond"
+       ],
+       "cites": []
+      },
+      {
+       "id": "2c",
+       "what": "no element tells either team how to press or how to escape: no constraint or manipulation is applied (the review pathway's K2 result, the empty set) and the game holds no element of another kind (no restriction, no zone with an access rule)",
+       "holds": true,
+       "evidence": [
+        "the one game: constraints [] under REVIEW_PATHWAY_K2; element kinds outside the known set: none"
+       ],
+       "cites": []
+      }
+     ],
+     "established": false
+    },
+    {
+     "n": 3,
+     "question": "what genuine escape opportunities exist",
+     "facts": [
+      {
+       "id": "3a",
+       "what": "the escaping team's target is the whole region beyond the marked line, to the far end line",
+       "holds": false,
+       "evidence": [
+        "the one game: DOES NOT HOLD: no team holds the escaping role, so no escape target"
+       ],
+       "cites": []
+      },
+      {
+       "id": "3b",
+       "what": "the line and the target run the full width: escape is possible anywhere across the area",
+       "holds": false,
+       "evidence": [
+        "the one game: DOES NOT HOLD: the line across none, the target across none"
+       ],
+       "cites": []
+      },
+      {
+       "id": "3c",
+       "what": "the escaping team's scoring event is one of the context's approved scoring events (RPC-002), and enters the region beyond the line (target_zone_entered: the event's meaning, a dribble in or a controlled reception there, is said by our restatement and the renderer, not read here)",
+       "holds": false,
+       "evidence": [
+        "the one game: DOES NOT HOLD: the primary event line_crossed (approved for RPC-002), no escaping team"
+       ],
+       "cites": [
+        "value.primaryEvent.kind [OURS]"
+       ]
+      },
+      {
+       "id": "3d",
+       "what": "no element removes a passing or dribbling option: the form's own exclusion of rules removing passing options (GF2-22) is among the knowledge the chain derived from, and no constraint or element of another kind is applied",
+       "holds": true,
+       "evidence": [
+        "the one game: GF2-22 derived from; constraints []; other element kinds: none"
+       ],
+       "cites": []
+      }
+     ],
+     "established": false
+    },
+    {
+     "n": 4,
+     "question": "how the game's consequences make successful solutions meaningful",
+     "facts": [
+      {
+       "id": "4a",
+       "what": "the escaping team scores only from an attack that began against coordinated pressure, and only beyond the marked line (the conditions on its event, the whole game)",
+       "holds": false,
+       "evidence": [
+        "the one game: DOES NOT HOLD: no condition on the scoring event"
+       ],
+       "cites": []
+      },
+      {
+       "id": "4b",
+       "what": "and only if it keeps the ball through its next action: a ball merely cleared or played into the region and lost scores nothing",
+       "holds": false,
+       "evidence": [
+        "the one game: DOES NOT HOLD: no control condition"
+       ],
+       "cites": []
+      },
+      {
+       "id": "4c",
+       "what": "losing the ball exposes the escaping team's own end line to the pressing team's score at once (the pressing team's target at that end, and play continuing on the change of possession)",
+       "holds": false,
+       "evidence": [
+        "the one game: DOES NOT HOLD: the pressing team has no target at the escaping team's end, or play does not continue"
+       ],
+       "cites": []
+      },
+      {
+       "id": "4d",
+       "what": "the pressing team's own success is meaningful only as a regain carried over the escaping team's end line: its own event, which takes none of the escaping team's conditions",
+       "holds": false,
+       "evidence": [
+        "the one game: DOES NOT HOLD: the pressing team has no event of its own"
+       ],
+       "cites": []
+      }
+     ],
+     "established": false
+    }
+   ],
+   "count": 0
+  },
+  "rewordings": {
+   "rows": [
+    {
+     "facet": "routed context (Step 1)",
+     "governed": true,
+     "own": "RPC-002",
+     "reworded": {
+      "reversed": "RPC-002",
+      "neutral": "RPC-002"
+     },
+     "moves": []
+    },
+    {
+     "facet": "the context in the chain's account",
+     "governed": true,
+     "own": "RPC-002",
+     "reworded": {
+      "reversed": "RPC-002",
+      "neutral": "RPC-002"
+     },
+     "moves": []
+    },
+    {
+     "facet": "Game Problem (Step 1)",
+     "governed": true,
+     "own": [
+      "GP-015"
+     ],
+     "reworded": {
+      "reversed": [
+       "GP-015"
+      ],
+      "neutral": [
+       "GP-015"
+      ]
+     },
+     "moves": []
+    },
+    {
+     "facet": "Game Form (consumed)",
+     "governed": true,
+     "own": "GF2",
+     "reworded": {
+      "reversed": "GF2",
+      "neutral": "GF2"
+     },
+     "moves": []
+    },
+    {
+     "facet": "constraint set and its authority",
+     "governed": true,
+     "own": [
+      [],
+      "REVIEW_PATHWAY_K2"
+     ],
+     "reworded": {
+      "reversed": [
+       [],
+       "REVIEW_PATHWAY_K2"
+      ],
+      "neutral": [
+       [],
+       "REVIEW_PATHWAY_K2"
+      ]
+     },
+     "moves": []
+    },
+    {
+     "facet": "each block's realized game (sha-256)",
+     "governed": true,
+     "own": [
+      "f350bb6c296c",
+      "b954e7a5a7e7"
+     ],
+     "reworded": {
+      "reversed": [
+       "f350bb6c296c",
+       "b954e7a5a7e7"
+      ],
+      "neutral": [
+       "f350bb6c296c",
+       "b954e7a5a7e7"
+      ]
+     },
+     "moves": []
+    },
+    {
+     "facet": "the configuration lines (sha-256)",
+     "governed": true,
+     "own": "76d38991c705",
+     "reworded": {
+      "reversed": "76d38991c705",
+      "neutral": "76d38991c705"
+     },
+     "moves": []
+    },
+    {
+     "facet": "the stop",
+     "governed": true,
+     "own": [
+      "refused",
+      "communication",
+      "43c95f1a4ef5"
+     ],
+     "reworded": {
+      "reversed": [
+       "refused",
+       "communication",
+       "43c95f1a4ef5"
+      ],
+      "neutral": [
+       "refused",
+       "communication",
+       "43c95f1a4ef5"
+      ]
+     },
+     "moves": []
+    },
+    {
+     "facet": "every sentence said (sha-256 of section, block, text, marker)",
+     "governed": true,
+     "own": "1759bffda681",
+     "reworded": {
+      "reversed": "1759bffda681",
+      "neutral": "1759bffda681"
+     },
+     "moves": []
+    },
+    {
+     "facet": "the pending entries",
+     "governed": true,
+     "own": [
+      [
+       "proposed:A02-HPE1::A02-HPE1-B9-1",
+       "Q2"
+      ]
+     ],
+     "reworded": {
+      "reversed": [
+       [
+        "proposed:A02-HPE1::A02-HPE1-B9-1",
+        "Q2"
+       ]
+      ],
+      "neutral": [
+       [
+        "proposed:A02-HPE1::A02-HPE1-B9-1",
+        "Q2"
+       ]
+      ]
+     },
+     "moves": []
+    },
+    {
+     "facet": "engine lenses committed (ENGINE_LENS, report only)",
+     "governed": false,
+     "own": [
+      "tl-v0-lens-possession-stability-opportunity",
+      "tl-v0-lens-space-creation-opportunity",
+      "tl-v0-lens-regain-opportunity"
+     ],
+     "reworded": {
+      "reversed": [
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ],
+      "neutral": [
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity"
+      ]
+     },
+     "moves": [
+      "reversed",
+      "neutral"
+     ]
+    },
+    {
+     "facet": "engine lens candidates (ENGINE_LENS, report only)",
+     "governed": false,
+     "own": [
+      "tl-v0-lens-possession-stability-opportunity",
+      "tl-v0-lens-regain-opportunity",
+      "tl-v0-lens-space-creation-opportunity"
+     ],
+     "reworded": {
+      "reversed": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ],
+      "neutral": [
+       "tl-v0-lens-possession-stability-opportunity",
+       "tl-v0-lens-space-creation-opportunity",
+       "tl-v0-lens-space-exploitation-opportunity",
+       "tl-v0-lens-line-breaking-opportunity",
+       "tl-v0-lens-regain-opportunity"
+      ]
+     },
+     "moves": [
+      "reversed",
+      "neutral"
+     ]
+    }
+   ],
+   "materialEffects": []
+  },
+  "safeguards": [
+   {
+    "id": "A02-HPE1",
+    "findings": [
+     {
+      "runId": "A02-HPE1",
+      "row": "GAME_PROBLEM",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+     },
+     {
+      "runId": "A02-HPE1",
+      "row": "GAME_PROBLEM_HINTS",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+      "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+     },
+     {
+      "runId": "A02-HPE1",
+      "row": "CONTEXT",
+      "clause": null,
+      "verdict": "AGREES_INDEPENDENTLY",
+      "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1",
+      "row": "GAME_FORM",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+      "consulted": "the chain's own pick: GF2"
+     },
+     {
+      "runId": "A02-HPE1",
+      "row": "CONSTRAINTS",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1",
+      "row": "SELECTION_OUTCOME",
+      "clause": null,
+      "verdict": "LEGITIMATE_CHAIN_DECISION",
+      "why": "the selection committed; the chain's own checks then stopped the run at communication",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1",
+      "row": "SCORING",
+      "clause": "origin",
+      "verdict": "CARRIED",
+      "why": "RPC-002-02.a, RPC-002-02.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-02.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1",
+      "row": "SCORING",
+      "clause": "progression",
+      "verdict": "CARRIED",
+      "why": "RPC-002-03.a, A02-HPE1-03.b, RPC-002-03.c entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1",
+      "row": "SCORING",
+      "clause": "control",
+      "verdict": "CARRIED",
+      "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-04.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1",
+      "row": "SCORING_DISPLAY",
+      "clause": null,
+      "verdict": "CARRIED",
+      "why": "every clause carried, and the account says so",
+      "consulted": "the requirement account's state NOT_CLASSIFIED (a limitation: no requirement bindings for RPC-PROP-133; never a pass)"
+     },
+     {
+      "runId": "A02-HPE1",
+      "row": "REALIZATION",
+      "clause": null,
+      "verdict": "LEGITIMATE_CHAIN_DECISION",
+      "why": "the chain closed the open lines within their authored bounds (each line graded by the handoff)",
+      "consulted": null
+     }
+    ]
+   },
+   {
+    "id": "A02-HPE1-S",
+    "findings": [
+     {
+      "runId": "A02-HPE1-S",
+      "row": "GAME_PROBLEM",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+     },
+     {
+      "runId": "A02-HPE1-S",
+      "row": "GAME_PROBLEM_HINTS",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+      "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+     },
+     {
+      "runId": "A02-HPE1-S",
+      "row": "CONTEXT",
+      "clause": null,
+      "verdict": "AGREES_INDEPENDENTLY",
+      "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1-S",
+      "row": "GAME_FORM",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+      "consulted": "the chain's own pick: GF2"
+     },
+     {
+      "runId": "A02-HPE1-S",
+      "row": "CONSTRAINTS",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1-S",
+      "row": "SELECTION_OUTCOME",
+      "clause": null,
+      "verdict": "LEGITIMATE_CHAIN_DECISION",
+      "why": "the selection committed; the chain's own checks then stopped the run at communication",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1-S",
+      "row": "SCORING",
+      "clause": "origin",
+      "verdict": "CARRIED",
+      "why": "RPC-002-02.a, RPC-002-02.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-02.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1-S",
+      "row": "SCORING",
+      "clause": "progression",
+      "verdict": "CARRIED",
+      "why": "RPC-002-03.a, A02-HPE1-03.b, RPC-002-03.c entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1-S",
+      "row": "SCORING",
+      "clause": "control",
+      "verdict": "CARRIED",
+      "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-04.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1-S",
+      "row": "SCORING_DISPLAY",
+      "clause": null,
+      "verdict": "CARRIED",
+      "why": "every clause carried, and the account says so",
+      "consulted": "the requirement account's state NOT_CLASSIFIED (a limitation: no requirement bindings for RPC-PROP-133; never a pass)"
+     },
+     {
+      "runId": "A02-HPE1-S",
+      "row": "REALIZATION",
+      "clause": null,
+      "verdict": "LEGITIMATE_CHAIN_DECISION",
+      "why": "the chain closed the open lines within their authored bounds (each line graded by the handoff)",
+      "consulted": null
+     }
+    ]
+   },
+   {
+    "id": "A02-HPE1-L",
+    "findings": [
+     {
+      "runId": "A02-HPE1-L",
+      "row": "GAME_PROBLEM",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+     },
+     {
+      "runId": "A02-HPE1-L",
+      "row": "GAME_PROBLEM_HINTS",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-regain-opportunity, tl-v0-lens-space-creation-opportunity; matched signals: signalGroup:B_pressure, unresolvedLensTitle:Support Angle Opportunity, unresolvedConstraintTitle:Pressure Condition)",
+      "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+     },
+     {
+      "runId": "A02-HPE1-L",
+      "row": "CONTEXT",
+      "clause": null,
+      "verdict": "AGREES_INDEPENDENTLY",
+      "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1-L",
+      "row": "GAME_FORM",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+      "consulted": "the chain's own pick: GF2"
+     },
+     {
+      "runId": "A02-HPE1-L",
+      "row": "CONSTRAINTS",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1-L",
+      "row": "SELECTION_OUTCOME",
+      "clause": null,
+      "verdict": "LEGITIMATE_CHAIN_DECISION",
+      "why": "the selection committed; the chain's own checks then stopped the run at validation",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1-L",
+      "row": "SCORING",
+      "clause": "origin",
+      "verdict": "CARRIED",
+      "why": "RPC-002-02.a, RPC-002-02.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-02.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1-L",
+      "row": "SCORING",
+      "clause": "progression",
+      "verdict": "CARRIED",
+      "why": "RPC-002-03.a, A02-HPE1-03.b, RPC-002-03.c entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1-L",
+      "row": "SCORING",
+      "clause": "control",
+      "verdict": "CARRIED",
+      "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-04.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1-L",
+      "row": "SCORING_DISPLAY",
+      "clause": null,
+      "verdict": "CARRIED",
+      "why": "every clause carried, and the account says so",
+      "consulted": "the requirement account's state NOT_CLASSIFIED (a limitation: no requirement bindings for RPC-PROP-133; never a pass)"
+     },
+     {
+      "runId": "A02-HPE1-L",
+      "row": "REALIZATION",
+      "clause": null,
+      "verdict": "LEGITIMATE_CHAIN_DECISION",
+      "why": "the chain closed the open lines within their authored bounds (each line graded by the handoff)",
+      "consulted": null
+     }
+    ]
+   },
+   {
+    "id": "A02-HPE1~reversed",
+    "findings": [
+     {
+      "runId": "A02-HPE1~reversed",
+      "row": "GAME_PROBLEM",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+     },
+     {
+      "runId": "A02-HPE1~reversed",
+      "row": "GAME_PROBLEM_HINTS",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+      "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+     },
+     {
+      "runId": "A02-HPE1~reversed",
+      "row": "CONTEXT",
+      "clause": null,
+      "verdict": "AGREES_INDEPENDENTLY",
+      "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1~reversed",
+      "row": "GAME_FORM",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+      "consulted": "the chain's own pick: GF2"
+     },
+     {
+      "runId": "A02-HPE1~reversed",
+      "row": "CONSTRAINTS",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1~reversed",
+      "row": "SELECTION_OUTCOME",
+      "clause": null,
+      "verdict": "LEGITIMATE_CHAIN_DECISION",
+      "why": "the selection committed; the chain's own checks then stopped the run at communication",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1~reversed",
+      "row": "SCORING",
+      "clause": "origin",
+      "verdict": "CARRIED",
+      "why": "RPC-002-02.a, RPC-002-02.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-02.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1~reversed",
+      "row": "SCORING",
+      "clause": "progression",
+      "verdict": "CARRIED",
+      "why": "RPC-002-03.a, A02-HPE1-03.b, RPC-002-03.c entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1~reversed",
+      "row": "SCORING",
+      "clause": "control",
+      "verdict": "CARRIED",
+      "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-04.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1~reversed",
+      "row": "SCORING_DISPLAY",
+      "clause": null,
+      "verdict": "CARRIED",
+      "why": "every clause carried, and the account says so",
+      "consulted": "the requirement account's state NOT_CLASSIFIED (a limitation: no requirement bindings for RPC-PROP-133; never a pass)"
+     },
+     {
+      "runId": "A02-HPE1~reversed",
+      "row": "REALIZATION",
+      "clause": null,
+      "verdict": "LEGITIMATE_CHAIN_DECISION",
+      "why": "the chain closed the open lines within their authored bounds (each line graded by the handoff)",
+      "consulted": null
+     }
+    ]
+   },
+   {
+    "id": "A02-HPE1~neutral",
+    "findings": [
+     {
+      "runId": "A02-HPE1~neutral",
+      "row": "GAME_PROBLEM",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the chain carries Step 1's GP-015 (source Step 1, review pathway) and its own record shows Step 1's value governed its lens hints and matched signals (row GAME_PROBLEM_HINTS); the planning model's reading stays in the account beside it, never in its place",
+      "consulted": "the chain's own reading (planning model): APPROVED GP-015"
+     },
+     {
+      "runId": "A02-HPE1~neutral",
+      "row": "GAME_PROBLEM_HINTS",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "Step 1's GP-015 governed the lens hints and matched signals, as the chain's own record shows (lens candidates handed to the selector: tl-v0-lens-possession-stability-opportunity, tl-v0-lens-space-creation-opportunity, tl-v0-lens-space-exploitation-opportunity, tl-v0-lens-line-breaking-opportunity, tl-v0-lens-regain-opportunity; matched signals: signalGroup:F_possession_passing, signalGroup:A_touch_receiving, signalGroup:B_pressure)",
+      "consulted": "the planning model's reading, kept in the account: APPROVED GP-015"
+     },
+     {
+      "runId": "A02-HPE1~neutral",
+      "row": "CONTEXT",
+      "clause": null,
+      "verdict": "AGREES_INDEPENDENTLY",
+      "why": "the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1~neutral",
+      "row": "GAME_FORM",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)",
+      "consulted": "the chain's own pick: GF2"
+     },
+     {
+      "runId": "A02-HPE1~neutral",
+      "row": "CONSTRAINTS",
+      "clause": null,
+      "verdict": "CONSUMED",
+      "why": "the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1~neutral",
+      "row": "SELECTION_OUTCOME",
+      "clause": null,
+      "verdict": "LEGITIMATE_CHAIN_DECISION",
+      "why": "the selection committed; the chain's own checks then stopped the run at communication",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1~neutral",
+      "row": "SCORING",
+      "clause": "origin",
+      "verdict": "CARRIED",
+      "why": "RPC-002-02.a, RPC-002-02.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-02.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1~neutral",
+      "row": "SCORING",
+      "clause": "progression",
+      "verdict": "CARRIED",
+      "why": "RPC-002-03.a, A02-HPE1-03.b, RPC-002-03.c entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1~neutral",
+      "row": "SCORING",
+      "clause": "control",
+      "verdict": "CARRIED",
+      "why": "RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-04.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)",
+      "consulted": null
+     },
+     {
+      "runId": "A02-HPE1~neutral",
+      "row": "SCORING_DISPLAY",
+      "clause": null,
+      "verdict": "CARRIED",
+      "why": "every clause carried, and the account says so",
+      "consulted": "the requirement account's state NOT_CLASSIFIED (a limitation: no requirement bindings for RPC-PROP-133; never a pass)"
+     },
+     {
+      "runId": "A02-HPE1~neutral",
+      "row": "REALIZATION",
+      "clause": null,
+      "verdict": "LEGITIMATE_CHAIN_DECISION",
+      "why": "the chain closed the open lines within their authored bounds (each line graded by the handoff)",
+      "consulted": null
+     }
+    ]
+   }
+  ]
+ }
 }
