@@ -2872,7 +2872,7 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * only a TEST-ONLY build hands in (build-activity.ts `candidateWording`, refused without a PROPOSED configuration). No approved table can
      * hold it (an approved template must carry its approval), so production reads none. Each claim of its words is read from the realized game
      * first: two objectives, each attacked by a team the block names by its role; one target a region that begins where the marked line is
-     * realized (RC-21 "beyond X (for team T)") and runs to the other team's end; the other a line on the end line the first team defends; the
+     * realized (RC-21 'beyond X (for team T)') and runs to the other team's end; the other a line on the end line the first team defends; the
      * parts filled from the game with the three slots this reading fills. Anything else: null, and production's withholding stands, exactly as
      * before. Where it is said, every target is named, so Christian's approved possession sentence takes the approved template's own word
      * (Christian's reply filed 28 October 2026, item 5), as for targets of different kinds.
