@@ -40,7 +40,7 @@ import { specializedRoleNames } from '../rendering/session-envelope'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { guidedGoalText, guidedSelectionHints } from '../sport-module/guided-selection'
 import { constraintBalanceBucket, generateSelection, isSelectionKnowledgeGap, SelectionKnowledgeGap } from './generateSelection'
-import { LearningGoalAuthorization, learningGoalAuthorizations } from './learning-goal-authorizations'
+import { LearningGoalAuthorization, learningGoalAuthorizations, validateLearningGoalAuthorizations } from './learning-goal-authorizations'
 import { testLibraryRegistry } from './library/registry'
 import { ABSENT_MEMBER_WORDS } from './selection-compatibility'
 import { systemAssemblyInputFromTestLibrarySelection } from './systemAssemblyInputFromSelection'
@@ -345,6 +345,24 @@ check('T5 a jointly required set is refused, never reduced', () => {
      * every pair of foundation with shaping or consequence on this copy (345 sets, 149 of them admitted whole), none exists: wherever the
      * whole set is admitted, the eligible reading commits the whole set too. Reported, not pinned (a 345-set loop is too slow for the suite).
      */
+
+    // (f) One authorized member spelled another way than the library spells it (13 November 2026, from the VL verification, check 4). The record
+    // validator matches by knowledge key and admits the copy; the pool matches exact ids, so before this check the member fell out and the two
+    // left were committed as the whole set on both routes, with nothing recorded as not applied. Now the set is refused naming the member,
+    // with the same gap on the review route; the library spelling of the same three is committed whole, as in (a).
+    for (const alias of ['blind:PROGRESSION-BONUS', 'PROGRESSION-BONUS']) {
+        const ALIASED = [c('central-density-condition'), c('counter-press-window'), alias]
+        const errors = validateLearningGoalAuthorizations(recordsWith(ALIASED)).filter(error => error.startsWith(`${GOAL}:`))
+        assert.deepEqual(errors, [], `${alias}: the record validator admits the copy (it matches by knowledge key), so only selection can refuse it`)
+        const aliased = liveWith(ALIASED)
+        assert.ok(isSelectionKnowledgeGap(aliased), `${alias}: refused whole, not reduced: ${JSON.stringify(isSelectionKnowledgeGap(aliased) ? null : (aliased as TestLibrarySelectionResult).selectionTrace.committedConstraints)}`)
+        const gap = aliased as SelectionKnowledgeGap
+        assert.equal(gap.reason, 'NO_COMPATIBLE_COMBINATION', `${alias}: the reason`)
+        assert.ok(gap.message.includes(`"${alias}" is authorized by the record and not in the selectable library under that spelling`), gap.message)
+        assert.ok(gap.message.includes('taken whole or refused, never reduced'), gap.message)
+        const aliasedReview = reviewWith(ALIASED)
+        assert.ok(aliasedReview instanceof GoalSelectionGap && aliasedReview.gap.message === gap.message, `${alias}: the review route refuses it with the same gap`)
+    }
 
     // The production record is untouched by every copy above.
     assert.deepEqual(learningGoalAuthorizations().find(record => record.learningGoalId === GOAL)!.authorizedConstraints, [])

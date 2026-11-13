@@ -196,6 +196,18 @@ export function constraintPoolFor(hints?: InputConstraintHints | null, learningG
     return { constraints: filtered, source: 'GOAL_CANDIDATES', setAsideBecause: null, missingRoles: [], ...freeText }
 }
 
+/**
+ * The ids a pool's candidates name that the pool does not hold under that exact spelling and no ruling holds (13 November 2026). The pool
+ * keeps a candidate only where a selectable constraint has exactly its id (`constraintPoolFor`), while a hold is matched by knowledge key;
+ * so an id spelled another way than the library spells it (`blind:PROGRESSION-BONUS`, `PROGRESSION-BONUS`) is in neither, and is listed
+ * here. Read for an authorization record's set only (`DesignEnumerationContext.authorizedNotInPool`).
+ */
+function authorizedIdsNotInPool(pool: ConstraintPool): string[] {
+    const inPool = new Set(pool.constraints.map((c) => c.id))
+    const heldKeys = new Set(pool.heldByRuling.map((hold) => knowledgeKey(hold.id)))
+    return pool.candidateIds.filter((id) => !inPool.has(id) && !heldKeys.has(knowledgeKey(id)))
+}
+
 /** The pool's account without its constraint objects: what travels in the trace. */
 export const poolAccount = ({ constraints: _drawnFrom, ...account }: ConstraintPool): ConstraintPoolAccount => ({
     ...account,
@@ -800,6 +812,11 @@ interface DesignEnumerationContext {
      */
     wholeSetOnly: boolean
     wholeSetRefusals: string[]
+    /**
+     * The ids the record authorizes that are neither held by a ruling nor in the pool under their exact spelling (`authorizedIdsNotInPool`).
+     * Read only with `wholeSetOnly`: any one refuses the set as it stands.
+     */
+    authorizedNotInPool: string[]
 }
 
 function comboKey(lenses: TestLibraryV0AffordanceLens[], cons: TestLibraryV0Constraint[]): string {
@@ -812,9 +829,24 @@ function comboKey(lenses: TestLibraryV0AffordanceLens[], cons: TestLibraryV0Cons
  * pre-assembly compatibility, scoring each. It does NOT choose; that is commitDesignChoice's job.
  */
 function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPossibility[] {
-    const { tokens, archetype, archeAffordances, informationIntent, lensCandidatePool, lensScoreById, allConstraints, roleNeedsFromPool, zeroConstraintCommitment, wholeSetOnly, wholeSetRefusals } = ctx
+    const { tokens, archetype, archeAffordances, informationIntent, lensCandidatePool, lensScoreById, allConstraints, roleNeedsFromPool, zeroConstraintCommitment, wholeSetOnly, wholeSetRefusals, authorizedNotInPool } = ctx
     const poolIds = new Set(allConstraints.map((c) => c.id))
     const possibilities: DesignPossibility[] = []
+    /**
+     * **An authorized member the pool does not hold under its spelling refuses the set** (13 November 2026, from the VL verification, check
+     * 4). The record validator matches an authorized id by knowledge key, so it admits `blind:PROGRESSION-BONUS` for Progression Bonus;
+     * `constraintPoolFor` matches exact ids, so that member never reached the pool, and the members left were taken as the whole set and
+     * committed: a jointly required set reduced without a trace. Now any such member refuses the set as it stands, before the size rule
+     * counts what is left. Refusal only: matching by knowledge key here would admit the alias, a change toward acceptance that is
+     * Christian's to make. Unreachable in production today: the one record (A01) authorizes none.
+     */
+    if (wholeSetOnly && authorizedNotInPool.length) {
+        const many = authorizedNotInPool.length > 1
+        wholeSetRefusals.push(
+            `${authorizedNotInPool.map((id) => `"${id}"`).join(', ')} ${many ? 'are' : 'is'} authorized by the record and not in the selectable library under ${many ? 'those spellings' : 'that spelling'} (the pool matches ids exactly), so the set is refused as it stands, not reduced to the members found`
+        )
+        return possibilities
+    }
     /**
      * **The size rule, applied to an authorization record's set as it stands** (12 November 2026): the set is the combination, so the rule
      * (2-4, unchanged) either admits it or refuses it; a set it refuses is never cut to fit.
@@ -1102,6 +1134,7 @@ export function generateSelection(
         zeroConstraintCommitment,
         wholeSetOnly: recordBacked && !zeroConstraintCommitment,
         wholeSetRefusals,
+        authorizedNotInPool: recordBacked ? authorizedIdsNotInPool(constraintPool) : [],
     })
     const committed = commitDesignChoice(designPossibilities)
     const bestLensCombo = committed?.lenses ?? null
