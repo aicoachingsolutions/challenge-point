@@ -128,6 +128,27 @@ Each item with its standing and where it is carried; nothing here is approved kn
 | N2 (the pressing team scores by winning the ball and dribbling it over the escaping team's end line, its own event) | PROPOSED (Q2), the one pending entry: awaiting Christian's approval, never a pass | the PROPOSED configuration; the review-level account's pending entry |
 | The ILLUSTRATIVE carriers of stage W4 | SUPERSEDED by A02-HPE1 (stage B1); the two rebased runs kept as mechanism runs, stopping on their own placement | `a02-carriers.review.json`, appendix E |
 
+## Package 5: the revised activity A02-HPE2, beside the baseline (13 November 2026)
+
+On Christian's reply received 13 November 2026 (the A02 ecological revision). TEST-ONLY, at review level, nothing released. A02-HPE1 and
+everything above stay as they were: its files, its inputs and this folder's `a02-report.txt` and `a02-results.json` are unchanged (regenerated
+byte-identical). A02-HPE2 is the structural repair with no added reward: the pressing team's target an end zone at the escaping team's end
+(6 m, ILLUSTRATIVE), entered under control by its own event; the ball over an end line to the team that did not touch it last (the possession
+game's own award); the start and the restart after each point near the escaping team's end, outside the end zone, with no 'set to press
+together'; the coach's restart (A01's, reused, said in the engine's own broad words); the teams changing ends with the roles; the escaping
+team's point read as the crossing that escapes the press (the revised origin and progression values). Every element is labelled; the
+questions it waits on are Q1 to Q6 of its configuration.
+
+| File | What it is |
+| --- | --- |
+| `docs/audits/drafts/a02-proposed/hpe2.PROPOSED.json` | Our PROPOSED configuration A02-HPE2 (26 items, 2 ILLUSTRATIVE; six questions) |
+| `docs/audits/drafts/a02-hpe2-composition/` | A copy of `a02-composition` with the origin and progression values revised (CANDIDATE, their closing words PROPOSED), and our CANDIDATE coach wording for A02-HPE2 |
+| `back/src/system/design-reasoning/a02-hpe2-inputs.review.json` | Christian's 13 November rulings, verbatim with their received date, and the case A02-HPE2 (based on A02-0 of `a02-inputs.review.json`) |
+| `back/src/system/design-reasoning/a02-hpe2.unit.ts` | The registered test: the run, the realized game, the diagram, the loader's dates, the walkthrough re-expressed for HPE-2, the two-team check (PROPOSED diagnostics, gating nothing) with its negative controls, the four-part print, the evidence |
+| `evidence/a02-hpe2-report.txt`, `evidence/a02-hpe2-results.json` | A02-HPE2's evidence beside A02-HPE1's, generated twice from two builds and identical |
+
+Regenerate: `UPDATE_A02_HPE2_EVIDENCE=1` with the test's own command (`node node_modules/ts-node/dist/bin.js --files -r tsconfig-paths/register ./src/system/design-reasoning/a02-hpe2.unit.ts`); the test fails if the committed files differ from what it generates.
+
 ## Files
 
 | File | What it is |

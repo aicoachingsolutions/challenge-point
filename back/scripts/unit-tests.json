@@ -164,6 +164,7 @@
     "./src/system/design-reasoning/a02-safeguards.unit.ts",
     "./src/system/design-reasoning/a02-acceptance.unit.ts",
     "./src/system/design-reasoning/a02-evidence.unit.ts",
+    "./src/system/design-reasoning/a02-hpe2.unit.ts",
     "./src/system/derivation/production-derivation-pins.unit.ts",
     "./src/system/derivation/production-bundle-inputs.unit.ts"
 ]
