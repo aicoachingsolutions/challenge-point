@@ -103,7 +103,22 @@ const CONFIG2 = loadProposedRealization(HPE2_FILE, { lawDepartures: true })
 /** The revised values, read from the store's own items (never typed here): the walkthrough's 4a holds the game to them. */
 const STORE_ITEMS = (loadDraftStore(STORE2, { recordsSetAsideBy: 'TT-K2-RETAIN-FORM' }).contracts.find((c) => c.contractId === 'restated:RPC-002')?.items ?? []) as any[]
 const storeValue = (id: string) => String(STORE_ITEMS.find((i) => i.itemId === id)?.value)
-export const HPE2_SHAPE: WalkthroughShape = { id: 'HPE-2', pressingTarget: 'zone', endLine: 'NOT_LAST_TOUCH', origin: storeValue('RPC-002-02.b'), progression: storeValue('RPC-002-03.c'), knownKinds: ['blocks'] }
+/**
+ * FIX (13 November 2026, V1 M2 and M3): what the handoff's grading cannot show, read from the configuration and the store: the end zone's depth,
+ * realized from A02-HPE2-S5-3's typedBound while no configuration line cites that item (the zone's position line rests on GF2-04), and the
+ * PROPOSED parts of the two revised values (the grading reads a draft-store value whole as our restatement). Each is added to its path's labels
+ * in the comparison with the baseline (H1), the element table (H3) and the walkthrough's elements (H4); test B1 holds each path to a line the run
+ * holds and each note to the item or fitNote it reads.
+ */
+const DEPTH_ITEM = (CONFIG2.realization.items as any[]).find((i) => i.itemId === 'A02-HPE2-S5-3')
+const evidenceLabel = (evidence: string) => (evidence.indexOf(';') >= 0 ? evidence.slice(0, evidence.indexOf(';')) : evidence)
+export const LABEL_NOTES2: ReadonlyArray<{ path: string; label: string }> = [
+    { path: 'space.regions[c:restated:GF2:GF2-03.e].position.along', label: `${evidenceLabel(String(DEPTH_ITEM.basisEvidence))} (the depth realized from ${DEPTH_ITEM.itemId}'s typedBound, ${DEPTH_ITEM.typedBound.min} m, question ${DEPTH_ITEM.waitsOn}, though no configuration line cites that item)` },
+    { path: 'value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value', label: "PROPOSED: the closing words 'by this crossing' (the store item RPC-002-02.b)" },
+    { path: 'value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].value', label: `PROPOSED: the whole value '${storeValue('RPC-002-03.c')}', our crossing reading of RPC-PROP-133's 'beyond' (the store item RPC-002-03.c)` },
+]
+const noteAt = (p: string) => LABEL_NOTES2.find((n) => n.path === p)?.label ?? null
+export const HPE2_SHAPE: WalkthroughShape = { id: 'HPE-2', pressingTarget: 'zone', endLine: 'NOT_LAST_TOUCH', origin: storeValue('RPC-002-02.b'), progression: storeValue('RPC-002-03.c'), knownKinds: ['blocks'], labelNotes: LABEL_NOTES2 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // The runs (read-only wrap of the build entry, as the other A02 tests wrap it)
@@ -136,13 +151,28 @@ function made(c: CaseInput, inputs: HandoffInputs): Made {
     assert.ok(request && answer, `${c.id} reached the chain`)
     return { id: c.id, result, request: request as ChainRequest, answer: answer as ChainAnswer, built }
 }
-/** A TEST-ONLY copy of a file, changed, in a temporary folder (its path is never printed in the evidence). */
+/**
+ * A TEST-ONLY copy of a file, changed, in a temporary folder (its path is never printed in the evidence). FIX (13 November 2026, V1 L5): each
+ * copy and its folder are removed when the process exits (the file, then the empty folder; nothing else is ever removed).
+ */
+const COPIES: string[] = []
+process.on('exit', () => {
+    for (const file of COPIES) {
+        try {
+            fs.unlinkSync(file)
+            fs.rmdirSync(path.dirname(file))
+        } catch {
+            // already gone
+        }
+    }
+})
 function fileCopy(file: string, change: (raw: any) => void): string {
     const raw = readJson(file)
     change(raw)
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'a02-hpe2-'))
     const out = path.join(dir, path.basename(file))
     fs.writeFileSync(out, JSON.stringify(raw, null, 2))
+    COPIES.push(out)
     return out
 }
 const itemOf = (raw: any, id: string) => raw.proposed.realization.items.find((i: any) => i.id === id)
@@ -283,11 +313,14 @@ const printedOnly = (): PrintedOnly[] => [
 ]
 const saidStandsFor = () => WORDING2.entries.filter((e) => e.standsFor).map((e) => ({ text: e.sentence, standsFor: [...e.standsFor!] }))
 const HEADING = `REVIEW LEVEL, TEST-ONLY. ${REVIEW2}, the revised activity, built through the checked pathway for Christian's ecological review beside the baseline ${REVIEW_RUN}; SERVED at review level, never served to any coach; nothing here is live. The coach text: the engine's sentences, each printed as said or stated in fewer words by one sentence of ours (CANDIDATE or PROPOSED), which takes its grades; every engine sentence is listed below the text with where it is printed.`
+/** FIX (13 November 2026, V2 F15): what [A] means on a sentence printed as said (A02-HPE2's heading only; the shared legend is the baseline's). */
+const APPROVED_SAID = "An [A] on a sentence printed as said marks Christian's approved wording, not approval of what it states here: the possession sentence is A01's approved wording, its use in A02 our CANDIDATE."
 export function reviewPrint2(m: Made) {
     const said = saidOf(m)
     const illustrativeOf = illustrativeOfRun(m)
     const illustrativeShown = illustrativeShownOfRun(m)
-    const print = fourPartPrint({ heading: [HEADING, MARKERS], said, printed: printedOnly(), illustrativeOf, illustrativeShown, saidStandsFor: saidStandsFor() })
+    // FIX (V2 F14): a sentence printed as said is printed with its full stop (the engine's own list, H2b, keeps the engine's words).
+    const print = fourPartPrint({ heading: [HEADING, MARKERS, APPROVED_SAID], said, printed: printedOnly(), illustrativeOf, illustrativeShown, saidStandsFor: saidStandsFor(), stopSaid: true })
     const engine = engineLines(print, said, { illustrativeOf, illustrativeShown })
     return { print, said, illustrativeOf, engine, reading: readingOf(print.lines), words: said.reduce((n, s) => n + s.text.split(/\s+/).length, 0) }
 }
@@ -299,11 +332,45 @@ export function reviewPrint2(m: Made) {
 export const DIVERGENCES2: Array<{ id: string; says: string; has?: string; dropped?: string }> = [
     { id: 'A02-HPE2-S1', says: "says '6 v 6' for 'Divide 12 players into 2 teams of 6'", has: '6 v 6', dropped: 'Divide 12 players' },
     { id: 'A02-HPE2-S2', says: "leaves out whose target the end zone is (the pressing team's: K2 says so)", has: 'end zone', dropped: "the pressing team's target zone" },
-    { id: 'A02-HPE2-S3', says: "says 'Swap roles when you choose' for 'When you call the next block' and leaves out 'there is no set block length'; the clock of our draft ('every 3 minutes') is said by neither: the engine cannot state a block length", has: 'Swap roles when you choose', dropped: 'there is no set block length' },
-    { id: 'A02-HPE2-R1', says: "says 'whenever you judge an attempt has run its course' for the engine's 'whenever you decide that an attack has run its course (at a stoppage or while play is on)', and adds an example the engine does not say; the narrower trigger of our draft and its limit (never while the pressing team has the ball) are said by neither", has: 'for example when the escaping team holds the ball beyond the line unpressed', dropped: 'an attack has run its course' },
+    { id: 'A02-HPE2-S3', says: "says 'Swap roles when you choose' for 'When you call the next block' and leaves out 'there is no set block length'; the clock of our draft ('every 3 minutes') is said by neither: the engine cannot state a block length, so the text gives a coach no guide to how often to swap (whether a coach's regular call may stand in for the clock is Christian's, Q5)", has: 'Swap roles when you choose', dropped: 'there is no set block length' },
+    // FIX (V2 F13): two engine sentences listed as stated by a line that implies or shows them without saying them.
+    { id: 'A02-HPE2-S3', says: "is where the engine's 'Decide which team starts at which end' is listed, though it does not say it: the coach decides it by choosing which team defends the marked end", dropped: 'Decide which team starts at which end' },
+    { id: 'A02-HPE2-W1', says: "is where the engine's 'Mark the escaping team's target zone from the marked line to the pressing team's end line, across the full width' is listed, though it marks nothing: the zone is everything beyond the marked line, labelled in the diagram and read from 'over the line'", dropped: "Mark the escaping team's target zone" },
+    // FIX (V1 M1, V2 F4): the limit the engine cannot hold, said here so the evidence names it (a cold-read gap, for the delivery beside Q6).
+    { id: 'A02-HPE2-R1', says: "says 'whenever you judge an attempt has run its course' for the engine's 'whenever you decide that an attack has run its course (at a stoppage or while play is on)', and adds an example the engine does not say; the narrower trigger of our draft and its limit (never while the pressing team has the ball) are said by neither, so, as served, a coach may also restart with the escaping team just after the pressing team wins the ball, and nothing in the text says otherwise", has: 'for example when the escaping team holds the ball beyond the line unpressed', dropped: 'an attack has run its course' },
     { id: 'A02-HPE2-R2', says: "adds 'Throw-ins and free kicks as normal' (true of the laws account: LAW-13 and LAW-15 apply; no engine sentence says it, and the engine's own 'otherwise, normal soccer rules apply' stays unsaid while the kick-off is owed); our draft's 'opponents stand back as at a free kick' is said by neither: no register row holds it", has: 'Throw-ins and free kicks as normal' },
     { id: 'A02-HPE2-K2', says: "adds 'Points from both roles add up; most points wins' (no engine words for a total or a winner; PROPOSED), and leaves out 'worth 1 point' (it says 'a point')", has: 'Points from both roles add up; most points wins', dropped: 'worth 1 point' },
 ]
+/** The digit runs a text shows, as written. */
+const digitRuns = (text: string): string[] => {
+    const out: string[] = []
+    let cur = ''
+    for (const ch of `${text} `) {
+        if (ch >= '0' && ch <= '9') cur += ch
+        else if (cur) {
+            out.push(cur)
+            cur = ''
+        }
+    }
+    return out
+}
+/**
+ * FIX (13 November 2026, V2 F12 and F5), printed in H2c, measured: an engine sentence carrying an ILLUSTRATIVE label none of whose quantities its
+ * own words show (the label follows an element the sentence cites, not its words); and Q4, which governs the escaping team's scoring sentence
+ * though no item waits on it, so no line's marker can show it.
+ */
+export function engineNotes2(said: SaidSentence[], illustrativeOf: (p: string) => string | null): string[] {
+    const out: string[] = []
+    said.forEach((s, n) => {
+        for (const label of [...new Set(s.from.map(illustrativeOf).filter((l): l is string => l !== null))]) {
+            const shown = digitRuns(label)
+            if (shown.length && !shown.some((d) => digitRuns(s.text).includes(d))) out.push(`H2b ${n + 1} ('${s.text.slice(0, 48)}...') carries the label '${label}' though its words show none of that label's quantities: the label follows an element the sentence cites, not its words`)
+        }
+    })
+    const waiting = (CONFIG2.realization.items as any[]).filter((i) => i.waitsOn === 'Q4').length
+    if (CONFIG2.questions.some((q) => q.id === 'Q4')) out.push(`Q4 (a crossing after the press has dropped off; needed before the coach text is used with players) governs the escaping team's scoring sentence (A02-HPE2-W1), but ${waiting} items wait on it, so no line's marker can show it (a marker shows the questions of the items a line rests on)`)
+    return out
+}
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // What changed from the baseline, read from the two realized games (each element with its labels from HPE-2's grading)
@@ -322,7 +389,8 @@ export function differsFromHpe1(h2: Made, h1: Made): string[] {
     const triggerOf = (t: any) => ((t.selector ?? []) as any[]).find((s) => s.attribute === 'trigger')?.value
     const transition = (f: any, trigger: string) => (f.game.transitions as any[]).find((t) => triggerOf(t) === trigger) ?? null
     const condition = (f: any, type: string) => (f.game.value.primaryEvent.conditions as any[]).find((c) => c.type === type)
-    const label = (p: string) => `[${labelsAt(h2, p)}]`
+    // FIX (V1 M2, M3): a path's note joins its labels (LABEL_NOTES2).
+    const label = (p: string) => `[${labelsAt(h2, p)}${noteAt(p) ? ` + ${noteAt(p)}` : ''}]`
     const p1 = pressing(g1)
     const p2 = pressing(g2)
     const end1 = transition(g1, 'OUT_END_LINE')
@@ -336,8 +404,8 @@ export function differsFromHpe1(h2: Made, h1: Made): string[] {
         `the start's place: ${REVIEW_RUN} ${show(start1?.placement?.region)}; ${REVIEW2} ${show(start2?.placement?.region)} ${label(`transitions[${start2?.elementId}].placement.region`)}`,
         `the coach's restart: ${REVIEW_RUN} ${transition(g1, 'COACH_JUDGED_EPISODE_CONCLUSION') ? 'present' : 'none'}; ${REVIEW2} ${coach2 ? `${triggerOf(coach2)}, awarded to ${coach2.awardedTo} ${label(`transitions[${coach2.elementId}].awardedTo`)}` : 'none'}`,
         `the teams' ends between blocks: ${REVIEW_RUN} ${show(g1.game.blocks ?? 'kept (the marked line moved)')}; ${REVIEW2} ${show(g2.game.blocks)} ${label('blocks.endAssignment')}`,
-        `the origin value: ${REVIEW_RUN} ${show(condition(g1, 'origin')?.value)}; ${REVIEW2} ${show(condition(g2, 'origin')?.value)} ${label(`value.primaryEvent.conditions[${condition(g2, 'origin')?.elementId}].value`)}, its closing words 'by this crossing' PROPOSED (the store item's fitNote: the grading reads the whole value as our restatement)`,
-        `the progression value: ${REVIEW_RUN} ${show(condition(g1, 'progression')?.value)}; ${REVIEW2} ${show(condition(g2, 'progression')?.value)} ${label(`value.primaryEvent.conditions[${condition(g2, 'progression')?.elementId}].value`)}, the crossing reading PROPOSED (the store item's fitNote)`,
+        `the origin value: ${REVIEW_RUN} ${show(condition(g1, 'origin')?.value)}; ${REVIEW2} ${show(condition(g2, 'origin')?.value)} ${label(`value.primaryEvent.conditions[${condition(g2, 'origin')?.elementId}].value`)} (the grading reads the whole value as our restatement)`,
+        `the progression value: ${REVIEW_RUN} ${show(condition(g1, 'progression')?.value)}; ${REVIEW2} ${show(condition(g2, 'progression')?.value)} ${label(`value.primaryEvent.conditions[${condition(g2, 'progression')?.elementId}].value`)} (the grading reads the whole value as our restatement; no part of it is Christian's word)`,
     ]
 }
 
@@ -347,6 +415,31 @@ export function differsFromHpe1(h2: Made, h1: Made): string[] {
 
 /** The served Coach Overview's scoring groups: each group's label and its lines. */
 const OVERVIEW_GROUPS = (m: { built: any }): Array<[string, string[]]> => ((m.built.activity.overview?.scoring?.groups ?? []) as any[]).map((g) => [String(g.label), (g.lines as any[]).map((l) => String(l.text))])
+/** A line's subject, where it opens with a group's role name ('Escaping team: ...' or 'The escaping team ...'). */
+const subjectOf = (line: string, roles: string[]) => roles.find((r) => line.startsWith(`${r}:`) || line.startsWith(`The ${r.toLowerCase()} `)) ?? null
+/**
+ * FIX (13 November 2026, V1 M4): each role group's lines whose subject is another role. A PROPOSED diagnostic of ours, gating nothing: the
+ * overview's own check has no clause that reads it (its verdict on A02-HPE2 is PASS), so the evidence names that gap.
+ */
+export function overviewStrays(groups: Array<[string, string[]]>): string[] {
+    const roles = groups.map(([label]) => label)
+    return groups.flatMap(([label, lines]) =>
+        lines
+            .filter((l) => {
+                const s = subjectOf(l, roles)
+                return s !== null && s !== label
+            })
+            .map((l) => `the '${label}' group holds '${l.slice(0, 50)}...', whose subject is the ${String(subjectOf(l, roles)).toLowerCase()}`),
+    )
+}
+/**
+ * FIX (13 November 2026, V1 L2): A02-HPE1's game read with HPE-2's RPC-PROP-026 predicate (HPE-1's own values, HPE-2's predicate id; only that
+ * row is used), so the evidence shows why the two runs' tallies are equal though their predicates differ.
+ */
+export function rpc026Across(h1: Made) {
+    const w = walkthroughOf(h1, h1.built, h1.answer, { ...HPE1_SHAPE, id: 'HPE-2' })
+    return w.answers[3].rows.find((r) => r.rowId === 'RPC-PROP-026')!
+}
 const stopOf = (a: ChainAnswer) => `${a.outcome}${a.stage ? ` at ${a.stage}` : ''}; ${a.reasons.length} reasons`
 const markersOf = (a: ChainAnswer) => Object.fromEntries(['APPROVED', 'CANDIDATE', 'DRAFT'].map((w) => [w, a.sentences.filter((s) => s.wording === w).length]))
 const CHECKS = (runs: Hpe2Runs) => [
@@ -388,14 +481,19 @@ export function evidenceOf(runs: Hpe2Runs): { report: string; json: string } {
     out.push(...p2.engine.map((l) => `   ${l}`))
     out.push('H2c. WHERE THE COACH TEXT DIFFERS FROM THE ENGINE (measured, each held by a test), and what the engine cannot say:')
     for (const d of DIVERGENCES2) out.push(`- ${d.id} ${d.says}`)
+    for (const note of engineNotes2(p2.said, p2.illustrativeOf)) out.push(`- ${note}`)
     out.push(`- The four High Press Escape coach rules are held, as Christian asked (${christian('A02-13NOV-SEQUENCE', 5)}): COACH_RULES unchanged, not printed here.`)
     out.push('H3. THE ELEMENT TABLE (A02-HPE2, generated from the build: every configuration line, by element, each with the labels of what it rests on):')
     out.push(...elementTable(h2))
+    out.push("What the grading cannot show at a path (read from the configuration and the store; each also joins that path's labels in H1 and in the walkthrough's elements, H4):")
+    for (const n of LABEL_NOTES2) out.push(`- ${n.path}: ${n.label}`)
     out.push(`H4. THE ACCEPTANCE WALKTHROUGH (Christian's four questions, received 12 November 2026, read from each realized game, never from a sentence; re-expressed per configuration, the lead's build item B8; a development finding only, never ecological validation):`)
     out.push(`${REVIEW2} (HPE-2's shape: the end zone, the end-line award by last touch, the store's origin and progression values, the end assignment read as instructing no team):`)
     out.push(...walkthroughLines(w2).map((l) => `   ${l}`))
     out.push(`${REVIEW_RUN} (the baseline, HPE-1's shape, as pinned):`)
     out.push(...walkthroughLines(w1).map((l) => `   ${l}`))
+    const cross = rpc026Across(h1)
+    out.push(`RPC-PROP-026 side by side (measured; V1 L2): the two runs' verdicts come from different predicates, so their equal tallies are an artefact of the predicates, not equal play. HPE-2's predicate also reads a long ball that stays in play and is lost far from the escaping team's end (wherever 1b holds); HPE-1's, as pinned, does not read that case, though it holds in ${REVIEW_RUN} too. ${REVIEW_RUN} read with HPE-2's predicate: ${cross.verdict.toUpperCase()}: ${cross.reading}. Read by one predicate, ${REVIEW_RUN} is partly punished for two reasons (the end-line give-back and the long ball) and ${REVIEW2} for one (the long ball).`)
     out.push(`H5. THE TWO-TEAM CHECK (the lead's build items B10 and B11: PROPOSED diagnostics of ours, derived from Christian's concerns received 13 November 2026, reported and gating nothing; read from each realized game, never from a sentence; an event's ways read from its vocabulary description, whose meaning for RPC-002 is ${eventMeaningStanding('RPC-002', 'target_zone_entered')}):`)
     out.push(`Christian's concerns: ${christian('A02-13NOV-REVISION', 10)} ${christian('A02-13NOV-ROLES', 3)} ${christian('A02-13NOV-ROLES', 4)}`)
     for (const { id, check } of checks) {
@@ -410,7 +508,10 @@ export function evidenceOf(runs: Hpe2Runs): { report: string; json: string } {
     if (overview) {
         out.push(`- game: ${overview.game}`, `- parameters: ${overview.parameters}`, `- purpose: ${overview.purpose}`)
         for (const [label, lines] of OVERVIEW_GROUPS(h2)) out.push(`- ${label}:`, ...lines.map((l) => `     ${l}`))
-        out.push(`  FINDING (reported, not changed: the overview composer is production code): the 'Pressing team' group repeats the escaping team's two lines, so a coach reading that group sees the escaping team's scoring under the pressing team; the overview is a second coach-facing surface beside the four-part text, and correcting its grouping is NEW work.`)
+        const strays = overviewStrays(OVERVIEW_GROUPS(h2))
+        out.push(`  FINDING (reported, not changed: the overview composer is production code): ${strays.length} lines sit in a role's group whose subject is the other role (a PROPOSED diagnostic of ours, measured): ${strays.join('; ')}. A coach reading the 'Pressing team' group sees the escaping team's scoring under the pressing team.`)
+        out.push(`  SAFEGUARD GAP (V1 M4): the overview's own check gave PASS; no clause of it reads whether a role's group holds another role's lines. Such a clause is NEW (production code), as is correcting the grouping.`)
+        out.push(`  NOT FOR REVIEW: the activity presented for review is the four-part text (H2) and the diagram (H6); this overview is a second coach-facing surface, measured and reported only.`)
     }
     out.push(`H7. ${REVIEW2} AS THE HANDOFF REPORTS IT (inputs, Steps 1 and 2, the form, the chain, configuration lines with their grades, coach text, laws and requirement accounts):`)
     out.push(handoffReportText([h2.result], inputs2, []))
@@ -451,8 +552,11 @@ const EXPECTED_LINES: Array<[string, string, string]> = [
     ['Learning explanation', `[A: ${PURPOSE_MARKER}]`, 'L1'],
     ['Learning explanation', `[A: ${TRANSLATION_MARKER}]`, 'L2'],
 ]
-/** What a coach reads (lines, sentences, words), measured: against A02-HPE1's 12, 17 and 326. */
-const EXPECTED_READING = [10, 17, 305]
+/**
+ * What a coach reads (lines, sentences, words), measured: against A02-HPE1's 12, 17 and 326. FIX (13 November 2026, V1 M1, V2 F1 to F3),
+ * re-pinned openly: was 305 words; the scoring sentence's first clause 42 words to 39, the end-line restart's 'marked line' one more.
+ */
+const EXPECTED_READING = [10, 17, 303]
 
 test('B1 the run: A02-HPE2 served at review level, fidelity violations 0, 19 sentences (1 APPROVED, 1 CANDIDATE, 17 DRAFT), the pending entry Q2 only, the kick-off still owed (PROCEDURAL, reported), every configuration item labelled with the question it waits on; the baseline A02-HPE1 unchanged', () => {
     const m = H2
@@ -470,6 +574,19 @@ test('B1 the run: A02-HPE2 served at review level, fidelity violations 0, 19 sen
     assert.ok(items.every((i) => ['PROPOSED', 'ILLUSTRATIVE'].includes(i.category) && !!i.waitsOn), 'every item labelled, with its question')
     assert.deepEqual(['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6'].map((q) => items.filter((i) => i.waitsOn === q).length), [8, 3, 0, 0, 2, 13])
     assert.deepEqual(m.result.testOnlyTreatments.map((t) => t.id), ['TT-CONSUMED-STEPS', 'TT-DRAFT-STORE', 'TT-K2-RETAIN-FORM', 'TT-PROPOSED-HPE2-LAWS', 'TT-PROPOSED-PENDING', 'TT-CANDIDATE-WORDING'])
+    // FIX (V1 M2, V2 F6): the two revised store values open by saying what of them is ours, never 'the verbatim value' or 'the authored words'.
+    const fit = (id: string) => String(STORE_ITEMS.find((i) => i.itemId === id)?.fitNote)
+    assert.ok(fit('RPC-002-03.c').startsWith("CANDIDATE, OURS, unreviewed: the item restates RPC-PROP-133, but its value, revised for HPE-2 to 'over', is wholly PROPOSED") && !fit('RPC-002-03.c').includes('the verbatim value'), fit('RPC-002-03.c'))
+    assert.ok(fit('RPC-002-02.b').startsWith("CANDIDATE, OURS, unreviewed: RPC-PROP-133's words 'established coordinated pressure' with our PROPOSED closing words") && fit('RPC-002-02.b').includes("'by this crossing' are PROPOSED") && !fit('RPC-002-02.b').includes('the authored words carried'), fit('RPC-002-02.b'))
+    // FIX (V1 M2, M3): each label note names a line the run holds; the depth note names the pressing team's end zone and the item the realization
+    // consumes; the origin note's closing words are the value's.
+    for (const n of LABEL_NOTES2) assert.notEqual(labelsAt(m, n.path), 'no line', n.path)
+    const pressingObjective = (blockOf(m, BLOCK1).game.objectives as any[]).find((o) => o.team === 'TEAM_AT_AXIS_END' && o.role === 'PRIMARY_SCORING')
+    assert.equal(`space.regions[c:${pressingObjective.reference.structuralRef.contractId}:${pressingObjective.reference.structuralRef.itemId}].position.along`, LABEL_NOTES2[0].path)
+    assert.ok(LABEL_NOTES2[0].label.startsWith('ILLUSTRATIVE: a schematic 6 m depth for the end zone') && LABEL_NOTES2[0].label.includes("A02-HPE2-S5-3's typedBound, 6 m, question Q2"), LABEL_NOTES2[0].label)
+    assert.ok(HPE2_SHAPE.origin.endsWith('by this crossing') && HPE2_SHAPE.progression === 'over')
+    // FIX (V1 L7): HPE-2's configuration names its own question Q1 where HPE-1 named its element N1.
+    assert.ok(!fs.readFileSync(HPE2_FILE, 'utf8').includes('N1'), "hpe2.PROPOSED.json names no element 'N1'")
     // The baseline stays as pinned by its own tests (a02-hpe1-served.unit.ts): served, 19 sentences, its pending entry Q2.
     const h1 = RUNS.hpe1
     assert.deepEqual([h1.answer.outcome, h1.built.activity.integrity.instructions, h1.built.activity.integrity.fidelityViolations, (h1.answer.reviewLevel?.pendingApproval ?? []).map((p) => p.item)], ['served', 19, 0, ['proposed:A02-HPE1::A02-HPE1-B9-1']])
@@ -545,6 +662,12 @@ test('B13 the diagram, both blocks: served, no finding; the same markings in bot
         ['Escaping team', ['Escaping team: Score by getting the ball under control into its target zone.', WORDING2.entries[0].sentence]],
         ['Pressing team', ['Escaping team: Score by getting the ball under control into its target zone.', 'Pressing team: Score by getting the ball under control into its target zone.', WORDING2.entries[0].sentence]],
     ])
+    // FIX (V1 M4): the diagnostic finds the two lines the check passed, both in the 'Pressing team' group; bite: the groups as they should be
+    // (each role's lines only) give none.
+    const strays = overviewStrays(OVERVIEW_GROUPS(H2))
+    assert.equal(strays.length, 2, json(strays))
+    assert.ok(strays.every((s) => s.startsWith("the 'Pressing team' group holds") && s.endsWith('whose subject is the escaping team')), json(strays))
+    assert.deepEqual(overviewStrays(OVERVIEW_GROUPS(H2).map(([label, lines]) => [label, lines.filter((l) => subjectOf(l, ['Escaping team', 'Pressing team']) === label)])), [], 'bite: own lines only, no finding')
 })
 
 test("B2 the loader's received dates: HPE-2's quotations with 13 November 2026 and HPE-1's with 12 November 2026 are admitted; a question, an item or a laws basis quoting another date is refused (bites), and the message names both dates", () => {
@@ -585,7 +708,15 @@ test("B8 the walkthrough re-expressed for HPE-2: the structural facts of 4 of 4 
     const silent = copy(H2.answer)
     silent.sentences = []
     assert.deepEqual(walkthroughOf(H2, H2.built, silent, HPE2_SHAPE), w)
-    // Read with HPE-1's shape, the same game fails exactly where the shapes differ (the probe's measurement, now named): 1b, 1e, 2c, 3d, 4a.
+    // FIX (V1 M2, M3): the notes join the labels of the cites they name (1b and RPC-PROP-022 the end zone's depth; 4a the revised values).
+    assert.ok(w.answers[0].facts.find((f) => f.id === '1b')!.cites.includes(`${LABEL_NOTES2[0].path} [CANDIDATE (our restatement of the knowledge workbooks) + ${LABEL_NOTES2[0].label}]`), json(w.answers[0].facts.find((f) => f.id === '1b')!.cites))
+    const cites4a = w.answers[3].facts.find((f) => f.id === '4a')!.cites
+    for (const n of LABEL_NOTES2.slice(1)) assert.ok(cites4a.includes(`${n.path} [CANDIDATE (our restatement) + ${n.label}]`), json(cites4a))
+    assert.ok(walkthroughOf(RUNS.hpe1).answers.flatMap((a) => [...a.facts.flatMap((f) => f.cites), ...a.rows.flatMap((r) => r.cites)]).every((c) => !c.includes(' + PROPOSED: the') && !c.includes('typedBound')), "HPE-1's cites carry no note")
+    // FIX (V1 L2): RPC-PROP-026 read on A02-HPE1 with HPE-2's predicate: partly punished for both reasons, the give-back and the long ball.
+    const across = rpc026Across(RUNS.hpe1)
+    assert.ok(across.verdict === 'partly punished' && across.reading.includes('returns it to the escaping team at the restart') && across.reading.includes('costs only the ball'), json(across))
+    // Read with HPE-1's shape, the same game fails exactly where the shapes differ (the probe's measurement, now named): 1b, 1e, 2c, 3d, 4a, 4c, 4d.
     const asHpe1 = walkthroughOf(H2, H2.built, H2.answer, HPE1_SHAPE)
     assert.deepEqual(asHpe1.answers.flatMap((a) => a.facts.filter((f) => !f.holds).map((f) => f.id)), ['1b', '1e', '2c', '3d', '4a', '4c', '4d'])
     // Bites, each on a changed copy of the realized game read with HPE-2's shape.
@@ -600,10 +731,19 @@ test("B8 the walkthrough re-expressed for HPE-2: the structural facts of 4 of 4 
         return (f.status.geometry as any[]).find((g) => g.path === `space.regions[c:${o.reference.structuralRef.contractId}:${o.reference.structuralRef.itemId}].position.along`)
     }
     assert.deepEqual(failing((f) => (pressingZone(f).geometry.interval = { from: 6, to: 12 })), ['1b', '4c', '4d'], 'bite: the end zone moved off the end line')
+    // FIX (V1 L1): 1b's 'the zone has depth' bites (an end zone with no depth at the end line).
+    assert.deepEqual(failing((f) => (pressingZone(f).geometry.interval = { from: 0, to: 0 })), ['1b', '4c', '4d'], 'bite: an end zone with no depth')
     const toEscaping = (f: any) => {
         for (const t of f.game.transitions as any[]) if ((t.selector as any[]).some((s) => s.attribute === 'trigger' && s.value === 'OUT_END_LINE')) t.awardedTo = 'ROLE_HOLDER_ESCAPING'
     }
     assert.deepEqual(failing(toEscaping), ['1e'], 'bite: the end-line award given back to the escaping team')
+    // FIX (V1 L1): 1e's START and SCORE awards under HPE-2's shape bite, each on its own (the restart given to the pressing team).
+    for (const trigger of ['START', 'SCORE']) {
+        const toPressing = (f: any) => {
+            for (const t of f.game.transitions as any[]) if ((t.selector as any[]).some((s) => s.attribute === 'trigger' && s.value === trigger)) t.awardedTo = 'ROLE_HOLDER_PRESSING'
+        }
+        assert.deepEqual(failing(toPressing), ['1e'], `bite: the ${trigger} restart given to the pressing team`)
+    }
     assert.deepEqual(failing((f) => (f.game.blocks = { endAssignment: 'EXCHANGED', timer: 'EVERY_3_MINUTES' })), ['2c', '3d'], 'bite: an end assignment holding more than the ends is an element of another kind again')
     assert.deepEqual(failing((f) => ((f.game.value.primaryEvent.conditions as any[]).find((c) => c.type === 'origin').value = 'established coordinated pressure')), ['4a'], "bite: HPE-1's origin value")
     assert.deepEqual(failing((f) => ((f.game.value.primaryEvent.conditions as any[]).find((c) => c.type === 'progression').value = 'beyond')), ['4a'], "bite: HPE-1's progression value")
@@ -646,6 +786,14 @@ test('B10, B11 the two-team check: A02-HPE1 has a finding on (i) (the pressing t
     assert.ok(answerOf((f) => (f.game.value.modifiers = [{ elementId: 'BITE' }]), 'v').evidence.every((e) => e.includes('elements that read the score: value.modifiers')), 'bite (v)')
     assert.equal(answerOf((f) => (pressingZone(f).geometry.interval = { from: 0, to: 0 }), 'i').kind, 'FINDING', 'bite (i): a zone with no depth')
     assert.equal(answerOf((f) => f.game.transitions.push({ ...copy(f.game.transitions[0]), elementId: 'BITE', selector: [{ attribute: 'trigger', op: '=', value: 'OUT_TOUCHLINE' }], awardedTo: 'ROLE_HOLDER_PRESSING', qualifiers: null }), 'ii').kind, 'FINDING', 'bite (ii): a side-line restart to a fixed role')
+    // FIX (V1 L1): (ii)'s exemption bites: an end-line award to a fixed role keyed to the other role's last touch never returns the ball to the
+    // team that put it out (NO FINDING); the same award without the key is a FINDING.
+    const endLineTo = (lastTouch: string | null) => (f: any) => {
+        const t = (f.game.transitions as any[]).find((x) => (x.selector as any[]).some((s) => s.attribute === 'trigger' && s.value === 'OUT_END_LINE'))
+        f.game.transitions.push({ ...copy(t), elementId: 'BITE', awardedTo: 'ROLE_HOLDER_ESCAPING', qualifiers: { ...(t.qualifiers ?? {}), lastTouch } })
+    }
+    assert.equal(answerOf(endLineTo('ROLE_HOLDER_PRESSING'), 'ii').kind, 'NO FINDING', "bite (ii): keyed to the other role's last touch, exempt")
+    assert.equal(answerOf(endLineTo(null), 'ii').kind, 'FINDING', 'bite (ii): the same award with no key is found')
     // A run with no role blocks is not read (plain GF2, the walkthrough's negative control).
     assert.ok(twoTeamCheckOf('A02-GF2W', B3.get('A02-GF2W')!.built).answers.every((a) => a.kind === 'NOT READ'))
 })
@@ -654,7 +802,8 @@ test("B12, B5 the coach text of A02-HPE2 (served at review level): every engine 
     const { print, said, illustrativeOf, engine, reading, words } = reviewPrint2(H2)
     assert.deepEqual(printRefusals(print, said, illustrativeOf), [])
     assert.deepEqual(print.findings, [])
-    assert.deepEqual([said.length, words], [19, 430])
+    // FIX (V2 F1, F2), re-pinned openly: was 430 words (the said scoring sentence 3 words shorter).
+    assert.deepEqual([said.length, words], [19, 427])
     const byPart = ['Setup', 'Rules', 'Scoring', 'Learning explanation'].flatMap((part) => print.lines.filter((l) => l.part === part))
     assert.deepEqual(byPart.map((l) => [l.part, l.shownMarker, 'printed' in l.of ? l.of.printed : 'said']), EXPECTED_LINES)
     assert.deepEqual([reading.total.lines, reading.total.sentences, reading.total.words], EXPECTED_READING)
@@ -665,10 +814,28 @@ test("B12, B5 the coach text of A02-HPE2 (served at review level): every engine 
     assert.ok(ruling('A02-13NOV-SEQUENCE').words.some((w) => w.includes('existing approved High Press Escape coach translation')))
     // Every difference stated in the evidence still holds of the printed sentence and the engine sentences it stands for.
     for (const d of DIVERGENCES2) {
-        const p = WORDING2.printerOnly.find((x) => x.id === d.id)!
+        // FIX (V2 F13): a difference may be the said entry's (W1) as well as a printed sentence's.
+        const p = (WORDING2.printerOnly.find((x) => x.id === d.id) ?? WORDING2.entries.find((e) => e.id === d.id))!
+        assert.ok(p, d.id)
         if (d.has) assert.ok(p.sentence.includes(d.has), `${d.id} says '${d.has}'`)
         if (d.dropped) assert.ok(!p.sentence.includes(d.dropped) && (p.standsFor ?? []).some((s) => s.includes(d.dropped!)), `${d.id} leaves out '${d.dropped}'`)
     }
+    // FIX (V2 F12, F5): the notes measured: H2b 16 carries the marked line's label with no quantity of it in its words; Q4 governs W1 with no item.
+    const notes = engineNotes2(said, illustrativeOf)
+    assert.equal(notes.length, 2, json(notes))
+    assert.ok(notes[0].startsWith("H2b 16 ('When you call the next block") && notes[0].includes("'ILLUSTRATIVE: a schematic 12 m from the escaping team's end line"), notes[0])
+    assert.ok(notes[1].startsWith('Q4 ') && notes[1].includes('but 0 items wait on it'), notes[1])
+    // FIX (V2 F1, F2, F3): the scoring sentence asks the coach for the escape and says the crossing ('a ball played over it'), no 'attempt' and no
+    // 'beyond'; the end-line restart names the marked line.
+    const w1 = WORDING2.entries[0].sentence
+    assert.ok(w1.startsWith('The escaping team scores a point when it escapes the pressing team pressing together:') && w1.includes('receives and controls a ball played over it') && !w1.includes('attempt') && !w1.includes('beyond'), w1)
+    assert.ok(WORDING2.printerOnly.find((p) => p.id === 'A02-HPE2-R2')!.sentence.includes('the pressing team on the marked line'))
+    // FIX (V2 F14, F15): the possession sentence is printed with its full stop (its words as said, H2b keeps the engine's); the heading says what
+    // [A] means on a sentence printed as said.
+    const possession = print.lines.find((l) => l.plain.startsWith('When possession changes'))!
+    assert.ok(possession.text.endsWith('the same target.') && !possession.plain.endsWith('.'), possession.text)
+    assert.ok(engine.some((l) => l.endsWith('keeps attacking the same target -> printed as said')))
+    assert.ok(print.text.includes(APPROVED_SAID))
     // No prescription for defensive behaviour, and no live origin sentence: 'set to press together' is in no sentence of ours.
     assert.ok(print.lines.every((l) => !l.plain.includes('set to press together')))
     // Bites: the translation's source cut to [A]; the possession sentence's source stripped; a [P] made [C]; a stated sentence's grade dropped.

@@ -537,7 +537,7 @@
           "contractId": "proposed:A02-HPE2",
           "itemId": "A02-HPE2-S2-1"
          },
-         "asAuthored": "the pressing line, as the marked line PROPOSED in A02-HPE2 (N1)"
+         "asAuthored": "the pressing line, as the marked line PROPOSED in A02-HPE2 (Q1)"
         },
         "value": "over"
        },
@@ -1058,7 +1058,7 @@
           "contractId": "proposed:A02-HPE2",
           "itemId": "A02-HPE2-S2-1"
          },
-         "asAuthored": "the pressing line, as the marked line PROPOSED in A02-HPE2 (N1)"
+         "asAuthored": "the pressing line, as the marked line PROPOSED in A02-HPE2 (Q1)"
         },
         "value": "over"
        },
@@ -1369,7 +1369,7 @@
    {
     "part": "Rules",
     "marker": "[A: Christian's approved wording POSSESSION_CONTINUES, received 25 October 2026 | contingent on Q6]",
-    "text": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same target",
+    "text": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same target.",
     "of": "said"
    },
    {
@@ -1381,13 +1381,13 @@
    {
     "part": "Rules",
     "marker": "[P | PROPOSED Q3 | PROPOSED Q6]",
-    "text": "If the ball goes over an end line, the team that did not touch it last restarts from the feet: the escaping team as at the start, the pressing team on the line, where you choose. Throw-ins and free kicks as normal; no offside.",
+    "text": "If the ball goes over an end line, the team that did not touch it last restarts from the feet: the escaping team as at the start, the pressing team on the marked line, where you choose. Throw-ins and free kicks as normal; no offside.",
     "of": "A02-HPE2-R2"
    },
    {
     "part": "Scoring",
     "marker": "[C | contingent on Q1 | contingent on Q2]",
-    "text": "The escaping team scores a point when, in an attempt that starts with the pressing team pressing together, a player dribbles over the line, or receives and controls the ball beyond it, and the team keeps the ball through its next action. One player closing down alone does not necessarily count as pressing together. No point if play stops first; use your judgment for unusual stoppages.",
+    "text": "The escaping team scores a point when it escapes the pressing team pressing together: a player dribbles over the line, or receives and controls a ball played over it, and the team keeps the ball through its next action. One player closing down alone does not necessarily count as pressing together. No point if play stops first; use your judgment for unusual stoppages.",
     "of": "said"
    },
    {
@@ -1419,7 +1419,7 @@
    "total": {
     "lines": 10,
     "sentences": 17,
-    "words": 305
+    "words": 303
    },
    "byPart": {
     "Setup": {
@@ -1430,12 +1430,12 @@
     "Rules": {
      "lines": 3,
      "sentences": 5,
-     "words": 113
+     "words": 114
     },
     "Scoring": {
      "lines": 2,
      "sentences": 5,
-     "words": 97
+     "words": 94
     },
     "Learning explanation": {
      "lines": 2,
@@ -1477,16 +1477,16 @@
    "1. [D] Mark out an area 40 m long by 30 m wide [ILLUSTRATIVE: session value, a test value] -> stated by A02-HPE2-S1",
    "2. [D | PROPOSED Q1] Mark a line across the area, 12 m from the escaping team's end line [ILLUSTRATIVE: a schematic 12 m from the escaping team's end line, for this 40 m area only] -> stated by A02-HPE2-S2",
    "3. [D | PROPOSED Q2] Mark the pressing team's target zone at the escaping team's end, 6 m deep, across the full width [ILLUSTRATIVE: a schematic 6 m depth for the end zone, for this 40 m area only] -> stated by A02-HPE2-S2",
-   "4. [D | PROPOSED Q1] Mark the escaping team's target zone from the marked line to the pressing team's end line, across the full width -> stated by the said sentence 'The escaping team scores a point when, i...'",
+   "4. [D | PROPOSED Q1] Mark the escaping team's target zone from the marked line to the pressing team's end line, across the full width -> stated by the said sentence 'The escaping team scores a point when it...'",
    "5. [D] Divide 12 players into 2 teams of 6, with no goalkeepers [ILLUSTRATIVE: session value, a test value] -> stated by A02-HPE2-S1",
    "6. [A: Christian's approved wording POSSESSION_CONTINUES, received 25 October 2026 | contingent on Q6] When possession changes, play carries on without a stoppage, and each team keeps attacking the same target -> printed as said",
    "7. [D | PROPOSED Q6] A player of the escaping team restarts play: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on) -> stated by A02-HPE2-R1",
    "8. [D | PROPOSED Q3] There is no offside -> stated by A02-HPE2-R2",
-   "9. [D | PROPOSED Q1 | PROPOSED Q2] Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside -> stated by the said sentence 'The escaping team scores a point when, i...'",
+   "9. [D | PROPOSED Q1 | PROPOSED Q2] Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside -> stated by the said sentence 'The escaping team scores a point when it...'",
    "10. [D | PROPOSED Q1 | PROPOSED Q2] Pressing team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside -> stated by A02-HPE2-K2",
    "11. [D] Each score is worth 1 point -> stated by A02-HPE2-K2",
    "12. [D | PROPOSED Q1 | PROPOSED Q2] Each team attacks the zone at the other team's end. Decide which team starts at which end -> stated by A02-HPE2-S3",
-   "13. [C | contingent on Q1] The escaping team scores a point when, in an attempt that starts with the pressing team pressing together, a player dribbles over the line, or receives and controls the ball beyond it, and the team keeps the ball through its next action. One player closing down alone does not necessarily count as pressing together. No point if play stops first; use your judgment for unusual stoppages. -> printed as said",
+   "13. [C | contingent on Q1] The escaping team scores a point when it escapes the pressing team pressing together: a player dribbles over the line, or receives and controls a ball played over it, and the team keeps the ball through its next action. One player closing down alone does not necessarily count as pressing together. No point if play stops first; use your judgment for unusual stoppages. -> printed as said",
    "14. [D] Play for 18 minutes [ILLUSTRATIVE: session value, a test value] -> stated by A02-HPE2-S1",
    "15. [D | PROPOSED Q1] Play in blocks: in each block one team is the escaping team and the other is the pressing team -> stated by A02-HPE2-S3",
    "16. [D | PROPOSED Q1 | PROPOSED Q2 | PROPOSED Q5] When you call the next block the teams change ends and exchange roles: each role is played from the same end in every block, so each team now attacks the target zone of its new role; there is no set block length [ILLUSTRATIVE: a schematic 12 m from the escaping team's end line, for this 40 m area only] -> stated by A02-HPE2-S3",
@@ -1494,7 +1494,7 @@
    "18. [D | PROPOSED Q6] You choose where a player of the escaping team restarts play, near the escaping team's own end, outside the end zone -> stated by A02-HPE2-R1",
    "19. [D | PROPOSED Q6] If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play, from the feet, with the ball still or moving; you choose where (for the escaping team near its own end, outside the end zone; for the pressing team on the marked line) -> stated by A02-HPE2-R2"
   ],
-  "engineWords": 430,
+  "engineWords": 427,
   "divergences": [
    {
     "id": "A02-HPE2-S1",
@@ -1510,13 +1510,23 @@
    },
    {
     "id": "A02-HPE2-S3",
-    "says": "says 'Swap roles when you choose' for 'When you call the next block' and leaves out 'there is no set block length'; the clock of our draft ('every 3 minutes') is said by neither: the engine cannot state a block length",
+    "says": "says 'Swap roles when you choose' for 'When you call the next block' and leaves out 'there is no set block length'; the clock of our draft ('every 3 minutes') is said by neither: the engine cannot state a block length, so the text gives a coach no guide to how often to swap (whether a coach's regular call may stand in for the clock is Christian's, Q5)",
     "has": "Swap roles when you choose",
     "dropped": "there is no set block length"
    },
    {
+    "id": "A02-HPE2-S3",
+    "says": "is where the engine's 'Decide which team starts at which end' is listed, though it does not say it: the coach decides it by choosing which team defends the marked end",
+    "dropped": "Decide which team starts at which end"
+   },
+   {
+    "id": "A02-HPE2-W1",
+    "says": "is where the engine's 'Mark the escaping team's target zone from the marked line to the pressing team's end line, across the full width' is listed, though it marks nothing: the zone is everything beyond the marked line, labelled in the diagram and read from 'over the line'",
+    "dropped": "Mark the escaping team's target zone"
+   },
+   {
     "id": "A02-HPE2-R1",
-    "says": "says 'whenever you judge an attempt has run its course' for the engine's 'whenever you decide that an attack has run its course (at a stoppage or while play is on)', and adds an example the engine does not say; the narrower trigger of our draft and its limit (never while the pressing team has the ball) are said by neither",
+    "says": "says 'whenever you judge an attempt has run its course' for the engine's 'whenever you decide that an attack has run its course (at a stoppage or while play is on)', and adds an example the engine does not say; the narrower trigger of our draft and its limit (never while the pressing team has the ball) are said by neither, so, as served, a coach may also restart with the escaping team just after the pressing team wins the ball, and nothing in the text says otherwise",
     "has": "for example when the escaping team holds the ball beyond the line unpressed",
     "dropped": "an attack has run its course"
    },
@@ -1566,7 +1576,7 @@
         "activityRoles[c:proposed:A02-HPE2:A02-HPE2-B1-2].scoresBy [PROPOSED]",
         "objectives[c:restated:GF2:GF2-08.e].reference [RULING (Christian's, recorded on the knowledge item)]",
         "space.regions[c:restated:GF2:GF2-03.e].noun [PROPOSED]",
-        "space.regions[c:restated:GF2:GF2-03.e].position.along [CANDIDATE (our restatement of the knowledge workbooks)]"
+        "space.regions[c:restated:GF2:GF2-03.e].position.along [CANDIDATE (our restatement of the knowledge workbooks) + ILLUSTRATIVE: a schematic 6 m depth for the end zone, for this 40 m area only (the depth realized from A02-HPE2-S5-3's typedBound, 6 m, question Q2, though no configuration line cites that item)]"
        ]
       },
       {
@@ -1591,7 +1601,7 @@
        ],
        "cites": [
         "space.regions[c:restated:GF2:GF2-03.f].position.along [CANDIDATE (our restatement of the knowledge workbooks) + PROPOSED]",
-        "space.regions[c:restated:GF2:GF2-03.e].position.along [CANDIDATE (our restatement of the knowledge workbooks)]"
+        "space.regions[c:restated:GF2:GF2-03.e].position.along [CANDIDATE (our restatement of the knowledge workbooks) + ILLUSTRATIVE: a schematic 6 m depth for the end zone, for this 40 m area only (the depth realized from A02-HPE2-S5-3's typedBound, 6 m, question Q2, though no configuration line cites that item)]"
        ]
       },
       {
@@ -1674,7 +1684,7 @@
         "activityRoles[c:proposed:A02-HPE2:A02-HPE2-B1-2].scoresBy [PROPOSED]",
         "objectives[c:restated:GF2:GF2-08.e].reference [RULING (Christian's, recorded on the knowledge item)]",
         "space.regions[c:restated:GF2:GF2-03.e].noun [PROPOSED]",
-        "space.regions[c:restated:GF2:GF2-03.e].position.along [CANDIDATE (our restatement of the knowledge workbooks)]"
+        "space.regions[c:restated:GF2:GF2-03.e].position.along [CANDIDATE (our restatement of the knowledge workbooks) + ILLUSTRATIVE: a schematic 6 m depth for the end zone, for this 40 m area only (the depth realized from A02-HPE2-S5-3's typedBound, 6 m, question Q2, though no configuration line cites that item)]"
        ]
       },
       {
@@ -1792,9 +1802,9 @@
         "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: origin 'established coordinated pressure, encountered and then escaped by this crossing', progression 'over' the line"
        ],
        "cites": [
-        "value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value [CANDIDATE (our restatement)]",
+        "value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value [CANDIDATE (our restatement) + PROPOSED: the closing words 'by this crossing' (the store item RPC-002-02.b)]",
         "value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].referents [CANDIDATE (our restatement)]",
-        "value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].value [CANDIDATE (our restatement)]"
+        "value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].value [CANDIDATE (our restatement) + PROPOSED: the whole value 'over', our crossing reading of RPC-PROP-133's 'beyond' (the store item RPC-002-03.c)]"
        ]
       },
       {
@@ -2724,12 +2734,12 @@
   ]
  },
  "differsFromBaseline": [
-  "the pressing team's score: A02-HPE1 line_crossed into the line over {from: 0, to: 0}; A02-HPE2 target_zone_entered into the zone over {from: 0, to: 6} [PROPOSED] [CANDIDATE (our restatement of the knowledge workbooks)]",
+  "the pressing team's score: A02-HPE1 line_crossed into the line over {from: 0, to: 0}; A02-HPE2 target_zone_entered into the zone over {from: 0, to: 6} [PROPOSED] [CANDIDATE (our restatement of the knowledge workbooks) + ILLUSTRATIVE: a schematic 6 m depth for the end zone, for this 40 m area only (the depth realized from A02-HPE2-S5-3's typedBound, 6 m, question Q2, though no configuration line cites that item)]",
   "the ball over an end line: A02-HPE1 to ROLE_HOLDER_ESCAPING; A02-HPE2 to the team that did not touch it last [CANDIDATE (our restatement of the knowledge workbooks)], its place {coachDecides: 'for the escaping team near its own end, outside the end zone; for the pressing team on the marked line'} [the coach decides]",
   "the start's place: A02-HPE1 {coachDecides: 'near the escaping team's own end, with the pressing team set to press together'}; A02-HPE2 {coachDecides: 'near the escaping team's own end, outside the end zone'} [the coach decides]",
   "the coach's restart: A02-HPE1 none; A02-HPE2 COACH_JUDGED_EPISODE_CONCLUSION, awarded to ROLE_HOLDER_ESCAPING [PROPOSED]",
   "the teams' ends between blocks: A02-HPE1 'kept (the marked line moved)'; A02-HPE2 {endAssignment: 'EXCHANGED'} [PROPOSED]",
-  "the origin value: A02-HPE1 'established coordinated pressure'; A02-HPE2 'established coordinated pressure, encountered and then escaped by this crossing' [CANDIDATE (our restatement)], its closing words 'by this crossing' PROPOSED (the store item's fitNote: the grading reads the whole value as our restatement)",
-  "the progression value: A02-HPE1 'beyond'; A02-HPE2 'over' [CANDIDATE (our restatement)], the crossing reading PROPOSED (the store item's fitNote)"
+  "the origin value: A02-HPE1 'established coordinated pressure'; A02-HPE2 'established coordinated pressure, encountered and then escaped by this crossing' [CANDIDATE (our restatement) + PROPOSED: the closing words 'by this crossing' (the store item RPC-002-02.b)] (the grading reads the whole value as our restatement)",
+  "the progression value: A02-HPE1 'beyond'; A02-HPE2 'over' [CANDIDATE (our restatement) + PROPOSED: the whole value 'over', our crossing reading of RPC-PROP-133's 'beyond' (the store item RPC-002-03.c)] (the grading reads the whole value as our restatement; no part of it is Christian's word)"
  ]
 }

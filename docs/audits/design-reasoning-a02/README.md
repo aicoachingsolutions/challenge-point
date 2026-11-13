@@ -142,7 +142,7 @@ questions it waits on are Q1 to Q6 of its configuration.
 | File | What it is |
 | --- | --- |
 | `docs/audits/drafts/a02-proposed/hpe2.PROPOSED.json` | Our PROPOSED configuration A02-HPE2 (26 items, 2 ILLUSTRATIVE; six questions) |
-| `docs/audits/drafts/a02-hpe2-composition/` | A copy of `a02-composition` with the origin and progression values revised (CANDIDATE, their closing words PROPOSED), and our CANDIDATE coach wording for A02-HPE2 |
+| `docs/audits/drafts/a02-hpe2-composition/` | A copy of `a02-composition` with the origin and progression values revised (the origin value CANDIDATE, its closing words 'by this crossing' PROPOSED; the progression value 'over' wholly PROPOSED, our crossing reading of RPC-PROP-133's 'beyond'), and our CANDIDATE coach wording for A02-HPE2 |
 | `back/src/system/design-reasoning/a02-hpe2-inputs.review.json` | Christian's 13 November rulings, verbatim with their received date, and the case A02-HPE2 (based on A02-0 of `a02-inputs.review.json`) |
 | `back/src/system/design-reasoning/a02-hpe2.unit.ts` | The registered test: the run, the realized game, the diagram, the loader's dates, the walkthrough re-expressed for HPE-2, the two-team check (PROPOSED diagnostics, gating nothing) with its negative controls, the four-part print, the evidence |
 | `evidence/a02-hpe2-report.txt`, `evidence/a02-hpe2-results.json` | A02-HPE2's evidence beside A02-HPE1's, generated twice from two builds and identical |
