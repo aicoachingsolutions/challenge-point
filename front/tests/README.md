@@ -44,6 +44,11 @@ included, is the server's own. The checked build is stored once (`checkedResult.
 verified deep-equal to it before it was removed, and the test puts it back. The notice's words are never written in the
 test: every assertion reads them from the body the server sent.
 
+`constraints-not-applied.test.tsx` (13 November 2026) renders the review page's 'How this was arrived at' panel from the
+A01 served body in `fixtures/a01.json`, unchanged, with only `account.constraintsNotApplied` added: one entry per rule the
+server can send, every title and id marked TEST-ONLY. It asserts our DRAFT wording for those lines and the visible
+'(ours, DRAFT)' on each; the same wording is checked in the debug panels' shape.
+
 Tests and fixtures live outside `src/` and `public/`. The production tsconfig includes only `src/`,
 and Vite's production entry does not import tests. `tsconfig.test.json` provides type-aware lint
 coverage and can be checked with `npx tsc --project tsconfig.test.json --noEmit` independently.

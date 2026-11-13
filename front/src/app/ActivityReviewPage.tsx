@@ -55,7 +55,6 @@ import {
     RequirementPart,
     ReviewBoundRegionAccount,
     ReviewBoundRegionPairing,
-    ReviewConstraintNotApplied,
     ReviewDraft,
     ReviewDraftInstruction,
     ReviewEvidence,
@@ -74,6 +73,7 @@ import ObjectChoiceField from '@/components/ObjectChoiceField'
 
 // The activity itself, as a coach reads it (moved to its own module on 22 October 2026 so the live app renders it through the same component).
 import { ActivityBlock, blockNumberLabel, DemonstrationLabel, groupBySection } from './CheckedActivityBlock'
+import { ConstraintsNotApplied } from './ConstraintsNotApplied'
 import { DURATION_OPTIONS } from './SessionPlanningConversation'
 
 /**
@@ -1353,18 +1353,6 @@ function AccountChip({ flag, account, words, rule }: { flag?: RequirementPart['f
     )
 }
 
-/**
- * **A constraint selection committed and did not use, in plain words — 12 November 2026 (wording DRAFT, for Christian's review).** Christian,
- * received 12 November 2026: the system must distinguish "Constraints considered or eligible." "Constraints actually selected for
- * application." "Constraints validated." "Constraints included in the final activity." The list above holds the constraints applied; each
- * line here names one that was considered and not used, and the existing rule that left it out, as the server sent it.
- */
-function notAppliedSaid(entry: ReviewConstraintNotApplied): string {
-    if (entry.rule === 'ONE_MEMBER_PER_ROLE') return `Considered, not used: ${entry.title} (one ${entry.role} constraint is used; ${entry.kept?.title ?? 'another'} was chosen).`
-    if (entry.rule === 'CONSEQUENCE_SCORE_AT_OR_BELOW_12') return `Considered, not used: ${entry.title} (a consequence constraint is used only where it fits this game closely enough; none did).`
-    return `Considered, not used: ${entry.title} (no ${entry.role} constraint fits this game).`
-}
-
 /** What the account's status means, in plain DRAFT words (round 3b): a report, and what of it is enforced on this build. */
 function accountStatusSaid(account: RequirementAccount): string {
     if (account.status === 'REPORT_AND_ENFORCEMENT') return "A report; on this build the approved scoring condition's components quoting his words were enforced (ours, DRAFT)."
@@ -1795,8 +1783,10 @@ function GameProblemLine({ gameProblem, kind }: { gameProblem: ActivityAccount['
  * Fields are read defensively. A refusal carries only the part of the account that was established
  * before it stopped, so every row is rendered if present and omitted if not — an absent row means "not
  * reached", and a placeholder there would read as a finding.
+ *
+ * Exported (13 November 2026) only so a front test can render this panel from a served body (tests/constraints-not-applied.test.tsx).
  */
-function ArrivedAt({ result }: { result: ActivityReviewResult }) {
+export function ArrivedAt({ result }: { result: ActivityReviewResult }) {
     const [open, setOpen] = useState(false)
     const account: Partial<ActivityAccount> = result.account ?? {}
     const served = result.outcome === 'served' ? result : null
@@ -2011,12 +2001,12 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                 ) : (
                                     'None selected'
                                 )}
-                                {/* 12 November 2026: each constraint committed and not used, after those applied (wording DRAFT, `notAppliedSaid`). */}
-                                {(account.constraintsNotApplied ?? []).map((entry) => (
-                                    <p key={entry.id} className='mt-1 text-xs text-gray-600'>
-                                        {notAppliedSaid(entry)} <span className='text-gray-500'>({entry.id})</span>
-                                    </p>
-                                ))}
+                                {/*
+                                  * 12 November 2026, reworded 13 November 2026: each member of the selector's combination the package did not use,
+                                  * after those applied, with the engine rule and the member kept. Every line carries a visible '(ours, DRAFT)', shown
+                                  * to every viewer as this page shows its other DRAFT wording (`ConstraintsNotApplied`, the debug panels' wording too).
+                                  */}
+                                <ConstraintsNotApplied entries={account.constraintsNotApplied} />
                             </AccountField>
                         )}
 
