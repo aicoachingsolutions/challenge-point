@@ -6,10 +6,11 @@ import { knowledgeKey } from '../derivation/knowledge-key'
 import { LearningDesignHold, learningGoalSelectionHolds } from './learning-design-holds'
 import { testLibraryRegistry } from './library/registry'
 import { normalizeCoachingInput } from './normalizeCoachingInput'
-import { isSelectionPackageCompatible } from './selection-compatibility'
+import { isSelectionPackageCompatible, type SelectionPackageCompatibility } from './selection-compatibility'
 import { SELECTION_SUITABILITY_WEIGHTS as W } from './selection-weights'
 import type {
     ConstraintBalanceBucket,
+    ConstraintNotApplied,
     ConstraintPoolAccount,
     SelectionRankingEntry,
     SelectionReasonEntry,
@@ -61,14 +62,22 @@ export class SelectionKnowledgeGap extends Error {
     readonly reason: SelectionKnowledgeGapReason
     readonly pool: ConstraintPoolAccount
 
-    constructor(learningGoalId: string, archetypeId: string | null, reason: SelectionKnowledgeGapReason, pool: ConstraintPoolAccount) {
+    constructor(
+        learningGoalId: string,
+        archetypeId: string | null,
+        reason: SelectionKnowledgeGapReason,
+        pool: ConstraintPoolAccount,
+        /** What the gap found, where there is more to say than the reason (12 November 2026: why an authorization record's set was refused whole). */
+        detail: string | null = null
+    ) {
         super(
             `${learningGoalId}: a knowledge gap (${reason}) - ` +
                 (reason === 'NO_AUTHORIZED_CONSTRAINTS'
                     ? "the goal's authorization record has not yet evaluated which library constraints the approved knowledge justifies"
                     : "the goal's designated knowledge cannot be combined into a selection") +
                 `${archetypeId ? (reason === 'NO_AUTHORIZED_CONSTRAINTS' ? ` (found on ${archetypeId})` : ` on ${archetypeId}`) : ''}; unfilled roles: ${pool.unfilledRoles.join(', ') || 'none'}; ` +
-                `held by ruling: ${pool.heldByRuling.map((hold) => hold.id).join(', ') || 'none'}. Nothing was drawn from outside the goal's candidates.`
+                `held by ruling: ${pool.heldByRuling.map((hold) => hold.id).join(', ') || 'none'}. Nothing was drawn from outside the goal's candidates.` +
+                (detail ? ` ${detail}` : '')
         )
         this.name = 'SelectionKnowledgeGap'
         this.learningGoalId = learningGoalId
@@ -754,7 +763,16 @@ function computeResolution(inputConstraints?: InputConstraintHints | null): Sele
  */
 export interface DesignPossibility {
     lenses: TestLibraryV0AffordanceLens[]
+    /** The combination scored and committed (the size rule and the role mix are applied to it). */
     constraints: TestLibraryV0Constraint[]
+    /**
+     * The combination's members the package holds, in its order (12 November 2026): validated by the package check that admitted it, and the
+     * constraints applied. The package is built from the combination on these lenses, exactly as the check built it.
+     */
+    applied: TestLibraryV0Constraint[]
+    /** Each member of the combination the package does not hold, with the existing rule that left it out (`ConstraintNotApplied`). */
+    notApplied: ConstraintNotApplied[]
+    /** The combination's score: every member's, applied or not. */
     total: number
     /** Deterministic identity for tie-breaking: sorted lens + constraint ids. */
     key: string
@@ -775,6 +793,13 @@ interface DesignEnumerationContext {
     roleNeedsFromPool: boolean
     /** Commit lenses with NO constraint: set only for a record-backed goal whose evaluated authorized set is empty. */
     zeroConstraintCommitment: boolean
+    /**
+     * **An authorization record's set: taken whole or refused** (12 November 2026). Set only for a record-backed pool that authorizes a
+     * constraint: the only combination tried is the whole pool, and only where the package holds every member (`everyMemberValidated`).
+     * Each reason the whole set was not admitted is added to `wholeSetRefusals`, so the gap names it.
+     */
+    wholeSetOnly: boolean
+    wholeSetRefusals: string[]
 }
 
 function comboKey(lenses: TestLibraryV0AffordanceLens[], cons: TestLibraryV0Constraint[]): string {
@@ -787,9 +812,17 @@ function comboKey(lenses: TestLibraryV0AffordanceLens[], cons: TestLibraryV0Cons
  * pre-assembly compatibility, scoring each. It does NOT choose; that is commitDesignChoice's job.
  */
 function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPossibility[] {
-    const { tokens, archetype, archeAffordances, informationIntent, lensCandidatePool, lensScoreById, allConstraints, roleNeedsFromPool, zeroConstraintCommitment } = ctx
+    const { tokens, archetype, archeAffordances, informationIntent, lensCandidatePool, lensScoreById, allConstraints, roleNeedsFromPool, zeroConstraintCommitment, wholeSetOnly, wholeSetRefusals } = ctx
     const poolIds = new Set(allConstraints.map((c) => c.id))
     const possibilities: DesignPossibility[] = []
+    /**
+     * **The size rule, applied to an authorization record's set as it stands** (12 November 2026): the set is the combination, so the rule
+     * (2-4, unchanged) either admits it or refuses it; a set it refuses is never cut to fit.
+     */
+    if (wholeSetOnly && (allConstraints.length < 2 || allConstraints.length > 4)) {
+        wholeSetRefusals.push(`the set holds ${allConstraints.length} ${allConstraints.length === 1 ? 'constraint' : 'constraints'} and the size rule admits 2 to 4, so it is refused as it stands, not cut to fit`)
+        return possibilities
+    }
     for (const lensSize of [2, 3]) {
         if (lensCandidatePool.length < lensSize) continue
 
@@ -802,7 +835,7 @@ function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPoss
              */
             if (zeroConstraintCommitment) {
                 const lensSum = lensCombo.reduce((s, l) => s + (lensScoreById.get(l.id)?.score ?? 0), 0)
-                possibilities.push({ lenses: [...lensCombo], constraints: [], total: lensSum, key: comboKey(lensCombo, []) })
+                possibilities.push({ lenses: [...lensCombo], constraints: [], applied: [], notApplied: [], total: lensSum, key: comboKey(lensCombo, []) })
                 continue
             }
             const selectedLensSlugs = new Set(lensCombo.map(lensSlug))
@@ -824,6 +857,42 @@ function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPoss
 
             const lensSum = lensCombo.reduce((s, l) => s + (lensScoreById.get(l.id)?.score ?? 0), 0)
 
+            const possibilityOf = (conCombo: TestLibraryV0Constraint[], compat: SelectionPackageCompatibility): DesignPossibility => {
+                const conSum = conCombo.reduce((s, c) => s + (conMap.get(c.id)?.score ?? 0), 0)
+                const balance = constraintBalanceBonus(conCombo)
+                const total = lensSum + conSum + balance
+                const applied = conCombo.filter((c) => compat.members.includes(c.id))
+                return { lenses: [...lensCombo], constraints: [...conCombo], applied, notApplied: compat.notApplied, total, key: comboKey(lensCombo, conCombo) }
+            }
+
+            /**
+             * **An authorization record's set: the whole set, or nothing** (12 November 2026, Christian's item 4: "A jointly required, authorized
+             * set should not be silently reduced."). Our reading, CANDIDATE for Christian to confirm: a record's set is jointly required. So the
+             * one combination tried is the whole pool, through the same role mix and the same package checks, with every member required to be
+             * in the package (`everyMemberValidated`); a subset is never tried, and nothing is committed with a member not applied. Where the
+             * whole set is not admitted on any lens combination, the gap names why. Unreachable in production today: the one record (A01)
+             * authorizes no constraint and commits zero above.
+             */
+            if (wholeSetOnly) {
+                const candidateIds = new Set(constraintCandidatePool.map((c) => c.id))
+                const outsideSearch = allConstraints.filter((c) => !candidateIds.has(c.id))
+                if (outsideSearch.length) {
+                    wholeSetRefusals.push(`${outsideSearch.map((c) => `"${c.title}"`).join(', ')} not among the bounded search's candidates (two per role)`)
+                    continue
+                }
+                if (!constraintComboPassesRoleMix(allConstraints, roleNeeds)) {
+                    wholeSetRefusals.push('the role mix refuses the set')
+                    continue
+                }
+                const compat = isSelectionPackageCompatible({ archetype, affordanceLenses: lensCombo, constraints: allConstraints, requireShaping: !roleNeedsFromPool, everyMemberValidated: true })
+                if (!compat.compatible) {
+                    wholeSetRefusals.push(...compat.reasons)
+                    continue
+                }
+                possibilities.push(possibilityOf(allConstraints, compat))
+                continue
+            }
+
             for (const conSize of [2, 3, 4]) {
                 if (constraintCandidatePool.length < conSize) continue
 
@@ -839,11 +908,7 @@ function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPoss
                     })
                     if (!compat.compatible) continue
 
-                    const conSum = conCombo.reduce((s, c) => s + (conMap.get(c.id)?.score ?? 0), 0)
-                    const balance = constraintBalanceBonus(conCombo)
-                    const total = lensSum + conSum + balance
-
-                    possibilities.push({ lenses: [...lensCombo], constraints: [...conCombo], total, key: comboKey(lensCombo, conCombo) })
+                    possibilities.push(possibilityOf(conCombo, compat))
                 }
             }
         }
@@ -926,8 +991,8 @@ export function generateSelection(
     const pool = poolAccount(constraintPool)
     const gapFor =
         (archetypeId: string | null) =>
-        (reason: SelectionKnowledgeGapReason): never => {
-            throw new SelectionKnowledgeGap(input.learningGoalId!, archetypeId, reason, pool)
+        (reason: SelectionKnowledgeGapReason, detail: string | null = null): never => {
+            throw new SelectionKnowledgeGap(input.learningGoalId!, archetypeId, reason, pool, detail)
         }
     const forGoal = Boolean(input.learningGoalId)
     const archetypePool = applyArchetypePoolFilter(inputConstraints, forGoal ? gapFor(null) : null)
@@ -1023,6 +1088,8 @@ export function generateSelection(
     // REASONING → COMMITMENT (Batch 2 seam). Enumerate the supported Design Possibilities, then
     // deterministically commit to one. Kept as two steps so the full possibility set is available
     // (e.g. to surface runner-up designs later) without changing which one is committed.
+    // 12 November 2026: a record's set that authorizes a constraint is taken whole or refused (`wholeSetOnly`); every other pool as before.
+    const wholeSetRefusals: string[] = []
     const designPossibilities = enumerateDesignPossibilities({
         tokens,
         archetype,
@@ -1033,6 +1100,8 @@ export function generateSelection(
         allConstraints,
         roleNeedsFromPool: forGoal,
         zeroConstraintCommitment,
+        wholeSetOnly: recordBacked && !zeroConstraintCommitment,
+        wholeSetRefusals,
     })
     const committed = commitDesignChoice(designPossibilities)
     const bestLensCombo = committed?.lenses ?? null
@@ -1048,16 +1117,37 @@ export function generateSelection(
     if (!bestLensCombo || !bestConCombo || bestTotal === -Infinity) {
         // A Learning Goal's own candidates cannot be combined: a knowledge gap, reported with the game form
         // and the pool. Never a second search over the library.
-        if (forGoal) gapFor(archetype.game_form_id)(allConstraints.length ? 'NO_COMPATIBLE_COMBINATION' : 'NO_SELECTABLE_CANDIDATES')
+        if (forGoal) {
+            gapFor(archetype.game_form_id)(
+                allConstraints.length ? 'NO_COMPATIBLE_COMBINATION' : 'NO_SELECTABLE_CANDIDATES',
+                // An authorization record's set refused whole: why, on every lens combination tried (never a subset in its place).
+                wholeSetRefusals.length
+                    ? `The authorization record's set is taken whole or refused, never reduced: ${[...new Set(wholeSetRefusals.map((reason) => (reason.endsWith('.') ? reason.slice(0, -1) : reason)))].join('; ')}.`
+                    : null
+            )
+        }
         throw new Error(
             'Test Library selection could not find a compatible lens and constraint combination that satisfies size (2–3 lenses, 2–4 constraints), role-mix rules, and pre-assembly package validation for this input.'
         )
     }
 
+    // The size rule (2-4) applies to the committed combination, unchanged.
     assertSelectionContract(bestLensCombo, bestConCombo, zeroConstraintCommitment)
 
     const selectedLenses = bestLensCombo
-    const picked = bestConCombo
+    /**
+     * **The constraints selected for application are the package's members** (12 November 2026). Christian, received 12 November 2026: the
+     * system must distinguish "Constraints considered or eligible." "Constraints actually selected for application." "Constraints validated."
+     * "Constraints included in the final activity." Until then this was the committed combination whole, while the activity was built from
+     * the package `buildConstraintPackage` makes of it (one member per role, a consequence only above 12): every record named as selected a
+     * member never validated and never in the activity (measured on main 9919ea3: eleven members across ten goals). Now selected = validated
+     * = included: the package's members, in the combination's order. The package built from them is the package built from the combination
+     * (each role holds one member, and a member's role score does not depend on the others), so the activity, the prompt and every coach-
+     * facing word are unchanged. The combination stays on the trace (`committedConstraints`), and each member not applied is recorded with
+     * the existing rule that left it out (`constraintsNotApplied`): no new selection rule, and nothing dropped silently. For an authorization
+     * record's set the two are equal by construction (`wholeSetOnly`).
+     */
+    const picked = committed!.applied
 
     const affordanceTrace: SelectionReasonEntry[] = selectedLenses.map((l) => {
         const row = lensScoreById.get(l.id)
@@ -1146,6 +1236,8 @@ export function generateSelection(
             archetype: { id: archetype.id, score: bestArc.score, reasons: bestArc.reasons },
             affordanceLenses: affordanceTrace,
             constraints: constraintsTrace,
+            committedConstraints: bestConCombo.map((c) => c.id),
+            constraintsNotApplied: committed!.notApplied.map((entry) => ({ ...entry, kept: entry.kept ? { ...entry.kept } : null })),
             objectiveScore: bestTotal,
             ranking: {
                 archetypes: archetypeRanking,

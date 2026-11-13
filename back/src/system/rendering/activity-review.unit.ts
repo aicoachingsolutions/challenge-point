@@ -151,9 +151,21 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
     assert.equal(account.gameForm!.contracted, true)
     // Two designated constraints, both its own, neither contracted — and the context is NOT listed among what
     // has no contract: it has its own entry in the account.
-    assert.deepEqual(account.constraints!.map(c => c.title), ['Small Area Condition', 'Zone Structure Condition'])
+    // Re-pinned openly 12 November 2026 (Christian's item 4, received 12 November 2026): BEFORE, both committed constraints were listed as
+    // selected; AFTER, the one applied (the package holds one foundation member, Small Area Condition) is listed, and Zone Structure Condition,
+    // committed and never validated or applied, is recorded as not applied with the rule and the member kept. Still its own, still uncontracted.
+    assert.deepEqual(account.constraints!.map(c => c.title), ['Small Area Condition'])
     assert.ok(account.constraints!.every(c => !c.contracted && c.fromGoalCandidates === true))
     assert.deepEqual(account.selectedWithoutContract, account.constraints!.map(c => c.id))
+    assert.deepEqual(account.constraintsNotApplied, [
+        {
+            id: 'tl-v0-constraint-zone-structure-condition',
+            title: 'Zone Structure Condition',
+            role: 'foundation',
+            rule: 'ONE_MEMBER_PER_ROLE',
+            kept: { id: 'tl-v0-constraint-small-area-condition', title: 'Small Area Condition' },
+        },
+    ])
     assert.equal(account.context!.id, 'RPC-004')
     assert.equal(account.context!.inThisActivity, false)
 }
@@ -1576,9 +1588,12 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.ok(!(account.selectedWithoutContract ?? []).includes(context.id), `${goal.id}: the context has its own entry`)
     }
     // Beat Defenders 1v1, which used to be given four constraints none of them its own: now its two candidates.
+    // Re-pinned openly 12 November 2026 (Christian's item 4): BEFORE `constraints` held both committed candidates (2); AFTER it holds the one
+    // applied (1) and the other is in `constraintsNotApplied` (1): still two committed, both its own, neither dropped silently.
     const a04 = refused(reviewActivity(stored(), { learningGoalId: 'A04', durationMin: 20 }), 'A04').account
-    assert.equal(a04.constraints!.length, 2)
-    assert.ok(a04.constraints!.every(c => c.fromGoalCandidates === true), 'both of A04\'s constraints are among its candidates')
+    assert.equal(a04.constraints!.length, 1)
+    assert.equal(a04.constraintsNotApplied!.length, 1)
+    assert.ok(a04.constraints!.every(c => c.fromGoalCandidates === true), 'A04\'s applied constraint is among its candidates')
     // A demonstration involves no goal, so it has no candidates, no context, and is never provisional.
     const demonstration = served(reviewActivity(stored(), { demonstrationId: 'scoring-modifier', durationMin: 20 }), 'scoring-modifier').account
     assert.equal(demonstration.constraintSource, null)

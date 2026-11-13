@@ -21,7 +21,7 @@ import { GameProblemAuthority, guidedGoalText, guidedSelectionHints } from '../s
 import { constraintBalanceBucket, generateSelection, isSelectionKnowledgeGap, SelectionKnowledgeGap } from '../test-library'
 import type { LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
 import { learningGoalAuthorizations, realizationAlternativesOf } from '../test-library/learning-goal-authorizations'
-import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
+import type { ConstraintAuthority, ConstraintNotApplied, ConstraintPoolAccount } from '../test-library/types'
 import type { ProvisionalRealization } from './corpus'
 import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile, provisionalRealizationNamed } from './corpus'
 import { isStampedHalt } from './emit'
@@ -153,6 +153,14 @@ export interface BoundedSelection extends KnowledgeSelection {
      * produced: `AUTHORIZATION_RECORD` for a goal his record governs, `VOCABULARY_POOL` otherwise.
      */
     constraintAuthority: ConstraintAuthority
+    /**
+     * **Each constraint selection committed and the package does not hold** (12 November 2026), READ from the selection trace with the
+     * existing rule that left it out and the member kept. Never in `selected` (which holds the constraints applied), so derivation, the
+     * contract coverage and the account never take one for a constraint of the game; carried so the account can say it was considered and
+     * not used, rather than drop it silently. Empty where the package holds the whole combination, and for an authorization record's set
+     * (taken whole or refused).
+     */
+    constraintsNotApplied: ConstraintNotApplied[]
     /** The authorization record selection used, as a copy, or null where the goal has none. */
     authorization: LearningGoalAuthorization | null
 }
@@ -281,6 +289,8 @@ export function selectFor(
     // foundation, second shaping, third consequence), which named a second foundation constraint a shaping
     // one — wrong for A03 before 14 October, and wrong for every goal whose candidates hold no shaping
     // constraint once selection stopped borrowing one.
+    // Since 12 November 2026 `result.constraints` holds the constraints applied (the package's members); a committed member the package does
+    // not hold is not added here and is carried as `constraintsNotApplied` below, so it is never derived into a game.
     ;(result.constraints ?? []).forEach((c: any) => add(c?.id, `${constraintBalanceBucket(c)} constraint`))
     // Affordance lenses are a reasoning dimension, not authored knowledge with a contract. They are
     // listed so the account of what was selected is complete, and excluded from what is derived.
@@ -320,6 +330,7 @@ export function selectFor(
         contextId: guided.contextId,
         constraintPool: result.selectionTrace.constraintPool as ConstraintPoolAccount,
         constraintAuthority: (result.selectionTrace.constraintPool as ConstraintPoolAccount).constraintAuthority,
+        constraintsNotApplied: ((result.selectionTrace.constraintsNotApplied ?? []) as ConstraintNotApplied[]).map(entry => ({ ...entry, kept: entry.kept ? { ...entry.kept } : null })),
         authorization: guided.authorization,
     }
 }

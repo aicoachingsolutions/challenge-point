@@ -221,7 +221,17 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
      * from the Back." Its record's evaluated set is empty, so it selects GF2 (the context gate, as before) and nothing
      * else. Measured on the same text the gap was found with.
      */
-    const SELECTS: Record<string, [string, string[]]> = {
+    /**
+     * **Re-pinned openly 12 November 2026 (Christian's item 4, received 12 November 2026: "Yes, please prepare a correction to the live
+     * constraint-selection discrepancy, but keep it separate from release until I review the proposed change.").** BEFORE, this table pinned
+     * `selection.constraints` as the committed combination below (COMMITS, unchanged: the selector commits exactly what it committed). AFTER,
+     * `selection.constraints` is the constraints applied, the package's members (APPLIES); the rest of each combination is recorded as not
+     * applied (`selectionTrace.constraintsNotApplied`, pinned with its rule and the member kept in live-selection-records.unit.ts). WHY: the
+     * activity is built from the package, which holds one member per role, so eleven committed members across ten goals were recorded as
+     * selected and never validated or applied. Nothing is loosened: every goal still commits the same combination, and the 2-4 rule is still
+     * applied to it.
+     */
+    const COMMITS: Record<string, [string, string[]]> = {
         A01: ['GF2', []],
         A03: ['GF3', [c('central-density-condition'), c('small-area-condition'), c('wide-zone-advantage'), c('progression-bonus')]],
         A04: ['GF2', [c('small-area-condition'), c('zone-structure-condition')]],
@@ -233,6 +243,19 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
         TA02: ['GF2', [c('central-density-condition'), c('wide-zone-advantage'), c('turnover-reward'), c('switch-of-play-bonus')]],
         TD01: ['GF4', [c('transition-trigger'), c('zone-structure-condition'), c('recovery-window')]],
         TD02: ['GF4', [c('zone-structure-condition'), c('central-density-condition'), c('delay-reward'), c('recovery-window')]],
+    }
+    const APPLIES: Record<string, [string, string[]]> = {
+        A01: ['GF2', []],
+        A03: ['GF3', [c('small-area-condition'), c('wide-zone-advantage'), c('progression-bonus')]],
+        A04: ['GF2', [c('small-area-condition')]],
+        A05: ['GF2', [c('central-density-condition'), c('wide-zone-advantage'), c('progression-bonus')]],
+        A06: ['GF9', [c('small-area-condition'), c('wide-zone-advantage'), c('progression-bonus')]],
+        D01: ['GF2', [c('small-area-condition'), c('delay-reward')]],
+        D02: ['GF4', [c('transition-trigger'), c('turnover-reward')]],
+        TA01: ['GF4', [c('transition-trigger'), c('wide-zone-advantage'), c('transition-bonus')]],
+        TA02: ['GF2', [c('central-density-condition'), c('wide-zone-advantage'), c('switch-of-play-bonus')]],
+        TD01: ['GF4', [c('zone-structure-condition'), c('recovery-window')]],
+        TD02: ['GF4', [c('zone-structure-condition'), c('recovery-window')]],
     }
     // A02 and D03 stay NO_COMPATIBLE_COMBINATION — never zero: neither has a record, and the principle reaches a goal
     // only through one (a measured floor of 0 would have turned exactly these two gaps into empty selections).
@@ -250,7 +273,8 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
         }
         assert.ok('selection' in outcome, `${id} must select: ${'gap' in outcome ? outcome.gap.message : ''}`)
         const { selection } = outcome as { selection: TestLibrarySelectionResult }
-        assert.deepEqual([selection.archetype.id, selection.constraints.map(constraint => constraint.id)], SELECTS[id], id)
+        assert.deepEqual([selection.archetype.id, selection.selectionTrace.committedConstraints], COMMITS[id], `${id}: committed`)
+        assert.deepEqual([selection.archetype.id, selection.constraints.map(constraint => constraint.id)], APPLIES[id], `${id}: applied`)
     }
 }
 
@@ -290,10 +314,17 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
 {
     const goal = 'reorganize'
     const selection = quietly(() => generateSelection({ learningGoals: [goal], challengeLevel: 'intermediate' } as any, deriveInputConstraints(goal)))
+    // Re-pinned openly 12 November 2026 (see (vi)): BEFORE, `selection.constraints` was this committed combination; AFTER, it is the package's
+    // members, and the combination is pinned where it now lives (`committedConstraints`). Free text commits exactly what it committed.
     assert.deepEqual(
-        [selection.archetype.id, selection.constraints.map(constraint => constraint.id)],
+        [selection.archetype.id, selection.selectionTrace.committedConstraints],
         ['GF11', [c('central-density-condition'), c('counter-press-window'), c('delay-reward'), c('recovery-window')]],
         'free text selects what it selected before 14 October',
+    )
+    assert.deepEqual(
+        selection.constraints.map(constraint => constraint.id),
+        [c('central-density-condition'), c('counter-press-window'), c('recovery-window')],
+        'and applies the package members of it (Delay Reward not applied: Recovery Window is the one consequence kept)',
     )
     const input = systemAssemblyInputFromTestLibrarySelection({ selection, session: {} as ISession, previousActivities: [], coachInput: { challengeLevel: 'medium', duration: 20, learningGoals: [goal] } })
     assert.ok(input.constraintPackage.shaping, 'and a free-text package still holds a shaping constraint')
@@ -414,7 +445,13 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
     const vocabularyPool = isSelectionKnowledgeGap(vocabulary) ? vocabulary.pool : vocabulary.selectionTrace.constraintPool!
     assert.equal(vocabularyPool.constraintAuthority, 'VOCABULARY_POOL')
     assert.equal(vocabularyPool.constraintPrinciple, null)
-    if (!isSelectionKnowledgeGap(vocabulary)) assert.ok(vocabulary.constraints.length >= 2 && vocabulary.constraints.length <= 4, 'the 2–4 rule')
+    // Re-pinned openly 12 November 2026: BEFORE on `constraints`; AFTER on the committed combination, which is what the 2-4 rule is applied to
+    // (unchanged) — `constraints` now holds the package's members of it, which can be fewer (Christian's item 4: an eligible pool is never a
+    // requirement to use all of it).
+    if (!isSelectionKnowledgeGap(vocabulary)) {
+        const committed = vocabulary.selectionTrace.committedConstraints
+        assert.ok(committed.length >= 2 && committed.length <= 4, 'the 2–4 rule')
+    }
 
     // An ACCIDENTALLY empty pool — the vocabulary pool emptied, no record — still gaps as before, and does not commit zero.
     const emptied = { ...guidedSelectionHints('A05', text).hints, candidateConstraintIds: [] }

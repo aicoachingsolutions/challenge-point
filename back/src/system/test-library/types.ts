@@ -164,6 +164,28 @@ export interface ConstraintPoolAccount {
 export type ConstraintAuthority = 'AUTHORIZATION_RECORD' | 'VOCABULARY_POOL'
 
 /**
+ * **Which existing rule of the constraint package left a committed constraint out of it** (12 November 2026, Christian's item 4). The
+ * package (`buildConstraintPackage`, unchanged) holds at most one member per role and keeps a consequence only where it scores above 12, so
+ * a committed combination can hold members the package never holds: they are never validated and never reach the activity. Each such member
+ * is recorded with the rule that left it out, read from the package itself, never a new rule:
+ *   - `ONE_MEMBER_PER_ROLE`: the package holds another member of the same role (`kept`), chosen by the package's own scoring;
+ *   - `CONSEQUENCE_SCORE_AT_OR_BELOW_12`: a consequence member, and the package holds no consequence, because none scores above 12;
+ *   - `NO_ROLE_MATCH`: a shaping member, and the package holds no shaping member, because its role scoring admits none for this game form
+ *     and these lenses. (A foundation member always has a kept one: a package without a foundation is refused before any commit.)
+ */
+export type ConstraintNotAppliedRule = 'ONE_MEMBER_PER_ROLE' | 'CONSEQUENCE_SCORE_AT_OR_BELOW_12' | 'NO_ROLE_MATCH'
+
+/** A committed constraint the package does not hold: never validated, never in the activity, and recorded rather than dropped silently. */
+export interface ConstraintNotApplied {
+    id: string
+    title: string
+    role: ConstraintBalanceBucket
+    rule: ConstraintNotAppliedRule
+    /** The member of the same role the package holds instead, or null where it holds none of that role. */
+    kept: { id: string; title: string } | null
+}
+
+/**
  * What the hints say about where a guided goal's candidate constraints came from (15 October 2026). Set only by
  * `guidedSelectionHints`, and only for a goal with an authorization record; absent means the vocabulary pool.
  */
@@ -186,7 +208,8 @@ export interface SelectionReasonEntry {
 /**
  * One candidate in a "why it won" ranking. The engine already scores every candidate during
  * selection and keeps only the winner; this surfaces the discarded scores for the debug view.
- * `selected` marks whether the candidate ended up in the final activity.
+ * `selected` marks whether the candidate ended up in the final activity (since 12 November 2026 a constraint is `selected` only where
+ * it is applied, a member of the package: a committed member the package does not hold is in `constraintsNotApplied`, not here).
  */
 export interface SelectionRankingEntry {
     id: string
@@ -226,6 +249,14 @@ export interface SelectionResolution {
 export interface TestLibrarySelectionResult {
     archetype: TestLibraryV0Archetype
     affordanceLenses: TestLibraryV0AffordanceLens[]
+    /**
+     * **The constraints selected for application: the package's members** (12 November 2026, Christian's item 4: the records distinguish
+     * "Constraints considered or eligible." "Constraints actually selected for application." "Constraints validated." "Constraints included
+     * in the final activity."). Each is validated (the package check runs on exactly these) and, on the generation route, included. Until
+     * 12 November 2026 this was the committed combination (`selectionTrace.committedConstraints`), which can hold members the package does
+     * not: those are recorded in `selectionTrace.constraintsNotApplied`, never here. Every reader (the usage record, the debug trace, the
+     * review account, derivation's input, the live route's G3) reads this one field.
+     */
     constraints: TestLibraryV0Constraint[]
     /** Explicit, inspectable resolution status — see SelectionResolution. */
     resolution: SelectionResolution
@@ -255,8 +286,26 @@ export interface TestLibrarySelectionResult {
         versions?: { knowledgeCore: string; reasoningEngine: string }
         archetype: SelectionReasonEntry
         affordanceLenses: SelectionReasonEntry[]
+        /** The constraints selected for application (`constraints` above), with their scores. */
         constraints: SelectionReasonEntry[]
-        /** Combined objective for the winning lens+constraint combination */
+        /**
+         * **The combination the selector committed** (ids, in its order): what the size rule (2-4) and the role mix were applied to, unchanged.
+         * Equal to `constraints` above wherever the package holds every member; otherwise the members it does not hold are in
+         * `constraintsNotApplied`. Empty for a zero-constraint commitment.
+         */
+        committedConstraints: string[]
+        /**
+         * **Each committed constraint not applied, with the existing package rule that left it out and the member kept** (12 November 2026).
+         * Christian, received 12 November 2026: "A jointly required, authorized set should not be silently reduced. However, a pool of
+         * eligible alternatives should not automatically become a requirement to use all of them." Only an eligible pool (a vocabulary pool,
+         * free text) can have entries here; an authorization record's set is taken whole or refused (`generateSelection`). Empty where the
+         * package holds the whole combination.
+         */
+        constraintsNotApplied: ConstraintNotApplied[]
+        /**
+         * Combined objective for the winning lens+constraint combination: the COMMITTED combination's score, so a member not applied
+         * (`constraintsNotApplied`) still added its score to the combination that won and can have influenced which lenses were chosen.
+         */
         objectiveScore: number
         /**
          * Developer/testing instrumentation — full candidate rankings ("why it won"), not just the

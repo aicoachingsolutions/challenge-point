@@ -117,7 +117,13 @@ const refusedWith = (outcome: ReturnType<typeof liveCheckedActivity>, cause: str
         const expected = RECORD_GOALS.includes(id) ? CHECKED_CHAIN : 'GENERATION'
         assert.equal(livePathwayOf(selection), expected, id)
         // A selection the generation route builds always carries library constraints, so its foundation requirement never blocks one for lack of one.
-        if (expected === 'GENERATION') assert.ok(selection.constraints.length >= 2, `${id}: generation receives a selection with constraints`)
+        // Re-pinned openly 12 November 2026 (Christian's item 4): BEFORE `selection.constraints.length >= 2`, when it was the committed combination;
+        // AFTER, the combination (`committedConstraints`) keeps that floor (the size rule, unchanged), and `constraints`, now the package's members,
+        // holds at least the foundation the package requires (A04 applies one: Small Area Condition, Zone Structure Condition not applied).
+        if (expected === 'GENERATION') {
+            assert.ok(selection.selectionTrace.committedConstraints.length >= 2, `${id}: generation receives a selection that committed constraints`)
+            assert.ok(selection.constraints.length >= 1, `${id}: and applies at least the package's foundation`)
+        }
     }
     // The save's selection is the route's: the same text, hints and id give the same selection.
     const text = guidedGoalText(GOAL)

@@ -63,7 +63,7 @@ import { learningGoalSelectionHolds } from '../test-library/learning-design-hold
 import type { AuthorizationExclusion, AuthorizationLists, AuthorizedAdjustment, ContextManipulationRelationship, LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
 import { allocationPrinciple, authorizationLists, contextRelationships, learningGoalAuthorizations, libraryConstraintPrinciple, neededRecordGaps, realizationAlternativesOf } from '../test-library/learning-goal-authorizations'
 import { applyRealizationDeferrals, applyRoleYields } from '../derivation/realization-deferral'
-import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
+import type { ConstraintAuthority, ConstraintNotApplied, ConstraintPoolAccount } from '../test-library/types'
 import { CoachOverviewDraft, failedOverviewDraft } from './coach-overview'
 import { CoachDiagram, DiagramOutcome, diagramForServing } from './coach-diagram'
 import { failedDiagramDraft, FieldDiagramDraft } from './field-diagram'
@@ -156,6 +156,14 @@ export interface ActivityAccount {
      * Null for a demonstration.
      */
     constraints: { id: string; title: string; contracted: boolean; fromGoalCandidates: boolean | null }[]
+    /**
+     * **Each constraint selection committed and did not apply** (12 November 2026), with the existing package rule that left it out and the
+     * member kept, READ from the selection (`BoundedSelection.constraintsNotApplied`). Christian, received 12 November 2026: the system must
+     * distinguish "Constraints considered or eligible." "Constraints actually selected for application." "Constraints validated." "Constraints
+     * included in the final activity." `constraints` above lists those applied; these were considered and not used. Present only where there
+     * is one, so every other account is exactly what it was. Technical account only, never coach-facing.
+     */
+    constraintsNotApplied?: ConstraintNotApplied[]
     /**
      * What selection drew its constraints from, READ from the selection trace (`constraintPoolFor`). Null for
      * a demonstration, which involves no candidates.
@@ -707,6 +715,8 @@ function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null,
             contracted: contracted.has(entry.id),
             fromGoalCandidates: goal ? goal.constraintPool.candidateIds.includes(entry.id) : null,
         })),
+        // 12 November 2026: what selection committed and did not apply, beside what it applied; only where there is one.
+        ...(goal?.constraintsNotApplied?.length ? { constraintsNotApplied: goal.constraintsNotApplied.map(entry => ({ ...entry, kept: entry.kept ? { ...entry.kept } : null })) } : {}),
         constraintSource: goal ? constraintSourceOf(goal.constraintPool, null) : null,
         authorization: goal ? authorizationOf(goal.authorization) : null,
         // Stage E: the record's preferred realization; each alternative the build tries lists its own (below).

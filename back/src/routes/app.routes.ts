@@ -137,6 +137,17 @@ function isSessionEmphasis(value: unknown): value is SessionEmphasis {
 type LiveSelection = ReturnType<typeof generateSelection>
 
 /**
+ * **Each constraint the selection committed and did not apply, for a record** (12 November 2026, Christian's item 4): its title, the existing
+ * package rule that left it out and the title of the member kept, read from the trace. `constraints` beside it names the constraints applied
+ * (the package's members). Present in a record only where there is one, so every other record is byte-identical to what it was (A01's among
+ * them).
+ */
+function constraintsNotAppliedOf(selection: LiveSelection): Record<string, unknown> {
+    const notApplied = selection.selectionTrace.constraintsNotApplied ?? []
+    return notApplied.length ? { constraintsNotApplied: notApplied.map((entry) => ({ title: entry.title, rule: entry.rule, kept: entry.kept?.title ?? null })) } : {}
+}
+
+/**
  * The `selection_resolved` usage payload, read from the selection. One function for both live pathways since 22 October 2026 (the live-app
  * fix), so the checked build records what the generation route records; the generation route's payload is exactly what it was.
  */
@@ -150,7 +161,9 @@ function selectionResolvedPayload(
     return {
         archetype: selection.archetype.game_form_name,
         affordanceLenses: selection.affordanceLenses.map((l) => l.title),
+        // Since 12 November 2026 the constraints applied (the package's members); each committed and not applied is beside them.
         constraints: selection.constraints.map((c) => c.title),
+        ...constraintsNotAppliedOf(selection),
         learningGoalId: selection.selectionTrace.planning?.learningGoalId ?? null,
         routedRpcId: selection.selectionTrace.planning?.routedRpcId ?? null,
         gatedToContext: routedRpcId,
@@ -185,7 +198,9 @@ function debugTraceOf(inputConstraints: ReturnType<typeof deriveInputConstraints
                 name: selection.archetype.game_form_name,
             },
             selectedAffordances: selection.affordanceLenses.map((l) => l.title),
+            // The constraints applied (12 November 2026); each committed and not applied beside them, only where there is one.
             selectedConstraints: selection.constraints.map((c) => c.title),
+            ...constraintsNotAppliedOf(selection),
         },
     }
 }
@@ -343,7 +358,9 @@ router.get('/debug-selection', async (req: Request, res: Response) => {
         const selectionSummary = {
             selectedArchetype: { id: selection.archetype.game_form_id, name: selection.archetype.game_form_name },
             selectedAffordances: selection.affordanceLenses.map((l) => l.title),
+            // The constraints applied (12 November 2026); each committed and not applied beside them, only where there is one.
             selectedConstraints: selection.constraints.map((c) => c.title),
+            ...constraintsNotAppliedOf(selection),
             // Developer instrumentation — full candidate "why it won" rankings (see selectionTrace.ranking).
             ranking: selection.selectionTrace.ranking,
             selectionTrace: selection.selectionTrace,

@@ -28,6 +28,7 @@
     "./src/system/test-library/reasoning-commitment.unit.ts",
     "./src/system/test-library/selection-input-independence.unit.ts",
     "./src/system/test-library/selection-pool.unit.ts",
+    "./src/system/test-library/live-selection-records.unit.ts",
     "./src/system/test-library/learning-goal-authorizations.unit.ts",
     "./src/system/test-library/projection-integrity.unit.ts",
     "./src/system/knowledge-core/knowledge-core.unit.ts",

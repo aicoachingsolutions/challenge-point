@@ -13,7 +13,8 @@ import assert from 'node:assert/strict'
 import { commitDesignChoice, type DesignPossibility } from './generateSelection'
 
 function p(total: number, key: string): DesignPossibility {
-    return { total, key, lenses: [], constraints: [] }
+    // `applied` and `notApplied` since 12 November 2026 (the package's members, and the rest): the commit rule does not read them.
+    return { total, key, lenses: [], constraints: [], applied: [], notApplied: [] }
 }
 
 function testNullOnEmpty(): void {
