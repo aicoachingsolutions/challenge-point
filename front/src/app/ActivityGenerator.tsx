@@ -25,6 +25,7 @@ import PathwayNotice from '@/components/PathwayNotice'
 import SessionPlanningConversation, { type PlanningSelection } from './SessionPlanningConversation'
 import ActivitySections from '@/components/ActivitySections'
 import { ActivityBlock } from './CheckedActivityBlock'
+import { ConstraintsNotApplied } from './ConstraintsNotApplied'
 
 /**
  * **An activity the live route built through the checked pathway** (22 October 2026, the live-app fix, design section 4.3 L2): the checked
@@ -559,6 +560,8 @@ export default function ActivityGenerator() {
                                 <span className='font-semibold'>Constraints:</span>{' '}
                                 {(debugTrace.selection.selectedConstraints ?? []).join(', ')}
                             </div>
+                            {/* 13 November 2026: the constraints above are those applied; each member of the selector's combination not used, beside them (ours, DRAFT). */}
+                            <ConstraintsNotApplied entries={debugTrace.selection.constraintsNotApplied} className='text-slate-600' />
                         </div>
                     )}
                 </div>

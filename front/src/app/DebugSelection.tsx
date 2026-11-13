@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { api } from '@/services/api.service'
+import { ConstraintsNotApplied } from './ConstraintsNotApplied'
 
 /**
  * TEMPORARY developer/testing view (Christian's request). Type a learning goal, hit Run, and see
@@ -34,6 +35,8 @@ type DebugResult = {
         selectedArchetype?: { id?: string; name?: string }
         selectedAffordances?: string[]
         selectedConstraints?: string[]
+        /** Each member of the selector's combination the package did not use (13 November 2026): its title, the rule, the title kept. */
+        constraintsNotApplied?: { title: string; rule: string; kept: string | null }[]
         ranking?: {
             archetypes?: RankingEntry[]
             affordanceLenses?: RankingEntry[]
@@ -270,6 +273,8 @@ export default function DebugSelection() {
                             </Field>
                             <Field label='Selected constraints / incentives'>
                                 {(result.selection.selectedConstraints ?? []).join(', ') || '—'}
+                                {/* 13 November 2026: those above are applied; each member of the selector's combination not used, beside them (ours, DRAFT). */}
+                                <ConstraintsNotApplied entries={result.selection.constraintsNotApplied} className='mt-1 text-xs text-gray-600' />
                             </Field>
                         </div>
                     )}
