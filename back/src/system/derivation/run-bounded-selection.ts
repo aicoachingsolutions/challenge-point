@@ -21,7 +21,7 @@ import { GameProblemAuthority, guidedGoalText, guidedSelectionHints } from '../s
 import { constraintBalanceBucket, generateSelection, isSelectionKnowledgeGap, SelectionKnowledgeGap } from '../test-library'
 import type { LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
 import { learningGoalAuthorizations, realizationAlternativesOf } from '../test-library/learning-goal-authorizations'
-import type { ConstraintAuthority, ConstraintNotApplied, ConstraintPoolAccount } from '../test-library/types'
+import type { AuthorizedMemberNotCommitted, ConstraintAuthority, ConstraintNotApplied, ConstraintPoolAccount } from '../test-library/types'
 import type { ProvisionalRealization } from './corpus'
 import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile, provisionalRealizationNamed } from './corpus'
 import { isStampedHalt } from './emit'
@@ -158,9 +158,15 @@ export interface BoundedSelection extends KnowledgeSelection {
      * existing rule that left it out and the member kept. Never in `selected` (which holds the constraints applied), so derivation, the
      * contract coverage and the account never take one for a constraint of the game; carried so the account can say it was committed and
      * not applied, rather than drop it silently. Empty where the package holds the whole combination, and for an authorization record's set
-     * (taken whole or refused).
+     * declared JOINTLY_REQUIRED (taken whole or refused).
      */
     constraintsNotApplied: ConstraintNotApplied[]
+    /**
+     * **Each member of an authorization record's set declared ELIGIBLE_ALTERNATIVES that selection did not commit** (13 November 2026), READ
+     * from the selection trace with the existing step that left it out. Present only for such a set, so every other selection reads exactly
+     * as before; never in `selected`.
+     */
+    authorizedSetNotCommitted?: AuthorizedMemberNotCommitted[]
     /** The authorization record selection used, as a copy, or null where the goal has none. */
     authorization: LearningGoalAuthorization | null
 }
@@ -331,6 +337,10 @@ export function selectFor(
         constraintPool: result.selectionTrace.constraintPool as ConstraintPoolAccount,
         constraintAuthority: (result.selectionTrace.constraintPool as ConstraintPoolAccount).constraintAuthority,
         constraintsNotApplied: ((result.selectionTrace.constraintsNotApplied ?? []) as ConstraintNotApplied[]).map(entry => ({ ...entry, kept: entry.kept ? { ...entry.kept } : null })),
+        // 13 November 2026: only for a record's set declared ELIGIBLE_ALTERNATIVES (`generateSelection`).
+        ...(Array.isArray(result.selectionTrace.authorizedSetNotCommitted)
+            ? { authorizedSetNotCommitted: (result.selectionTrace.authorizedSetNotCommitted as AuthorizedMemberNotCommitted[]).map(entry => ({ ...entry })) }
+            : {}),
         authorization: guided.authorization,
     }
 }

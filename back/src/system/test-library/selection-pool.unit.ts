@@ -472,6 +472,9 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
      */
     const heldOnly = learningGoalAuthorizations()
     heldOnly[0].authorizedConstraints = [PCG]
+    // Since 13 November 2026 a set that names a constraint declares its kind (TEST-ONLY words here), so the hold, not a missing kind, is what
+    // the gate and the selector meet below.
+    heldOnly[0].authorizedSetKind = { kind: 'JOINTLY_REQUIRED', words: 'TEST-ONLY: no source', citedAs: 'TEST-ONLY' }
     heldOnly[0].excluded = heldOnly[0].excluded.filter(exclusion => exclusion.knowledgeId !== PCG)
     assert.throws(() => guidedSelectionHints('A01', text, heldOnly), /integrity gate: A01: authorizes tl-v0-constraint-pass-combination-gate, which a ruling holds/)
     const flagged = learningGoalAuthorizations()

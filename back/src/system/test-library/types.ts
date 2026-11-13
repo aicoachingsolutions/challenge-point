@@ -159,9 +159,70 @@ export interface ConstraintPoolAccount {
      * never filled from elsewhere (his ruling of 14 October). Empty for free text.
      */
     unfilledRoles: ConstraintBalanceBucket[]
+    /**
+     * **The kind of set the authorization record declares, with the source words that establish it** (13 November 2026,
+     * `AuthorizedSetKindDeclaration`). Present only where the pool is an authorization record's set that names a constraint;
+     * absent for an empty set, a set not yet evaluated, a vocabulary pool and free text, so every account made before this
+     * field existed reads exactly as it did.
+     */
+    constraintSetKind?: AuthorizedSetKindDeclaration
 }
 
 export type ConstraintAuthority = 'AUTHORIZATION_RECORD' | 'VOCABULARY_POOL'
+
+/**
+ * **The kind of set an authorization record names** (13 November 2026). Christian, received 13 November 2026, heading 8: "Where a source
+ * authorizes a jointly required set, it should be taken whole or refused. However, eligibility among several alternatives does not require
+ * all of them to be applied." And: "Please preserve the source authority behind those distinctions rather than assuming every
+ * authorization record necessarily represents the same kind of set."
+ *   - `JOINTLY_REQUIRED`: the set is taken whole or refused, never reduced (`generateSelection`, as since 12 November 2026);
+ *   - `ELIGIBLE_ALTERNATIVES`: selection may apply fewer of its members, never a constraint outside it, and each member not applied is
+ *     recorded with the existing rule that left it out (`constraintsNotApplied`, `authorizedSetNotCommitted`).
+ * A record that names a constraint declares one of the two with the source's words (`AuthorizedSetKindDeclaration`), or is refused at load
+ * as a knowledge gap for Christian: no kind is ever assumed (`validateLearningGoalAuthorizations`). An empty set needs none.
+ */
+export const AUTHORIZED_SET_KINDS = ['JOINTLY_REQUIRED', 'ELIGIBLE_ALTERNATIVES'] as const
+export type AuthorizedSetKind = (typeof AUTHORIZED_SET_KINDS)[number]
+
+/** A record's declared kind of set: the kind, the source's words that establish it, verbatim, and where they are. */
+export interface AuthorizedSetKindDeclaration {
+    kind: AuthorizedSetKind
+    words: string
+    citedAs: string
+}
+
+/**
+ * **Whether a value is a declaration selection may read** (13 November 2026): one of the two kinds, with the source's words and where
+ * they are, each a non-empty string. The record gate (`validateLearningGoalAuthorizations`) and the selector's pool (`constraintPoolFor`)
+ * both ask this one question, so a record the gate admits is exactly a record the selector reads.
+ */
+export const isAuthorizedSetKindDeclaration = (value: unknown): value is AuthorizedSetKindDeclaration => {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
+    const declaration = value as Record<string, unknown>
+    const said = (text: unknown) => typeof text === 'string' && text.trim().length > 0
+    return (AUTHORIZED_SET_KINDS as readonly unknown[]).includes(declaration.kind) && said(declaration.words) && said(declaration.citedAs)
+}
+
+/**
+ * **Which existing step of the selector left a member of an ELIGIBLE_ALTERNATIVES set out of the committed combination** (13 November
+ * 2026). Read on the lenses the selector committed, and never a new rule: each names a step that ran before this record existed.
+ *   - `NOT_AMONG_TWO_PER_ROLE`: the bounded search keeps the two highest-scoring members of each role (`boundedConstraintCandidates`), and
+ *     this member was not one of them, so no combination held it (Christian's finding kept for later, received 13 November 2026, heading 8:
+ *     "The two-per-role candidate cutoff may exclude alternatives before they are fully recorded."; the cut is unchanged);
+ *   - `IN_NO_ADMITTED_COMBINATION`: among the bounded candidates, and no combination holding it passed the size rule, the role mix and the
+ *     package checks;
+ *   - `ANOTHER_COMBINATION_COMMITTED`: an admitted combination holds it, and the selector committed another (`commitDesignChoice`: the
+ *     highest total, ties broken by the combination's key).
+ */
+export type AuthorizedMemberNotCommittedRule = 'NOT_AMONG_TWO_PER_ROLE' | 'IN_NO_ADMITTED_COMBINATION' | 'ANOTHER_COMBINATION_COMMITTED'
+
+/** A member of an ELIGIBLE_ALTERNATIVES set the selector did not commit: never applied, and recorded rather than dropped silently. */
+export interface AuthorizedMemberNotCommitted {
+    id: string
+    title: string
+    role: ConstraintBalanceBucket
+    rule: AuthorizedMemberNotCommittedRule
+}
 
 /**
  * **Which existing rule of the constraint package left a committed constraint out of it** (12 November 2026, Christian's item 4). The
@@ -197,6 +258,11 @@ export interface ConstraintAuthorityHint {
      * evaluated it yet (`authorizedConstraints: null`). Never per goal: it is the one recorded principle.
      */
     constraintPrinciple: { ruledOn: string; by: string; principle: string } | null
+    /**
+     * The kind of set the record declares, with its source words (13 November 2026): present only where the record names a constraint.
+     * Hints whose record names a constraint and carry no declaration are refused by `constraintPoolFor`: no kind is assumed.
+     */
+    setKind?: AuthorizedSetKindDeclaration
 }
 
 export interface SelectionReasonEntry {
@@ -298,10 +364,17 @@ export interface TestLibrarySelectionResult {
          * **Each committed constraint not applied, with the existing package rule that left it out and the member kept** (12 November 2026).
          * Christian, received 12 November 2026: "A jointly required, authorized set should not be silently reduced. However, a pool of
          * eligible alternatives should not automatically become a requirement to use all of them." Only an eligible pool (a vocabulary pool,
-         * free text) can have entries here; an authorization record's set is taken whole or refused (`generateSelection`). Empty where the
-         * package holds the whole combination.
+         * free text, and since 13 November 2026 an authorization record's set declared ELIGIBLE_ALTERNATIVES) can have entries here; a set
+         * declared JOINTLY_REQUIRED is taken whole or refused (`generateSelection`). Empty where the package holds the whole combination.
          */
         constraintsNotApplied: ConstraintNotApplied[]
+        /**
+         * **Each member of an ELIGIBLE_ALTERNATIVES set the selector did not commit, with the existing step that left it out** (13 November
+         * 2026). Present only for an authorization record's set declared ELIGIBLE_ALTERNATIVES (empty where every member was committed), so
+         * every other trace reads exactly as it did. With `constraints` and `constraintsNotApplied` it accounts for every member of the set:
+         * applied, committed and not applied, or not committed.
+         */
+        authorizedSetNotCommitted?: AuthorizedMemberNotCommitted[]
         /**
          * Combined objective for the winning lens+constraint combination: the COMMITTED combination's score, so a member not applied
          * (`constraintsNotApplied`) still added its score to the combination that won and can have influenced which lenses were chosen.

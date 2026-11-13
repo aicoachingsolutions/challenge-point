@@ -264,9 +264,15 @@ function testARecordReplacesBothVocabularySources(): void {
 
     // The record is the parameter's: a test copy that authorizes a library constraint is read the same way, and the
     // shared record is not touched.
+    // Since 13 November 2026 a set that names a constraint declares its kind with the source's words (TEST-ONLY words here), and the hints
+    // carry the declaration with the set; A01's own hints, for its empty set, carry none.
     const copy = learningGoalAuthorizations()
     copy[0].authorizedConstraints = ['tl-v0-constraint-small-area-condition']
-    assert.deepEqual(guidedSelectionHints('A01', goalText('A01'), copy).hints.candidateConstraintIds, ['tl-v0-constraint-small-area-condition'])
+    copy[0].authorizedSetKind = { kind: 'JOINTLY_REQUIRED', words: 'TEST-ONLY: no source', citedAs: 'TEST-ONLY' }
+    const copied = guidedSelectionHints('A01', goalText('A01'), copy).hints
+    assert.deepEqual(copied.candidateConstraintIds, ['tl-v0-constraint-small-area-condition'])
+    assert.deepEqual(copied.constraintAuthority!.setKind, copy[0].authorizedSetKind)
+    assert.ok(!('setKind' in guidedSelectionHints('A01', goalText('A01')).hints.constraintAuthority!), 'the production hints carry no kind')
     assert.deepEqual(learningGoalAuthorization('A01')!.authorizedConstraints, [], 'the production record is unchanged')
 }
 

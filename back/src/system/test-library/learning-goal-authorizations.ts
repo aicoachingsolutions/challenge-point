@@ -25,7 +25,9 @@
  *   - `[]` with its finding — evaluated, none justified: under the principle the goal is selected with no library
  *     constraint (`generateSelection`), and every structural check still runs on it ("The engine should continue
  *     enforcing structural validity and any genuinely required conditions");
- *   - a non-empty list — those constraints, and only those, under the ordinary size rule.
+ *   - a non-empty list — those constraints, and only those, under the ordinary size rule; since 13 November 2026 read as the kind of
+ *     set the record declares with the source's words (`authorizedSetKind`: JOINTLY_REQUIRED, taken whole or refused, or
+ *     ELIGIBLE_ALTERNATIVES, of which fewer may be applied), and refused at load where it declares none.
  * The per-record `zeroConstraintRuling` this replaced is gone: a per-goal flag is the special case he refused. Without
  * the recorded principle an evaluated empty set is a gap again, never a licence — the loader refuses a record file
  * whose principle is malformed rather than read it.
@@ -49,6 +51,7 @@ import type { LearningDesignHold } from './learning-design-holds'
 import { learningGoalSelectionHolds } from './learning-design-holds'
 import record from './library/learning-goal-authorizations.json'
 import { testLibraryRegistry } from './library/registry'
+import { AUTHORIZED_SET_KINDS, isAuthorizedSetKindDeclaration, type AuthorizedSetKindDeclaration } from './types'
 
 /**
  * **Whether the activity can carry an entry now.** `MISSING_CAPABILITY` added 15 October 2026 (stage H3): his 16
@@ -423,6 +426,15 @@ export interface LearningGoalAuthorization {
     /** Null: not yet evaluated (a gap). A list, empty included: the evaluation, whose reasoning is the finding. */
     authorizedConstraints: string[] | null
     authorizedConstraintsFinding: string
+    /**
+     * **The kind of set `authorizedConstraints` names, with the source words that establish it** (13 November 2026). Christian, received
+     * 13 November 2026, heading 8: "Please preserve the source authority behind those distinctions rather than assuming every authorization
+     * record necessarily represents the same kind of set." Required where the set names a constraint (`JOINTLY_REQUIRED`: taken whole or
+     * refused; `ELIGIBLE_ALTERNATIVES`: fewer may be applied, never a constraint outside the set), each with the source's words, verbatim,
+     * and where they are; the gate refuses a set that names a constraint without one, as a knowledge gap for Christian, and assumes no kind.
+     * Absent where the set is empty or not yet evaluated, which need none (A01's, the one production record, is empty).
+     */
+    authorizedSetKind?: AuthorizedSetKindDeclaration
     /** His provisional choices for this goal's activity, each cited. Never read by selection. */
     provisionalChoices?: ProvisionalChoice[]
     /** What existing knowledge already authorizes for the activity (15 October 2026). Optional: a record may list none. */
@@ -746,6 +758,35 @@ export function validateLearningGoalAuthorizations(
         for (const id of authorizedIds) {
             if (!selectable.has(knowledgeKey(id))) errors.push(`${goal}: authorizes ${id}, which the selectable library does not hold`)
             if (held.has(knowledgeKey(id))) errors.push(`${goal}: authorizes ${id}, which a ruling holds out of Learning Goal selection`)
+        }
+        /**
+         * **A set that names a constraint declares its kind, in the source's words; no kind is assumed** (13 November 2026, a TIGHTENING).
+         * Christian, received 13 November 2026, heading 8: "Where a source authorizes a jointly required set, it should be taken whole or
+         * refused. However, eligibility among several alternatives does not require all of them to be applied. Please preserve the source
+         * authority behind those distinctions rather than assuming every authorization record necessarily represents the same kind of set."
+         * Until this check every set was read as jointly required. Now a set that names a constraint and declares no kind, declares one that
+         * is neither, or declares one without the source's words and where they are, is refused here, naming the knowledge gap for Christian
+         * (fail closed: the gate never picks a kind). An empty or unevaluated set needs no kind, and one declared there would be read by no
+         * one, so it is refused too. Measured on 13 November 2026: the one production record (A01) names none and declares none, so it loads
+         * as before.
+         */
+        const declared = (entry as { authorizedSetKind?: unknown }).authorizedSetKind
+        if (authorizedIds.length) {
+            const count = `${authorizedIds.length} authorized ${authorizedIds.length === 1 ? 'constraint' : 'constraints'}`
+            const kind = isRecord(declared) ? (declared as { kind?: unknown }).kind : undefined
+            if (declared === undefined || declared === null) {
+                errors.push(
+                    `${goal}: names ${count} and declares no kind of set: a knowledge gap for Christian (SET_KIND_UNDECLARED): whether the source authorizes ${authorizedIds.length === 1 ? 'it' : 'them'} as a jointly required set (JOINTLY_REQUIRED, taken whole or refused) or as eligible alternatives (ELIGIBLE_ALTERNATIVES, of which fewer may be applied), declared in authorizedSetKind with the source's words and where they are; no kind is assumed`
+                )
+            } else if (!isRecord(declared)) {
+                errors.push(`${goal}: names ${count} and gives its kind of set as ${JSON.stringify(declared)}, not as a declaration (kind, words and citedAs): a knowledge gap for Christian (SET_KIND_UNDECLARED); no kind is assumed`)
+            } else if (!(AUTHORIZED_SET_KINDS as readonly unknown[]).includes(kind)) {
+                errors.push(`${goal}: names ${count} and declares its kind of set as ${JSON.stringify(kind ?? null)}, which is neither JOINTLY_REQUIRED nor ELIGIBLE_ALTERNATIVES: a knowledge gap for Christian (SET_KIND_UNDECLARED); no kind is assumed`)
+            } else if (!isAuthorizedSetKindDeclaration(declared)) {
+                errors.push(`${goal}: declares its set ${String(kind)} without the source words that establish it (authorizedSetKind words and citedAs are both required): a knowledge gap for Christian (SET_KIND_UNSOURCED); no kind is assumed`)
+            }
+        } else if (declared !== undefined && declared !== null) {
+            errors.push(`${goal}: declares a kind of set (authorizedSetKind) for a set that names no constraint; an empty or unevaluated set needs no kind, and no reader acts on one`)
         }
         for (const [i, exclusion] of exclusionEntries.entries()) {
             if (exclusion === null) {

@@ -311,8 +311,12 @@ test('the gate refuses an id both authorized and excluded, or authorized and hel
     assert.ok(errors.some(e => e.includes(`the exclusion of ${PCG} cross-references learning-design-holds.json, which does not hold it`)), errors.join(' | '))
     // Two records for one goal.
     assert.ok(validateLearningGoalAuthorizations([...learningGoalAuthorizations(), ...learningGoalAuthorizations()]).some(e => e.includes('more than one authorization record')))
-    // A selectable id that is neither excluded nor held is admitted: the gate is not a blanket refusal.
-    assert.deepEqual(damaged(r => (r.authorizedConstraints = ['tl-v0-constraint-small-area-condition'])), [])
+    // A selectable id that is neither excluded nor held is admitted: the gate is not a blanket refusal. Since 13 November 2026 a set that names
+    // a constraint declares its kind with the source's words (TEST-ONLY words here), and without one it is refused, naming the knowledge gap
+    // (live-selection-records.unit.ts T6 holds every case).
+    const testOnlyKind = { kind: 'JOINTLY_REQUIRED' as const, words: 'TEST-ONLY: no source', citedAs: 'TEST-ONLY' }
+    assert.deepEqual(damaged(r => Object.assign(r, { authorizedConstraints: ['tl-v0-constraint-small-area-condition'], authorizedSetKind: testOnlyKind })), [])
+    assert.deepEqual(damaged(r => (r.authorizedConstraints = ['tl-v0-constraint-small-area-condition'])).map(error => error.slice(0, error.indexOf(': whether'))), ['A01: names 1 authorized constraint and declares no kind of set: a knowledge gap for Christian (SET_KIND_UNDECLARED)'])
 })
 
 /**

@@ -270,7 +270,10 @@ const refusedWith = (outcome: ReturnType<typeof liveCheckedActivity>, cause: str
     const uncontracted = usable.filter(c => contractCoverage([{ id: c.id, role: 'foundation constraint' }]).contracted.length === 0)
     assert.ok(uncontracted.length >= 2, 'two library constraints with no contract to stand in (TEST-ONLY)')
     const [authorized, other] = uncontracted
-    const one = learningGoalAuthorizations().map(entry => (entry.learningGoalId === GOAL ? { ...entry, authorizedConstraints: [authorized.id] } : entry))
+    // Since 13 November 2026 a set that names a constraint declares its kind with the source's words (TEST-ONLY words here): read as jointly
+    // required, as every record's set was before that day, the one member is refused by the size rule, the same knowledge gap.
+    const testOnlyKind = { kind: 'JOINTLY_REQUIRED' as const, words: 'TEST-ONLY: no source', citedAs: 'TEST-ONLY' }
+    const one = learningGoalAuthorizations().map(entry => (entry.learningGoalId === GOAL ? { ...entry, authorizedConstraints: [authorized.id], authorizedSetKind: testOnlyKind } : entry))
     assert.throws(() => selectUnder(GOAL, one), (error: unknown) => isSelectionKnowledgeGap(error), 'one authorized constraint cannot be combined today: the gap')
     // G2 on a TEST-ONLY build that carries a constraint (added to a copy of its selection, whose copy of the record authorizes `authorizes`):
     // the authorized one passes, any other is refused. The live selection's copy carries the same constraint, so G3 agrees.

@@ -189,6 +189,12 @@ export function hintsUnderAuthorization(
     principle: LibraryConstraintPrinciple | null = libraryConstraintPrinciple()
 ): InputConstraintHints {
     const evaluated = Array.isArray(record.authorizedConstraints)
+    /**
+     * 13 November 2026: the kind of set the record declares, with its source words, travels with a set that names a constraint (and only
+     * there, so the hints of an empty or unevaluated set are exactly as they were). A record that names one and declares none is refused by
+     * the gate before this is reached; hints made from one by hand carry no kind, and `constraintPoolFor` refuses them: no kind is assumed.
+     */
+    const setKind = evaluated && record.authorizedConstraints!.length && record.authorizedSetKind ? { setKind: { ...record.authorizedSetKind } } : {}
     return {
         ...hints,
         candidateConstraintIds: [...(record.authorizedConstraints ?? [])],
@@ -196,6 +202,7 @@ export function hintsUnderAuthorization(
             authority: 'AUTHORIZATION_RECORD',
             learningGoalId: record.learningGoalId,
             constraintPrinciple: evaluated && principle ? { ruledOn: principle.ruledOn, by: principle.by, principle: principle.principle } : null,
+            ...setKind,
         },
     }
 }

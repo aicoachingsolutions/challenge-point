@@ -63,7 +63,7 @@ import { learningGoalSelectionHolds } from '../test-library/learning-design-hold
 import type { AuthorizationExclusion, AuthorizationLists, AuthorizedAdjustment, ContextManipulationRelationship, LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
 import { allocationPrinciple, authorizationLists, contextRelationships, learningGoalAuthorizations, libraryConstraintPrinciple, neededRecordGaps, realizationAlternativesOf } from '../test-library/learning-goal-authorizations'
 import { applyRealizationDeferrals, applyRoleYields } from '../derivation/realization-deferral'
-import type { ConstraintAuthority, ConstraintNotApplied, ConstraintPoolAccount } from '../test-library/types'
+import type { AuthorizedMemberNotCommitted, ConstraintAuthority, ConstraintNotApplied, ConstraintPoolAccount } from '../test-library/types'
 import { CoachOverviewDraft, failedOverviewDraft } from './coach-overview'
 import { CoachDiagram, DiagramOutcome, diagramForServing } from './coach-diagram'
 import { failedDiagramDraft, FieldDiagramDraft } from './field-diagram'
@@ -164,6 +164,13 @@ export interface ActivityAccount {
      * is one, so every other account is exactly what it was. Technical account only, never coach-facing.
      */
     constraintsNotApplied?: ConstraintNotApplied[]
+    /**
+     * **Each member of an authorization record's set declared ELIGIBLE_ALTERNATIVES that selection did not commit** (13 November 2026), with
+     * the existing step that left it out, READ from the selection (`BoundedSelection.authorizedSetNotCommitted`). Present only where there is
+     * one, so every other account is exactly what it was. Technical account only, never coach-facing (Christian, received 13 November 2026,
+     * heading 8: "detailed records of discarded or unused constraints should remain available as technical evidence").
+     */
+    authorizedSetNotCommitted?: AuthorizedMemberNotCommitted[]
     /**
      * What selection drew its constraints from, READ from the selection trace (`constraintPoolFor`). Null for
      * a demonstration, which involves no candidates.
@@ -717,6 +724,8 @@ function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null,
         })),
         // 12 November 2026: what selection committed and did not apply, beside what it applied; only where there is one.
         ...(goal?.constraintsNotApplied?.length ? { constraintsNotApplied: goal.constraintsNotApplied.map(entry => ({ ...entry, kept: entry.kept ? { ...entry.kept } : null })) } : {}),
+        // 13 November 2026: each member of a set declared ELIGIBLE_ALTERNATIVES not committed; only where there is one.
+        ...(goal?.authorizedSetNotCommitted?.length ? { authorizedSetNotCommitted: goal.authorizedSetNotCommitted.map(entry => ({ ...entry })) } : {}),
         constraintSource: goal ? constraintSourceOf(goal.constraintPool, null) : null,
         authorization: goal ? authorizationOf(goal.authorization) : null,
         // Stage E: the record's preferred realization; each alternative the build tries lists its own (below).

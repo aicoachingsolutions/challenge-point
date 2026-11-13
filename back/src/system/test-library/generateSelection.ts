@@ -8,7 +8,10 @@ import { testLibraryRegistry } from './library/registry'
 import { normalizeCoachingInput } from './normalizeCoachingInput'
 import { isSelectionPackageCompatible, type SelectionPackageCompatibility } from './selection-compatibility'
 import { SELECTION_SUITABILITY_WEIGHTS as W } from './selection-weights'
+import { isAuthorizedSetKindDeclaration } from './types'
 import type {
+    AuthorizedMemberNotCommitted,
+    AuthorizedSetKind,
     ConstraintBalanceBucket,
     ConstraintNotApplied,
     ConstraintPoolAccount,
@@ -157,9 +160,22 @@ export function constraintPoolFor(hints?: InputConstraintHints | null, learningG
     if (authority && authority.learningGoalId !== learningGoalId) {
         throw new Error(`hints carry the authorization record of ${authority.learningGoalId} and were used to select ${learningGoalId ?? 'free text'}`)
     }
+    /**
+     * **A record's set that names a constraint is read only under the kind the record declares** (13 November 2026). The records' gate
+     * refuses a record that names a constraint and declares no kind, with the source's words (`validateLearningGoalAuthorizations`), and
+     * every pathway's hints pass that gate (`guidedSelectionHints`); hints made by hand from such a record carry no kind, and are refused
+     * here rather than read under a kind nobody declared. A defect refused, like hints carrying another goal's record above.
+     */
+    if (authority && ids.length && !isAuthorizedSetKindDeclaration(authority.setKind)) {
+        throw new Error(
+            `hints carry the authorization record of ${authority.learningGoalId}, whose set names ${ids.length} ${ids.length === 1 ? 'constraint' : 'constraints'} and declares no kind of set with the source's words: a knowledge gap for Christian (SET_KIND_UNDECLARED), refused; no kind is assumed`
+        )
+    }
     const authorityAccount = {
         constraintAuthority: authority ? ('AUTHORIZATION_RECORD' as const) : ('VOCABULARY_POOL' as const),
         constraintPrinciple: authority?.constraintPrinciple ? { ruledOn: authority.constraintPrinciple.ruledOn, by: authority.constraintPrinciple.by } : null,
+        // 13 November 2026: only where the record's set names a constraint, so every other account reads exactly as before.
+        ...(authority && ids.length && authority.setKind ? { constraintSetKind: { ...authority.setKind } } : {}),
     }
     if (learningGoalId) {
         /**
@@ -217,6 +233,7 @@ export const poolAccount = ({ constraints: _drawnFrom, ...account }: ConstraintP
     unfilledRoles: [...account.unfilledRoles],
     heldByRuling: account.heldByRuling.map((hold) => ({ ...hold })),
     constraintPrinciple: account.constraintPrinciple ? { ...account.constraintPrinciple } : null,
+    ...(account.constraintSetKind ? { constraintSetKind: { ...account.constraintSetKind } } : {}),
 })
 
 /** Exact normalized coach phrases that must fail before any scoring (no AI classification). */
@@ -808,14 +825,16 @@ interface DesignEnumerationContext {
     zeroConstraintCommitment: boolean
     /**
      * **An authorization record's set: taken whole or refused** (12 November 2026). Set only for a record-backed pool that authorizes a
-     * constraint: the only combination tried is the whole pool, and only where the package holds every member (`everyMemberValidated`).
+     * constraint and, since 13 November 2026, declares it JOINTLY_REQUIRED: the only combination tried is the whole pool, and only where the
+     * package holds every member (`everyMemberValidated`). A set declared ELIGIBLE_ALTERNATIVES is enumerated as an eligible pool is.
      * Each reason the whole set was not admitted is added to `wholeSetRefusals`, so the gap names it.
      */
     wholeSetOnly: boolean
     wholeSetRefusals: string[]
     /**
      * The ids the record authorizes that are neither held by a ruling nor in the pool under their exact spelling (`authorizedIdsNotInPool`).
-     * Read only with `wholeSetOnly`: any one refuses the set as it stands.
+     * Non-empty only for a record-backed pool; any one refuses the set as it stands, whatever kind the record declares (13 November 2026:
+     * an eligible set would otherwise lose the member without a rule that left it out).
      */
     authorizedNotInPool: string[]
 }
@@ -840,8 +859,10 @@ function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPoss
      * committed: a jointly required set reduced without a trace. Now any such member refuses the set as it stands, before the size rule
      * counts what is left. Refusal only: matching by knowledge key here would admit the alias, a change toward acceptance that is
      * Christian's to make. Unreachable in production today: the one record (A01) authorizes none.
+     * Since 13 November 2026 for a set of either kind: in a set declared ELIGIBLE_ALTERNATIVES the member would be left out with no rule that
+     * left it out recorded, so the set is refused as it stands there too.
      */
-    if (wholeSetOnly && authorizedNotInPool.length) {
+    if (authorizedNotInPool.length) {
         const many = authorizedNotInPool.length > 1
         wholeSetRefusals.push(
             `${authorizedNotInPool.map((id) => `"${id}"`).join(', ')} ${many ? 'are' : 'is'} authorized by the record and not in the selectable library under ${many ? 'those spellings' : 'that spelling'} (the pool matches ids exactly), so the set is refused as it stands, not reduced to the members found`
@@ -900,7 +921,8 @@ function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPoss
 
             /**
              * **An authorization record's set: the whole set, or nothing** (12 November 2026, Christian's item 4: "A jointly required, authorized
-             * set should not be silently reduced."). Our reading, CANDIDATE for Christian to confirm: a record's set is jointly required. So the
+             * set should not be silently reduced."). Since 13 November 2026 only for a set the record declares JOINTLY_REQUIRED, with the
+             * source's words (until then every record's set was read so, our reading). So the
              * one combination tried is the whole pool, through the same role mix and the same package checks, with every member required to be
              * in the package (`everyMemberValidated`); a subset is never tried, and nothing is committed with a member not applied. Where the
              * whole set is not admitted on any lens combination, the gap names why. Unreachable in production today: the one record (A01)
@@ -947,6 +969,36 @@ function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPoss
         }
     }
     return possibilities
+}
+
+/**
+ * The members of an ELIGIBLE_ALTERNATIVES set the selector did not commit, each with the existing step that left it out (13 November 2026,
+ * `AuthorizedMemberNotCommittedRule`), read on the committed lenses: the bounded search's candidates there (the same call the enumeration
+ * makes for those lenses), then the admitted combinations on those lenses. Reads what selection did; decides nothing.
+ */
+function membersNotCommitted(
+    set: TestLibraryV0Constraint[],
+    committed: TestLibraryV0Constraint[],
+    lenses: TestLibraryV0AffordanceLens[],
+    scoredOnLenses: ConScored[],
+    possibilities: DesignPossibility[]
+): AuthorizedMemberNotCommitted[] {
+    const committedIds = new Set(committed.map((c) => c.id))
+    const candidates = new Set(boundedConstraintCandidates(scoredOnLenses, set).map((c) => c.id))
+    const lensKey = sortedIdsJoin(lenses.map((l) => l.id))
+    const admitted = possibilities.filter((p) => sortedIdsJoin(p.lenses.map((l) => l.id)) === lensKey)
+    return set
+        .filter((c) => !committedIds.has(c.id))
+        .map((c) => ({
+            id: c.id,
+            title: c.title,
+            role: constraintBalanceBucket(c),
+            rule: !candidates.has(c.id)
+                ? ('NOT_AMONG_TWO_PER_ROLE' as const)
+                : admitted.some((p) => p.constraints.some((member) => member.id === c.id))
+                  ? ('ANOTHER_COMBINATION_COMMITTED' as const)
+                  : ('IN_NO_ADMITTED_COMBINATION' as const),
+        }))
 }
 
 /**
@@ -1122,6 +1174,19 @@ export function generateSelection(
     // deterministically commit to one. Kept as two steps so the full possibility set is available
     // (e.g. to surface runner-up designs later) without changing which one is committed.
     // 12 November 2026: a record's set that authorizes a constraint is taken whole or refused (`wholeSetOnly`); every other pool as before.
+    /**
+     * **The kind of set the record declares governs how its set is read** (13 November 2026). Christian, received 13 November 2026, heading
+     * 8: "Where a source authorizes a jointly required set, it should be taken whole or refused. However, eligibility among several
+     * alternatives does not require all of them to be applied." JOINTLY_REQUIRED: whole or refused, as since 12 November 2026.
+     * ELIGIBLE_ALTERNATIVES: the ordinary enumeration over the record's set alone (the pool holds nothing else), so fewer may be applied and
+     * nothing outside the set ever is; each member not applied is recorded (`constraintsNotApplied`, `authorizedSetNotCommitted`). The pool
+     * carries the kind only where the record declared it (`constraintPoolFor` refuses a set that names a constraint without one); the guard
+     * below states that no kind is ever assumed here.
+     */
+    const recordSet = recordBacked && !zeroConstraintCommitment
+    const setKind: AuthorizedSetKind | null = recordSet ? (constraintPool.constraintSetKind?.kind ?? null) : null
+    if (recordSet && !setKind) throw new Error(`${input.learningGoalId}: an authorization record's set reached selection with no declared kind of set; refused, no kind is assumed`)
+    const eligibleRecordSet = setKind === 'ELIGIBLE_ALTERNATIVES'
     const wholeSetRefusals: string[] = []
     const designPossibilities = enumerateDesignPossibilities({
         tokens,
@@ -1133,7 +1198,7 @@ export function generateSelection(
         allConstraints,
         roleNeedsFromPool: forGoal,
         zeroConstraintCommitment,
-        wholeSetOnly: recordBacked && !zeroConstraintCommitment,
+        wholeSetOnly: setKind === 'JOINTLY_REQUIRED',
         wholeSetRefusals,
         authorizedNotInPool: recordBacked ? authorizedIdsNotInPool(constraintPool) : [],
     })
@@ -1154,9 +1219,10 @@ export function generateSelection(
         if (forGoal) {
             gapFor(archetype.game_form_id)(
                 allConstraints.length ? 'NO_COMPATIBLE_COMBINATION' : 'NO_SELECTABLE_CANDIDATES',
-                // An authorization record's set refused whole: why, on every lens combination tried (never a subset in its place).
+                // An authorization record's set refused whole: why, on every lens combination tried (never a subset in its place). A set declared
+                // ELIGIBLE_ALTERNATIVES is refused here only by a member the pool does not hold under its spelling (13 November 2026).
                 wholeSetRefusals.length
-                    ? `The authorization record's set is taken whole or refused, never reduced: ${[...new Set(wholeSetRefusals.map((reason) => (reason.endsWith('.') ? reason.slice(0, -1) : reason)))].join('; ')}.`
+                    ? `${eligibleRecordSet ? "The authorization record's set of eligible alternatives is refused as it stands" : "The authorization record's set is taken whole or refused, never reduced"}: ${[...new Set(wholeSetRefusals.map((reason) => (reason.endsWith('.') ? reason.slice(0, -1) : reason)))].join('; ')}.`
                     : null
             )
         }
@@ -1179,7 +1245,8 @@ export function generateSelection(
      * (each role holds one member, and a member's role score does not depend on the others), so the activity, the prompt and every coach-
      * facing word are unchanged. The combination stays on the trace (`committedConstraints`), and each member not applied is recorded with
      * the existing rule that left it out (`constraintsNotApplied`): no new selection rule, and nothing dropped silently. For an authorization
-     * record's set the two are equal by construction (`wholeSetOnly`).
+     * record's set declared JOINTLY_REQUIRED the two are equal by construction (`wholeSetOnly`); for one declared ELIGIBLE_ALTERNATIVES they
+     * differ as for any eligible pool (13 November 2026).
      */
     const picked = committed!.applied
 
@@ -1191,6 +1258,13 @@ export function generateSelection(
     const finalLensSlugs = new Set(selectedLenses.map(lensSlug))
     const finalConScored = scoreConstraintsForLensSlugs(tokens, archetype, archeAffordances, finalLensSlugs, informationIntent)
     const finalConMap = conScoredMap(finalConScored)
+
+    /**
+     * **Every member of a set declared ELIGIBLE_ALTERNATIVES is accounted for** (13 November 2026): applied (`picked`), committed and not
+     * applied (`constraintsNotApplied`), or not committed, with the existing step that left it out, read on the committed lenses
+     * (`AuthorizedMemberNotCommittedRule`). Recording only: which combination is committed is unchanged. Null for every other pool.
+     */
+    const authorizedSetNotCommitted = eligibleRecordSet ? membersNotCommitted(allConstraints, bestConCombo, selectedLenses, finalConScored, designPossibilities) : null
 
     const constraintsTrace: SelectionReasonEntry[] = picked.map((c) => {
         const row = finalConMap.get(c.id)
@@ -1272,6 +1346,8 @@ export function generateSelection(
             constraints: constraintsTrace,
             committedConstraints: bestConCombo.map((c) => c.id),
             constraintsNotApplied: committed!.notApplied.map((entry) => ({ ...entry, kept: entry.kept ? { ...entry.kept } : null })),
+            // 13 November 2026: only for a set declared ELIGIBLE_ALTERNATIVES, so every other trace reads exactly as before.
+            ...(authorizedSetNotCommitted ? { authorizedSetNotCommitted } : {}),
             objectiveScore: bestTotal,
             ranking: {
                 archetypes: archetypeRanking,
