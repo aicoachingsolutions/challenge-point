@@ -23,7 +23,7 @@
  * It names what is missing and fills nothing in. It never scores or ranks anything: it is not a selection
  * input. The event kinds and condition types are data; this file names none of them.
  */
-import { CheckResult, EPISODE_SCOPES } from '../derivation/gates'
+import { CheckResult, episodeCheckDecides } from '../derivation/gates'
 import { RELATIONSHIP_CONFIRMED } from '../derivation/realization-deferral'
 import { RegisterIndex } from '../derivation/register'
 import { CONDITION_ROW, conditionScopeNotEvaluable, EVALUABLE_CONDITION_SCOPE } from '../derivation/resolved-game'
@@ -55,8 +55,10 @@ export const EPISODE_REACHABLE_CHECK = 'GA-EPISODE-REACHABLE'
  * reads exactly as before. Nothing here applies the condition to every score: `conditionScopeNotEvaluable` still says so to every
  * reader that would.
  */
-export function episodeConfirmed(scope: unknown, check: CheckResult | undefined): boolean {
-    if (!check || check.checkId !== EPISODE_REACHABLE_CHECK || typeof scope !== 'string' || !EPISODE_SCOPES.includes(scope)) return false
+export function episodeConfirmed(scope: unknown, check: CheckResult | undefined, index: RegisterIndex = registerIndex()): boolean {
+    // W4 (A02 package): the scopes the check decides (`episodeCheckDecides`: the approved one, or an ILLUSTRATIVE one of a TEST-ONLY register copy),
+    // read from the register the game was derived over (fix F: never by the scope's spelling); without one given, the production register's.
+    if (!check || check.checkId !== EPISODE_REACHABLE_CHECK || typeof scope !== 'string' || !episodeCheckDecides(scope, index)) return false
     if (check.verdict !== 'PASS' || !check.clauses.length || !check.clauses.every(clause => clause.verdict === 'PASS')) return false
     const reach = check.clauses[0]
     return reach.basis !== 'NO_APPLICABLE_INSTANCES' && Number(reach.instances) > 0
@@ -129,7 +131,40 @@ export interface ScoringAuthority {
  * checked status, context, event and role only: measured in the re-review on a full TEST-ONLY build, a confirmed scoring relationship
  * authorizing only the objective-reference row let an event-row item stand here, the build stopping only at communication.
  */
-export function roleEventFindings(contextId: string, game: any, approvedEvents: string[], support: RoleEventSupport[] | undefined, index?: RegisterIndex, relationships: ScoringAuthority[] = []): string[] {
+/**
+ * TEST-ONLY (stage B1 of the A02 complete-activity package, 12 November 2026): where a caller hands a sink, each finding pushed ONLY because an
+ * item writing a role's own event is not an OWNER_RULING item is also recorded there, with the item, so the TEST-ONLY build option
+ * PROPOSED_PENDING can tell that finding apart without reading its words. No production caller hands one, so every finding, its words and its
+ * order are what they were (context-scoring-guard.unit.ts holds them to a copy of the function as it stood at 7fd9713).
+ */
+export interface BasisGround {
+    finding: string
+    role: string
+    elementId: string
+    contractId: string
+    itemId: string
+    basis: string
+}
+
+/**
+ * TEST-ONLY (stage B1, the treatment PROPOSED_PENDING; called only by the build given that treatment): the findings, split into those that still
+ * refuse and the grounds moved aside. A finding is moved only where it is, word for word, one the guard recorded as resting ONLY on an item's
+ * basis (`BasisGround`) and that item is PROPOSED by `isProposed`; one occurrence per ground. Every other finding stays, in its order: the same
+ * finding on any other item, and a role's own event the context does not approve (a finding no ground records), among them.
+ */
+export function splitProposedPending(findings: string[], grounds: BasisGround[], isProposed: (ref: { contractId: string; itemId: string }) => boolean): { refusing: string[]; moved: BasisGround[] } {
+    const refusing = [...findings]
+    const moved: BasisGround[] = []
+    for (const ground of grounds) {
+        const at = refusing.indexOf(ground.finding)
+        if (at < 0 || !isProposed(ground)) continue
+        refusing.splice(at, 1)
+        moved.push(ground)
+    }
+    return { refusing, moved }
+}
+
+export function roleEventFindings(contextId: string, game: any, approvedEvents: string[], support: RoleEventSupport[] | undefined, index?: RegisterIndex, relationships: ScoringAuthority[] = [], basisGrounds?: BasisGround[]): string[] {
     const findings: string[] = []
     const eventRow = (index ?? registerIndex()).roleScoring?.eventRow
     for (const { elementId: id, role } of roleElementsOf(game, index)) {
@@ -142,9 +177,9 @@ export function roleEventFindings(contextId: string, game: any, approvedEvents: 
         }
         for (const item of found.items) {
             if (item.basis === 'OWNER_RULING') continue
-            findings.push(
-                `the role ${role} (${id}) scores by its own event "${String(own.kind)}" on ${item.contractId}::${item.itemId}, whose basis is ${item.basis}: the Representative Performance Context ${contextId} approves ${approvedEvents.join(', ') || 'nothing'}, so a role's own way to score stands only on his explicit ruling (OWNER_RULING)`,
-            )
+            const finding = `the role ${role} (${id}) scores by its own event "${String(own.kind)}" on ${item.contractId}::${item.itemId}, whose basis is ${item.basis}: the Representative Performance Context ${contextId} approves ${approvedEvents.join(', ') || 'nothing'}, so a role's own way to score stands only on his explicit ruling (OWNER_RULING)`
+            findings.push(finding)
+            basisGrounds?.push({ finding, role, elementId: id, contractId: item.contractId, itemId: item.itemId, basis: item.basis })
         }
         if (approvedEvents.includes(String(own.kind))) continue
         const authorized = found.items.some(item => {
@@ -239,6 +274,8 @@ export function conditionReadingOf(
     episodeCheck?: CheckResult,
     /** The type `constitutedConditionTypes` read for this item, where the caller has it (the guard): exactly the old loop's (round 2, R1 NIT 6). */
     constitutedType?: string,
+    /** The register the game was derived over, for the scopes the episode check decides (fix F); the production register's where none is given. */
+    index?: RegisterIndex,
 ): ConditionReading {
     const item = (contract.items ?? []).find(entry => entry.itemId === itemId)
     const selector = String(item?.selector ?? '')
@@ -257,7 +294,7 @@ export function conditionReadingOf(
     const element = conditions.find((condition: any) => String(condition?.elementId) === `c:${contract.contractId}:${itemId}`)
     const carried = element && Object.prototype.hasOwnProperty.call(element, 'scope') ? element.scope : EVALUABLE_CONDITION_SCOPE
     const notEvaluable = conditionScopeNotEvaluable(element)
-    const confirmed = episodeConfirmed(carried, episodeCheck)
+    const confirmed = episodeConfirmed(carried, episodeCheck, index)
     let why: string | null = null
     if (type === null) {
         why = `${contract.contractId}::${itemId} does not name a condition type by its selector, so the context-scoring guard does not read it`
@@ -309,8 +346,10 @@ export function eventKindReadingOf(
     roleEventSupport?: RoleEventSupport[],
     index?: RegisterIndex,
     relationships?: ScoringAuthority[],
+    /** TEST-ONLY (stage B1): see `BasisGround`; no production caller hands it. */
+    basisGrounds?: BasisGround[],
 ): EventKindReading {
-    const findings: string[] = [...roleEventFindings(contextId, game, approvedEvents, roleEventSupport, index, relationships), ...alsoCountsFindings(contextId, game, approvedEvents, alsoCountsSupport)]
+    const findings: string[] = [...roleEventFindings(contextId, game, approvedEvents, roleEventSupport, index, relationships, basisGrounds), ...alsoCountsFindings(contextId, game, approvedEvents, alsoCountsSupport)]
     // Stage A: the game's primary event read through the one kind reader (a role's own event is the per-role clause's, above).
     const kind = eventKindOf(game, null, index).kind
     const approved = approvedEvents.includes(String(kind))
@@ -349,11 +388,13 @@ export function contextScoringFindings(
     index?: RegisterIndex,
     /** Stage A review fix: the context relationships a role's own event outside the approved events may rest on (`roleEventFindings`). */
     relationships?: ScoringAuthority[],
+    /** TEST-ONLY (stage B1): see `BasisGround`; no production caller hands it. */
+    basisGrounds?: BasisGround[],
 ): string[] {
     if (!contract) return [`the contract of the Representative Performance Context ${contextId} did not reach the build, so its scoring cannot be checked`]
-    const findings: string[] = [...eventKindReadingOf(contextId, game, approvedEvents, alsoCountsSupport, roleEventSupport, index, relationships).findings]
+    const findings: string[] = [...eventKindReadingOf(contextId, game, approvedEvents, alsoCountsSupport, roleEventSupport, index, relationships, basisGrounds).findings]
     for (const { type, itemId } of constitutedConditionTypes(contract)) {
-        const { why } = conditionReadingOf(contextId, contract, itemId, game, episodeCheck, type)
+        const { why } = conditionReadingOf(contextId, contract, itemId, game, episodeCheck, type, index)
         if (why) findings.push(why)
     }
     return findings

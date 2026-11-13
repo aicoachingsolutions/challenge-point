@@ -46,7 +46,8 @@ import { roleHolderNames, roleOfHolder } from '../derivation/designation'
 import { MissingParticipant, missingParticipantsIn, PARTICIPANTS_CHECK } from '../derivation/gates'
 import { roleBlocksOf } from '../derivation/role-blocks'
 import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, DraftStoreContents, GoalSelectionGap, knowledgeKey, KnowledgeSelection, realizationOf, selectFor } from '../derivation/run-bounded-selection'
-import { DRAFT_KNOWLEDGE, DRAFT_KNOWLEDGE_VERSION, LoadedContract, RoleBlock } from '../derivation/types'
+import type { ConsumedGameProblem, ConsumedRecord, UpstreamDecisions } from '../derivation/run-bounded-selection'
+import { ContractItem, DRAFT_KNOWLEDGE, DRAFT_KNOWLEDGE_VERSION, ILLUSTRATIVE, isDraftCategory, LoadedContract, PROPOSED, RoleBlock } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, ObjectAvailabilityRefusal, objectAvailabilityRefusal, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
 import { boundRegionAccountOf, BoundRegionRefusal, boundRegionRefusalAfter, boundRegionRefusalBefore } from '../realization/bound-region-check'
@@ -68,7 +69,7 @@ import { CoachOverviewDraft, failedOverviewDraft } from './coach-overview'
 import { CoachDiagram, DiagramOutcome, diagramForServing } from './coach-diagram'
 import { failedDiagramDraft, FieldDiagramDraft } from './field-diagram'
 import { CoachOverview, OverviewEvidence, overviewEvidenceOf, overviewForServing, OverviewOutcome } from './overview-fidelity'
-import { contextScoringFindings, EPISODE_REACHABLE_CHECK, eventKindReadingOf } from './context-scoring-guard'
+import { BasisGround, contextScoringFindings, EPISODE_REACHABLE_CHECK, eventKindReadingOf, splitProposedPending } from './context-scoring-guard'
 import {
     BlockRequirementAccount,
     blockRequirementAccountOf,
@@ -91,12 +92,13 @@ import {
     requirementBindingsRefusals,
 } from './requirement-bindings'
 import { draftCoachWordingLoad } from './draft-coach-wording'
+import { ApprovedTemplateSentence, approvedTemplateSentences, ApprovedWording, approvedWording } from './approved-wording'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
 import { RelevanceJoinRules, RelevanceTrace, relevanceTraceOf } from './relevance-trace'
 import { ElementProvenance, elementProvenanceOf, EvidenceBlock, LayoutFallback, ReviewEvidence, reviewEvidenceOf, withRealizationSelection } from './review-evidence'
 import { mechanismDemonstration } from './mechanism-demonstrations'
-import { Instruction, RenderedActivity, renderConcreteGame } from './render-concrete-game'
+import { Instruction, RenderedActivity, renderConcreteGame, underDerivationRegister } from './render-concrete-game'
 import { assembleRenderingFixture } from './rendering-fixture'
 import { layoutMoversOf, layoutOf, remarkingSummary } from './physical-layout'
 import { checkRoleBlockComposition, checkRoleBlockLayout, checkRoleBlocks, composeRoleBlockActivity, RoleBlockCheck, roleBlockFixture } from './role-blocks'
@@ -167,7 +169,7 @@ export interface ActivityAccount {
      *   - `gap`: set where the candidates cannot be combined at all and the goal was refused at `selection`.
      */
     constraintSource: {
-        source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY' | 'AUTHORIZATION_RECORD'
+        source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY' | 'AUTHORIZATION_RECORD' | 'REVIEW_PATHWAY_K2'
         /**
          * 15 October 2026: whether the candidates carry an owner-ruled authorization (`AUTHORIZATION_RECORD`) or
          * were derived from vocabulary (`VOCABULARY_POOL` — the wording pool or a Coverage row, never authorized in
@@ -230,6 +232,14 @@ export interface ActivityAccount {
      * (`realizationOutcomes`), never restated; the review evidence names the same entries. Absent for every other activity.
      */
     realizationSelection?: RealizationSelectionEntry[]
+    /**
+     * TEST-ONLY (the isolated A02 experiment, S1(a)): Step 1's Game Problem as the build consumed it, labelled with its basis, the case's label
+     * and its source, beside `gameProblem` (the chain's own reading, which it never replaces and `provisional` never reads). Present only on a
+     * build given `upstream` (`buildActivityUnderAuthorizationRecords`), on the served and the refused path; absent on every production build.
+     */
+    consumedGameProblem?: ConsumedGameProblem
+    /** TEST-ONLY (the isolated A02 experiment, S1(e)): what the selection consumed from upstream, read from its run (`ConsumedRecord`). Same presence rule. */
+    consumed?: ConsumedRecord
 }
 
 /**
@@ -448,6 +458,8 @@ export interface ServedActivity {
     diagram?: CoachDiagram
     /** TEST-ONLY (B2, 28 October 2026): the account of a build made from the draft store; see `DraftKnowledgeAccount`. */
     draftKnowledge?: DraftKnowledgeAccount
+    /** TEST-ONLY (stage B1 of the A02 complete-activity package): a build made with a PROPOSED configuration; see `ReviewLevelAccount`. */
+    reviewLevel?: ReviewLevelAccount
     /** TEST-ONLY (B3, 28 October 2026): the relevance trace of a composition-test build or a demonstration; see `relevanceOfBuilt`. */
     relevance?: RelevanceTrace
     /**
@@ -484,7 +496,7 @@ export interface DraftKnowledgeAccount {
     /** The draft records the selection was offered (their goals). */
     records: string[]
     /** Every contract of this build's derivation input that the store loaded, with its items; empty where the build stopped before. */
-    contracts: { contractId: string; items: string[] }[]
+    contracts: { contractId: string; items: string[]; illustrativeItems?: string[]; proposedItems?: string[] }[]
     /** Every draft declaration of this build's derivation input (a declaration can resolve lines on another contract's elements). */
     declarations: { contractId: string; row: string; selector: string | null; declaration: string; note: string | null }[]
     /**
@@ -493,6 +505,49 @@ export interface DraftKnowledgeAccount {
      * no game was assembled.
      */
     elements: ElementProvenance[] | null
+}
+
+/**
+ * **TEST-ONLY: what a build made with a PROPOSED configuration rested on** — stage B1 of the A02 complete-activity package, 12 November 2026.
+ * Present only on a build `buildActivityUnderAuthorizationRecords` made with `upstream.proposedRealization`, served or refused, and never on
+ * any route (no route calls that entry). Christian, received 12 November 2026: "Produce one complete A02 activity through the checked
+ * pathway, at review level, with all required conditions grounded in approved knowledge." and "The final interpretation and any
+ * consequential new knowledge should remain subject to my approval."
+ *   - `proposedElements`: the configuration's contract and every item of it the build derived from, each with its stamp (PROPOSED or
+ *     ILLUSTRATIVE) and the question it waits on;
+ *   - `pendingApproval`: each context-scoring finding whose only ground is that a PROPOSED item's basis is not OWNER_RULING, moved here by
+ *     the declared treatment PROPOSED_PENDING (never dropped), with the item, the question it waits on and the finding's own words; every
+ *     other finding refused the build as it always does. Empty without the treatment.
+ */
+export interface ReviewLevelAccount {
+    status: 'REVIEW_LEVEL_NOT_CHECKED_FOR_RELEASE'
+    proposedElements: { contractId: string; treatmentId: string; items: { itemId: string; category: string; waitsOn: string | null }[] }
+    pendingApproval: PendingApprovalEntry[]
+    basis: { words: string; received: string }[]
+    /**
+     * Stage B2 (TEST-ONLY): present only on a build given our CANDIDATE wording (`candidateWording`): its standing, the file it was read from and
+     * every candidate entry the rendering said (each sentence then reads CANDIDATE, never APPROVED, in `review-draft.ts`).
+     */
+    wording?: 'CANDIDATE_FOR_CHRISTIANS_REVIEW'
+    candidateFile?: string
+    candidateEntries?: string[]
+}
+/** TEST-ONLY (stage B2): our CANDIDATE wording handed to the build, the file it was read from and its entries, each in the approved table's cover shape. */
+export interface CandidateWordingHandoff {
+    file: string
+    entries: ApprovedWording[]
+    /**
+     * TEST-ONLY (stage A1, decision R3): our CANDIDATE templates (`candidate-coach-wording.ts` `candidateTemplates`), which the renderer reads
+     * after the approved templates; each carries `candidateBy` and no approval. Absent: the approved templates alone.
+     */
+    templates?: ApprovedTemplateSentence[]
+}
+export interface PendingApprovalEntry {
+    treatmentId: string
+    item: string
+    questionId: string | null
+    finding: string
+    blocks: string[]
 }
 
 /** The role blocks of a served activity, for the technical account (stage K3). */
@@ -561,6 +616,8 @@ export interface RefusedActivity {
     evidence?: ReviewEvidence
     /** TEST-ONLY (B2, 28 October 2026): the account of a build made from the draft store; see `DraftKnowledgeAccount`. */
     draftKnowledge?: DraftKnowledgeAccount
+    /** TEST-ONLY (stage B1 of the A02 complete-activity package): a build made with a PROPOSED configuration; see `ReviewLevelAccount`. */
+    reviewLevel?: ReviewLevelAccount
     /** TEST-ONLY (B3, 28 October 2026): the relevance trace of a composition-test build or a demonstration; see `relevanceOfBuilt`. */
     relevance?: RelevanceTrace
     /** B4 (28 October 2026), for an administrator only: the sport's check of a composed activity; see `ServedActivity.lawsCheck`. */
@@ -713,6 +770,9 @@ function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null,
         authorizationLists: goal?.authorization ? authorizationLists(goal.authorization, preferred) : null,
         selectedWithoutContract: selection.missing.filter(id => !contexts.has(id)),
         ...provisionalOf(goal ? goal.gameProblem : null),
+        // TEST-ONLY (A02 experiment): copied from a selection that consumed upstream decisions; absent on every production selection.
+        ...(goal?.consumedGameProblem ? { consumedGameProblem: JSON.parse(JSON.stringify(goal.consumedGameProblem)) as ConsumedGameProblem } : {}),
+        ...(goal?.consumed ? { consumed: JSON.parse(JSON.stringify(goal.consumed)) as ConsumedRecord } : {}),
     }
     if (form) account.gameForm = gameFormOf(form.id, contracted.has(form.id))
     return account
@@ -738,6 +798,9 @@ function gapAccountOf(gap: GoalSelectionGap, preferred: ProvisionalRealization |
         selectedWithoutContract: [],
         ...provisionalOf(gap.gameProblem),
         ...(gap.gap.archetypeId ? { gameForm: gameFormOf(gap.gap.archetypeId, contracted.has(gap.gap.archetypeId)) } : {}),
+        // TEST-ONLY (A02 experiment): copied from a gap met while consuming upstream decisions; absent on every production gap.
+        ...(gap.consumedGameProblem ? { consumedGameProblem: JSON.parse(JSON.stringify(gap.consumedGameProblem)) as ConsumedGameProblem } : {}),
+        ...(gap.consumed ? { consumed: JSON.parse(JSON.stringify(gap.consumed)) as ConsumedRecord } : {}),
     }
 }
 
@@ -1261,6 +1324,31 @@ export function buildActivityUnderAuthorizationRecords(
          * copy of the chain. Only an administrator's review build computes the account, so only it calls this.
          */
         observeRequirementInputs?: (inputs: BlockRequirementInputs) => void
+        /**
+         * 7 November 2026, tests only (Christian's reply received 7 November 2026, section 2, decision 1, approved "for isolated implementation
+         * and testing"): handed each game's rendering before fidelity, it returns that rendering with review-only DRAFT sentences added
+         * (`review-structure-wording.ts`, which only unit tests import), so fidelity, the overview, the diagram, the review draft and the review
+         * evidence read the supplemented rendering (the requirement account reads the game, never the rendering). It may only add: every
+         * sentence the renderer said is kept, in its order, with its withheld fields and observations, or the build throws (`onlyAdded`).
+         * Absent: the renderer's rendering alone.
+         */
+        communicationSupplement?: (fixture: Record<string, unknown>, rendered: RenderedActivity) => RenderedActivity
+        /**
+         * TEST-ONLY (stage B2 of the A02 complete-activity package, 12 November 2026): our CANDIDATE coach wording (`candidate-coach-wording.ts`,
+         * which only unit tests import), read by the renderer and fidelity BESIDE the approved table, never in it, so a sentence it says reads
+         * CANDIDATE and never APPROVED (`review-draft.ts`). Christian, received 12 November 2026: "Please prepare candidate coach-facing wording
+         * for my review, with the complete approved meaning preserved in the underlying representation." Given only at review level, beside a
+         * PROPOSED configuration (`upstream.proposedRealization`); the build throws otherwise. The answer's `reviewLevel` names the file and
+         * every candidate entry the rendering said. Absent: the approved table alone, exactly as before.
+         */
+        candidateWording?: CandidateWordingHandoff
+        /**
+         * TEST-ONLY, the isolated A02 experiment (Christian's A02 authorization, pasted 10 November 2026; `UpstreamDecisions` in
+         * run-bounded-selection.ts): Step 1's Game Problem and Step 2's form, consumed by the goal's selection, and the boolean that bypasses
+         * the size rule for an evaluated, record-backed set. Threaded to `build` and from there to `selectFor` only. With it, an
+         * `alterSelection` may only observe: one that changes the selection makes the build throw. Absent: the build is exactly what it was.
+         */
+        upstream?: UpstreamDecisions
     } = {},
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     // Round 2, R3 NIT 12: a TEST-ONLY option the build would ignore throws, as a refused copy does: only an administrator's review computes the
@@ -1301,6 +1389,14 @@ export function buildActivityUnderAuthorizationRecords(
     // records exactly as the live route runs it over the file's (`live-activity.ts`); nothing that serves a coach calls this.
     const drafts = options.drafts ? { store: JSON.parse(JSON.stringify(options.drafts)) as DraftStoreContents, seen: { contracts: null as LoadedContract[] | null } } : null
     const observed = options.relevance ? { contracts: null as LoadedContract[] | null } : null
+    // Stage B1 (TEST-ONLY): with a PROPOSED configuration and the declared treatment PROPOSED_PENDING, where the findings it moves are recorded.
+    const proposed = options.upstream?.proposedRealization
+    const pending = proposed?.pending ? { treatmentId: proposed.pending.treatmentId, entries: [] as PendingApprovalEntry[] } : null
+    // Stage B2 (TEST-ONLY): our CANDIDATE wording is read only at review level, beside a PROPOSED configuration.
+    if (options.candidateWording && !proposed) throw new Error('our CANDIDATE coach wording is read only at review level, beside a PROPOSED configuration (upstream.proposedRealization)')
+    const candidate = options.candidateWording ? (JSON.parse(JSON.stringify(options.candidateWording.entries)) as ApprovedWording[]) : null
+    // Stage A1 (TEST-ONLY, decision R3): our CANDIDATE templates, read only beside the same PROPOSED configuration.
+    const candidateTemplates = options.candidateWording?.templates?.length ? (JSON.parse(JSON.stringify(options.candidateWording.templates)) as ApprovedTemplateSentence[]) : null
     const built = build(
         request,
         options.alter ?? null,
@@ -1318,8 +1414,44 @@ export function buildActivityUnderAuthorizationRecords(
         options.observeRequirementInputs ?? null,
         options.requirementBindingsRefused ? [...options.requirementBindingsRefused] : null,
         options.requirementBindingsFile ?? null,
+        options.communicationSupplement ?? null,
+        options.upstream ? (JSON.parse(JSON.stringify(options.upstream)) as UpstreamDecisions) : null,
+        pending,
+        candidate,
+        candidateTemplates,
     )
     if (drafts) built.activity.draftKnowledge = draftKnowledgeAccountOf(drafts.store, built, drafts.seen.contracts)
+    /*
+     * Stage B1 (TEST-ONLY): a build made with a PROPOSED configuration says so, served or refused: the configuration's items as derivation
+     * received them (each stamp and the question it waits on), the findings PROPOSED_PENDING moved, and Christian's words it rests on. Read
+     * from the derivation input the build last assembled where it assembled one, else from the configuration handed in.
+     */
+    if (proposed) {
+        const received = (drafts?.seen.contracts ?? []).find(c => c.contractId === proposed.realization.contractId) ?? proposed.realization
+        built.activity.reviewLevel = {
+            status: 'REVIEW_LEVEL_NOT_CHECKED_FOR_RELEASE',
+            proposedElements: {
+                contractId: proposed.realization.contractId,
+                treatmentId: proposed.treatmentId,
+                items: received.items.map(item => ({ itemId: item.itemId, category: String(item.category), waitsOn: typeof (item as { waitsOn?: unknown }).waitsOn === 'string' ? String((item as { waitsOn?: unknown }).waitsOn) : null })),
+            },
+            pendingApproval: pending ? JSON.parse(JSON.stringify(pending.entries)) : [],
+            basis: JSON.parse(JSON.stringify(proposed.basis ?? [])),
+        }
+        /*
+         * Stage B2 (TEST-ONLY): with our CANDIDATE wording, the account says so and names every candidate entry the rendering said (served, or
+         * the administrator's draft of a refusal), read by text from what was rendered; an entry said nowhere is not named.
+         */
+        if (options.candidateWording && candidate) {
+            const activity = built.activity as ServedActivity | RefusedActivity
+            const said = new Set((activity.outcome === 'served' ? activity.rendered.instructions : (activity.draft?.instructions ?? [])).map(instruction => instruction.text))
+            built.activity.reviewLevel.wording = 'CANDIDATE_FOR_CHRISTIANS_REVIEW'
+            built.activity.reviewLevel.candidateFile = options.candidateWording.file
+            built.activity.reviewLevel.candidateEntries = candidate.filter(entry => said.has(entry.sentence)).map(entry => entry.id)
+            // Stage A1 (decision R3): and each CANDIDATE template whose sentence was said word for word (a coach-facing sentence carries no full stop).
+            for (const template of candidateTemplates ?? []) if (said.has(template.sentence.replace(/\.$/, ''))) built.activity.reviewLevel.candidateEntries.push(String((template as { candidateId?: unknown }).candidateId ?? template.id))
+        }
+    }
     if (options.relevance && observed) built.activity.relevance = relevanceOfBuilt(built, observed.contracts, request.goalId, options.relevance)
     return built
 }
@@ -1375,7 +1507,7 @@ function relevanceOfBuilt(
  * build last assembled (after any TEST-ONLY alteration, so it describes what was derived), the selection, and the game as built.
  */
 function draftKnowledgeAccountOf(store: DraftStoreContents, built: ActivityBuild & { fixture: Record<string, unknown> | null }, derived: LoadedContract[] | null): DraftKnowledgeAccount {
-    const isDraft = (contract: LoadedContract) => contract.knowledgeVersion === DRAFT_KNOWLEDGE_VERSION || (contract.items ?? []).some(item => item.category === DRAFT_KNOWLEDGE)
+    const isDraft = (contract: LoadedContract) => contract.knowledgeVersion === DRAFT_KNOWLEDGE_VERSION || (contract.items ?? []).some(item => isDraftCategory(item.category)) // W4: a carrier too, never knowledge
     const input = derived ?? []
     const activity = built.activity
     const composed: RenderedActivity =
@@ -1389,10 +1521,10 @@ function draftKnowledgeAccountOf(store: DraftStoreContents, built: ActivityBuild
         status: 'BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED',
         store: { folder: store.folder, files: [...store.files], notRead: store.notRead.map(entry => ({ ...entry })) },
         records: store.records.map(record => record.learningGoalId),
-        contracts: input.filter(isDraft).map(contract => ({ contractId: contract.contractId, items: (contract.items ?? []).filter(item => item.category === DRAFT_KNOWLEDGE).map(item => item.itemId) })),
+        contracts: input.filter(isDraft).map(contract => ({ contractId: contract.contractId, items: (contract.items ?? []).filter(item => item.category === DRAFT_KNOWLEDGE).map(item => item.itemId), ...((contract.items ?? []).some(item => item.category === ILLUSTRATIVE) ? { illustrativeItems: (contract.items ?? []).filter(item => item.category === ILLUSTRATIVE).map(item => item.itemId) } : {}), ...((contract.items ?? []).some(item => item.category === PROPOSED) ? { proposedItems: (contract.items ?? []).filter(item => item.category === PROPOSED).map(item => item.itemId) } : {}) })), // W4: ILLUSTRATIVE carriers listed apart, only where added; stage A2 (13 November 2026): a PROPOSED configuration's items too, only where the contract holds one (no production contract does)
         declarations: input.flatMap(contract =>
             ((contract.declarations ?? []) as any[])
-                .filter(declaration => declaration?.category === DRAFT_KNOWLEDGE)
+                .filter(declaration => isDraftCategory(declaration?.category))
                 .map(declaration => ({ contractId: contract.contractId, row: String(declaration.row), selector: declaration.selector ?? null, declaration: String(declaration.declaration), note: declaration.note ?? null })),
         ),
         elements:
@@ -1452,6 +1584,16 @@ function build(
     requirementBindingsRefusedGiven: string[] | null = null,
     /** Round 3b, tests only (`requirementBindingsFile`): a bindings file read the production loader's way, in place of the production file. */
     requirementBindingsFileGiven: string | null = null,
+    /** 7 November 2026, tests only (`buildActivityUnderAuthorizationRecords`): the review-only supplement each game's rendering is handed to. */
+    supplement: GameContext['supplement'] = null,
+    /** TEST-ONLY, the isolated A02 experiment (`buildActivityUnderAuthorizationRecords` `upstream`): handed to the goal's `selectFor`. Null: nothing is. */
+    upstream: UpstreamDecisions | null = null,
+    /** TEST-ONLY (stage B1, the treatment PROPOSED_PENDING): where the findings it moves are recorded (`GameContext.pending`). Null: none is moved. */
+    pending: GameContext['pending'] = null,
+    /** TEST-ONLY (stage B2, `candidateWording`): our CANDIDATE entries, read beside the approved table (`GameContext.candidate`). Null: none. */
+    candidate: GameContext['candidate'] = null,
+    /** TEST-ONLY (stage A1, `candidateWording.templates`): our CANDIDATE templates, read after the approved ones (`GameContext.candidateTemplates`). Null: none. */
+    candidateTemplates: GameContext['candidateTemplates'] = null,
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const boundRegions: SportBoundRegions | null = boundRegionsGiven === undefined ? loadSportBoundRegions() : boundRegionsGiven
     // B2 (28 October 2026): the playing environment's elements, read once for every game of this build (the guard in `buildOneGame`).
@@ -1527,7 +1669,8 @@ function build(
                 request.situationId ?? null,
                 records,
                 realizations ? realizations.map(realization => realization.provisionalId) : undefined,
-                drafts ? { contracts: drafts.store.contracts, draftsAdmitted: true } : undefined,
+                drafts ? { contracts: drafts.store.contracts, draftsAdmitted: true, ...(drafts.store.registerOverlay ? { registerOverlay: drafts.store.registerOverlay } : {}) } : undefined, // W4: the carriers' register overlay, only where the TEST-ONLY store carries one
+                upstream ?? undefined,
             )
         } catch (error) {
             /**
@@ -1550,7 +1693,12 @@ function build(
         }
         if (alterSelection) {
             goalSelection = JSON.parse(JSON.stringify(goalSelection)) as BoundedSelection
+            // TEST-ONLY (A02 experiment, S1(f)): on a build that consumed upstream decisions an alteration may only observe the selection.
+            const observedOnly = upstream ? JSON.stringify(goalSelection) : null
             alterSelection(goalSelection)
+            if (observedOnly !== null && JSON.stringify(goalSelection) !== observedOnly) {
+                throw new Error('a TEST-ONLY alterSelection changed a selection that consumed upstream decisions: with upstream it may only observe')
+            }
             Object.assign(goalSelection, contractCoverage(goalSelection.selected, goalSelection.draftContracts ?? []))
         }
         selection = goalSelection
@@ -1817,7 +1965,7 @@ function build(
             ...(movers.has(entry.id) ? { moves: { role: movers.get(entry.id)! } } : {}),
         }))
         const alternatives = deferral.deferred.map(alternativeOf)
-        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements }
+        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements, supplement, ...(pending ? { pending } : {}), ...(candidate ? { candidate } : {}), ...(candidateTemplates ? { candidateTemplates } : {}) }
         /**
          * A game built through to communication becomes the served activity; one refused on the way says where. `games` are the games it was
          * rendered from, each with its block id, for the input digests the live save compares (L3, 22 October 2026); nothing served carries them.
@@ -2126,7 +2274,7 @@ function build(
                     reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, ...(entry.block.ends ? { ends: { ...entry.block.ends } } : {}), fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback, overview, lawAccount, boundRegions)
                 /** The admin-only draft of the composed activity (stage K7), attached to a refusal at communication where it was asked for. */
                 const withDraft = (refusal: ReturnType<typeof refuse>) => {
-                    if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations], games.flatMap(entry => entry.contracts))
+                    if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations], games.flatMap(entry => entry.contracts), candidate ?? [], candidateTemplates ?? [])
                     const evidence = evidenceOf(refusal.activity.outcome === 'refused' ? refusal.activity.stage : 'served')
                     if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
                     Object.assign(refusal.activity, lawsCheckKeys(lawAccount))
@@ -2222,7 +2370,7 @@ function build(
             // Stage E: a typed applicability refusal keeps its type (and an ASK its question), exactly as a role block's does.
             const refusal = lawRefusal ?? refuse(one.stage, one.summary, one.reasons, one.applicability ?? null, one.question ?? null)
             // The admin-only draft (stage K7): only on a refusal at communication, only where the review asked for it.
-            if (review.includeDrafts && one.communication) (refusal.activity as RefusedActivity).draft = reviewDraftOf([one.fixture], one.communication.rendered, one.communication.violations, one.communication.contracts)
+            if (review.includeDrafts && one.communication) (refusal.activity as RefusedActivity).draft = reviewDraftOf([one.fixture], one.communication.rendered, one.communication.violations, one.communication.contracts, candidate ?? [], candidateTemplates ?? [])
             // And the admin-only review evidence (stage K8), where the goal's record asks for one.
             const evidence = one.communication && one.fixture ? reviewEvidenceFor(review, goalSelection, account, roleIndex, session, lawRefusal ? 'validation' : one.stage, one.communication.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.communication.contracts, rendered: one.communication.rendered, ...one.communication.evidence }], null, null, lawAccount, boundRegions) : null
             if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
@@ -2475,6 +2623,36 @@ interface GameContext {
         account: boolean
         observe: ((inputs: BlockRequirementInputs) => void) | null
     }
+    /** 7 November 2026, tests only (the option of `buildActivityUnderAuthorizationRecords` that injects it): adds review-only sentences to the rendering before fidelity. Null on every other build. */
+    supplement: ((fixture: Record<string, unknown>, rendered: RenderedActivity) => RenderedActivity) | null
+    /**
+     * TEST-ONLY (stage B1 of the A02 complete-activity package): where a PROPOSED configuration was handed with the declared treatment
+     * PROPOSED_PENDING, the treatment and where the findings it moves are recorded (`ReviewLevelAccount.pendingApproval`). Absent on every
+     * other build, which refuses on every context-scoring finding exactly as before.
+     */
+    pending?: { treatmentId: string; entries: PendingApprovalEntry[] } | null
+    /**
+     * TEST-ONLY (stage B2 of the A02 complete-activity package): our CANDIDATE wording's entries, which the renderer and fidelity read after the
+     * approved table's (`communicate`). Absent on every other build, which reads the approved table alone, exactly as before.
+     */
+    candidate?: ApprovedWording[] | null
+    /**
+     * TEST-ONLY (stage A1 of the A02 package, decision R3): our CANDIDATE templates, which the renderer reads after the approved templates
+     * (`communicate`). Absent on every other build, which reads the approved templates alone, exactly as before.
+     */
+    candidateTemplates?: ApprovedTemplateSentence[] | null
+}
+
+/**
+ * 7 November 2026, tests only: a supplement only adds sentences; the renderer's own are kept in order, its withheld fields and observations with
+ * them, by reference and by value (`before` is the renderer's rendering as text, taken before the supplement ran: a change made in place fails).
+ */
+function onlyAdded(said: RenderedActivity, before: string, given: RenderedActivity): RenderedActivity {
+    let kept = 0
+    for (const instruction of given.instructions) if (instruction === said.instructions[kept]) kept++
+    if (kept !== said.instructions.length || given.withheld !== said.withheld || given.coachingObservations !== said.coachingObservations || JSON.stringify(said) !== before)
+        throw new Error(`a TEST-ONLY communication supplement may only add sentences: the renderer's own, its withheld fields and its observations are kept, in order`)
+    return given
 }
 
 /** One game built from its derivation input to communication, or the stage it stopped at. */
@@ -2556,7 +2734,7 @@ const STAGE_ORDER: ActivityStage[] = ['session', 'selection', 'knowledge', 'stru
  * K3) so that a game played in role blocks runs it once per block. Every refusal sentence, reason and order is what it
  * was: measured, every goal and demonstration answers byte-identically through the review route.
  */
-function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements }: GameContext): GameOutcome {
+function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements, supplement, pending, candidate, candidateTemplates }: GameContext): GameOutcome {
     let fixture: any = null
     /** 29 October 2026: this block's requirement account, read right after the context-scoring guard; null where the build is not an administrator's review, or stopped before the guard. */
     let blockRequirements: BlockRequirementAccount | null = null
@@ -2850,7 +3028,28 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
                           }
                       })
                 : []
-        invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport, roleEventSupport, index, contextRelationships()))
+        if (!pending) invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport, roleEventSupport, index, contextRelationships()))
+        else {
+            /*
+             * TEST-ONLY (stage B1, the declared treatment PROPOSED_PENDING; absent on every other build): the same findings, and each one whose
+             * only ground is that an item writing a role's own event is not OWNER_RULING, where that item is PROPOSED (our proposal, which
+             * truthfully claims no ruling), is moved to the review-level account with the question it waits on: never dropped. Every other
+             * finding refuses as before, the same finding on a CANDIDATE, ILLUSTRATIVE or knowledge item among them.
+             */
+            const grounds: BasisGround[] = []
+            const found = contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport, roleEventSupport, index, contextRelationships(), grounds)
+            const itemOf = (ref: { contractId: string; itemId: string }) => (input.contracts as LoadedContract[]).find(c => c.contractId === ref.contractId)?.items.find(i => i.itemId === ref.itemId) as (ContractItem & { waitsOn?: unknown }) | undefined
+            const blockId = input.roleBlock?.blockId ?? ONE_GAME
+            const split = splitProposedPending(found, grounds, ref => itemOf(ref)?.category === PROPOSED)
+            for (const ground of split.moved) {
+                const waitsOn = itemOf(ground)?.waitsOn
+                const key = `${ground.contractId}::${ground.itemId}`
+                const entry = pending.entries.find(e => e.item === key && e.finding === ground.finding)
+                if (entry) entry.blocks.push(blockId)
+                else pending.entries.push({ treatmentId: pending.treatmentId, item: key, questionId: typeof waitsOn === 'string' ? waitsOn : null, finding: ground.finding, blocks: [blockId] })
+            }
+            invalid.push(...split.refusing)
+        }
         /**
          * **The requirement account of this block** (29 October 2026; `requirement-account.ts`): read after the guard, from the same realized
          * game, the same episode check and the same readings of the event and of each condition (`eventKindReadingOf`, `conditionReadingOf`),
@@ -3050,9 +3249,16 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
      * beside the new ones. Nothing before rendering is re-run: either is a reading of the realized games, not a change to them. Every game
      * given neither is rendered once, exactly as before.
      */
+    // Stage B2 (TEST-ONLY): with our CANDIDATE wording, the table the renderer and fidelity read is the approved one followed by it; else the default.
+    const wordingTable = candidate ? [...approvedWording(), ...candidate] : null
+    // Stage A1 (TEST-ONLY, decision R3): with our CANDIDATE templates, the templates the renderer reads are the approved ones followed by them.
+    const templateTable = candidateTemplates ? [...approvedTemplateSentences(), ...candidateTemplates] : undefined
     const communicate = (assembled: any): GameOutcome => {
-        const rendered = renderConcreteGame(assembled)
-        const report = checkFidelity(assembled, rendered)
+        // Stage A1 (TEST-ONLY, decision R1): with our CANDIDATE wording the renderer and fidelity read the register the game was derived over.
+        const said = wordingTable ? underDerivationRegister(index, () => renderConcreteGame(assembled, wordingTable, templateTable)) : renderConcreteGame(assembled)
+        // 7 November 2026, tests only: a review-only supplement's sentences join the renderer's here, before fidelity; null on every other build.
+        const rendered = supplement ? onlyAdded(said, JSON.stringify(said), supplement(assembled, said)) : said
+        const report = wordingTable ? underDerivationRegister(index, () => checkFidelity(assembled, rendered, wordingTable)) : checkFidelity(assembled, rendered)
         const violations = report.findings.filter((f: any) => f.severity === 'VIOLATION')
         const recommunicate = (extra: Record<string, unknown>): GameOutcome => communicate({ ...assembled, ...extra })
         // Stage K8: what the admin-only review evidence reads of this game (the gate rerun clause by clause, the owed invariants, every finding).

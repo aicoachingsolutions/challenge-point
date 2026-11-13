@@ -1,4 +1,5 @@
 import { countPatternHits, includesNormalizedPhrase, normalizeText } from './text'
+import type { FoundationOptionalPackage, FoundationPresenceBypass } from './build-constraint-package'
 import { ActivityAssemblyGuardrails, AffordanceField, ArchetypeDefinition, InteractionExchange, SelectedConstraintPackage, SystemPipelineError } from './types'
 
 const PRESCRIPTIVE_PATTERNS = [
@@ -298,11 +299,18 @@ function hasCompleteGuardrails(guardrails?: ActivityAssemblyGuardrails | null): 
     )
 }
 
+export function validateConstraintPackage(affordances: AffordanceField, archetype: ArchetypeDefinition, constraintPackage: SelectedConstraintPackage): void
+/**
+ * TEST-ONLY (stage W2 of the A02 package, E3, the declared treatment FOUNDATION_PRESENCE_BYPASS; see build-constraint-package.ts): the
+ * foundation clause below (:333-335) is not applied; every other check, of each member present and of the package, applies exactly as below.
+ */
+export function validateConstraintPackage(affordances: AffordanceField, archetype: ArchetypeDefinition, constraintPackage: FoundationOptionalPackage, testOnly: FoundationPresenceBypass): void
 export function validateConstraintPackage(
     affordances: AffordanceField,
     archetype: ArchetypeDefinition,
-    constraintPackage: SelectedConstraintPackage
-) {
+    constraintPackage: SelectedConstraintPackage | FoundationOptionalPackage,
+    testOnly?: FoundationPresenceBypass
+): void {
     if (!affordances.primary) {
         throw new SystemPipelineError('constraint-package-validation', 'A primary affordance is required before validation.')
     }
@@ -322,7 +330,7 @@ export function validateConstraintPackage(
      * per package, on the interaction exchange and the guardrails — applies exactly as before, including to
      * a shaping constraint wherever one is present.
      */
-    if (!constraintPackage.foundation) {
+    if (!constraintPackage.foundation && testOnly?.foundationPresenceBypass !== true) {
         throw new SystemPipelineError('constraint-package-validation', 'A valid package requires a foundation constraint.')
     }
 

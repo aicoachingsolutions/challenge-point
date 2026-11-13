@@ -394,7 +394,13 @@ test('the corpus-wide Gate A, check by check', () => {
         'GA-EPISODE-REACHABLE': 'NOT_EVALUABLE',
         'GA-INFORMATION': 'FAIL',
         'GA-LAYOUT-FEASIBLE': 'DEFERRED_TO_REALIZATION',
-        'GA-MODIFIER-OVERLAP': 'NOT_EVALUABLE',
+        // NOT_EVALUABLE -> PASS on 7 November 2026 (Decision 2; RE-PINNED, measured). The one event-conditioned modifier corpus-wide was
+        // GF4's I17, whose overlap execution is unspecified (why: '1 event-conditioned modifier(s); overlap execution is unspecified; ...').
+        // Christian's reply received 7 November 2026, section 2, Decision 2: "Illustrative incentive examples should not be interpreted as
+        // mandatory structural requirements." I17 is restated TYPICAL_EXAMPLE (SD-59), so it establishes no modifier; Wide Zone's region
+        // modifier is the only one left, and its region referents compare by structural identity (why now: '1 modifier termination(s) name
+        // a reachable trigger; 2 region referent(s) compared by structural identity'). gf4-example-incentives.unit.ts pins the correction.
+        'GA-MODIFIER-OVERLAP': 'PASS',
         'GA-NO-FAILED-LINE': 'FAIL',
         'GA-OBJECTIVE-SETS': 'PASS',
         'GA-ONE-PRIMARY-EVENT': 'NOT_EVALUABLE',
@@ -422,7 +428,10 @@ test('the corpus-wide Gate A, check by check', () => {
     assert.equal(check(result, 'GA-RELATIVE-PLACEMENT').clauses.every((c: any) => c.basis === 'NO_APPLICABLE_INSTANCES'), true)
     // 13 -> 10 on 15 October 2026 (stage K1): RPC-001-18.f::V5 and 19.a::V5 derived by C57 (his M8), and 18.a::V6
     // 'excluded' corpus-wide by C55 (his 9.9, decided with the Neutral Player Condition's own exclusion beside it).
-    assert.match(check(result, 'GA-NO-FAILED-LINE').why, /^10 required line\(s\) are unestablished/)
+    // 10 -> 9 on 7 November 2026 (Decision 2; RE-PINNED, measured): c:blind:GF4:I17::V9 ('claimed but unresolved') no longer exists,
+    // because GF4's I17 is restated TYPICAL_EXAMPLE (SD-59; Christian's reply received 7 November 2026, section 2, Decision 2). The
+    // other nine are unchanged.
+    assert.match(check(result, 'GA-NO-FAILED-LINE').why, /^9 required line\(s\) are unestablished/)
     // PCG-11's CONTRADICTED became NOT_COMPARED when C44 typed it (S1c); the other two are untouched.
     assert.deepEqual(codes(result).sort(), [
         `CONSTITUTIVE_SELECTOR_CONTRADICTED@c:${GATE}:PCG-02::V4`,

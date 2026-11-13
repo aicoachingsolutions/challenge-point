@@ -1,0 +1,12 @@
+Regression snapshot (npm run snapshot), before and after the Stage 2 changes.
+before: snapshot-main-f534a62.json, taken on main f534a62 with no changes (the baseline Stage 1 also used)
+during: taken at 14:41 on 4 November 2026 with the review corrections in the working tree, before their last edits (14:47-14:48)
+after: snapshot-0cfb34c.json, taken at 15:34 on 4 November 2026 on the clean, committed tree at 0cfb34c
+top-level keys: 391 in each
+a8420db066c34341366254b9e8063aa9c66688fd777a350ce9aa1d0a2c4da246  before (main f534a62)
+a8420db066c34341366254b9e8063aa9c66688fd777a350ce9aa1d0a2c4da246  during (14:41)
+a8420db066c34341366254b9e8063aa9c66688fd777a350ce9aa1d0a2c4da246  after (0cfb34c)
+npm run snapshot:diff (before against during):
+KEYS 391  CHANGED 0  LEAVES 0  ONLY-BEFORE 0  ONLY-AFTER 0
+npm test (full suite, at the final code, review corrections included):
+FILES 150  FAILED 0

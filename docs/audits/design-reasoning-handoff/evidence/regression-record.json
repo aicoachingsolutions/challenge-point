@@ -1,0 +1,22 @@
+{
+    "standing": "Recorded on 7 November 2026 from an independent run on the committed tree of build 46aec30 (the handoff, decisions 1 and 2, Tests A to C, and the three review rounds with the final recheck). This record is committed on top of that build with no change to any code or data file; no test reads it. Engineering evidence only: the live application and A01's checked behaviour are unchanged, nothing is deployed, and it does not establish ecological suitability (Christian's first reply of 7 November 2026, sections 1 and 13).",
+    "status": "RECORDED",
+    "build": "46aec30 (branch claude/reusable-config-handoff, on top of the assembly experiment branch at c98295b; main at f534a62)",
+    "results": [
+        { "check": "Type check (tsc --noEmit)", "result": "passed (exit 0)" },
+        { "check": "Full unit suite (npm test), run alone", "result": "154 test files, 0 failed (exit 0)" },
+        { "check": "Behaviour snapshot against main at f534a62, run alone after the suite", "result": "391 entries, 0 changed, 0 added, 0 removed (sha-256 a8420db066c34341366254b9e8063aa9c66688fd777a350ce9aa1d0a2c4da246 on both sides); A01's 44 entries are among the unchanged" },
+        { "check": "Live backend bundle built from src/index.ts, compared with main at f534a62", "result": "not byte-identical: branch sha-256 8b7eebedb26bbc2b0ce65370cb9c5d21dc2122423fe9a705e8c186cee018fd6c (3,229,252 bytes), main 6bd210238f7d620c9b968f17edac63cd4984b472320aadf58731e8b4b0a0deed (3,228,588 bytes), 192 inputs each; the text differs in exactly five hunks, all the TEST-ONLY communication hook of build-activity.ts (build's supplement parameter, the game context's supplement field, onlyAdded, buildOneGame's destructuring, communicate's two lines), which no route passes; 0 inputs from the design-reasoning folder, review-structure-wording or the draft store" },
+        { "check": "dist/knowledge (18 files) against the parent build c98295b", "result": "only conformance/stage-b/corpus-restatements.json differs (decision 2: 05ec5888... -> 89fe5a31...); none added or removed" },
+        { "check": "Stage 1 runner re-run to a scratch folder", "result": "results byte-identical to the post-sweep baseline of 6 November" },
+        { "check": "Stage 2 evidence re-generated to a scratch folder", "result": "report and results byte-identical to the committed files" },
+        { "check": "Assembly evidence re-generated to a scratch folder, twice", "result": "report, results and DRAFT diagram byte-identical to the committed files each time" },
+        { "check": "Stage 1, Stage 2 and assembly audit folders since c98295b", "result": "no file changed" },
+        { "check": "Handoff evidence", "result": "the handoff unit file (40 passing) generates the report and results twice, identical, and equal to the committed files" },
+        { "check": "External quote check of the handoff report", "result": "83 quotes and 2 terms: 85 passed, 0 failed; 80 of 80 received-date citations correct" },
+        { "check": "External quote check of the README", "result": "5 quotes: 5 passed, 0 failed" },
+        { "check": "Gendered pronouns in every line added since c98295b", "result": "none" },
+        { "check": "Files changed outside the design-reasoning folder and the handoff audit folder since c98295b", "result": "back/scripts/unit-tests.json (three new unit files registered); six derivation unit files re-pinned for decision 2, with the measured before and after, and its new test file; rendering/build-activity.ts (the TEST-ONLY hook only); rendering/review-structure-wording.ts and its unit file (decision 1, TEST-ONLY, in no bundle); docs/audits/conformance/stage-b/corpus-restatements.json (decision 2)" },
+        { "check": "GitHub checks", "result": "none run: the repository runs its checks only on pushes to main and to its integration branch, and on pull requests; this review branch has no pull request, and nothing deploys" }
+    ]
+}

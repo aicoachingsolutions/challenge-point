@@ -1,0 +1,647 @@
+{
+  "standing": "TEST-ONLY review data for the isolated A02 foundational test Christian authorized in the reply about A02, pasted 10 November 2026 without its mail header, so its received date is not recorded (stage 9; its slice S2). Per case it holds what the handoff RECEIVES beside Steps 1 and 2, in the shape of the handoff's own review data (handoff-inputs.review.json), held to the same validator: the Learning Goal, that the form is Step 2's, the session (illustrative), Christian's words that bear on the case (verbatim, with file and date: the received date, or, for the reply about A02, marked PASTED_WITHOUT_HEADER, the date it was pasted and filed) and how each enters the checked chain, and the TEST-ONLY treatments, each labelled. Steps 1 and 2 are run by the handoff and consumed by the chain, never copied from here. The context's CANDIDATE restatement and the DRAFT A02 record live only in the TEST-ONLY draft store docs/audits/drafts/a02-composition. Nothing on the live route or the checked pathway reads this file; only the A02 unit tests do (a02.unit.ts, a02-safeguards.unit.ts and a02-evidence.unit.ts, which also builds the two TA02 runs of the reuse comparison from these cases and rulings).",
+  "borrowed": {
+    "file": "handoff-inputs.review.json",
+    "rulings": ["HO-07NOV-ILLUSTRATIVE", "HO-07NOV-PURPOSE", "HO-23OCT-LAWS", "HO-07NOV-OFFSIDE-SCOPE", "HO-07NOV-SCORING-ROW", "HO-07NOV-K2"],
+    "grading": "the handoff's grading tables, unchanged (held to their sources by handoff.unit.ts test P7), so a line of these runs is graded exactly as a line of the handoff's cases"
+  },
+  "rulings": [
+    {
+      "id": "A02-10NOV-AUTHORIZATION",
+      "words": [
+        "I authorize the next bounded, isolated A02 engineering experiment.",
+        "Please focus on connecting the existing approved knowledge and reasoning decisions to the checked configuration pathway.",
+        "The downstream pathway should consume Step 1's resolved Game Problem and Step 2's Game Form evaluation rather than independently selecting them from Learning Goal wording.",
+        "The system should preserve the authority and provenance of every consequential decision.",
+        "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."
+      ],
+      "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
+      "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
+      "provisional": false,
+      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+    },
+    {
+      "id": "A02-10NOV-CANDIDATE",
+      "words": [
+        "High Press Escape's existing identity and scoring conditions should be represented through the smallest necessary executable interpretation, clearly identified as CANDIDATE until reviewed.",
+        "Missing knowledge or unsupported relationships should remain explicitly unresolved."
+      ],
+      "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
+      "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
+      "provisional": false,
+      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+    },
+    {
+      "id": "A02-10NOV-GF2",
+      "words": [
+        "My answer is yes for demonstrating the foundational reasoning connection, but not necessarily for demonstrating a complete, representative activity.",
+        "However, your audit also identifies unresolved approval status for GF2's Game Problem cell.",
+        "Please preserve that distinction.",
+        "I am not yet approving GF2 as the uniquely preferred or ecologically sufficient Game Form for A02.",
+        "But we should not assume that a generic directional possession game necessarily reproduces the defining conditions of High Press Escape.",
+        "Established, coordinated defensive pressure and the opportunity to escape that pressure while preserving attacking potential must remain central to evaluating its suitability.",
+        "Please distinguish demonstrated structural compatibility from demonstrated representative sufficiency."
+      ],
+      "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
+      "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
+      "provisional": false,
+      "scope": null
+    },
+    {
+      "id": "A02-10NOV-ERR",
+      "words": [
+        "I mean the conditions and interactions necessary for the intended game problem to be meaningfully represented.",
+        "For A02, that includes High Press Escape's defining context, established opposition pressure, relevant attacking opportunities, and the representative consequences and scoring relationships.",
+        "The CAR Matrix's Essential affordance requirements are also relevant, but they are not interchangeable with the context's identity and scoring conditions."
+      ],
+      "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
+      "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
+      "provisional": false,
+      "scope": null
+    },
+    {
+      "id": "A02-10NOV-TREATMENTS",
+      "words": [
+        "Please retain unresolved A02 starting-state and Laws questions as explicit limitations rather than silently closing them through assumptions.",
+        "Where necessary, use clearly labeled test-only treatments to examine the engineering pathway without claiming that a complete activity has been authorized.",
+        "I don't want those details to create another extended investigation unless they materially prevent us from demonstrating the foundational reasoning connection."
+      ],
+      "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
+      "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
+      "provisional": false,
+      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+    },
+    {
+      "id": "A02-10NOV-SOURCES",
+      "words": [
+        "For missing knowledge documents, please identify the smallest specific source material required to resolve the next consequential gap."
+      ],
+      "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
+      "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
+      "provisional": false,
+      "scope": null
+    },
+    {
+      "id": "A02-08NOV-RESTART",
+      "words": [
+        "A restart, a change of possession, and the beginning of a new attack should not automatically be treated as equivalent."
+      ],
+      "file": "sources/2026-11-08-foundational-audit/originals/christian-reply-to-handoff-results.txt",
+      "received": "2026-11-08",
+      "provisional": false,
+      "scope": null
+    },
+    {
+      "id": "A02-07NOV-CONSERVATIVE",
+      "words": [
+        "A check based solely on a candidate interpretation may conservatively refuse a configuration without establishing that the configuration violates approved knowledge."
+      ],
+      "file": "sources/2026-11-07-restatement-correction/originals/christian-reply-to-review-evidence-correction.txt",
+      "received": "2026-11-07",
+      "replyOfDay": "second reply",
+      "provisional": false,
+      "scope": null
+    },
+    {
+      "id": "A02-03NOV-DESIGN-AUTHORIZATION",
+      "words": [
+        "I agree that a design package should not require a separately authored authorization record for every Learning Goal.",
+        "For the new reasoning stage, an approved Game Problem and context, supported by governed relationships and passing the required validation, should be sufficient to authorize a design package for review."
+      ],
+      "file": "sources/2026-11-03-stage1-authorization/originals/christian-reply-to-development-proposal.txt",
+      "received": "2026-11-03",
+      "provisional": false,
+      "scope": "NEW_REASONING_STAGE"
+    },
+    {
+      "id": "A02-10NOV-QUOTA",
+      "words": [
+        "For the isolated A02 experiment, you may remove or bypass this unsupported numerical quota where necessary to test legitimate zero-, one-, or multiple-manipulation configurations.",
+        "Please preserve all independently justified structural, compatibility, and representative-integrity checks.",
+        "I am not authorizing a production change to the constraint selector at this stage.",
+        "The separate foundation-constraint and role-mix requirements should be reported with their source and authority rather than automatically treated as canonical."
+      ],
+      "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
+      "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
+      "provisional": false,
+      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+    },
+    {
+      "id": "A02-10NOV-FAILURE-SOURCES",
+      "words": [
+        "When a problem appears, please identify the earliest consequential failure and determine whether it originates in:",
+        "Missing knowledge.",
+        "An unapproved or inaccurate interpretation.",
+        "A broken relationship between existing knowledge components.",
+        "Incorrect reasoning chronology or decision authority.",
+        "A configuration or rendering implementation limitation."
+      ],
+      "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
+      "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
+      "provisional": false,
+      "scope": null
+    },
+    {
+      "id": "A02-10NOV-REUSE",
+      "words": [
+        "Could Challenge Point reuse common Game Problem and affordance reasoning, then apply the additional representative requirements of the selected context, rather than independently constructing each Learning Goal's design logic?",
+        "Potentially, they could even use the same basic Game Form while differing in their essential opposition relationships, starting conditions, or scoring consequences.",
+        "We should not force artificial activity differences merely because the Learning Goals have different names.",
+        "Equally, we should not allow genuinely different representative contexts to collapse into an identical generic activity.",
+        "Instead, please assess whether the existing Game Problem, Context, Affordance, and Game Form relationships already support this kind of reasoning reuse.",
+        "Do not begin a broad A02/TA02 family analysis or additional library development as part of this assignment. A brief reuse feasibility finding is sufficient for now."
+      ],
+      "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
+      "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
+      "provisional": false,
+      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+    },
+    {
+      "id": "A02-10NOV-REPORT",
+      "words": [
+        "Whether the downstream pathway now consumes the authorized Game Problem and Game Form results without independent wording-based substitution.",
+        "Whether the existing High Press Escape identity and scoring relationships can be carried into configuration, and what remains unsupported.",
+        "Whether the proposed reasoning-disconnection safeguards detect the known A02 failure and comparable unauthorized substitutions.",
+        "Whether zero or one justified manipulation can be represented without the inherited numerical quota interfering.",
+        "Which unresolved issue is now the earliest consequential blocker.",
+        "Whether the existing knowledge relationships appear capable of supporting reasoning reuse between A02 and TA02, without requiring a new goal-family structure.",
+        "Confirmation that the existing application and A01 behavior remain unchanged.",
+        "Please distinguish implemented and tested behavior from proposals, assumptions, and ecological suitability."
+      ],
+      "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
+      "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
+      "provisional": false,
+      "scope": null
+    },
+    {
+      "id": "A02-10NOV-SELECTOR",
+      "words": [
+        "I am not authorizing a production change to the constraint selector at this stage."
+      ],
+      "file": "sources/2026-11-10-a02-authorization/originals/christian-reply-to-foundational-audit.txt",
+      "received": "2026-11-10",
+      "dateBasis": "PASTED_WITHOUT_HEADER",
+      "citedAs": "reply about A02",
+      "provisional": false,
+      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+    },
+    {
+      "id": "A02-12NOV-PRESSURE",
+      "words": [
+        "For High Press Escape, I'd like the starting condition to be defined through observable defensive organization and pressure, rather than a mandatory restart arrangement or coach-triggered sequence.",
+        "A qualifying sequence begins when the attacking team possesses the ball while facing established, coordinated defensive pressure.",
+        "That means defenders are working in connection with one another to pressure the ball and restrict relevant passing or progression opportunities.",
+        "An isolated defender closing down the ball does not necessarily constitute coordinated pressure.",
+        "During normal play.",
+        "Following a turnover.",
+        "Through a representative restart that recreates the relevant pressure conditions.",
+        "The coach should be free to use whichever practical starting arrangement creates recurring opportunities to encounter the intended problem.",
+        "The pressure condition applies at the beginning of the qualifying sequence, not continuously throughout its entirety.",
+        "A scoring event must occur within a sequence that began under coordinated pressure.",
+        "If the attacking team successfully escapes, the defensive organization will naturally change.",
+        "We shouldn't require the press to remain intact after it has been broken.",
+        "I want this represented through an observable game situation, not merely through instructions telling players or defenders what they must do.",
+        "Please develop the smallest executable restatement consistent with these decisions, preserving its candidate status until I've reviewed it.",
+        "I'd also like the eventual activity to make clear how coordinated pressure arises repeatedly and meaningfully within the game structure."
+      ],
+      "file": "christian-2026-11-12-a02-next-package.txt (Christian's reply received 12 November 2026, item 1, Established Coordinated Pressure: Approved Interpretation)",
+      "received": "2026-11-12",
+      "provisional": false,
+      "scope": null
+    },
+    {
+      "id": "A02-12NOV-NEXT-ACTION",
+      "words": [
+        "I agree that the existing wording requiring the next pass is too restrictive.",
+        "The approved condition should recognize a successful continuation of attacking possession following the qualifying advancement event, without prescribing the type of action.",
+        "Whose action: The attacking team's next relevant ball action following completion of the scoring event.",
+        "What counts: A meaningful continuation such as a pass, dribble, carry, turn, or another legitimate interaction that maintains attacking possession.",
+        "Event completion: An action or reception already required to complete the original scoring event should not also count as a separate subsequent action.",
+        "Successful continuation: The attacking team must retain possession through the continuation.",
+        "We are not rewarding an attempted action that immediately loses possession.",
+        "When the point counts: Once the qualifying advancement event and the subsequent successful continuation have occurred.",
+        "If play stops first: Ordinarily the continuation requirement has not been completed, so the point has not yet been earned.",
+        "Practical exceptions involving unusual stoppages should remain subject to reasonable coach judgment rather than an elaborate universal rule.",
+        "For a player already carrying or dribbling, please avoid introducing an artificial extra touch, distance or time requirement simply to create a separate action.",
+        "The interpretation should reflect a meaningful continuation of play.",
+        "I do not want to construct an exhaustive taxonomy of qualifying actions.",
+        "The purpose is to recognize successful escape and continued attacking possession while preserving the players' freedom to discover appropriate solutions.",
+        "There may be situations, such as an immediate shot after escaping pressure, where the requirement creates an undesirable incentive.",
+        "Let's keep that concern visible for ecological review rather than expanding the scoring architecture now.",
+        "However, please hold their final coach-facing wording for review alongside the complete A02 activity.",
+        "The literal substitution should not be released before we've confirmed that the resulting instructions accurately and clearly communicate the intended condition."
+      ],
+      "file": "christian-2026-11-12-a02-next-package.txt (Christian's reply received 12 November 2026, item 2, Retaining Possession Through the Next Action: Approved Interpretation)",
+      "received": "2026-11-12",
+      "provisional": false,
+      "scope": null
+    },
+    {
+      "id": "A02-12NOV-COMMUNICATION",
+      "words": [
+        "I'd like to add a specific communication requirement to the next A02 package.",
+        "The sophistication of the reasoning engine should not become complexity in the coach's instructions.",
+        "We need to preserve the full meaning of the approved knowledge internally while presenting it to coaches in language that is concise, clear, practical, and sufficient to organize and run the activity.",
+        "For example, the engine may need to distinguish a qualifying sequence, an established pressing condition, an advancement event and a subsequent possession-continuation requirement.",
+        "The coach should not have to interpret those technical distinctions or read several paragraphs to understand the game.",
+        "Setup: What the coach needs to arrange.",
+        "Rules: What players need to know to play.",
+        "Scoring: What earns a point and when.",
+        "Learning explanation: A short, meaningful connection between the game conditions and the intended learning problem.",
+        "Avoid redundant explanations, unnecessary ecological terminology, overly technical scoring language, and rules that are more complicated than the game itself.",
+        "At the same time, concision must not remove information essential to running the activity correctly.",
+        "Where a short sentence might become ambiguous, clarity takes priority over brevity.",
+        "I would also prefer that coach-facing language describe the game conditions rather than prescribe specific player solutions.",
+        "The players should still have meaningful decisions to make.",
+        "Please prepare candidate coach-facing wording for my review, with the complete approved meaning preserved in the underlying representation."
+      ],
+      "file": "christian-2026-11-12-a02-next-package.txt (Christian's reply received 12 November 2026, item 5, Coach-Facing Communication: Concision and Understanding)",
+      "received": "2026-11-12",
+      "provisional": false,
+      "scope": null
+    },
+    {
+      "id": "A02-12NOV-PACKAGE",
+      "words": [
+        "Produce one complete A02 activity through the checked pathway, at review level, with all required conditions grounded in approved knowledge.",
+        "Translate the coordinated-pressure and next-action rulings above into a candidate executable restatement.",
+        "Replace the illustrative carriers with representations supported by approved knowledge.",
+        "Complete the remaining connection through realization and communication.",
+        "Resolve the identified renderer issue concerning the attacking team's name.",
+        "Prepare concise coach-facing wording for review.",
+        "Preserve A01 and the existing live application.",
+        "Maintain the distinction between approved knowledge, candidate interpretations and illustrative test assumptions.",
+        "Regarding the pressing line, I do not want to introduce a universal distance or rigid field arrangement without justification.",
+        "Please propose the simplest representative configuration that makes the relevant defensive pressure and escape target observable to the coach.",
+        "Where a marked reference is necessary, its position should serve the intended game problem rather than become an arbitrary geometric requirement.",
+        "The final interpretation and any consequential new knowledge should remain subject to my approval.",
+        "Likewise, please identify any necessary Law 11 decision in the context of the proposed activity rather than expanding into a general Laws-of-the-Game redesign.",
+        "The resulting activity must make the intended High Press Escape problem recognizable and actionable for a coach.",
+        "I want to see where coordinated pressure comes from, how players encounter information about that pressure, what genuine escape opportunities exist, and how the game's consequences make successful solutions meaningful.",
+        "A generic Directional Possession Game with additional wording would not, by itself, establish that we've achieved this."
+      ],
+      "file": "christian-2026-11-12-a02-next-package.txt (Christian's reply received 12 November 2026, item 6, Next A02 Foundational Package: Approved)",
+      "received": "2026-11-12",
+      "provisional": false,
+      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+    },
+    {
+      "id": "TA02-27OCT-CONTEXT",
+      "words": [
+        "I agree that the current Attack Development context doesn't adequately represent this moment, because it begins after organized possession has already been established."
+      ],
+      "file": "recovered reply received 27 October 2026, beginning \"Thank you for the detailed composition test and Game Form Library assessment.\"; our filed copy christian-2026-10-30.txt, filed under the old filing date 30 October 2026 (received 27 October 2026, US Eastern)",
+      "received": "2026-10-27",
+      "replyOfDay": "second reply",
+      "provisional": false,
+      "scope": null
+    },
+    {
+      "id": "TA02-28OCT-DEFERRED",
+      "words": [
+        "Secure Possession: Preserve the findings and draft knowledge, including the proposed ninth context and phase-based scoring requirements. We'll return to these once we've demonstrated reusable composition with an established context."
+      ],
+      "file": "recovered reply received 28 October 2026, beginning \"Thank you for the latest Secure Possession findings.\"; our filed copy christian-2026-10-31.txt, filed under the old filing date 31 October 2026 (received 28 October 2026, US Eastern)",
+      "received": "2026-10-28",
+      "replyOfDay": "first reply",
+      "provisional": false,
+      "scope": null
+    }
+  ],
+  "cases": [
+    {
+      "id": "A02-0",
+      "label": "A02 with the knowledge as it stands and our CANDIDATE restatement of RPC-002 (Steps 1 and 2 consumed by the chain; the review pathway's K2 result, no manipulation, consumed in place of a per-goal authorization record)",
+      "resultStanding": "KNOWLEDGE_AS_IT_STANDS_WITH_A_CANDIDATE_RESTATEMENT",
+      "goalId": "A02",
+      "form": { "fromStep2": true },
+      "session": { "players": 12, "lengthM": 40, "widthM": 30, "durationMin": 18, "specializedRoles": 0, "goals": null, "label": "ILLUSTRATIVE", "rulingRefs": ["HO-07NOV-ILLUSTRATIVE"] },
+      "purpose": {
+        "rulingRefs": ["HO-07NOV-PURPOSE"],
+        "sourceEvidence": "Session Planning Model (session-planning-model.rc1.json), learning_goals, the goal's row, its coach definition (read by the display reader in the test, after the decisions)",
+        "approvalEvidence": "none dated in this data: the row's Status cell reads 'Active', which is not by itself proof of a dated canonical approval"
+      },
+      "chain": { "records": "PRODUCTION", "draftStore": "a02-composition", "supplement": false, "vehicle": null },
+      "record": null,
+      "realization": null,
+      "rulings": [
+        { "ref": "A02-10NOV-AUTHORIZATION", "entersAs": "REPORT_ONLY", "how": "the authority for the isolated experiment and for the chain's TEST-ONLY consumption of Steps 1 and 2 (TT-CONSUMED-STEPS); none of its words enters the chain as a value" },
+        { "ref": "A02-10NOV-CANDIDATE", "entersAs": "REPORT_ONLY", "how": "our restatement of RPC-002 in the TEST-ONLY draft store is printed as CANDIDATE, item by item beside the approved row it restates; what the item grammar cannot express is declared and listed as UNRESOLVED" },
+        { "ref": "A02-10NOV-GF2", "entersAs": "REPORT_ONLY", "how": "Step 2's form is consumed as compatibility only: its Game Problem cell keeps its CANDIDATE grade; no run is reported as representative sufficiency" },
+        { "ref": "A02-10NOV-ERR", "entersAs": "REPORT_ONLY", "how": "the Essential Representative Relationships table: each relationship with the rows that state it, the CAR rating, whether it is executable and what the engine does with it" },
+        { "ref": "A02-10NOV-TREATMENTS", "entersAs": "REPORT_ONLY", "how": "the starting-state and Laws questions stay explicit limitations; every TEST-ONLY treatment is labelled, and no run with one is the A02 configuration" },
+        { "ref": "A02-10NOV-SOURCES", "entersAs": "REPORT_ONLY", "how": "the smallest specific source material, as questions only, in order of consequence" },
+        { "ref": "A02-08NOV-RESTART", "entersAs": "REPORT_ONLY", "how": "answered for the start by A02-12NOV-PRESSURE (a qualifying sequence may begin in normal play, after a turnover or through a representative restart); the distinction still governs the coach's word for the sequence: the coach text says 'possession', never 'attack' (stage A2)" },
+        { "ref": "A02-07NOV-CONSERVATIVE", "entersAs": "REPORT_ONLY", "how": "a refusal resting only on our restatement is printed as a conservative refusal, not as a finding that the configuration violates approved knowledge" },
+        { "ref": "HO-07NOV-ILLUSTRATIVE", "entersAs": "ILLUSTRATIVE_PERMISSION", "how": "the basis for the labelled illustrative session (borrowed from the handoff's data, as its TA01 case uses it)" },
+        { "ref": "HO-07NOV-PURPOSE", "entersAs": "REPORT_ONLY", "how": "the purpose's source and approval evidence printed apart" },
+        { "ref": "HO-23OCT-LAWS", "entersAs": "REPORT_ONLY", "how": "the Laws apply by default: nothing enters; the chain's laws account reports each law" },
+        { "ref": "HO-07NOV-OFFSIDE-SCOPE", "entersAs": "REPORT_ONLY", "how": "the provisional no-offside ruling is scoped to the initial small-sided realization: nothing enters; the LAW-11 stand-in of A02-2 and A02-D is a TEST-ONLY treatment, never this ruling generalized" },
+        { "ref": "HO-07NOV-K2", "entersAs": "EMPTY_CONSTRAINT_SET", "how": "the review pathway's K2 result (no manipulation proposed) handed to the chain in place of a per-goal authorization record (TT-K2-RETAIN-FORM): the empty set only, never an authorization of any manipulation; its rule and its limit are carried into the account and the report" },
+        { "ref": "A02-03NOV-DESIGN-AUTHORIZATION", "entersAs": "REPORT_ONLY", "how": "E5: our reading of it, that the review pathway needs no separately authored record per Learning Goal, is why K2's result stands in for one; the DRAFT-record comparison arm is kept so Christian can reverse that reading" },
+        { "ref": "A02-12NOV-PRESSURE", "entersAs": "REPORT_ONLY", "how": "the authority for our CANDIDATE restatement of the origin clause (RPC-002-02.b on V6, judged in play at the sequence's start; V5 origin NO_FURTHER_VALUE) and of the WHOLE_GAME scope; none of its words enters the chain as a value (the value is RPC-PROP-133's own words), and the restatement stays CANDIDATE until Christian has reviewed it" },
+        { "ref": "A02-12NOV-NEXT-ACTION", "entersAs": "REPORT_ONLY", "how": "the authority for our CANDIDATE restatement of the control clause (RPC-002-04.b verbatim; V5 control NO_FURTHER_VALUE: the continuation names no place); none of its words enters the chain as a value, and no type of action is prescribed" },
+        { "ref": "A02-12NOV-PACKAGE", "entersAs": "REPORT_ONLY", "how": "the authority for the package (one complete A02 activity through the checked pathway, at review level) and for our PROPOSED configuration A02-HPE1, put to Christian for approval; none of its words enters the chain as a value" },
+        { "ref": "A02-12NOV-COMMUNICATION", "entersAs": "REPORT_ONLY", "how": "the standard our CANDIDATE coach text answers (the four parts; concise, with clarity before brevity; nothing essential to running the activity removed; conditions, not player solutions); none of its words enters the chain as a value" }
+      ],
+      "suppliedChoices": [],
+      "standIns": [],
+      "illustrative": [
+        { "id": "IL-PLAYERS", "what": "players", "value": "12, no specialized role", "how": "session input", "rulingRefs": ["HO-07NOV-ILLUSTRATIVE"], "onDiagram": "counts" },
+        { "id": "IL-AREA", "what": "area", "value": "40 x 30 m", "how": "session input", "rulingRefs": ["HO-07NOV-ILLUSTRATIVE"], "onDiagram": "area" },
+        { "id": "IL-DURATION", "what": "duration", "value": "18 minutes", "how": "session input", "rulingRefs": ["HO-07NOV-ILLUSTRATIVE"] }
+      ],
+      "testOnlyTreatments": [
+        {
+          "id": "TT-CONSUMED-STEPS",
+          "kind": "CONSUMED_STEPS",
+          "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)",
+          "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed",
+          "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes",
+          "label": "TEST-ONLY",
+          "rulingRefs": ["A02-10NOV-AUTHORIZATION"]
+        },
+        {
+          "id": "TT-DRAFT-STORE",
+          "kind": "DRAFT_STORE",
+          "what": "the context's CANDIDATE restatement read from the TEST-ONLY draft store a02-composition; the store's DRAFT A02 record (no ruling field filled, an empty set, our finding) is held to the store's gate and set aside under TT-K2-RETAIN-FORM (it stands in only on the DRAFT-record comparison arm)",
+          "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), or, on the DRAFT-record comparison arm, from the record route with the record's empty authorized set",
+          "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route",
+          "label": "TEST-ONLY",
+          "rulingRefs": ["A02-10NOV-CANDIDATE"]
+        },
+        {
+          "id": "TT-K2-RETAIN-FORM",
+          "kind": "K2_RETAIN_FORM",
+          "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside",
+          "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass",
+          "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge",
+          "label": "TEST-ONLY",
+          "rulingRefs": ["HO-07NOV-K2", "A02-03NOV-DESIGN-AUTHORIZATION"],
+          "k2": { "rulingRef": "HO-07NOV-K2", "rule": 1, "limit": 2 }
+        }
+      ],
+      "proposedManipulations": [],
+      "decisionKindOverrides": [],
+      "notCarried": [
+        {
+          "id": "UN-PRESSING-LINE",
+          "what": "the referent of the progression clause: the pressing line",
+          "rulingRefs": ["A02-10NOV-CANDIDATE", "A02-12NOV-PACKAGE"],
+          "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart (C54: Christian's ruling that A01's progression reference and its pressure reference are two distinct references); not typed by us in the restatement. The value 'beyond' is carried (RPC-002-03.c). Now PROPOSED in A02-HPE1 (N1): a marked line placed by a qualitative rule, for Christian's approval (docs/audits/drafts/a02-proposed)",
+          "label": "UNRESOLVED"
+        },
+        {
+          "id": "UN-WORDING",
+          "what": "coach wording for the condition",
+          "rulingRefs": ["A02-10NOV-CANDIDATE"],
+          "where": "none approved: A02-2 is refused at communication, awaiting approved wording for the control condition's type and value",
+          "label": "UNRESOLVED"
+        },
+        {
+          "id": "UN-RESTART-POSSESSION",
+          "what": "the restart and change-of-possession half of the starting state",
+          "rulingRefs": ["A02-08NOV-RESTART", "A02-10NOV-TREATMENTS"],
+          "where": "answered by Christian's ruling received 12 November 2026, item 1 (A02-12NOV-PRESSURE): a qualifying sequence may emerge during normal play, following a turnover, or through a representative restart, and the coach chooses the starting arrangement; so our CANDIDATE restatement requires no restart, set-up, transition or episode, and GF2's own start (the coach's choice of which team starts) stays. Still not carried by GF2 alone: each team attacks the end opposite its own (GF2-08.c, GF2-08.e: the per-team directional arrangement, by Christian's ruling of 9 October), the same for both teams, so nothing in GF2 makes one team the pressing team (OURS); which team presses is PROPOSED in A02-HPE1 (N3), for Christian's approval",
+          "label": "ANSWERED (A02-12NOV-PRESSURE); the pressing role PROPOSED"
+        },
+        {
+          "id": "UN-LAWS",
+          "what": "the Laws for A02, offside (LAW-11)",
+          "rulingRefs": ["A02-10NOV-TREATMENTS", "HO-07NOV-OFFSIDE-SCOPE"],
+          "where": "our DRAFT classification reads LAW-11 MATERIAL (its reason: players could wait there and bypass the interaction with opposition pressure), so A02-1b is refused at validation on it; A02-2 and A02-D pass only under the TEST-ONLY stand-in TT-LAW-11-STAND-IN; Christian's provisional no-offside ruling applies to the initial small-sided realization and is not generalized here; no ruling settles LAW-11 for A02",
+          "label": "UNRESOLVED"
+        },
+        {
+          "id": "UN-IDENTITY",
+          "what": "the identity rows RPC-ID-006, RPC-ID-007, RPC-ID-008 and RPC-ID-010",
+          "rulingRefs": ["A02-10NOV-CANDIDATE"],
+          "where": "RPC-ID-006 and RPC-ID-008 are recorded as items outside the boundary (RPC-002-05, RPC-002-06), which establish nothing; RPC-ID-007 and RPC-ID-010 have no row to be recorded on; none is enforced: RPC-002 has no requirement bindings (the requirement account is REPORT_ONLY with no scoring-condition component)",
+          "label": "UNRESOLVED"
+        },
+        {
+          "id": "UN-PRESSURE-CARRIER",
+          "what": "established opposition pressure",
+          "rulingRefs": ["A02-10NOV-CANDIDATE", "A02-12NOV-PRESSURE"],
+          "where": "no register row carries pressing, its intensity or its establishment, and none needs to: whether the sequence began under established coordinated pressure is judged in play at its start (Christian's ruling received 12 November 2026, item 1), carried as the origin condition's value (RPC-002-02.b, CANDIDATE); what in the game makes coordinated pressure arise is the configuration's (PROPOSED in A02-HPE1: the pressing role and its scoring consequence, N2 and N3)",
+          "label": "UNRESOLVED"
+        },
+        {
+          "id": "UN-AFFORDANCE-TARGETS",
+          "what": "RPC-002's affordance targets (RPC-MAP-097..102)",
+          "rulingRefs": ["A02-10NOV-CANDIDATE"],
+          "where": "deferred by Christian on 13 September (not to be inferred to reach runtime) and not inferred here; the chain's wording-scored lenses are engine inputs (ENGINE_LENS), not RPC-002's affordance targets",
+          "label": "UNRESOLVED"
+        }
+      ]
+    },
+    {
+      "id": "A02-1",
+      "basedOn": "A02-0",
+      "label": "A02-1: the origin and progression items withheld (TEST-ONLY), the control item kept (its referent NO_FURTHER_VALUE in our CANDIDATE restatement)",
+      "resultStanding": "TEST_ONLY_TREATMENT_NEVER_THE_A02_CONFIGURATION",
+      "testOnlyTreatments": [
+        { "id": "TT-CONSUMED-STEPS", "kind": "CONSUMED_STEPS", "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)", "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed", "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-AUTHORIZATION"] },
+        { "id": "TT-DRAFT-STORE", "kind": "DRAFT_STORE", "what": "the context's CANDIDATE restatement read from the TEST-ONLY draft store a02-composition; the store's DRAFT A02 record (no ruling field filled, an empty set, our finding) is held to the store's gate and set aside under TT-K2-RETAIN-FORM (it stands in only on the DRAFT-record comparison arm)", "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), or, on the DRAFT-record comparison arm, from the record route with the record's empty authorized set", "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-CANDIDATE"] },
+        { "id": "TT-K2-RETAIN-FORM", "kind": "K2_RETAIN_FORM", "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside", "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass", "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge", "label": "TEST-ONLY", "rulingRefs": ["HO-07NOV-K2", "A02-03NOV-DESIGN-AUTHORIZATION"], "k2": { "rulingRef": "HO-07NOV-K2", "rule": 1, "limit": 2 } },
+        { "id": "TT-WITHHOLD-ORIGIN-PROGRESSION", "kind": "WITHHOLD_ITEMS", "contractId": "restated:RPC-002", "itemIds": ["RPC-002-02.a", "RPC-002-02.b", "RPC-002-03.a", "RPC-002-03.b", "RPC-002-03.c"], "what": "the origin and progression items of our restatement withheld from derivation, on the chain's copy", "effect": "only the control clause of the condition reaches derivation", "why": "to find the next stop behind the origin clause, which has no carrier; a diagnostic, never the A02 configuration", "label": "TEST-ONLY: withheld, not removed from the restatement", "rulingRefs": ["A02-10NOV-TREATMENTS"] }
+      ]
+    },
+    {
+      "id": "A02-1b",
+      "basedOn": "A02-0",
+      "label": "A02-1b: as A02-1, with the Laws held to our DRAFT classification",
+      "resultStanding": "TEST_ONLY_TREATMENT_NEVER_THE_A02_CONFIGURATION",
+      "testOnlyTreatments": [
+        { "id": "TT-CONSUMED-STEPS", "kind": "CONSUMED_STEPS", "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)", "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed", "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-AUTHORIZATION"] },
+        { "id": "TT-DRAFT-STORE", "kind": "DRAFT_STORE", "what": "the context's CANDIDATE restatement read from the TEST-ONLY draft store a02-composition; the store's DRAFT A02 record (no ruling field filled, an empty set, our finding) is held to the store's gate and set aside under TT-K2-RETAIN-FORM (it stands in only on the DRAFT-record comparison arm)", "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), or, on the DRAFT-record comparison arm, from the record route with the record's empty authorized set", "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-CANDIDATE"] },
+        { "id": "TT-K2-RETAIN-FORM", "kind": "K2_RETAIN_FORM", "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside", "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass", "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge", "label": "TEST-ONLY", "rulingRefs": ["HO-07NOV-K2", "A02-03NOV-DESIGN-AUTHORIZATION"], "k2": { "rulingRef": "HO-07NOV-K2", "rule": 1, "limit": 2 } },
+        { "id": "TT-WITHHOLD-ORIGIN-PROGRESSION", "kind": "WITHHOLD_ITEMS", "contractId": "restated:RPC-002", "itemIds": ["RPC-002-02.a", "RPC-002-02.b", "RPC-002-03.a", "RPC-002-03.b", "RPC-002-03.c"], "what": "the origin and progression items of our restatement withheld from derivation, on the chain's copy", "effect": "only the control clause of the condition reaches derivation", "why": "to find the next stop behind the origin clause, which has no carrier; a diagnostic, never the A02 configuration", "label": "TEST-ONLY: withheld, not removed from the restatement", "rulingRefs": ["A02-10NOV-TREATMENTS"] },
+        { "id": "TT-LAWS-DRAFT", "kind": "LAWS_CLASSIFICATION", "what": "the chain's own laws check reads our DRAFT classification of the laws (docs/audits/drafts/laws-materiality.DRAFT.json)", "effect": "each owed adaptation is classified by our reading, not counted material by the fail safe", "why": "to see which law our reading holds material for A02; a reading of ours for Christian's review, not a ruling", "label": "DRAFT: our classification, not a ruling", "rulingRefs": ["A02-10NOV-TREATMENTS"] }
+      ]
+    },
+    {
+      "id": "A02-2",
+      "basedOn": "A02-0",
+      "label": "A02-2: as A02-1b, with the TEST-ONLY LAW-11 stand-in",
+      "resultStanding": "TEST_ONLY_TREATMENT_NEVER_THE_A02_CONFIGURATION",
+      "testOnlyTreatments": [
+        { "id": "TT-CONSUMED-STEPS", "kind": "CONSUMED_STEPS", "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)", "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed", "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-AUTHORIZATION"] },
+        { "id": "TT-DRAFT-STORE", "kind": "DRAFT_STORE", "what": "the context's CANDIDATE restatement read from the TEST-ONLY draft store a02-composition; the store's DRAFT A02 record (no ruling field filled, an empty set, our finding) is held to the store's gate and set aside under TT-K2-RETAIN-FORM (it stands in only on the DRAFT-record comparison arm)", "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), or, on the DRAFT-record comparison arm, from the record route with the record's empty authorized set", "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-CANDIDATE"] },
+        { "id": "TT-K2-RETAIN-FORM", "kind": "K2_RETAIN_FORM", "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside", "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass", "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge", "label": "TEST-ONLY", "rulingRefs": ["HO-07NOV-K2", "A02-03NOV-DESIGN-AUTHORIZATION"], "k2": { "rulingRef": "HO-07NOV-K2", "rule": 1, "limit": 2 } },
+        { "id": "TT-WITHHOLD-ORIGIN-PROGRESSION", "kind": "WITHHOLD_ITEMS", "contractId": "restated:RPC-002", "itemIds": ["RPC-002-02.a", "RPC-002-02.b", "RPC-002-03.a", "RPC-002-03.b", "RPC-002-03.c"], "what": "the origin and progression items of our restatement withheld from derivation, on the chain's copy", "effect": "only the control clause of the condition reaches derivation", "why": "to find the next stop behind the origin clause, which has no carrier; a diagnostic, never the A02 configuration", "label": "TEST-ONLY: withheld, not removed from the restatement", "rulingRefs": ["A02-10NOV-TREATMENTS"] },
+        { "id": "TT-LAW-11-STAND-IN", "kind": "LAWS_CLASSIFICATION", "standIn": { "law": "LAW-11", "materiality": "PROCEDURAL" }, "what": "the chain's own laws check reads our DRAFT classification with LAW-11 read PROCEDURAL", "effect": "the owed offside adaptation is reported, not refused", "why": "to find the next stop behind the Laws question, which stays UNRESOLVED", "label": "TEST-ONLY stand-in: removes offside in a context defined by pressure; not a generalization of the no-offside ruling (Christian's first reply of 7 November, section 9)", "rulingRefs": ["A02-10NOV-TREATMENTS", "HO-07NOV-OFFSIDE-SCOPE"] }
+      ]
+    },
+    {
+      "id": "A02-D",
+      "basedOn": "A02-0",
+      "label": "A02-D, diagnostic: every condition item withheld (TEST-ONLY), with the TEST-ONLY LAW-11 stand-in: plain GF2",
+      "resultStanding": "DIAGNOSTIC_STRUCTURAL_COMPATIBILITY_ONLY_NOT_REPRESENTATIVE_SUFFICIENCY",
+      "testOnlyTreatments": [
+        { "id": "TT-CONSUMED-STEPS", "kind": "CONSUMED_STEPS", "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)", "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed", "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-AUTHORIZATION"] },
+        { "id": "TT-DRAFT-STORE", "kind": "DRAFT_STORE", "what": "the context's CANDIDATE restatement read from the TEST-ONLY draft store a02-composition; the store's DRAFT A02 record (no ruling field filled, an empty set, our finding) is held to the store's gate and set aside under TT-K2-RETAIN-FORM (it stands in only on the DRAFT-record comparison arm)", "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), or, on the DRAFT-record comparison arm, from the record route with the record's empty authorized set", "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-CANDIDATE"] },
+        { "id": "TT-K2-RETAIN-FORM", "kind": "K2_RETAIN_FORM", "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside", "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass", "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge", "label": "TEST-ONLY", "rulingRefs": ["HO-07NOV-K2", "A02-03NOV-DESIGN-AUTHORIZATION"], "k2": { "rulingRef": "HO-07NOV-K2", "rule": 1, "limit": 2 } },
+        { "id": "TT-WITHHOLD-CONDITION", "kind": "WITHHOLD_ITEMS", "contractId": "restated:RPC-002", "itemIds": ["RPC-002-02.a", "RPC-002-02.b", "RPC-002-03.a", "RPC-002-03.b", "RPC-002-03.c", "RPC-002-04.a", "RPC-002-04.b"], "what": "every condition item of our restatement withheld from derivation, on the chain's copy (after the draft store's own gate admitted the restatement whole)", "effect": "only the approved events (with the form's own) and the two identity items recorded outside the boundary (which establish nothing) reach derivation: plain GF2", "why": "a diagnostic of structural compatibility only; the draft store refuses a restatement with no condition item, so the items are withheld after its gate, never dropped from it", "label": "TEST-ONLY diagnostic: structural compatibility only, not representative sufficiency", "rulingRefs": ["A02-10NOV-TREATMENTS", "A02-10NOV-GF2"] },
+        { "id": "TT-LAW-11-STAND-IN", "kind": "LAWS_CLASSIFICATION", "standIn": { "law": "LAW-11", "materiality": "PROCEDURAL" }, "what": "the chain's own laws check reads our DRAFT classification with LAW-11 read PROCEDURAL", "effect": "the owed offside adaptation is reported, not refused", "why": "to find the next stop behind the Laws question, which stays UNRESOLVED", "label": "TEST-ONLY stand-in: removes offside in a context defined by pressure; not a generalization of the no-offside ruling (Christian's first reply of 7 November, section 9)", "rulingRefs": ["A02-10NOV-TREATMENTS", "HO-07NOV-OFFSIDE-SCOPE"] }
+      ],
+      "reportNotes": [
+        { "section": "standing", "text": "A diagnostic only, never the A02 configuration: plain GF2, which shows structural compatibility, not representative sufficiency;", "quotes": [{ "rulingRef": "A02-10NOV-GF2", "word": 6 }] }
+      ]
+    },
+    {
+      "id": "A02-HPE1-S",
+      "basedOn": "A02-0",
+      "suppliedChoices": [
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-1::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false },
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-2::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false },
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-3::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false }
+      ],
+      "label": "A02-HPE1-S: our PROPOSED configuration A02-HPE1, for Christian's review, over our CANDIDATE restatement (interim: the TEST-ONLY LAW-11 stand-in)",
+      "resultStanding": "PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW",
+      "testOnlyTreatments": [
+        { "id": "TT-CONSUMED-STEPS", "kind": "CONSUMED_STEPS", "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)", "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed", "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-AUTHORIZATION"] },
+        { "id": "TT-DRAFT-STORE", "kind": "DRAFT_STORE", "what": "the context's CANDIDATE restatement read from the TEST-ONLY draft store a02-composition; the store's DRAFT A02 record (no ruling field filled, an empty set, our finding) is held to the store's gate and set aside under TT-K2-RETAIN-FORM (it stands in only on the DRAFT-record comparison arm)", "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), or, on the DRAFT-record comparison arm, from the record route with the record's empty authorized set", "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-CANDIDATE"] },
+        { "id": "TT-K2-RETAIN-FORM", "kind": "K2_RETAIN_FORM", "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside", "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass", "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge", "label": "TEST-ONLY", "rulingRefs": ["HO-07NOV-K2", "A02-03NOV-DESIGN-AUTHORIZATION"], "k2": { "rulingRef": "HO-07NOV-K2", "rule": 1, "limit": 2 } },
+        { "id": "TT-LAW-11-STAND-IN", "kind": "LAWS_CLASSIFICATION", "standIn": { "law": "LAW-11", "materiality": "PROCEDURAL" }, "what": "the chain's own laws check reads our DRAFT classification with LAW-11 read PROCEDURAL", "effect": "the owed offside adaptation is reported, not refused", "why": "to find the next stop behind the Laws question, which stays UNRESOLVED", "label": "TEST-ONLY stand-in: removes offside in a context defined by pressure; not a generalization of the no-offside ruling (Christian's first reply of 7 November, section 9)", "rulingRefs": ["A02-10NOV-TREATMENTS", "HO-07NOV-OFFSIDE-SCOPE"] },
+        { "id": "TT-PROPOSED-HPE1", "kind": "PROPOSED_CONFIGURATION", "proposed": { "file": "docs/audits/drafts/a02-proposed/hpe1.PROPOSED.json", "basis": { "rulingRef": "A02-12NOV-PACKAGE", "words": [0, 9, 11] } }, "what": "our PROPOSED configuration A02-HPE1 (docs/audits/drafts/a02-proposed): roles held for a block (escaping, pressing), the escape line near the escaping team's end placed by a rule (its 12 m ILLUSTRATIVE), the escaping team's target beyond it, the pressing team's own event over the escaping team's end line; its restatement replacement (RPC-002-03.b typed to the escape line, CANDIDATE contingent on Q1) made on the chain's copy", "effect": "the chain's realization is the configuration, every item stamped PROPOSED (ILLUSTRATIVE for the schematic distance), set on this isolated path only beside K2's empty set; its role token and noun reach a TEST-ONLY copy of the register only; no line resting on it reads as Christian's choice", "why": "Christian asked for our proposal of the simplest representative configuration; it makes the pressure and the escape target part of the game's structure, for Christian's approval (questions Q1 and Q2)", "label": "PROPOSED: our proposal, for Christian's approval; not knowledge, not approved", "rulingRefs": ["A02-12NOV-PACKAGE"] },
+        { "id": "TT-PROPOSED-PENDING", "kind": "PROPOSED_PENDING", "what": "a context-scoring finding whose only ground is that a PROPOSED item's basis is not OWNER_RULING (the pressing team's own event, A02-HPE1-B9-1, which truthfully claims no ruling) moved to the build's review-level account (pendingApproval), with the item, the question it waits on and the finding's own words", "effect": "that one finding does not refuse; it is carried, named and counted; every other finding refuses as before, the same finding on a CANDIDATE, ILLUSTRATIVE or knowledge item among them", "why": "the guard admits a role's own event only on Christian's ruling (OWNER_RULING), which a proposal truthfully lacks until Christian answers Q2; without this treatment the build refuses exactly as before", "label": "TEST-ONLY: awaiting Christian's approval (Q2); never a pass", "rulingRefs": ["A02-12NOV-PACKAGE"] }
+      ]
+    },
+    {
+      "id": "A02-HPE1-L",
+      "basedOn": "A02-0",
+      "suppliedChoices": [
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-1::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false },
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-2::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false },
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-3::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false }
+      ],
+      "label": "A02-HPE1-L: as A02-HPE1-S, the Laws held to our DRAFT classification (no stand-in): the LAW-11 negative control",
+      "resultStanding": "PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW",
+      "testOnlyTreatments": [
+        { "id": "TT-CONSUMED-STEPS", "kind": "CONSUMED_STEPS", "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)", "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed", "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-AUTHORIZATION"] },
+        { "id": "TT-DRAFT-STORE", "kind": "DRAFT_STORE", "what": "the context's CANDIDATE restatement read from the TEST-ONLY draft store a02-composition; the store's DRAFT A02 record (no ruling field filled, an empty set, our finding) is held to the store's gate and set aside under TT-K2-RETAIN-FORM (it stands in only on the DRAFT-record comparison arm)", "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), or, on the DRAFT-record comparison arm, from the record route with the record's empty authorized set", "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-CANDIDATE"] },
+        { "id": "TT-K2-RETAIN-FORM", "kind": "K2_RETAIN_FORM", "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside", "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass", "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge", "label": "TEST-ONLY", "rulingRefs": ["HO-07NOV-K2", "A02-03NOV-DESIGN-AUTHORIZATION"], "k2": { "rulingRef": "HO-07NOV-K2", "rule": 1, "limit": 2 } },
+        { "id": "TT-LAWS-DRAFT", "kind": "LAWS_CLASSIFICATION", "what": "the chain's own laws check reads our DRAFT classification of the laws (docs/audits/drafts/laws-materiality.DRAFT.json)", "effect": "each owed adaptation is classified by our reading, not counted material by the fail safe", "why": "to see which law our reading holds material for A02; a reading of ours for Christian's review, not a ruling", "label": "DRAFT: our classification, not a ruling", "rulingRefs": ["A02-10NOV-TREATMENTS"] },
+        { "id": "TT-PROPOSED-HPE1", "kind": "PROPOSED_CONFIGURATION", "proposed": { "file": "docs/audits/drafts/a02-proposed/hpe1.PROPOSED.json", "basis": { "rulingRef": "A02-12NOV-PACKAGE", "words": [0, 9, 11] } }, "what": "our PROPOSED configuration A02-HPE1 (docs/audits/drafts/a02-proposed): roles held for a block (escaping, pressing), the escape line near the escaping team's end placed by a rule (its 12 m ILLUSTRATIVE), the escaping team's target beyond it, the pressing team's own event over the escaping team's end line; its restatement replacement (RPC-002-03.b typed to the escape line, CANDIDATE contingent on Q1) made on the chain's copy", "effect": "the chain's realization is the configuration, every item stamped PROPOSED (ILLUSTRATIVE for the schematic distance), set on this isolated path only beside K2's empty set; its role token and noun reach a TEST-ONLY copy of the register only; no line resting on it reads as Christian's choice", "why": "Christian asked for our proposal of the simplest representative configuration; it makes the pressure and the escape target part of the game's structure, for Christian's approval (questions Q1 and Q2)", "label": "PROPOSED: our proposal, for Christian's approval; not knowledge, not approved", "rulingRefs": ["A02-12NOV-PACKAGE"] },
+        { "id": "TT-PROPOSED-PENDING", "kind": "PROPOSED_PENDING", "what": "a context-scoring finding whose only ground is that a PROPOSED item's basis is not OWNER_RULING (the pressing team's own event, A02-HPE1-B9-1, which truthfully claims no ruling) moved to the build's review-level account (pendingApproval), with the item, the question it waits on and the finding's own words", "effect": "that one finding does not refuse; it is carried, named and counted; every other finding refuses as before, the same finding on a CANDIDATE, ILLUSTRATIVE or knowledge item among them", "why": "the guard admits a role's own event only on Christian's ruling (OWNER_RULING), which a proposal truthfully lacks until Christian answers Q2; without this treatment the build refuses exactly as before", "label": "TEST-ONLY: awaiting Christian's approval (Q2); never a pass", "rulingRefs": ["A02-12NOV-PACKAGE"] }
+      ]
+    },
+    {
+      "id": "A02-HPE1",
+      "basedOn": "A02-0",
+      "suppliedChoices": [
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-1::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false },
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-2::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false },
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-3::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false }
+      ],
+      "label": "A02-HPE1: our PROPOSED configuration A02-HPE1 with its PROPOSED LAW-11 departure (Q3) and our CANDIDATE coach wording, for Christian's review, over our CANDIDATE restatement: the review-level run (no TEST ASSUMPTION, no laws stand-in)",
+      "resultStanding": "PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW",
+      "testOnlyTreatments": [
+        { "id": "TT-CONSUMED-STEPS", "kind": "CONSUMED_STEPS", "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)", "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed", "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-AUTHORIZATION"] },
+        { "id": "TT-DRAFT-STORE", "kind": "DRAFT_STORE", "what": "the context's CANDIDATE restatement read from the TEST-ONLY draft store a02-composition; the store's DRAFT A02 record (no ruling field filled, an empty set, our finding) is held to the store's gate and set aside under TT-K2-RETAIN-FORM (it stands in only on the DRAFT-record comparison arm)", "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM), or, on the DRAFT-record comparison arm, from the record route with the record's empty authorized set", "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route", "label": "TEST-ONLY", "rulingRefs": ["A02-10NOV-CANDIDATE"] },
+        { "id": "TT-K2-RETAIN-FORM", "kind": "K2_RETAIN_FORM", "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside", "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass", "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge", "label": "TEST-ONLY", "rulingRefs": ["HO-07NOV-K2", "A02-03NOV-DESIGN-AUTHORIZATION"], "k2": { "rulingRef": "HO-07NOV-K2", "rule": 1, "limit": 2 } },
+        { "id": "TT-PROPOSED-HPE1-LAWS", "kind": "PROPOSED_CONFIGURATION", "proposed": { "file": "docs/audits/drafts/a02-proposed/hpe1.PROPOSED.json", "basis": { "rulingRef": "A02-12NOV-PACKAGE", "words": [0, 9, 11, 12] }, "lawDepartures": true }, "what": "our PROPOSED configuration A02-HPE1 as in A02-HPE1-S, carried with the PROPOSED departure of its laws block (LAW-11, no offside, said once to the coach; question Q3) and the configuration's own REPORT check of the Laws, which the harness holds to our DRAFT classification", "effect": "as TT-PROPOSED-HPE1; and the configuration departs from LAW-11 on itself, so the chain's laws account reads the departure (DEPARTED, removed by the configuration) and the existing DRAFT sentence 'There is no offside' is said once; an owed adaptation our DRAFT reading classes MATERIAL still refuses (held by the harness)", "why": "Christian asked us to identify the Law 11 decision in the context of the proposed activity; built as our proposal, never as a ruling, so the activity can be read whole; the other arm (escaping players stay short of the line) is described, not built", "label": "PROPOSED: our proposal, for Christian's approval; not knowledge, not approved", "rulingRefs": ["A02-12NOV-PACKAGE"] },
+        { "id": "TT-PROPOSED-PENDING", "kind": "PROPOSED_PENDING", "what": "a context-scoring finding whose only ground is that a PROPOSED item's basis is not OWNER_RULING (the pressing team's own event, A02-HPE1-B9-1, which truthfully claims no ruling) moved to the build's review-level account (pendingApproval), with the item, the question it waits on and the finding's own words", "effect": "that one finding does not refuse; it is carried, named and counted; every other finding refuses as before, the same finding on a CANDIDATE, ILLUSTRATIVE or knowledge item among them", "why": "the guard admits a role's own event only on Christian's ruling (OWNER_RULING), which a proposal truthfully lacks until Christian answers Q2; without this treatment the build refuses exactly as before", "label": "TEST-ONLY: awaiting Christian's approval (Q2); never a pass", "rulingRefs": ["A02-12NOV-PACKAGE"] },
+        { "id": "TT-CANDIDATE-WORDING", "kind": "CANDIDATE_WORDING", "wording": { "file": "docs/audits/drafts/a02-composition/a02-coach-wording.CANDIDATE.json" }, "what": "our CANDIDATE coach wording for the condition (one sentence saying origin, progression and control once), held to its gate (every restated row and every quote of Christian's verbatim, no approval, no live origin sentence), read by the chain's renderer and fidelity beside the approved table, never in it", "effect": "the condition's fields are said in our CANDIDATE words, each sentence marked CANDIDATE (never APPROVED); the build's review-level account names the file and every candidate entry said; without it the fields stay withheld and the build refuses at communication. Since stage A1 (13 November 2026) the same treatment also: has the renderer and fidelity read the register the game was derived over (a TEST-ONLY scoped override, decision R1); supplies our template CANDIDATE_TARGETS_BY_ROLE, the one sentence naming the two teams' different targets (decision R3); and lets fidelity read our sentences with approved wording's exemptions, so its obligation lexicon is not applied to them (our condition sentence says 'only if'): the 0 fidelity violations of the review-level run rest on that exemption, and the Coach Overview's check, reading the approved table alone, finds that lexicon's findings on the same sentence (named here since the V3 verification, 13 November 2026)", "why": "Christian asked for candidate coach-facing wording for review, with the complete approved meaning preserved in the underlying representation; no approved wording exists for the condition", "label": "CANDIDATE: our wording, for Christian's review; not approved, not live", "rulingRefs": ["A02-12NOV-PACKAGE", "A02-12NOV-NEXT-ACTION"] }
+      ]
+    }
+  ],
+  "experiment": {
+    "standing": "FOUNDATIONAL TEST (stage 9, slice S2): A02 run through the handoff with Steps 1 and 2 consumed by the chain (slice S1), over our CANDIDATE restatement of RPC-002 and a DRAFT A02 record, both in the TEST-ONLY draft store. Engineering evidence only: nothing here is served to a coach, written to production knowledge, or an authorization; no run establishes ecological suitability or representative sufficiency.",
+    "contractId": "restated:RPC-002",
+    "draftStore": "a02-composition",
+    "candidateMapping": "every DRAFT, DRAFT_KNOWLEDGE and BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED label the build writes for the context's items and its account means CANDIDATE restatement (ours, unreviewed) of an APPROVED row; the build has no CANDIDATE label, and none of these labels says that the source row itself is a draft. The record's own DRAFT means a record we drafted: no ruling field is filled.",
+    "sourceRows": [
+      { "rowId": "RPC-PROP-133", "standing": "APPROVED", "evidence": "Christian's approval of 13 September 2026 (its provenance: Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)); the row matches the recovered reply of 13 September word for word" },
+      { "rowId": "RPC-REL-075", "standing": "APPROVED", "evidence": "Christian's approval of 13 September 2026 (valid primary scoring event 1 of 4, in the approved order)" },
+      { "rowId": "RPC-REL-076", "standing": "APPROVED", "evidence": "Christian's approval of 13 September 2026 (valid primary scoring event 2 of 4)" },
+      { "rowId": "RPC-REL-077", "standing": "APPROVED", "evidence": "Christian's approval of 13 September 2026 (valid primary scoring event 3 of 4)" },
+      { "rowId": "RPC-REL-078", "standing": "APPROVED", "evidence": "Christian's approval of 13 September 2026 (valid primary scoring event 4 of 4)" },
+      { "rowId": "RPC-ID-006", "standing": "APPROVED", "evidence": "a REQUIRED identity row of the Representative Performance Context Library RC1, the package Christian called complete on 12 September 2026" },
+      { "rowId": "RPC-ID-008", "standing": "APPROVED", "evidence": "a REQUIRED identity row of the Representative Performance Context Library RC1, the package Christian called complete on 12 September 2026" },
+      { "rowId": "RPC-PROP-018", "standing": "APPROVED", "evidence": "a CORE begin condition of the Representative Performance Context Library RC1, the package Christian called complete on 12 September 2026" }
+    ],
+    "runOrder": ["A02-0", "A02-1", "A02-1b", "A02-2", "A02-D", "A02-HPE1-S", "A02-HPE1-L", "A02-HPE1"],
+    "knowledgeRun": "A02-0",
+    "pathwayTreatmentKinds": ["CONSUMED_STEPS", "DRAFT_STORE", "K2_RETAIN_FORM"],
+    "treatmentRunWords": "a run with a TEST-ONLY treatment: never the A02 configuration; it measures what remains unsupported behind the earliest stop, and is reported after it, not investigated further",
+    "restatementOnlyWords": "RESTATEMENT-ONLY: a conservative refusal by our CANDIDATE interpretation, not a finding that the configuration violates approved knowledge (Christian's second reply of 7 November, section 2)",
+    "questions": [
+      { "order": 1, "question": "whether the pressing line may be realized as a designated pressure reference, and how it is placed", "why": "the progression clause's referent is open text, the one open text left: the knowledge run stops on it (Gate A NOT_EVALUABLE, citing no item); the A01 pressure reference exists only in A01's provisional realization; since stage B1 the PROPOSED configuration A02-HPE1 realizes it as an escape line for review (TEST-ONLY). Stage B1 removed the question that stood first, the observable start of the origin clause: Christian's ruling received 12 November 2026 (A02-12NOV-PRESSURE) answers it, and our CANDIDATE restatement of that ruling awaits Christian's review", "next": true },
+      { "order": 2, "question": "the coach wording for the condition", "why": "no approved wording exists for the condition (A02-2 stops at communication); whether through the next action needs a referent is answered by Christian's ruling received 12 November 2026 (A02-12NOV-NEXT-ACTION: it names no place), which our CANDIDATE restatement declares NO_FURTHER_VALUE", "next": false },
+      { "order": 3, "question": "LAW-11 for A02", "why": "our DRAFT classification reads it MATERIAL for a context defined by pressure; no ruling settles it here", "next": false },
+      { "order": 4, "question": "later, not the next consequential gap: whether any of High Press Escape's typical environmental manipulations (held: the RC1.1 Library text, Core: coordinated pressing numbers, compressed playing space, progression corridors; and the context library's adjustment rows RPC-PROP-030..033) relates to a library constraint for A02; no held ruling relates them to one", "why": "no manipulation is justified for A02 in anything held; the quota slice (S4) represents manipulations only on labelled TEST-ONLY stand-ins", "next": false }
+    ],
+    "relationships": [
+      {
+        "id": "ERR-CONTEXT",
+        "relationship": "defining context",
+        "rulingRef": "A02-10NOV-ERR",
+        "word": 1,
+        "rows": ["RPC-ID-006, RPC-ID-007 (REQUIRED)", "RPC-ID-010 (EXCLUSION)", "RPC-PROP-018, RPC-PROP-019 (BEGIN)", "RPC-PROP-020, RPC-PROP-021 (END)", "RPC-STMT-006..008", "RPC-TR-001, RPC-TR-004, RPC-TR-005", "RPC-VAL-006 (IDENTITY), RPC-VAL-008 (BOUNDARY)", "RPC-REL-059 (A02, PRIMARY)"],
+        "car": "none: no CAR dimension speaks of a context",
+        "items": ["RPC-002-02.a", "RPC-002-02.b", "RPC-002-05"],
+        "executable": "recorded only (RPC-002-05, outside the boundary); the origin clause carried as a condition judged in play by our CANDIDATE restatement (stage B1), with no carrier that enforces it",
+        "engineUse": "consulted only: Step 1 routes the context and the chain reads our restatement from the draft store; nothing enforces its identity rows (no requirement bindings)"
+      },
+      {
+        "id": "ERR-PRESSURE",
+        "relationship": "established opposition pressure",
+        "rulingRef": "A02-10NOV-ERR",
+        "word": 1,
+        "rows": ["RPC-ID-006, RPC-ID-008 (REQUIRED)", "RPC-PROP-018 (BEGIN)", "RPC-PROP-022 (information)", "RPC-PROP-031, RPC-PROP-033 (adjustments)", "RPC-VAL-009"],
+        "car": "CIO Essential, which is weaker than established coordinated pressure (an opportunity for adaptive competitor influence)",
+        "items": ["RPC-002-05", "RPC-002-06", "RPC-002-02.b"],
+        "executable": "no carrier: no register row carries pressing, its intensity or its establishment",
+        "engineUse": "none: no line of a built game carries pressure"
+      },
+      {
+        "id": "ERR-OPPORTUNITIES",
+        "relationship": "relevant attacking opportunities",
+        "rulingRef": "A02-10NOV-ERR",
+        "word": 1,
+        "rows": ["RPC-ID-009 (SUPPORTING)", "RPC-PROP-023, RPC-PROP-024, RPC-PROP-025 (information)", "RPC-MAP-097..102 (affordance targets, DEFERRED)"],
+        "car": "OP, SA and FOI Essential (SA flagged for field validation)",
+        "items": [],
+        "executable": "deferred by Christian: the affordance targets, on 13 September, not to be inferred",
+        "engineUse": "shadow: the chain resolves a CAR profile from wording signals for inspection only, and its lenses are wording-scored engine inputs, not these targets"
+      },
+      {
+        "id": "ERR-SCORING",
+        "relationship": "representative consequences and scoring",
+        "rulingRef": "A02-10NOV-ERR",
+        "word": 1,
+        "rows": ["RPC-REL-075..078 (events)", "RPC-PROP-133 (condition)", "RPC-STMT-009", "RPC-VAL-007", "RPC-PROP-020, RPC-PROP-021 (END)", "RPC-PROP-026..029 (degenerate solutions)", "RPC-TR-005"],
+        "car": "none: no CAR dimension speaks of scoring or consequence",
+        "items": ["RPC-002-01.a", "RPC-002-02.a", "RPC-002-03.a", "RPC-002-03.c", "RPC-002-04.a", "RPC-002-04.b"],
+        "executable": "the events: bound the event line where a game is built (only on TEST-ONLY runs; intersected with the form's own; the value within them is our realization choice); the condition: its origin and its progression referent have no carrier, and its control value passes structure only under a TEST-ONLY declaration",
+        "engineUse": "consumed: the events item bounds the realized event line (the value within it is our realization choice, not knowledge), and the condition items refuse the knowledge run at structure"
+      }
+    ],
+    "car": [
+      "the CAR row of GP-015 rates FOI, OP, SA (Support Availability) and CIO Essential, with SA flagged for field validation; Step 1 consults it in its composite profile",
+      "the checked pathway uses CAR only in shadow mode (resolved for inspection, no selection influence), so the CAR Essential ratings determine nothing after Step 1; they are not interchangeable with the context's identity and scoring conditions"
+    ]
+  }
+}

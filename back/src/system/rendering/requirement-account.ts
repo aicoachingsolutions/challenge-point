@@ -70,12 +70,12 @@
  * Sport-neutral: rows, terms, kinds and values are data; no goal, context, team, line or sport term is written here.
  */
 import { ItemOutcome } from '../derivation/forward'
-import { CheckResult, EPISODE_SCOPES } from '../derivation/gates'
+import { CheckResult, episodeCheckDecides } from '../derivation/gates'
 import { knowledgeKey } from '../derivation/knowledge-key'
 import { RegisterIndex } from '../derivation/register'
 import { CONDITION_ROW, splitPath } from '../derivation/resolved-game'
 import { parseSelector } from '../derivation/selector'
-import { beginConditionReferentOf, DRAFT_KNOWLEDGE, ElementClass, ForwardResult, LoadedContract, relationalReferentOf, structuralRefOf } from '../derivation/types'
+import { beginConditionReferentOf, ElementClass, isDraftCategory, ForwardResult, LoadedContract, relationalReferentOf, structuralRefOf } from '../derivation/types'
 import { PRIMARY_SCORING_CONDITION, rpcLibrary } from '../sport-module/rpc-library'
 import { ConditionReading, conditionReadingOf, EPISODE_REACHABLE_CHECK, EventKindReading } from './context-scoring-guard'
 import {
@@ -672,7 +672,7 @@ const AMBIGUOUS_NOTE = ' (a reading we hold as ambiguous, for his review)'
  * that clause requires (ambiguous). `unverified` otherwise: the guard cannot read the condition's type, or the episode check is absent, another
  * check, not one that decides the scope, without clauses, undecided, or passed without reading any condition. Ours, DRAFT.
  */
-function conditionEvidenceOf(condition: ConditionReading, check: CheckResult | undefined): { shown: string } | { unverified: string } {
+export function conditionEvidenceOf(condition: ConditionReading, check: CheckResult | undefined, index: RegisterIndex): { shown: string } | { unverified: string } {
     const item = `${condition.contractId}::${condition.itemId}`
     const own = `c:${condition.contractId}:${condition.itemId}`
     if (condition.type === null) return { unverified: `${item} names no condition type the context-scoring guard reads` }
@@ -691,7 +691,8 @@ function conditionEvidenceOf(condition: ConditionReading, check: CheckResult | u
     const episode = `whether the finished game begins the ${scope} episode ${item} is authored for cannot be established`
     if (!check) return { unverified: `the episode check (${EPISODE_REACHABLE_CHECK}) was not given, so ${episode}` }
     if (check.checkId !== EPISODE_REACHABLE_CHECK) return { unverified: `the check given is ${check.checkId}, not the episode check (${EPISODE_REACHABLE_CHECK}), so ${episode}` }
-    if (!EPISODE_SCOPES.includes(scope)) return { unverified: `the episode check (${EPISODE_REACHABLE_CHECK}) does not decide the ${scope} scope, so whether ${item} governs this game cannot be established` }
+    // Fix F (A02 package): decided from the register the game was derived over (`episodeCheckDecides` over `episodeScopesOf`), never by the scope's spelling.
+    if (!episodeCheckDecides(scope, index)) return { unverified: `the episode check (${EPISODE_REACHABLE_CHECK}) does not decide the ${scope} scope, so whether ${item} governs this game cannot be established` }
     if (!check.clauses.length) return { unverified: `the episode check (${EPISODE_REACHABLE_CHECK}) holds no clause, so ${episode}` }
     const reach = check.clauses[0]
     // A check that ran and decided FAIL is a demonstration, and the note says which clause decided it and what that clause decides (its own words).
@@ -938,14 +939,14 @@ export function blockRequirementAccountOf(input: BlockRequirementInputs): BlockR
                 if (!why.length && kind === 'GAME_FORM' && !gameFormRelationship) why.push('the context has no ACTIVE relationship to the selected game form in his workbook')
                 let condition: ConditionReading | null = null
                 if (!why.length && part.kind === 'SCORING_CONDITION_COMPONENT' && facet.row === CONDITION_ROW) {
-                    condition = conditionReadingOf(contextId, contract, item.itemId, input.game, input.episodeCheck)
+                    condition = conditionReadingOf(contextId, contract, item.itemId, input.game, input.episodeCheck, undefined, index)
                     if (!(condition.governs && condition.elementFound)) {
                         notGoverning = true
                         why.push(condition.why ?? `its own element c:${contract.contractId}:${item.itemId} is not on the realized primary event`)
                         // Round 4 (the design review's M1): which of the guard's branches it was, and the episode check's state, from its own
                         // reading; the fix round (R2 M1): where it is shown, what shows it.
                         if (candidate) {
-                            const evidence = conditionEvidenceOf(condition, input.episodeCheck)
+                            const evidence = conditionEvidenceOf(condition, input.episodeCheck, index)
                             notEstablished = 'unverified' in evidence ? evidence.unverified : null
                             shownNote = 'shown' in evidence ? evidence.shown : null
                             demonstrated = notEstablished === null
@@ -1120,7 +1121,7 @@ export function blockRequirementAccountOf(input: BlockRequirementInputs): BlockR
             cause: causeKind ? { kind: causeKind, detail: describeFacets(facets) } : null,
             byConstruction: carriers.some(carrier => carrier.byConstruction),
             vacuous: carriers.length > 0 && carriers.every(carrier => carrier.survives.vacuous),
-            restsOnDraftKnowledge: carriers.some(carrier => carrier.category === DRAFT_KNOWLEDGE),
+            restsOnDraftKnowledge: carriers.some(carrier => isDraftCategory(carrier.category)),
         })
     }
 

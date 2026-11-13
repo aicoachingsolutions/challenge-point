@@ -19,15 +19,20 @@
  *
  * Sport-neutral: it reads the fixture and the rendering, never a knowledge object by name.
  */
-import { DRAFT_KNOWLEDGE } from '../derivation/types'
+import { isDraftCategory } from '../derivation/types'
 import { FidelityFinding } from './fidelity'
-import { approvedTemplateSentences } from './approved-wording'
+import { ApprovedTemplateSentence, ApprovedWording, approvedTemplateSentences } from './approved-wording'
 import { approvedSentences, Instruction, RenderedActivity, WithheldField } from './render-concrete-game'
 
 /** One sentence as the reviewer reads it: the instruction, whose wording it is, and the provisional choices behind it. */
 export interface DraftInstruction extends Instruction {
-    /** APPROVED where it is a sentence of approved coach wording for this game; DRAFT otherwise (every in-code template). */
-    wording: 'APPROVED' | 'DRAFT'
+    /**
+     * APPROVED where it is a sentence of approved coach wording for this game; DRAFT otherwise (every in-code template). Stage B2 of the A02
+     * complete-activity package (12 November 2026, TEST-ONLY): CANDIDATE where it is a sentence our CANDIDATE wording says for this game (only a
+     * build given that wording hands it in, `reviewDraftOf`'s `candidate`), read from that table apart from the approved one, so a candidate
+     * sentence can never read APPROVED.
+     */
+    wording: 'APPROVED' | 'CANDIDATE' | 'DRAFT'
     /**
      * **The provisional realization choices the sentence rests on** — his 16 October item 10, *"keep those categories distinct"*, and 17
      * October: *"not treating this first realization as the canonical version of the Learning Goal."* Read from what crossed into the
@@ -94,7 +99,7 @@ function draftSourcesOf(fixture: any, paths: string[], draftItems: ReadonlySet<s
     for (const path of paths) {
         for (const derived of status.derived ?? []) {
             if (derived?.path !== path) continue
-            for (const support of derived.support ?? []) if (support?.category === DRAFT_KNOWLEDGE) found.add(keyOf(support))
+            for (const support of derived.support ?? []) if (isDraftCategory(support?.category)) found.add(keyOf(support))
         }
         for (const choice of status.choices ?? []) {
             if (choice?.path !== path) continue
@@ -123,15 +128,30 @@ function draftSourcesOf(fixture: any, paths: string[], draftItems: ReadonlySet<s
  * composed activity), `fixtures` the game(s) it was rendered from, `violations` every fidelity finding that refused it, and `contracts`
  * (B2 review) the contracts the games were derived from, whose DRAFT_KNOWLEDGE items an entailment or instantiation may rest on.
  */
-export function reviewDraftOf(fixtures: any[], rendered: RenderedActivity, violations: FidelityFinding[], contracts: { contractId: string; items?: { itemId: string; category?: unknown }[] }[] = []): ReviewDraft {
-    const draftItems = new Set(contracts.flatMap(contract => (contract.items ?? []).filter(item => item.category === DRAFT_KNOWLEDGE).map(item => `${contract.contractId}::${item.itemId}`)))
+export function reviewDraftOf(
+    fixtures: any[],
+    rendered: RenderedActivity,
+    violations: FidelityFinding[],
+    contracts: { contractId: string; items?: { itemId: string; category?: unknown }[] }[] = [],
+    /** TEST-ONLY (stage B2): our CANDIDATE wording's entries, where the build was given them; read apart from the approved table. Empty: none. */
+    candidate: ApprovedWording[] = [],
+    /** TEST-ONLY (stage A1, decision R3): our CANDIDATE templates, where the build was given them; read apart from the approved ones. Empty: none. */
+    candidateTemplates: ApprovedTemplateSentence[] = [],
+): ReviewDraft {
+    const draftItems = new Set(contracts.flatMap(contract => (contract.items ?? []).filter(item => isDraftCategory(item.category)).map(item => `${contract.contractId}::${item.itemId}`)))
     const approved = fixtures.flatMap(fixture => approvedSentences(fixture?.game ?? {}))
     // Stage M4 (17 October 2026): a sentence that IS one of his approved template sentences, word for word, is approved wording too
     // (approved-wording.ts approvedTemplateSentences); the same template filled with any other value stays DRAFT.
     const templates = approvedTemplateSentences().map(template => template.sentence.replace(/\.$/, ''))
-    const isApproved = (instruction: Instruction) =>
-        templates.includes(instruction.text) ||
-        approved.some(sentence => sentence.text === instruction.text && sentence.from.length === new Set(instruction.from).size && sentence.from.every(path => instruction.from.includes(path)))
+    const said = (sentences: Instruction[], instruction: Instruction) =>
+        sentences.some(sentence => sentence.text === instruction.text && sentence.from.length === new Set(instruction.from).size && sentence.from.every(path => instruction.from.includes(path)))
+    const isApproved = (instruction: Instruction) => templates.includes(instruction.text) || said(approved, instruction)
+    // Stage B2 (TEST-ONLY): the sentences our CANDIDATE wording says for these games, from that table alone (never merged into the approved one).
+    const candidates = candidate.length ? fixtures.flatMap(fixture => approvedSentences(fixture?.game ?? {}, candidate)) : []
+    // Stage A1 (TEST-ONLY, decision R3): a sentence that IS one of our CANDIDATE template sentences, word for word, reads CANDIDATE, as an approved
+    // template's reads APPROVED (above); the same template filled with any other value stays DRAFT. Checked after APPROVED, so never APPROVED.
+    const candidateTemplateTexts = candidateTemplates.map(template => template.sentence.replace(/\.$/, ''))
+    const isCandidate = (instruction: Instruction) => (candidates.length > 0 && said(candidates, instruction)) || candidateTemplateTexts.includes(instruction.text)
     return {
         status: 'DRAFT_NOT_SERVED',
         instructions: rendered.instructions.map(instruction => {
@@ -139,7 +159,7 @@ export function reviewDraftOf(fixtures: any[], rendered: RenderedActivity, viola
             const draftSources = [...new Set(fixtures.flatMap(fixture => draftSourcesOf(fixture, cited, draftItems)))].sort()
             return {
                 ...JSON.parse(JSON.stringify(instruction)),
-                wording: isApproved(instruction) ? 'APPROVED' : 'DRAFT',
+                wording: isApproved(instruction) ? 'APPROVED' : isCandidate(instruction) ? 'CANDIDATE' : 'DRAFT',
                 // Stage 2C (21 October 2026): a sentence said once for blocks that say it alike by role rests on each block's own citations too.
                 provisionalSources: [...new Set(fixtures.flatMap(fixture => provisionalSourcesOf(fixture, cited)))].sort(),
                 ...(draftSources.length ? { draftSources } : {}),

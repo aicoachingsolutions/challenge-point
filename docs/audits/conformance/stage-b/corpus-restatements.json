@@ -182,6 +182,14 @@
       "why": "\"double\" entails both the operation and the magnitude, so the magnitude is recorded as 2. Its TYPICAL_EXAMPLE status is unchanged: encoding what the example says does not make it authoritative"
     },
     {
+      "item": "blind:GF4::I17",
+      "ruling": "SD-59; 7 November 2026, section 2, Decision 2",
+      "set": {
+        "valueStatus": "TYPICAL_EXAMPLE"
+      },
+      "why": "RESTATED 7 November 2026 under Christian's reply received 7 November 2026, section 2, Decision 2: \"Approved conditionally, following verification against the authoritative Game Form source.\" \"Illustrative incentive examples should not be interpreted as mandatory structural requirements.\" \"Please make the smallest correction that restores the source's intended meaning.\" VERIFIED the same day, before this entry was written: the April Game Form Library (back/src/system/test-library/csv/archetypes.csv, our identification of the file, docs/GAME_FORM_LIBRARY_PROVENANCE.md; column exampleIncentivePatterns, GF4's row) reads \"double points for quick goal; reward regain leading to shot\", and the DRAFT sport module this contract restates (game_forms[GF4].example_incentive_patterns) reads \"double points for quick goal || reward regain leading to shot\": both hold the two patterns as examples. Christian's ruling of 23 September, recorded as SD-59 (docs/design/game-representation-spec-2026-09-18.md) and task C7: \"the corresponding contributions are TYPICAL_EXAMPLE and therefore inert for derivation\", and the two examples are not to be read as one modifier, two coexisting modifiers or two from which the engine must choose (\"none of those meanings is currently represented\"). I17 was written EXISTS on V7 with valueStatus N/A, as our run convention RC-6 asks of an item with no value, so it established one event-conditioned value modifier, the single-modifier reading SD-59 excludes, whose referents (V8b) and magnitude (V9) every GF4 game then had to settle (GA-NO-FAILED-LINE, 'claimed but unresolved'). This entry marks I17 TYPICAL_EXAMPLE, the status SD-59 names, so it is inert like I14, I14.op and I15. DEPARTURE FROM RC-6, named here: an EXISTS item now carries TYPICAL_EXAMPLE. RC-6 is our convention of 18 September (docs/audits/conformance/derivation-rules-2026-09-18.md, section 9), not a ruling of Christian's, and the loader checks only that the value is registered. Nothing else on the item changes: the item, its source text and its provenance stay, as the 24 September ruling kept I14 (SD-73). The V7, V8b and V9 declarations that rest only on the example items are restated beside it (declarations, same ruling). contracts.json is untouched. This does not make GF4 generate: its teams (I10-I12) are ASSUMED and establish nothing (SD-83), so GA-TRIGGER-REACHABLE still fails, and GF4 has no realization choices."
+    },
+    {
       "item": "restated:VARIABLE-TARGET-CONDITION::VARTARGET-12.a",
       "ruling": "SD-86",
       "set": {
@@ -1551,6 +1559,30 @@
       "to": "NON_CLAIMED",
       "ruling": "C53",
       "why": "RPC-001's P3 claim (\"RPC-001-02, -03.\") rested only on the two items C53 retires; a claim whose items are retired would assert what nobody now authors (the C45 precedent). NON_CLAIMED: the context does not require a goalkeeper on every build-out or attacking team (his 9.4, change 4: \"applying where the activity includes a goalkeeper, not as a requirement on every team\"). Selector, scope and note unchanged; the original stays in contracts.json. His words, reply received 15 October 2026 (his 16 October reply), item 9 point 4: \"Goalkeeper-or-controlled-restart alternative: Approved.\" - approving our 15 October email's change 4, verbatim: \"The requirement that the build-out team has exactly one goalkeeper stops being universal. The goalkeeper-or-controlled-restart alternative is recorded with your item 3 as its source. Your \"Goalkeeper availability\" is read as applying where the activity includes a goalkeeper, not as a requirement on every team.\" Item 7 of the same reply: \"Two goalkeepers should not become a universal requirement for Play Out from the Back.\" "
+    },
+    {
+      "contractId": "blind:GF4",
+      "row": "V7",
+      "from": "CLAIMED",
+      "to": "NON_CLAIMED",
+      "ruling": "SD-59; 7 November 2026, section 2, Decision 2",
+      "why": "RESTATED 7 November 2026 with blind:GF4::I17 (items, same ruling). GF4's V7 declaration CLAIMED event-conditioned value modifiers on the strength of I17 alone (its note: \"I17, examples only.\"). With I17 restated TYPICAL_EXAMPLE, the claim would go on asserting a modifier the source gives only as an example, and would reach any other object's event-conditioned modifier as a general requirement. Christian's reply received 7 November 2026, section 2, Decision 2: \"Illustrative incentive examples should not be interpreted as mandatory structural requirements.\" SD-59 (23 September): \"the corresponding contributions are TYPICAL_EXAMPLE and therefore inert for derivation\". NON_CLAIMED, as GF2's restatement holds its own example incentives (\"doesNotConstrain: value modifiers and bonuses; example_incentive_patterns are labelled examples and bind nothing.\"): GF4 authors no modifier, so it states no requirement on one. Selector, scope and note unchanged; the original stays in contracts.json (the C45 precedent). This is part of the departure from our RC-6 convention named on I17: under RC-6 the example could not be marked TYPICAL_EXAMPLE, so the claim was written on it."
+    },
+    {
+      "contractId": "blind:GF4",
+      "row": "V8b",
+      "from": "CLAIMED",
+      "to": "NON_CLAIMED",
+      "ruling": "SD-59; 7 November 2026, section 2, Decision 2",
+      "why": "RESTATED 7 November 2026 with blind:GF4::I17 (items, same ruling). GF4's V8b declaration CLAIMED a modifier's event referents on the strength of I15 alone (its note: \"I15\"), and I15 is TYPICAL_EXAMPLE (\"reward regain leading to shot\", an example pattern), inert for derivation. The claim made the referents of the modifier I17 established, and of any other object's event-conditioned modifier, 'claimed but unresolved' (blocking): an example imposing a requirement. Christian's reply received 7 November 2026, section 2, Decision 2: \"Illustrative incentive examples should not be interpreted as mandatory structural requirements.\" NON_CLAIMED, as GF2 holds its own example incentives (\"example_incentive_patterns are labelled examples and bind nothing.\"). Selector, scope and note unchanged; I15 is unchanged and stays TYPICAL_EXAMPLE; the original stays in contracts.json (the C45 precedent). Part of the departure from our RC-6 convention named on I17."
+    },
+    {
+      "contractId": "blind:GF4",
+      "row": "V9",
+      "from": "CLAIMED",
+      "to": "NON_CLAIMED",
+      "ruling": "SD-59; 7 November 2026, section 2, Decision 2",
+      "why": "RESTATED 7 November 2026 with blind:GF4::I17 (items, same ruling). GF4's V9 declaration CLAIMED a modifier's magnitude on the strength of I14 alone (its note: \"I14\"), and I14 is TYPICAL_EXAMPLE (\"double points for quick goal\", an example pattern; its TYPICAL_EXAMPLE status kept by the 24 September ruling, SD-73), inert for derivation. The claim made the magnitude of the modifier I17 established, and of any other object's event-conditioned modifier, 'claimed but unresolved' (blocking): an example imposing a requirement. Christian's reply received 7 November 2026, section 2, Decision 2: \"Illustrative incentive examples should not be interpreted as mandatory structural requirements.\" NON_CLAIMED, as GF2 holds its own example incentives (\"example_incentive_patterns are labelled examples and bind nothing.\"). Selector, scope and note unchanged; I14 and I14.op are unchanged and stay TYPICAL_EXAMPLE; the original stays in contracts.json (the C45 precedent). Part of the departure from our RC-6 convention named on I17."
     }
   ],
   "declarationsAdded": [

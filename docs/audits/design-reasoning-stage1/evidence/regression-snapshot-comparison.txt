@@ -1,0 +1,8 @@
+Regression snapshot (npm run snapshot), before and after the Stage 1 changes.
+before: taken on main f534a62 with no changes, 3 November 2026
+after: taken with every Stage 1 change in the working tree, 4 November 2026
+top-level keys: 391 in each
+a8420db066c34341366254b9e8063aa9c66688fd777a350ce9aa1d0a2c4da246  before.json
+a8420db066c34341366254b9e8063aa9c66688fd777a350ce9aa1d0a2c4da246  after.json
+npm run snapshot:diff:
+KEYS 391  CHANGED 0  LEAVES 0  ONLY-BEFORE 0  ONLY-AFTER 0

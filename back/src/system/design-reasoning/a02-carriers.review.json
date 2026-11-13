@@ -1,0 +1,27 @@
+{
+  "standing": "TEST-ONLY review data for stage W4 of the A02 package (11 November 2026): the A02 runs with ILLUSTRATIVE carriers added by declared TEST-ONLY treatments, so the gap an approved answer must fill is executable. Every run here is a TEST-ONLY treatment run, never the A02 configuration; every carrier is ILLUSTRATIVE (ours, not knowledge) and lives only in docs/audits/drafts/a02-illustrative. Each case is composed by a02-carriers.unit.ts from A02-0 (its base), the named treatments of a02-inputs.review.json (borrowed unchanged) and the treatments below, and held to the handoff's own validator. Nothing on the live route or the checked pathway reads this file. Superseded by A02-HPE1 (stage B1 of the A02 complete-activity package, 12 November 2026): the origin clause and the control clause are carried by our CANDIDATE restatement of Christian's rulings received 12 November 2026 (items 1 and 2), so the origin carriers (TT-IL-ORIGIN, TT-ORIGIN-NO-FURTHER-VALUE), the relational control alternative (TT-CONTROL-RELATIONAL), the cases A02-IL-1 and A02-IL-2r and the START choice they needed are retired; the two remaining cases keep only the illustrative line and the progression referent typed to it, a mechanism measurement, superseded by A02-HPE1 for the pressing line (PROPOSED, N1).",
+  "rulings": [
+    {
+      "id": "A02-11NOV-ILLUSTRATIVE",
+      "words": [
+        "Testing legitimate configuration alternatives using clearly labeled provisional or illustrative knowledge.",
+        "What automated safeguard could have detected this problem before it affected another activity?"
+      ],
+      "file": "christian-2026-11-11-package-decisions.txt (Christian's second reply received 11 November 2026, the delegated engineering list and the safeguard question)",
+      "received": "2026-11-11",
+      "replyOfDay": "second reply",
+      "provisional": false,
+      "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+    }
+  ],
+  "treatments": [
+    { "id": "TT-IL-LINE", "kind": "ILLUSTRATIVE_CARRIERS", "carriers": { "file": "docs/audits/drafts/a02-illustrative/a02-illustrative.DRAFT.json", "groups": ["IL-LINE"] }, "what": "an illustrative pressing line: a marked line across the area, 12 m from the end line the team at the start end of the axis defends", "effect": "the line the typed progression referent names exists in the game", "why": "the progression referent typed to a line needs the line; superseded by A02-HPE1 (the pressing line PROPOSED, N1)", "label": "ILLUSTRATIVE: a TEST-ONLY carrier of ours, not knowledge; one direction only; never A01's values; superseded by A02-HPE1", "rulingRefs": ["A02-11NOV-ILLUSTRATIVE", "A02-10NOV-TREATMENTS"] },
+    { "id": "TT-IL-PROGRESSION", "kind": "ILLUSTRATIVE_CARRIERS", "carriers": { "file": "docs/audits/drafts/a02-illustrative/a02-illustrative.DRAFT.json", "groups": ["IL-PROGRESSION-TYPED"] }, "what": "the progression clause's referent typed to the illustrative pressing line (in place of RPC-002-03.b's open text on the chain's copy only)", "effect": "the progression condition 'beyond' a typed line is held by GA-RELATIVE-PLACEMENT's clause: each scoring team's target lies beyond the line, and the line is never the target (C54)", "why": "to make the gap behind the pressing line executable (Q2); superseded by A02-HPE1", "label": "ILLUSTRATIVE: a TEST-ONLY carrier of ours, not knowledge; superseded by A02-HPE1", "rulingRefs": ["A02-11NOV-ILLUSTRATIVE", "A02-10NOV-TREATMENTS"] }
+  ],
+  "cases": [
+    { "id": "A02-IL-2", "label": "A02-IL-2: the progression clause carried by ILLUSTRATIVE carriers (the line and the referent typed to it), the origin and control clauses by our CANDIDATE restatement, the LAW-11 stand-in (superseded by A02-HPE1)", "borrow": ["TT-CONSUMED-STEPS", "TT-DRAFT-STORE", "TT-K2-RETAIN-FORM", "TT-LAW-11-STAND-IN"], "treatments": ["TT-IL-LINE", "TT-IL-PROGRESSION"] },
+    { "id": "A02-IL-2L", "label": "A02-IL-2L: as A02-IL-2, the Laws held to our DRAFT classification (no stand-in) (superseded by A02-HPE1)", "borrow": ["TT-CONSUMED-STEPS", "TT-DRAFT-STORE", "TT-K2-RETAIN-FORM", "TT-LAWS-DRAFT"], "treatments": ["TT-IL-LINE", "TT-IL-PROGRESSION"] }
+  ],
+  "rulingEntry": { "ref": "A02-11NOV-ILLUSTRATIVE", "entersAs": "REPORT_ONLY", "how": "the authority for the ILLUSTRATIVE carriers as labelled TEST-ONLY alternatives; none of its words enters the chain as a value, and no carrier is knowledge" },
+  "suppliedChoices": []
+}

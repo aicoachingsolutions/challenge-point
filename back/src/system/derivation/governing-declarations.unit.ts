@@ -64,6 +64,11 @@ const COMPOSITIONS: [string, () => DerivationInput][] = [
  * a TIGHTENING: GF4 explicitly claims its modifier's V8b and V9, which it leaves unresolved (GF4 alone already
  * blocks on both), and another object's "not mine to say" — a non-claim, not a requirement — had been outranking
  * that claim under AM-23 and reading the lines "not constrained" the moment anything was composed beside it.
+ *
+ * **Since 7 November 2026 (Decision 2) GF4 holds no modifier.** Christian's reply received 7 November 2026, section 2, Decision 2:
+ * "Illustrative incentive examples should not be interpreted as mandatory structural requirements." GF4's I17 is restated
+ * TYPICAL_EXAMPLE (SD-59) and its example-only claims on V7, V8b and V9 NON_CLAIMED (corpus-restatements.json), so the claims
+ * described above no longer exist; the compositions stay, re-pinned below.
  */
 const GF4_COMPOSITIONS: [string, () => DerivationInput][] = [
     ['GF4', () => compose(['blind:GF4'])],
@@ -87,16 +92,20 @@ const runs = new Map<string, Run>()
 function run(name: string): Run {
     const cached = runs.get(name)
     if (cached) return cached
-    const staged: any = runStages0to10([...COMPOSITIONS, ...GF4_COMPOSITIONS].find(([n]) => n === name)![1]())
+    const result = asRun(runStages0to10([...COMPOSITIONS, ...GF4_COMPOSITIONS].find(([n]) => n === name)![1]()))
+    runs.set(name, result)
+    return result
+}
+
+/** A staged run read as `run` reads one (split out on 7 November 2026 so the guard's TEST-ONLY specimen is read the same way). */
+function asRun(staged: any): Run {
     const rowOf = new Map<string, string>(staged.lines.map((l: any) => [l.lineId, l.row]))
     const reasons = new Map<string, [ReasonCode, ReasonCode]>()
     for (const line of staged.classified.values() as Iterable<ClassifiedLine>) {
         if (line.verdict !== 'NOT_AUTHORED' || !line.governedBy) continue
         reasons.set(line.lineId, [line.reason as ReasonCode, reasonFor(rowOf.get(line.lineId)!, staged.scope.declarations)])
     }
-    const result = { staged, rowOf, reasons }
-    runs.set(name, result)
-    return result
+    return { staged, rowOf, reasons }
 }
 
 /** Gate A over the same run with every declaration-decided reason put back to its row-wide value. */
@@ -143,20 +152,26 @@ test('corpus-wide, exactly five lines move, each as the design analysis predicte
     // classes gains one line no item speaks for, decided from declarations as 'no coverage'. None moves here.
     // 36 -> 37 on 24 October 2026 (R1): register version 23 adds the game-level row RP1 (how play restarts after a dead ball); game::RP1 is
     // a line no corpus item speaks for, decided from declarations as 'no coverage'. It never moves here.
+    // 37 -> 31 on 7 November 2026 (Decision 2; RE-PINNED, measured): the six unauthored lines of GF4's example-only modifier
+    // (c:blind:GF4:I17::V8b, V8c, V8d, V9, V9a, V10) no longer exist. Christian's reply received 7 November 2026, section 2, Decision 2:
+    // "Illustrative incentive examples should not be interpreted as mandatory structural requirements." GF4's I17 is restated
+    // TYPICAL_EXAMPLE (SD-59), so it establishes no value modifier; gf4-example-incentives.unit.ts pins the correction. One of the six,
+    // c:blind:GF4:I17::V9, was a move below ('declared gap -> claimed but unresolved'): it leaves the list with its line, and the
+    // other five moves are unchanged (measured). The same move, the establishing object's own claim reported over another object's
+    // gap whose selector is FALSE for the element, is still pinned by VARTARGET-13.a::V20 below and by the guard's TEST-ONLY specimen.
     const corpus = run('corpus')
-    assert.equal(corpus.reasons.size, 37)
+    assert.equal(corpus.reasons.size, 31)
     assert.deepEqual(moves(corpus), [
         // An exclusion scoped to Wide Zone's OWN involvement had been relabelling regions it never addressed.
         'c:blind:GF4:I03::S4: excluded -> not constrained',
-        // Another object's gap whose selector is FALSE for the element had been reported over the establishing
-        // object's own claim. Both codes block: the line is attributed to the object that actually requires it.
-        'c:blind:GF4:I17::V9: declared gap -> claimed but unresolved',
         'c:restated:GF2:GF2-03.e::S4: excluded -> not constrained',
         'c:restated:GF2:GF2-03.f::S4: excluded -> not constrained',
         // C55 (stage K1): RPC-001's explicit "no further value" for the origin, under C50's deferral. Corpus-wide it
         // reads 'excluded', not 'not constrained': the Neutral Player Condition's own EXCLUDED * on V6 is a general
         // requirement and stays in force, outranking the non-claim under AM-23.
         `${ORIGIN_VALUE}: declared gap -> excluded`,
+        // Another object's gap whose selector is FALSE for the element had been reported over the establishing
+        // object's own claim. Both codes block: the line is attributed to the object that actually requires it.
         'c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V20: declared gap -> claimed but unresolved',
     ])
 })
@@ -254,24 +269,61 @@ test('silence never overrides: RPC-001\'s control, exclusion and origin lines we
     }
 })
 
+/**
+ * **The guard's first specimen, RE-POINTED on 7 November 2026 (Decision 2) to a TEST-ONLY specimen of equal strength.** It was
+ * c:blind:GF4:I17::V9: GF4 established an event-conditioned value modifier (I17) and CLAIMED its magnitude (V9) without resolving it.
+ * Christian's reply received 7 November 2026, section 2, Decision 2 ("Illustrative incentive examples should not be interpreted as
+ * mandatory structural requirements.") restates I17 TYPICAL_EXAMPLE (SD-59) and GF4's example-only V9 claim NON_CLAIMED, so that line
+ * no longer exists (corpus-restatements.json; gf4-example-incentives.unit.ts). The specimen below has exactly its shape, on a DEEP COPY of
+ * the corpus: a TEST-ONLY object establishes an event-conditioned modifier (EXISTS on V7, AUTHORED, SUPPORTING, as I17 was) and CLAIMS
+ * its magnitude, and nothing resolves it, beside every other object's non-claim on V9 and Wide Zone's gap on its own region modifier.
+ * Measured: the same three readings I17::V9 gave ('not constrained' selector-only, 'claimed but unresolved' under the rule, 'declared
+ * gap' row-wide). It is never knowledge: it lives in this test only.
+ */
+const SPECIMEN_CONTRACT = 'restated:TEST-ONLY-EVENT-INCENTIVE'
+const SPECIMEN_LINE = `c:${SPECIMEN_CONTRACT}:TEST-ONLY-M1::V9`
+const withSpecimen = (contracts: any[]) => {
+    contracts.push({
+        contractId: SPECIMEN_CONTRACT,
+        objectId: 'TEST-ONLY-EVENT-INCENTIVE',
+        knowledgeVersion: 'test-only',
+        relationshipRules: [],
+        items: [
+            {
+                itemId: 'TEST-ONLY-M1', row: 'V7', selector: 'condition.type=event', requirement: 'EXISTS', value: 'N/A', strictness: 'SUPPORTING', valueStatus: 'N/A',
+                scope: 'WHOLE_GAME', basis: 'AUTHORED', basisEvidence: 'TEST-ONLY: never production data', checkability: 'STRUCTURAL', structuralClause: 'whole item',
+            },
+        ],
+        declarations: [{ row: 'V9', declaration: 'CLAIMED', selector: 'condition.type=event', scope: 'WHOLE_GAME', note: 'TEST-ONLY: the establishing object claims its own magnitude' }],
+    })
+}
+
 test('guard: honouring selectors WITHOUT the establishing precedence would relax two blocking lines', () => {
     // The design analysis measured it and DONOTDO 1 forbids it: drop the declarations that do not address the
     // element but keep AM-23 over the rest, and a non-claim from elsewhere outranks the establishing object's own
     // claim. Pinned so the precedence can never be removed while selector-honouring stays.
-    const corpus = run('corpus')
-    const classOf = new Map<string, ElementClass>(corpus.staged.classes.map((c: ElementClass) => [c.classId, c]))
-    for (const lineId of ['c:blind:GF4:I17::V9', 'c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V20']) {
-        const row = corpus.rowOf.get(lineId)!
+    // Re-pointed 7 November 2026 (Decision 2): the first specimen is the TEST-ONLY one above, read exactly as the corpus run is read.
+    const specimen = asRun(stagedOver(() => corpusInput(), withSpecimen))
+    // The specimen only adds: every corpus line keeps its verdict and reason beside it (measured), and the specimen's own claim decides its line.
+    assert.deepEqual(
+        differences(run('corpus').staged, specimen.staged).filter(d => !d.startsWith(`c:${SPECIMEN_CONTRACT}:`)),
+        ['Gate A GA-MODIFIER-OVERLAP: PASS -> NOT_EVALUABLE'],
+        'the specimen moves no corpus line; its event-conditioned modifier makes the overlap check unevaluable, as I17 did',
+    )
+    assert.deepEqual((specimen.staged.classified.get(SPECIMEN_LINE) as ClassifiedLine).governedBy!.map(d => `${d.contractId} ${d.declaration}`), [`${SPECIMEN_CONTRACT} CLAIMED`])
+    for (const [r, lineId] of [[specimen, SPECIMEN_LINE], [run('corpus'), 'c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V20']] as [Run, string][]) {
+        const classOf = new Map<string, ElementClass>(r.staged.classes.map((c: ElementClass) => [c.classId, c]))
+        const row = r.rowOf.get(lineId)!
         const cls = classOf.get(lineId.slice(0, lineId.lastIndexOf('::')))!
-        const selectorOnly = (corpus.staged.scope.declarations as DeclarationReach[]).filter(
+        const selectorOnly = (r.staged.scope.declarations as DeclarationReach[]).filter(
             d =>
                 d.row === row &&
                 (d.scope !== 'OWN_INVOLVEMENT' || cls.fromItem.contractId === d.contractId) &&
                 (!d.parsed.predicate || reaches(d.parsed.predicate, cls) !== 'FALSE'),
         )
         assert.equal(reasonFor(row, selectorOnly), 'not constrained', `${lineId}: selector-honouring alone relaxes it`)
-        assert.equal(corpus.reasons.get(lineId)![0], 'claimed but unresolved', `${lineId}: under the rule it still blocks`)
-        assert.equal(corpus.reasons.get(lineId)![1], 'declared gap', `${lineId}: as it blocked before`)
+        assert.equal(r.reasons.get(lineId)![0], 'claimed but unresolved', `${lineId}: under the rule it still blocks`)
+        assert.equal(r.reasons.get(lineId)![1], 'declared gap', `${lineId}: as it blocked before`)
     }
 })
 
@@ -429,10 +481,20 @@ test('TIGHTENED by C49 (15 October 2026): the gate composed with the second game
     // deferred and the reference check passed — "explicitly unrestricted", in a composition no pathway reaches (the
     // gate is held from every Learning Goal). With the gate's place not yet authored it is a declared gap that
     // blocks, and the two checks cannot be evaluated. A tightening; nothing relaxes.
+    //
+    // **RE-PINNED 7 November 2026 (Decision 2), measured: two entries added, the three kept.** Until today GF4's example-only modifier
+    // failed GA-NO-FAILED-LINE in BOTH arms (c:blind:GF4:I17::V8b and V9, 'claimed but unresolved'), so the gate's place was not the only
+    // failed line and neither that check nor the verdict moved. Christian's reply received 7 November 2026, section 2, Decision 2:
+    // "Illustrative incentive examples should not be interpreted as mandatory structural requirements." With I17 restated
+    // TYPICAL_EXAMPLE (SD-59) and GF4's example-only claims NON_CLAIMED, the gate's place is the one failed line, so C49's tightening
+    // now also moves GA-NO-FAILED-LINE PASS -> FAIL and Gate A NOT_EVALUABLE -> FAIL here, exactly as it does for the gate alone below.
+    // Still a tightening; nothing relaxes.
     const make = () => compose(['blind:GF4', GATE])
     assert.deepEqual(differences(stagedOver(make, gateV5AsBeforeC49), stagedOver(make, () => undefined)), [
+        'Gate A GA-NO-FAILED-LINE: PASS -> FAIL',
         'Gate A GA-ONE-PRIMARY-EVENT: DEFERRED_TO_REALIZATION -> NOT_EVALUABLE',
         'Gate A GA-REFERENCE-INTEGRITY: PASS -> NOT_EVALUABLE',
+        'Gate A verdict: NOT_EVALUABLE -> FAIL',
         `c:${GATE}:PCG-02::V5: NOT_AUTHORED/not constrained -> NOT_AUTHORED/declared gap`,
     ])
     // **H1 review, 15 October 2026 — the gate ALONE moves too, and was in no composition list.** Measured by diffing
@@ -539,19 +601,30 @@ test('the supersession mechanism: written only by a restatement, honoured only w
 // Added in review, 15 October 2026.
 // ---------------------------------------------------------------------------------------------
 
-test('GF4 composed with anything: only tightenings, two Gate A verdicts move NOT_EVALUABLE -> FAIL, each pinned', () => {
+test('GF4 composed with anything: only tightenings; since Decision 2 (7 November 2026) no Gate A verdict moves and the one gain is Variable Target\'s own claim, each pinned', () => {
     // Measured in review over GF4 with every other corpus object. GF4 alone does not move: its own claims on
     // V8b and V9 already block there. Composed, another object's non-claim had been hiding them.
+    //
+    // **RE-PINNED 7 November 2026 (Decision 2), measured.** Christian's reply received 7 November 2026, section 2, Decision 2:
+    // "Illustrative incentive examples should not be interpreted as mandatory structural requirements." GF4's I17 is restated
+    // TYPICAL_EXAMPLE (SD-59) and GF4's V7, V8b and V9 claims, which rested only on the example items, NON_CLAIMED
+    // (corpus-restatements.json). So GF4 holds no modifier and claims none, and the I17 gains this test pinned are gone with their lines.
+    // Before -> now, measured both ways (the correction undone on a copy reproduces every value pinned until today):
+    //   'GF4 + GF2' was { before NOT_EVALUABLE, now FAIL, gains I17::V8b, I17::V9 }: now DEFERRED_TO_REALIZATION both ways, no gain
+    //     (GF4's only remaining Gate A failure, GA-TRIGGER-REACHABLE, needs teams, which GF2 supplies);
+    //   'GF4 + Pass Combination Gate' and 'GF4 + RPC-001' were gains I17::V8b, I17::V9: now none;
+    //   'GF4 + Wide Zone' was gain I17::V8b and 'GF4 + A01-02' gain I17::V9: now none;
+    //   'GF4', 'GF4 + Neutral' and 'GF4 + Variable Target' are unchanged.
     const expected: Record<string, { before: string; now: string; gains: string[] }> = {
         GF4: { before: 'FAIL', now: 'FAIL', gains: [] },
-        'GF4 + GF2': { before: 'NOT_EVALUABLE', now: 'FAIL', gains: ['c:blind:GF4:I17::V8b', 'c:blind:GF4:I17::V9'] },
+        'GF4 + GF2': { before: 'DEFERRED_TO_REALIZATION', now: 'DEFERRED_TO_REALIZATION', gains: [] },
         // `before` NOT_EVALUABLE -> FAIL on 15 October 2026 (C49): the gate's own place is a declared gap row-wide too
         // now ("not yet authored", his 16 October item 8), so the row-wide reading fails on it as well. The gains are
         // unchanged; the C49 tightening itself is pinned in its own test above.
-        'GF4 + Pass Combination Gate': { before: 'FAIL', now: 'FAIL', gains: ['c:blind:GF4:I17::V8b', 'c:blind:GF4:I17::V9'] },
-        'GF4 + RPC-001': { before: 'FAIL', now: 'FAIL', gains: ['c:blind:GF4:I17::V8b', 'c:blind:GF4:I17::V9'] },
-        'GF4 + Wide Zone': { before: 'FAIL', now: 'FAIL', gains: ['c:blind:GF4:I17::V8b'] },
-        'GF4 + A01-02': { before: 'FAIL', now: 'FAIL', gains: ['c:blind:GF4:I17::V9'] },
+        'GF4 + Pass Combination Gate': { before: 'FAIL', now: 'FAIL', gains: [] },
+        'GF4 + RPC-001': { before: 'FAIL', now: 'FAIL', gains: [] },
+        'GF4 + Wide Zone': { before: 'FAIL', now: 'FAIL', gains: [] },
+        'GF4 + A01-02': { before: 'FAIL', now: 'FAIL', gains: [] },
         'GF4 + Neutral': { before: 'FAIL', now: 'FAIL', gains: [] },
         'GF4 + Variable Target': { before: 'FAIL', now: 'FAIL', gains: ['c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V20'] },
     }
@@ -781,11 +854,17 @@ test('C55 moves exactly the origin line, wherever RPC-001 is composed — and on
         corpus: [ORIGIN_MOVE('excluded')],
         'GF2 + RPC-001': ['Gate A GA-NO-FAILED-LINE: FAIL -> PASS', ORIGIN_MOVE('not constrained')],
         'GF2 + RPC-001 + A01-02': [ORIGIN_MOVE('not constrained')],
-        'GF4 + RPC-001': [ORIGIN_MOVE('not constrained')],
+        // **RE-PINNED 7 November 2026 (Decision 2), measured: the check entry added, the line entry kept.** Until today GF4's
+        // example-only modifier failed GA-NO-FAILED-LINE in both arms (c:blind:GF4:I17::V8b and V9, 'claimed but unresolved'), so the
+        // origin line was not the last blocker here. Christian's reply received 7 November 2026, section 2, Decision 2: "Illustrative
+        // incentive examples should not be interpreted as mandatory structural requirements." With GF4's I17 restated TYPICAL_EXAMPLE
+        // (SD-59) and its example-only claims NON_CLAIMED, it is, as in GF2 + RPC-001, so the check moves with it. Gate A stays FAIL.
+        'GF4 + RPC-001': ['Gate A GA-NO-FAILED-LINE: FAIL -> PASS', ORIGIN_MOVE('not constrained')],
     }
     for (const [name, make] of [...COMPOSITIONS, ...GF4_COMPOSITIONS, ...PCG_COMPOSITIONS]) {
         assert.deepEqual(differences(stagedOver(make, strip), stagedOver(make, () => undefined)), expected[name] ?? [], `${name}: what C55 moves`)
     }
+    assert.equal(run('GF4 + RPC-001').staged.gates.gateA.verdict, 'FAIL', 'GF4 + RPC-001: Gate A stays FAIL (re-pinned 7 November 2026)')
     // **Added at the K1 review, 15 October 2026: the context alone, which none of the lists above holds.** Measured by
     // probe: there too the origin's line was the last one GA-NO-FAILED-LINE failed on once C57 typed the two referents,
     // so the check moves with it. C55's own record said "no Gate A check verdict moves", which held only without C57;

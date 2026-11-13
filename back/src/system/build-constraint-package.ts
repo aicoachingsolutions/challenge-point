@@ -346,7 +346,8 @@ function applyConstraintMetadataOverlay(
 function buildPackageInteractionExchange(
     affordances: AffordanceField,
     archetype: ArchetypeDefinition,
-    foundation: ConstraintSelectionCandidate,
+    // Absent only under the TEST-ONLY FOUNDATION_PRESENCE_BYPASS (stage W2, E3); it is read only into the overlay's list, which skips an absent member.
+    foundation: ConstraintSelectionCandidate | undefined,
     shaping: ConstraintSelectionCandidate | undefined,
     consequence?: ConstraintSelectionCandidate
 ): ActivityAssemblyGuardrails {
@@ -602,17 +603,36 @@ function buildPackageInteractionExchange(
     )
 }
 
+/**
+ * TEST-ONLY (the isolated A02 experiment, stage W2 of the A02 package, 11 November 2026, E3): the declared treatment FOUNDATION_PRESENCE_BYPASS.
+ * Christian, received 15 October 2026: "A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and
+ * intended learning environment."; received 11 November 2026, second reply: "Removing unsupported constraint quotas from isolated testing
+ * while retaining justified validation." We classify the presence of a foundation (structure-role) member in every non-empty package as such
+ * a quota (no authority found; our own comment below calls it not ruled); the treatment lets Christian reverse that classification by being
+ * removed. Under it a package may hold no foundation member; every check of a member that IS present is unchanged (its keyword threshold
+ * below, :147-153, decides whether it is picked; validate-constraint-package.ts checks it), and the selector applies it only together with
+ * the check that every selected member is in the package (selection-compatibility.ts, E4), so a structure member under its threshold is
+ * refused there, never dropped. Passed only by `isSelectionPackageCompatible` under that treatment; every production caller passes three
+ * arguments and gets a `SelectedConstraintPackage` exactly as before.
+ */
+export type FoundationPresenceBypass = { foundationPresenceBypass: true }
+/** TEST-ONLY (stage W2, E3): a package built under FOUNDATION_PRESENCE_BYPASS, whose foundation may be absent. Never returned without it. */
+export type FoundationOptionalPackage = Omit<SelectedConstraintPackage, 'foundation'> & { foundation: ConstraintSelectionCandidate | undefined }
+
+export function buildConstraintPackage(constraints: IConstraint[], affordances: AffordanceField, archetype: ArchetypeDefinition): SelectedConstraintPackage
+export function buildConstraintPackage(constraints: IConstraint[], affordances: AffordanceField, archetype: ArchetypeDefinition, testOnly: FoundationPresenceBypass): FoundationOptionalPackage
 export function buildConstraintPackage(
     constraints: IConstraint[],
     affordances: AffordanceField,
-    archetype: ArchetypeDefinition
-): SelectedConstraintPackage {
+    archetype: ArchetypeDefinition,
+    testOnly?: FoundationPresenceBypass
+): SelectedConstraintPackage | FoundationOptionalPackage {
     if (!constraints.length) {
         throw new SystemPipelineError('constraint-selection', 'No constraints are available in the library.')
     }
 
     const foundation = pickBestConstraint(constraints, 'foundation', affordances, archetype)
-    if (!foundation) {
+    if (!foundation && testOnly?.foundationPresenceBypass !== true) {
         throw new SystemPipelineError(
             'constraint-selection',
             `No compatible foundation constraint was found for archetype "${archetype.name}".`,
@@ -628,10 +648,10 @@ export function buildConstraintPackage(
      * from the whole library for seven goals whose candidates hold none. The foundation above stays
      * required, and every other check in `validateConstraintPackage` is unchanged.
      */
-    const shaping = pickBestConstraint(constraints, 'shaping', affordances, archetype, [foundation.constraint._id])
+    const shaping = pickBestConstraint(constraints, 'shaping', affordances, archetype, foundation ? [foundation.constraint._id] : [])
 
     const consequence = pickBestConstraint(constraints, 'consequence', affordances, archetype, [
-        foundation.constraint._id,
+        ...(foundation ? [foundation.constraint._id] : []),
         ...(shaping ? [shaping.constraint._id] : []),
     ])
     const selectedConsequence = consequence && consequence.score > 12 ? consequence : undefined

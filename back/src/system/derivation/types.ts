@@ -178,6 +178,28 @@ export const ROLE_YIELD_KEY = 'yieldsForRole'
  */
 export const DRAFT_KNOWLEDGE = 'DRAFT_KNOWLEDGE'
 export const DRAFT_KNOWLEDGE_VERSION = 'draft'
+/**
+ * **TEST-ONLY: an ILLUSTRATIVE carrier, never knowledge** — stage W4 of the A02 package, 11 November 2026 (Christian's second reply received
+ * 11 November 2026 delegates "Testing legitimate configuration alternatives using clearly labeled provisional or illustrative knowledge.").
+ * The category the TEST-ONLY draft store (`draft-store.ts`, its ILLUSTRATIVE loader) stamps on every item and declaration of an ILLUSTRATIVE
+ * entry: a value chosen by us to make a gap executable, standing for what an approved answer must supply, with no source and no ruling. It
+ * travels as DRAFT_KNOWLEDGE does (copied onto support at assembly) and every reader that treats a draft item as unapproved treats it the same
+ * way (`isDraftCategory`); the store refuses OWNER_RULING on it. No production item, declaration or contract carries it.
+ */
+export const ILLUSTRATIVE = 'ILLUSTRATIVE'
+/**
+ * **TEST-ONLY: a PROPOSED configuration item, our proposal of new knowledge for Christian's approval, never knowledge** — stage B1 of the A02
+ * complete-activity package, 12 November 2026. Christian, received 12 November 2026: "Please propose the simplest representative
+ * configuration that makes the relevant defensive pressure and escape target observable to the coach." and "The final interpretation and
+ * any consequential new knowledge should remain subject to my approval." The category the TEST-ONLY draft store's PROPOSED loader
+ * (`draft-store.ts`, its PROPOSED loader) stamps on every item of a proposed configuration (ILLUSTRATIVE where an item is marked so):
+ * not a ruling, not a restatement of one, not approved. It travels as DRAFT_KNOWLEDGE does and every reader that treats a draft item as
+ * unapproved treats it the same way (`isDraftCategory`), so no PROPOSED item can read as Christian's choice. No production item, declaration
+ * or contract carries it.
+ */
+export const PROPOSED = 'PROPOSED'
+/** A category the TEST-ONLY draft store stamps (DRAFT_KNOWLEDGE, ILLUSTRATIVE or PROPOSED): never approved knowledge, whatever the item's basis. */
+export const isDraftCategory = (category: unknown): boolean => category === DRAFT_KNOWLEDGE || category === ILLUSTRATIVE || category === PROPOSED
 export const ROLE_YIELD_MARKERS = ['AUTHORIZED_ROLE_SCORING'] as const
 
 /**
@@ -663,6 +685,15 @@ export interface BeginConditionReferent {
     beginsEpisodeOf: string
     arms: ({ takenBy: string } | { restartKind: string })[]
     asAuthored?: string
+    /**
+     * **TEST-ONLY so far: a state the episode begins under, as a conjunct with the arms** — stage W4 of the A02 package (U2 b1), 11 November
+     * 2026. Each entry names a start placement (P8) by a typed reference (SD-98). The arms pick the transitions; the state holds at each of
+     * them only where the placement is re-established there (P10a CONDITIONAL_RESET for this episode, P10b), which GA-EPISODE-REACHABLE's
+     * state clause checks. Without arms the state would be circular (a placement resets at the transitions the begin condition picks out),
+     * so it never stands alone. No production referent carries it (only a ruled restatement writes a begin condition, C58); the only writer
+     * is an ILLUSTRATIVE carrier of the TEST-ONLY draft store. Absent: the referent reads exactly as before.
+     */
+    whileState?: { structuralRef: { contractId: string; itemId: string } }[]
 }
 
 /** Recognised in one place, beside `relationalReferentOf`, so derivation and the gates agree on what counts. */
@@ -671,7 +702,9 @@ export function beginConditionReferentOf(value: unknown): BeginConditionReferent
     const v = value as any
     if (typeof v.beginsEpisodeOf !== 'string' || !Array.isArray(v.arms) || !v.arms.length || v.structuralRef || v.objectiveReferenceOf) return null
     const wellFormed = v.arms.every((arm: any) => arm && typeof arm === 'object' && (typeof arm.takenBy === 'string') !== (typeof arm.restartKind === 'string'))
-    return wellFormed ? (v as BeginConditionReferent) : null
+    // W4 (U2 b1): a state, where one is written, is a non-empty list of typed references; anything else types nothing (fail closed).
+    const stateWellFormed = v.whileState === undefined || (Array.isArray(v.whileState) && v.whileState.length > 0 && v.whileState.every((s: any) => structuralRefOf(s) !== null))
+    return wellFormed && stateWellFormed ? (v as BeginConditionReferent) : null
 }
 
 /**

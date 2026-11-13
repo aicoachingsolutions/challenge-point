@@ -24,10 +24,13 @@ import {
     DerivationInput,
     DRAFT_KNOWLEDGE,
     ElementClass,
+    ILLUSTRATIVE,
+    isDraftCategory,
     FailureRecord,
     ItemRef,
     LoadedContract,
     PartialResult,
+    PROPOSED,
     RefusalRecord,
     ResolutionLine,
     SpecClause,
@@ -662,7 +665,11 @@ export function runDerivation(input: DerivationInput): DerivationResult | Stampe
         stopped: staged.stopped,
         diagnostics: staged.diagnostics,
         // B2 (28 October 2026): the items the TEST-ONLY draft store loaded, so an open line one of them shapes says so (emit's `draftShapedBy`).
-        draftItems: new Set(input.contracts.flatMap(contract => (contract.items ?? []).filter(item => item.category === DRAFT_KNOWLEDGE).map(item => `${contract.contractId}:${item.itemId}`))),
+        draftItems: new Set(input.contracts.flatMap(contract => (contract.items ?? []).filter(item => isDraftCategory(item.category)).map(item => `${contract.contractId}:${item.itemId}`))),
+        // W4 (A02 package, TEST-ONLY): those stamped ILLUSTRATIVE, so the shaping they record is labelled ILLUSTRATIVE.
+        illustrativeItems: new Set(input.contracts.flatMap(contract => (contract.items ?? []).filter(item => item.category === ILLUSTRATIVE).map(item => `${contract.contractId}:${item.itemId}`))),
+        // Stage B1 (A02 complete-activity package, TEST-ONLY): those stamped PROPOSED, so the shaping they record is labelled PROPOSED.
+        proposedItems: new Set(input.contracts.flatMap(contract => (contract.items ?? []).filter(item => item.category === PROPOSED).map(item => `${contract.contractId}:${item.itemId}`))),
     })
 }
 

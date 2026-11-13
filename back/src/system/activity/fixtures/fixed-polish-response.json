@@ -1,0 +1,54 @@
+{
+    "standing": "A FIXED model answer for the offline fixed-response test (fixed-response-pathway.unit.ts), written by us to the polish output contract (validate-activity-polish.ts) and stored here. No model produced it and no model is called. The same answer is returned for every request, so any difference between two goals' served activities comes from the server, not from this text. Approved by Christian in his reply of 3 November 2026, item 11: 'Please use a recorded, valid model response, with no real AI calls and no production changes, to establish what the post-model merge actually returns to the coach.'",
+    "faithful": {
+        "activities": [
+            {
+                "title": "Lane Entry Game",
+                "setup": "Two teams play in the marked area. Each team attacks the end the coach points to.",
+                "objective": "Keep the ball as a team and look for the moment to move it forward into the far end.",
+                "coachingFocus": ["Watch how players read where the space is before they receive."],
+                "howToPlay": ["Start with the ball at one end.", "Play continues until the coach stops it."]
+            },
+            {
+                "title": "Wide Gate Game",
+                "setup": "Two teams play in the marked area with a gate on each side.",
+                "objective": "Move the ball through a gate when the picture allows it, and keep it when it does not.",
+                "coachingFocus": ["Notice who offers support when the ball carrier is closed down."],
+                "howToPlay": ["Begin from the coach's pass.", "A ball out of play restarts from the nearest line."]
+            },
+            {
+                "title": "End Zone Game",
+                "setup": "Two teams play in the marked area with a zone at each end.",
+                "objective": "Get the ball under control in the end zone you attack while the other team tries to stop you.",
+                "coachingFocus": ["Look for how players adjust when the defence moves across."],
+                "howToPlay": ["Kick off from the middle.", "After a score, the other team restarts from its own end."]
+            }
+        ]
+    },
+    "contradicting": {
+        "note": "The same answer, except that each setup states a player count, an area and a duration that contradict the session (12 players, 40 x 30 m, 20 minutes). It shows whether the server catches, corrects or serves what the model writes in its own fields.",
+        "activities": [
+            {
+                "title": "Lane Entry Game",
+                "setup": "Eight players play four against four in a 20 by 15 metre area for 10 minutes. Each team attacks the end the coach points to.",
+                "objective": "Keep the ball as a team and look for the moment to move it forward into the far end.",
+                "coachingFocus": ["Watch how players read where the space is before they receive."],
+                "howToPlay": ["Start with the ball at one end.", "Play continues until the coach stops it."]
+            },
+            {
+                "title": "Wide Gate Game",
+                "setup": "Eight players play four against four in a 20 by 15 metre area for 10 minutes, with a gate on each side.",
+                "objective": "Move the ball through a gate when the picture allows it, and keep it when it does not.",
+                "coachingFocus": ["Notice who offers support when the ball carrier is closed down."],
+                "howToPlay": ["Begin from the coach's pass.", "A ball out of play restarts from the nearest line."]
+            },
+            {
+                "title": "End Zone Game",
+                "setup": "Eight players play four against four in a 20 by 15 metre area for 10 minutes, with a zone at each end.",
+                "objective": "Get the ball under control in the end zone you attack while the other team tries to stop you.",
+                "coachingFocus": ["Look for how players adjust when the defence moves across."],
+                "howToPlay": ["Kick off from the middle.", "After a score, the other team restarts from its own end."]
+            }
+        ]
+    }
+}

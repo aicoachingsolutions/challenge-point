@@ -20,7 +20,7 @@ import { sessionPlanningModel } from '../session-planning/session-planning-model
 import { GameProblemAuthority, guidedGoalText, guidedSelectionHints } from '../sport-module/guided-selection'
 import { constraintBalanceBucket, generateSelection, isSelectionKnowledgeGap, SelectionKnowledgeGap } from '../test-library'
 import type { LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
-import { learningGoalAuthorizations, realizationAlternativesOf } from '../test-library/learning-goal-authorizations'
+import { learningGoalAuthorizations, libraryConstraintPrinciple, realizationAlternativesOf } from '../test-library/learning-goal-authorizations'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
 import type { ProvisionalRealization } from './corpus'
 import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile, provisionalRealizationNamed } from './corpus'
@@ -29,7 +29,7 @@ import { runDerivation, runStages0to10 } from './engine'
 import { knowledgeKey } from './knowledge-key'
 import { indexRegister } from './register'
 import { assembleResolvedGame } from './resolved-game'
-import { DerivationInput, DRAFT_KNOWLEDGE_VERSION, LoadedContract } from './types'
+import { DerivationInput, DRAFT_KNOWLEDGE_VERSION, ILLUSTRATIVE, LoadedContract, PROPOSED } from './types'
 
 /**
  * Library ids and contract ids spell the same object differently; neither is rewritten.
@@ -76,7 +76,7 @@ export interface KnowledgeSelection {
      * makes of a selection. Set only by `buildActivityUnderAuthorizationRecords` given a draft store; absent on every production selection,
      * so contract coverage, the derivation input and its provenance stamp read exactly what they read before.
      */
-    draftContracts?: LoadedContract[]
+    draftContracts?: LoadedContract[]; draftRegisterOverlay?: RegisterOverlay // W4 (TEST-ONLY): the ILLUSTRATIVE episode scopes of a carrier-composed store, see `registerWith`
 }
 
 /**
@@ -94,7 +94,7 @@ export interface DraftStoreContents {
     /** The draft contracts: knowledge version `draft`, every item and declaration category DRAFT_KNOWLEDGE. */
     contracts: LoadedContract[]
     /** The draft records: each `knowledgeStatus: 'DRAFT'`, citing no ruling. */
-    records: LearningGoalAuthorization[]
+    records: LearningGoalAuthorization[]; illustrative?: IllustrativeCarriersAdded[]; registerOverlay?: RegisterOverlay // W4 (TEST-ONLY): only on a carrier-composed store
 }
 
 /**
@@ -155,6 +155,164 @@ export interface BoundedSelection extends KnowledgeSelection {
     constraintAuthority: ConstraintAuthority
     /** The authorization record selection used, as a copy, or null where the goal has none. */
     authorization: LearningGoalAuthorization | null
+    /** TEST-ONLY (A02 experiment, S1(a)): Step 1's Game Problem as handed in (`UpstreamDecisions`). Absent on every production selection. */
+    consumedGameProblem?: ConsumedGameProblem
+    /** TEST-ONLY (A02 experiment, S1(e)): what this selection consumed from upstream, read from the run. Absent on every production selection. */
+    consumed?: ConsumedRecord
+}
+
+/**
+ * **TEST-ONLY: the upstream decisions a selection consumes** — the isolated A02 experiment. Christian's A02 authorization (the reply about A02, pasted 10 November 2026):
+ *   "The downstream pathway should consume Step 1's resolved Game Problem and Step 2's Game Form evaluation rather than independently selecting them from Learning Goal wording."
+ *   "This authorization is for the isolated development pathway. It does not authorize production changes or broader Stage 2 implementation."
+ * Handed only by `buildActivityUnderAuthorizationRecords`'s `upstream` option, which no route passes (a static test pins it:
+ * `rendering/upstream-consumption.unit.ts`). Plain data: no module of the review pathway is imported to read it.
+ *   - `gameProblem`: Step 1's resolved primary Game Problem and its basis, with the case's own label (TEST ASSUMPTION for a swap). Carried into
+ *     the selection and the account as `consumedGameProblem`; never written to `gameProblem` (the planning model's reading) and never read by
+ *     `provisionalOf`. Since stage W1 (a), 11 November 2026, it governs the lens hints and the matched signals: handed to `guidedSelectionHints`
+ *     as `step1GameProblemId` (the consumption record says which Game Problem governed them, `hintsGameProblemId`).
+ *   - `gameForm`: Step 2's form, its standing words and the grade of every cell its selection rests on (GF2's GP-015 cell is CANDIDATE, our
+ *     restatement of a DRAFT sport-module row): carried, never upgraded. The candidate forms become the context-gated list filtered to it
+ *     (an intersection, never a replacement).
+ *   - The constraints are not handed in: they come only from the goal's authorization record (the record route), held to the record gate.
+ *   - `quotaBypass`: the one numerical rule the authorization lets us bypass, in its words:
+ *     "For the isolated A02 experiment, you may remove or bypass this unsupported numerical quota where necessary to test legitimate zero-, one-, or multiple-manipulation configurations."
+ *     `generateSelection` receives this boolean and nothing else of the upstream decisions, and honours it only for an evaluated, record-backed set.
+ *     Since stage W2 (11 November 2026) the switch also takes the set whole, uncapped, with every selected member validated (`SwitchChecks`
+ *     in generateSelection.ts); `foundationPresenceBypass`, a declared treatment, is the one other value it receives, honoured only beside it.
+ *   - `reviewManipulations` (stage W1 (b), 11 November 2026): the review pathway's K2 result, handed in place of a per-goal authorization
+ *     record where no record governs the goal: K2's rule and its limit in Christian's words (plain data, with the citation), and the set,
+ *     which must be empty: K2 retains the form without additional manipulation and can authorize none. Refused beside a record, with a
+ *     non-empty set and with the quota bypass; the constraints then carry the authority `REVIEW_PATHWAY_K2`, never `AUTHORIZATION_RECORD`.
+ */
+export interface UpstreamDecisions {
+    gameProblem: { gameProblemId: string; step1Basis: 'APPROVED_TRANSLATION' | 'SCOPED_RULING'; label: string }
+    gameForm: { formId: string; standing: string; cells: { cell: string; grade: string }[] }
+    quotaBypass?: boolean
+    reviewManipulations?: ReviewManipulations
+    /** Stage W1 (c1), the declared TEST-ONLY treatment GP_COVERAGE_LENSES: the lens candidates and signal groups from Step 1's Coverage row in both branches. */
+    coverageLenses?: boolean
+    /**
+     * Stage B1 of the A02 complete-activity package (12 November 2026), the declared TEST-ONLY treatment PROPOSED_CONFIGURATION: our PROPOSED
+     * configuration for the routed context (the TEST-ONLY draft store's PROPOSED loader, every item stamped PROPOSED or ILLUSTRATIVE), set as
+     * the selection's realization on this isolated path only, beside K2's empty set (refused without K2's result, beside a record, and without
+     * a draft store), with the role vocabulary of the register copy the build derives over (`RegisterOverlay.roles`). Christian, received 12
+     * November 2026: "Please propose the simplest representative configuration that makes the relevant defensive pressure and escape target
+     * observable to the coach." Never a ruling: a PROPOSED item is never read as Christian's choice (`isDraftCategory`). `pending`, the
+     * declared TEST-ONLY treatment PROPOSED_PENDING: a context-scoring finding whose only ground is that a PROPOSED item's basis is not
+     * OWNER_RULING is moved to the build's `reviewLevel.pendingApproval` (never dropped); absent, every finding refuses as before.
+     */
+    proposedRealization?: ProposedRealizationHandoff
+    /**
+     * Stage W2 (11 November 2026, E3), the declared TEST-ONLY treatment FOUNDATION_PRESENCE_BYPASS: the package check need find no foundation
+     * member. Honoured only with `quotaBypass` (refused otherwise); `generateSelection` then validates every selected member (E4).
+     */
+    foundationPresenceBypass?: boolean
+}
+
+/**
+ * TEST-ONLY (stage B1 of the A02 complete-activity package): a PROPOSED configuration as a selection consumes it. Plain data, produced only by
+ * the TEST-ONLY draft store's PROPOSED loader (no production module imports the store); declared here so no production module needs to import it.
+ */
+export interface ProposedRealizationHandoff {
+    /** The realization-shaped contract, `proposed:<id>`, its items stamped PROPOSED (or ILLUSTRATIVE where so marked); never a provisional realization of Christian's. */
+    realization: ProvisionalRealization
+    /** The role vocabulary the register copy holds for this configuration, in order (`RegisterOverlay.roles`). */
+    roles: { token: string; noun: string | null }[]
+    /** The declared treatment that hands it in. */
+    treatmentId: string
+    /** The declared treatment PROPOSED_PENDING, where the case declares it. */
+    pending?: { treatmentId: string }
+    /** Christian's words the review-level build rests on, each with its received date (carried into `reviewLevel.basis`, never into the game). */
+    basis?: { words: string; received: string }[]
+}
+
+/** TEST-ONLY (stage W1 (b)): the review pathway's K2 result as the chain consumes it: an empty set, K2's rule and its limit, and their citation. */
+export interface ReviewManipulations {
+    basis: 'K2_REVIEW_ONLY'
+    set: string[]
+    rule: string
+    limit: string
+    cited: string
+}
+
+/** TEST-ONLY: Step 1's Game Problem as a selection and an account carry it, beside (never in place of) the chain's own reading. */
+export interface ConsumedGameProblem {
+    gameProblemId: string
+    step1Basis: 'APPROVED_TRANSLATION' | 'SCOPED_RULING'
+    label: string
+    source: 'Step 1 (review pathway)'
+}
+
+/**
+ * TEST-ONLY: what a selection consumed from upstream, read from its own run (S1(e)). `formCandidatesScored`: the forms the keyword scorer
+ * ranked, read from the selection trace's ranking (`SELECTION_TRACE_RANKING`); where the selector refused before it returned a trace, the
+ * candidate list selectFor handed it (`CANDIDATES_HANDED_TO_SELECTOR`), which is the list it scores. `constraintAuthority` and
+ * `constraintCandidateIds`: the pool account's, from the trace or from the gap. `form`: Step 2's form as handed in, standing and grades kept.
+ * Stage W1 (a), 11 November 2026: `hintsGameProblemId` and `hintsGoverned`, the Game Problem that governed the hints and whether its Coverage
+ * row replaced the wording's candidates (read from `guidedSelectionHints`' `hintsGameProblem`, null where it returned none);
+ * `lensCandidateIds` and `hintsSignals`, the lens candidates and the matched signals of the hints handed to the selector, read from them.
+ */
+export interface ConsumedRecord {
+    formCandidatesScored: string[]
+    formCandidatesFrom: 'SELECTION_TRACE_RANKING' | 'CANDIDATES_HANDED_TO_SELECTOR'
+    form: UpstreamDecisions['gameForm']
+    constraintAuthority: ConstraintAuthority
+    constraintCandidateIds: string[]
+    quotaBypass: boolean
+    hintsGameProblemId: string | null
+    hintsGoverned: boolean | null
+    lensCandidateIds: string[]
+    hintsSignals: string[]
+    /** Stage W1 (b): the review pathway's K2 result as consumed (its rule and limit carried into the account), or null where a record governed. */
+    reviewManipulations: ReviewManipulations | null
+    /** Stage W1 (c1): where the lens candidates came from: the hints as Step 1's Game Problem governed them, or its Coverage row (the treatment). */
+    hintsLensesFrom: 'GOVERNED_HINTS' | 'STEP1_COVERAGE_ROW'
+    /** Stage W2 (E3): present (true) only where the treatment FOUNDATION_PRESENCE_BYPASS was handed on. */
+    foundationPresenceBypass?: true
+}
+
+/** TEST-ONLY: an upstream object missing what the consumption reads is refused, never read partly. */
+function upstreamRefusals(upstream: UpstreamDecisions): string[] {
+    const filled = (value: unknown) => typeof value === 'string' && value.trim().length > 0
+    const errors: string[] = []
+    if (!filled(upstream?.gameProblem?.gameProblemId) || !filled(upstream?.gameProblem?.label)) errors.push(`Step 1's Game Problem and its label`)
+    if (!['APPROVED_TRANSLATION', 'SCOPED_RULING'].includes(upstream?.gameProblem?.step1Basis as string)) errors.push(`Step 1's basis (APPROVED_TRANSLATION or SCOPED_RULING)`)
+    if (!filled(upstream?.gameForm?.formId) || !filled(upstream?.gameForm?.standing)) errors.push(`Step 2's form and its standing words`)
+    if (!Array.isArray(upstream?.gameForm?.cells) || !upstream.gameForm.cells.length || !upstream.gameForm.cells.every(c => filled(c?.cell) && filled(c?.grade))) errors.push('the grade of every cell the form rests on')
+    if (upstream?.quotaBypass !== undefined && typeof upstream.quotaBypass !== 'boolean') errors.push('quotaBypass as a boolean')
+    const k2 = upstream?.reviewManipulations
+    if (k2 !== undefined && (k2?.basis !== 'K2_REVIEW_ONLY' || !Array.isArray(k2?.set) || !filled(k2?.rule) || !filled(k2?.limit) || !filled(k2?.cited)))
+        errors.push(`the review pathway's K2 result with its basis (K2_REVIEW_ONLY), its set, its rule, its limit and their citation`)
+    if (upstream?.coverageLenses !== undefined && typeof upstream.coverageLenses !== 'boolean') errors.push('coverageLenses as a boolean')
+    if (upstream?.foundationPresenceBypass !== undefined && (typeof upstream.foundationPresenceBypass !== 'boolean' || (upstream.foundationPresenceBypass && upstream.quotaBypass !== true)))
+        errors.push('foundationPresenceBypass as a boolean, true only beside quotaBypass')
+    // Stage B1 (TEST-ONLY): a PROPOSED configuration is read only whole: its contract `proposed:<id>` labelled PROPOSED, every item PROPOSED or
+    // ILLUSTRATIVE, its roles and the treatment that hands it in; beside K2's result only (never beside a record or the quota bypass).
+    const proposed = upstream?.proposedRealization
+    if (proposed !== undefined) {
+        const r: any = proposed?.realization
+        const items: any[] = Array.isArray(r?.items) ? r.items : []
+        if (!r || typeof r.contractId !== 'string' || r.contractId !== `proposed:${String(r.provisionalId)}` || r.category !== PROPOSED || !items.length || !items.every(i => i?.category === PROPOSED || i?.category === ILLUSTRATIVE))
+            errors.push(`a PROPOSED configuration whole: its contract proposed:<id> labelled ${PROPOSED}, and every item labelled ${PROPOSED} or ${ILLUSTRATIVE}`)
+        if (!Array.isArray(proposed?.roles) || !proposed.roles.length || !proposed.roles.every(x => filled(x?.token) && (x.noun === null || filled(x.noun)))) errors.push('the roles of the PROPOSED configuration (each a token, with a noun or null)')
+        if (!filled(proposed?.treatmentId)) errors.push('the treatment that hands the PROPOSED configuration in')
+        if (proposed?.pending !== undefined && !filled(proposed.pending?.treatmentId)) errors.push('the treatment PROPOSED_PENDING, named, where it is handed')
+        if (!upstream.reviewManipulations || upstream.quotaBypass === true) errors.push(`a PROPOSED configuration only beside the review pathway's K2 result (never beside the quota bypass)`)
+    }
+    return errors
+}
+
+/**
+ * TEST-ONLY (stage W1 (b)): what K2's result may never be consumed with, each refused in its own words: a non-empty set (K2 yields no
+ * manipulation), the quota bypass (it is for a record's evaluated set only), and a record governing the goal (K2 stands in place of a record,
+ * never beside one).
+ */
+function reviewManipulationRefusals(goalId: string, k2: ReviewManipulations, quotaBypass: boolean, record: LearningGoalAuthorization | null): string | null {
+    if (k2.set.length) return `${goalId}: the review pathway's K2 result is consumed only as the empty set (K2 retains the form without additional manipulation and authorizes none), and this one names ${k2.set.join(', ')}`
+    if (quotaBypass) return `${goalId}: the TEST-ONLY quota bypass is honoured only for an authorization record's evaluated set, never beside the review pathway's K2 result`
+    if (record) return `${goalId}: the review pathway's K2 result is consumed only in place of a per-goal authorization record, and a record governs this goal (${record.learningGoalId}, ${record.knowledgeStatus === 'DRAFT' ? 'a DRAFT record' : 'a record'})`
+    return null
 }
 
 /**
@@ -193,6 +351,9 @@ export const CONTEXT_ROLE = 'representative performance context'
  * `selectFor` so the builder can refuse at `selection` with a filled account.
  */
 export class GoalSelectionGap extends Error {
+    /** TEST-ONLY (A02 experiment, S1(a) and S1(e)): set only where selection consumed upstream decisions; never set on a production gap. */
+    declare readonly consumedGameProblem?: ConsumedGameProblem
+    declare readonly consumed?: ConsumedRecord
     constructor(
         readonly gap: SelectionKnowledgeGap,
         readonly goalName: string,
@@ -200,9 +361,12 @@ export class GoalSelectionGap extends Error {
         readonly contextId: string | null,
         /** The authorization record selection consulted (15 October 2026), or null where the goal has none. */
         readonly authorization: LearningGoalAuthorization | null = null,
+        /** TEST-ONLY (A02 experiment): what selection consumed from upstream; absent on every production call. */
+        upstreamConsumed?: { consumedGameProblem: ConsumedGameProblem; consumed: ConsumedRecord },
     ) {
         super(gap.message)
         this.name = 'GoalSelectionGap'
+        if (upstreamConsumed) Object.assign(this, { consumedGameProblem: upstreamConsumed.consumedGameProblem, consumed: upstreamConsumed.consumed })
     }
 }
 
@@ -220,10 +384,20 @@ export function selectFor(
      * B2, TEST-ONLY: the draft store's contracts, and that its DRAFT records are admitted (`validateLearningGoalAuthorizations`
      * `draftsAdmitted`). Absent on every production call, which selects exactly as before.
      */
-    drafts?: { contracts: LoadedContract[]; draftsAdmitted: true },
+    drafts?: { contracts: LoadedContract[]; draftsAdmitted: true; registerOverlay?: RegisterOverlay },
+    /**
+     * TEST-ONLY (the isolated A02 experiment, `UpstreamDecisions`): Step 1's Game Problem and Step 2's form, consumed; and the boolean that
+     * bypasses the size rule. Handed only by `buildActivityUnderAuthorizationRecords`'s `upstream` option. Absent on every production call,
+     * which selects exactly as before.
+     */
+    upstream?: UpstreamDecisions,
 ): BoundedSelection {
     const goal: any = sessionPlanningModel.learningGoal(goalId)
     if (!goal) throw new Error(`no such learning goal: ${goalId}`)
+    if (upstream) {
+        const refusals = upstreamRefusals(upstream)
+        if (refusals.length) throw new Error(`${goalId}: the TEST-ONLY upstream decisions are refused, they lack ${refusals.join('; ')}`)
+    }
     // The one canonical text, from the same function the application route uses (stage S-C2, 14 October 2026).
     const text = guidedGoalText(goalId)
     /**
@@ -234,14 +408,89 @@ export function selectFor(
      * coach could reach. An approved rule carried by one caller and not the other is the same loss as
      * an authored field dropped by a projection; it is closed the same way, by having one source.
      */
-    const guided = guidedSelectionHints(goalId, text, records, provisionalIds, drafts ? { draftsAdmitted: true } : {})
+    // TEST-ONLY (stage W1 (a)): with upstream decisions, Step 1's Game Problem governs the Game-Problem-dependent hints; without, nothing is added.
+    const guided = guidedSelectionHints(goalId, text, records, provisionalIds, { ...(drafts ? { draftsAdmitted: true } : {}), ...(upstream ? { step1GameProblemId: upstream.gameProblem.gameProblemId, ...(upstream.coverageLenses === true ? { coverageLenses: true } : {}) } : {}) })
+    /**
+     * TEST-ONLY (A02 experiment, S1(b) and S1(c)): with upstream decisions, the candidate forms are the context-gated list FILTERED to Step 2's
+     * form, an intersection and never a replacement, so a form the routed context does not declare is refused here in its own words; and the
+     * constraints come only from the goal's authorization record (the record route, held to the record gate above), never from the
+     * vocabulary pool. Without upstream decisions the hints are the guided hints, unchanged.
+     */
+    let hints = guided.hints
+    if (upstream) {
+        const formId = upstream.gameForm.formId
+        if (!guided.contextId) throw new Error(`${goalId}: Step 2's form ${formId} is filtered to the routed context's declared forms, and the goal routes to no context`)
+        const gated: string[] = [...(guided.hints.candidateArchetypeIds ?? [])]
+        const kept = gated.filter(id => id === formId)
+        if (!kept.length) throw new Error(`${goalId}: Step 2's form ${formId} is not among the routed context's declared forms ${gated.join(', ')}`)
+        const k2 = upstream.reviewManipulations
+        if (k2) {
+            /*
+             * TEST-ONLY (stage W1 (b), 11 November 2026): the review pathway's K2 result in place of a per-goal authorization record. Christian,
+             * received 3 November 2026: "For the new reasoning stage, an approved Game Problem and context, supported by governed relationships and
+             * passing the required validation, should be sufficient to authorize a design package for review."; and K2, approved for review-only
+             * use (received 7 November 2026, first reply): "A compatible Game Form may be retained without additional manipulation when no such
+             * manipulation has an authorized basis." So the candidates are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled
+             * AUTHORIZATION_RECORD), read under the one recorded principle of 15 October 2026 so the zero branch commits the form alone.
+             */
+            const refused = reviewManipulationRefusals(goalId, k2, upstream.quotaBypass === true, guided.authorization)
+            if (refused) throw new Error(refused)
+            // Stage B1 (TEST-ONLY): a PROPOSED configuration realizes the routed context, and is read over the draft store that restates it.
+            const proposed = upstream.proposedRealization
+            if (proposed && proposed.realization.realizes !== guided.contextId) throw new Error(`${goalId}: the PROPOSED configuration ${proposed.realization.contractId} realizes ${proposed.realization.realizes}, and the goal routes to ${guided.contextId}`)
+            if (proposed && !drafts) throw new Error(`${goalId}: the PROPOSED configuration ${proposed.realization.contractId} is read only over the TEST-ONLY draft store that restates its context`)
+            const principle = libraryConstraintPrinciple()
+            hints = {
+                ...guided.hints,
+                candidateArchetypeIds: kept,
+                candidateConstraintIds: [],
+                constraintAuthority: { authority: 'REVIEW_PATHWAY_K2', learningGoalId: goalId, constraintPrinciple: { ruledOn: principle.ruledOn, by: principle.by, principle: principle.principle } },
+            }
+        } else {
+            if (guided.hints.constraintAuthority?.authority !== 'AUTHORIZATION_RECORD' || !guided.authorization) {
+                throw new Error(`${goalId}: with upstream decisions the constraints come only from the goal's authorization record (the record route), and no record governs this goal, so its pool would be vocabulary-derived`)
+            }
+            hints = { ...guided.hints, candidateArchetypeIds: kept }
+        }
+    }
+    const consumedGameProblem: ConsumedGameProblem | null = upstream
+        ? { gameProblemId: upstream.gameProblem.gameProblemId, step1Basis: upstream.gameProblem.step1Basis, label: upstream.gameProblem.label, source: 'Step 1 (review pathway)' }
+        : null
+    const consumedFrom = (formCandidatesScored: string[], formCandidatesFrom: ConsumedRecord['formCandidatesFrom'], pool: ConstraintPoolAccount): ConsumedRecord => ({
+        formCandidatesScored: [...formCandidatesScored],
+        formCandidatesFrom,
+        form: JSON.parse(JSON.stringify(upstream!.gameForm)),
+        constraintAuthority: pool.constraintAuthority,
+        constraintCandidateIds: [...pool.candidateIds],
+        quotaBypass: upstream!.quotaBypass === true,
+        // Stage W1 (a): which Game Problem governed the hints, and the hints handed to the selector, read from them (never from the request).
+        hintsGameProblemId: guided.hintsGameProblem?.gameProblemId ?? null,
+        hintsGoverned: guided.hintsGameProblem ? guided.hintsGameProblem.governed : null,
+        lensCandidateIds: [...(hints.candidateAffordanceLensIds ?? [])],
+        hintsSignals: [...(hints.matchedSignals ?? [])],
+        // Stage W1 (b): K2's result as consumed, its rule and limit carried into the account; null where a record governed.
+        reviewManipulations: upstream!.reviewManipulations ? (JSON.parse(JSON.stringify(upstream!.reviewManipulations)) as ReviewManipulations) : null,
+        // Stage W1 (c1): the treatment GP_COVERAGE_LENSES, where it was handed on.
+        hintsLensesFrom: upstream!.coverageLenses === true ? 'STEP1_COVERAGE_ROW' : 'GOVERNED_HINTS',
+        // Stage W2 (E3): the treatment FOUNDATION_PRESENCE_BYPASS, recorded only where it was handed on.
+        ...(upstream!.foundationPresenceBypass === true ? { foundationPresenceBypass: true as const } : {}),
+    })
     let result: any
     try {
-        result = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, guided.hints)
+        result = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, hints, upstream?.quotaBypass === true, upstream?.foundationPresenceBypass === true)
     } catch (error) {
         // A knowledge gap is reported WITH what this boundary alone knows — the goal's Game Problem authority
         // and its context — so the account of the refusal is filled from the same computation, not a second one.
-        if (isSelectionKnowledgeGap(error)) throw new GoalSelectionGap(error, String(goal['Learning Goal']), guided.gameProblem, guided.contextId, guided.authorization)
+        if (isSelectionKnowledgeGap(error)) {
+            throw new GoalSelectionGap(
+                error,
+                String(goal['Learning Goal']),
+                guided.gameProblem,
+                guided.contextId,
+                guided.authorization,
+                consumedGameProblem ? { consumedGameProblem, consumed: consumedFrom(hints.candidateArchetypeIds ?? [], 'CANDIDATES_HANDED_TO_SELECTOR', error.pool) } : undefined,
+            )
+        }
         throw error
     }
 
@@ -313,7 +562,9 @@ export function selectFor(
         selected,
         ...contractCoverage(selected, drafts?.contracts ?? []),
         // B2, TEST-ONLY: carried so every later reader of this selection (derivation's input, its stamp) reads the same draft contracts.
-        ...(drafts ? { draftContracts: JSON.parse(JSON.stringify(drafts.contracts)) as LoadedContract[] } : {}),
+        ...(drafts ? { draftContracts: JSON.parse(JSON.stringify(drafts.contracts)) as LoadedContract[] } : {}), ...(drafts?.registerOverlay ? { draftRegisterOverlay: JSON.parse(JSON.stringify(drafts.registerOverlay)) as RegisterOverlay } : {}), // W4 (TEST-ONLY): the overlay only of a carrier-composed store
+        // Stage B1 (TEST-ONLY): a PROPOSED configuration is this selection's realization (never a record's), and its roles join the overlay.
+        ...(upstream?.proposedRealization ? { realization: JSON.parse(JSON.stringify(upstream.proposedRealization.realization)) as ProvisionalRealization, draftRegisterOverlay: withProposedRoles(drafts?.registerOverlay, upstream.proposedRealization) } : {}),
         practiceSituations: (sessionPlanningModel.practiceSituationsFor(goalId) as any[]).map(p => ({ id: p.ID, name: p['Practice Situation'] })),
         chosenSituation,
         gameProblem: guided.gameProblem,
@@ -321,6 +572,17 @@ export function selectFor(
         constraintPool: result.selectionTrace.constraintPool as ConstraintPoolAccount,
         constraintAuthority: (result.selectionTrace.constraintPool as ConstraintPoolAccount).constraintAuthority,
         authorization: guided.authorization,
+        // TEST-ONLY (A02 experiment, S1(a) and S1(e)): only where upstream decisions were consumed; absent on every production selection.
+        ...(consumedGameProblem
+            ? {
+                  consumedGameProblem,
+                  consumed: consumedFrom(
+                      ((result.selectionTrace.ranking?.archetypes ?? []) as { id: string }[]).map(entry => String(entry.id)),
+                      'SELECTION_TRACE_RANKING',
+                      result.selectionTrace.constraintPool as ConstraintPoolAccount,
+                  ),
+              }
+            : {}),
     }
 }
 
@@ -330,7 +592,7 @@ export function selectFor(
  * It reads only WHICH objects were selected, so it takes exactly that — a goal's selection and a mechanism
  * demonstration's are the same thing to derivation, which has never known what a goal is.
  */
-export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected' | 'authorization' | 'realization' | 'draftContracts'>): DerivationInput {
+export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected' | 'authorization' | 'realization' | 'draftContracts' | 'draftRegisterOverlay'>): DerivationInput {
     const wanted = new Set(selection.selected.map(s => key(s.id)))
     /**
      * **His provisional realization joins only where the goal's record names it** — 15 October 2026 (stage K2). Christian,
@@ -370,7 +632,7 @@ export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected
         // different player count, a script trying a second area — silently changed every later run in
         // the process. A session envelope is session input; two runs do not share one.
         envelope: JSON.parse(JSON.stringify(CORPUS_ENVELOPE)),
-        register: loadRegister(),
+        register: registerWith(loadRegister(), selection.draftRegisterOverlay), // W4 (TEST-ONLY): a copy only where the selection carries an overlay; the register itself otherwise
         derivationRules: { version: 'rev-5' },
     }
 }
@@ -442,4 +704,80 @@ if (runAsScript) {
         byRow.set(row, (byRow.get(row) ?? 0) + 1)
     }
     for (const [row, n] of [...byRow.entries()].sort((a, b) => b[1] - a[1])) console.log(`  ${String(n).padStart(3)}  ${row}`)
+}
+
+/**
+ * **TEST-ONLY: the ILLUSTRATIVE episode scopes a draft store's carriers name** — stage W4 of the foundational package (U2 b1), 11 November 2026.
+ * Set only on a draft store the TEST-ONLY draft store module composed with carriers (`DraftStoreContents.registerOverlay`), carried by the
+ * selection (`KnowledgeSelection.draftRegisterOverlay`); `derivationInputFor` then derives over a COPY of the register with each scope added to
+ * `contractEnums.scope` and listed in `contractEnums.illustrativeEpisodeScope` (read by the gates' `episodeScopesOf`). The register file is never
+ * written, and every production selection carries no overlay, so it derives over the register itself, exactly as before.
+ */
+export interface RegisterOverlay {
+    episodeScopes: string[]
+    treatmentId: string
+    /**
+     * Stage B1 of the A02 complete-activity package (TEST-ONLY): the role vocabulary of the copy, in order, for a PROPOSED configuration
+     * (`ProposedRealizationHandoff`): a token the register holds keeps its noun (null here); a token it does not hold comes with the noun the
+     * configuration proposes. `registerWith` writes them to the copy's role vocabulary and coach nouns only, and stamps its version.
+     */
+    roles?: { token: string; noun: string | null }[]
+    rolesTreatmentId?: string
+}
+
+/** TEST-ONLY (stage B1): the overlay a PROPOSED configuration's selection derives over: the store's own (its episode scopes), with the roles. */
+function withProposedRoles(overlay: RegisterOverlay | undefined, proposed: ProposedRealizationHandoff): RegisterOverlay {
+    const base: RegisterOverlay = overlay ? (JSON.parse(JSON.stringify(overlay)) as RegisterOverlay) : { episodeScopes: [], treatmentId: '' }
+    return { ...base, roles: proposed.roles.map(role => ({ token: role.token, noun: role.noun })), rolesTreatmentId: proposed.treatmentId }
+}
+
+/** TEST-ONLY (W4): the ILLUSTRATIVE carriers one treatment added to a draft store (`DraftStoreContents.illustrative`), in the order applied. */
+export interface IllustrativeCarriersAdded {
+    treatmentId: string
+    file: string
+    groups: string[]
+    items: string[]
+    setsAsideChoices: string[]
+}
+
+/**
+ * TEST-ONLY (W4): the register copy a build derives over, with the overlay's episode scopes; the register object itself where there is none. The
+ * version is stamped so a game derived over a copy is never digested as one derived over the file.
+ */
+export function registerWith(register: any, overlay: RegisterOverlay | undefined): any {
+    if (!overlay) return register
+    const copy = JSON.parse(JSON.stringify(register))
+    const enums = copy.vocabularies?.contractEnums ?? copy.contractEnums
+    if (!enums || !Array.isArray(enums.scope)) throw new Error('the register holds no contractEnums.scope to add an ILLUSTRATIVE episode scope to')
+    for (const scope of overlay.episodeScopes) {
+        if (enums.scope.includes(scope)) throw new Error(`the ILLUSTRATIVE episode scope ${scope} is already a scope of the register`)
+        enums.scope.push(scope)
+    }
+    const stamps: string[] = []
+    if (overlay.episodeScopes.length) {
+        enums.illustrativeEpisodeScope = [...overlay.episodeScopes]
+        stamps.push(`+ILLUSTRATIVE(${overlay.treatmentId})`)
+    }
+    /*
+     * Stage B1 (TEST-ONLY): a PROPOSED configuration's roles, on the copy only: the role vocabulary the register's role-block block names becomes
+     * the configuration's tokens, in order, and each new token's coach noun is the one proposed (CANDIDATE); a token the register holds keeps
+     * its noun. A new token the register already holds, a held token given another noun, or a vocabulary that is not two roles is refused.
+     */
+    if (overlay.roles) {
+        const block = copy.roleBlocks
+        const name = String(block?.roleVocabulary ?? '')
+        const held: string[] = Array.isArray(copy.vocabularies?.[name]) ? copy.vocabularies[name].map(String) : []
+        if (!block || !held.length) throw new Error('the register holds no role vocabulary for a PROPOSED configuration\'s roles')
+        if (overlay.roles.length !== 2 || new Set(overlay.roles.map(role => role.token)).size !== 2) throw new Error('a PROPOSED configuration names exactly two roles, one per team')
+        for (const role of overlay.roles) {
+            if (held.includes(role.token) && role.noun !== null) throw new Error(`the role ${role.token} is held by the register, so it keeps the register's noun`)
+            if (!held.includes(role.token) && !(typeof role.noun === 'string' && role.noun.trim())) throw new Error(`the role ${role.token} is not held by the register, so it comes with the noun proposed for it`)
+        }
+        copy.vocabularies[name] = overlay.roles.map(role => role.token)
+        const nouns = { ...(block.coachNouns?.nouns ?? {}) }
+        block.coachNouns = { ...(block.coachNouns ?? {}), nouns: Object.fromEntries(overlay.roles.map(role => [role.token, role.noun ?? String(nouns[role.token])])) }
+        stamps.push(`+PROPOSED(${overlay.rolesTreatmentId ?? overlay.treatmentId})`)
+    }
+    copy.version = `${String(register.version)}${stamps.join('')}`
+    return copy
 }

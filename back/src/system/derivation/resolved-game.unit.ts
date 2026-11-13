@@ -244,10 +244,14 @@ test('the declarations reaching a row travel with the line, because a reason cod
     // **Six since 15 October 2026 (stage K1, C55).** The origin's value line, RPC-001-18.a::V6, is decided by RPC-001's
     // explicit "no further value" (his 9.9) beside the Neutral Player Condition's exclusion — 'excluded' — where the
     // whole row would read GF2's deferring gap. governing-declarations.unit.ts pins the move and that nothing else moved.
+    //
+    // **Five since 7 November 2026 (Decision 2; RE-PINNED, measured: 'c:blind:GF4:I17::V9' left the list, the other five are
+    // unchanged).** Christian's reply received 7 November 2026, section 2, Decision 2: "Illustrative incentive examples should not be
+    // interpreted as mandatory structural requirements." GF4's I17 is restated TYPICAL_EXAMPLE (SD-59), so it establishes no value
+    // modifier and its V9 line no longer exists; gf4-example-incentives.unit.ts pins the correction.
     const moved = unestablished.filter(e => am23(e.declared) !== e.reason).map(e => e.lineId).sort()
     assert.deepEqual(moved, [
         'c:blind:GF4:I03::S4',
-        'c:blind:GF4:I17::V9',
         'c:restated:GF2:GF2-03.e::S4',
         'c:restated:GF2:GF2-03.f::S4',
         'c:restated:RPC-001:RPC-001-18.a::V6',

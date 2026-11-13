@@ -1008,7 +1008,15 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * restarts after a dead ball. One game-level row, one line (game::RP1), as B10 added one; no corpus item writes it, so it is unauthored
      * and unspoken and the game keeps a restart per trigger (absent means PER_TRIGGER). Nothing resolves and nothing blocks.
      */
-    assert.equal(result.run.counts.lines, 150)
+    /**
+     * **143 since 7 November 2026 (Decision 2, GF4's example incentives; RE-PINNED 150 -> 143, measured).** Christian's reply received
+     * 7 November 2026, section 2, Decision 2: "Illustrative incentive examples should not be interpreted as mandatory structural
+     * requirements." GF4's I17 is restated TYPICAL_EXAMPLE (SD-59), and GF4's V7, V8b and V9 claims, which rested only on the example
+     * items, are restated NON_CLAIMED (corpus-restatements.json; contracts.json untouched). So I17 establishes no value modifier, and the
+     * seven lines it owned (V8a, V8b, V8c, V8d, V9, V9a, V10) go with it: 150 - 7 = 143. The value-modifier note of 7 October above (131)
+     * is history: the corpus now holds one value-modifier class, Wide Zone's. gf4-example-incentives.unit.ts pins the correction.
+     */
+    assert.equal(result.run.counts.lines, 143)
     /**
      * **61, up from 59.** The same restatement establishes `perceptual-reference` on BOTH channels rather
      * than on a third region of its own, so two S4 lines now resolve where none did. The functions rows
@@ -1037,7 +1045,10 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // **73 since stage K5, 15 October 2026 (C58).** His 18 October acknowledgement types the build-out origin's referent
     // (RPC-001-18.b) as one begin-condition referent, so 18.a::V5 entails it; it was an open choice between two placement
     // texts.
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 73)
+    // **72 since 7 November 2026 (Decision 2; RE-PINNED 73 -> 72, measured).** The one entailed line of GF4's example-only modifier,
+    // c:blind:GF4:I17::V8a (its condition type), goes with the modifier: Christian's reply received 7 November 2026, section 2,
+    // Decision 2, restating I17 TYPICAL_EXAMPLE (SD-59).
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 72)
     // **NOT_AUTHORED fell 54 → 26 across the 29 September rulings, and only five of those twenty-eight
     // were closed by authoring anything.**
     //   −9  T1a/T1b/T1c demanded of three POSSESSION_CHANGE transitions. A turnover has no last touch
@@ -1084,9 +1095,13 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // **37 since R1, 24 October 2026 (register version 23).** The game-level row RP1 (how play restarts after a dead ball): no corpus item
     // writes it, so game::RP1 is unauthored and unspoken ('no coverage'), and the game keeps a restart per trigger; it blocks nothing
     // (GA-DEAD-BALL-RESTART is vacuous where nothing writes the policy).
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 37)
+    // **31 since 7 November 2026 (Decision 2; RE-PINNED 37 -> 31, measured).** The six unauthored lines of GF4's example-only modifier
+    // leave with it: c:blind:GF4:I17::V8b ('excluded'), V8c, V8d and V9a ('no coverage'), V9 ('claimed but unresolved', the one that
+    // blocked) and V10 ('not constrained'). Christian's reply received 7 November 2026, section 2, Decision 2: "Illustrative incentive
+    // examples should not be interpreted as mandatory structural requirements." The 7 October note above (27) is history.
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 31)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 37, 'one GAP per unauthored line, and none for a withdrawn one -- 37 since R1 (RP1), tracking the NOT_AUTHORED count above')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 31, 'one GAP per unauthored line, and none for a withdrawn one -- 31 since Decision 2 of 7 November 2026 (37 before: the six I17 lines left), tracking the NOT_AUTHORED count above')
     // 17 since C33: the removed third region took its one open S5 line (a channel along-extent) with it.
     // **18 since ruling C42.** The two new target regions each bring an open across-extent and an open noun,
     // and the retired shared target took its two with it, so the balance is one more than before.
