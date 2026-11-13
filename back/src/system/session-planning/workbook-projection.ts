@@ -21,7 +21,8 @@
  * numFmtId 0 throughout) and each would project differently here than there. So a formula, a non-integer
  * number, a number in a non-general format, a boolean/error/formula-string cell, a ZIP64 or data-descriptor
  * archive and a CRC mismatch each throw, naming what was found. Shared strings (t="s") are read, because an
- * Excel-saved revision will use them.
+ * Excel-saved revision will use them. A boolean is read only by a reader opened with `{ booleans: true }`
+ * (11 November 2026, for the RPC workbook's Metadata sheet; see ReadOptions).
  */
 import { inflateRawSync } from 'zlib'
 
@@ -153,7 +154,18 @@ export function readStyleNumberFormats(xml: string | null): number[] {
     return [...block[1].matchAll(/<xf\b([^>]*?)\/?>/g)].map(match => Number(xmlAttributes(match[1]).numFmtId ?? 0))
 }
 
-export type CellValue = string | number | null
+export type CellValue = string | number | boolean | null
+
+/**
+ * What a reader may read beyond plain strings and integers. `booleans` (added 11 November 2026): a t="b" cell holding 1 or 0 is
+ * read as true or false, as openpyxl reads it (`bool(int(value))`) and json.dump writes it; any other content is refused, and a
+ * t="b" cell with no value is empty. Off by default, so every reader that refused a boolean before still does: the Session
+ * Planning Model holds none. The RPC workbook's Metadata sheet holds 27 (its `required` column and `schema_frozen`), and
+ * without this its table, which carries the `runtime_status` the live route gates on, could not be compared with the library.
+ */
+export interface ReadOptions {
+    booleans?: boolean
+}
 
 /** One-based column number of a cell reference: A1 → 1, AA7 → 27. */
 export function columnOf(reference: string): number {
@@ -166,9 +178,10 @@ export function columnOf(reference: string): number {
 
 /**
  * One worksheet's cells, as row → column → value. Rows and cells absent from the XML are simply absent.
- * Every cell type openpyxl would read differently from a plain string or integer is refused, named.
+ * Every cell type openpyxl would read differently from a plain string or integer is refused, named; a boolean is read only
+ * when `options.booleans` asks for it.
  */
-export function readSheetCells(xml: string, sharedStrings: string[] = [], numberFormats: number[] = []): Map<number, Map<number, CellValue>> {
+export function readSheetCells(xml: string, sharedStrings: string[] = [], numberFormats: number[] = [], options: ReadOptions = {}): Map<number, Map<number, CellValue>> {
     if (/<[A-Za-z]\w*:worksheet\b/.test(xml)) throw new Error('workbook: a namespace-prefixed worksheet is not read')
     const rows = new Map<number, Map<number, CellValue>>()
     const sheetData = xml.match(/<sheetData\b[^>]*?(?:\/>|>([\s\S]*?)<\/sheetData>)/)
@@ -193,6 +206,10 @@ export function readSheetCells(xml: string, sharedStrings: string[] = [], number
                 const index = Number(v?.[1])
                 if (!v || !Number.isInteger(index) || index < 0 || index >= sharedStrings.length) throw new Error(`workbook: ${reference} names shared string ${v?.[1]}, which does not exist`)
                 value = sharedStrings[index]
+            } else if (type === 'b' && options.booleans) {
+                if (!v) value = null
+                else if (v[1] === '1' || v[1] === '0') value = v[1] === '1'
+                else throw new Error(`workbook: ${reference} is a boolean holding "${v[1]}", which is refused`)
             } else if (type === 'n') {
                 if (!v) {
                     value = null
@@ -221,7 +238,7 @@ export interface WorkbookReader {
     cells: (sheetName: string) => Map<number, Map<number, CellValue>>
 }
 
-export function openWorkbook(zip: Buffer): WorkbookReader {
+export function openWorkbook(zip: Buffer, options: ReadOptions = {}): WorkbookReader {
     const entries = new Map(readZipEntries(zip).map(entry => [entry.name, entry]))
     const read = (name: string): string | null => {
         const entry = entries.get(name)
@@ -251,7 +268,7 @@ export function openWorkbook(zip: Buffer): WorkbookReader {
             const target = sheets.get(sheetName)
             const xml = target ? read(target) : null
             if (!xml) throw new Error(`workbook: sheet "${sheetName}" is missing`)
-            return readSheetCells(xml, sharedStrings, numberFormats)
+            return readSheetCells(xml, sharedStrings, numberFormats, options)
         },
     }
 }
