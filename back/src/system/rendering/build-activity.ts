@@ -160,7 +160,7 @@ export interface ActivityAccount {
      * **Each constraint selection committed and did not apply** (12 November 2026), with the existing package rule that left it out and the
      * member kept, READ from the selection (`BoundedSelection.constraintsNotApplied`). Christian, received 12 November 2026: the system must
      * distinguish "Constraints considered or eligible." "Constraints actually selected for application." "Constraints validated." "Constraints
-     * included in the final activity." `constraints` above lists those applied; these were considered and not used. Present only where there
+     * included in the final activity." `constraints` above lists those applied; these were committed and not applied. Present only where there
      * is one, so every other account is exactly what it was. Technical account only, never coach-facing.
      */
     constraintsNotApplied?: ConstraintNotApplied[]

@@ -39,7 +39,7 @@ import { liveSelectionFor } from '../rendering/live-activity'
 import { specializedRoleNames } from '../rendering/session-envelope'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { guidedGoalText, guidedSelectionHints } from '../sport-module/guided-selection'
-import { constraintBalanceBucket, generateSelection, isSelectionKnowledgeGap, SelectionKnowledgeGap } from './generateSelection'
+import { authorizedIdsNotInPool, constraintBalanceBucket, constraintPoolFor, generateSelection, isSelectionKnowledgeGap, SelectionKnowledgeGap } from './generateSelection'
 import { LearningGoalAuthorization, learningGoalAuthorizations, validateLearningGoalAuthorizations } from './learning-goal-authorizations'
 import { testLibraryRegistry } from './library/registry'
 import { ABSENT_MEMBER_WORDS } from './selection-compatibility'
@@ -218,7 +218,7 @@ check('T2 nothing disappears', () => {
             }
         }
     }
-    // The ranking marks as selected exactly the constraints applied (its documented meaning: "chosen for the final activity").
+    // The ranking marks as selected exactly the constraints applied (its documented meaning: 'chosen for the final activity').
     for (const [what, selection] of everySelection) {
         const marked = selection.selectionTrace.ranking.constraints.filter(entry => entry.selected).map(entry => entry.id).sort()
         assert.deepEqual(marked, selection.constraints.map(constraint => constraint.id).sort(), `${what}: the ranking's selected marks`)
@@ -341,7 +341,7 @@ check('T5 a jointly required set is refused, never reduced', () => {
     assert.ok((reducible as SelectionKnowledgeGap).message.includes('"Turnover Reward"'), (reducible as SelectionKnowledgeGap).message)
     assert.deepEqual(sorted(asEligible(REDUCIBLE).selectionTrace.committedConstraints), sorted([c('central-density-condition'), c('counter-press-window')]), 'as eligible alternatives the strict subset is committed')
     /*
-     * (e) "Where one exists, a set whose strict subset would win the commit is committed whole": measured over every set of one per role and
+     * (e) 'Where one exists, a set whose strict subset would win the commit is committed whole': measured over every set of one per role and
      * every pair of foundation with shaping or consequence on this copy (345 sets, 149 of them admitted whole), none exists: wherever the
      * whole set is admitted, the eligible reading commits the whole set too. Reported, not pinned (a 345-set loop is too slow for the suite).
      */
@@ -350,19 +350,36 @@ check('T5 a jointly required set is refused, never reduced', () => {
     // validator matches by knowledge key and admits the copy; the pool matches exact ids, so before this check the member fell out and the two
     // left were committed as the whole set on both routes, with nothing recorded as not applied. Now the set is refused naming the member,
     // with the same gap on the review route; the library spelling of the same three is committed whole, as in (a).
+    // Each spelling is checked on its own and every failure is collected before the assertion, so a break shows each spelling that is no
+    // longer refused, not only the first (13 November 2026, from the VL2 verification, note N4).
+    const aliasFailures: string[] = []
     for (const alias of ['blind:PROGRESSION-BONUS', 'PROGRESSION-BONUS']) {
-        const ALIASED = [c('central-density-condition'), c('counter-press-window'), alias]
-        const errors = validateLearningGoalAuthorizations(recordsWith(ALIASED)).filter(error => error.startsWith(`${GOAL}:`))
-        assert.deepEqual(errors, [], `${alias}: the record validator admits the copy (it matches by knowledge key), so only selection can refuse it`)
-        const aliased = liveWith(ALIASED)
-        assert.ok(isSelectionKnowledgeGap(aliased), `${alias}: refused whole, not reduced: ${JSON.stringify(isSelectionKnowledgeGap(aliased) ? null : (aliased as TestLibrarySelectionResult).selectionTrace.committedConstraints)}`)
-        const gap = aliased as SelectionKnowledgeGap
-        assert.equal(gap.reason, 'NO_COMPATIBLE_COMBINATION', `${alias}: the reason`)
-        assert.ok(gap.message.includes(`"${alias}" is authorized by the record and not in the selectable library under that spelling`), gap.message)
-        assert.ok(gap.message.includes('taken whole or refused, never reduced'), gap.message)
-        const aliasedReview = reviewWith(ALIASED)
-        assert.ok(aliasedReview instanceof GoalSelectionGap && aliasedReview.gap.message === gap.message, `${alias}: the review route refuses it with the same gap`)
+        try {
+            const ALIASED = [c('central-density-condition'), c('counter-press-window'), alias]
+            const errors = validateLearningGoalAuthorizations(recordsWith(ALIASED)).filter(error => error.startsWith(`${GOAL}:`))
+            assert.deepEqual(errors, [], `${alias}: the record validator admits the copy (it matches by knowledge key), so only selection can refuse it`)
+            const aliased = liveWith(ALIASED)
+            assert.ok(isSelectionKnowledgeGap(aliased), `${alias}: refused whole, not reduced: ${JSON.stringify(isSelectionKnowledgeGap(aliased) ? null : (aliased as TestLibrarySelectionResult).selectionTrace.committedConstraints)}`)
+            const gap = aliased as SelectionKnowledgeGap
+            assert.equal(gap.reason, 'NO_COMPATIBLE_COMBINATION', `${alias}: the reason`)
+            assert.ok(gap.message.includes(`"${alias}" is authorized by the record and not in the selectable library under that spelling`), gap.message)
+            assert.ok(gap.message.includes('taken whole or refused, never reduced'), gap.message)
+            const aliasedReview = reviewWith(ALIASED)
+            assert.ok(aliasedReview instanceof GoalSelectionGap && aliasedReview.gap.message === gap.message, `${alias}: the review route refuses it with the same gap`)
+        } catch (error) {
+            aliasFailures.push(`${alias}: ${(error as Error).message}`)
+        }
     }
+    assert.deepEqual(aliasFailures, [], `(f) ${aliasFailures.length} of 2 alias spellings not refused`)
+
+    // (g) The held exemption (13 November 2026, from the VL2 verification, note N5). An id a ruling holds is in the pool's candidates and not
+    // in its constraints, and must not be listed as authorized and not in the pool: the hold already reports it. Through the record route the
+    // records' integrity gate refuses a record authorizing a held constraint first, so the exemption is pinned here on the pool itself.
+    const HELD = c('pass-combination-gate')
+    const heldHints = { candidateArchetypeIds: [], candidateAffordanceLensIds: [], matchedSignals: [], candidateConstraintIds: [c('central-density-condition'), c('counter-press-window'), HELD, 'blind:PROGRESSION-BONUS'] }
+    const heldPool = constraintPoolFor(heldHints, GOAL)
+    assert.deepEqual(heldPool.heldByRuling.map(hold => hold.id), [HELD], '(g) the copy holds the Pass Combination Gate by ruling')
+    assert.deepEqual(authorizedIdsNotInPool(heldPool), ['blind:PROGRESSION-BONUS'], '(g) the held id is not listed; the alias is')
 
     // The production record is untouched by every copy above.
     assert.deepEqual(learningGoalAuthorizations().find(record => record.learningGoalId === GOAL)!.authorizedConstraints, [])

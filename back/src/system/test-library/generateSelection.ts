@@ -200,9 +200,10 @@ export function constraintPoolFor(hints?: InputConstraintHints | null, learningG
  * The ids a pool's candidates name that the pool does not hold under that exact spelling and no ruling holds (13 November 2026). The pool
  * keeps a candidate only where a selectable constraint has exactly its id (`constraintPoolFor`), while a hold is matched by knowledge key;
  * so an id spelled another way than the library spells it (`blind:PROGRESSION-BONUS`, `PROGRESSION-BONUS`) is in neither, and is listed
- * here. Read for an authorization record's set only (`DesignEnumerationContext.authorizedNotInPool`).
+ * here. Read for an authorization record's set only (`DesignEnumerationContext.authorizedNotInPool`). Exported only so
+ * live-selection-records.unit.ts T5 (g) can pin the held exemption.
  */
-function authorizedIdsNotInPool(pool: ConstraintPool): string[] {
+export function authorizedIdsNotInPool(pool: ConstraintPool): string[] {
     const inPool = new Set(pool.constraints.map((c) => c.id))
     const heldKeys = new Set(pool.heldByRuling.map((hold) => knowledgeKey(hold.id)))
     return pool.candidateIds.filter((id) => !inPool.has(id) && !heldKeys.has(knowledgeKey(id)))

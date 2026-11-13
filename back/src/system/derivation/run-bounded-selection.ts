@@ -156,8 +156,8 @@ export interface BoundedSelection extends KnowledgeSelection {
     /**
      * **Each constraint selection committed and the package does not hold** (12 November 2026), READ from the selection trace with the
      * existing rule that left it out and the member kept. Never in `selected` (which holds the constraints applied), so derivation, the
-     * contract coverage and the account never take one for a constraint of the game; carried so the account can say it was considered and
-     * not used, rather than drop it silently. Empty where the package holds the whole combination, and for an authorization record's set
+     * contract coverage and the account never take one for a constraint of the game; carried so the account can say it was committed and
+     * not applied, rather than drop it silently. Empty where the package holds the whole combination, and for an authorization record's set
      * (taken whole or refused).
      */
     constraintsNotApplied: ConstraintNotApplied[]

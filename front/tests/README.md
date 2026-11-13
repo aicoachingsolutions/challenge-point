@@ -49,6 +49,11 @@ A01 served body in `fixtures/a01.json`, unchanged, with only `account.constraint
 server can send, every title and id marked TEST-ONLY. It asserts our DRAFT wording for those lines and the visible
 '(ours, DRAFT)' on each; the same wording is checked in the debug panels' shape.
 
+`debug-selection-not-applied.test.tsx` (13 November 2026) renders the selection debug page with the server's response
+replaced by a TEST-ONLY body in the debug payload's shape, runs it, and asserts the not-applied line inside 'Selected
+constraints / incentives', after the applied list, with its visible '(ours, DRAFT)'. The creation screen's debug panel
+still has no rendering test of its own.
+
 Tests and fixtures live outside `src/` and `public/`. The production tsconfig includes only `src/`,
 and Vite's production entry does not import tests. `tsconfig.test.json` provides type-aware lint
 coverage and can be checked with `npx tsc --project tsconfig.test.json --noEmit` independently.
