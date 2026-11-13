@@ -83,7 +83,55 @@ not compared commit by commit.
 and `archetypes.ts` only. For GF4 and GF8 the other copies still hold the earlier ids, each in its own form: the
 module workbook (Game Forms I6 and I10) "exploit_space; fast_attack; regain"; the CSV the quoted, comma-separated
 field "exploit_space, fast_attack, regain"; the extraction record "exploit_space; fast_attack; regain" (it is
-unchanged since 2 August, as above). This record reports the difference and does not resolve it.
+unchanged since 2 August, as above). This record reports the difference and does not resolve it. The workbook side of
+it, with a third cell outside the Game Forms sheet, is set out under "The workbook and the module JSON" below.
+
+## The workbook and the module JSON: three cells differ (added 31 October 2026)
+
+Added after the record above, at commit `f534a62`; the workbook and JSON blobs are still the ones listed under
+"Fingerprints" (`ffe1bec…` and `71b0421…`). Nothing in either file was changed to write it.
+
+**Measured.** The workbook was unzipped and every cell of its six data sheets (Vocabulary, Lenses, Game Forms,
+Realizations, Realization Banks, Coverage) and its Metadata sheet was compared with the module JSON, by the same rules
+`project-workbook.py` uses (header row from Metadata, blank rows skipped): 7,365 data cells, with the same row counts on
+every sheet. Exactly three cells differ:
+
+| Sheet | Cell | Row | Column | Workbook | Module JSON |
+|---|---|---|---|---|---|
+| Lenses | E4 | `tl-v0-lens-space-exploitation-opportunity` (Space Exploitation Opportunity) | `selection_category_key` | "Create Space" | "Exploit Space" |
+| Game Forms | I6 | GF4 (Transition Games) | `primary_affordance_ids` | "exploit_space; fast_attack; regain" | "exploit_space; attack_quickly; regain_possession" |
+| Game Forms | I10 | GF8 (Pressing & Regain Games) | `primary_affordance_ids` | "exploit_space; fast_attack; regain" | "exploit_space; attack_quickly; regain_possession" |
+
+Metadata `release_date` also compares unequal in form only: the workbook holds the date serial 46236, styled
+`yyyy-mm-dd`, which is 2 August 2026, and the JSON holds the string "2026-08-02 00:00:00" that the projection writes for
+it. The neighbouring cells J6 and J10 (`primary_affordance_matching_text`, "exploit space; fast attack; regain") are the
+same in both copies; `0a3170e` did not change them.
+
+**Why.** All three cells were changed in the module JSON alone, by `0a3170e` on 29 September 2026, applying his ruling
+10 (affordance vocabulary). The decisions it settled are (a) to (c) of "FOUR DECISIONS I WILL NOT MAKE FOR YOU" in our
+email of the same day (`email-attachments/christian-2026-09-29b-rulings-applied.txt`): (a) `fast_attack` against
+`attack_quickly`, (b) `regain` against `regain_possession`, and (c) the Space Exploitation lens carrying the category
+"Create Space", the same as the Space Creation lens. The applied result is recorded in
+`docs/audits/rulings-applied-2026-09-29c.md`, section 10: "(a), (b), (c) applied", with the lens's category corrected
+from `"Create Space"` to `"Exploit Space"` so that it maps to `exploit_space`, and Space Creation not touched. It was
+reported to him in `email-attachments/christian-2026-09-29d-thirteen-rulings.txt`. His reply itself is not filed in
+the repository.
+The same commit made the same changes in the projections `affordanceLenses.ts` (`category`) and `archetypes.ts`
+(`primaryAffordances`). The workbook was not updated: its last change is `e954541` (13 September).
+
+**Which copy governs these three cells.** Until the workbook is updated, the module JSON is authoritative for Lenses E4
+and Game Forms I6 and I10. The workbook remains the authority for every other cell, as before.
+
+**What would undo the ruling.**
+
+- Running `project-workbook.py` on the committed workbook rewrites the JSON with the three workbook values above.
+- Running `write-workbook.py` writes the Lenses sheet from `lenses.extracted.json`, which is unchanged since `c05c223`
+  (5 August) and still holds "Create Space" for this lens. The Game Forms sheet is retired from that writer, so it does
+  not touch I6 or I10.
+
+`back/src/system/sport-module/soccer-module-ruling-10.unit.ts`, part of `npm test`, fails if the module JSON, or either
+projection, comes back without the three ruling-10 values. When the workbook is updated, the three cells and this
+section should be revised together.
 
 ## Fingerprints of the CSV
 

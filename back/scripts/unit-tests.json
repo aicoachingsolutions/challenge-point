@@ -41,6 +41,7 @@
     "./src/system/sport-coupling/sport-coupling.unit.ts",
     "./src/system/sport-module/soccer-module.unit.ts",
     "./src/system/sport-module/soccer-module-adapter.unit.ts",
+    "./src/system/sport-module/soccer-module-ruling-10.unit.ts",
     "./src/system/sport-module/rpc-library.unit.ts",
     "./src/system/sport-module/primary-scoring.unit.ts",
     "./src/system/sport-module/guided-selection.unit.ts",
