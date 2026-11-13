@@ -125,7 +125,15 @@ export interface PrintInput {
     illustrativeShown?: Array<{ shows: string; label: string }>
     /** Stage A2: said sentences of our CANDIDATE wording that state other said sentences. */
     saidStandsFor?: SaidStandsFor[]
+    /**
+     * FIX (13 November 2026, from the HPE-2 verification V2 F14): a sentence printed as said that ends without a full stop is printed with one
+     * (the line's text only: what a coach reads, `plain`, and the engine's own list keep the engine's words). Off unless a print asks for it, so
+     * every print made before it is unchanged.
+     */
+    stopSaid?: boolean
 }
+/** Whether a sentence already ends as a sentence does. */
+const endsAsSentence = (text: string): boolean => ['.', '!', '?'].includes(text.slice(-1))
 
 /** Whether `text` shows `shown` at a word start (so '12 m' is not read inside '112 m'). */
 const shows = (text: string, shown: string): boolean => {
@@ -253,7 +261,7 @@ export function fourPartPrint(input: PrintInput, map: Readonly<Record<string, Pa
         const grades = [...new Set([...(s.questions ?? []), ...states.flatMap((x) => x.questions ?? [])])].sort(byQuestion).map((q) => gradeWords(marker, q))
         const illustrative = [...new Set([...ownIllustrative(s, input), ...inheritedIllustrative(s.text, states, input)])]
         // A sentence said for one block only (its citations differ by block) says which, so a reader sees why it is said twice.
-        const text = `${s.text}${s.block ? ` (block ${s.block} only)` : ''}${illustrative.length ? ` [${illustrative.join('; ')}]` : ''}`
+        const text = `${s.text}${input.stopSaid && !endsAsSentence(s.text) ? '.' : ''}${s.block ? ` (block ${s.block} only)` : ''}${illustrative.length ? ` [${illustrative.join('; ')}]` : ''}`
         // FIX (V3 check 4, FAIL A): an APPROVED sentence shows whose approved wording it is and when Christian's reply was received.
         keyed.push({ line: { part, marker, shownMarker: shownMarkerOf(marker, grades, marker === 'A' ? s.source : undefined), text, plain: s.text, illustrative, grades, of: { said: s }, states }, key: keyOf(part, s, states), order: order++ })
     }
@@ -435,6 +443,13 @@ if (require.main === module) {
     assert.ok(printRefusals(fourPartPrint({ heading: [], said: markedSaid, printed: unsourcedPrinted, illustrativeOf: lineOf }), markedSaid, lineOf).some((r) => r.includes('"Continue." is APPROVED and its marker names no source')), 'bite: a printed APPROVED sentence given no source is refused')
     const ownLabelStripped: FourPartPrint = { ...marked, lines: marked.lines.map((l) => ({ ...l, text: l.text.split(' [ILLUSTRATIVE: the schematic 12 m]').join(''), illustrative: [] })) }
     assert.ok(printRefusals(ownLabelStripped, markedSaid, lineOf).some((r) => r.startsWith('"Mark a line where the press') && r.includes('without its label (ILLUSTRATIVE: the schematic 12 m)')), "bite: a printed sentence's own ILLUSTRATIVE label stripped is caught")
+    // FIX (V2 F14): stopSaid prints a said sentence's missing full stop on the line's text only; off, nothing changes; a sentence ending with a
+    // stop gets no second one; the check still holds.
+    const stopped = fourPartPrint({ heading: [], said: markedSaid, printed: markedPrinted, illustrativeOf: lineOf, stopSaid: true })
+    assert.deepEqual(printRefusals(stopped, markedSaid, lineOf), [])
+    const possessionLine = (p: FourPartPrint) => p.lines.find((l) => l.plain === possession)!
+    assert.deepEqual([possessionLine(stopped).text, possessionLine(stopped).plain, possessionLine(marked).text], [`${possession}.`, possession, possession])
+    assert.ok(stopped.text.includes('(about 12 m here). [ILLUSTRATIVE') && !stopped.text.includes('..'), 'a printed sentence is never given a second stop')
     // 'Adjusting the activity' is no part: printed as a finding, never dropped.
     const adjusting = fourPartPrint({ heading: [], said: [{ section: 'Adjusting the activity', block: null, text: 'Make it bigger', from: [], wording: 'DRAFT' }], printed: [], illustrativeOf })
     assert.ok(adjusting.findings.some((f) => f.includes('Adjusting the activity')))

@@ -286,6 +286,13 @@ export interface WalkthroughShape {
     progression: string
     /** Element kinds outside the walkthrough's known set that the configuration adds and that instruct no team ('blocks': the end assignment only). */
     knownKinds: string[]
+    /**
+     * FIX (13 November 2026, from the HPE-2 verifications V1 M2 and M3): what the handoff's grading cannot show at a path, added to that path's
+     * labels wherever the walkthrough cites it (HPE-2: the end zone's depth consumed from an ILLUSTRATIVE item no configuration line cites; the
+     * PROPOSED parts of the two revised values). Read by the caller from the configuration and the store, never typed in a predicate. HPE-1's
+     * shape has none, so its cites are as pinned.
+     */
+    labelNotes?: ReadonlyArray<{ path: string; label: string }>
 }
 export const HPE1_SHAPE: WalkthroughShape = { id: 'HPE-1', pressingTarget: 'line', endLine: 'TO_ESCAPING', origin: 'established coordinated pressure', progression: 'beyond', knownKinds: [] }
 /** The end assignment is an element that instructs no team only while it holds nothing but which end each role plays from. */
@@ -603,13 +610,20 @@ export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer
     }
     // FIX (V4 finding 1): the limit under 4c, read from the end-line restart.
     const q4Limits = f4c.holds && endLineToEscaping ? ["4c is weaker than it reads: a ball the escaping team knocks over an end line, its own included, comes back to it at the restart (1e, PROPOSED Q6), so losing the ball near its own end exposes its end line only while the ball stays in play"] : []
+    // FIX (V1 M2, M3): the shape's notes added to the labels of the paths they name, wherever a fact or a row cites them (none for HPE-1).
+    const noted = (c: string): string => {
+        const n = (shape.labelNotes ?? []).find((x) => c.startsWith(`${x.path} [`))
+        return n ? `${c.slice(0, -1)} + ${n.label}]` : c
+    }
+    const notedFacts = (facts: Fact[]): Fact[] => facts.map((f) => ({ ...f, cites: f.cites.map(noted) }))
+    const notedRows = rows.map((r) => ({ ...r, cites: r.cites.map(noted) }))
     const answers: Answer[] = factSets.map((facts, n) => ({
         n: n + 1,
         question: QUESTIONS[n],
-        facts,
+        facts: notedFacts(facts),
         established: established[n],
         verdict: verdictOf(n),
-        rows: n === 1 ? rows.filter((r) => r.category === 'REPRESENTATIVE_INFORMATION') : n === 3 ? rows.filter((r) => r.category === 'DEGENERATE_SOLUTION') : [],
+        rows: n === 1 ? notedRows.filter((r) => r.category === 'REPRESENTATIVE_INFORMATION') : n === 3 ? notedRows.filter((r) => r.category === 'DEGENERATE_SOLUTION') : [],
         arms: n === 2 ? arms : [],
         limits: n === 3 ? q4Limits : [],
     }))
