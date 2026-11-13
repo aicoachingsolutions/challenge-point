@@ -1656,7 +1656,7 @@
    },
    {
     "id": "served-review-level",
-    "stop": "served at review level (TEST-ONLY): the PROPOSED configuration A02-HPE1 with its PROPOSED restart and LAW-11 departure, our CANDIDATE restatement and our CANDIDATE wording; every PROPOSED element waits on Christian's questions (Q1, Q2, Q3, Q6) and every CANDIDATE sentence on Christian's review; never released; not yet the activity Christian asked for, \"Produce one complete A02 activity through the checked pathway, at review level, with all required conditions grounded in approved knowledge.\" (received 12 November 2026): N1, N2, N3, the restart and LAW-11 are PROPOSED and the condition is our CANDIDATE restatement; validation passes with one guard finding carried as pending (TT-PROPOSED-PENDING, Q2) and the laws check in REPORT mode",
+    "stop": "served at review level (TEST-ONLY): the PROPOSED configuration A02-HPE1 with its PROPOSED restart and LAW-11 departure, our CANDIDATE restatement and our CANDIDATE wording; every PROPOSED element waits on Christian's questions (Q1, Q2, Q3, Q6) and every CANDIDATE sentence on Christian's review; never released; not yet the activity Christian asked for, \"Produce one complete A02 activity through the checked pathway, at review level, with all required conditions grounded in approved knowledge.\" (received 12 November 2026): N1, N2, N3, the restart and LAW-11 are PROPOSED and the condition is our CANDIDATE restatement; validation passes with one guard finding carried as pending (TT-PROPOSED-PENDING, Q2) and the laws check in REPORT mode; the run rests on 6 TEST-ONLY treatments (appendix F, F1)",
     "categories": [],
     "owner": "CHRISTIAN",
     "whose": "no stop in the chain: the activity is served at review level only because every PROPOSED element and CANDIDATE sentence is read under a declared TEST-ONLY treatment; releasing any of it needs Christian's approval",
@@ -28754,7 +28754,7 @@
      "facts": [
       {
        "id": "1a",
-       "what": "one team presses for the whole block: a role held until the coach calls the exchange, the other team holding the other role",
+       "what": "one team holds the pressing role for the whole block: a role held until the coach calls the exchange, the other team holding the other role",
        "holds": true,
        "evidence": [
         "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: the pressing role is held by TEAM_AT_AXIS_END, the escaping role by TEAM_AT_AXIS_START, exchanged when the coach calls it",
@@ -28810,7 +28810,7 @@
       },
       {
        "id": "1e",
-       "what": "play restarts with the escaping team at the start, after each point and when the ball goes over an end line, so the problem begins again near its own end (the recurrence: the PROPOSED restart, question Q6)",
+       "what": "play restarts with the escaping team at the start, after each point and when the ball goes over an end line, so the problem begins again near its own end (our PROPOSED answer to the recurrence: the restart, question Q6)",
        "holds": true,
        "evidence": [
         "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: restarts awarded to the escaping team (TEAM_AT_AXIS_START) at START, SCORE, OUT_END_LINE",
@@ -28827,9 +28827,10 @@
       }
      ],
      "established": true,
-     "verdict": "pressure: established; coordination: not established (coach-judged)",
+     "verdict": "pressure: a pressing role and a reason to press (structural); coordination: not established (coach-judged)",
      "rows": [],
-     "arms": []
+     "arms": [],
+     "limits": []
     },
     {
      "n": 2,
@@ -28930,7 +28931,8 @@
        ]
       }
      ],
-     "arms": []
+     "arms": [],
+     "limits": []
     },
     {
      "n": 3,
@@ -28996,7 +28998,8 @@
      "arms": [
       "built (PROPOSED, question Q3; LAW-11 DEPARTED): no offside, so an escaping player may wait beyond the line for a long ball, which our own DRAFT laws reading names as material ('players could wait there and bypass the interaction with opposition pressure', laws-materiality.DRAFT.json): the escape could bypass the press",
       "described, not built: escaping players stay short of the line until a teammate plays the ball beyond it, which keeps the escape an interaction with the press, at the cost of one more rule for the coach to judge"
-     ]
+     ],
+     "limits": []
     },
     {
      "n": 4,
@@ -29004,7 +29007,7 @@
      "facts": [
       {
        "id": "4a",
-       "what": "the escaping team scores only in a possession that began against coordinated pressure, and only beyond the marked line (the conditions on its event, the whole game)",
+       "what": "the escaping team scores only if, in that possession, it faced coordinated pressure before scoring, and only beyond the marked line (the conditions on its event, the whole game)",
        "holds": true,
        "evidence": [
         "block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: origin 'established coordinated pressure', progression 'beyond' the line",
@@ -29058,10 +29061,11 @@
        "rowId": "RPC-PROP-026",
        "words": "Panic clearances avoid rather than solve coordinated pressure.",
        "category": "DEGENERATE_SOLUTION",
-       "verdict": "punished",
-       "reading": "a clearance that loses the ball scores nothing (the control condition, 4b), and a ball lost near the escaping team's end gives the pressing team a short route to its point (4c)",
+       "verdict": "partly punished",
+       "reading": "a clearance that loses the ball in play scores nothing (the control condition, 4b), and a ball lost near the escaping team's end gives the pressing team a short route to its point (4c); but a clearance over either end line, whoever touched the ball last, returns it to the escaping team at the restart (1e, PROPOSED Q6), and a defender can stop the pressing team's dribble the same way, where the possession game's own award (GF2-16.a) gives the ball to the team that did not touch it last",
        "cites": [
-        "value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value [CANDIDATE (our restatement)]"
+        "value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value [CANDIDATE (our restatement)]",
+        "transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].awardedTo [PROPOSED]"
        ]
       },
       {
@@ -29069,7 +29073,7 @@
        "words": "Isolated dribbling replaces collective escape.",
        "category": "DEGENERATE_SOLUTION",
        "verdict": "rewarded",
-       "reading": "rewarded by the approved event itself: its approved description counts one player dribbling ('A player dribbles into a marked zone, or receives and controls the ball inside it.'), as the approved High Press Escape rules count a player who dribbles over the line or into the zone; nothing asks for more than one player, so a lone dribble past the line that keeps the ball scores. A tension inside approved knowledge, for Christian's ecological review: reported, not fixed",
+       "reading": "rewarded by the event's vocabulary description, which counts one player dribbling ('A player dribbles into a marked zone, or receives and controls the ball inside it.'; its meaning for RPC-002 is UNREVIEWED), and which the live High Press Escape rules follow in counting a player who dribbles over the line or into the zone; the event kind itself is approved for RPC-002; nothing asks for more than one player, so a lone dribble past the line that keeps the ball scores. A tension between RPC-002's approved degenerate-solution row and the event's UNREVIEWED meaning, for Christian's ecological review: reported, not fixed",
        "cites": [
         "value.primaryEvent.kind [PROPOSED]"
        ]
@@ -29091,7 +29095,10 @@
        "cites": []
       }
      ],
-     "arms": []
+     "arms": [],
+     "limits": [
+      "4c is weaker than it reads: a ball the escaping team knocks over an end line, its own included, comes back to it at the restart (1e, PROPOSED Q6), so losing the ball near its own end exposes its end line only while the ball stays in play"
+     ]
     }
    ],
    "count": 4
@@ -29105,7 +29112,7 @@
      "facts": [
       {
        "id": "1a",
-       "what": "one team presses for the whole block: a role held until the coach calls the exchange, the other team holding the other role",
+       "what": "one team holds the pressing role for the whole block: a role held until the coach calls the exchange, the other team holding the other role",
        "holds": false,
        "evidence": [
         "the one game: DOES NOT HOLD: no team holds a pressing role"
@@ -29146,7 +29153,7 @@
       },
       {
        "id": "1e",
-       "what": "play restarts with the escaping team at the start, after each point and when the ball goes over an end line, so the problem begins again near its own end (the recurrence: the PROPOSED restart, question Q6)",
+       "what": "play restarts with the escaping team at the start, after each point and when the ball goes over an end line, so the problem begins again near its own end (our PROPOSED answer to the recurrence: the restart, question Q6)",
        "holds": false,
        "evidence": [
         "the one game: DOES NOT HOLD: restarts awarded to the escaping team at: none"
@@ -29157,7 +29164,8 @@
      "established": false,
      "verdict": "not established",
      "rows": [],
-     "arms": []
+     "arms": [],
+     "limits": []
     },
     {
      "n": 2,
@@ -29233,7 +29241,8 @@
        "cites": []
       }
      ],
-     "arms": []
+     "arms": [],
+     "limits": []
     },
     {
      "n": 3,
@@ -29281,7 +29290,8 @@
      "established": false,
      "verdict": "not established",
      "rows": [],
-     "arms": []
+     "arms": [],
+     "limits": []
     },
     {
      "n": 4,
@@ -29289,7 +29299,7 @@
      "facts": [
       {
        "id": "4a",
-       "what": "the escaping team scores only in a possession that began against coordinated pressure, and only beyond the marked line (the conditions on its event, the whole game)",
+       "what": "the escaping team scores only if, in that possession, it faced coordinated pressure before scoring, and only beyond the marked line (the conditions on its event, the whole game)",
        "holds": false,
        "evidence": [
         "the one game: DOES NOT HOLD: no condition on the scoring event"
@@ -29340,7 +29350,7 @@
        "words": "Isolated dribbling replaces collective escape.",
        "category": "DEGENERATE_SOLUTION",
        "verdict": "rewarded",
-       "reading": "rewarded by the approved event itself: its approved description counts one player dribbling ('A player dribbles the ball over a marked line, or receives and controls it beyond the line.'); nothing asks for more than one player, so a lone dribble to the target scores. A tension inside approved knowledge, for Christian's ecological review: reported, not fixed",
+       "reading": "rewarded by the event's vocabulary description, which counts one player dribbling ('A player dribbles the ball over a marked line, or receives and controls it beyond the line.'; its meaning for RPC-002 is UNREVIEWED); the event kind itself is approved for RPC-002; nothing asks for more than one player, so a lone dribble to the target scores. A tension between RPC-002's approved degenerate-solution row and the event's UNREVIEWED meaning, for Christian's ecological review: reported, not fixed",
        "cites": [
         "value.primaryEvent.kind [OURS]"
        ]
@@ -29362,7 +29372,8 @@
        "cites": []
       }
      ],
-     "arms": []
+     "arms": [],
+     "limits": []
     }
    ],
    "count": 0
@@ -29488,10 +29499,10 @@
     {
      "facet": "every sentence said (sha-256 of section, block, text, marker)",
      "governed": true,
-     "own": "c85a468da568",
+     "own": "01860764cb94",
      "reworded": {
-      "reversed": "c85a468da568",
-      "neutral": "c85a468da568"
+      "reversed": "01860764cb94",
+      "neutral": "01860764cb94"
      },
      "moves": []
     },

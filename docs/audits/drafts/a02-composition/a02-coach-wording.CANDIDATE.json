@@ -1,7 +1,7 @@
 {
   "standing": "CANDIDATE - TEST-ONLY, NOT APPROVED, NOT LIVE. Our coach wording (ours, unreviewed) for the review-level A02 activity built with the PROPOSED configuration A02-HPE1, for Christian's review. Read only by unit tests, through the tests-only reader back/src/system/rendering/candidate-coach-wording.ts, and handed to a TEST-ONLY build (build-activity.ts candidateWording) beside the approved table, never in it. No route, no engine module and no approved table reads it; nothing here is in approved-coach-wording.json or draft-coach-wording.json.",
   "label": "CANDIDATE",
-  "about": "Stage B2 of the A02 complete-activity package (12 November 2026), on Christian's reply received 12 November 2026, items 1, 2, 5 and 6. Each entry in the approved table's cover shape says, in one sentence, the fields of a condition only approved words may say (register rows V4-V6), matched to the exact values the realized A02-HPE1 game holds (our CANDIDATE restatement of RPC-002 in rpc-002-contract.DRAFT.json, the escape line PROPOSED in a02-proposed/hpe1.PROPOSED.json); a value that drifts no longer matches, the field is withheld and the build refuses (fail closed). In place of approvedBy, each carries candidateBy: ours, dated, the approved rows it restates (verbatim at their line of the RPC library) and Christian's words it rests on (verbatim in the rulings recorded in back/src/system/design-reasoning/a02-inputs.review.json, with the received date). The printed-only sentences are never said by the engine: the review print shows them beside the served text, in their part and with their label (PROPOSED: new knowledge of ours, for Christian's approval; CANDIDATE: our wording of approved knowledge). Kept out of every sentence, visible for ecological review: the immediate-shot incentive (A02-12NOV-NEXT-ACTION, word 14). Since stage A2 (13 November 2026, the lead's decision W1) the coach text: our sentences take the base of round 1's rewrite; the condition sentence says 'possession', never 'attack', and nothing that presupposes the escape succeeded; a sentence of ours may state one or more of the engine's sentences in fewer words (`standsFor`, each engine sentence by its exact text), and the review print (four-part-print.unit.ts) prints it in their place, takes their grades and requires each engine sentence printed exactly once; a printed sentence resting on a PROPOSED element it does not state names the question (`restsOn`). The optional restart sentence (S6) is merged into the PROPOSED restart's line (R1), and the event-completion sentence (K3's first) is gone.",
+  "about": "Stage B2 of the A02 complete-activity package (12 November 2026), on Christian's reply received 12 November 2026, items 1, 2, 5 and 6. Each entry in the approved table's cover shape says, in one sentence, the fields of a condition only approved words may say (register rows V4-V6), matched to the exact values the realized A02-HPE1 game holds (our CANDIDATE restatement of RPC-002 in rpc-002-contract.DRAFT.json, the escape line PROPOSED in a02-proposed/hpe1.PROPOSED.json); a value that drifts no longer matches, the field is withheld and the build refuses (fail closed). In place of approvedBy, each carries candidateBy: ours, dated, the approved rows it restates (verbatim at their line of the RPC library) and Christian's words it rests on (verbatim in the rulings recorded in back/src/system/design-reasoning/a02-inputs.review.json, with the received date). The printed-only sentences are never said by the engine: the review print shows them beside the served text, in their part and with their label (PROPOSED: new knowledge of ours, for Christian's approval; CANDIDATE: our wording of approved knowledge). Kept out of every sentence, visible for ecological review: the immediate-shot incentive (A02-12NOV-NEXT-ACTION, word 14). Since stage A2 (13 November 2026, the lead's decision W1) the coach text: our sentences take the base of round 1's rewrite; the condition sentence says 'possession', never 'attack', and nothing that presupposes the escape succeeded; a sentence of ours may state one or more of the engine's sentences in fewer words (`standsFor`, each engine sentence by its exact text), and the review print (four-part-print.unit.ts) prints it in their place, takes their grades and requires each engine sentence printed exactly once; a printed sentence resting on a PROPOSED element it does not state names the question (`restsOn`). The optional restart sentence (S6) is merged into the PROPOSED restart's line (R1), and the event-completion sentence (K3's first) is gone. FIX (13 November 2026, from the V3 and V4 verifications): 'before scoring' for 'before it scored' (the 'it' could be read as the pressing team); 'passes or forward options', as Christian's 'or'; the stoppage sentence no longer repeats the next action, and says 'judgment'; the pressing team's sentence says 'a point', as the escaping team's does; the learning explanation names the condition in the scoring line's words; each printed sentence names every question it rests on (restsOn), the escaping team's noun (Q1) included, so a print that states none of the engine's sentences still shows its grades; the placement rule carries its own ILLUSTRATIVE label (illustrative); R1's support no longer cites the sentence that leaves the starting arrangement to the coach, which cuts the other way (it is put beside question Q6 instead).",
   "entryShape": {
     "id": "a stable id",
     "covers": "as the approved table's covers with element locators (approved-coach-wording.json entryShape): every cover names its element, so the sentence is said once citing every covered field",
@@ -30,7 +30,7 @@
         { "row": "V4", "match": { "equals": "control" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "control" } },
         { "row": "V6", "match": { "equals": "retains possession through the next action" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "control" } }
       ],
-      "sentence": "The escaping team scores a point when a player dribbles over the line, or receives and controls the ball beyond it, and the team keeps the ball through its next action. It counts only if, in that possession, the escaping team faced the pressing team pressing together before it scored: players working together to pressure the ball and restrict passes and forward options. One player closing down alone does not necessarily count. A player who dribbles over the line and keeps the ball needs no extra touch. No point if the ball is lost on the next action or play stops first; use your judgement for unusual stoppages.",
+      "sentence": "The escaping team scores a point when a player dribbles over the line, or receives and controls the ball beyond it, and the team keeps the ball through its next action. It counts only if, in that possession, the escaping team faced the pressing team pressing together before scoring: players working together to pressure the ball and restrict passes or forward options. One player closing down alone does not necessarily count. A player who dribbles over the line and keeps the ball needs no extra touch. No point if play stops first; use your judgment for unusual stoppages.",
       "section": "How to score",
       "standsFor": [
         "Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside",
@@ -68,6 +68,8 @@
       "label": "PROPOSED",
       "sentence": "Mark a line across the full width near one end, where the pressing team, working together, can just cover the width, with room beyond it to receive and keep the ball (about 12 m from the end line in this area).",
       "standsFor": ["Mark a line across the area, 12 m from the escaping team's end line"],
+      "restsOn": ["Q1"],
+      "illustrative": "ILLUSTRATIVE: the schematic 12 m of this 40 m area; the placement rule governs (PROPOSED)",
       "candidateBy": {
         "who": "ours",
         "date": "2026-11-13",
@@ -87,6 +89,7 @@
         "Play in blocks: in each block one team is the escaping team and the other is the pressing team",
         "Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends, and you move the marked line to the same distance from the new escaping team's end line; there is no set block length"
       ],
+      "restsOn": ["Q1"],
       "candidateBy": {
         "who": "ours",
         "date": "2026-11-13",
@@ -108,13 +111,13 @@
         "You choose where a player of the escaping team restarts play, near the escaping team's own end, with the pressing team set to press together",
         "If the ball goes out over either end line, a player of the escaping team restarts play, from the feet, with the ball still or moving; you choose where (near the escaping team's own end, with the pressing team set to press together)"
       ],
+      "restsOn": ["Q1", "Q6"],
       "candidateBy": {
         "who": "ours",
         "date": "2026-11-13",
         "restates": [],
         "rulings": [
           { "ruling": "A02-12NOV-PRESSURE", "quote": "Through a representative restart that recreates the relevant pressure conditions.", "received": "2026-11-12" },
-          { "ruling": "A02-12NOV-PRESSURE", "quote": "The coach should be free to use whichever practical starting arrangement creates recurring opportunities to encounter the intended problem.", "received": "2026-11-12" },
           { "ruling": "A02-12NOV-COMMUNICATION", "quote": "At the same time, concision must not remove information essential to running the activity correctly.", "received": "2026-11-12" }
         ]
       }
@@ -123,12 +126,13 @@
       "id": "A02-HPE1-K5",
       "part": "Scoring",
       "label": "PROPOSED",
-      "sentence": "The pressing team scores 1 point when a player dribbles the ball over the escaping team's end line.",
+      "sentence": "The pressing team scores a point when a player dribbles the ball over the escaping team's end line.",
       "standsFor": [
         "Pressing team: Score by getting the ball across the line it is attacking",
         "Mark a line across one end of the area, 30 m long, on the end line itself",
         "The escaping team attacks the zone beyond the marked line; the pressing team attacks the escaping team's end line"
       ],
+      "restsOn": ["Q1", "Q2"],
       "candidateBy": {
         "who": "ours",
         "date": "2026-11-13",
@@ -143,8 +147,8 @@
       "id": "A02-HPE1-L2",
       "part": "Learning explanation",
       "label": "CANDIDATE",
-      "sentence": "The pressing team can score only by winning the ball and dribbling it over the escaping team's end line, so a ball lost near that end is costly; the escaping team scores only by escaping an organised press and keeping the ball.",
-      "restsOn": ["Q2"],
+      "sentence": "The pressing team can score only by winning the ball and dribbling it over the escaping team's end line, so a ball lost near that end is costly; the escaping team scores only if it faced the pressing team pressing together and keeps the ball beyond the line.",
+      "restsOn": ["Q1", "Q2"],
       "candidateBy": {
         "who": "ours",
         "date": "2026-11-13",

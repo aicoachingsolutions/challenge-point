@@ -88,6 +88,8 @@ export interface PrintedOnlySentence {
     standsFor?: string[]
     /** Stage A2: the questions of a PROPOSED configuration this sentence rests on beyond what it states. */
     restsOn?: string[]
+    /** FIX (13 November 2026, from the V3 verification): the sentence's own ILLUSTRATIVE label, for a quantity it shows (the review print requires it). */
+    illustrative?: string
 }
 /** A sentence the renderer says from its reading of the game (stage A1): the approved template's shape, with `candidateBy` in place of `approvedBy`. */
 export interface CandidateTemplateEntry {
@@ -227,6 +229,8 @@ export function candidateWordingRefusals(raw: any, sources: CandidateWordingSour
         reasons.push(...candidateByRefusals(sentence?.candidateBy, at, sources))
         standsForIn(sentence, at)
         restsOnIn(sentence, at)
+        // FIX (V3): a sentence's own ILLUSTRATIVE label says so in its first word, so a printed number is never presented as knowledge.
+        if (sentence?.illustrative !== undefined && !(filled(sentence.illustrative) && String(sentence.illustrative).startsWith('ILLUSTRATIVE: '))) reasons.push(`${at}: its illustrative label does not begin 'ILLUSTRATIVE: '`)
     }
     // Stage A1 (decision R3): the templates the renderer reads our words by, each in the approved template's shape, never approved.
     const templates: any[] = Array.isArray(raw?.templates) ? raw.templates : []

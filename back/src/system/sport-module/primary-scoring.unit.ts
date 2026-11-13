@@ -718,12 +718,14 @@ const CHRISTIAN_12_NOVEMBER_WORDS = [
  * possession (one player closing down alone does not necessarily count).' WHY: 'attack' read as stricter than the possession Christian's ruling
  * names (Christian keeps a restart, a change of possession and a new attack apart, received 8 November 2026), and "not necessarily" is
  * Christian's (received 12 November 2026); the press need not still be there when the team scores. Still CANDIDATE, held; COACH_RULES unchanged.
+ * RE-PINNED OPENLY (FIX, 13 November 2026, from the V4 verification, L2). BEFORE: '... before it scored in that possession ...'. AFTER: '...
+ * before scoring in that possession ...'. WHY: the 'it' could be read as the other team. Our CANDIDATE wording, for the lead to confirm.
  */
 const CANDIDATE_HIGH_PRESS_ESCAPE_RULES: Readonly<Record<string, string>> = {
-    'RPC-002|line_crossed|': 'Earn a point when a player dribbles over the line behind the press, or receives the ball past it and controls it, and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).',
-    'RPC-002|target_zone_entered|': 'Earn a point when a player dribbles into the target zone behind the press, or receives the ball there and controls it, and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).',
-    'RPC-002|gate|': 'Earn a point when a player passes or dribbles through a gate behind the press and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).',
-    'RPC-002|target_player|': 'Earn a point when your target player behind the press receives the ball and controls it, and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).',
+    'RPC-002|line_crossed|': 'Earn a point when a player dribbles over the line behind the press, or receives the ball past it and controls it, and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before scoring in that possession (one player closing down alone does not necessarily count).',
+    'RPC-002|target_zone_entered|': 'Earn a point when a player dribbles into the target zone behind the press, or receives the ball there and controls it, and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before scoring in that possession (one player closing down alone does not necessarily count).',
+    'RPC-002|gate|': 'Earn a point when a player passes or dribbles through a gate behind the press and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before scoring in that possession (one player closing down alone does not necessarily count).',
+    'RPC-002|target_player|': 'Earn a point when your target player behind the press receives the ball and controls it, and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before scoring in that possession (one player closing down alone does not necessarily count).',
 }
 
 /**
@@ -773,7 +775,7 @@ function testHighPressEscapeCandidateWording(): void {
     for (const rule of overlay.rules) assert.equal(rule.setupCandidate, COACH_RULES[rule.key]!.setup.replace(' The other team presses from the start of every attack.', ''), `${rule.key}: the setup drops the origin sentence, every other word kept`)
     assert.deepEqual((overlay.declared ?? []).map((d) => [d.id, d.in, d.from, d.to]), [
         ['ITS', 'rule', 'through the next action', 'through its next action'],
-        ['ORIGIN', 'rule', 'The other team presses from the start of every attack.', 'It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).'],
+        ['ORIGIN', 'rule', 'The other team presses from the start of every attack.', 'It counts only if your team faced the other team pressing together before scoring in that possession (one player closing down alone does not necessarily count).'],
         ['ORIGIN-SETUP', 'setup', ' The other team presses from the start of every attack.', ''],
     ], 'exactly the three declared changes')
     for (const d of overlay.declared ?? []) for (const words of d.christian) {

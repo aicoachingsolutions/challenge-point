@@ -32,13 +32,15 @@ import path from 'node:path'
 
 import { loadProposedRealization } from '../derivation/draft-store'
 import { loadCandidateWording } from '../rendering/candidate-coach-wording'
+import { loadCandidateCoachRules } from '../sport-module/candidate-coach-rules'
 import { actionClassesIn } from '../sport-module/action-words'
+import { eventMeaningStanding } from '../sport-module/primary-scoring'
 import { rpcLibrary } from '../sport-module/rpc-library'
 import * as S from './a02-safeguards.unit'
 import { inputs as a02Inputs, quotedSpans } from './a02.unit'
 import { displayCell } from './assembly-display'
 import { citedDateOf } from './assembly'
-import { engineLines, fourPartPrint, printRefusals, PrintedOnly, SaidSentence } from './four-part-print.unit'
+import { approvedSourceOf, engineLines, fourPartPrint, printRefusals, PrintedOnly, SaidSentence } from './four-part-print.unit'
 import { CaseInput, ChainAnswer, ChainRequest, HandoffResult, runHandoff } from './handoff'
 import { candidateWordingSourcesOf, holdsGenderedPronoun, realChain, withoutGenderedPronouns } from './handoff-chain.unit'
 import { handoffReportText, plain, quoted, show } from './handoff-report'
@@ -236,7 +238,7 @@ export interface ApprovedRowReading {
     rowId: string
     words: string
     category: string
-    verdict: 'held' | 'partly held' | 'not held' | 'punished' | 'not punished' | 'rewarded' | 'not rewarded' | 'not addressed' | 'not read'
+    verdict: 'held' | 'partly held' | 'not held' | 'punished' | 'partly punished' | 'not punished' | 'rewarded' | 'not rewarded' | 'not addressed' | 'not read'
     reading: string
     cites: string[]
 }
@@ -246,12 +248,14 @@ export interface Answer {
     facts: Fact[]
     /** Every structural fact holds, in every block. */
     established: boolean
-    /** Stage A2: the answer as printed ('pressure: established; coordination: not established (coach-judged)' for question 1). */
+    /** Stage A2: the answer as printed (Q1_VERDICT for question 1). */
     verdict: string
     /** Stage A2: RPC-002's approved rows read against the game (question 2: information; question 4: degenerate solutions). */
     rows: ApprovedRowReading[]
     /** Stage A2: question 3's LAW-11 arms (the built one read from the laws account; the other described). */
     arms: string[]
+    /** FIX (13 November 2026, V4 finding 1): what a fact of the answer does not cover, read from the game (question 4: the end-line restart). */
+    limits: string[]
 }
 export interface Walkthrough {
     runId: string
@@ -282,7 +286,8 @@ export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer
     const objPath = (o: any, field: string) => `objectives[${o?.elementId}].${field}`
 
     // Q1: where coordinated pressure comes from.
-    const f1a = fact(m, blocks, '1a', 'one team presses for the whole block: a role held until the coach calls the exchange, the other team holding the other role', (b) => {
+    // FIX (13 November 2026, V4 L8), re-pinned openly: 1a said 'one team presses for the whole block'; the structure gives a role, not pressing.
+    const f1a = fact(m, blocks, '1a', 'one team holds the pressing role for the whole block: a role held until the coach calls the exchange, the other team holding the other role', (b) => {
         const p = pressingOf(b)
         const e = escapingOf(b)
         const holds = !!p && !!e && p.exchange === 'COACH_CALLS' && !!b.holders?.PRESSING && b.holders.PRESSING !== b.holders.ESCAPING
@@ -334,7 +339,9 @@ export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer
     // when the ball goes over an end line play stops and the escaping team restarts it (read from the realized transitions, never a sentence).
     const restartTriggers = ['START', 'SCORE', 'OUT_END_LINE']
     const triggerOf = (t: any) => ((t.selector ?? []) as any[]).find((s) => s.attribute === 'trigger')?.value
-    const f1e = fact(m, blocks, '1e', 'play restarts with the escaping team at the start, after each point and when the ball goes over an end line, so the problem begins again near its own end (the recurrence: the PROPOSED restart, question Q6)', (b) => {
+    // FIX (V4 L9), re-pinned openly: '(the recurrence: the PROPOSED restart, question Q6)'; coordination is not established, so the request is
+    // not shown met: the restart is our PROPOSED answer to it.
+    const f1e = fact(m, blocks, '1e', 'play restarts with the escaping team at the start, after each point and when the ball goes over an end line, so the problem begins again near its own end (our PROPOSED answer to the recurrence: the restart, question Q6)', (b) => {
         const ts = ((b.game.transitions ?? []) as any[]).filter((t) => restartTriggers.includes(triggerOf(t)) && t.playState === 'STOP_RESUME' && t.awardedTo === 'ROLE_HOLDER_ESCAPING')
         const found = restartTriggers.filter((x) => ts.some((t) => triggerOf(t) === x))
         const holds = found.length === restartTriggers.length && !!b.holders?.ESCAPING
@@ -396,7 +403,9 @@ export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer
     // Q4: how the game's consequences make successful solutions meaningful.
     // Stage A2, re-pinned openly: 'from an attack that began against coordinated pressure' reads 'in a possession that began ...' (Christian keeps a
     // restart, a change of possession and a new attack apart, received 8 November 2026); the predicate is unchanged.
-    const f4a = fact(m, blocks, '4a', 'the escaping team scores only in a possession that began against coordinated pressure, and only beyond the marked line (the conditions on its event, the whole game)', (b) => {
+    // FIX (V4 L1), re-pinned openly: 'only in a possession that began against coordinated pressure' was stricter than the condition (the sequence
+    // begins when the pressure is faced, not when the possession starts); the predicate is unchanged.
+    const f4a = fact(m, blocks, '4a', 'the escaping team scores only if, in that possession, it faced coordinated pressure before scoring, and only beyond the marked line (the conditions on its event, the whole game)', (b) => {
         const origin = conditionOf(b.game, 'origin')
         const progression = conditionOf(b.game, 'progression')
         const line = escapeLineOf(b.game)
@@ -447,13 +456,35 @@ export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer
     // A lone player's dribble scores wherever the scoring event's approved description counts one player dribbling (with or without roles).
     const lonePlayerDribbleScores = blocks.length > 0 && blocks.every((b) => actionClassesIn(eventWords(kindOf(b))).includes('dribble'))
     const noRestriction = blocks.length > 0 && blocks.every((b) => otherKinds(b).length === 0)
+    /*
+     * FIX (13 November 2026, from the V4 verification, finding 1): the restart over an end line, read from the realized transitions. Where it is
+     * awarded to the escaping team, whoever touched the ball last, a clearance over an end line (its own included) gives the escaping team the
+     * ball back, and a defender can stop the pressing team's dribble the same way; the possession game's own award there (GF2-16.a) is to the
+     * team that did not touch it last.
+     */
+    const endLineRestarts = blocks.flatMap((b) => ((b.game.transitions ?? []) as any[]).filter((t) => triggerOf(t) === 'OUT_END_LINE' && t.playState === 'STOP_RESUME'))
+    const endLineToEscaping = endLineRestarts.some((t) => t.awardedTo === 'ROLE_HOLDER_ESCAPING')
+    const endLinePaths = [...new Set(endLineRestarts.map((t) => `transitions[${t.elementId}].awardedTo`))]
+    // FIX (V4 finding 3): the event's meaning for RPC-002, read from the standing of its vocabulary description (never typed here).
+    const meaningStanding = blocks.length ? eventMeaningStanding('RPC-002', kindOf(blocks[0])) : 'UNREVIEWED'
     const rows: ApprovedRowReading[] = [
         { ...rowOf('RPC-PROP-022'), verdict: f1b.holds ? 'partly held' : 'not held', reading: f1b.holds ? "direction held by the pressing team's only target, at the end the escaping team defends (1b); intensity held by no element: it is the pressing team's play, and whether it presses together is judged by the coach (the CANDIDATE condition, 4a)" : "no element gives the press a direction: the pressing team has no target at the escaping team's end (1b does not hold)", cites: f1b.cites },
         { ...rowOf('RPC-PROP-023'), verdict: f2a.holds && f2c.holds ? 'partly held' : 'not held', reading: f2a.holds && f2c.holds ? 'immediate support held by live, equal teams with no player restricted (2a, 2c); free-player availability created by no element (equal numbers, no neutral player): a free player arises only where the press leaves one' : 'the teams are not live, equal and unrestricted (2a or 2c does not hold)', cites: f2a.cites },
         { ...rowOf('RPC-PROP-024'), verdict: f3b.holds && f3d.holds ? 'held' : 'not held', reading: f3b.holds && f3d.holds ? "held by the marked line and the target across the full width, no option removed (3b, 3d); which lanes are open is the live press's, and the room beyond the line is set by the placement rule, PROPOSED and applied by the coach (question Q1)" : 'the line or the target does not run the full width, or an element removes an option (3b or 3d does not hold)', cites: f3b.cites },
         { ...rowOf('RPC-PROP-025'), verdict: f3b.holds && f1c.holds && f4b.holds ? 'held' : f3b.holds ? 'partly held' : 'not held', reading: f3b.holds ? `weak-side opportunities held by the full-width line and target (3b): a switch reaches the target anywhere across; recovery behaviour ${f1c.holds && f4b.holds ? 'held while play continues on a turnover and the escaping team must still keep the ball through its next action (1c, 4b), so a recovering press can still win it' : 'not held: play stops on a turnover, or no continuation is required'}${f1e.holds ? '; after a point play restarts (1e)' : ''}` : 'the line or the target does not run the full width (3b does not hold)', cites: [...f3b.cites, ...f4b.cites] },
-        { ...rowOf('RPC-PROP-026'), verdict: f4b.holds ? 'punished' : 'not punished', reading: f4b.holds ? `a clearance that loses the ball scores nothing (the control condition, 4b)${f4c.holds ? ", and a ball lost near the escaping team's end gives the pressing team a short route to its point (4c)" : ''}` : 'no continuation is required, so a clearance that reaches the target scores', cites: f4b.cites },
-        { ...rowOf('RPC-PROP-027'), verdict: lonePlayerDribbleScores ? 'rewarded' : 'not rewarded', reading: lonePlayerDribbleScores ? `rewarded by the approved event itself: its approved description counts one player dribbling ('${eventWords(kindOf(blocks[0]))}')${escapingOf(blocks[0]) ? ', as the approved High Press Escape rules count a player who dribbles over the line or into the zone' : ''}; nothing asks for more than one player, so a lone dribble ${f4b.holds ? 'past the line that keeps the ball' : 'to the target'} scores. A tension inside approved knowledge, for Christian's ecological review: reported, not fixed` : 'the scoring event does not count a lone dribble', cites: cite(m, ['value.primaryEvent.kind']) },
+        // FIX (V4 finding 1), re-pinned openly: 'punished' read only the control condition and 4c; the end-line restart is read too.
+        {
+            ...rowOf('RPC-PROP-026'),
+            verdict: !f4b.holds ? 'not punished' : endLineToEscaping ? 'partly punished' : 'punished',
+            reading: f4b.holds
+                ? `a clearance that loses the ball in play scores nothing (the control condition, 4b)${f4c.holds ? ", and a ball lost near the escaping team's end gives the pressing team a short route to its point (4c)" : ''}${endLineToEscaping ? "; but a clearance over either end line, whoever touched the ball last, returns it to the escaping team at the restart (1e, PROPOSED Q6), and a defender can stop the pressing team's dribble the same way, where the possession game's own award (GF2-16.a) gives the ball to the team that did not touch it last" : ''}`
+                : 'no continuation is required, so a clearance that reaches the target scores',
+            cites: [...f4b.cites, ...(endLineToEscaping ? cite(m, endLinePaths) : [])],
+        },
+        // FIX (V4 finding 3), re-pinned openly: 'rewarded by the approved event itself ... as the approved High Press Escape rules count' overstated
+        // the standing: the event kind is approved for RPC-002, its vocabulary description's meaning for RPC-002 is not (read, not typed), and
+        // the live High Press Escape rules are live text, not Christian's approved wording.
+        { ...rowOf('RPC-PROP-027'), verdict: lonePlayerDribbleScores ? 'rewarded' : 'not rewarded', reading: lonePlayerDribbleScores ? `rewarded by the event's vocabulary description, which counts one player dribbling ('${eventWords(kindOf(blocks[0]))}'; its meaning for RPC-002 is ${meaningStanding})${escapingOf(blocks[0]) ? ', and which the live High Press Escape rules follow in counting a player who dribbles over the line or into the zone' : ''}; the event kind itself is approved for RPC-002; nothing asks for more than one player, so a lone dribble ${f4b.holds ? 'past the line that keeps the ball' : 'to the target'} scores. A tension between RPC-002's approved degenerate-solution row and the event's ${meaningStanding} meaning, for Christian's ecological review: reported, not fixed` : 'the scoring event does not count a lone dribble', cites: cite(m, ['value.primaryEvent.kind']) },
         { ...rowOf('RPC-PROP-028'), verdict: 'not addressed', reading: "no element reads how the escaping team's support moves: static support that collapses the escape options is neither rewarded nor punished; it only fails to score", cites: [] },
         { ...rowOf('RPC-PROP-029'), verdict: noRestriction ? 'not punished' : 'not read', reading: noRestriction ? `no element limits backward circulation: possession that never ${f3a.holds ? 'crosses the line' : 'reaches the target'} scores nothing and costs nothing${f4c.holds ? ", except that a ball lost near the escaping team's own end exposes its end line (4c)" : ''}` : 'an element of another kind is in the game; not read here', cites: [] },
     ]
@@ -468,9 +499,11 @@ export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer
 
     const verdictOf = (n: number): string => {
         if (!established[n]) return NOT_ESTABLISHED
-        if (n === 0) return 'pressure: established; coordination: not established (coach-judged)'
+        if (n === 0) return Q1_VERDICT
         return ESTABLISHED
     }
+    // FIX (V4 finding 1): the limit under 4c, read from the end-line restart.
+    const q4Limits = f4c.holds && endLineToEscaping ? ["4c is weaker than it reads: a ball the escaping team knocks over an end line, its own included, comes back to it at the restart (1e, PROPOSED Q6), so losing the ball near its own end exposes its end line only while the ball stays in play"] : []
     const answers: Answer[] = factSets.map((facts, n) => ({
         n: n + 1,
         question: QUESTIONS[n],
@@ -479,6 +512,7 @@ export function walkthroughOf(m: Made, built: any = m.built, answer: ChainAnswer
         verdict: verdictOf(n),
         rows: n === 1 ? rows.filter((r) => r.category === 'REPRESENTATIVE_INFORMATION') : n === 3 ? rows.filter((r) => r.category === 'DEGENERATE_SOLUTION') : [],
         arms: n === 2 ? arms : [],
+        limits: n === 3 ? q4Limits : [],
     }))
     return { runId: m.id, answers, count: answers.filter((a) => a.established).length }
 }
@@ -494,6 +528,9 @@ const LAW11_BYPASS = (() => {
 
 const ESTABLISHED = "established by the game's structure"
 const NOT_ESTABLISHED = 'not established'
+// FIX (13 November 2026, V4 L8), re-pinned openly: was 'pressure: established; coordination: not established (coach-judged)' (the lead's decided
+// words); 'established' is Christian's own word for the condition, so the structure's part is named for what it gives: a role and a reason.
+const Q1_VERDICT = 'pressure: a pressing role and a reason to press (structural); coordination: not established (coach-judged)'
 export function walkthroughLines(w: Walkthrough): string[] {
     const out: string[] = []
     for (const a of w.answers) {
@@ -511,9 +548,11 @@ export function walkthroughLines(w: Walkthrough): string[] {
             out.push("   beside question Q3, LAW-11's two arms:")
             for (const arm of a.arms) out.push(`      - ${arm}`)
         }
+        for (const limit of a.limits) out.push(`   limit: ${limit}`)
     }
     const tally = (verdict: string) => w.answers.flatMap((a) => a.rows).filter((r) => r.verdict === verdict).length
-    out.push(`${w.runId}: the structural facts of ${w.count} of 4 questions hold${w.answers[0].established ? ' (question 1: pressure established; coordination not established, judged by the coach)' : ''}; RPC-002's information rows: ${tally('held')} held, ${tally('partly held')} partly held, ${tally('not held')} not held; its degenerate solutions: ${tally('punished')} punished, ${tally('rewarded')} rewarded, ${tally('not punished')} not punished, ${tally('not addressed')} not addressed`)
+    // FIX (V4 L8, finding 1), re-pinned openly: question 1's summary named pressure 'established'; the tally counts 'partly punished'.
+    out.push(`${w.runId}: the structural facts of ${w.count} of 4 questions hold${w.answers[0].established ? ' (question 1: a pressing role and a reason to press, structural; coordination not established, judged by the coach)' : ''}; RPC-002's information rows: ${tally('held')} held, ${tally('partly held')} partly held, ${tally('not held')} not held; its degenerate solutions: ${tally('punished')} punished, ${tally('partly punished')} partly punished, ${tally('rewarded')} rewarded, ${tally('not punished')} not punished, ${tally('not addressed')} not addressed`)
     return out
 }
 
@@ -554,12 +593,26 @@ const canonical = (v: unknown) => JSON.stringify(v)
 
 const SOURCES = candidateWordingSourcesOf(a02Inputs.rulings.map((r) => ({ id: r.id, words: r.words, received: r.received })))
 const WORDING = loadCandidateWording(SOURCES)
+// FIX (13 November 2026, V4 finding 5): the CANDIDATE High Press Escape rules, read from their file through the tests-only reader.
+const CANDIDATE_RULES = loadCandidateCoachRules()
+/**
+ * FIX (13 November 2026, from the V4 verification, finding 2): where a printed-only sentence says less than, or other than, the engine sentences
+ * it stands for, measured by reading both. The coach-text test holds each `has` to the printed sentence and each `dropped` to a sentence it
+ * stands for and not to the printed one, so a reworded sentence cannot leave this list stale.
+ */
+const PRINT_DIVERGENCES: Array<{ id: string; says: string; has?: string; dropped: string }> = [
+    { id: 'A02-HPE1-R1', says: "says 'with a ball to an escaping player' where the engine says a player of the escaping team restarts play from the feet, and leaves out that the coach chooses where", has: 'with a ball to an escaping player', dropped: 'choose where' },
+    { id: 'A02-HPE1-K5', says: "states only the pressing team's half of the two-targets sentence (the zone's half is in our condition sentence)", dropped: 'The escaping team attacks the zone beyond the marked line' },
+    { id: 'A02-HPE1-S4', says: "leaves out 'there is no set block length'", dropped: 'there is no set block length' },
+]
 const PURPOSE = displayCell(committedKnowledge(), { source: 'planning', table: 'learning_goals', row: 'A02', column: 'Coach Definition' }).text
 // Stage A2 (V2 finding 12), re-pinned openly: the note read 'the Learning Goal's Coach Definition, verbatim: the source Christian chose (received 21
 // October 2026); its Active status is not a dated approval' beside a bare [A]; the marker now says whose source it is and when it was chosen
 // (Christian's reply received 21 October 2026, recovered at 2026-10-21T17-25-28Z: the Learning Goal's coach-facing definition as the primary source).
 const PURPOSE_NOTE = "the Learning Goal's Coach Definition, verbatim"
-const PURPOSE_MARKER = 'A: the source Christian chose, received 21 October 2026'
+// FIX (13 November 2026, V3 check 4), re-pinned openly: the marker words are the words after the letter (were 'A: the source ...'); the line
+// prints the same '[A: the source Christian chose, received 21 October 2026]', and the print's check now requires them on every APPROVED line.
+const PURPOSE_MARKER = 'the source Christian chose, received 21 October 2026'
 export const MARKERS = "Markers: [A] APPROVED, [C] CANDIDATE (ours, for review), [D] DRAFT (the renderer's own words), [P] PROPOSED (new knowledge of ours, for approval). Beside the marker, the grade: 'PROPOSED Qn' where a DRAFT or PROPOSED sentence rests on an element of ours awaiting Christian's question Qn, 'contingent on Qn' where an APPROVED or CANDIDATE sentence does."
 /**
  * Stage A2 (the lead's decision W2): the questions each said sentence rests on, as the handoff grades it (appendix F7): every line the sentence
@@ -587,7 +640,8 @@ function questionsOfRun(m: Made): (n: number) => string[] {
 }
 const saidOf = (m: Made): SaidSentence[] => {
     const questions = m.result.sentences.length === m.answer.sentences.length ? questionsOfRun(m) : () => []
-    return m.answer.sentences.map((s, n) => ({ section: s.section, block: s.block, text: s.text, from: s.from, wording: s.wording, questions: questions(n) }))
+    // FIX (13 November 2026, V3 check 4, FAIL A): an APPROVED sentence carries whose approved wording it is and when Christian's reply was received.
+    return m.answer.sentences.map((s, n) => ({ section: s.section, block: s.block, text: s.text, from: s.from, wording: s.wording, questions: questions(n), ...(s.wording === 'APPROVED' ? { source: approvedSourceOf(s.text) } : {}) }))
 }
 /** The ILLUSTRATIVE label of a path the run's sentence cites: the session's values, and every line resting on an item the chain received ILLUSTRATIVE. */
 function illustrativeOfRun(m: Made): (p: string) => string | null {
@@ -612,7 +666,9 @@ function illustrativeShownOfRun(m: Made): Array<{ shows: string; label: string }
 /** Our printed sentences (the wording file's printerOnly) and the purpose, the purpose first in its part (V2's order). */
 const printedOnly = (withStandsFor = true): PrintedOnly[] => [
     { id: 'L1', part: 'Learning explanation' as const, label: 'APPROVED' as const, sentence: PURPOSE, note: PURPOSE_NOTE, markerWords: PURPOSE_MARKER },
-    ...WORDING.printerOnly.map((p) => ({ id: p.id, part: p.part, label: p.label, sentence: p.sentence, ...(p.restsOn ? { restsOn: [...p.restsOn] } : {}), ...(withStandsFor && p.standsFor ? { standsFor: [...p.standsFor] } : {}) })),
+    // FIX (V3 check 4): each printed sentence keeps its own questions (restsOn) and its own ILLUSTRATIVE label in every print, so the negative
+    // control's print, where they state nothing, still shows their grades and the 12 m's label.
+    ...WORDING.printerOnly.map((p) => ({ id: p.id, part: p.part, label: p.label, sentence: p.sentence, ...(p.restsOn ? { restsOn: [...p.restsOn] } : {}), ...(p.illustrative ? { illustrative: p.illustrative } : {}), ...(withStandsFor && p.standsFor ? { standsFor: [...p.standsFor] } : {}) })),
 ]
 /** The said sentences of our CANDIDATE wording that state other said sentences (an entry's `standsFor`). */
 const saidStandsFor = () => WORDING.entries.filter((e) => e.standsFor).map((e) => ({ text: e.sentence, standsFor: [...e.standsFor!] }))
@@ -637,7 +693,8 @@ export function reviewPrint(m: Made) {
 export function gf2wPrint(m: Made) {
     const said = saidOf(m)
     // Beside the text only: our sentences state none of this game's sentences (they name a pressing team and a marked line no element holds).
-    const printed: PrintedOnly[] = [{ id: WORDING.entries[0].id, part: 'Scoring', label: 'CANDIDATE', sentence: WORDING.entries[0].sentence, note: 'printed beside the text only: no element of this game carries it' }, ...printedOnly(false)]
+    // FIX (V3 check 4): our condition sentence names the escaping team and the marked line (PROPOSED, Q1), so it shows that grade here too.
+    const printed: PrintedOnly[] = [{ id: WORDING.entries[0].id, part: 'Scoring', label: 'CANDIDATE', sentence: WORDING.entries[0].sentence, note: 'printed beside the text only: no element of this game carries it', restsOn: ['Q1'] }, ...printedOnly(false)]
     const heading = ["NEGATIVE CONTROL, TEST-ONLY: plain GF2 (A02-D's build) with our CANDIDATE wording printed beside it; the wording enters no structure; never served; nothing here is live.", MARKERS]
     return fourPartPrint({ heading, said, printed, illustrativeOf: illustrativeOfRun(m), illustrativeShown: illustrativeShownOfRun(m) })
 }
@@ -751,13 +808,20 @@ const ruling = (id: string) => {
     return r
 }
 const christian = (id: string, n: number) => `${quoted(ruling(id).words[n])} (${citedDateOf(ruling(id))})`
-export const A01_SENTENCES = 27
+/**
+ * FIX (13 November 2026, from the V3 verification, check 6), re-pinned openly: was A01_SENTENCES = 27, printed 'A01's served Details hold 27
+ * sentences', a count no pin holds (27 was A01's Details count before 'There is no offside' was added, 24 October 2026). A01's served Details,
+ * the goal version at 12 players with 1 goalkeeper, hold 28 instructions (lines, like the coach text's lines): goal-version-communication.unit.ts
+ * pins it, and the coach-text test holds this figure to that pin's own text (A01_PIN).
+ */
+export const A01_DETAILS_INSTRUCTIONS = 28
+export const A01_PIN = `assert.equal(activity.rendered.instructions.length, ${A01_DETAILS_INSTRUCTIONS})`
 /**
  * Stage A2 (the lead's decision W4, V2 finding 9): the qualifier every claim of a complete or served activity carries, so a pass is never read
- * as Christian's criterion met.
+ * as Christian's criterion met. FIX (13 November 2026, V4 L15): it also names how many TEST-ONLY treatments the run rests on (read from the run).
  */
 export const notYetQualifier = (): string =>
-    `not yet the activity Christian asked for, ${christian('A02-12NOV-PACKAGE', 0)}: N1, N2, N3, the restart and LAW-11 are PROPOSED and the condition is our CANDIDATE restatement; validation passes with one guard finding carried as pending (TT-PROPOSED-PENDING, Q2) and the laws check in REPORT mode`
+    `not yet the activity Christian asked for, ${christian('A02-12NOV-PACKAGE', 0)}: N1, N2, N3, the restart and LAW-11 are PROPOSED and the condition is our CANDIDATE restatement; validation passes with one guard finding carried as pending (TT-PROPOSED-PENDING, Q2) and the laws check in REPORT mode; the run rests on ${at(REVIEW_RUN).result.testOnlyTreatments.length} TEST-ONLY treatments (appendix F, F1)`
 
 /** Appendix F of the A02 evidence: everything stage B3 adds, generated from the runs (`from`: the first or the second build). */
 export function appendixF(from: Map<string, Made> = B3): string[] {
@@ -782,6 +846,8 @@ export function appendixF(from: Map<string, Made> = B3): string[] {
             ? `The review-level run ${REVIEW_RUN} is served at review level (stage A1, 13 November 2026; TEST-ONLY, never released), with ${review.built?.activity?.integrity?.fidelityViolations ?? 'unknown'} fidelity violations: the renderer and fidelity read the register the game was derived over (TEST-ONLY, only on a build given our CANDIDATE wording); each role's own-event sentence cites its own objective's role; the two targets (the zone beyond the marked line, the escaping team's end line) are named in one sentence read only from our CANDIDATE wording file; and the PROPOSED restart (question Q6) starts play, and restarts it after each point and when the ball goes over an end line, the ball to the escaping team. Fidelity reads our CANDIDATE wording beside the approved table, as it reads approved wording (stage B2). Served at review level is ${notYetQualifier()} (stage A2).`
             : `The review-level run ${REVIEW_RUN} is refused at ${review.answer.stage}; it is printed below as the draft an administrator sees, never as served.`,
     )
+    // FIX (13 November 2026, from the V4 verification, finding 2): what the fidelity count and the print do not cover, said where the count is.
+    out.push(`What the fidelity count and the coach text do not cover (FIX, V4 finding 2): the ${review.built?.activity?.integrity?.fidelityViolations ?? 'unknown'} fidelity violations rest on our CANDIDATE wording read as approved wording, so fidelity skips its obligation lexicon on our condition sentence ('only if'), while the Coach Overview's check, reading the approved table alone, finds that lexicon's findings on the same sentence (stage A1, R6; the Coach Overview stays withheld). The coach text (F2) is a print, not what the engine serves (F2b): its printed-only sentences (${WORDING.printerOnly.map((x) => x.id).join(', ')}) are said by no engine and are under no fidelity or meaning check. Measured differences from the engine sentences they stand for: ${PRINT_DIVERGENCES.map((d) => `${d.id} ${d.says}`).join('; ')}.`)
     out.push(`Pending (awaiting Christian's approval, never a pass): ${(review.answer.reviewLevel?.pendingApproval ?? []).map((e) => `${e.item} (question ${e.questionId}), in ${e.blocks.length} blocks: ${withoutGenderedPronouns(plain(e.finding))}`).join('; ') || 'none'} (the guard's words, printed without a gendered pronoun)`)
     // Stage A1, re-pinned openly: the heading said 'the administrator's draft of the refused run'. Stage A2 (decisions W1 and W2), re-pinned
     // openly: the print was the engine's sentences with the printed-only sentences beside them, marked by whose words they are; it is the coach
@@ -792,7 +858,11 @@ export function appendixF(from: Map<string, Made> = B3): string[] {
     out.push("F2b. THE ENGINE'S OWN SENTENCES (in the order said, each marked and graded, and where the coach text prints it):")
     out.push(...p.engine.map((l) => `   ${l}`))
     const r = p.reading
-    out.push(`Concision (measured; V2's method: labels and notes stripped, sentences split at '. ', words at spaces): what a coach reads in the coach text, ${r.total.lines} lines, ${r.total.sentences} sentences and ${r.total.words} words (${['Setup', 'Rules', 'Scoring', 'Learning explanation'].map((part) => `${part} ${r.byPart[part].lines}/${r.byPart[part].sentences}/${r.byPart[part].words}`).join(', ')}); the engine's own text, ${p.said.length} sentences and ${p.words} words; A01's served Details hold ${A01_SENTENCES} sentences.`)
+    out.push(`Concision (measured; V2's method: labels and notes stripped, sentences split at '. ', words at spaces): what a coach reads in the coach text, ${r.total.lines} lines, ${r.total.sentences} sentences and ${r.total.words} words (${['Setup', 'Rules', 'Scoring', 'Learning explanation'].map((part) => `${part} ${r.byPart[part].lines}/${r.byPart[part].sentences}/${r.byPart[part].words}`).join(', ')}); the engine's own text, ${p.said.length} sentences and ${p.words} words; A01's served Details (the goal version at 12 players with 1 goalkeeper) hold ${A01_DETAILS_INSTRUCTIONS} instructions, against the coach text's ${r.total.lines} lines.`)
+    // FIX (13 November 2026, from the V4 verification, finding 5): the four High Press Escape rules, live beside our CANDIDATE, read from the
+    // CANDIDATE rules file (its loader holds each live text to COACH_RULES), for the review Christian asked for alongside the complete activity.
+    out.push(`F2c. THE FOUR HIGH PRESS ESCAPE RULES, LIVE BESIDE OUR CANDIDATE (${christian('A02-12NOV-NEXT-ACTION', 16)}; the CANDIDATE rules are held, never released; COACH_RULES, the live text, is unchanged):`)
+    for (const rule of CANDIDATE_RULES.rules) out.push(`- ${rule.key}`, `   live: ${rule.live}`, `   CANDIDATE: ${rule.candidate}`, ...(rule.setupCandidate ? [`   CANDIDATE setup: ${rule.setupCandidate}`] : []))
     out.push('F3. THE ELEMENT TABLE (generated from the build: every configuration line of the review-level run, by element, each with the labels of what it rests on, read from the item\'s category by the handoff\'s grading; never typed by hand):')
     out.push(...elementTable(review))
     out.push(`F4. THE ACCEPTANCE WALKTHROUGH (Christian's four questions, ${christian('A02-12NOV-PACKAGE', 14)}; each answered from the realized game's elements in both role blocks, never from a sentence, and questions 2 and 4 read against RPC-002's approved rows (stage A2); a development finding only, never ecological validation, which Christian keeps for the ecological review, received 12 November 2026, item 6):`)
@@ -802,7 +872,7 @@ export function appendixF(from: Map<string, Made> = B3): string[] {
     out.push(...walkthroughLines(control).map((l) => `   ${l}`))
     out.push(`   what a coach would read in ${GF2W} (the wording claims what no element carries):`)
     out.push(...gf2wPrint(at(GF2W, from)).text.split('\n').map((l) => `      ${l}`))
-    out.push(`Limits kept visible (each is Christian's ecological review or a field trial, not this walkthrough): whether the pressing team presses together, and how often a qualifying start arises; that the condition can give the pressing team a reason not to press together (a possession it does not press together cannot score), for Christian to weigh; that RPC-PROP-027 (isolated dribbling) is rewarded by the approved event itself, a tension inside approved knowledge, reported and not fixed; whether the line's place (the schematic 12 m, ILLUSTRATIVE) serves the problem, and whether a coach can apply the placement rule; whether an escaping team, which cannot score unpressed, waits for or invites pressure; whether the PROPOSED restart (question Q6, stage A1: the ball to an escaping player near their own end at the start, after each point and when the ball goes over an end line) recreates the pressure conditions, which it never stands in for (the coach still judges the pressure in play; a ball given at a restart is not assumed to create organized opposition, Christian's caution received 5 November 2026); that no item writes the restart policy row, so every other dead ball keeps the normal Laws, and the kick-off stays owed in the laws account (PROCEDURAL under our DRAFT reading, reported); whether a coach can judge the start under pressure in play; the pressing team's reward (question 2); offside (question 3); and Christian's concern, ${christian('A02-12NOV-NEXT-ACTION', 14)} (OURS: in A02-HPE1 the escaping team has no goal, so no shot arises; the concern stays visible for the ecological review). No player-learning effect is claimed (Christian asks for none yet, received 12 November 2026, item 6).`)
+    out.push(`Limits kept visible (each is Christian's ecological review or a field trial, not this walkthrough): whether the pressing team presses together, and how often a qualifying start arises; that the condition can give the pressing team a reason not to press together (a possession it does not press together cannot score), for Christian to weigh; that RPC-PROP-027 (isolated dribbling) is rewarded by the event's vocabulary description (its meaning for RPC-002 ${eventMeaningStanding('RPC-002', 'target_zone_entered')}; the event kind approved for RPC-002), which the live High Press Escape rules follow, a tension between RPC-002's approved degenerate-solution row and that meaning, reported and not fixed (FIX, V4 finding 3); that RPC-PROP-026 (panic clearances) is only partly punished: a clearance over either end line returns the ball to the escaping team at the PROPOSED restart, whoever touched it last (question Q6; the other arm, described and not built: the restart over an end line keeps the possession game's own award, to the team that did not touch the ball last, GF2-16.a) (FIX, V4 finding 1); that in the PROPOSED structure the restart is the activity's rule, not one option among the coach's (question Q6, FIX, V4 finding 4); whether the line's place (the schematic 12 m, ILLUSTRATIVE) serves the problem, and whether a coach can apply the placement rule; whether an escaping team, which cannot score unpressed, waits for or invites pressure; whether the PROPOSED restart (question Q6, stage A1: the ball to an escaping player near their own end at the start, after each point and when the ball goes over an end line) recreates the pressure conditions, which it never stands in for (the coach still judges the pressure in play; a ball given at a restart is not assumed to create organized opposition, Christian's caution received 5 November 2026); that no item writes the restart policy row, so every other dead ball keeps the normal Laws, and the kick-off stays owed in the laws account (PROCEDURAL under our DRAFT reading, reported); whether a coach can judge the start under pressure in play; the pressing team's reward (question 2); offside (question 3); and Christian's concern, ${christian('A02-12NOV-NEXT-ACTION', 14)} (OURS: in A02-HPE1 the escaping team has no goal, so no shot arises; the concern stays visible for the ecological review). No player-learning effect is claimed (Christian asks for none yet, received 12 November 2026, item 6).`)
     out.push(`F5. THE REWORDINGS (A02-HPE1 under the reversed and the neutral wording, the A02-2~ family's method; Christian's item 7: context routing and lens ranking where alternative wording could change a knowledge-governed result): ${material.length === 0 ? 'no material effect: no knowledge-governed result moves; the engine lenses move (ENGINE_LENS, report only), and nothing built reads them on this run' : `MATERIAL: ${material.join('; ')}`}. OD-WORDING-FLIP and OD-WORDING-LENSES stay open as recorded.`)
     for (const r of rows) out.push(`- ${r.facet}${r.governed ? '' : ' (not knowledge-governed)'}: own ${show(r.own)}; ${REWORDINGS.map((name) => `${name} ${show(r.reworded[name])}`).join('; ')}; ${r.moves.length ? `MOVES under ${r.moves.join(' and ')}` : 'the same'}`)
     out.push('F6. THE SAFEGUARD CHECK ON THE HPE-1 RUNS (the same pure check as appendix B; the progression clause read through the configuration\'s replacement of RPC-002-03.b by A02-HPE1-03.b, read from the configuration file: our CANDIDATE item typing the pressing line to the PROPOSED escape line, contingent on question 1, so the clause is carried, not approved; OD-CONTEXT carried by these runs too):')
@@ -845,7 +915,10 @@ test('the stops (measured): A02-HPE1 served at review level (stage A1), A02-HPE1
 // Stage A2 (13 November 2026, the lead's decision W3), re-pinned openly: the title said '4 of 4 established by the game's structure'; the
 // structural facts still hold for all four questions (1d now read from the targets' positions, 1e the PROPOSED restart added), and question 1
 // is printed 'pressure: established; coordination: not established (coach-judged)'; questions 2 and 4 are read against RPC-002's approved rows.
-test("the walkthrough on A02-HPE1's realized game: the structural facts of 4 of 4 questions hold in both role blocks (1d read from the targets' positions, 1e the PROPOSED restart), question 1 printed 'pressure: established; coordination: not established', RPC-002's approved rows read (RPC-PROP-027 rewarded by the approved event), each citing its elements with their labels", () => {
+// FIX (13 November 2026, from the V4 verification), re-pinned openly: question 1 is printed Q1_VERDICT (L8); RPC-PROP-026 is 'partly punished'
+// (was 'punished': the end-line restart returns a clearance to the escaping team, finding 1), with its limit under 4c; RPC-PROP-027 is rewarded
+// by the event's vocabulary description, whose meaning for RPC-002 is UNREVIEWED (was 'by the approved event itself', finding 3).
+test("the walkthrough on A02-HPE1's realized game: the structural facts of 4 of 4 questions hold in both role blocks (1d read from the targets' positions, 1e the PROPOSED restart), question 1 printed 'pressure: a pressing role and a reason to press (structural); coordination: not established', RPC-002's approved rows read (RPC-PROP-026 partly punished, with its limit; RPC-PROP-027 rewarded by the event's UNREVIEWED description), each citing its elements with their labels", () => {
     const w = walkthroughOf(at(REVIEW_RUN))
     assert.deepEqual(w.answers.map((a) => [a.n, a.established, a.facts.filter((f) => !f.holds).map((f) => f.id)]), [
         [1, true, []],
@@ -854,7 +927,7 @@ test("the walkthrough on A02-HPE1's realized game: the structural facts of 4 of 
         [4, true, []],
     ])
     assert.equal(w.count, 4)
-    assert.deepEqual(w.answers.map((a) => a.verdict), ['pressure: established; coordination: not established (coach-judged)', ESTABLISHED, ESTABLISHED, ESTABLISHED])
+    assert.deepEqual(w.answers.map((a) => a.verdict), ['pressure: a pressing role and a reason to press (structural); coordination: not established (coach-judged)', ESTABLISHED, ESTABLISHED, ESTABLISHED])
     assert.deepEqual(w.answers[0].facts.map((f) => f.id), ['1a', '1b', '1c', '1d', '1e'])
     // RPC-002's approved rows, each read from the library and its verdict computed from the game (OURS: which element carries it).
     assert.deepEqual(w.answers.flatMap((a) => a.rows.map((r) => [a.n, r.rowId, r.verdict])), [
@@ -862,11 +935,19 @@ test("the walkthrough on A02-HPE1's realized game: the structural facts of 4 of 
         [2, 'RPC-PROP-023', 'partly held'],
         [2, 'RPC-PROP-024', 'held'],
         [2, 'RPC-PROP-025', 'held'],
-        [4, 'RPC-PROP-026', 'punished'],
+        [4, 'RPC-PROP-026', 'partly punished'],
         [4, 'RPC-PROP-027', 'rewarded'],
         [4, 'RPC-PROP-028', 'not addressed'],
         [4, 'RPC-PROP-029', 'not punished'],
     ])
+    // FIX (V4 finding 1): the end-line restart is cited, and the limit under 4c is printed with question 4 only.
+    const r026 = w.answers[3].rows.find((r) => r.rowId === 'RPC-PROP-026')!
+    assert.ok(r026.reading.includes('a clearance over either end line, whoever touched the ball last, returns it to the escaping team') && r026.cites.some((c) => c.startsWith('transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].awardedTo')), json(r026))
+    assert.deepEqual(w.answers.map((a) => a.limits.length), [0, 0, 0, 1])
+    assert.ok(w.answers[3].limits[0].startsWith('4c is weaker than it reads'))
+    // FIX (V4 finding 3): the event's meaning for RPC-002 is read UNREVIEWED; nothing calls it approved knowledge.
+    const r027 = w.answers[3].rows.find((r) => r.rowId === 'RPC-PROP-027')!
+    assert.ok(r027.reading.includes('its meaning for RPC-002 is UNREVIEWED') && !r027.reading.includes('inside approved knowledge') && !r027.reading.includes('approved High Press Escape rules'), r027.reading)
     for (const r of w.answers.flatMap((a) => a.rows)) assert.equal(r.words, (rpcLibrary.properties('RPC-002').find((x: any) => x.property_id === r.rowId) as any).property_text, `${r.rowId}: the row's own words`)
     // Question 3's two LAW-11 arms: the built one read from the laws account (DEPARTED), naming our DRAFT laws reading's bypass.
     assert.equal(w.answers[2].arms.length, 2)
@@ -930,7 +1011,7 @@ test(`the negative control A02-GF2W (plain GF2 with our CANDIDATE wording beside
 // only through the progression condition's referent, so removing the conditions removes questions 2 and 3 too). New bites: 1d (a target
 // moved beyond the half at the escaping team's end), 1e (the restart removed), and RPC-002's rows (the control condition removed: RPC-PROP-026
 // not punished; the scoring event made one that counts no dribble: RPC-PROP-027 not rewarded).
-test("each question's predicate bites, on a changed copy of the review-level run's realized game: the pressing team's own event folded (1 and 4), the escape line's referent removed (2, 3 and 4), the conditions removed (2, 3 and 4: the line is found through the progression condition's referent), an element of another kind added (2 and 3), the escaping team's target moved beyond the half (1), the restart removed (1); and RPC-002's rows: the control removed (RPC-PROP-026 not punished), an event counting no dribble (RPC-PROP-027 not rewarded)", () => {
+test("each question's predicate bites, on a changed copy of the review-level run's realized game: the pressing team's own event folded (1 and 4), the escape line's referent removed (2, 3 and 4), the conditions removed (2, 3 and 4: the line is found through the progression condition's referent), an element of another kind added (2 and 3), the escaping team's target moved beyond the half (1), the restart removed (1); and RPC-002's rows: the control removed (RPC-PROP-026 not punished), the end-line restart against the last toucher (RPC-PROP-026 punished), an event counting no dribble (RPC-PROP-027 not rewarded)", () => {
     const base = at(REVIEW_RUN)
     const changedBuilt = (change: (fixture: any) => void) => {
         const built = copy({ fixture: base.built.fixture })
@@ -960,6 +1041,15 @@ test("each question's predicate bites, on a changed copy of the review-level run
     const rowsOf = (w: Walkthrough) => Object.fromEntries(w.answers.flatMap((a) => a.rows.map((r) => [r.rowId, r.verdict])))
     assert.equal(rowsOf(walkthroughOf(base, changedBuilt((f) => (f.game.value.primaryEvent.conditions = (f.game.value.primaryEvent.conditions as any[]).filter((c) => c.type !== 'control')))))['RPC-PROP-026'], 'not punished')
     assert.equal(rowsOf(walkthroughOf(base, changedBuilt((f) => (f.game.value.primaryEvent.kind = 'target_player'))))['RPC-PROP-027'], 'not rewarded')
+    // FIX (13 November 2026, V4 finding 1): the end-line restart awarded against the last toucher (the possession game's own NOT_LAST_TOUCH):
+    // RPC-PROP-026 punished and no limit under 4c; the end-line restart removed: punished too (no restart hands a clearance back).
+    const lastTouch = walkthroughOf(base, changedBuilt((f) => {
+        for (const t of f.game.transitions as any[]) if (((t.selector ?? []) as any[]).some((s) => s.attribute === 'trigger' && s.value === 'OUT_END_LINE')) t.awardedTo = 'NOT_LAST_TOUCH'
+    }))
+    assert.equal(rowsOf(lastTouch)['RPC-PROP-026'], 'punished', 'bite: an end-line restart against the last toucher punishes the clearance')
+    assert.deepEqual(lastTouch.answers[3].limits, [])
+    const noEndLine = walkthroughOf(base, changedBuilt((f) => (f.game.transitions = (f.game.transitions as any[]).filter((t) => !((t.selector ?? []) as any[]).some((s: any) => s.attribute === 'trigger' && s.value === 'OUT_END_LINE')))))
+    assert.equal(rowsOf(noEndLine)['RPC-PROP-026'], 'punished')
     // And the chain's account: a constraint applied reads as an element that may instruct a team (2 and 3).
     const constrained = copy(base.answer)
     constrained.account!.constraints = ['tl-v0-constraint-turnover-reward']
@@ -1029,13 +1119,31 @@ test("the review-level run's LAW-11 departure is graded PROPOSED (our configurat
 // (measured: what a coach reads), each engine sentence printed as said or stated by one sentence of ours, every line graded as the handoff
 // grades it; the engine's own text is 19 sentences and 435 words (our condition sentence, said by the engine, now carries the escaping team's
 // whole scoring: the event, the condition, no extra touch, the stoppage).
-test("the coach text of the review-level run (served at review level): every engine sentence printed exactly once, as said or stated by one sentence of ours; every line graded ('[D | PROPOSED Qn]', '[C | contingent on Qn]') and every ILLUSTRATIVE quantity labelled, the session's '30 m' too; 12 lines, 17 sentences and 330 words against A01's 27 sentences; the engine's own text 19 sentences and 435 words; a stripped grade and a stripped session label are caught", () => {
+// FIX (13 November 2026, from the V3 and V4 verifications), re-pinned openly. BEFORE: 330 words (Scoring 126, Learning explanation 48), the
+// engine's 435 words; the possession sentence '[A | contingent on Q6]'; L1 '[A: ...]' from markerWords holding the letter; R1 '[P | PROPOSED Q6]';
+// L2 '[C | contingent on Q2]'; 'A01's 27 sentences'. AFTER (measured): 326 words (Scoring 116: 'before scoring', 'or', the stoppage sentence
+// without the repeated next action, 'judgment', K5's 'a point'; Learning explanation 54: L2 in the scoring line's words), the engine's 425 words;
+// the possession sentence names its approved source and the date Christian's reply was received (V3 FAIL A); R1 and L2 carry Q1 (the escaping
+// team's noun, PROPOSED with N3); A01's 28 Details instructions, the goal version's pinned count (V3 check 6). The whole marker of every line is
+// recomputed by the print's check: [C] stripped from our condition line and L1's source cut to [A] are caught (V3 FAIL B).
+test("the coach text of the review-level run (served at review level): every engine sentence printed exactly once, as said or stated by one sentence of ours; every line marked and graded ('[D | PROPOSED Qn]', '[C | contingent on Qn]', '[A: source, received date | ...]') and every ILLUSTRATIVE quantity labelled, the session's '30 m' too; 12 lines, 17 sentences and 326 words against A01's 28 Details instructions (the goal version's pin); the engine's own text 19 sentences and 425 words; a stripped grade, a stripped session label, a stripped [C] and L1's source cut to [A] are caught; the print's stated differences from the engine sentences hold", () => {
     const m = at(REVIEW_RUN)
     const { print, said, illustrativeOf, engine, reading, words } = reviewPrint(m)
     assert.deepEqual(printRefusals(print, said, illustrativeOf), [])
     assert.deepEqual(print.findings, [])
-    assert.deepEqual([said.length, words], [19, 435])
-    assert.deepEqual([reading.total.lines, reading.total.sentences, reading.total.words], [12, 17, 330])
+    assert.deepEqual([said.length, words], [19, 425])
+    assert.deepEqual([reading.total.lines, reading.total.sentences, reading.total.words], [12, 17, 326])
+    assert.deepEqual(['Setup', 'Rules', 'Scoring', 'Learning explanation'].map((part) => [reading.byPart[part].lines, reading.byPart[part].sentences, reading.byPart[part].words]), [[4, 5, 97], [4, 4, 59], [2, 6, 116], [2, 2, 54]])
+    // FIX (V3 check 6): A01's figure is the goal version's pinned Details count, held to that pin's own text (bite: 27, the old figure, is no pin).
+    const a01Pin = fs.readFileSync(path.resolve(HERE, '..', 'rendering', 'goal-version-communication.unit.ts'), 'utf8')
+    assert.ok(a01Pin.includes(A01_PIN), `A01's figure is the pinned count: ${A01_PIN}`)
+    assert.ok(!a01Pin.includes('assert.equal(activity.rendered.instructions.length, 27)'), 'bite: 27 is not the pinned count')
+    // FIX (V4 finding 2): each difference the report states between a printed-only sentence and the engine sentences it stands for still holds.
+    for (const d of PRINT_DIVERGENCES) {
+        const p = WORDING.printerOnly.find((x) => x.id === d.id)!
+        if (d.has) assert.ok(p.sentence.includes(d.has), `${d.id} says '${d.has}'`)
+        assert.ok(!p.sentence.includes(d.dropped) && (p.standsFor ?? []).some((s) => s.includes(d.dropped)), `${d.id} leaves out '${d.dropped}', which a sentence it stands for says`)
+    }
     assert.ok(print.text.startsWith('REVIEW LEVEL, TEST-ONLY.') && print.text.includes('SERVED at review level') && !print.text.includes('REFUSED AT'))
     assert.ok(!print.text.includes('{block'), 'no raw block token')
     // Every line's marker and grade, part by part, in each part's order (as the text prints them).
@@ -1045,15 +1153,26 @@ test("the coach text of the review-level run (served at review level): every eng
         ['Setup', '[P | PROPOSED Q1]', 'A02-HPE1-S3'],
         ['Setup', '[D]', 'said'],
         ['Setup', '[P | PROPOSED Q1]', 'A02-HPE1-S4'],
-        ['Rules', '[A | contingent on Q6]', 'said'],
-        ['Rules', '[P | PROPOSED Q6]', 'A02-HPE1-R1'],
+        ['Rules', "[A: Christian's approved wording POSSESSION_CONTINUES, received 25 October 2026 | contingent on Q6]", 'said'],
+        ['Rules', '[P | PROPOSED Q1 | PROPOSED Q6]', 'A02-HPE1-R1'],
         ['Rules', '[D | PROPOSED Q3]', 'said'],
         ['Rules', '[D]', 'said'],
         ['Scoring', '[C | contingent on Q1]', 'said'],
         ['Scoring', '[P | PROPOSED Q1 | PROPOSED Q2]', 'A02-HPE1-K5'],
-        ['Learning explanation', `[${PURPOSE_MARKER}]`, 'L1'],
-        ['Learning explanation', '[C | contingent on Q2]', 'A02-HPE1-L2'],
+        ['Learning explanation', `[A: ${PURPOSE_MARKER}]`, 'L1'],
+        ['Learning explanation', '[C | contingent on Q1 | contingent on Q2]', 'A02-HPE1-L2'],
     ])
+    // FIX (V3 check 4, FAIL B): the print's check recomputes every marker. Bites on the real print: [C] stripped from our condition line, L1's
+    // source cut to [A], [D] made [A] on 'There is no offside', [P] made [C] on the restart line, the possession sentence's source stripped.
+    const remarked = (start: string, from: string, to: string) => ({ ...print, lines: print.lines.map((l) => (l.plain.startsWith(start) ? { ...l, shownMarker: l.shownMarker.split(from).join(to) } : l)) })
+    for (const [start, from, to, what] of [
+        ['The escaping team scores a point', '[C', '[', '[C] stripped from our condition line'],
+        ['Continue progressing', `: ${PURPOSE_MARKER}`, '', "L1's source cut to [A]"],
+        ['There is no offside', '[D', '[A', "[D] made [A] on 'There is no offside'"],
+        ['Start, and restart', '[P', '[C', '[P] made [C] on the restart line'],
+        ['When possession changes', ": Christian's approved wording POSSESSION_CONTINUES, received 25 October 2026", '', "the possession sentence's source stripped"],
+    ])
+        assert.ok(printRefusals(remarked(start, from, to), said, illustrativeOf).some((r) => r.includes('shows the marker')), `bite: ${what} is caught`)
     // The engine's 19 sentences, each where the coach text prints it.
     assert.deepEqual(engine.map((l) => l.slice(l.lastIndexOf(' -> ') + 4)), [
         'printed as said',

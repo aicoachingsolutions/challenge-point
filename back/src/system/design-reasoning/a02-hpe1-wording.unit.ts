@@ -35,7 +35,7 @@ import { CANDIDATE_COACH_WORDING_FILE, CandidateWordingRefused, candidateTable, 
 import { approvedSentences } from '../rendering/render-concrete-game'
 import { actionWordsIn } from '../sport-module/action-words'
 import { displayCell } from './assembly-display'
-import { fourPartPrint, printRefusals, SaidSentence } from './four-part-print.unit'
+import { approvedSourceOf, fourPartPrint, printRefusals, SaidSentence } from './four-part-print.unit'
 import { ChainAnswer, ChainRequest, HandoffChain, HandoffResult, runHandoffCases } from './handoff'
 import { candidateWordingSourcesOf, productionRecords, realChain, sessionOf } from './handoff-chain.unit'
 import { committedKnowledge } from './knowledge'
@@ -177,12 +177,16 @@ test('W1 the CANDIDATE wording passes its gate whole; each defect refuses the fi
     // CANDIDATE), K3 and K4 (scoring details, CANDIDATE), L2. AFTER: S3 places the line once (the rule, the 12 m in brackets), S4 the roles and
     // ends, R1 the PROPOSED restart (S6 merged into it), K5 the pressing team's score (PROPOSED), L2; K3 and K4 are in our condition sentence
     // (W1), the event-completion sentence gone. Each but L2 states engine sentences in their place (standsFor); L2 names Q2 (restsOn).
-    assert.deepEqual(wording.printerOnly.map((p) => [p.id, p.part, p.label, p.standsFor?.length ?? 0, p.restsOn ?? []]), [
-        ['A02-HPE1-S3', 'Setup', 'PROPOSED', 1, []],
-        ['A02-HPE1-S4', 'Setup', 'PROPOSED', 2, []],
-        ['A02-HPE1-R1', 'Rules', 'PROPOSED', 4, []],
-        ['A02-HPE1-K5', 'Scoring', 'PROPOSED', 3, []],
-        ['A02-HPE1-L2', 'Learning explanation', 'CANDIDATE', 0, ['Q2']],
+    // FIX (13 November 2026, from the V3 and V4 verifications), re-pinned openly. BEFORE: only L2 named a question of its own (Q2). AFTER: every
+    // printed sentence names each question it rests on (S3 Q1, S4 Q1, R1 Q1 and Q6, K5 Q1 and Q2, L2 Q1 and Q2: the escaping team's noun is
+    // PROPOSED with N3, Q1), so a print in which they state no engine sentence (the negative control's) still shows their grades; S3 carries its
+    // own ILLUSTRATIVE label for the 12 m it shows.
+    assert.deepEqual(wording.printerOnly.map((p) => [p.id, p.part, p.label, p.standsFor?.length ?? 0, p.restsOn ?? [], p.illustrative ?? null]), [
+        ['A02-HPE1-S3', 'Setup', 'PROPOSED', 1, ['Q1'], 'ILLUSTRATIVE: the schematic 12 m of this 40 m area; the placement rule governs (PROPOSED)'],
+        ['A02-HPE1-S4', 'Setup', 'PROPOSED', 2, ['Q1'], null],
+        ['A02-HPE1-R1', 'Rules', 'PROPOSED', 4, ['Q1', 'Q6'], null],
+        ['A02-HPE1-K5', 'Scoring', 'PROPOSED', 3, ['Q1', 'Q2'], null],
+        ['A02-HPE1-L2', 'Learning explanation', 'CANDIDATE', 0, ['Q1', 'Q2'], null],
     ])
     assert.equal(wording.entries[0].standsFor?.length, 3)
     const raw = readJson(CANDIDATE_COACH_WORDING_FILE)
@@ -211,6 +215,8 @@ test('W1 the CANDIDATE wording passes its gate whole; each defect refuses the fi
     refuses((c) => c.printerOnly[3].standsFor.push(c.printerOnly[0].standsFor[0]), 'which another sentence of the file already stands for')
     refuses((c) => (c.printerOnly[4].restsOn = ['question 2']), 'its restsOn is not a list of question ids')
     refuses((c) => (c.entries[0].restsOn = ['Q1']), 'an entry carries no restsOn')
+    // FIX (V3): a printed sentence's own ILLUSTRATIVE label must say so in its first word (bite: the label without it).
+    refuses((c) => (c.printerOnly[0].illustrative = 'the schematic 12 m of this 40 m area'), "its illustrative label does not begin 'ILLUSTRATIVE: '")
     assert.throws(() => loadCandidateWording(SOURCES, fileCopy(CANDIDATE_COACH_WORDING_FILE, (c) => (c.label = 'APPROVED'))), (e: unknown) => e instanceof CandidateWordingRefused, 'refused whole by the loader')
     // A stale value (the origin's words drifted): the entry no longer matches the game, so it is not said, the fields are withheld and the build
     // refuses at communication naming them (fail closed); the gate cannot see it (the shape holds), the renderer does.
@@ -362,7 +368,7 @@ test("W5 LAW-11: 'There is no offside' said exactly once, from the configuration
  * words lay inside the parenthesis describing the pressure, holding no number and closing 'through its next action.'. AFTER: our condition
  * sentence is the escaping team's whole scoring in five sentences, so the check reads where each action word may lie: in the event's own
  * description (what counts as the event, the approved vocabulary's dribble or controlled reception: 'when a player ... beyond it,'), in the
- * description of the pressure (the pressing team's: from 'before it scored:' to the sentence after), or in the sentence saying no extra
+ * description of the pressure (the pressing team's: from 'before scoring:' to the sentence after), or in the sentence saying no extra
  * touch is needed (a negation: nothing asked). It holds no number (a numeral would be an undeclared quantity, which fidelity refuses), and
  * its first sentence closes 'through its next action.'.
  */
@@ -374,7 +380,8 @@ function solutionRefusals(sentence: string): string[] {
         const b = a >= 0 ? sentence.indexOf(to, a + from.length) : -1
         return a >= 0 && b >= 0 ? { a, b: b + to.length } : null
     }
-    const allowed = [span('when a player', 'beyond it,'), span('before it scored:', 'necessarily count.'), span('A player who dribbles', 'needs no extra touch.')].filter((x): x is { a: number; b: number } => x !== null)
+    // FIX (13 November 2026, V4 L2), re-pinned openly: the pressure's span begins 'before scoring:' (was 'before it scored:').
+    const allowed = [span('when a player', 'beyond it,'), span('before scoring:', 'necessarily count.'), span('A player who dribbles', 'needs no extra touch.')].filter((x): x is { a: number; b: number } => x !== null)
     if (allowed.length !== 3) reasons.push('the event, the pressure or the no-extra-touch sentence is not where the check reads it')
     for (const word of actionWordsIn(sentence)) if (!allowed.some((x) => word.at >= x.a && word.at < x.b)) reasons.push(`'${word.word}' (${word.actionClass}) is asked outside the event, the description of the pressure and the no-extra-touch sentence`)
     if (/\d/.test(sentence)) reasons.push('it holds a number')
@@ -388,12 +395,19 @@ test('W6 conditions, not solutions: our condition sentence asks the escaping tea
     assert.ok(actionWordsIn(w1).length > 0, 'the description of the pressure names what pressing together is')
     assert.ok(solutionRefusals(w1.replace(' and the team keeps the ball through its next action.', ' and passes forward first, and the team keeps the ball through its next action.')).some((r) => r.includes("'passes'")), "bite: 'and passes forward first' is caught")
     assert.ok(solutionRefusals(w1.replace('through its next action.', 'within 3 seconds through its next action.')).includes('it holds a number'), "bite: 'within 3 seconds' is caught")
-    assert.ok(solutionRefusals(w1.replace('use your judgement', 'pass back and use your judgement')).some((r) => r.includes("'pass'")), "bite: 'pass back' in the stoppage sentence is caught")
+    assert.ok(solutionRefusals(w1.replace('use your judgment', 'pass back and use your judgment')).some((r) => r.includes("'pass'")), "bite: 'pass back' in the stoppage sentence is caught")
     for (const s of [...wording.entries.map((e) => e.sentence), ...wording.printerOnly.map((p) => p.sentence)]) for (const never of SOURCES.never) assert.ok(!s.includes(never), never)
-    // The decided pressure sentence, word for word (the lead's decision W1), and no 'attack' in any sentence of ours (Christian keeps a restart, a
-    // change of possession and a new attack apart, received 8 November 2026).
-    assert.ok(w1.includes('It counts only if, in that possession, the escaping team faced the pressing team pressing together before it scored: players working together to pressure the ball and restrict passes and forward options. One player closing down alone does not necessarily count.'))
+    // The decided pressure sentence (the lead's decision W1), and no 'attack' in any sentence of ours (Christian keeps a restart, a change of
+    // possession and a new attack apart, received 8 November 2026).
+    // FIX (13 November 2026, from the V4 verification, L2 and L3), re-pinned openly. BEFORE: 'before it scored' and 'restrict passes and forward
+    // options' (the decided words). AFTER: 'before scoring' (the 'it' could be read as the pressing team) and 'passes or forward options' (as
+    // Christian's ruling received 12 November 2026 joins passing and progression with or); our CANDIDATE wording, for the lead to confirm.
+    assert.ok(w1.includes('It counts only if, in that possession, the escaping team faced the pressing team pressing together before scoring: players working together to pressure the ball and restrict passes or forward options. One player closing down alone does not necessarily count.'))
     for (const s of [...wording.entries.map((e) => e.sentence), ...wording.printerOnly.map((p) => p.sentence)]) assert.ok(!/\battack/i.test(s), `no 'attack': ${s}`)
+    // FIX (V3 check 6, V4 L11): the templates are read too. The one declared exception is A02-HPE1-T1, whose 'attacks' names the target each
+    // team plays toward (decision R3's words), never the sequence; any other template saying 'attack' is caught.
+    const ATTACK_EXCEPTIONS = ['A02-HPE1-T1']
+    for (const t of wording.templates) assert.ok(ATTACK_EXCEPTIONS.includes(t.id) || !/\battack/i.test(t.sentence), `no 'attack' outside the declared exception: ${t.id}`)
 })
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -412,7 +426,8 @@ test("W7 the four-part print of A02-HPE1 (served at review level, stage A1): eve
     assert.deepEqual([...schematic], ['space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along'])
     const illustrativeOf = (p: string): string | null =>
         p.startsWith('envelope.') && p !== 'envelope.roles' ? 'ILLUSTRATIVE: session value, a test value' : schematic.has(p) ? 'ILLUSTRATIVE: the schematic 12 m of this 40 m area; the placement rule governs (PROPOSED)' : null
-    const said: SaidSentence[] = m.answer.sentences.map((s) => ({ section: s.section, block: s.block, text: s.text, from: s.from, wording: s.wording }))
+    // FIX (13 November 2026, V3 check 4): an APPROVED sentence carries whose approved wording it is and when Christian's reply was received.
+    const said: SaidSentence[] = m.answer.sentences.map((s) => ({ section: s.section, block: s.block, text: s.text, from: s.from, wording: s.wording, ...(s.wording === 'APPROVED' ? { source: approvedSourceOf(s.text) } : {}) }))
     const purpose = displayCell(committedKnowledge(), { source: 'planning', table: 'learning_goals', row: 'A02', column: 'Coach Definition' }).text
     const print = fourPartPrint({
         heading: [
@@ -421,8 +436,8 @@ test("W7 the four-part print of A02-HPE1 (served at review level, stage A1): eve
         ],
         said,
         printed: [
-            ...wording.printerOnly.map((p) => ({ id: p.id, part: p.part, label: p.label, sentence: p.sentence })),
-            { id: 'L1', part: 'Learning explanation' as const, label: 'APPROVED' as const, sentence: purpose, note: "the Learning Goal's Coach Definition, verbatim: the source Christian chose (received 21 October 2026); its Active status is not a dated approval" },
+            ...wording.printerOnly.map((p) => ({ id: p.id, part: p.part, label: p.label, sentence: p.sentence, ...(p.restsOn ? { restsOn: [...p.restsOn] } : {}), ...(p.illustrative ? { illustrative: p.illustrative } : {}) })),
+            { id: 'L1', part: 'Learning explanation' as const, label: 'APPROVED' as const, sentence: purpose, note: "the Learning Goal's Coach Definition, verbatim: its Active status is not a dated approval", markerWords: 'the source Christian chose, received 21 October 2026' },
         ],
         illustrativeOf,
     })
@@ -431,12 +446,15 @@ test("W7 the four-part print of A02-HPE1 (served at review level, stage A1): eve
     assert.ok(print.text.includes('[D] Mark out an area 40 m long by 30 m wide [ILLUSTRATIVE: session value, a test value]'))
     assert.ok(print.lines.some((l) => l.marker === 'C' && l.part === 'Scoring' && l.text === wording.entries[0].sentence))
     assert.ok(print.lines.some((l) => l.marker === 'P' && l.part === 'Setup'), 'the placement rule is printed PROPOSED')
-    // Concision, measured: the draft's sentences and words (A01's served Details hold 27 sentences: goal-version-communication.unit.ts).
+    // Concision, measured: the draft's sentences and words (A01's served Details, the goal version at 12/1, hold 28 instructions:
+    // goal-version-communication.unit.ts; FIX, 13 November 2026, V3 check 6: this comment said 27 sentences, a count no pin holds).
     const words = said.reduce((n, s) => n + s.text.split(/\s+/).length, 0)
     // Stage A2, re-pinned openly: 377 -> 435 words (the engine's 19 sentences): our condition sentence now carries the escaping team's whole
     // scoring (decision W1). This print sets our sentences beside the engine's; the coach text, each engine sentence printed once as said or
     // stated by one of ours, is a02-acceptance.unit.ts's (12 lines, 17 sentences, 330 words).
-    assert.deepEqual([said.length, words], [19, 435])
+    // FIX (13 November 2026, from the V4 verification, L2, L3, L4 and L5), re-pinned openly: 435 -> 425 words: our condition sentence says
+    // 'before scoring', 'or', and its stoppage sentence no longer repeats the next action.
+    assert.deepEqual([said.length, words], [19, 425])
     quiet(print.text.split('\n').map((l) => `      ${l}`).join('\n'))
 })
 

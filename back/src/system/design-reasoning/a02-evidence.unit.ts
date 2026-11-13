@@ -1062,7 +1062,10 @@ function appendixE(): string[] {
     out.push(`- A02 with the TEST-ONLY treatments of the condition: A02-1 ${clsOf('A02-1')}; A02-1b ${clsOf('A02-1b')}; A02-2 ${clsOf('A02-2')}; A02-D ${clsOf('A02-D')}`)
     out.push(`- A02 with the ILLUSTRATIVE carriers on (stage W4, rebased in stage B1: the progression clause carried by the carriers, the origin and control clauses by our CANDIDATE restatement): ${CARRIER_RUN_IDS.map((id) => `${id} ${clsOf(id)}`).join('; ')}`)
     out.push(`- TA02, the knowledge as it stands (TA02-0): ${clsOf('TA02-0')}; its diagnostic (TA02-D): ${clsOf('TA02-D')}`)
-    out.push(`- A02 under the PROPOSED configuration (stages B1 to B3, TEST-ONLY, for Christian's review): the review-level run ${REVIEW_RUN} ${clsOf(REVIEW_RUN)}; without our CANDIDATE wording (A02-HPE1-S) ${clsOf('A02-HPE1-S')}; without the PROPOSED LAW-11 departure (A02-HPE1-L) ${clsOf('A02-HPE1-L')}; under the rewordings ${B3_RUN_IDS.filter((id) => id.indexOf('~') > 0).map((id) => `${id} ${clsOf(id)}`).join('; ')}; the walkthrough's negative control ${GF2W} ${clsOf(GF2W)}`)
+    out.push(`- A02 under the PROPOSED configuration (stages B1 to B3, TEST-ONLY, for Christian's review): the review-level run ${REVIEW_RUN} ${clsOf(REVIEW_RUN)}; without our CANDIDATE wording (A02-HPE1-S) ${clsOf('A02-HPE1-S')}; without the PROPOSED LAW-11 departure (A02-HPE1-L) ${clsOf('A02-HPE1-L')}; under the rewordings ${B3_RUN_IDS.filter((id) => id.indexOf('~') > 0).map((id) => `${id} ${clsOf(id)}`).join('; ')}`)
+    // FIX (13 November 2026, from the V3 verification, check 6), re-pinned openly: the negative control was the last item of the bullet above,
+    // inside 'A02 under the PROPOSED configuration'; it carries no PROPOSED configuration, so it has its own bullet.
+    out.push(`- The walkthrough's negative control, without the PROPOSED configuration (stage B3, TEST-ONLY: plain GF2 as A02-D builds it): ${GF2W} ${clsOf(GF2W)}`)
     out.push('WHOSE EACH STOP IS:')
     for (const owner of ['CHRISTIAN', 'ENGINEERING', 'NEITHER'] as Owner[]) {
         const classes = STOP_CLASSES.filter((c) => c.owner === owner)
@@ -1216,6 +1219,9 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'Q1', means: 'our question to Christian on N3 and N1: the roles, and the escape line placed by its rule' },
     { id: 'Q2', means: 'our question to Christian on N2, what the pressing team wins; the one pending entry of the review-level run waits on it' },
     { id: 'RPC-PROP-027', means: 'a degenerate solution of High Press Escape (a row of the context library): isolated dribbling replaces collective escape' },
+    // FIX (13 November 2026, from the V4 verification, finding 1 and L15): two identifiers the frame now uses.
+    { id: 'RPC-PROP-026', means: 'a degenerate solution of High Press Escape (a row of the context library): panic clearances avoid rather than solve coordinated pressure' },
+    { id: 'F1', means: 'appendix F, section F1: the runs of stage B3, their stops and the TEST-ONLY treatments each run rests on' },
     { id: 'A02-GF2W', means: 'the walkthrough\'s negative control (stage B3): GF2 as A02-D builds it, without the PROPOSED configuration, our CANDIDATE wording printed beside its text, entering no structure' },
     { id: 'A02-12NOV-', family: true, means: 'a ruling of Christian\'s received 12 November 2026, quoted in appendix A (A02-12NOV-PRESSURE: the start under pressure; A02-12NOV-NEXT-ACTION: the next action)' },
     { id: 'GA-', family: true, means: 'a Gate A check of the derivation engine (GA-ONE-PRIMARY-EVENT: one primary scoring event; GA-REFERENCE-INTEGRITY: each reference names an element of the game; GA-RELATIVE-PLACEMENT: each relative position holds of the realized geometry)' },
@@ -1387,7 +1393,10 @@ function b3Sentence(): string {
     // facts are said as such, question 1 as pressure established and coordination not, RPC-002's approved rows beside them, and the qualifier.
     const rows = w.answers.flatMap((a) => a.rows)
     const rewarded = rows.filter((r) => r.verdict === 'rewarded').map((r) => r.rowId)
-    return `Under the PROPOSED configuration A02-HPE1 (stages B1, B2, A1 and A2, TEST-ONLY, never knowledge, for Christian's review; appendix F, stage B3) a game is realized in both role blocks, and the review-level run, our CANDIDATE wording said, ${stop}; read from that game's structure, the structural facts of ${w.count} of Christian's 4 acceptance questions hold (question 1: ${w.answers[0].verdict}; RPC-002's approved information rows ${rows.filter((r) => r.verdict === 'held').length} held and ${rows.filter((r) => r.verdict === 'partly held').length} partly held; its degenerate solutions ${rewarded.length ? `${rewarded.join(', ')} rewarded by the approved event itself` : 'none rewarded'}; the negative control A02-GF2W, plain GF2 with our wording beside it, ${control.count} of 4), and the two rewordings move ${material.length === 0 ? 'no knowledge-governed result' : `KNOWLEDGE-GOVERNED RESULTS: ${material.join('; ')}`}. Served at review level is ${notYetQualifier()}.`
+    // FIX (13 November 2026, from the V4 verification, findings 1 and 3), re-pinned openly: 'rewarded by the approved event itself' overstated the
+    // standing (the event's meaning for RPC-002 is UNREVIEWED); a row only partly punished is named.
+    const partlyPunished = rows.filter((r) => r.verdict === 'partly punished').map((r) => r.rowId)
+    return `Under the PROPOSED configuration A02-HPE1 (stages B1, B2, A1 and A2, TEST-ONLY, never knowledge, for Christian's review; appendix F, stage B3) a game is realized in both role blocks, and the review-level run, our CANDIDATE wording said, ${stop}; read from that game's structure, the structural facts of ${w.count} of Christian's 4 acceptance questions hold (question 1: ${w.answers[0].verdict}; RPC-002's approved information rows ${rows.filter((r) => r.verdict === 'held').length} held and ${rows.filter((r) => r.verdict === 'partly held').length} partly held; its degenerate solutions ${rewarded.length ? `${rewarded.join(', ')} rewarded by the event's vocabulary description, whose meaning for RPC-002 is UNREVIEWED` : 'none rewarded'}${partlyPunished.length ? `, ${partlyPunished.join(', ')} only partly punished (the end-line restart returns a clearance to the escaping team)` : ''}; the negative control A02-GF2W, plain GF2 with our wording beside it, ${control.count} of 4), and the two rewordings move ${material.length === 0 ? 'no knowledge-governed result' : `KNOWLEDGE-GOVERNED RESULTS: ${material.join('; ')}`}. Served at review level is ${notYetQualifier()}.`
 }
 
 function bodyLines(): string[] {
