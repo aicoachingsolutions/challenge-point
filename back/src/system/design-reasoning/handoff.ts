@@ -146,7 +146,7 @@ export interface StandInInput {
  * 2026), FOUNDATION_PRESENCE_BYPASS acts on the request, only beside SIZE_RULE_BYPASS: the package check need find no foundation member (our
  * classification of foundation presence as a quota, reversible by removing it; every selected member is still validated under the switch).
  */
-export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION', 'SIZE_RULE_BYPASS', 'K2_RETAIN_FORM', 'GP_COVERAGE_LENSES', 'FOUNDATION_PRESENCE_BYPASS', 'ILLUSTRATIVE_CARRIERS', 'PROPOSED_CONFIGURATION', 'PROPOSED_PENDING'] as const
+export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION', 'SIZE_RULE_BYPASS', 'K2_RETAIN_FORM', 'GP_COVERAGE_LENSES', 'FOUNDATION_PRESENCE_BYPASS', 'ILLUSTRATIVE_CARRIERS', 'PROPOSED_CONFIGURATION', 'PROPOSED_PENDING', 'CANDIDATE_WORDING'] as const
 
 export interface TreatmentInput {
     id: string
@@ -176,7 +176,14 @@ export interface TreatmentInput {
      * under, carried into the build's review-level account. Only beside CONSUMED_STEPS, K2_RETAIN_FORM and a draft store; its label begins
      * PROPOSED. PROPOSED_PENDING (the same stage) names nothing: it is declared only beside PROPOSED_CONFIGURATION.
      */
-    proposed?: { file: string; basis: { rulingRef: string; words: number[] } }
+    proposed?: { file: string; basis: { rulingRef: string; words: number[] }; lawDepartures?: true }
+    /**
+     * CANDIDATE_WORDING only (stage B2 of the complete-activity package, 12 November 2026): our CANDIDATE coach wording's file
+     * (`candidate-coach-wording.ts`, a path under docs/audits/drafts), read by the chain's renderer and fidelity beside the approved table, never
+     * in it. Only beside PROPOSED_CONFIGURATION (review level); its label begins CANDIDATE. PROPOSED_CONFIGURATION's `lawDepartures` (the same
+     * stage) carries the configuration file's PROPOSED departures from the Laws and its check; absent, the configuration is read without them.
+     */
+    wording?: { file: string }
 }
 
 export interface ProposedManipulation {
@@ -461,6 +468,14 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
                 const inWords = (n: unknown) => typeof n === 'number' && Number.isInteger(n) && !!ruled && Array.isArray(ruled.words) && n >= 0 && n < (ruled.words as unknown[]).length
                 if (t.kind !== 'PROPOSED_CONFIGURATION' || !isObject(p) || !filled(p.file) || !isObject(b) || !ruled || !Array.isArray(b.words) || !b.words.length || !(b.words as unknown[]).every(inWords) || !String(t.label).startsWith('PROPOSED'))
                     errors.push(`${at}: treatment ${String(t.id)}: a PROPOSED configuration belongs only to PROPOSED_CONFIGURATION, which names its file and the words of a ruling the file holds it is put under (proposed: file, basis: rulingRef, words) and is labelled PROPOSED`)
+                // Stage B2: the configuration's PROPOSED departures from the Laws are carried only where the treatment says so (true, or absent).
+                if (isObject(p) && p.lawDepartures !== undefined && p.lawDepartures !== true) errors.push(`${at}: treatment ${String(t.id)}: lawDepartures is true or absent`)
+            }
+            // Stage B2 (complete-activity package): our CANDIDATE wording names its file and is labelled CANDIDATE; only this kind names one.
+            if (isObject(t) && (t.wording !== undefined || t.kind === 'CANDIDATE_WORDING')) {
+                const w = t.wording as Record<string, unknown> | undefined
+                if (t.kind !== 'CANDIDATE_WORDING' || !isObject(w) || !filled(w.file) || !String(t.label).startsWith('CANDIDATE'))
+                    errors.push(`${at}: treatment ${String(t.id)}: our CANDIDATE wording belongs only to CANDIDATE_WORDING, which names its file (wording: file) and is labelled CANDIDATE`)
             }
             if (isObject(t) && t.standIn !== undefined && (t.kind !== 'LAWS_CLASSIFICATION' || !isObject(t.standIn) || !filled(t.standIn.law) || (t.standIn.materiality !== 'PROCEDURAL' && t.standIn.materiality !== 'MATERIAL')))
                 errors.push(`${at}: treatment ${String(t.id)}: a stand-in for one law's materiality belongs only to LAWS_CLASSIFICATION and names the law and PROCEDURAL or MATERIAL`)
@@ -498,6 +513,11 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
         if (ofKind('PROPOSED_CONFIGURATION').length > 1 || (ofKind('PROPOSED_CONFIGURATION').length && (!ofKind('CONSUMED_STEPS').length || !k2Declared(treatments) || !isObject(merged.chain) || !filled(merged.chain.draftStore))))
             errors.push(`${at}: PROPOSED_CONFIGURATION is declared at most once, only beside CONSUMED_STEPS and K2_RETAIN_FORM on a run that reads a draft store`)
         if (ofKind('PROPOSED_PENDING').length > 1 || (ofKind('PROPOSED_PENDING').length && !ofKind('PROPOSED_CONFIGURATION').length)) errors.push(`${at}: PROPOSED_PENDING is declared at most once, and only beside PROPOSED_CONFIGURATION`)
+        // Stage B2: our CANDIDATE wording once, only at review level (beside a PROPOSED configuration).
+        if (ofKind('CANDIDATE_WORDING').length > 1 || (ofKind('CANDIDATE_WORDING').length && !ofKind('PROPOSED_CONFIGURATION').length)) errors.push(`${at}: CANDIDATE_WORDING is declared at most once, and only beside PROPOSED_CONFIGURATION`)
+        // Stage B2: the configuration's own check of the Laws stands in place of a classification the chain's check would read, never beside one.
+        if (ofKind('LAWS_CLASSIFICATION').length && ofKind('PROPOSED_CONFIGURATION').some((t) => isObject(t.proposed) && t.proposed.lawDepartures === true))
+            errors.push(`${at}: LAWS_CLASSIFICATION is not declared beside a PROPOSED configuration carried with its departures from the Laws (its own check holds the activity)`)
         if (k2.length && ofKind('SIZE_RULE_BYPASS').length) errors.push(`${at}: K2_RETAIN_FORM is never declared beside SIZE_RULE_BYPASS (K2's result is the empty set; the bypass is for a record's evaluated set)`)
         if (k2.length && (merged.record !== null && merged.record !== undefined || (isObject(merged.chain) && merged.chain.records === 'TEST_ONLY'))) errors.push(`${at}: K2_RETAIN_FORM stands in place of a per-goal authorization record, never beside one (the case has a TEST-ONLY record)`)
         if (k2.length && manipulations.some((m) => m.relationship !== undefined)) errors.push(`${at}: K2_RETAIN_FORM is handed only where no proposed manipulation has a relationship (placed or entering by the record route): K2 yields no manipulation`)
@@ -666,7 +686,12 @@ export interface ChainRequest {
      * received date). The chain loads it through its gate, makes its restatement replacements on the draft store's copy and hands it to the
      * entry's TEST-ONLY upstream option, beside K2's result.
      */
-    proposed?: { file: string; treatmentId: string; pendingTreatmentId: string | null; basis: Array<{ words: string; received: string }> }
+    proposed?: { file: string; treatmentId: string; pendingTreatmentId: string | null; basis: Array<{ words: string; received: string }>; lawDepartures?: true }
+    /**
+     * Present only where the case declares CANDIDATE_WORDING (stage B2 of the complete-activity package): our CANDIDATE coach wording's file and
+     * the treatment. The chain loads it through its gate and hands its entries to the entry's TEST-ONLY `candidateWording` option.
+     */
+    candidateWording?: { file: string; treatmentId: string; rulings: Array<{ id: string; words: string[]; received: string }> }
 }
 
 /** One configuration line as the chain answered it (from the realized game's fixture), in the chain's own words. */
@@ -1279,9 +1304,18 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
     const proposed: ChainRequest['proposed'] = proposedTreatment
         ? (() => {
               const r = rulingOf(inputs, proposedTreatment.proposed!.basis.rulingRef)
-              return { file: proposedTreatment.proposed!.file, treatmentId: proposedTreatment.id, pendingTreatmentId: pendingTreatment ? pendingTreatment.id : null, basis: proposedTreatment.proposed!.basis.words.map((n) => ({ words: r.words[n], received: r.received })) }
+              return {
+                  file: proposedTreatment.proposed!.file,
+                  treatmentId: proposedTreatment.id,
+                  pendingTreatmentId: pendingTreatment ? pendingTreatment.id : null,
+                  basis: proposedTreatment.proposed!.basis.words.map((n) => ({ words: r.words[n], received: r.received })),
+                  // Stage B2: the configuration's PROPOSED departures from the Laws, only where the treatment carries them.
+                  ...(proposedTreatment.proposed!.lawDepartures === true ? { lawDepartures: true as const } : {}),
+              }
           })()
         : undefined
+    // Stage B2 (complete-activity package): our CANDIDATE wording, where the case declares it.
+    const wordingTreatment = c.testOnlyTreatments.find((t) => t.kind === 'CANDIDATE_WORDING' && t.wording)
     let consume: ChainRequest['consume'] | undefined
     if (c.testOnlyTreatments.some((t) => t.kind === 'CONSUMED_STEPS')) {
         const g = s1?.gameForm
@@ -1336,6 +1370,8 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
         ...(lawsTreatment ? { laws: { standIn: lawsTreatment.standIn ? { ...lawsTreatment.standIn } : null, treatmentId: lawsTreatment.id } } : {}),
         ...(illustrative.length ? { illustrative } : {}),
         ...(proposed ? { proposed } : {}),
+        // The recorded rulings travel with it: the wording's gate holds every quote of Christian's to them (verbatim, with the received date).
+        ...(wordingTreatment ? { candidateWording: { file: wordingTreatment.wording!.file, treatmentId: wordingTreatment.id, rulings: inputs.rulings.map((r) => ({ id: r.id, words: [...r.words], received: r.received })) } } : {}),
     }
 }
 

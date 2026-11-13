@@ -844,7 +844,7 @@
     "A02-0+GPCL~reversed",
     "A02-0+GPCL~neutral"
    ],
-   "evidence": "build-activity.ts:671 reads only whether the context's contract is selected; on these runs no clause is carried, or only the control clause (its referent NO_FURTHER_VALUE in our CANDIDATE restatement since stage B1, under a declared treatment before); the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass"
+   "evidence": "build-activity.ts:684 reads only whether the context's contract is selected; on these runs no clause is carried, or only the control clause (its referent NO_FURTHER_VALUE in our CANDIDATE restatement since stage B1, under a declared treatment before); the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass"
   },
   {
    "id": "OD-PACKAGE-LENSES",
@@ -1117,7 +1117,7 @@
     "TA02-0",
     "TA02-D"
    ],
-   "evidence": "build-activity.ts:671 reads only whether the context's contract is selected; on these runs no clause is carried, or only the control clause (its referent NO_FURTHER_VALUE in our CANDIDATE restatement since stage B1, under a declared treatment before); the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass"
+   "evidence": "build-activity.ts:684 reads only whether the context's contract is selected; on these runs no clause is carried, or only the control clause (its referent NO_FURTHER_VALUE in our CANDIDATE restatement since stage B1, under a declared treatment before); the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass"
   }
  ],
  "w5": {
@@ -2984,7 +2984,7 @@
     "stage": "knowledge",
     "reason": "the game form GF3 has no contribution contract",
     "kind": "PATH",
-    "within": 1671,
+    "within": 1710,
     "categories": [
      4
     ],
@@ -2998,7 +2998,7 @@
     "stage": "knowledge",
     "reason": "the Representative Performance Context RPC-002 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game",
     "kind": "PATH",
-    "within": 1738,
+    "within": 1777,
     "categories": [
      3,
      5

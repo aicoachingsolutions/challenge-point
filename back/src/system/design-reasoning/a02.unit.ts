@@ -465,7 +465,12 @@ test(`every run: the request consumes Steps 1 and 2 and places nothing; the chai
         ['A02-D', [], { standIn: { law: 'LAW-11', materiality: 'PROCEDURAL' }, treatmentId: 'TT-LAW-11-STAND-IN' }, null],
         ['A02-HPE1-S', [], { standIn: { law: 'LAW-11', materiality: 'PROCEDURAL' }, treatmentId: 'TT-LAW-11-STAND-IN' }, ['TT-PROPOSED-HPE1', 'TT-PROPOSED-PENDING']],
         ['A02-HPE1-L', [], { standIn: null, treatmentId: 'TT-LAWS-DRAFT' }, ['TT-PROPOSED-HPE1', 'TT-PROPOSED-PENDING']],
+        // Re-pinned openly (stage B2): the review-level run joins: no laws classification (the configuration's own check of the Laws holds it),
+        // the PROPOSED configuration carried with its departures from the Laws (its own treatment id), and PROPOSED_PENDING.
+        ['A02-HPE1', [], null, ['TT-PROPOSED-HPE1-LAWS', 'TT-PROPOSED-PENDING']],
     ])
+    // Stage B2: only the review-level run carries the configuration's departures and our CANDIDATE wording.
+    assert.deepEqual(experiment.runOrder.filter((id) => requests.get(id)?.proposed?.lawDepartures === true || requests.get(id)?.candidateWording !== undefined), ['A02-HPE1'])
 })
 
 test('the wiring refuses a consuming request that places anything, a declaration treatment naming a declaration the contract does not hold, and two classifications of the laws', () => {
@@ -497,10 +502,12 @@ test(`the report: the runs and what each refusal rests on, the CANDIDATE mapping
     // Re-pinned openly (stage B1): BEFORE 5 runs, A02-0 and A02-1 RESTATEMENT-ONLY (their refusals cited only our restatement's items), 4
     // treatment runs; AFTER 7 runs (A02-HPE1-S and A02-HPE1-L join), no refusal rests only on our restatement (A02-0 is an engine check on open
     // text, A02-1 a validation refusal), 6 treatment runs. WHY: our CANDIDATE restatement of Christian's rulings received 12 November 2026.
-    has(`THE RUNS (7; the knowledge as it stands: A02-0; every other run carries a TEST-ONLY treatment)`)
+    // Re-pinned openly (stage B2): BEFORE 7 runs and 6 treatment runs; AFTER 8 and 7 (the review-level run A02-HPE1 joins). WHY: stage B2's run
+    // with the configuration's PROPOSED departure from the Laws and our CANDIDATE wording.
+    has(`THE RUNS (8; the knowledge as it stands: A02-0; every other run carries a TEST-ONLY treatment)`)
     has('- A02-0: refused at structure [the knowledge as it stands, with our CANDIDATE restatement]')
     assert.equal(lines.filter((l) => l === `   ${experiment.restatementOnlyWords}`).length, 0, 'no refusal rests only on our restatement')
-    assert.equal(lines.filter((l) => l === `   ${experiment.treatmentRunWords}`).length, 6, 'every treatment run says it is never the A02 configuration')
+    assert.equal(lines.filter((l) => l === `   ${experiment.treatmentRunWords}`).length, 7, 'every treatment run says it is never the A02 configuration')
     has('   what it rests on (OURS): NOT KNOWLEDGE; basis mix none; the refusal cites no item: an engine check (GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY)')
     has(`   the laws check read: our DRAFT classification (TT-LAWS-DRAFT), a reading of ours for Christian's review, not a ruling`)
     // The mapping line.

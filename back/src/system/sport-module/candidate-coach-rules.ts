@@ -20,6 +20,15 @@
  *     action word the live rule and setup name, and corrects exactly the clauses it finds NARROWED;
  *   - every source, other row and question cites a row of the RPC library whose key its line holds and whose words it quotes verbatim.
  *
+ * Stage B2 of the A02 complete-activity package (12 November 2026): DECLARED CHANGES. Christian, received 12 November 2026: "I approve
+ * replacing "with the next pass" with "through the next action" in principle for the four High Press Escape rules." and "However, please hold
+ * their final coach-facing wording for review alongside the complete A02 activity." The file may declare further changes (`declared`), each
+ * with its words, where it applies (the rule or the setup), why (ours) and Christian's words it rests on with the received date; the candidate
+ * rule is then the live rule with the replacement made and every declared rule change made once, in order, and the candidate setup
+ * (`setupCandidate`) the live setup with every declared setup change made once; any other change is refused, as before. A clause the
+ * check finds OVER_APPLIED is corrected only by a declared change whose words are that clause; a clause NARROWED only by the replacement (and
+ * the declared changes made in its words). The declared changes the file holds are pinned by primary-scoring.unit.ts.
+ *
  * Sport-specific (it reads the soccer RPC library), so it sits in the sport layer.
  */
 import fs from 'node:fs'
@@ -58,7 +67,18 @@ export interface CandidateRule {
     key: string
     live: string
     candidate: string
+    /** Stage B2: the live setup with every declared setup change made; absent where no declared change applies to setups. */
+    setupCandidate?: string
     label: 'CANDIDATE'
+}
+/** Stage B2: a change the file declares beside the replacement, made once in every rule (or setup) it applies to. */
+export interface DeclaredChange {
+    id: string
+    in: 'rule' | 'setup'
+    from: string
+    to: string
+    why: string
+    christian: ChristianWords[]
 }
 export interface ChristianWords {
     quote: string
@@ -70,6 +90,7 @@ export interface CandidateCoachRules {
     about: string
     basis: { source: CitedWords & { file: string; provenance: string }; authority: ChristianWords[]; reading: string; productionBoundary: string }
     replacement: { from: string; to: string; toIsVerbatimIn: string }
+    declared?: DeclaredChange[]
     rules: CandidateRule[]
     sourceToCode: { key: string; clauses: CheckedClause[] }[]
     otherRowsNamingAnAction: (CitedWords & { actionClass: string; reading: string })[]
@@ -163,7 +184,29 @@ export function candidateCoachRulesRefusals(overlay: any, live: typeof COACH_RUL
     if (!Array.isArray(overlay?.basis?.authority) || !overlay.basis.authority.length || !overlay.basis.authority.every((w: any) => filled(w?.quote) && filled(w?.received)))
         reasons.push("the basis quotes no words of Christian's with the date received")
 
-    // The rules: anchored to the live text, the replacement alone, every live rule holding the old words covered.
+    // Stage B2: the declared changes, each whole: its words, where it applies, why (ours) and Christian's words with the date received.
+    const declared: any[] = overlay?.declared === undefined ? [] : Array.isArray(overlay.declared) ? overlay.declared : []
+    if (overlay?.declared !== undefined && !Array.isArray(overlay.declared)) reasons.push('the declared changes are not a list')
+    const declaredIds = declared.map((d) => String(d?.id))
+    if (new Set(declaredIds).size !== declaredIds.length) reasons.push('a declared change is listed twice')
+    for (const d of declared) {
+        const at = `declared change ${d?.id}`
+        if (!filled(d?.id) || (d?.in !== 'rule' && d?.in !== 'setup') || !filled(d?.from) || typeof d?.to !== 'string' || d.from === d.to || !filled(d?.why)) reasons.push(`${at} names its id, where it applies (rule or setup), the words it replaces, the words it puts in their place and why`)
+        if (d?.in === 'rule' && !filled(d?.to)) reasons.push(`${at}: a rule change puts words in place of the words it replaces (only a setup change may drop words)`)
+        if (!Array.isArray(d?.christian) || !d.christian.length || !d.christian.every((w: any) => filled(w?.quote) && filled(w?.received))) reasons.push(`${at} quotes none of Christian's words with the date received`)
+    }
+    /** `text` with each declared change for `where` made once, in order (`strict`: each must occur exactly once; else one that does not occur is passed over). */
+    const withDeclared = (text: string, where: 'rule' | 'setup', strict: boolean, at: string): string => {
+        let out = text
+        for (const d of declared.filter((x) => x?.in === where && filled(x?.from) && typeof x?.to === 'string')) {
+            const n = count(out, d.from)
+            if (strict && n !== 1) reasons.push(`${at}: the declared change ${d.id}'s words "${d.from}" occur ${n} times, not once`)
+            if (n >= 1) out = out.replace(d.from, d.to)
+        }
+        return out
+    }
+
+    // The rules: anchored to the live text, the replacement and the declared changes alone, every live rule holding the old words covered.
     const rules: any[] = Array.isArray(overlay?.rules) ? overlay.rules : []
     const keys = rules.map((rule) => String(rule?.key))
     if (new Set(keys).size !== keys.length) reasons.push('a rule is listed twice')
@@ -177,7 +220,10 @@ export function candidateCoachRulesRefusals(overlay: any, live: typeof COACH_RUL
         }
         if (rule.live !== current.rule) reasons.push(`${at}: its live text is not the live rule, word for word`)
         if (count(current.rule, from) !== 1) reasons.push(`${at}: the live rule holds "${from}" ${count(current.rule, from)} times, not once`)
-        if (rule.candidate !== current.rule.replace(from, to)) reasons.push(`${at}: the candidate is not the live rule with only "${from}" replaced by "${to}"`)
+        if (rule.candidate !== withDeclared(current.rule.replace(from, to), 'rule', true, at)) reasons.push(`${at}: the candidate is not the live rule with only "${from}" replaced by "${to}" and the declared changes made`)
+        // Stage B2: the setup, with only the declared setup changes made (none declared: no candidate setup, the live one kept).
+        const setupChanges = declared.some((d) => d?.in === 'setup')
+        if (setupChanges ? rule.setupCandidate !== withDeclared(current.setup, 'setup', true, `${at} (setup)`) : rule.setupCandidate !== undefined) reasons.push(`${at}: the candidate setup is not the live setup with only the declared setup changes made`)
     }
     const holding = Object.keys(live).filter((key) => (live[key]!.rule + ' ' + live[key]!.setup).includes(from))
     for (const key of holding) if (!keys.includes(key)) reasons.push(`the live rule ${key} holds "${from}" and has no candidate`)
@@ -203,9 +249,13 @@ export function candidateCoachRulesRefusals(overlay: any, live: typeof COACH_RUL
             if (!CLAUSE_ACTIONS.includes(clause?.action)) reasons.push(`${at}: action ${JSON.stringify(clause?.action ?? null)}`)
             if (!filled(clause?.note)) reasons.push(`${at}: no note`)
             const narrowed = clause?.verdict === 'NARROWED'
-            if (narrowed !== (clause?.action === 'CORRECTED_IN_CANDIDATE')) reasons.push(`${at}: a clause is corrected exactly where it is found NARROWED`)
-            if (narrowed && (!String(clause.clause).includes(from) || !candidate.includes(String(clause.clause).replace(from, to)))) reasons.push(`${at}: the corrected clause is not the candidate's, with only the replacement made`)
-            if (!narrowed && clause?.in === 'rule' && filled(clause?.clause) && !candidate.includes(clause.clause)) reasons.push(`${at}: a clause not corrected is changed in the candidate`)
+            // Stage B2: a clause OVER_APPLIED is corrected only by a declared change whose words are that clause, in the same text.
+            const declaredFor = declared.find((d) => d?.in === clause?.in && filled(d?.from) && d.from.trim() === clause?.clause)
+            const overApplied = clause?.verdict === 'OVER_APPLIED' && declaredFor !== undefined
+            if ((narrowed || overApplied) !== (clause?.action === 'CORRECTED_IN_CANDIDATE')) reasons.push(`${at}: a clause is corrected exactly where it is found NARROWED, or OVER_APPLIED and replaced by a declared change`)
+            if (narrowed && (!String(clause.clause).includes(from) || !candidate.includes(withDeclared(String(clause.clause).replace(from, to), 'rule', false, at)))) reasons.push(`${at}: the corrected clause is not the candidate's, with only the replacement and the declared changes made`)
+            if (overApplied && clause?.in === 'rule' && (candidate.includes(clause.clause) || !candidate.includes(declaredFor!.to))) reasons.push(`${at}: the corrected clause is not replaced in the candidate by the declared change ${declaredFor!.id}`)
+            if (!narrowed && !overApplied && clause?.in === 'rule' && filled(clause?.clause) && !candidate.includes(clause.clause)) reasons.push(`${at}: a clause not corrected is changed in the candidate`)
             const sources: any[] = Array.isArray(clause?.sources) ? clause.sources : []
             if (!sources.length) reasons.push(`${at}: no source`)
             sources.forEach((cited, i) => cite(`${at}, source ${i + 1}`, cited))
@@ -247,6 +297,6 @@ export function loadCandidateCoachRules(file: string = CANDIDATE_COACH_RULES_FIL
 /** The live coach rules with each CANDIDATE rule in place of its live text (setup and evidence kept): a copy, for tests. */
 export function overlaidCoachRules(overlay: CandidateCoachRules, live: typeof COACH_RULES = COACH_RULES): Record<string, (typeof COACH_RULES)[string]> {
     const copy: Record<string, (typeof COACH_RULES)[string]> = JSON.parse(JSON.stringify(live))
-    for (const rule of overlay.rules) copy[rule.key] = { ...copy[rule.key]!, rule: rule.candidate }
+    for (const rule of overlay.rules) copy[rule.key] = { ...copy[rule.key]!, rule: rule.candidate, ...(rule.setupCandidate !== undefined ? { setup: rule.setupCandidate } : {}) }
     return copy
 }

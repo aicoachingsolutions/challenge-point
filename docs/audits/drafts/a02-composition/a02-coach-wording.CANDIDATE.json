@@ -1,0 +1,134 @@
+{
+  "standing": "CANDIDATE - TEST-ONLY, NOT APPROVED, NOT LIVE. Our coach wording (ours, unreviewed) for the review-level A02 activity built with the PROPOSED configuration A02-HPE1, for Christian's review. Read only by unit tests, through the tests-only reader back/src/system/rendering/candidate-coach-wording.ts, and handed to a TEST-ONLY build (build-activity.ts candidateWording) beside the approved table, never in it. No route, no engine module and no approved table reads it; nothing here is in approved-coach-wording.json or draft-coach-wording.json.",
+  "label": "CANDIDATE",
+  "about": "Stage B2 of the A02 complete-activity package (12 November 2026), on Christian's reply received 12 November 2026, items 1, 2, 5 and 6. Each entry in the approved table's cover shape says, in one sentence, the fields of a condition only approved words may say (register rows V4-V6), matched to the exact values the realized A02-HPE1 game holds (our CANDIDATE restatement of RPC-002 in rpc-002-contract.DRAFT.json, the escape line PROPOSED in a02-proposed/hpe1.PROPOSED.json); a value that drifts no longer matches, the field is withheld and the build refuses (fail closed). In place of approvedBy, each carries candidateBy: ours, dated, the approved rows it restates (verbatim at their line of the RPC library) and Christian's words it rests on (verbatim in the rulings recorded in back/src/system/design-reasoning/a02-inputs.review.json, with the received date). The printed-only sentences are never said by the engine: the review print shows them beside the served text, in their part and with their label (PROPOSED: new knowledge of ours, for Christian's approval; CANDIDATE: our wording of approved knowledge). Kept out of every sentence, visible for ecological review: the immediate-shot incentive (A02-12NOV-NEXT-ACTION, word 14).",
+  "entryShape": {
+    "id": "a stable id",
+    "covers": "as the approved table's covers with element locators (approved-coach-wording.json entryShape): every cover names its element, so the sentence is said once citing every covered field",
+    "sentence": "our sentence",
+    "section": "the section the renderer places it in (from what it cites)",
+    "candidateBy": "{ who: 'ours', date, restates: [{ rowId, line, words }], rulings: [{ ruling, quote, received }] } - in place of approvedBy, which a candidate entry never carries"
+  },
+  "entries": [
+    {
+      "id": "A02-HPE1-W1",
+      "covers": [
+        { "row": "V4", "match": { "equals": "origin" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "origin" } },
+        { "row": "V6", "match": { "equals": "established coordinated pressure" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "origin" } },
+        { "row": "V4", "match": { "equals": "progression" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "progression" } },
+        {
+          "row": "V5",
+          "match": {
+            "equals": {
+              "structuralRef": { "contractId": "proposed:A02-HPE1", "itemId": "A02-HPE1-S2-1" },
+              "asAuthored": "the pressing line, as the escape line PROPOSED in A02-HPE1 (N1)"
+            }
+          },
+          "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "progression" }
+        },
+        { "row": "V6", "match": { "equals": "beyond" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "progression" } },
+        { "row": "V4", "match": { "equals": "control" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "control" } },
+        { "row": "V6", "match": { "equals": "retains possession through the next action" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "control" } }
+      ],
+      "sentence": "An escaping team's score counts only if its attack started against the pressing team pressing together (players closing down the ball and cutting off passes together; one player chasing alone usually is not), the ball gets past the marked line, and the escaping team keeps it through its next action.",
+      "section": "How to score",
+      "candidateBy": {
+        "who": "ours",
+        "date": "2026-11-12",
+        "restates": [
+          { "rowId": "RPC-PROP-133", "line": 2642, "words": "The sequence begins under established coordinated pressure, the event occurs beyond the pressing line, and the attacking team retains possession through the next action." }
+        ],
+        "rulings": [
+          { "ruling": "A02-12NOV-PRESSURE", "quote": "A qualifying sequence begins when the attacking team possesses the ball while facing established, coordinated defensive pressure.", "received": "2026-11-12" },
+          { "ruling": "A02-12NOV-PRESSURE", "quote": "That means defenders are working in connection with one another to pressure the ball and restrict relevant passing or progression opportunities.", "received": "2026-11-12" },
+          { "ruling": "A02-12NOV-PRESSURE", "quote": "An isolated defender closing down the ball does not necessarily constitute coordinated pressure.", "received": "2026-11-12" },
+          { "ruling": "A02-12NOV-PRESSURE", "quote": "A scoring event must occur within a sequence that began under coordinated pressure.", "received": "2026-11-12" },
+          { "ruling": "A02-12NOV-NEXT-ACTION", "quote": "Whose action: The attacking team's next relevant ball action following completion of the scoring event.", "received": "2026-11-12" },
+          { "ruling": "A02-12NOV-NEXT-ACTION", "quote": "The approved condition should recognize a successful continuation of attacking possession following the qualifying advancement event, without prescribing the type of action.", "received": "2026-11-12" }
+        ]
+      }
+    }
+  ],
+  "printerOnly": [
+    {
+      "id": "A02-HPE1-S3",
+      "part": "Setup",
+      "label": "PROPOSED",
+      "sentence": "Place the marked line where the pressing team, working together, can just cover the width, and leave room beyond it to receive the ball and keep it.",
+      "candidateBy": {
+        "who": "ours",
+        "date": "2026-11-12",
+        "restates": [],
+        "rulings": [
+          { "ruling": "A02-12NOV-PACKAGE", "quote": "Where a marked reference is necessary, its position should serve the intended game problem rather than become an arbitrary geometric requirement.", "received": "2026-11-12" },
+          { "ruling": "A02-12NOV-PACKAGE", "quote": "Regarding the pressing line, I do not want to introduce a universal distance or rigid field arrangement without justification.", "received": "2026-11-12" }
+        ]
+      }
+    },
+    {
+      "id": "A02-HPE1-S6",
+      "part": "Setup",
+      "label": "CANDIDATE",
+      "sentence": "For a quick start or restart, you may pass a ball to an escaping player near their own end, with the pressing team close enough to press straight away.",
+      "candidateBy": {
+        "who": "ours",
+        "date": "2026-11-12",
+        "restates": [],
+        "rulings": [
+          { "ruling": "A02-12NOV-PRESSURE", "quote": "Through a representative restart that recreates the relevant pressure conditions.", "received": "2026-11-12" },
+          { "ruling": "A02-12NOV-PRESSURE", "quote": "The coach should be free to use whichever practical starting arrangement creates recurring opportunities to encounter the intended problem.", "received": "2026-11-12" }
+        ]
+      }
+    },
+    {
+      "id": "A02-HPE1-K3",
+      "part": "Scoring",
+      "label": "CANDIDATE",
+      "sentence": "Receiving and controlling the ball past the line is part of getting there; the next action is what follows. A player who dribbles past the line and keeps going needs to do nothing extra.",
+      "candidateBy": {
+        "who": "ours",
+        "date": "2026-11-12",
+        "restates": [],
+        "rulings": [
+          { "ruling": "A02-12NOV-NEXT-ACTION", "quote": "Event completion: An action or reception already required to complete the original scoring event should not also count as a separate subsequent action.", "received": "2026-11-12" },
+          { "ruling": "A02-12NOV-NEXT-ACTION", "quote": "For a player already carrying or dribbling, please avoid introducing an artificial extra touch, distance or time requirement simply to create a separate action.", "received": "2026-11-12" }
+        ]
+      }
+    },
+    {
+      "id": "A02-HPE1-K4",
+      "part": "Scoring",
+      "label": "CANDIDATE",
+      "sentence": "No point if the ball is lost on that next action or play stops first; for an unusual stoppage, use your judgement. Judge the pressure only at the start of the attack.",
+      "candidateBy": {
+        "who": "ours",
+        "date": "2026-11-12",
+        "restates": [],
+        "rulings": [
+          { "ruling": "A02-12NOV-NEXT-ACTION", "quote": "Successful continuation: The attacking team must retain possession through the continuation.", "received": "2026-11-12" },
+          { "ruling": "A02-12NOV-NEXT-ACTION", "quote": "If play stops first: Ordinarily the continuation requirement has not been completed, so the point has not yet been earned.", "received": "2026-11-12" },
+          { "ruling": "A02-12NOV-NEXT-ACTION", "quote": "Practical exceptions involving unusual stoppages should remain subject to reasonable coach judgment rather than an elaborate universal rule.", "received": "2026-11-12" },
+          { "ruling": "A02-12NOV-PRESSURE", "quote": "The pressure condition applies at the beginning of the qualifying sequence, not continuously throughout its entirety.", "received": "2026-11-12" }
+        ]
+      }
+    },
+    {
+      "id": "A02-HPE1-L2",
+      "part": "Learning explanation",
+      "label": "CANDIDATE",
+      "sentence": "The pressing team can score only by winning the ball and taking it over the escaping team's end line, so pressure keeps coming; the escaping team scores only by getting past that pressure and keeping the ball.",
+      "candidateBy": {
+        "who": "ours",
+        "date": "2026-11-12",
+        "restates": [
+          { "rowId": "RPC-ID-008", "line": 2763, "words": "Pressure meaningfully compresses time, space, and available action." },
+          { "rowId": "RPC-STMT-009", "line": 160, "words": "Reinforce successful progression beyond coordinated pressure while maintaining attacking continuity." },
+          { "rowId": "RPC-ID-007", "line": 2755, "words": "The representative purpose is escape while preserving attacking continuity." }
+        ],
+        "rulings": [
+          { "ruling": "A02-12NOV-PRESSURE", "quote": "I'd also like the eventual activity to make clear how coordinated pressure arises repeatedly and meaningfully within the game structure.", "received": "2026-11-12" }
+        ]
+      }
+    }
+  ]
+}

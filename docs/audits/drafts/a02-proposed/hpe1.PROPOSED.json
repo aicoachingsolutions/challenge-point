@@ -1,11 +1,12 @@
 {
   "standing": "DRAFT - PROPOSED, TEST-ONLY: our proposal of the simplest representative configuration for High Press Escape (A02-HPE1), for Christian's approval; not knowledge, not approved, never served. Read only by the TEST-ONLY PROPOSED loader (back/src/system/derivation/draft-store.ts loadProposedRealization), in unit tests; no route reads it, and nothing here is in contracts.json, corpus-restatements.json, provisional-realizations.json or learning-goal-authorizations.json.",
-  "about": "Stage B1 of the A02 complete-activity package (12 November 2026), on Christian's reply received 12 November 2026, item 6. HPE-1: GF2 played in blocks; one team escapes and one presses (N3); one line marked across the full width near the escaping team's end, placed by a qualitative rule, its 12 m only a schematic number (N1, ILLUSTRATIVE); the escaping team scores by entering the region beyond that line under the approved condition (our CANDIDATE restatement in a02-composition); the pressing team scores only by winning the ball and dribbling it over the escaping team's end line (N2 (a)), its own event, so the condition stays on the escaping team's score only (measured, probe P0: GA-ROLE-EVENTS, a role scoring by its own event takes no condition of the primary event). Every item is AUTHORED so it establishes what it proposes, and its category, stamped by the loader, says what it is: PROPOSED (ILLUSTRATIVE for the schematic distance). No library constraint, no environmental manipulation (K2's empty set stands), no participant placement, no START or restart item (GF2's own start stays the coach's choice), no departure from the Laws (LAW-11 is Christian's question Q3, built in a later stage).",
+  "about": "Stage B1 of the A02 complete-activity package (12 November 2026), on Christian's reply received 12 November 2026, item 6. HPE-1: GF2 played in blocks; one team escapes and one presses (N3); one line marked across the full width near the escaping team's end, placed by a qualitative rule, its 12 m only a schematic number (N1, ILLUSTRATIVE); the escaping team scores by entering the region beyond that line under the approved condition (our CANDIDATE restatement in a02-composition); the pressing team scores only by winning the ball and dribbling it over the escaping team's end line (N2 (a)), its own event, so the condition stays on the escaping team's score only (measured, probe P0: GA-ROLE-EVENTS, a role scoring by its own event takes no condition of the primary event). Every item is AUTHORED so it establishes what it proposes, and its category, stamped by the loader, says what it is: PROPOSED (ILLUSTRATIVE for the schematic distance). No library constraint, no environmental manipulation (K2's empty set stands), no participant placement, no START or restart item (GF2's own start stays the coach's choice), and no departure from the Laws on any item. Since stage B2 the laws block holds the one PROPOSED departure, LAW-11 (no offside, said once to the coach; Christian's question Q3), with the configuration's own REPORT check, carried only where a run asks for it (lawDepartures).",
   "proposed": {
     "label": "PROPOSED",
     "questions": [
       { "id": "Q1", "asks": "N3 and N1: for the first A02 activity, one team escapes and one presses for a block (the coach swaps roles), with one line across the area near the escaping team's end placed by a rule, not a distance (where the pressing team, working together near that end, can just cover the width, with room beyond to receive and keep the ball), and the escaping team scoring once the ball gets past it", "askedFor": "\"Please propose the simplest representative configuration that makes the relevant defensive pressure and escape target observable to the coach.\" (received 12 November 2026)" },
-      { "id": "Q2", "asks": "N2: what the pressing team wins: (a) after winning the ball, dribbling it over the escaping team's end line (built); (b) a goal on that line; or (c) a point for a controlled regain short of the line", "askedFor": "\"I want to see where coordinated pressure comes from, how players encounter information about that pressure, what genuine escape opportunities exist, and how the game's consequences make successful solutions meaningful.\" (received 12 November 2026)" }
+      { "id": "Q2", "asks": "N2: what the pressing team wins: (a) after winning the ball, dribbling it over the escaping team's end line (built); (b) a goal on that line; or (c) a point for a controlled regain short of the line", "askedFor": "\"I want to see where coordinated pressure comes from, how players encounter information about that pressure, what genuine escape opportunities exist, and how the game's consequences make successful solutions meaningful.\" (received 12 November 2026)" },
+      { "id": "Q3", "asks": "LAW-11 in this activity: may escaping players wait beyond the line before the ball is played there (no offside, said once to the coach: built as PROPOSED, the laws block), or must they stay short of the line until a teammate plays the ball beyond it (described, not built)?", "askedFor": "\"Likewise, please identify any necessary Law 11 decision in the context of the proposed activity rather than expanding into a general Laws-of-the-Game redesign.\" (received 12 November 2026)" }
     ],
     "roles": [
       { "token": "ESCAPING", "noun": "escaping team", "label": "CANDIDATE", "waitsOn": "Q1" },
@@ -35,6 +36,28 @@
       ],
       "declarations": [],
       "relationshipRules": []
+    },
+    "laws": {
+      "note": "Stage B2 (12 November 2026): PROPOSED, for Christian's answer to Q3; never a ruling. Carried onto the configuration only where a run's PROPOSED_CONFIGURATION treatment says lawDepartures (the TEST-ONLY loader's option); without it the configuration departs from nothing and the Laws stay held by the sport's check (A02-HPE1-S, A02-HPE1-L). The check is REPORT, not ENFORCE: under ENFORCE the build would refuse on LAW-8 (the kick-off's centre mark), which our DRAFT reading classes PROCEDURAL; the harness holds the REPORT check to that DRAFT classification, so a MATERIAL law still refuses. The departure reaches the existing DRAFT sentence 'There is no offside' through the realization path (said once to the coach); no renderer change.",
+      "defaultLawsCheck": {
+        "mode": "REPORT",
+        "because": "OURS: the configuration's own check, so its PROPOSED departure is read and said once; REPORT because ENFORCE would refuse on LAW-8, which our DRAFT reading classes PROCEDURAL; the harness holds it to that DRAFT classification",
+        "basis": {
+          "words": ["Likewise, please identify any necessary Law 11 decision in the context of the proposed activity rather than expanding into a general Laws-of-the-Game redesign."],
+          "citedAs": "PROPOSED (ours), not a ruling: answering Christian's request (received 12 November 2026), item 6; question Q3"
+        }
+      },
+      "departsFrom": [
+        {
+          "law": "LAW-11",
+          "extent": "WHOLE",
+          "because": "OURS (PROPOSED, question Q3): HPE-1 holds no halfway line, and the escaping team's target begins at the escape line, so offside as the Laws place it cannot be read here; no offside, said once to the coach, is the smallest form. The other arm (escaping players stay short of the line until a teammate plays the ball beyond it) is described for Christian, not built",
+          "basis": {
+            "words": ["Likewise, please identify any necessary Law 11 decision in the context of the proposed activity rather than expanding into a general Laws-of-the-Game redesign."],
+            "citedAs": "PROPOSED (ours), not a ruling: answering Christian's request (received 12 November 2026), item 6; question Q3"
+          }
+        }
+      ]
     },
     "restatementReplacements": [
       {

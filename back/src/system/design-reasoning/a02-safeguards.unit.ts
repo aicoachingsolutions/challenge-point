@@ -695,7 +695,8 @@ export const OPEN_DISCONNECTIONS: OpenDisconnection[] = [
         verdicts: ['CITED_NOT_CARRIED'],
         runs: DISPLAYED,
         // Stage B1, re-pinned openly: build-activity.ts:641 -> :671 (the same literal, moved by the review-level account's hunks above it).
-        evidence: 'build-activity.ts:671 reads only whether the context\'s contract is selected; on these runs no clause is carried, or only the control clause (its referent NO_FURTHER_VALUE in our CANDIDATE restatement since stage B1, under a declared treatment before); the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass',
+        // Stage B2, re-pinned openly: :671 -> :684 (the same literal, moved by our CANDIDATE wording's import and account type above it).
+        evidence: 'build-activity.ts:684 reads only whether the context\'s contract is selected; on these runs no clause is carried, or only the control clause (its referent NO_FURTHER_VALUE in our CANDIDATE restatement since stage B1, under a declared treatment before); the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass',
     },
     {
         id: 'OD-PACKAGE-LENSES',
@@ -1967,11 +1968,12 @@ export function stopsOf(): Stop[] {
             reason: reason('L2'),
             kind: 'PATH',
             // Stage B1, re-pinned openly: 1617 -> 1671, 1684 -> 1738 (the same checks, moved by the review-level account's hunks above them).
-            within: 1671,
+            // Stage B2, re-pinned openly: 1671 -> 1710, 1738 -> 1777 (the same checks, moved by our CANDIDATE wording's option, type and account lines).
+            within: 1710,
             categories: [4],
             why: 'the chain selects its own GF3 from the wording against Step 2\'s SELECTED form (GAME_FORM CONTRADICTED); the consumption (S1) closes it',
         },
-        { id: 'NO-RESTATEMENT', path: 'consumed, on the review pathway\'s K2 result (no record of ours) and without the restatement', stage: String(at('NO-RESTATEMENT').result.chain?.stage), reason: reason('NO-RESTATEMENT'), kind: 'PATH', within: 1738, categories: [3, 5], why: 'the context\'s approved rows have no executable form in the engine: no contribution contract joins them to the configuration' },
+        { id: 'NO-RESTATEMENT', path: 'consumed, on the review pathway\'s K2 result (no record of ours) and without the restatement', stage: String(at('NO-RESTATEMENT').result.chain?.stage), reason: reason('NO-RESTATEMENT'), kind: 'PATH', within: 1777, categories: [3, 5], why: 'the context\'s approved rows have no executable form in the engine: no contribution contract joins them to the configuration' },
         { id: 'A02-0', path: 'consumed, on the review pathway\'s K2 result, with our CANDIDATE restatement (the knowledge as it stands)', stage: String(at('A02-0').result.chain?.stage), reason: reason('A02-0', 1), kind: 'PATH', categories: [1, 5], why: `the progression clause's referent, the pressing line (RPC-002-03.b, open text, the one open text left): Gate A cannot evaluate it, and the refusal cites no item (an engine check); nothing in knowledge places the line (question ${pressingLineQuestion.order} of the smallest source material), and no register row carries it; the origin clause, which this stop cited before stage B1, is carried by our CANDIDATE restatement of Christian's rulings received 12 November 2026 (on V6, judged in play at the sequence's start; the origin and the control name no place); since stage B1 the PROPOSED configuration A02-HPE1 (TEST-ONLY, never knowledge) realizes the line as an escape line, and with it the run passes structure, realization and validation and stops at communication` },
         { id: 'A02-1', path: 'A02-1 (origin and progression withheld, TEST-ONLY)', stage: String(at('A02-1').result.chain?.stage), reason: reason('A02-1', 2), kind: 'DOWNSTREAM', categories: [1], why: 'no classification of the Laws for A02 is held, so LAW-8 and LAW-11 count as material (fail safe); stage B1, re-pinned openly (was at structure: the control referent is not stated; our CANDIDATE restatement now declares that it names no place)' },
         { id: 'A02-1b', path: 'A02-1b (+ the Laws held to our DRAFT classification, TEST-ONLY)', stage: String(at('A02-1b').result.chain?.stage), reason: reason('A02-1b', 1), kind: 'DOWNSTREAM', categories: [2, 1], why: 'the refusal rests on our DRAFT classification of the laws; no ruling settles the Laws for A02' },

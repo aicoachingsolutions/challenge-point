@@ -117,12 +117,13 @@ const GUIDED_SELECTION_NAMES: Record<string, number> = { coverageLenses: 2, cove
 // PROPOSED configuration's type and refusal added above it in run-bounded-selection.ts; still the only write, in selectFor under upstream).
 const K2_WRITTEN: string[] = ['system/derivation/run-bounded-selection.ts:447 WRITTEN in selectFor under upstream']
 // Stage B1, re-pinned openly the same way: safeguards.ts:476 -> :488 and :759 -> :773 (the same two literals, moved by the NO_FURTHER_VALUE
-// reading's hunks above them, safeguards.ts:222 and :256-266).
+// reading's hunks above them, safeguards.ts:222 and :256-266). Stage B2, re-pinned openly: build-activity.ts:171 -> :172 (the same type literal,
+// moved down by the import of the approved table, which our CANDIDATE wording is read beside).
 const K2_LITERALS: string[] = [
     'system/derivation/run-bounded-selection.ts:447 WRITTEN in selectFor under upstream',
     'system/design-reasoning/safeguards.ts:488 READ',
     'system/design-reasoning/safeguards.ts:773 READ',
-    'system/rendering/build-activity.ts:171 TYPE',
+    'system/rendering/build-activity.ts:172 TYPE',
     'system/test-library/generateSelection.ts:1206 READ',
     'system/test-library/types.ts:134 TYPE',
     'system/test-library/types.ts:170 TYPE',
@@ -430,10 +431,12 @@ test('statically: production cannot reach the option (identifiers, positional ar
     // package builder's and validator's TEST-ONLY parameters, fields and helpers, and the review pathway's record of the treatment).
     // Stage B1 of the A02 complete-activity package (12 November 2026): the PROPOSED configuration's option, its type and its overlay helper, the
     // treatment PROPOSED_PENDING's record and sink, and the review-level account join the scan.
-    const NAMES = new Set(['upstream', 'consumedGameProblem', 'consumed', 'quotaBypass', 'quotaBypassOwnSize', 'UpstreamDecisions', 'step1GameProblemId', 'hintsGameProblem', 'hintsGameProblemId', 'hintsGoverned', 'lensCandidateIds', 'hintsSignals', 'reviewManipulations', 'ReviewManipulations', 'reviewManipulationRefusals', 'reviewPathwayK2EmptySet', 'coverageLenses', 'coverageRowLenses', 'hintsLensesFrom', 'foundationPresenceBypass', 'foundationPresenceBypassed', 'FoundationPresenceBypass', 'FoundationOptionalPackage', 'switchChecks', 'SwitchChecks', 'switchChecksFor', 'wholePool', 'everyMemberValidated', 'refuseAbsentMembers', 'ABSENT_MEMBER_WORDS', 'proposedRealization', 'ProposedRealizationHandoff', 'withProposedRoles', 'PendingApprovalEntry', 'basisGrounds', 'BasisGround', 'reviewLevel', 'ReviewLevelAccount'])
+    // Stage B2 (12 November 2026): our CANDIDATE wording's option, its type and the table it makes join the scan.
+    const NAMES = new Set(['upstream', 'consumedGameProblem', 'consumed', 'quotaBypass', 'quotaBypassOwnSize', 'UpstreamDecisions', 'step1GameProblemId', 'hintsGameProblem', 'hintsGameProblemId', 'hintsGoverned', 'lensCandidateIds', 'hintsSignals', 'reviewManipulations', 'ReviewManipulations', 'reviewManipulationRefusals', 'reviewPathwayK2EmptySet', 'coverageLenses', 'coverageRowLenses', 'hintsLensesFrom', 'foundationPresenceBypass', 'foundationPresenceBypassed', 'FoundationPresenceBypass', 'FoundationOptionalPackage', 'switchChecks', 'SwitchChecks', 'switchChecksFor', 'wholePool', 'everyMemberValidated', 'refuseAbsentMembers', 'ABSENT_MEMBER_WORDS', 'proposedRealization', 'ProposedRealizationHandoff', 'withProposedRoles', 'PendingApprovalEntry', 'basisGrounds', 'BasisGround', 'reviewLevel', 'ReviewLevelAccount', 'candidateWording', 'CandidateWordingHandoff', 'wordingTable'])
     // Stage W2: a fourth argument to the package builder or validator is the treatment's (only the package check may pass it).
     // Stage B1, re-pinned openly: `build` takes a nineteenth argument (was 18), the TEST-ONLY sink of the treatment PROPOSED_PENDING (null in production).
-    const POSITION: Record<string, number> = { selectFor: 6, generateSelection: 3, build: 19, buildConstraintPackage: 4, validateConstraintPackage: 4 }
+    // Stage B2, re-pinned openly: BEFORE 19, AFTER 20: `build` takes a twentieth argument, our CANDIDATE wording's entries (null in production).
+    const POSITION: Record<string, number> = { selectFor: 6, generateSelection: 3, build: 20, buildConstraintPackage: 4, validateConstraintPackage: 4 }
     const named = new Map<string, Map<string, number>>()
     const namedLines = new Map<string, Map<number, string>>()
     const linesOfNamed = (file: string) => [...(namedLines.get(file) ?? new Map<number, string>()).entries()].sort((a, b) => a[0] - b[0]).map(entry => entry[1])
@@ -565,10 +568,11 @@ test('statically: production cannot reach the option (identifiers, positional ar
     // 7a. The only calls with an argument in the new position: the threading itself, one per file. Stage W2, re-pinned openly: selectFor hands
     // the selector a fourth argument (was 'generateSelection 3'), the treatment FOUNDATION_PRESENCE_BYPASS; and only the package check passes
     // the package builder and validator theirs, under that treatment. Stage B1, re-pinned openly: BEFORE 'build 18', AFTER 'build 19' (the one
-    // call of `build` hands it the sink of PROPOSED_PENDING; production calls pass none and so reach no new position).
+    // call of `build` hands it the sink of PROPOSED_PENDING; production calls pass none and so reach no new position). Stage B2, re-pinned openly:
+    // BEFORE 'build 19', AFTER 'build 20' (the one call of `build` also hands it our CANDIDATE wording's entries; production calls pass none).
     assert.deepEqual(calls.sort(), [
         'system/derivation/run-bounded-selection.ts generateSelection 4',
-        'system/rendering/build-activity.ts build 19',
+        'system/rendering/build-activity.ts build 20',
         'system/rendering/build-activity.ts selectFor 6',
         'system/test-library/selection-compatibility.ts buildConstraintPackage 4',
         'system/test-library/selection-compatibility.ts validateConstraintPackage 4',
@@ -607,7 +611,9 @@ test('statically: production cannot reach the option (identifiers, positional ar
     // Stage B1, re-pinned openly. BEFORE: { consumed: 7, consumedGameProblem: 7, upstream: 6, UpstreamDecisions: 4 }. AFTER: the review-level
     // account and the treatment PROPOSED_PENDING's record and sink join (BasisGround 2, PendingApprovalEntry 4, proposedRealization 1,
     // reviewLevel 3, ReviewLevelAccount 3), and upstream 6 -> 7 (the one read of the PROPOSED configuration from the TEST-ONLY entry's option).
-    assert.deepEqual(countsOf('system/rendering/build-activity.ts'), { BasisGround: 2, consumed: 7, consumedGameProblem: 7, PendingApprovalEntry: 4, proposedRealization: 1, reviewLevel: 3, ReviewLevelAccount: 3, upstream: 7, UpstreamDecisions: 4 })
+    // Stage B2, re-pinned openly. BEFORE: the object above. AFTER: our CANDIDATE wording's option, type and table join (candidateWording 6,
+    // CandidateWordingHandoff 2, wordingTable 5), and reviewLevel 3 -> 6 (the account's three assignments of the wording standing, file and entries).
+    assert.deepEqual(countsOf('system/rendering/build-activity.ts'), { BasisGround: 2, CandidateWordingHandoff: 2, candidateWording: 6, consumed: 7, consumedGameProblem: 7, PendingApprovalEntry: 4, proposedRealization: 1, reviewLevel: 6, ReviewLevelAccount: 3, upstream: 7, UpstreamDecisions: 4, wordingTable: 5 })
     // Stage B1: the context-scoring guard names only its TEST-ONLY sink and its type (production callers pass none).
     assert.deepEqual(countsOf('system/rendering/context-scoring-guard.ts'), { BasisGround: 7, basisGrounds: 6 })
     // Stage W1 (a), re-pinned openly: run-bounded-selection.ts was { consumed: 7, consumedGameProblem: 10, quotaBypass: 7, upstream: 23, UpstreamDecisions: 4 }.
@@ -627,22 +633,34 @@ test('statically: production cannot reach the option (identifiers, positional ar
         'reviewLevel?: ReviewLevelAccount',
         'export interface ReviewLevelAccount {',
         'pendingApproval: PendingApprovalEntry[]',
+        // Stage B2, re-pinned openly: our CANDIDATE wording's type, option, guard, copy, account lines and table join (each line listed below).
+        'export interface CandidateWordingHandoff {',
         'export interface PendingApprovalEntry {',
         'reviewLevel?: ReviewLevelAccount',
         '...(goal?.consumedGameProblem ? { consumedGameProblem: JSON.parse(JSON.stringify(goal.consumedGameProblem)) as ConsumedGameProblem } : {}),',
         '...(goal?.consumed ? { consumed: JSON.parse(JSON.stringify(goal.consumed)) as ConsumedRecord } : {}),',
         '...(gap.consumedGameProblem ? { consumedGameProblem: JSON.parse(JSON.stringify(gap.consumedGameProblem)) as ConsumedGameProblem } : {}),',
         '...(gap.consumed ? { consumed: JSON.parse(JSON.stringify(gap.consumed)) as ConsumedRecord } : {}),',
+        'candidateWording?: CandidateWordingHandoff',
         'upstream?: UpstreamDecisions',
         'const proposed = options.upstream?.proposedRealization',
         'const pending = proposed?.pending ? { treatmentId: proposed.pending.treatmentId, entries: [] as PendingApprovalEntry[] } : null',
+        "if (options.candidateWording && !proposed) throw new Error('our CANDIDATE coach wording is read only at review level, beside a PROPOSED configuration (upstream.proposedRealization)')",
+        'const candidate = options.candidateWording ? (JSON.parse(JSON.stringify(options.candidateWording.entries)) as ApprovedWording[]) : null',
         'options.upstream ? (JSON.parse(JSON.stringify(options.upstream)) as UpstreamDecisions) : null,',
         'built.activity.reviewLevel = {',
+        'if (options.candidateWording && candidate) {',
+        "built.activity.reviewLevel.wording = 'CANDIDATE_FOR_CHRISTIANS_REVIEW'",
+        'built.activity.reviewLevel.candidateFile = options.candidateWording.file',
+        'built.activity.reviewLevel.candidateEntries = candidate.filter(entry => said.has(entry.sentence)).map(entry => entry.id)',
         'upstream: UpstreamDecisions | null = null,',
         'upstream ?? undefined,',
         'const observedOnly = upstream ? JSON.stringify(goalSelection) : null',
         'pending?: { treatmentId: string; entries: PendingApprovalEntry[] } | null',
         'const grounds: BasisGround[] = []',
+        'const wordingTable = candidate ? [...approvedWording(), ...candidate] : null',
+        'const said = wordingTable ? renderConcreteGame(assembled, wordingTable) : renderConcreteGame(assembled)',
+        'const report = wordingTable ? checkFidelity(assembled, rendered, wordingTable) : checkFidelity(assembled, rendered)',
     ])
     // The selector's lines: the size rule's own-size bound, the parameter, the guard, the sizes, and the size rule's call. Stage W2, re-pinned
     // openly: the own-size bound admits exactly the set's size (was 'if (nc < 1 || nc > quotaBypassOwnSize) ... expected 1–n'); the sizes are

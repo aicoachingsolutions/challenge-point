@@ -662,20 +662,44 @@ const LIVE_HIGH_PRESS_ESCAPE_RULES: Readonly<Record<string, string>> = {
     'RPC-002|target_player|': 'Earn a point when your target player behind the press receives the ball and controls it, and your team keeps the ball with the next pass. The other team presses from the start of every attack.',
 }
 
-/** 2b's grounds with the overlay's replacement made in each covered rule's declared clauses (the spans are the rows' words, unchanged). */
+/**
+ * 2b's grounds with the overlay's replacement made in each covered rule's declared clauses (the spans are the rows' words, unchanged). Stage B2:
+ * and each declared rule change made where its words stand in the clause (the clause must read as the candidate rule reads).
+ */
 function groundsUnder(overlay: CandidateCoachRules): CoachRuleGrounds {
     const covered = new Set(overlay.rules.map((rule) => rule.key))
+    const declared = (clause: string) => (overlay.declared ?? []).filter((d) => d.in === 'rule').reduce((text, d) => (text.includes(d.from) ? text.replace(d.from, d.to) : text), clause)
     return Object.fromEntries(
-        Object.entries(COACH_RULE_GROUNDS).map(([key, grounds]) => [key, covered.has(key) ? grounds.map(([clause, kind, span]) => [clause.replace(overlay.replacement.from, overlay.replacement.to), kind, span]) : grounds])
+        Object.entries(COACH_RULE_GROUNDS).map(([key, grounds]) => [key, covered.has(key) ? grounds.map(([clause, kind, span]) => [declared(clause.replace(overlay.replacement.from, overlay.replacement.to)), kind, span]) : grounds])
     ) as CoachRuleGrounds
 }
 
-/** The overlay with other words in place of the replacement's new words (a TEST-ONLY copy, never written). */
+/** The overlay with other words in place of the replacement's new words (a TEST-ONLY copy, never written). Stage B2: the declared changes are dropped (and the setups kept), so the copy measures the replacement alone, as before. */
 function overlayWith(overlay: CandidateCoachRules, to: string): CandidateCoachRules {
     const copy: CandidateCoachRules = JSON.parse(JSON.stringify(overlay))
     copy.replacement.to = to
-    for (const rule of copy.rules) rule.candidate = rule.live.replace(copy.replacement.from, to)
+    delete copy.declared
+    for (const rule of copy.rules) {
+        rule.candidate = rule.live.replace(copy.replacement.from, to)
+        delete rule.setupCandidate
+    }
     return copy
+}
+
+/** Christian's words of 12 November 2026 the declared changes quote, verbatim (received 12 November 2026, item 1 and item 2). */
+const CHRISTIAN_12_NOVEMBER_WORDS = [
+    'I approve replacing "with the next pass" with "through the next action" in principle for the four High Press Escape rules.',
+    "Whose action: The attacking team's next relevant ball action following completion of the scoring event.",
+    'A qualifying sequence begins when the attacking team possesses the ball while facing established, coordinated defensive pressure.',
+    'A scoring event must occur within a sequence that began under coordinated pressure.',
+    'I want this represented through an observable game situation, not merely through instructions telling players or defenders what they must do.',
+]
+/** The four candidate rules held for Christian's review with the complete A02 activity (stage B2; DESIGN section 1), word for word. */
+const CANDIDATE_HIGH_PRESS_ESCAPE_RULES: Readonly<Record<string, string>> = {
+    'RPC-002|line_crossed|': 'Earn a point when a player dribbles over the line behind the press, or receives the ball past it and controls it, and your team keeps the ball through its next action. It counts only if the attack started against the other team pressing together.',
+    'RPC-002|target_zone_entered|': 'Earn a point when a player dribbles into the target zone behind the press, or receives the ball there and controls it, and your team keeps the ball through its next action. It counts only if the attack started against the other team pressing together.',
+    'RPC-002|gate|': 'Earn a point when a player passes or dribbles through a gate behind the press and your team keeps the ball through its next action. It counts only if the attack started against the other team pressing together.',
+    'RPC-002|target_player|': 'Earn a point when your target player behind the press receives the ball and controls it, and your team keeps the ball through its next action. It counts only if the attack started against the other team pressing together.',
 }
 
 /**
@@ -704,11 +728,28 @@ function testHighPressEscapeCandidateWording(): void {
     // The live four are unchanged, word for word, and the candidate covers exactly them.
     assert.deepEqual(overlay.rules.map((rule) => rule.key), HIGH_PRESS_ESCAPE_KEYS)
     for (const key of HIGH_PRESS_ESCAPE_KEYS) assert.equal(COACH_RULES[key]!.rule, LIVE_HIGH_PRESS_ESCAPE_RULES[key], `${key}: the live rule is unchanged (awaiting release)`)
-    for (const rule of overlay.rules) assert.equal(rule.candidate, LIVE_HIGH_PRESS_ESCAPE_RULES[rule.key]!.replace('with the next pass', 'through the next action'), `${rule.key}: one replacement, every other word kept`)
+    // RE-PINNED OPENLY (stage B2 of the A02 complete-activity package, 12 November 2026). BEFORE: each candidate was the live rule with only
+    // 'with the next pass' made 'through the next action', its setup kept. AFTER: the candidate of DESIGN section 1, the live rule with that
+    // replacement and the three declared changes (ITS: 'through its next action'; ORIGIN: the live origin sentence replaced by the observable
+    // condition; ORIGIN-SETUP: the setup drops it). WHY: Christian, received 12 November 2026: "I approve replacing "with the next pass" with
+    // "through the next action" in principle for the four High Press Escape rules." and item 1 (the observable start under coordinated
+    // pressure), the final wording held for review with the complete A02 activity. Never live: the live four, pinned above, are unchanged.
+    for (const rule of overlay.rules) assert.equal(rule.candidate, CANDIDATE_HIGH_PRESS_ESCAPE_RULES[rule.key], `${rule.key}: the replacement and the declared changes, every other word kept`)
+    for (const rule of overlay.rules) assert.equal(rule.setupCandidate, COACH_RULES[rule.key]!.setup.replace(' The other team presses from the start of every attack.', ''), `${rule.key}: the setup drops the origin sentence, every other word kept`)
+    assert.deepEqual((overlay.declared ?? []).map((d) => [d.id, d.in, d.from, d.to]), [
+        ['ITS', 'rule', 'through the next action', 'through its next action'],
+        ['ORIGIN', 'rule', 'The other team presses from the start of every attack.', 'It counts only if the attack started against the other team pressing together.'],
+        ['ORIGIN-SETUP', 'setup', ' The other team presses from the start of every attack.', ''],
+    ], 'exactly the three declared changes')
+    for (const d of overlay.declared ?? []) for (const words of d.christian) {
+        assert.ok(CHRISTIAN_12_NOVEMBER_WORDS.includes(words.quote), `${d.id}: "${words.quote}" is Christian's, verbatim`)
+        assert.equal(words.received, 'received 12 November 2026')
+    }
 
-    // The source-to-code check, pinned: per rule, each component's verdict; only the CONTROL clauses NARROWED and corrected.
+    // The source-to-code check, pinned: per rule, each component's verdict; only the CONTROL clauses NARROWED and corrected. Re-pinned openly
+    // (stage B2): BEFORE the ORIGIN clause was 'OVER_APPLIED REPORTED_NOT_CHANGED'; AFTER 'OVER_APPLIED CORRECTED_IN_CANDIDATE' (the declared ORIGIN).
     const verdicts = overlay.sourceToCode.map((check) => [check.key, check.clauses.map((clause) => `${clause.in} ${clause.component} ${clause.verdict} ${clause.action}`)])
-    const OUTSIDE = ['rule PROGRESSION REALIZATION REPORTED_NOT_CHANGED', 'rule CONTROL NARROWED CORRECTED_IN_CANDIDATE', 'rule ORIGIN OVER_APPLIED REPORTED_NOT_CHANGED', 'setup PROGRESSION REALIZATION REPORTED_NOT_CHANGED']
+    const OUTSIDE = ['rule PROGRESSION REALIZATION REPORTED_NOT_CHANGED', 'rule CONTROL NARROWED CORRECTED_IN_CANDIDATE', 'rule ORIGIN OVER_APPLIED CORRECTED_IN_CANDIDATE', 'setup PROGRESSION REALIZATION REPORTED_NOT_CHANGED']
     assert.deepEqual(verdicts, [
         ['RPC-002|line_crossed|', ['rule EVENT FAITHFUL REPORTED_NOT_CHANGED', 'rule EVENT FAITHFUL REPORTED_NOT_CHANGED', ...OUTSIDE]],
         ['RPC-002|target_zone_entered|', ['rule EVENT FAITHFUL REPORTED_NOT_CHANGED', 'rule EVENT FAITHFUL REPORTED_NOT_CHANGED', ...OUTSIDE]],
@@ -743,11 +784,13 @@ function testHighPressEscapeCandidateWording(): void {
         assert.deepEqual(coachWordingFailures(key, overlaid[key]!), [], `${key}: the CANDIDATE wording passes CCS, coach voice and evidence unchanged`)
         assert.deepEqual(findCommunicationStandardViolations(overlaid[key]!.rule), [])
         assert.equal(toCoachScoringSentence(overlaid[key]!.rule), overlaid[key]!.rule, `${key}: the coach-voice pass does not rewrite the CANDIDATE sentence`)
-        assert.deepEqual([overlaid[key]!.setup, overlaid[key]!.evidence], [COACH_RULES[key]!.setup, COACH_RULES[key]!.evidence], `${key}: setup and evidence kept`)
+        // Re-pinned openly (stage B2): BEFORE the setup was kept; AFTER it is the candidate setup (the origin sentence dropped). Evidence kept.
+        assert.deepEqual([overlaid[key]!.setup, overlaid[key]!.evidence], [COACH_RULES[key]!.setup.replace(' The other team presses from the start of every attack.', ''), COACH_RULES[key]!.evidence], `${key}: candidate setup, evidence kept`)
     }
     for (const key of Object.keys(COACH_RULES)) if (!HIGH_PRESS_ESCAPE_KEYS.includes(key)) assert.deepEqual(overlaid[key], COACH_RULES[key], `${key}: untouched by the overlay`)
     const overlaidGrounds = groundsUnder(overlay)
-    assert.deepEqual(overlaidGrounds['RPC-002|gate|'], [['keeps the ball through the next action', 'CONDITION', 'the attacking team retains possession through the next action']])
+    // Re-pinned openly (stage B2): BEFORE 'keeps the ball through the next action'; AFTER with the declared ITS made ('its', ours).
+    assert.deepEqual(overlaidGrounds['RPC-002|gate|'], [['keeps the ball through its next action', 'CONDITION', 'the attacking team retains possession through the next action']])
     assert.deepEqual(possessionOrControlFindings(overlaid, overlaidGrounds), { failures: [], onAnExample: [] }, '2b holds over the CANDIDATE wording')
     const overlaidFindings = actionWordFindings(overlaid, overlaidGrounds).map((f) => f.id).sort()
     assert.deepEqual(overlaidFindings, Object.keys(ACTION_WORD_FINDINGS).filter((id) => !id.startsWith('RPC-002|')).sort(), '2c: the four High Press Escape findings are gone under the CANDIDATE wording, and nothing else moves')
@@ -780,6 +823,14 @@ function testHighPressEscapeCandidateWording(): void {
         assert.ok(reasons.some((why) => why.includes(expected)), `the gate refuses: ${expected} (it said ${JSON.stringify(reasons)})`)
     }
     gateRefuses((c) => (c.rules[0].candidate = c.rules[0].candidate.replace('keeps the ball', 'keeps possession')), 'the candidate is not the live rule with only')
+    // Stage B2 (W8): an undeclared extra word is refused; a declared change dropped from the file, or its words changed, leaves the candidates
+    // unexplained; a setup changed beyond the declared change is refused; a declared change without Christian's words is refused.
+    gateRefuses((c) => (c.rules[0].candidate = c.rules[0].candidate.replace('pressing together', 'pressing hard together')), 'the candidate is not the live rule with only')
+    gateRefuses((c) => (c.declared = c.declared.filter((d: any) => d.id !== 'ITS')), 'the candidate is not the live rule with only')
+    gateRefuses((c) => (c.declared[1].to = 'It counts only if the other team pressed from the start.'), 'the candidate is not the live rule with only')
+    gateRefuses((c) => (c.rules[3].setupCandidate = 'Place a target player behind the pressing players, and press from the start.'), 'the candidate setup is not the live setup')
+    gateRefuses((c) => (c.declared[2].christian = []), "quotes none of Christian's words")
+    gateRefuses((c) => (c.sourceToCode[0].clauses[4].action = 'REPORTED_NOT_CHANGED'), 'or OVER_APPLIED and replaced by a declared change')
     gateRefuses((c) => (c.rules[1].live = c.rules[1].live.replace('Earn a point', 'Score a point')), 'its live text is not the live rule')
     gateRefuses((c) => c.rules.pop(), 'holds "with the next pass" and has no candidate')
     gateRefuses((c) => (c.rules[2].label = 'APPROVED'), 'not CANDIDATE')

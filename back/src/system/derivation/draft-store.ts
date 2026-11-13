@@ -55,7 +55,7 @@ import { PRIMARY_SCORING_CONDITION } from '../sport-module/rpc-library'
 import { learningGoalAuthorizations, LearningGoalAuthorization, validateLearningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import type { ProvisionalRealization } from './corpus'
 import { loadCorpusContracts, loadProvisionalRealizations, loadRegister, loadSportDefaultLaws, loadSportProfile, objectIdOf } from './corpus'
-import { LawsMateriality, lawsMaterialityRefusals } from './default-laws'
+import { DefaultLawsCheck, defaultLawsCheckRefusal, departureRefusals, LawDeparture, LawsMateriality, lawsMaterialityRefusals } from './default-laws'
 import { knowledgeKey } from './knowledge-key'
 import { AUDITS_DIR } from './knowledge-root'
 import { indexRegister } from './register'
@@ -696,6 +696,13 @@ export interface ProposedConfiguration {
      * (a choice for a line no longer open is refused), as an ILLUSTRATIVE carrier group's are (W4's `setsAsideChoices`).
      */
     setsAsideChoices: string[]
+    /**
+     * Stage B2 (TEST-ONLY): the configuration's PROPOSED departures from the Laws and the check that reads them (the file's `laws` block), held to
+     * `departureRefusals` and `defaultLawsCheckRefusal` and to this gate's PROPOSED rules: every basis is ours, says it is no ruling and quotes
+     * the request it answers with its received date. Carried on `realization` (as its own `defaultLawsCheck` and `realizationDepartures`) only
+     * where the loader is asked (`lawDepartures`); null where the file holds none.
+     */
+    laws: { check: DefaultLawsCheck; departures: LawDeparture[] } | null
 }
 export const PROPOSED_HPE1_FILE = path.join(DRAFTS_DIR, 'a02-proposed', 'hpe1.PROPOSED.json')
 const PROPOSED_ITEM_KEYS = ['id', 'row', 'selector', 'requirement', 'value', 'valueStatus', 'strictness', 'scope', 'basis', 'basisEvidence', 'checkability', 'structuralClause', 'fitNote', 'typedBound', 'waitsOn', 'askedFor']
@@ -704,7 +711,7 @@ const PROPOSED_REALIZATION_KEYS = ['id', 'contractId', 'realizes', 'realizationC
 const RULED_REALIZATION_KEYS = ['ruledOn', 'by', 'citedAs', 'words', 'departsFrom', 'defaultLawsCheck', 'category', 'testingBoundaries', 'objectSuitability', 'basedOn', 'withdraws']
 const RECEIVED_12_NOV = '(received 12 November 2026)'
 
-export function loadProposedRealization(file: string = PROPOSED_HPE1_FILE): ProposedConfiguration {
+export function loadProposedRealization(file: string = PROPOSED_HPE1_FILE, options: { lawDepartures?: boolean } = {}): ProposedConfiguration {
     const reasons: string[] = []
     let raw: any
     try {
@@ -811,6 +818,37 @@ export function loadProposedRealization(file: string = PROPOSED_HPE1_FILE): Prop
         const gated = gateItem(x.item, where, null, seen)
         if (gated) replacements.push({ contractId: String(x.contractId), replaces: String(x.replaces), item: gated })
     }
+    /*
+     * Stage B2 (TEST-ONLY): the configuration's PROPOSED departures from the Laws and the check that reads them (the file's `laws` block, never on
+     * the realization itself, whose `departsFrom` and `defaultLawsCheck` stay refused above). Held to exactly the rules a realization's own are
+     * (`defaultLawsCheckRefusal`, `departureRefusals`, so a law the Sport Profile does not name, a second departure from one law, an extent
+     * outside the closed list or a basis without words is refused), and, as a proposal, to one more: every basis is ours (its citedAs begins
+     * PROPOSED and says it is not a ruling) and quotes the request it answers with the received date. A basis claiming a ruling is refused.
+     */
+    let laws: ProposedConfiguration['laws'] = null
+    const lawsBlock = body?.laws
+    if (lawsBlock !== undefined) {
+        const where = (what: string) => `laws: ${what}`
+        if (!isObject(lawsBlock)) reasons.push(where('the block is not an object (defaultLawsCheck, departsFrom, note)'))
+        else {
+            for (const key of Object.keys(lawsBlock)) if (!['defaultLawsCheck', 'departsFrom', 'note'].includes(key)) reasons.push(where(`carries ${key}, which a PROPOSED laws block never writes`))
+            const defaultLaws = loadSportDefaultLaws()
+            if (!defaultLaws) reasons.push(where('the Sport Profile names no default laws'))
+            const check = lawsBlock.defaultLawsCheck as any
+            const refusedCheck = defaultLawsCheckRefusal(check)
+            if (refusedCheck) reasons.push(where(`the configuration ${refusedCheck}`))
+            const departures = lawsBlock.departsFrom
+            const refusedDepartures = defaultLaws ? departureRefusals(departures, defaultLaws.laws, where('the configuration (on itself)'), indexRegister(loadRegister())) : []
+            reasons.push(...refusedDepartures)
+            for (const basis of [check?.basis, ...(Array.isArray(departures) ? departures.map((d: any) => d?.basis) : [])]) {
+                const cited = String(basis?.citedAs ?? '')
+                if (!cited.startsWith('PROPOSED') || !cited.includes('not a ruling') || !cited.includes(RECEIVED_12_NOV))
+                    reasons.push(where(`a basis is cited ${JSON.stringify(basis?.citedAs ?? null)}: a PROPOSED check or departure is ours, says it is not a ruling, and names the request it answers ${RECEIVED_12_NOV}`))
+            }
+            if (!refusedCheck && !refusedDepartures.length && defaultLaws) laws = { check: JSON.parse(JSON.stringify(check)), departures: JSON.parse(JSON.stringify(departures)) }
+        }
+    }
+    if (options.lawDepartures && lawsBlock === undefined) reasons.push('the configuration is asked to carry its departures from the Laws, and the file holds none (laws)')
     if (reasons.length) throw new DraftStoreRefused(file, reasons)
     const repository = path.resolve(SYSTEM_DIR, '..', '..', '..')
     const shown = path.relative(repository, path.resolve(file)).split(path.sep).join('/')
@@ -832,8 +870,10 @@ export function loadProposedRealization(file: string = PROPOSED_HPE1_FILE): Prop
         realizationChoices: null,
         notWithPracticeSituations: (r.notWithPracticeSituations as any[]).map(s => ({ id: String(s.id), basis: String(s.basis), because: String(s.because) })),
         testingBoundaries: null,
+        // Stage B2: the PROPOSED check and departures, only where asked, recorded on the configuration itself (never on an item).
+        ...(options.lawDepartures && laws ? { defaultLawsCheck: JSON.parse(JSON.stringify(laws.check)), realizationDepartures: { recordedBy: id, departures: JSON.parse(JSON.stringify(laws.departures)) } } : {}),
     } as unknown as ProvisionalRealization
-    return { file: shown.startsWith('..') ? path.basename(file) : shown, realization, roles, replacements, questions, setsAsideChoices: Array.isArray(r.setsAsideChoices) ? r.setsAsideChoices.map(String) : [] }
+    return { file: shown.startsWith('..') ? path.basename(file) : shown, realization, roles, replacements, questions, setsAsideChoices: Array.isArray(r.setsAsideChoices) ? r.setsAsideChoices.map(String) : [], laws }
 }
 
 /**

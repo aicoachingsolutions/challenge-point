@@ -49,8 +49,12 @@ import { LoadedContract, NO_FURTHER_VALUE } from '../derivation/types'
 import { realizeWithJustifiedDefaults } from '../realization/justified-defaults'
 import { isRefused } from '../realization/realize'
 import { SuppliedRealization } from '../realization/supplied-realization'
+import { ApprovedWording } from '../rendering/approved-wording'
 import { buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from '../rendering/build-activity'
+import { CandidateWordingSources, candidateTable, loadCandidateWording } from '../rendering/candidate-coach-wording'
 import { reviewDraftOf } from '../rendering/review-draft'
+import { citationUnusableBecause } from '../sport-module/candidate-coach-rules'
+import { COACH_RULES } from '../sport-module/primary-scoring'
 import { withReviewStructureWording } from '../rendering/review-structure-wording'
 import { specializedRoleNames } from '../rendering/session-envelope'
 import { contextRelationships, learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
@@ -93,6 +97,20 @@ export function realizationEntry(r: NonNullable<ChainRequest['realization']>): R
         declarations: [],
         relationshipRules: [],
     }
+}
+
+/**
+ * **What our CANDIDATE wording's gate holds the file to** (stage B2 of the complete-activity package; `candidate-coach-wording.ts`): each
+ * restated row verbatim in the RPC library at the line named (the reader of our CANDIDATE coach rules checks citations the same way), each
+ * quote of Christian's verbatim in a ruling the case's data records with its received date, and no sentence holding the live High Press Escape
+ * rules' origin sentence or their 'with the next pass' (each read from the live rules, so it is the live text: every RPC-002 rule ends with
+ * the one origin sentence, or this throws).
+ */
+export function candidateWordingSourcesOf(rulings: CandidateWordingSources['rulings']): CandidateWordingSources {
+    const live = Object.entries(COACH_RULES).filter(([key]) => key.startsWith('RPC-002|')).map(([, rule]) => rule.rule)
+    const origin = live.length ? live[0].slice(live[0].lastIndexOf('. ') + 2) : ''
+    if (!live.length || !origin || !live.every((rule) => rule.endsWith(origin) && rule.includes('with the next pass'))) throw new Error('the live High Press Escape rules no longer end with one origin sentence and say "with the next pass": the CANDIDATE wording\'s gate cannot read what it must refuse')
+    return { citation: (cited) => citationUnusableBecause(cited), rulings: rulings.map((r) => ({ id: r.id, words: [...r.words], received: r.received })), never: [origin, 'with the next pass'] }
 }
 
 /** The realization gate, run on a copy of the production file with the TEST-ONLY realization added (R7 W3: the gate is the caller's duty). */
@@ -174,9 +192,10 @@ function linesOf(fixture: any, request: ChainRequest, chosenBy: Map<string, stri
     return lines
 }
 
-function sentencesOf(activity: ServedActivity | RefusedActivity, fixture: any): { sentences: ChainAnswer['sentences']; served: boolean | null; withheld: ChainAnswer['withheld'] } {
+function sentencesOf(activity: ServedActivity | RefusedActivity, fixture: any, candidate: ApprovedWording[] = []): { sentences: ChainAnswer['sentences']; served: boolean | null; withheld: ChainAnswer['withheld'] } {
     if (activity.outcome === 'served') {
-        const draft = reviewDraftOf([fixture], activity.rendered, [])
+        // Stage B2: with our CANDIDATE wording, its sentences read CANDIDATE (read apart from the approved table, never APPROVED).
+        const draft = reviewDraftOf([fixture], activity.rendered, [], [], candidate)
         return {
             served: true,
             withheld: [],
@@ -461,8 +480,11 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
         // handed to the entry's TEST-ONLY upstream option beside K2's result (the selection refuses it otherwise).
         if (request.proposed && (!drafts || !consume?.k2 || !upstream)) throw new Error(`case ${request.caseId}: a PROPOSED configuration is handed only to a consuming request that reads a draft store, beside K2's result`)
         let proposedSetsAside: string[] = []
+        // Stage B2: a PROPOSED configuration carried with its own REPORT check of the Laws is held by the harness to our DRAFT classification.
+        let proposedReportHeld = false
         if (request.proposed) {
-            const configuration = loadProposedRealization(path.resolve(WT, request.proposed.file))
+            const configuration = loadProposedRealization(path.resolve(WT, request.proposed.file), { lawDepartures: request.proposed.lawDepartures === true })
+            proposedReportHeld = request.proposed.lawDepartures === true && configuration.laws?.check.mode === 'REPORT'
             proposedSetsAside = [...configuration.setsAsideChoices]
             drafts = withProposedReplacements(drafts!, configuration, request.proposed.treatmentId)
             upstream!.proposedRealization = {
@@ -473,6 +495,10 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
                 basis: copy(request.proposed.basis),
             }
         }
+        // Stage B2: our CANDIDATE wording, held to its gate (`candidateWordingSourcesOf`), handed to the entry's TEST-ONLY option beside the
+        // PROPOSED configuration only (the entry throws otherwise).
+        if (request.candidateWording && !request.proposed) throw new Error(`case ${request.caseId}: our CANDIDATE wording is read only at review level, beside a PROPOSED configuration`)
+        const candidateWording = request.candidateWording ? loadCandidateWording(candidateWordingSourcesOf(request.candidateWording.rulings), path.resolve(WT, request.candidateWording.file)) : null
         // W5 (A02 package): the swap control, on this copy, after both stores' gates (see `RestatementSwap`).
         if (opts.swap) {
             if (!drafts || !consume) throw new Error(`case ${request.caseId}: the swap control exchanges restatements only in a consuming request's draft store`)
@@ -571,6 +597,7 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
             ...(lawsGiven ? { lawsMateriality: lawsGiven } : {}),
             ...(request.supplement ? { communicationSupplement: withReviewStructureWording } : {}),
             ...(upstream ? { upstream } : {}),
+            ...(candidateWording ? { candidateWording: { file: candidateWording.file, entries: candidateTable(candidateWording) } } : {}),
         })
         const activity = built.activity
         const fixture = built.fixture
@@ -585,17 +612,19 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
         // game with no role block, so it could not reproduce a block's refusal; such an answer carries no refusal detail (named, never guessed).
         const blockScoped = activity.outcome === 'refused' && activity.reasons.some((reason) => reason.startsWith('block '))
         const refusalDetail = activity.outcome === 'refused' && !blockScoped && (activity.stage === 'structure' || activity.stage === 'realization') && selected && derivedFrom ? refusalDetailOf(selected, derivedFrom, sessionOf(request.session), activity.stage, activity.reasons, suppliedUsed) : null
-        if (request.holdReportedLawsToMateriality && fixture) {
+        if ((request.holdReportedLawsToMateriality || proposedReportHeld) && fixture) {
             const held = heldLaws(fixture, opts.heldTo)
-            laws = { mode: 'REPORT (the TEST-ONLY realization\'s check), held by the harness to our DRAFT classification', owed: held.owed, reportedForReview: held.reported }
+            // Stage B2: whose REPORT check the harness holds: the TEST-ONLY realization's, or the PROPOSED configuration's (ours, not a ruling).
+            const whose = request.holdReportedLawsToMateriality ? 'the TEST-ONLY realization\'s' : 'the PROPOSED configuration\'s (ours, not a ruling)'
+            laws = { mode: `REPORT (${whose} check), held by the harness to our DRAFT classification`, owed: held.owed, reportedForReview: held.reported }
             if (held.material.length) {
                 outcome = 'refused'
                 stage = 'validation'
-                summary = `the harness holds the TEST-ONLY realization's REPORT check to ${opts.heldTo ? 'a TEST-ONLY stand-in classification' : 'our DRAFT classification'}, and a law it owes is not procedural there`
+                summary = `the harness holds ${whose} REPORT check to ${opts.heldTo ? 'a TEST-ONLY stand-in classification' : 'our DRAFT classification'}, and a law it owes is not procedural there`
                 reasons = held.material
             }
         }
-        const read = sentencesOf(activity, fixture)
+        const read = sentencesOf(activity, fixture, candidateWording ? candidateTable(candidateWording) : [])
         const account = activity.account
         const diagramDraft = (activity as ServedActivity).diagramDraft
         const block = diagramDraft?.diagram?.blocks?.[0] as any

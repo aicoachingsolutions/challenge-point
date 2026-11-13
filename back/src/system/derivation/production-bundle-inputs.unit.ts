@@ -59,6 +59,8 @@ export const TEST_ONLY_MODULES = [
     'src/system/design-reasoning/safeguards.ts',
     'src/system/sport-module/action-words.ts',
     'src/system/sport-module/candidate-coach-rules.ts',
+    // Stage B2 of the A02 complete-activity package (12 November 2026): the reader and gate of our CANDIDATE coach wording.
+    'src/system/rendering/candidate-coach-wording.ts',
 ]
 
 /** Why an input may not be in the production graph, or null where it may. */
@@ -70,7 +72,20 @@ export function forbiddenInput(input: string): string | null {
     if (name.endsWith('.review.json')) return 'a review data file (*.review.json)'
     if (name.toUpperCase().includes('CANDIDATE')) return 'a file whose name says CANDIDATE'
     if (name.toUpperCase().includes('ILLUSTRATIVE')) return 'a file whose name says ILLUSTRATIVE'
+    // Stage B2: our PROPOSED configuration files are named so (docs/audits/drafts/a02-proposed/hpe1.PROPOSED.json).
+    if (name.includes('.PROPOSED.')) return 'a file whose name says PROPOSED'
     return null
+}
+
+/**
+ * Stage B2: the knowledge files build.js copies into the bundle's knowledge folder, read from build.js's own list (its `knowledgeFiles` literal,
+ * each quoted file name), so a CANDIDATE, PROPOSED or draft-store file named there is caught as a bundled input would be.
+ */
+export function copiedKnowledgeFiles(buildJs: string): string[] {
+    const start = buildJs.indexOf('const knowledgeFiles = [')
+    const end = buildJs.indexOf(']', buildJs.indexOf('provisionalFile,', start))
+    if (start < 0 || end < 0) throw new Error('build.js holds no knowledgeFiles list')
+    return [...buildJs.slice(start, end).matchAll(/'([^']+\.json)'/g)].map((m) => m[1])
 }
 
 const INPUTS = productionInputs()
@@ -87,6 +102,9 @@ test('positive control: the graph holds the entry and the bundled modules the pa
         'src/system/derivation/types.ts',
         'src/system/rendering/build-activity.ts',
         'src/system/rendering/context-scoring-guard.ts',
+        // Stage B2: the renderer (the worded-only rows read for the CANDIDATE gate) and the approved table the build reads beside our wording.
+        'src/system/rendering/render-concrete-game.ts',
+        'src/system/rendering/approved-wording.ts',
         'src/system/rendering/requirement-account.ts',
         'src/system/rendering/review-draft.ts',
         'src/system/rendering/review-evidence.ts',
@@ -113,6 +131,21 @@ test('negative controls: the classifier names each kind of forbidden input, and 
     assert.equal(forbiddenInput('src/system/sport-module/rpc-002-coach-rules.CANDIDATE.json'), 'a file whose name says CANDIDATE')
     assert.equal(forbiddenInput('../docs/audits/a02-illustrative.json'), 'a file whose name says ILLUSTRATIVE')
     assert.equal(forbiddenInput('src/system/derivation/gates.ts'), null)
+    // Stage B2: our CANDIDATE coach wording's reader and file, and our PROPOSED configuration, each named.
+    assert.equal(forbiddenInput('src/system/rendering/candidate-coach-wording.ts'), 'a TEST-ONLY module of the package')
+    assert.equal(forbiddenInput('../docs/audits/drafts/a02-composition/a02-coach-wording.CANDIDATE.json'), 'a file of the draft stores (docs/audits/drafts)')
+    assert.equal(forbiddenInput('knowledge/a02-coach-wording.CANDIDATE.json'), 'a file whose name says CANDIDATE')
+    assert.equal(forbiddenInput('knowledge/hpe1.PROPOSED.json'), 'a file whose name says PROPOSED')
+})
+
+test("build.js copies no CANDIDATE, PROPOSED, ILLUSTRATIVE or draft-store file into the bundle's knowledge (stage B2), with its bite", () => {
+    const buildJs = fs.readFileSync(path.join(BACK, 'build.js'), 'utf8')
+    const copied = copiedKnowledgeFiles(buildJs)
+    assert.ok(copied.includes('approved-coach-wording.json') && copied.includes('draft-coach-wording.json'), 'positive control: the list is read')
+    assert.deepEqual(copied.filter((file) => forbiddenInput(file) !== null), [])
+    // Bite: our CANDIDATE wording named in a copy of build.js's list is caught.
+    const doctored = buildJs.replace("'approved-coach-wording.json',", "'approved-coach-wording.json',\n            'drafts/a02-composition/a02-coach-wording.CANDIDATE.json',")
+    assert.deepEqual(copiedKnowledgeFiles(doctored).filter((file) => forbiddenInput(file) !== null), ['drafts/a02-composition/a02-coach-wording.CANDIDATE.json'])
 })
 
 test('registered', () => {

@@ -614,6 +614,13 @@ const WORDED_ONLY: { base: string; elements: (game: any) => unknown; fields: { f
 ]
 
 /**
+ * **The rows only approved words may say, read from the table above** — stage B2 of the A02 complete-activity package (12 November 2026), for
+ * the tests-only gate of our CANDIDATE wording (`candidate-coach-wording.ts`), which admits a cover on no other row. A reading of the table only:
+ * nothing is said or withheld here.
+ */
+export const wordedOnlyRows = (): string[] => [...new Set(WORDED_ONLY.flatMap(spec => spec.fields.map(field => field.row)))]
+
+/**
  * **The modifier's criterion and termination, worded for EXACT values only — NOT approved wording.** These are
  * the two sentences the Wide Zone demonstration has been served with since 7 October, kept keyed to the one
  * value each translates until Christian approves them (they are submitted with the wording batch, OD5). Once
