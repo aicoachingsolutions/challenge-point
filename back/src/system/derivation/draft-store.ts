@@ -673,7 +673,7 @@ export function withIllustrativeCarriers(store: DraftStoreContents, carriers: Il
  * a realization-choices file or any key a ruled realization writes (`ruledOn`, `by`, `citedAs`, `words`, `departsFrom`, `defaultLawsCheck`);
  * an item basis other than AUTHORED (OWNER_RULING claims a ruling, refused by name), an item carrying what only a ruled restatement or a
  * provisional realization writes (`FORBIDDEN_ITEM_KEYS`: `authorizedBy`, the role-yield marker, an item-level `departsFrom`, ...), or any
- * key a proposal never writes (a source, his words); an item without our reasoning (`fitNote`), without a question id the file asks
+ * key a proposal never writes (a source, Christian's words); an item without our reasoning (`fitNote`), without a question id the file asks
  * (`waitsOn`), without the request it answers in Christian's words with the received date (`askedFor`), or whose `basisEvidence` does not begin
  * 'PROPOSED:' or 'ILLUSTRATIVE:'; an item on a participant row (a P row: no placement relationship exists for the context), naming a
  * library constraint, scoped to anything but the whole game, or carrying a value or offset a production provisional realization holds on
@@ -707,7 +707,7 @@ export interface ProposedConfiguration {
 export const PROPOSED_HPE1_FILE = path.join(DRAFTS_DIR, 'a02-proposed', 'hpe1.PROPOSED.json')
 const PROPOSED_ITEM_KEYS = ['id', 'row', 'selector', 'requirement', 'value', 'valueStatus', 'strictness', 'scope', 'basis', 'basisEvidence', 'checkability', 'structuralClause', 'fitNote', 'typedBound', 'waitsOn', 'askedFor']
 const PROPOSED_REALIZATION_KEYS = ['id', 'contractId', 'realizes', 'realizationChoices', 'notWithPracticeSituations', 'items', 'declarations', 'relationshipRules', 'setsAsideChoices', 'note']
-/** What a proposal never writes on the realization: the keys of a ruled realization (his words, his date, his departures, his check). */
+/** What a proposal never writes on the realization: the keys of a ruled realization (Christian's words, Christian's date, Christian's departures, Christian's check). */
 const RULED_REALIZATION_KEYS = ['ruledOn', 'by', 'citedAs', 'words', 'departsFrom', 'defaultLawsCheck', 'category', 'testingBoundaries', 'objectSuitability', 'basedOn', 'withdraws']
 const RECEIVED_12_NOV = '(received 12 November 2026)'
 
@@ -799,7 +799,9 @@ export function loadProposedRealization(file: string = PROPOSED_HPE1_FILE, optio
         if (!filled(role?.token)) reasons.push(`a role names no token (${JSON.stringify(role)})`)
         else if (role?.noun !== null && heldRoles.includes(token)) reasons.push(`the role token ${token} is already in the register: a PROPOSED configuration proposes a new token only where the register holds none, and keeps a held token's noun`)
         else if (role?.noun === null && !heldRoles.includes(token)) reasons.push(`the role token ${token} is not in the register, so it comes with the noun proposed for it`)
-        else if (role?.noun !== null && (!filled(role?.noun) || role?.label !== 'CANDIDATE' || !questionIds.has(String(role?.waitsOn)))) reasons.push(`the new role ${token} comes with its noun, labelled CANDIDATE, and the question it waits on`)
+        // Stage A2 (13 November 2026, V2 finding 11), re-pinned openly: the noun was required labelled CANDIDATE; a new role's noun is new knowledge
+        // of ours, proposed with the role itself (N3), so it is labelled PROPOSED.
+        else if (role?.noun !== null && (!filled(role?.noun) || role?.label !== PROPOSED || !questionIds.has(String(role?.waitsOn)))) reasons.push(`the new role ${token} comes with its noun, labelled PROPOSED, and the question it waits on`)
         roles.push({ token, noun: role?.noun === null ? null : String(role?.noun ?? '') })
     }
     if (roles.length !== 2) reasons.push(`the configuration names ${roles.length} roles; a role block holds exactly two, one per team`)

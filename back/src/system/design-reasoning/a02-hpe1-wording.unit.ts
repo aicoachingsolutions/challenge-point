@@ -6,7 +6,7 @@
  * Christian, received 12 November 2026: "Please prepare candidate coach-facing wording for my review, with the complete approved meaning
  * preserved in the underlying representation." "Produce one complete A02 activity through the checked pathway, at review level, with all
  * required conditions grounded in approved knowledge." "Likewise, please identify any necessary Law 11 decision in the context of the proposed
- * activity rather than expanding into a general Laws-of-the-Game redesign."
+ * activity rather than expanding into a general Laws-of-the-Game redesign." (all three received 12 November 2026)
  *
  * What is pinned, every value measured first (scratchpad pkg3/B2):
  *   the stop: A02-HPE1 (the review-level run) passes structure, realization and validation and is refused at COMMUNICATION, with our
@@ -173,13 +173,18 @@ test('the run: A02-HPE1 (the review-level run) passes structure, realization and
 test('W1 the CANDIDATE wording passes its gate whole; each defect refuses the file (approvedBy, a quote not verbatim, a restated row not verbatim, a standing without CANDIDATE, a cover outside the rows only approved words say, the live origin sentence, the live next pass); a stale value leaves the fields withheld and the build refuses', () => {
     const wording = loadCandidateWording(SOURCES)
     assert.deepEqual(wording.entries.map((e) => e.id), [W1])
-    assert.deepEqual(wording.printerOnly.map((p) => [p.id, p.part, p.label]), [
-        ['A02-HPE1-S3', 'Setup', 'PROPOSED'],
-        ['A02-HPE1-S6', 'Setup', 'CANDIDATE'],
-        ['A02-HPE1-K3', 'Scoring', 'CANDIDATE'],
-        ['A02-HPE1-K4', 'Scoring', 'CANDIDATE'],
-        ['A02-HPE1-L2', 'Learning explanation', 'CANDIDATE'],
+    // Stage A2 (13 November 2026, the lead's decision W1), re-pinned openly. BEFORE: S3 (the placement rule, PROPOSED), S6 (an optional restart,
+    // CANDIDATE), K3 and K4 (scoring details, CANDIDATE), L2. AFTER: S3 places the line once (the rule, the 12 m in brackets), S4 the roles and
+    // ends, R1 the PROPOSED restart (S6 merged into it), K5 the pressing team's score (PROPOSED), L2; K3 and K4 are in our condition sentence
+    // (W1), the event-completion sentence gone. Each but L2 states engine sentences in their place (standsFor); L2 names Q2 (restsOn).
+    assert.deepEqual(wording.printerOnly.map((p) => [p.id, p.part, p.label, p.standsFor?.length ?? 0, p.restsOn ?? []]), [
+        ['A02-HPE1-S3', 'Setup', 'PROPOSED', 1, []],
+        ['A02-HPE1-S4', 'Setup', 'PROPOSED', 2, []],
+        ['A02-HPE1-R1', 'Rules', 'PROPOSED', 4, []],
+        ['A02-HPE1-K5', 'Scoring', 'PROPOSED', 3, []],
+        ['A02-HPE1-L2', 'Learning explanation', 'CANDIDATE', 0, ['Q2']],
     ])
+    assert.equal(wording.entries[0].standsFor?.length, 3)
     const raw = readJson(CANDIDATE_COACH_WORDING_FILE)
     const refuses = (alter: (c: any) => void, expected: string) => {
         const c = copy(raw)
@@ -195,9 +200,17 @@ test('W1 the CANDIDATE wording passes its gate whole; each defect refuses the fi
     refuses((c) => (c.standing = c.standing.replace('CANDIDATE', 'APPROVED')), 'does not stand CANDIDATE')
     refuses((c) => c.entries[0].covers.push({ row: 'J2', match: { equals: 'x' }, element: { base: 'objectives', field: 'role', equals: 'PRIMARY_SCORING' } }), 'the cover on J2 is on a row the renderer says in its own words')
     refuses((c) => (c.entries[0].sentence += ' The other team presses from the start of every attack.'), 'which no candidate sentence may say')
-    refuses((c) => (c.printerOnly[2].sentence = c.printerOnly[2].sentence.replace('the next action', 'with the next pass')), 'which no candidate sentence may say')
+    // Stage A2, re-pinned openly: the printed sentence bitten was K3, which said 'the next action'; no printed sentence says it now, so the live
+    // next pass is added to one.
+    refuses((c) => (c.printerOnly[2].sentence += ' Keep the ball with the next pass.'), 'which no candidate sentence may say')
     refuses((c) => (c.entries[0].candidateBy.who = 'Christian'), "not 'ours'")
     refuses((c) => (c.printerOnly[1].part = 'Adjusting the activity'), 'is none of Setup, Rules, Scoring, Learning explanation')
+    // Stage A2: the gate's new rules, each with its bite: a standsFor that is no list of sentences, an engine sentence stood for twice, a
+    // restsOn that is no list of question ids, an entry carrying restsOn.
+    refuses((c) => (c.printerOnly[0].standsFor = 'Mark a line'), 'its standsFor is not a list of sentences')
+    refuses((c) => c.printerOnly[3].standsFor.push(c.printerOnly[0].standsFor[0]), 'which another sentence of the file already stands for')
+    refuses((c) => (c.printerOnly[4].restsOn = ['question 2']), 'its restsOn is not a list of question ids')
+    refuses((c) => (c.entries[0].restsOn = ['Q1']), 'an entry carries no restsOn')
     assert.throws(() => loadCandidateWording(SOURCES, fileCopy(CANDIDATE_COACH_WORDING_FILE, (c) => (c.label = 'APPROVED'))), (e: unknown) => e instanceof CandidateWordingRefused, 'refused whole by the loader')
     // A stale value (the origin's words drifted): the entry no longer matches the game, so it is not said, the fields are withheld and the build
     // refuses at communication naming them (fail closed); the gate cannot see it (the shape holds), the renderer does.
@@ -344,25 +357,43 @@ test("W5 LAW-11: 'There is no offside' said exactly once, from the configuration
 // W6: conditions, not solutions
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-/** Why a CANDIDATE condition sentence asks the escaping team for an action or a measure: the reasons, empty where none. */
+/*
+ * Stage A2 (13 November 2026, the lead's decision W1), re-pinned openly. BEFORE: our condition sentence was one sentence whose only action
+ * words lay inside the parenthesis describing the pressure, holding no number and closing 'through its next action.'. AFTER: our condition
+ * sentence is the escaping team's whole scoring in five sentences, so the check reads where each action word may lie: in the event's own
+ * description (what counts as the event, the approved vocabulary's dribble or controlled reception: 'when a player ... beyond it,'), in the
+ * description of the pressure (the pressing team's: from 'before it scored:' to the sentence after), or in the sentence saying no extra
+ * touch is needed (a negation: nothing asked). It holds no number (a numeral would be an undeclared quantity, which fidelity refuses), and
+ * its first sentence closes 'through its next action.'.
+ */
+/** Why our CANDIDATE condition sentence asks the escaping team for an action or a measure: the reasons, empty where none. */
 function solutionRefusals(sentence: string): string[] {
     const reasons: string[] = []
-    const open = sentence.indexOf(' (')
-    const close = sentence.indexOf(')', open)
-    // Every action word lies inside the parenthesis that says what pressing together is (the pressing team's, not asked of the escaping team).
-    for (const word of actionWordsIn(sentence)) if (!(open >= 0 && word.at > open && word.at < close)) reasons.push(`'${word.word}' (${word.actionClass}) is asked outside the description of the pressure`)
+    const span = (from: string, to: string) => {
+        const a = sentence.indexOf(from)
+        const b = a >= 0 ? sentence.indexOf(to, a + from.length) : -1
+        return a >= 0 && b >= 0 ? { a, b: b + to.length } : null
+    }
+    const allowed = [span('when a player', 'beyond it,'), span('before it scored:', 'necessarily count.'), span('A player who dribbles', 'needs no extra touch.')].filter((x): x is { a: number; b: number } => x !== null)
+    if (allowed.length !== 3) reasons.push('the event, the pressure or the no-extra-touch sentence is not where the check reads it')
+    for (const word of actionWordsIn(sentence)) if (!allowed.some((x) => word.at >= x.a && word.at < x.b)) reasons.push(`'${word.word}' (${word.actionClass}) is asked outside the event, the description of the pressure and the no-extra-touch sentence`)
     if (/\d/.test(sentence)) reasons.push('it holds a number')
-    if (!/through its next action\.$/.test(sentence)) reasons.push('its continuation is not "through its next action", closing the sentence')
+    if (sentence.split('. ')[0] !== sentence.slice(0, sentence.indexOf('through its next action.') + 'through its next action'.length)) reasons.push('its first sentence does not close "through its next action"')
     return reasons
 }
-test('W6 conditions, not solutions: our condition sentence asks the escaping team for no specific action, number, time or distance (its only action words describe the pressure); no CANDIDATE sentence holds the live origin sentence or the next pass; two bites', () => {
+test('W6 conditions, not solutions: our condition sentence asks the escaping team for no specific action, number, time or distance (its action words lie in the event\'s own description, the description of the pressure, and the no-extra-touch sentence); no CANDIDATE sentence holds the live origin sentence or the next pass; three bites', () => {
     const wording = loadCandidateWording(SOURCES)
     const w1 = wording.entries[0].sentence
     assert.deepEqual(solutionRefusals(w1), [])
     assert.ok(actionWordsIn(w1).length > 0, 'the description of the pressure names what pressing together is')
-    assert.ok(solutionRefusals(w1.replace(' and the escaping team keeps it through its next action.', ' and passes forward first, and the escaping team keeps it through its next action.')).some((r) => r.includes("'passes'")), "bite: 'and passes forward first' is caught")
+    assert.ok(solutionRefusals(w1.replace(' and the team keeps the ball through its next action.', ' and passes forward first, and the team keeps the ball through its next action.')).some((r) => r.includes("'passes'")), "bite: 'and passes forward first' is caught")
     assert.ok(solutionRefusals(w1.replace('through its next action.', 'within 3 seconds through its next action.')).includes('it holds a number'), "bite: 'within 3 seconds' is caught")
+    assert.ok(solutionRefusals(w1.replace('use your judgement', 'pass back and use your judgement')).some((r) => r.includes("'pass'")), "bite: 'pass back' in the stoppage sentence is caught")
     for (const s of [...wording.entries.map((e) => e.sentence), ...wording.printerOnly.map((p) => p.sentence)]) for (const never of SOURCES.never) assert.ok(!s.includes(never), never)
+    // The decided pressure sentence, word for word (the lead's decision W1), and no 'attack' in any sentence of ours (Christian keeps a restart, a
+    // change of possession and a new attack apart, received 8 November 2026).
+    assert.ok(w1.includes('It counts only if, in that possession, the escaping team faced the pressing team pressing together before it scored: players working together to pressure the ball and restrict passes and forward options. One player closing down alone does not necessarily count.'))
+    for (const s of [...wording.entries.map((e) => e.sentence), ...wording.printerOnly.map((p) => p.sentence)]) assert.ok(!/\battack/i.test(s), `no 'attack': ${s}`)
 })
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -402,7 +433,10 @@ test("W7 the four-part print of A02-HPE1 (served at review level, stage A1): eve
     assert.ok(print.lines.some((l) => l.marker === 'P' && l.part === 'Setup'), 'the placement rule is printed PROPOSED')
     // Concision, measured: the draft's sentences and words (A01's served Details hold 27 sentences: goal-version-communication.unit.ts).
     const words = said.reduce((n, s) => n + s.text.split(/\s+/).length, 0)
-    assert.deepEqual([said.length, words], [19, 377])
+    // Stage A2, re-pinned openly: 377 -> 435 words (the engine's 19 sentences): our condition sentence now carries the escaping team's whole
+    // scoring (decision W1). This print sets our sentences beside the engine's; the coach text, each engine sentence printed once as said or
+    // stated by one of ours, is a02-acceptance.unit.ts's (12 lines, 17 sentences, 330 words).
+    assert.deepEqual([said.length, words], [19, 435])
     quiet(print.text.split('\n').map((l) => `      ${l}`).join('\n'))
 })
 

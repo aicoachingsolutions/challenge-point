@@ -1437,13 +1437,22 @@ test('S4. zero, one, two and three manipulations only through the DRAFT record\'
  * 2026 (the origin's words on V6, the origin and the continuation NO_FURTHER_VALUE), so A02-0, A02-1, A02-1b and A02-2 change by design (A02-0 now
  * stops at structure on the pressing line's open text, A02-1 at validation); A02-D's findings are unchanged. The claim this pin holds is
  * unchanged: the quota stage (W2) touches no base run; the base runs now are B1's.
+ *
+ * RE-PINNED OPENLY (stage A2, 13 November 2026, the lead's decisions W5 (V2 findings 14 and 15) and W6). BEFORE: each run's result hash as B1
+ * left it (A02-0 cf0ee7da..., A02-1 9a0839e8..., A02-1b 92a3b834..., A02-2 f12be29a..., A02-D 49236ec9...). AFTER: re-measured (scratchpad pkg4/
+ * A2/logs/base-hashes-3.txt, against the evidence at bb815ec). WHY: (1) the case's recorded rulings moved: A02-08NOV-RESTART's 'how' says it is
+ * answered for the start by A02-12NOV-PRESSURE; A02-12NOV-NEXT-ACTION records the second sentence of Christian's hold on the four rules;
+ * A02-12NOV-COMMUNICATION (item 5) joins as REPORT_ONLY (every run); (2) on the three runs that reach configuration lines (A02-1, A02-1b, A02-2)
+ * the one line our restatement declares needs no further value, c:restated:RPC-002:RPC-002-04.a::V5, is graded DECLARED_ABSENCE (CANDIDATE)
+ * in place of UNRESOLVED, so its line and the class counts move. Measured: the differing keys are `rulings` (A02-0, A02-D) and `rulings`,
+ * `lines` (that one line) and `counts` (A02-1, A02-1b, A02-2); every findings hash is unchanged, so no chain answer moved.
  */
 const BASE_AT_8D5A3F3: Record<string, [string, string]> = {
-    'A02-0': ['cf0ee7dadcc3a4baf23d9a489a612d01e8b9eac0fe9d92d9ea42987f002dde36', '1f7fbd1057884f9ca701069a793dad2faa6e3f24e13b3ead6e3e557312d0b535'],
-    'A02-1': ['9a0839e81e4b46fa8662885fe33235bb6b5b4186746b23109aa2e952ccc3b477', '8c7164d8cb7b6e60d4e943dbb5dcc1aa6019263013935e563a7d553219f7874a'],
-    'A02-1b': ['92a3b8342fa8096312e4eadc3ba24343fa368057dea654a6cc6e85bf2e7f0940', '139bd70d9b6fa0d7f32d598e6b9ebcb27b1193a5a031cef4a5188e5e68bd0346'],
-    'A02-2': ['f12be29aaa1b67da7eb8205fc7e5d26b2f87a927a82ce4658cd170b29d0a5482', '0f282c0409980f19d42e82c806c80c55b4899c385bb752fe8f3b6fc0b0222bba'],
-    'A02-D': ['49236ec9f719e3bf56b91017522e8399b1758613cedff79da5334c7394466d8d', 'bc230e663b31ceea22c7aedf40100c71137dc5126ab936ea30c709a0a6a1d5d9'],
+    'A02-0': ['55b0cf59bc4605ff758817bc4c3354a3c5b937c290fb5301261aebb79bc07078', '1f7fbd1057884f9ca701069a793dad2faa6e3f24e13b3ead6e3e557312d0b535'],
+    'A02-1': ['70bcaefa829566d0d0c5f6aa97d2e3c35e0d17033f25ae210b445a6dc7de71ff', '8c7164d8cb7b6e60d4e943dbb5dcc1aa6019263013935e563a7d553219f7874a'],
+    'A02-1b': ['539b2c4860b8c0d67f770500f22ac4ffc37659613d59d5a09da8406c09f0f935', '139bd70d9b6fa0d7f32d598e6b9ebcb27b1193a5a031cef4a5188e5e68bd0346'],
+    'A02-2': ['40907a62ee5a7920b3120850a6492820f3d11485936638ee6ef817e6966f4500', '0f282c0409980f19d42e82c806c80c55b4899c385bb752fe8f3b6fc0b0222bba'],
+    'A02-D': ['3723b0d46c0f2f2842c97eda4be33293676db87facb2b7698abb483b6b250b71', 'bc230e663b31ceea22c7aedf40100c71137dc5126ab936ea30c709a0a6a1d5d9'],
 }
 const sha = (v: unknown) => crypto.createHash('sha256').update(json(v)).digest('hex')
 /**

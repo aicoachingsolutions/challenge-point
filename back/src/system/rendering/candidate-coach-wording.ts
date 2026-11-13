@@ -31,7 +31,10 @@
  *   - a sentence holding any of the words the caller names as never to be said (the live origin sentence our rulings replace);
  *   - a printed sentence with no part of the four, or labelled other than PROPOSED or CANDIDATE; an id used twice;
  *   - (stage A1) a template naming a template the renderer does not read our words by, carrying `approvedBy`, with a slot the renderer does not
- *     fill, or whose parts filled with its example do not reproduce its sentence (a final full stop aside).
+ *     fill, or whose parts filled with its example do not reproduce its sentence (a final full stop aside);
+ *   - (stage A2, 13 November 2026) a `standsFor` that is not a list of sentences, or names one sentence twice in the file (an engine sentence
+ *     is stated by one sentence of ours at most); a `restsOn` that is not a list of question ids (Q1, Q2, ...). Whether each sentence a
+ *     `standsFor` names is one the engine said is the review print's check (four-part-print.unit.ts), which sees what was said.
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -71,6 +74,8 @@ export interface CandidateWordingEntry {
     sentence: string
     section: ApprovedWording['section']
     candidateBy: CandidateBy
+    /** Stage A2: the engine's sentences (exact texts) this sentence states in fewer words; the review print prints it in their place. */
+    standsFor?: string[]
 }
 /** A sentence the engine never says, printed by the review print in its part, with its label. */
 export interface PrintedOnlySentence {
@@ -79,6 +84,10 @@ export interface PrintedOnlySentence {
     label: 'PROPOSED' | 'CANDIDATE'
     sentence: string
     candidateBy: CandidateBy
+    /** Stage A2: the engine's sentences (exact texts) this sentence states in fewer words; the review print prints it in their place. */
+    standsFor?: string[]
+    /** Stage A2: the questions of a PROPOSED configuration this sentence rests on beyond what it states. */
+    restsOn?: string[]
 }
 /** A sentence the renderer says from its reading of the game (stage A1): the approved template's shape, with `candidateBy` in place of `approvedBy`. */
 export interface CandidateTemplateEntry {
@@ -165,6 +174,23 @@ export function candidateWordingRefusals(raw: any, sources: CandidateWordingSour
     const neverIn = (sentence: string, at: string) => {
         for (const words of sources.never) if (filled(words) && sentence.includes(words)) reasons.push(`${at}: its sentence holds "${words}", which no candidate sentence may say`)
     }
+    // Stage A2: what a sentence of ours states in the engine's place, each engine sentence by one of ours at most; and the questions it rests on.
+    const stated = new Set<string>()
+    const standsForIn = (x: any, at: string) => {
+        if (x?.standsFor === undefined) return
+        if (!Array.isArray(x.standsFor) || !x.standsFor.length || !x.standsFor.every(filled)) {
+            reasons.push(`${at}: its standsFor is not a list of sentences`)
+            return
+        }
+        for (const text of x.standsFor as string[]) {
+            if (stated.has(text)) reasons.push(`${at}: stands for ${JSON.stringify(text)}, which another sentence of the file already stands for`)
+            stated.add(text)
+        }
+    }
+    const restsOnIn = (x: any, at: string) => {
+        if (x?.restsOn === undefined) return
+        if (!Array.isArray(x.restsOn) || !x.restsOn.length || !x.restsOn.every((q: unknown) => filled(q) && /^Q\d+$/.test(q))) reasons.push(`${at}: its restsOn is not a list of question ids (Q1, Q2, ...)`)
+    }
     const entries: any[] = Array.isArray(raw?.entries) ? raw.entries : []
     if (!entries.length) reasons.push('the file holds no entry')
     for (const entry of entries) {
@@ -186,6 +212,8 @@ export function candidateWordingRefusals(raw: any, sources: CandidateWordingSour
             if (!isObject(locator) || !filled(locator.base) || !filled(locator.field) || !('equals' in locator)) reasons.push(`${at}: the cover on ${cover.row} names no element it holds on (base, field and equals): a candidate entry is said once, for the elements it names`)
         }
         reasons.push(...candidateByRefusals(entry?.candidateBy, at, sources))
+        standsForIn(entry, at)
+        if (entry?.restsOn !== undefined) reasons.push(`${at}: an entry carries no restsOn (what it rests on is read from what it cites)`)
     }
     const printed: any[] = Array.isArray(raw?.printerOnly) ? raw.printerOnly : []
     if (raw?.printerOnly !== undefined && !Array.isArray(raw.printerOnly)) reasons.push('printerOnly is not a list')
@@ -197,6 +225,8 @@ export function candidateWordingRefusals(raw: any, sources: CandidateWordingSour
         if (!filled(sentence?.sentence)) reasons.push(`${at} has no sentence`)
         else neverIn(sentence.sentence, at)
         reasons.push(...candidateByRefusals(sentence?.candidateBy, at, sources))
+        standsForIn(sentence, at)
+        restsOnIn(sentence, at)
     }
     // Stage A1 (decision R3): the templates the renderer reads our words by, each in the approved template's shape, never approved.
     const templates: any[] = Array.isArray(raw?.templates) ? raw.templates : []
@@ -258,4 +288,10 @@ export const candidateTemplates = (wording: CandidateWording): ApprovedTemplateS
  * The entries as a table the renderer and fidelity read beside the approved one (`renderConcreteGame`, `checkFidelity`): copies, in the
  * approved table's cover shape, each keeping its `candidateBy` and carrying no approval. Never added to the approved table's file.
  */
-export const candidateTable = (wording: CandidateWording): ApprovedWording[] => wording.entries.map(entry => JSON.parse(JSON.stringify(entry)) as unknown as ApprovedWording)
+export const candidateTable = (wording: CandidateWording): ApprovedWording[] =>
+    wording.entries.map(entry => {
+        // Stage A2: `standsFor` is the review print's, never the renderer's: the table carries the cover shape only.
+        const { standsFor: _print, ...shape } = JSON.parse(JSON.stringify(entry)) as CandidateWordingEntry
+        void _print
+        return shape as unknown as ApprovedWording
+    })

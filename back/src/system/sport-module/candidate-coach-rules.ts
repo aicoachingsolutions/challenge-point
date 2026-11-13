@@ -94,7 +94,7 @@ export interface CandidateCoachRules {
     rules: CandidateRule[]
     sourceToCode: { key: string; clauses: CheckedClause[] }[]
     otherRowsNamingAnAction: (CitedWords & { actionClass: string; reading: string })[]
-    questions: { id: (typeof QUESTION_IDS)[number]; question: string; sources: CitedWords[]; christian: ChristianWords[] }[]
+    questions: { id: (typeof QUESTION_IDS)[number]; question: string; sources: CitedWords[]; christian: ChristianWords[]; answeredBy?: { ruling: string; received: string; quotes: string[]; stillOpen?: string } }[]
 }
 
 export class CandidateCoachRulesRefused extends Error {
@@ -282,6 +282,11 @@ export function candidateCoachRulesRefusals(overlay: any, live: typeof COACH_RUL
         if (!sources.length) reasons.push(`question ${question?.id}: no source row`)
         sources.forEach((cited, i) => cite(`question ${question?.id}, source ${i + 1}`, cited))
         if (!Array.isArray(question?.christian) || !question.christian.every((w: any) => filled(w?.quote) && filled(w?.received))) reasons.push(`question ${question?.id}: Christian's words without the date received`)
+        // Stage A2 (13 November 2026): a question Christian's ruling answers names the ruling, the date received and the sentences that answer
+        // it (held verbatim to the recorded ruling by primary-scoring.unit.ts); what stays open is said.
+        const answered = question?.answeredBy
+        if (answered !== undefined && (!filled(answered?.ruling) || !filled(answered?.received) || !Array.isArray(answered?.quotes) || !answered.quotes.length || !answered.quotes.every(filled) || (answered.stillOpen !== undefined && !filled(answered.stillOpen))))
+            reasons.push(`question ${question?.id}: its answer names no ruling, no date received or no sentence that answers it`)
     }
     return reasons
 }

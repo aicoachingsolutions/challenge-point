@@ -10,7 +10,7 @@
       { "id": "Q6", "asks": "The restart (PROPOSED, stage A1, 13 November 2026): 'Start, and restart after each point or when the ball goes over an end line, with a ball to an escaping player near their own end and the pressing team set to press together.' Built as transitions at the start, after a score and when the ball goes over either end line, each awarded to the escaping team and taken by one of its players from the feet, at a place the coach chooses near that team's own end; no item writes the restart policy (game::RP1), which the register reads as one restart per trigger, so the ball over a side line keeps the normal Laws (the throw-in). The kick-off (LAW-8) stays owed in the laws account (PROCEDURAL under our DRAFT reading, reported): the restart replaces it in play, but a replacing departure is recorded only on an item, which a PROPOSED item may not carry, so 'otherwise, normal soccer rules apply' stays unsaid. The restart never stands in for the pressure condition, which the coach still judges in play: by Christian's caution received 5 November 2026, a coach-served ball is not treated as a live turnover and is not assumed to create organized opposition. The arrangement of the pressing team at the restart is the coach's, not structural: a PROPOSED configuration places no one", "askedFor": "\"Through a representative restart that recreates the relevant pressure conditions.\" (received 12 November 2026)" }
     ],
     "roles": [
-      { "token": "ESCAPING", "noun": "escaping team", "label": "CANDIDATE", "waitsOn": "Q1" },
+      { "token": "ESCAPING", "noun": "escaping team", "label": "PROPOSED", "waitsOn": "Q1" },
       { "token": "PRESSING", "noun": null }
     ],
     "realization": {

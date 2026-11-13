@@ -16,7 +16,7 @@
       { "quote": "If the meaning of a qualifying action or its scoring consequence requires a new substantive coaching decision, retain that as a clearly identified question for my review.", "received": "received 11 November 2026, second reply" },
       { "quote": "I don't want to prescribe passing when a dribble or another functional action may legitimately solve the problem.", "received": "received 11 November 2026, second reply" }
     ],
-    "reading": "Ours: 'pass' names one kind of action where the approved row names any action, so the live wording is narrower than its source. Restoring the row's own words decides nothing new: no approved row of RPC-002 names a pass as the next action (the check below reads every RPC-002 row). What 'the next action' means in play is not decided here: questions Q-a to Q-d.",
+    "reading": "Ours: 'pass' names one kind of action where the approved row names any action, so the live wording is narrower than its source. Restoring the row's own words decides nothing new: no approved row of RPC-002 names a pass as the next action (the check below reads every RPC-002 row). What 'the next action' means in play was not decided here: questions Q-a to Q-d, which Christian's ruling received 12 November 2026 answers (each question's answeredBy), except Q-a's gate-completion part, still open.",
     "productionBoundary": "Not live. Writing the candidate into COACH_RULES changes what coaches are served, which Christian keeps: \"Production deployment or changes to live coach-facing behavior.\" (item 6, received 11 November 2026, second reply). Held for the same release decision as the three approved Attack Development rules. The candidate never enters the approved coach wording (approved-wording.ts): it is our wording, for review."
   },
   "replacement": {
@@ -40,12 +40,13 @@
       "id": "ORIGIN",
       "in": "rule",
       "from": "The other team presses from the start of every attack.",
-      "to": "It counts only if the attack started against the other team pressing together.",
-      "why": "OURS: the live sentence instructs the other team and applies to every attack; Christian's ruling makes a start under coordinated pressure an observable condition of the score, judged at the start of the sequence, never an instruction to defenders",
+      "to": "It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).",
+      "why": "OURS: the live sentence instructs the other team and applies to every attack; Christian's ruling makes a start under coordinated pressure an observable condition of the score, judged at the start of the sequence, never an instruction to defenders. Since stage A2 (13 November 2026, the lead's decision W1) the sentence says 'possession', not 'attack' (Christian's 8 November distinction between a restart, a change of possession and a new attack), nothing that presupposes the escape succeeded, and carries Christian's \"not necessarily\" (received 12 November 2026); the press need not still be there when the team scores",
       "christian": [
         { "quote": "A qualifying sequence begins when the attacking team possesses the ball while facing established, coordinated defensive pressure.", "received": "received 12 November 2026" },
         { "quote": "A scoring event must occur within a sequence that began under coordinated pressure.", "received": "received 12 November 2026" },
-        { "quote": "I want this represented through an observable game situation, not merely through instructions telling players or defenders what they must do.", "received": "received 12 November 2026" }
+        { "quote": "I want this represented through an observable game situation, not merely through instructions telling players or defenders what they must do.", "received": "received 12 November 2026" },
+        { "quote": "An isolated defender closing down the ball does not necessarily constitute coordinated pressure.", "received": "received 12 November 2026" }
       ]
     },
     {
@@ -63,28 +64,28 @@
     {
       "key": "RPC-002|line_crossed|",
       "live": "Earn a point when a player dribbles over the line behind the press, or receives the ball past it and controls it, and your team keeps the ball with the next pass. The other team presses from the start of every attack.",
-      "candidate": "Earn a point when a player dribbles over the line behind the press, or receives the ball past it and controls it, and your team keeps the ball through its next action. It counts only if the attack started against the other team pressing together.",
+      "candidate": "Earn a point when a player dribbles over the line behind the press, or receives the ball past it and controls it, and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).",
       "setupCandidate": "Mark a line behind the pressing players.",
       "label": "CANDIDATE"
     },
     {
       "key": "RPC-002|target_zone_entered|",
       "live": "Earn a point when a player dribbles into the target zone behind the press, or receives the ball there and controls it, and your team keeps the ball with the next pass. The other team presses from the start of every attack.",
-      "candidate": "Earn a point when a player dribbles into the target zone behind the press, or receives the ball there and controls it, and your team keeps the ball through its next action. It counts only if the attack started against the other team pressing together.",
+      "candidate": "Earn a point when a player dribbles into the target zone behind the press, or receives the ball there and controls it, and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).",
       "setupCandidate": "Mark a target zone behind the pressing players.",
       "label": "CANDIDATE"
     },
     {
       "key": "RPC-002|gate|",
       "live": "Earn a point when a player passes or dribbles through a gate behind the press and your team keeps the ball with the next pass. The other team presses from the start of every attack.",
-      "candidate": "Earn a point when a player passes or dribbles through a gate behind the press and your team keeps the ball through its next action. It counts only if the attack started against the other team pressing together.",
+      "candidate": "Earn a point when a player passes or dribbles through a gate behind the press and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).",
       "setupCandidate": "Set out gates of two cones behind the pressing players.",
       "label": "CANDIDATE"
     },
     {
       "key": "RPC-002|target_player|",
       "live": "Earn a point when your target player behind the press receives the ball and controls it, and your team keeps the ball with the next pass. The other team presses from the start of every attack.",
-      "candidate": "Earn a point when your target player behind the press receives the ball and controls it, and your team keeps the ball through its next action. It counts only if the attack started against the other team pressing together.",
+      "candidate": "Earn a point when your target player behind the press receives the ball and controls it, and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).",
       "setupCandidate": "Place a target player behind the pressing players.",
       "label": "CANDIDATE"
     }
@@ -96,7 +97,7 @@
         { "clause": "a player dribbles over the line", "in": "rule", "component": "EVENT", "verdict": "FAITHFUL", "action": "REPORTED_NOT_CHANGED", "eventStanding": "UNREVIEWED", "sources": [ { "rowId": "RPC-REL-075", "line": 1232, "words": "Valid primary scoring event 1 of 4, in the approved order." }, { "rowId": "scoring_event:line_crossed", "line": 3854, "words": "A player dribbles the ball over a marked line" } ], "note": "The approved event in the vocabulary's words. The description's standing for RPC-002 is UNREVIEWED: Christian approved control on reception for Attack Development's zone and line only." },
         { "clause": "or receives the ball past it and controls it", "in": "rule", "component": "EVENT", "verdict": "FAITHFUL", "action": "REPORTED_NOT_CHANGED", "eventStanding": "UNREVIEWED", "sources": [ { "rowId": "scoring_event:line_crossed", "line": 3854, "words": "receives and controls it beyond the line" } ], "note": "'past it' for 'beyond the line'. Control on reception rests on the vocabulary description, UNREVIEWED for RPC-002." },
         { "clause": "behind the press", "in": "rule", "component": "PROGRESSION", "verdict": "REALIZATION", "action": "REPORTED_NOT_CHANGED", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "the event occurs beyond the pressing line" } ], "note": "Our rendering of the pressing line as the press itself: a realization, not a narrowing. Where the line is and whether it is marked is Christian's (Q2)." },
-        { "clause": "and your team keeps the ball with the next pass", "in": "rule", "component": "CONTROL", "verdict": "NARROWED", "action": "CORRECTED_IN_CANDIDATE", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "the attacking team retains possession through the next action" } ], "note": "'pass' is one kind of action; the row names any action. The candidate restores the row's 'through the next action' and keeps every other word ('keeps the ball' for 'retains possession' is unchanged coach voice). Its meaning in play stays open: Q-a to Q-d." },
+        { "clause": "and your team keeps the ball with the next pass", "in": "rule", "component": "CONTROL", "verdict": "NARROWED", "action": "CORRECTED_IN_CANDIDATE", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "the attacking team retains possession through the next action" } ], "note": "'pass' is one kind of action; the row names any action. The candidate restores the row's 'through the next action' and keeps every other word ('keeps the ball' for 'retains possession' is unchanged coach voice). Its meaning in play: Q-a to Q-d, answered by Christian's ruling received 12 November 2026 (A02-12NOV-NEXT-ACTION), except Q-a's gate-completion part, still open." },
         { "clause": "The other team presses from the start of every attack.", "in": "rule", "component": "ORIGIN", "verdict": "OVER_APPLIED", "action": "CORRECTED_IN_CANDIDATE", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "The sequence begins under established coordinated pressure" }, { "rowId": "RPC-ID-006", "line": 2747, "words": "Established coordinated high pressure is the defining condition." } ], "note": "Drops 'established' and 'coordinated' and applies to every attack: it over-applies the clause rather than narrowing an action. What a coach sees and sets up as established coordinated pressure is Christian's (Q1), and whether the condition governs every score (Q-scope). Since stage B2 (12 November 2026) corrected by the declared change ORIGIN, on Christian's ruling received 12 November 2026 (item 1): an observable condition of the score, judged at the start of the attack, never an instruction to defenders; the setup drops the sentence (ORIGIN-SETUP)." },
         { "clause": "Mark a line behind the pressing players.", "in": "setup", "component": "PROGRESSION", "verdict": "REALIZATION", "action": "REPORTED_NOT_CHANGED", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "the event occurs beyond the pressing line" } ], "note": "The setup's line behind the pressing players: the same realization of the pressing line (Q2)." }
       ]
@@ -107,7 +108,7 @@
         { "clause": "a player dribbles into the target zone", "in": "rule", "component": "EVENT", "verdict": "FAITHFUL", "action": "REPORTED_NOT_CHANGED", "eventStanding": "UNREVIEWED", "sources": [ { "rowId": "RPC-REL-076", "line": 1243, "words": "Valid primary scoring event 2 of 4, in the approved order." }, { "rowId": "scoring_event:target_zone_entered", "line": 3859, "words": "A player dribbles into a marked zone" } ], "note": "The approved event in the vocabulary's words; the description is UNREVIEWED for RPC-002." },
         { "clause": "or receives the ball there and controls it", "in": "rule", "component": "EVENT", "verdict": "FAITHFUL", "action": "REPORTED_NOT_CHANGED", "eventStanding": "UNREVIEWED", "sources": [ { "rowId": "scoring_event:target_zone_entered", "line": 3859, "words": "receives and controls the ball inside it" } ], "note": "Control on reception rests on the vocabulary description, UNREVIEWED for RPC-002." },
         { "clause": "behind the press", "in": "rule", "component": "PROGRESSION", "verdict": "REALIZATION", "action": "REPORTED_NOT_CHANGED", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "the event occurs beyond the pressing line" } ], "note": "Our rendering of the pressing line (Q2)." },
-        { "clause": "and your team keeps the ball with the next pass", "in": "rule", "component": "CONTROL", "verdict": "NARROWED", "action": "CORRECTED_IN_CANDIDATE", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "the attacking team retains possession through the next action" } ], "note": "As on the line rule: 'pass' narrows the row's 'action'; restored in the candidate; Q-a to Q-d open." },
+        { "clause": "and your team keeps the ball with the next pass", "in": "rule", "component": "CONTROL", "verdict": "NARROWED", "action": "CORRECTED_IN_CANDIDATE", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "the attacking team retains possession through the next action" } ], "note": "As on the line rule: 'pass' narrows the row's 'action'; restored in the candidate; Q-a to Q-d answered (A02-12NOV-NEXT-ACTION), Q-a's gate-completion part open." },
         { "clause": "The other team presses from the start of every attack.", "in": "rule", "component": "ORIGIN", "verdict": "OVER_APPLIED", "action": "CORRECTED_IN_CANDIDATE", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "The sequence begins under established coordinated pressure" }, { "rowId": "RPC-ID-006", "line": 2747, "words": "Established coordinated high pressure is the defining condition." } ], "note": "As on the line rule (Q1, Q-scope)." },
         { "clause": "Mark a target zone behind the pressing players.", "in": "setup", "component": "PROGRESSION", "verdict": "REALIZATION", "action": "REPORTED_NOT_CHANGED", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "the event occurs beyond the pressing line" } ], "note": "The same realization of the pressing line (Q2)." }
       ]
@@ -128,7 +129,7 @@
         { "clause": "your target player", "in": "rule", "component": "EVENT", "verdict": "FAITHFUL", "action": "REPORTED_NOT_CHANGED", "eventStanding": "UNREVIEWED", "sources": [ { "rowId": "RPC-REL-078", "line": 1265, "words": "Valid primary scoring event 4 of 4, in the approved order." }, { "rowId": "scoring_event:target_player", "line": 3849, "words": "a designated target player" } ], "note": "The approved event; the description is UNREVIEWED for RPC-002." },
         { "clause": "receives the ball and controls it", "in": "rule", "component": "EVENT", "verdict": "WIDER", "action": "REPORTED_NOT_CHANGED", "eventStanding": "UNREVIEWED", "sources": [ { "rowId": "scoring_event:target_player", "line": 3849, "words": "A pass is received and controlled by a designated target player." } ], "note": "The rule says 'receives the ball' where the description says 'A pass is received': wider than the description, not narrower, and in the direction of Christian's 11 November words on not prescribing passing. The description is UNREVIEWED; nothing changed." },
         { "clause": "behind the press", "in": "rule", "component": "PROGRESSION", "verdict": "REALIZATION", "action": "REPORTED_NOT_CHANGED", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "the event occurs beyond the pressing line" } ], "note": "Our rendering of the pressing line (Q2)." },
-        { "clause": "and your team keeps the ball with the next pass", "in": "rule", "component": "CONTROL", "verdict": "NARROWED", "action": "CORRECTED_IN_CANDIDATE", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "the attacking team retains possession through the next action" } ], "note": "As on the line rule: restored in the candidate; Q-a to Q-d open." },
+        { "clause": "and your team keeps the ball with the next pass", "in": "rule", "component": "CONTROL", "verdict": "NARROWED", "action": "CORRECTED_IN_CANDIDATE", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "the attacking team retains possession through the next action" } ], "note": "As on the line rule: restored in the candidate; Q-a to Q-d answered (A02-12NOV-NEXT-ACTION), Q-a's gate-completion part open." },
         { "clause": "The other team presses from the start of every attack.", "in": "rule", "component": "ORIGIN", "verdict": "OVER_APPLIED", "action": "CORRECTED_IN_CANDIDATE", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "The sequence begins under established coordinated pressure" }, { "rowId": "RPC-ID-006", "line": 2747, "words": "Established coordinated high pressure is the defining condition." } ], "note": "As on the line rule (Q1, Q-scope)." },
         { "clause": "Place a target player behind the pressing players.", "in": "setup", "component": "PROGRESSION", "verdict": "REALIZATION", "action": "REPORTED_NOT_CHANGED", "sources": [ { "rowId": "RPC-PROP-133", "line": 2642, "words": "the event occurs beyond the pressing line" } ], "note": "The same realization of the pressing line (Q2)." }
       ]
@@ -142,6 +143,7 @@
   "questions": [
     {
       "id": "Q-a",
+      "answeredBy": { "ruling": "A02-12NOV-NEXT-ACTION", "received": "received 12 November 2026", "quotes": ["Whose action: The attacking team's next relevant ball action following completion of the scoring event."], "stillOpen": "OURS: at a gate, whether a teammate's reception after a pass through it completes the event or is the next action (RPC-002 gate completion): the ruling's event-completion sentence does not say which reception the gate's event requires" },
       "question": "Whose next action is it? At a gate, is a teammate's reception after a pass through it the next action; on the line and in the zone, is the next action the scorer's own or any attacking player's?",
       "sources": [
         { "rowId": "RPC-PROP-133", "line": 2642, "words": "the attacking team retains possession through the next action" },
@@ -151,6 +153,7 @@
     },
     {
       "id": "Q-b",
+      "answeredBy": { "ruling": "A02-12NOV-NEXT-ACTION", "received": "received 12 November 2026", "quotes": ["What counts: A meaningful continuation such as a pass, dribble, carry, turn, or another legitimate interaction that maintains attacking possession.","I do not want to construct an exhaustive taxonomy of qualifying actions."] },
       "question": "What counts as an action: a first touch, a dribble by the scorer alone, a shot, a clearance that keeps the ball?",
       "sources": [
         { "rowId": "RPC-PROP-133", "line": 2642, "words": "the attacking team retains possession through the next action" },
@@ -161,6 +164,7 @@
     },
     {
       "id": "Q-c",
+      "answeredBy": { "ruling": "A02-12NOV-NEXT-ACTION", "received": "received 12 November 2026", "quotes": ["When the point counts: Once the qualifying advancement event and the subsequent successful continuation have occurred.","If play stops first: Ordinarily the continuation requirement has not been completed, so the point has not yet been earned.","Practical exceptions involving unusual stoppages should remain subject to reasonable coach judgment rather than an elaborate universal rule."] },
       "question": "When does the point count, and what if play stops (the ball goes out, a foul, the end of a period) before the next action?",
       "sources": [
         { "rowId": "RPC-PROP-133", "line": 2642, "words": "the attacking team retains possession through the next action" },
@@ -171,6 +175,7 @@
     },
     {
       "id": "Q-d",
+      "answeredBy": { "ruling": "A02-12NOV-NEXT-ACTION", "received": "received 12 November 2026", "quotes": ["Successful continuation: The attacking team must retain possession through the continuation.","We are not rewarding an attempted action that immediately loses possession."] },
       "question": "Does keeping the ball through the next action require that action to succeed (a pass completed, a dribble that gets past a player), or only that the team still has the ball when the action ends?",
       "sources": [
         { "rowId": "RPC-PROP-133", "line": 2642, "words": "the attacking team retains possession through the next action" },

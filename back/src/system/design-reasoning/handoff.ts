@@ -721,7 +721,8 @@ export interface ChainLine {
     /**
      * NOT_ESTABLISHED, stage B1 of the complete-activity package: present only where every non-claim that decided the line states that the
      * field needs no further value (classify.ts `nonClaimState`: an established absence, Christian's M6), with the contracts whose declarations
-     * those are. Read by the safeguards (a clause line declared so by the restatement itself is carried, never a gap); never graded here.
+     * those are. Read by the safeguards (a clause line declared so by the restatement itself is carried, never a gap); since stage A2 (13
+     * November 2026) graded by the handoff as the declaring restatement is (`DECLARED_ABSENCE`) where every declaring contract is our DRAFT one.
      */
     nonClaim?: { state: 'NO_FURTHER_VALUE'; by: string[] }
     /** ENTAILED / INSTANTIATION: the element class it belongs to. */
@@ -904,6 +905,7 @@ export const PREMISE_KINDS = [
     'FORM_SELECTED',
     'FORM_ILLUSTRATIVE',
     'FORM_INFERENCE',
+    'DECLARED_ABSENCE',
     'UNRESOLVED',
 ] as const
 export type PremiseKind = (typeof PREMISE_KINDS)[number]
@@ -940,6 +942,8 @@ export const GRADING_MAP: Record<PremiseKind, { standing: Standing | null; label
     FORM_SELECTED: { standing: null, label: '{weakest of Step 2}', what: 'the form Step 2 SELECTED, graded by the weakest standing among what decided it' },
     FORM_ILLUSTRATIVE: { standing: 'ILLUSTRATIVE', label: VALUE_LABELS.ILLUSTRATIVE, what: 'a form the case names as illustrative, permitted by a filed ruling and checked among the compatible forms' },
     FORM_INFERENCE: { standing: 'OURS', label: VALUE_LABELS.OURS, what: 'a form the case names on our logical inference, checked among the compatible forms' },
+    // Stage A2 (13 November 2026, B3's leftover, the lead's decision W6): a line our DRAFT restatement declares needs no further value.
+    DECLARED_ABSENCE: { standing: 'CANDIDATE', label: 'NO_FURTHER_VALUE: an established absence our restatement declares (ours, for review)', what: 'a line nothing establishes, which every declaration deciding it, each of our DRAFT restatement, says needs no further value (classify.ts nonClaimState): graded as that restatement is, CANDIDATE, never as a missing value; declared by any other contract it stays UNRESOLVED' },
     UNRESOLVED: { standing: 'UNRESOLVED', label: VALUE_LABELS.UNRESOLVED, what: 'a line no premise determines; the missing basis is named' },
 }
 
@@ -1519,7 +1523,10 @@ function linePremises(ctx: GradingContext, line: ChainLine): { premises: Premise
             premises.push(row.standing === 'RULING' ? premise('FILE_CHOICE_RULING', `${file}: ${line.lineId}`, { provisional: row.provisional === true }) : premise('FILE_CHOICE_OURS', `${file}: ${line.lineId}`, { note: row.why }))
         } else premises.push(premise('UNRESOLVED', `${line.lineId}: chosen, and the chain did not say by whom`))
     } else if (line.kind === 'NOT_ESTABLISHED') {
-        premises.push(premise('UNRESOLVED', `${line.lineId}: nothing establishes it (${line.reason ?? 'no reason given'})`))
+        // Stage A2: an absence every declaring contract of which is our DRAFT restatement is graded as that restatement (CANDIDATE); otherwise as before.
+        const by = line.nonClaim?.state === 'NO_FURTHER_VALUE' ? line.nonClaim.by : []
+        const ours = by.length > 0 && by.every((id) => ctx.answer.contracts.some((c) => c.contractId === id && c.origin === 'DRAFT_STORE'))
+        premises.push(ours ? premise('DECLARED_ABSENCE', `${line.lineId}: needs no further value, declared by ${by.join(', ')} (our DRAFT restatement)`) : premise('UNRESOLVED', `${line.lineId}: nothing establishes it (${line.reason ?? 'no reason given'})`))
     } else if (line.kind === 'ENTAILED' || line.kind === 'INSTANTIATION') {
         const parts = line.classId ? classParts(line.classId) : null
         if (parts) premises.push(itemPremise(ctx, parts.contractId, parts.itemId))

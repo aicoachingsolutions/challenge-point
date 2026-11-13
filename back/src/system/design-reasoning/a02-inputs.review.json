@@ -248,9 +248,34 @@
         "The purpose is to recognize successful escape and continued attacking possession while preserving the players' freedom to discover appropriate solutions.",
         "There may be situations, such as an immediate shot after escaping pressure, where the requirement creates an undesirable incentive.",
         "Let's keep that concern visible for ecological review rather than expanding the scoring architecture now.",
-        "However, please hold their final coach-facing wording for review alongside the complete A02 activity."
+        "However, please hold their final coach-facing wording for review alongside the complete A02 activity.",
+        "The literal substitution should not be released before we've confirmed that the resulting instructions accurately and clearly communicate the intended condition."
       ],
       "file": "christian-2026-11-12-a02-next-package.txt (Christian's reply received 12 November 2026, item 2, Retaining Possession Through the Next Action: Approved Interpretation)",
+      "received": "2026-11-12",
+      "provisional": false,
+      "scope": null
+    },
+    {
+      "id": "A02-12NOV-COMMUNICATION",
+      "words": [
+        "I'd like to add a specific communication requirement to the next A02 package.",
+        "The sophistication of the reasoning engine should not become complexity in the coach's instructions.",
+        "We need to preserve the full meaning of the approved knowledge internally while presenting it to coaches in language that is concise, clear, practical, and sufficient to organize and run the activity.",
+        "For example, the engine may need to distinguish a qualifying sequence, an established pressing condition, an advancement event and a subsequent possession-continuation requirement.",
+        "The coach should not have to interpret those technical distinctions or read several paragraphs to understand the game.",
+        "Setup: What the coach needs to arrange.",
+        "Rules: What players need to know to play.",
+        "Scoring: What earns a point and when.",
+        "Learning explanation: A short, meaningful connection between the game conditions and the intended learning problem.",
+        "Avoid redundant explanations, unnecessary ecological terminology, overly technical scoring language, and rules that are more complicated than the game itself.",
+        "At the same time, concision must not remove information essential to running the activity correctly.",
+        "Where a short sentence might become ambiguous, clarity takes priority over brevity.",
+        "I would also prefer that coach-facing language describe the game conditions rather than prescribe specific player solutions.",
+        "The players should still have meaningful decisions to make.",
+        "Please prepare candidate coach-facing wording for my review, with the complete approved meaning preserved in the underlying representation."
+      ],
+      "file": "christian-2026-11-12-a02-next-package.txt (Christian's reply received 12 November 2026, item 5, Coach-Facing Communication: Concision and Understanding)",
       "received": "2026-11-12",
       "provisional": false,
       "scope": null
@@ -326,7 +351,7 @@
         { "ref": "A02-10NOV-ERR", "entersAs": "REPORT_ONLY", "how": "the Essential Representative Relationships table: each relationship with the rows that state it, the CAR rating, whether it is executable and what the engine does with it" },
         { "ref": "A02-10NOV-TREATMENTS", "entersAs": "REPORT_ONLY", "how": "the starting-state and Laws questions stay explicit limitations; every TEST-ONLY treatment is labelled, and no run with one is the A02 configuration" },
         { "ref": "A02-10NOV-SOURCES", "entersAs": "REPORT_ONLY", "how": "the smallest specific source material, as questions only, in order of consequence" },
-        { "ref": "A02-08NOV-RESTART", "entersAs": "REPORT_ONLY", "how": "the restart and change-of-possession half of the starting state stays UNRESOLVED" },
+        { "ref": "A02-08NOV-RESTART", "entersAs": "REPORT_ONLY", "how": "answered for the start by A02-12NOV-PRESSURE (a qualifying sequence may begin in normal play, after a turnover or through a representative restart); the distinction still governs the coach's word for the sequence: the coach text says 'possession', never 'attack' (stage A2)" },
         { "ref": "A02-07NOV-CONSERVATIVE", "entersAs": "REPORT_ONLY", "how": "a refusal resting only on our restatement is printed as a conservative refusal, not as a finding that the configuration violates approved knowledge" },
         { "ref": "HO-07NOV-ILLUSTRATIVE", "entersAs": "ILLUSTRATIVE_PERMISSION", "how": "the basis for the labelled illustrative session (borrowed from the handoff's data, as its TA01 case uses it)" },
         { "ref": "HO-07NOV-PURPOSE", "entersAs": "REPORT_ONLY", "how": "the purpose's source and approval evidence printed apart" },
@@ -336,7 +361,8 @@
         { "ref": "A02-03NOV-DESIGN-AUTHORIZATION", "entersAs": "REPORT_ONLY", "how": "E5: our reading of it, that the review pathway needs no separately authored record per Learning Goal, is why K2's result stands in for one; the DRAFT-record comparison arm is kept so Christian can reverse that reading" },
         { "ref": "A02-12NOV-PRESSURE", "entersAs": "REPORT_ONLY", "how": "the authority for our CANDIDATE restatement of the origin clause (RPC-002-02.b on V6, judged in play at the sequence's start; V5 origin NO_FURTHER_VALUE) and of the WHOLE_GAME scope; none of its words enters the chain as a value (the value is RPC-PROP-133's own words), and the restatement stays CANDIDATE until Christian has reviewed it" },
         { "ref": "A02-12NOV-NEXT-ACTION", "entersAs": "REPORT_ONLY", "how": "the authority for our CANDIDATE restatement of the control clause (RPC-002-04.b verbatim; V5 control NO_FURTHER_VALUE: the continuation names no place); none of its words enters the chain as a value, and no type of action is prescribed" },
-        { "ref": "A02-12NOV-PACKAGE", "entersAs": "REPORT_ONLY", "how": "the authority for the package (one complete A02 activity through the checked pathway, at review level) and for our PROPOSED configuration A02-HPE1, put to Christian for approval; none of its words enters the chain as a value" }
+        { "ref": "A02-12NOV-PACKAGE", "entersAs": "REPORT_ONLY", "how": "the authority for the package (one complete A02 activity through the checked pathway, at review level) and for our PROPOSED configuration A02-HPE1, put to Christian for approval; none of its words enters the chain as a value" },
+        { "ref": "A02-12NOV-COMMUNICATION", "entersAs": "REPORT_ONLY", "how": "the standard our CANDIDATE coach text answers (the four parts; concise, with clarity before brevity; nothing essential to running the activity removed; conditions, not player solutions); none of its words enters the chain as a value" }
       ],
       "suppliedChoices": [],
       "standIns": [],

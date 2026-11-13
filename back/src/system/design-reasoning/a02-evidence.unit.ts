@@ -38,7 +38,7 @@ import path from 'node:path'
 
 import { loadDraftStore } from '../derivation/draft-store'
 import { experiment, inputs, items as a02Items, quotedSpans } from './a02.unit'
-import { appendixF, B3, B3_RUN_IDS, buildB3, GF2W, Made as B3Made, materialEffects, REVIEW_RUN, rewordingRows, safeguardFindings, SAFEGUARD_RUNS, walkthroughOf } from './a02-acceptance.unit'
+import { appendixF, B3, B3_RUN_IDS, buildB3, GF2W, Made as B3Made, materialEffects, notYetQualifier, REVIEW_RUN, rewordingRows, safeguardFindings, SAFEGUARD_RUNS, walkthroughOf } from './a02-acceptance.unit'
 import { CARRIER_RUN_IDS, carrierResult } from './a02-carriers.unit'
 import * as S from './a02-safeguards.unit'
 import { citedDateOf } from './assembly'
@@ -785,6 +785,9 @@ const CARRIER_GROUP = 'ILLUSTRATIVE carriers, TEST-ONLY'
 // Stage B3 of the complete-activity package (12 November 2026): the PROPOSED configuration's runs, its rewordings and the walkthrough's
 // negative control (a02-acceptance.unit.ts), each run's stop read here as every other run's is.
 const B3_GROUP = 'PROPOSED configuration A02-HPE1, TEST-ONLY'
+// Stage A2 (V1 minor finding), re-pinned openly: A02-GF2W was listed in B3_GROUP, but its treatments carry no PROPOSED configuration.
+const GF2W_GROUP = "stage B3's negative control: plain GF2, no PROPOSED configuration, TEST-ONLY"
+const b3GroupOf = (id: string) => (id === GF2W ? GF2W_GROUP : B3_GROUP)
 const runsWord = (n: number) => `${n} run${n === 1 ? '' : 's'}`
 /** The safeguard test's legacy census of other goals: reported only, never classified in this package. */
 const groupOfRun = (r: S.Run): string => (r.kind !== 'LEGACY' ? S_GROUP[r.kind] : r.result.goalId === 'A02' ? 'A02 legacy route' : r.result.goalId === 'TA02' ? 'TA02 legacy route' : 'census of other goals')
@@ -796,7 +799,7 @@ function allStopRows(): StopRow[] {
         stopRowOf(TA02_PRE_MERGE_CLASS.result.caseId, 'TA02 negative control', TA02_PRE_MERGE_CLASS.result),
         ...[...swapBuilt.keys()].map((id) => stopRowOf(id, 'swap control', swapAt(id).result)),
         ...CARRIER_RUN_IDS.map((id) => stopRowOf(id, CARRIER_GROUP, carrierResult(id))),
-        ...B3_RUN_IDS.map((id) => stopRowOf(id, B3_GROUP, B3.get(id)!.result)),
+        ...B3_RUN_IDS.map((id) => stopRowOf(id, b3GroupOf(id), B3.get(id)!.result)),
     ]
 }
 /** Item 2's smallest-source questions by number (the words are held to the questions' own text by test W6). */
@@ -893,7 +896,8 @@ const STOP_CLASSES: StopClass[] = [
      */
     {
         id: 'served-review-level',
-        stop: 'served at review level (TEST-ONLY): the PROPOSED configuration A02-HPE1 with its PROPOSED restart and LAW-11 departure, our CANDIDATE restatement and our CANDIDATE wording; every PROPOSED element waits on Christian\'s questions (Q1, Q2, Q3, Q6) and every CANDIDATE sentence on Christian\'s review; never released',
+        // Stage A2 (decision W4), re-pinned openly: the qualifier joins the class's words (was without it).
+        stop: `served at review level (TEST-ONLY): the PROPOSED configuration A02-HPE1 with its PROPOSED restart and LAW-11 departure, our CANDIDATE restatement and our CANDIDATE wording; every PROPOSED element waits on Christian's questions (Q1, Q2, Q3, Q6) and every CANDIDATE sentence on Christian's review; never released; ${notYetQualifier()}`,
         categories: [],
         owner: 'CHRISTIAN',
         whose: 'no stop in the chain: the activity is served at review level only because every PROPOSED element and CANDIDATE sentence is read under a declared TEST-ONLY treatment; releasing any of it needs Christian\'s approval',
@@ -1067,10 +1071,11 @@ function appendixE(): string[] {
     const engineeringOnA02 = A02_CONDITION_RUNS.filter((r) => openStop(r))
     out.push(`- the ${A02_CONDITION_RUNS.length} A02 runs of the knowledge as it stands, under TEST-ONLY treatments of its condition only, or with the carriers on (${A02_CONDITION_RUNS.map((r) => r.id).join(', ')}): ${engineeringOnA02.length === 0 ? `none stops on engineering; each stops on Christian's knowledge or is the served diagnostic (${[...new Set(A02_CONDITION_RUNS.map((r) => r.cls))].join(', ')})` : `ENGINEERING OR UNCLASSIFIED STOPS REMAIN: ${engineeringOnA02.map((r) => `${r.id} ${r.cls}`).join('; ')}`}`)
     // Stage B3: the PROPOSED configuration's runs, told apart from the runs of the knowledge as it stands.
-    const b3Rows = STOPS.rows.filter((r) => r.group === B3_GROUP)
+    const b3Rows = STOPS.rows.filter((r) => B3_RUN_IDS.includes(r.id))
     // Stage A1, re-pinned openly: an engineering stop here was named 'the lead's decision on the measured renderer changes'; since stage A1 it
-    // would be a new engineering stop, named as such.
-    out.push(`- the ${b3Rows.length} runs of the PROPOSED configuration (stage B3): ${b3Rows.filter((r) => openStop(r)).length ? `ENGINEERING STOPS on ${b3Rows.filter((r) => openStop(r)).map((r) => `${r.id} ${r.cls}`).join(', ')}` : 'no engineering stop'}; the others ${b3Rows.filter((r) => !openStop(r)).map((r) => `${r.id} ${r.cls}`).join(', ')}`)
+    // would be a new engineering stop, named as such. Stage A2, re-pinned openly: 'the 6 runs of the PROPOSED configuration' counted A02-GF2W,
+    // which carries none; the runs of stage B3 are named with it apart.
+    out.push(`- the ${b3Rows.length} runs of stage B3 (the PROPOSED configuration's ${b3Rows.filter((r) => r.group === B3_GROUP).length} and the negative control ${GF2W}, which carries none):${b3Rows.filter((r) => openStop(r)).length ? `ENGINEERING STOPS on ${b3Rows.filter((r) => openStop(r)).map((r) => `${r.id} ${r.cls}`).join(', ')}` : 'no engineering stop'}; the others ${b3Rows.filter((r) => !openStop(r)).map((r) => `${r.id} ${r.cls}`).join(', ')}`)
     out.push('Development findings only: no stop here, and no run served, validates an activity ecologically.')
     out.push('')
     return out
@@ -1202,6 +1207,15 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'B3', means: 'stage B3 of the A02 complete-activity package (engineering Christian delegated, received 11 November 2026, second reply), built 12 November 2026: the review-level activity in four parts, Christian\'s acceptance walkthrough read from the built game\'s structure, the rewordings and the safeguard check on the PROPOSED configuration\'s runs (appendix F)' },
     // Stage A1 (13 November 2026): the stage that serves the review-level run.
     { id: 'A1', means: 'stage A1 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 13 November 2026: the review-level run A02-HPE1 served at review level (the renderer and fidelity reading the register the game was derived over, TEST-ONLY; each role citing its own objective; the two targets named in our CANDIDATE words; the PROPOSED restart, asked of Christian in appendix F)' },
+    // Stage A2 (13 November 2026): the identifiers item 2's last sentence and the qualifier name (the stage, the PROPOSED elements, the question
+    // of the pending entry, the degenerate solution the walkthrough finds rewarded).
+    { id: 'A2', means: 'stage A2 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 13 November 2026: the coach text (each engine sentence printed as said or stated by one sentence of ours, every line graded), the walkthrough re-based (fact 1d on position, the restart, RPC-002\'s approved rows), the qualifiers, and a line our restatement declares needs no further value graded CANDIDATE (TEST-ONLY)' },
+    { id: 'N1', means: 'our PROPOSED escape line: one marked line across the full width near the escaping team\'s end, placed by a qualitative rule, its 12 m ILLUSTRATIVE (question Q1)' },
+    { id: 'N2', means: 'our PROPOSED reward for the pressing team: winning the ball and dribbling it over the escaping team\'s end line, its own event (question Q2)' },
+    { id: 'N3', means: 'our PROPOSED roles: one team escapes and one presses for a block, the coach calls the exchange, each team keeps its end (question Q1)' },
+    { id: 'Q1', means: 'our question to Christian on N3 and N1: the roles, and the escape line placed by its rule' },
+    { id: 'Q2', means: 'our question to Christian on N2, what the pressing team wins; the one pending entry of the review-level run waits on it' },
+    { id: 'RPC-PROP-027', means: 'a degenerate solution of High Press Escape (a row of the context library): isolated dribbling replaces collective escape' },
     { id: 'A02-GF2W', means: 'the walkthrough\'s negative control (stage B3): GF2 as A02-D builds it, without the PROPOSED configuration, our CANDIDATE wording printed beside its text, entering no structure' },
     { id: 'A02-12NOV-', family: true, means: 'a ruling of Christian\'s received 12 November 2026, quoted in appendix A (A02-12NOV-PRESSURE: the start under pressure; A02-12NOV-NEXT-ACTION: the next action)' },
     { id: 'GA-', family: true, means: 'a Gate A check of the derivation engine (GA-ONE-PRIMARY-EVENT: one primary scoring event; GA-REFERENCE-INTEGRITY: each reference names an element of the game; GA-RELATIVE-PLACEMENT: each relative position holds of the realized geometry)' },
@@ -1369,7 +1383,11 @@ function b3Sentence(): string {
     // Stage A1, re-pinned openly: the run 'is refused at communication on four limits of the production renderer, so it is printed as the draft
     // an administrator sees, never as served'; since stage A1 (the lead's decisions R1 to R4) it is served at review level, as built.
     const stop = review.answer.outcome === 'served' ? 'is served at review level (TEST-ONLY, never released; stage A1), with its PROPOSED restart' : `is refused at ${review.answer.stage}`
-    return `Under the PROPOSED configuration A02-HPE1 (stages B1, B2 and A1, TEST-ONLY, never knowledge, for Christian's review; appendix F, stage B3) a game is realized in both role blocks, and the review-level run, our CANDIDATE wording said, ${stop}; read from that game's structure, Christian's acceptance walkthrough finds ${w.count} of 4 questions established (the negative control A02-GF2W, plain GF2 with our wording beside it, ${control.count} of 4), and the two rewordings move ${material.length === 0 ? 'no knowledge-governed result' : `KNOWLEDGE-GOVERNED RESULTS: ${material.join('; ')}`}.`
+    // Stage A2 (decisions W3 and W4), re-pinned openly: 'Christian's acceptance walkthrough finds 4 of 4 questions established'; the structural
+    // facts are said as such, question 1 as pressure established and coordination not, RPC-002's approved rows beside them, and the qualifier.
+    const rows = w.answers.flatMap((a) => a.rows)
+    const rewarded = rows.filter((r) => r.verdict === 'rewarded').map((r) => r.rowId)
+    return `Under the PROPOSED configuration A02-HPE1 (stages B1, B2, A1 and A2, TEST-ONLY, never knowledge, for Christian's review; appendix F, stage B3) a game is realized in both role blocks, and the review-level run, our CANDIDATE wording said, ${stop}; read from that game's structure, the structural facts of ${w.count} of Christian's 4 acceptance questions hold (question 1: ${w.answers[0].verdict}; RPC-002's approved information rows ${rows.filter((r) => r.verdict === 'held').length} held and ${rows.filter((r) => r.verdict === 'partly held').length} partly held; its degenerate solutions ${rewarded.length ? `${rewarded.join(', ')} rewarded by the approved event itself` : 'none rewarded'}; the negative control A02-GF2W, plain GF2 with our wording beside it, ${control.count} of 4), and the two rewordings move ${material.length === 0 ? 'no knowledge-governed result' : `KNOWLEDGE-GOVERNED RESULTS: ${material.join('; ')}`}. Served at review level is ${notYetQualifier()}.`
 }
 
 function bodyLines(): string[] {
@@ -1649,7 +1667,9 @@ function bodyLines(): string[] {
     add(`Recorded apart, not in this report: the regression on the committed tree (the type check, the whole suite, the behaviour snapshot against main's baseline, the bundle compared with main), in the evidence folder's regression record (${RECORD_WORDS.item7}).`)
     // Stage W6, re-pinned openly (prose made true): was 'Open: eight bundled files differ from main by TEST-ONLY additions no route passes (...
     // since stage W2); isolation rests on ...'; stage W4 added TEST-ONLY branches to eight more bundled files, measured by stage W6's static scan.
-    add('Open: TEST-ONLY additions no route passes sit in bundled files: the selector\'s (disclosed first, above); the guided selection hints\' one option since stage W1 (a); the authority of the review pathway\'s K2 result in the types since stage W1 (b); the package check, the package builder and its validator since stage W2; and since stage W4 the derivation\'s types, gates, engine and emit and the build\'s draft account, review evidence, requirement account and context-scoring guard, whose new branches act only on ILLUSTRATIVE data that no production knowledge or register holds. Isolation rests on the branch staying unmerged and undeployed.')
+    // Stage A2 (B3's leftover, the lead's decision W6), re-pinned openly: the list ended at stage W4; the complete-activity package (stages B1 to
+    // A2) added TEST-ONLY branches to nine bundled files (V1's metafile scan of B1 to B3, and stages A1 and A2 changed only files among them).
+    add('Open: TEST-ONLY additions no route passes sit in bundled files: the selector\'s (disclosed first, above); the guided selection hints\' one option since stage W1 (a); the authority of the review pathway\'s K2 result in the types since stage W1 (b); the package check, the package builder and its validator since stage W2; since stage W4 the derivation\'s types, gates, engine and emit and the build\'s draft account, review evidence, requirement account and context-scoring guard, whose new branches act only on ILLUSTRATIVE data that no production knowledge or register holds; and since the complete-activity package (stages B1 to A2, 12 and 13 November 2026) nine bundled files: the derivation\'s types (the PROPOSED category), engine and emit, the bounded selection (the PROPOSED configuration and its register copy), the build (its PROPOSED and CANDIDATE wording options, its draft account\'s PROPOSED items), the context-scoring guard (the pending treatment), the renderer (our CANDIDATE wording, the register the game was derived over, our CANDIDATE template), the review draft and the review evidence (the CANDIDATE marker), whose new branches act only on PROPOSED or CANDIDATE data that no production knowledge, register or approved table holds, except the renderer\'s own-event branch, where each role cites its own objective (stage A1; no recorded response reaches it). Isolation rests on the branch staying unmerged and undeployed.')
     add('Proposals: none.')
     add('Assumptions (OURS): none beyond the TEST-ONLY option itself, which no route passes.')
     add('Ecological suitability: not addressed: an unchanged application is an engineering claim.')

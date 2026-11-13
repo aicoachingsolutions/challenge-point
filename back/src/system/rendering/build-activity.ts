@@ -496,7 +496,7 @@ export interface DraftKnowledgeAccount {
     /** The draft records the selection was offered (their goals). */
     records: string[]
     /** Every contract of this build's derivation input that the store loaded, with its items; empty where the build stopped before. */
-    contracts: { contractId: string; items: string[]; illustrativeItems?: string[] }[]
+    contracts: { contractId: string; items: string[]; illustrativeItems?: string[]; proposedItems?: string[] }[]
     /** Every draft declaration of this build's derivation input (a declaration can resolve lines on another contract's elements). */
     declarations: { contractId: string; row: string; selector: string | null; declaration: string; note: string | null }[]
     /**
@@ -1521,7 +1521,7 @@ function draftKnowledgeAccountOf(store: DraftStoreContents, built: ActivityBuild
         status: 'BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED',
         store: { folder: store.folder, files: [...store.files], notRead: store.notRead.map(entry => ({ ...entry })) },
         records: store.records.map(record => record.learningGoalId),
-        contracts: input.filter(isDraft).map(contract => ({ contractId: contract.contractId, items: (contract.items ?? []).filter(item => item.category === DRAFT_KNOWLEDGE).map(item => item.itemId), ...((contract.items ?? []).some(item => item.category === ILLUSTRATIVE) ? { illustrativeItems: (contract.items ?? []).filter(item => item.category === ILLUSTRATIVE).map(item => item.itemId) } : {}) })), // W4: ILLUSTRATIVE carriers listed apart, only where added
+        contracts: input.filter(isDraft).map(contract => ({ contractId: contract.contractId, items: (contract.items ?? []).filter(item => item.category === DRAFT_KNOWLEDGE).map(item => item.itemId), ...((contract.items ?? []).some(item => item.category === ILLUSTRATIVE) ? { illustrativeItems: (contract.items ?? []).filter(item => item.category === ILLUSTRATIVE).map(item => item.itemId) } : {}), ...((contract.items ?? []).some(item => item.category === PROPOSED) ? { proposedItems: (contract.items ?? []).filter(item => item.category === PROPOSED).map(item => item.itemId) } : {}) })), // W4: ILLUSTRATIVE carriers listed apart, only where added; stage A2 (13 November 2026): a PROPOSED configuration's items too, only where the contract holds one (no production contract does)
         declarations: input.flatMap(contract =>
             ((contract.declarations ?? []) as any[])
                 .filter(declaration => isDraftCategory(declaration?.category))

@@ -196,6 +196,13 @@ const POSSESSION_KEPT_CLAUSES = [
 ]
 const CONTROL_CLAUSES = [/\bcontrols? it\b/i, /under control/i]
 const POSSESSION_OR_CONTROL_CLAUSES = [...POSSESSION_KEPT_CLAUSES, ...CONTROL_CLAUSES]
+/**
+ * Stage A2 (13 November 2026): clauses that name the possession as the qualifying sequence, never a possession kept, each held to the one
+ * span of its context's condition that speaks of the sequence (verbatim, kind CONDITION). Our CANDIDATE High Press Escape rules say 'in that
+ * possession' (the lead's decision W1) for Christian's sequence: "A qualifying sequence begins when the attacking team possesses the ball while
+ * facing established, coordinated defensive pressure." (received 12 November 2026). Any other ground for the clause is read as before.
+ */
+const SEQUENCE_CLAUSES: ReadonlyArray<{ clause: string; span: string }> = [{ clause: 'in that possession', span: 'The sequence begins under established coordinated pressure' }]
 
 /**
  * Spans of the scoring events' controlled-vocabulary definitions that state control on reception. Our wording in the controlled
@@ -331,6 +338,9 @@ function possessionOrControlFindings(rules: CoachRuleTable, grounds: CoachRuleGr
             }
             if (!POSSESSION_OR_CONTROL_CLAUSES.some((p) => p.test(clause))) failures.push(`${key}: the declared clause "${clause}" is not itself a possession or control clause`)
             // 'possession controlled' is accepted wherever a condition holds it, and only RPC-001's does; today only RPC-001's gate uses it, a reported departure: the rule is open-ended where the condition says on arrival.
+            // Stage A2: a clause naming the possession as the qualifying sequence (SEQUENCE_CLAUSES) is no possession kept, and is held to its own span.
+            const sequence = SEQUENCE_CLAUSES.find((s) => s.clause === clause)
+            if (sequence && kind === 'CONDITION' && normaliseWhitespace(span) === normaliseWhitespace(sequence.span)) continue
             if (POSSESSION_KEPT_CLAUSES.some((p) => p.test(clause)) && !/retain|maintain|possession controlled/i.test(span)) failures.push(`${key}: "${clause}" (possession kept) is grounded on "${span}", which does not speak of keeping possession`)
             if (CONTROL_CLAUSES.some((p) => p.test(clause)) && !/control/i.test(span)) failures.push(`${key}: "${clause}" (control) is grounded on "${span}", which does not speak of control`)
             const overlapsAnExample = exampleClauses(ground).some((c) => {
@@ -669,8 +679,13 @@ const LIVE_HIGH_PRESS_ESCAPE_RULES: Readonly<Record<string, string>> = {
 function groundsUnder(overlay: CandidateCoachRules): CoachRuleGrounds {
     const covered = new Set(overlay.rules.map((rule) => rule.key))
     const declared = (clause: string) => (overlay.declared ?? []).filter((d) => d.in === 'rule').reduce((text, d) => (text.includes(d.from) ? text.replace(d.from, d.to) : text), clause)
+    // Stage A2: where a candidate rule says a sequence clause (SEQUENCE_CLAUSES), its ground is the condition's span for the sequence.
+    const sequenceGrounds = (key: string) => {
+        const candidate = overlay.rules.find((rule) => rule.key === key)?.candidate ?? ''
+        return SEQUENCE_CLAUSES.filter((s) => candidate.includes(s.clause)).map((s) => [s.clause, 'CONDITION', s.span] as [string, 'CONDITION', string])
+    }
     return Object.fromEntries(
-        Object.entries(COACH_RULE_GROUNDS).map(([key, grounds]) => [key, covered.has(key) ? grounds.map(([clause, kind, span]) => [declared(clause.replace(overlay.replacement.from, overlay.replacement.to)), kind, span]) : grounds])
+        Object.entries(COACH_RULE_GROUNDS).map(([key, grounds]) => [key, covered.has(key) ? [...grounds.map(([clause, kind, span]) => [declared(clause.replace(overlay.replacement.from, overlay.replacement.to)), kind, span]), ...sequenceGrounds(key)] : grounds])
     ) as CoachRuleGrounds
 }
 
@@ -693,13 +708,22 @@ const CHRISTIAN_12_NOVEMBER_WORDS = [
     'A qualifying sequence begins when the attacking team possesses the ball while facing established, coordinated defensive pressure.',
     'A scoring event must occur within a sequence that began under coordinated pressure.',
     'I want this represented through an observable game situation, not merely through instructions telling players or defenders what they must do.',
+    // Stage A2 (13 November 2026): the origin sentence carries Christian's "not necessarily" (received 12 November 2026).
+    'An isolated defender closing down the ball does not necessarily constitute coordinated pressure.',
 ]
-/** The four candidate rules held for Christian's review with the complete A02 activity (stage B2; DESIGN section 1), word for word. */
+/**
+ * The four candidate rules held for Christian's review with the complete A02 activity (stage B2; DESIGN section 1), word for word.
+ * RE-PINNED OPENLY (stage A2, 13 November 2026, the lead's decision W1). BEFORE: each ended 'It counts only if the attack started against the
+ * other team pressing together.' AFTER: 'It counts only if your team faced the other team pressing together before it scored in that
+ * possession (one player closing down alone does not necessarily count).' WHY: 'attack' read as stricter than the possession Christian's ruling
+ * names (Christian keeps a restart, a change of possession and a new attack apart, received 8 November 2026), and "not necessarily" is
+ * Christian's (received 12 November 2026); the press need not still be there when the team scores. Still CANDIDATE, held; COACH_RULES unchanged.
+ */
 const CANDIDATE_HIGH_PRESS_ESCAPE_RULES: Readonly<Record<string, string>> = {
-    'RPC-002|line_crossed|': 'Earn a point when a player dribbles over the line behind the press, or receives the ball past it and controls it, and your team keeps the ball through its next action. It counts only if the attack started against the other team pressing together.',
-    'RPC-002|target_zone_entered|': 'Earn a point when a player dribbles into the target zone behind the press, or receives the ball there and controls it, and your team keeps the ball through its next action. It counts only if the attack started against the other team pressing together.',
-    'RPC-002|gate|': 'Earn a point when a player passes or dribbles through a gate behind the press and your team keeps the ball through its next action. It counts only if the attack started against the other team pressing together.',
-    'RPC-002|target_player|': 'Earn a point when your target player behind the press receives the ball and controls it, and your team keeps the ball through its next action. It counts only if the attack started against the other team pressing together.',
+    'RPC-002|line_crossed|': 'Earn a point when a player dribbles over the line behind the press, or receives the ball past it and controls it, and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).',
+    'RPC-002|target_zone_entered|': 'Earn a point when a player dribbles into the target zone behind the press, or receives the ball there and controls it, and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).',
+    'RPC-002|gate|': 'Earn a point when a player passes or dribbles through a gate behind the press and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).',
+    'RPC-002|target_player|': 'Earn a point when your target player behind the press receives the ball and controls it, and your team keeps the ball through its next action. It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).',
 }
 
 /**
@@ -724,6 +748,17 @@ function testHighPressEscapeCandidateWording(): void {
         assert.equal(words.received, 'received 11 November 2026, second reply')
     }
     for (const question of overlay.questions) for (const words of question.christian) assert.ok([...CHRISTIAN_HIGH_PRESS_ESCAPE_ITEM, ...CHRISTIAN_OTHER_WORDS].includes(words.quote), `${question.id}: "${words.quote}" is Christian's, verbatim`)
+    // Stage A2 (13 November 2026, V2 finding 13): Q-a to Q-d are answered by Christian's ruling received 12 November 2026, each sentence verbatim
+    // in the recorded ruling (a02-inputs.review.json, A02-12NOV-NEXT-ACTION); Q-a's gate-completion part stays open. Bite: a sentence altered.
+    const nextAction = (JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'design-reasoning', 'a02-inputs.review.json'), 'utf8')).rulings as Array<{ id: string; words: string[] }>).find((r) => r.id === 'A02-12NOV-NEXT-ACTION')!.words
+    const unanswered = (questions: typeof overlay.questions) => questions.filter((q) => !q.answeredBy || q.answeredBy.ruling !== 'A02-12NOV-NEXT-ACTION' || q.answeredBy.received !== 'received 12 November 2026' || !q.answeredBy.quotes.every((quote) => nextAction.includes(quote))).map((q) => q.id)
+    assert.deepEqual(unanswered(overlay.questions), [])
+    assert.deepEqual(overlay.questions.filter((q) => q.answeredBy?.stillOpen).map((q) => q.id), ['Q-a'], "only Q-a keeps a part open (the gate's completion)")
+    assert.deepEqual(unanswered(overlay.questions.map((q) => (q.id === 'Q-b' ? { ...q, answeredBy: { ...q.answeredBy!, quotes: ['What counts: A meaningful continuation such as a pass.'] } } : q))), ['Q-b'], 'bite: a sentence not verbatim is caught')
+    // The gate's shape rule for an answer, with its bite: an answer naming no sentence is refused.
+    const noSentence = JSON.parse(JSON.stringify(overlay))
+    noSentence.questions[0].answeredBy.quotes = []
+    assert.ok(candidateCoachRulesRefusals(noSentence).some((why) => why.includes('question Q-a: its answer names no ruling, no date received or no sentence that answers it')), 'bite: an answer with no sentence is refused by the gate')
 
     // The live four are unchanged, word for word, and the candidate covers exactly them.
     assert.deepEqual(overlay.rules.map((rule) => rule.key), HIGH_PRESS_ESCAPE_KEYS)
@@ -738,7 +773,7 @@ function testHighPressEscapeCandidateWording(): void {
     for (const rule of overlay.rules) assert.equal(rule.setupCandidate, COACH_RULES[rule.key]!.setup.replace(' The other team presses from the start of every attack.', ''), `${rule.key}: the setup drops the origin sentence, every other word kept`)
     assert.deepEqual((overlay.declared ?? []).map((d) => [d.id, d.in, d.from, d.to]), [
         ['ITS', 'rule', 'through the next action', 'through its next action'],
-        ['ORIGIN', 'rule', 'The other team presses from the start of every attack.', 'It counts only if the attack started against the other team pressing together.'],
+        ['ORIGIN', 'rule', 'The other team presses from the start of every attack.', 'It counts only if your team faced the other team pressing together before it scored in that possession (one player closing down alone does not necessarily count).'],
         ['ORIGIN-SETUP', 'setup', ' The other team presses from the start of every attack.', ''],
     ], 'exactly the three declared changes')
     for (const d of overlay.declared ?? []) for (const words of d.christian) {
@@ -790,8 +825,18 @@ function testHighPressEscapeCandidateWording(): void {
     for (const key of Object.keys(COACH_RULES)) if (!HIGH_PRESS_ESCAPE_KEYS.includes(key)) assert.deepEqual(overlaid[key], COACH_RULES[key], `${key}: untouched by the overlay`)
     const overlaidGrounds = groundsUnder(overlay)
     // Re-pinned openly (stage B2): BEFORE 'keeps the ball through the next action'; AFTER with the declared ITS made ('its', ours).
-    assert.deepEqual(overlaidGrounds['RPC-002|gate|'], [['keeps the ball through its next action', 'CONDITION', 'the attacking team retains possession through the next action']])
+    // Re-pinned openly (stage A2, 13 November 2026): BEFORE the one ground; AFTER with 'in that possession', a sequence clause (the decided
+    // origin sentence), grounded on the condition's words for the sequence.
+    assert.deepEqual(overlaidGrounds['RPC-002|gate|'], [
+        ['keeps the ball through its next action', 'CONDITION', 'the attacking team retains possession through the next action'],
+        ['in that possession', 'CONDITION', 'The sequence begins under established coordinated pressure'],
+    ])
     assert.deepEqual(possessionOrControlFindings(overlaid, overlaidGrounds), { failures: [], onAnExample: [] }, '2b holds over the CANDIDATE wording')
+    // Bite (stage A2): 'in that possession' grounded on any other span is read as a possession kept, and refused; with no ground, refused.
+    const misgrounded = Object.fromEntries(Object.entries(overlaidGrounds).map(([key, grounds]) => [key, grounds.map(([clause, kind, span]) => (clause === 'in that possession' ? [clause, kind, 'established coordinated pressure'] : [clause, kind, span]))])) as CoachRuleGrounds
+    assert.ok(possessionOrControlFindings(overlaid, misgrounded).failures.some((f) => f.includes('"in that possession" (possession kept)')), 'bite: a sequence clause on another span is caught')
+    const ungrounded = Object.fromEntries(Object.entries(overlaidGrounds).map(([key, grounds]) => [key, grounds.filter(([clause]) => clause !== 'in that possession')])) as CoachRuleGrounds
+    assert.ok(possessionOrControlFindings(overlaid, ungrounded).failures.some((f) => f.includes('(/possession/i) with no declared ground')), 'bite: the clause without its ground is caught')
     const overlaidFindings = actionWordFindings(overlaid, overlaidGrounds).map((f) => f.id).sort()
     assert.deepEqual(overlaidFindings, Object.keys(ACTION_WORD_FINDINGS).filter((id) => !id.startsWith('RPC-002|')).sort(), '2c: the four High Press Escape findings are gone under the CANDIDATE wording, and nothing else moves')
     const gatesWithControl = (table: CoachRuleTable) => Object.keys(table).filter((key) => key.split('|')[1] === 'gate' && [...CONTROL_CLAUSES, /teammate/i].some((p) => p.test(table[key]!.rule + ' ' + table[key]!.setup)))

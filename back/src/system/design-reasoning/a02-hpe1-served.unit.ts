@@ -4,7 +4,8 @@
  *
  * Christian, received 12 November 2026: "Produce one complete A02 activity through the checked pathway, at review level, with all required
  * conditions grounded in approved knowledge." "Resolve the identified renderer issue concerning the attacking team's name." "I'd also like the
- * eventual activity to make clear how coordinated pressure arises repeatedly and meaningfully within the game structure."
+ * eventual activity to make clear how coordinated pressure arises repeatedly and meaningfully within the game structure." (all three received
+ * 12 November 2026)
  *
  * The lead's decisions of round 2 (section B-I), each pinned here, every value measured first (scratchpad pkg4/A1):
  *   R1 the renderer and fidelity read the register the game was derived over, through a TEST-ONLY scoped override set only on a build given our
@@ -161,6 +162,12 @@ test('the run (decisions R1 to R4): A02-HPE1 served at review level, fidelity vi
     assert.deepEqual(items.filter((i) => i.category === 'ILLUSTRATIVE').map((i) => i.itemId), ['A02-HPE1-S5-1'])
     assert.ok(items.every((i) => ['PROPOSED', 'ILLUSTRATIVE'].includes(i.category) && !!i.waitsOn), 'every item labelled, with its question')
     assert.deepEqual(['Q1', 'Q2', 'Q6'].map((q) => items.filter((i) => i.waitsOn === q).length), [9, 3, 9])
+    // Stage A2 (13 November 2026, V1's minor finding, the lead's decision W4): the draft account lists the configuration's PROPOSED items apart
+    // (they were omitted there: `items` lists DRAFT knowledge only), beside its ILLUSTRATIVE item; the restatement's items stay in `items`.
+    const accountOf = (id: string) => (m.built.activity.draftKnowledge.contracts as any[]).find((c) => c.contractId === id)
+    assert.deepEqual([accountOf('proposed:A02-HPE1').items, accountOf('proposed:A02-HPE1').illustrativeItems, accountOf('proposed:A02-HPE1').proposedItems.length], [[], ['A02-HPE1-S5-1'], 20])
+    assert.deepEqual(accountOf('proposed:A02-HPE1').proposedItems, items.filter((i) => i.category === 'PROPOSED').map((i) => i.itemId), 'the same twenty the review-level account names')
+    assert.equal(accountOf('restated:RPC-002').proposedItems, undefined, 'a contract holding no PROPOSED item lists none')
     assert.deepEqual([at('A02-HPE1-S').answer.stage, at('A02-HPE1-L').answer.stage], ['communication', 'validation'])
     assert.ok(at('A02-HPE1-L').answer.reasons.some((r) => r.includes('LAW-11 (Law 11 (Offside)) at the game: an adaptation is owed')), 'A02-HPE1-L still refuses on LAW-11 (its bite)')
 })
@@ -343,15 +350,18 @@ test('R6 the Coach Overview and the diagram through the existing machinery (meas
     // condition sentence's 'only if' is held to the obligation lexicon there (7.7), which Details fidelity, reading our CANDIDATE wording as it
     // reads approved wording (stage B2), does not. Each needs new production code (overview wording, or our CANDIDATE wording threaded into the
     // overview), which decision R6 does not authorize: reported, not built.
+    // Stage A2 (13 November 2026, the lead's decision W1), re-pinned openly: BEFORE each 7.7 finding named sentence 1 of our condition sentence
+    // ('An escaping team's score counts only if ...'); AFTER our condition sentence is the escaping team's whole scoring (five sentences), and
+    // the findings name its sentence 2 (the escaping team's) and sentence 3 (the pressing team's). The same eight violations, the same causes.
     assert.deepEqual(violations, [
         '7.0 block 1: the overview has a gap (game): no wording here says where the pressing',
         '7.0 block 2: the overview has a gap (game): no wording here says where the pressing',
         '7.0 block 1: the overview has no game sentence for this block',
-        "7.7 block 1: the escaping team's sentence 1 \"An escaping team's score counts only i",
-        "7.7 block 1: the pressing team's sentence 1 \"An escaping team's score counts only i",
+        "7.7 block 1: the escaping team's sentence 2 \"The escaping team scores a point when ",
+        "7.7 block 1: the pressing team's sentence 3 \"The escaping team scores a point when ",
         '7.0 block 2: the overview has no game sentence for this block',
-        "7.7 block 2: the escaping team's sentence 1 \"An escaping team's score counts only i",
-        "7.7 block 2: the pressing team's sentence 1 \"An escaping team's score counts only i",
+        "7.7 block 2: the escaping team's sentence 2 \"The escaping team scores a point when ",
+        "7.7 block 2: the pressing team's sentence 3 \"The escaping team scores a point when ",
     ])
 })
 

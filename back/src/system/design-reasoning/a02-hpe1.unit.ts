@@ -6,7 +6,7 @@
  * Christian, received 12 November 2026: "Please develop the smallest executable restatement consistent with these decisions, preserving its
  * candidate status until I've reviewed it." "Please propose the simplest representative configuration that makes the relevant defensive
  * pressure and escape target observable to the coach." "The final interpretation and any consequential new knowledge should remain subject
- * to my approval."
+ * to my approval." (all three received 12 November 2026)
  *
  * What is pinned, every value measured first (scratchpad pkg3/B1: the P0 probe and its shapes, the runs):
  *   T1 the restatement's shape (02.b on V6, the two NO_FURTHER_VALUE declarations, WHOLE_GAME, no restart arrangement), with three bites;

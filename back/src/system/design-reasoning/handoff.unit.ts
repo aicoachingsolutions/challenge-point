@@ -477,6 +477,11 @@ test('the grading map, pinned per kind', () => {
             'FORM_SELECTED -',
             'FORM_ILLUSTRATIVE ILLUSTRATIVE',
             'FORM_INFERENCE OURS',
+            // Re-pinned openly (stage A2 of the A02 package, 13 November 2026, the lead's decision W6): BEFORE no such kind, so a line our DRAFT
+            // restatement declares needs no further value was graded UNRESOLVED ('needs a knowledge decision'); AFTER graded as that restatement,
+            // CANDIDATE. WHY: the absence is established by our declaration (classify.ts nonClaimState), not a missing value; any other declarer
+            // keeps UNRESOLVED.
+            'DECLARED_ABSENCE CANDIDATE',
             'UNRESOLVED UNRESOLVED',
         ],
     )
