@@ -486,6 +486,11 @@
     {
       "id": "A02-HPE1-S",
       "basedOn": "A02-0",
+      "suppliedChoices": [
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-1::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false },
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-2::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false },
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-3::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false }
+      ],
       "label": "A02-HPE1-S: our PROPOSED configuration A02-HPE1, for Christian's review, over our CANDIDATE restatement (interim: the TEST-ONLY LAW-11 stand-in)",
       "resultStanding": "PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW",
       "testOnlyTreatments": [
@@ -500,6 +505,11 @@
     {
       "id": "A02-HPE1-L",
       "basedOn": "A02-0",
+      "suppliedChoices": [
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-1::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false },
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-2::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false },
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-3::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false }
+      ],
       "label": "A02-HPE1-L: as A02-HPE1-S, the Laws held to our DRAFT classification (no stand-in): the LAW-11 negative control",
       "resultStanding": "PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW",
       "testOnlyTreatments": [
@@ -514,6 +524,11 @@
     {
       "id": "A02-HPE1",
       "basedOn": "A02-0",
+      "suppliedChoices": [
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-1::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false },
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-2::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false },
+        { "lineId": "c:proposed:A02-HPE1:A02-HPE1-T1-3::T4", "value": { "coachDecides": "near the escaping team's own end, with the pressing team set to press together" }, "rulingRef": null, "standing": "ILLUSTRATIVE", "provisional": false }
+      ],
       "label": "A02-HPE1: our PROPOSED configuration A02-HPE1 with its PROPOSED LAW-11 departure (Q3) and our CANDIDATE coach wording, for Christian's review, over our CANDIDATE restatement: the review-level run (no TEST ASSUMPTION, no laws stand-in)",
       "resultStanding": "PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW",
       "testOnlyTreatments": [

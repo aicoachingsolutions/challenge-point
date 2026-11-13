@@ -1343,10 +1343,17 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
     }
     // The safeguards slice: the manipulations that enter by the record route (never placed), held by the wiring to the record consulted.
     const recordRoute = c.proposedManipulations.filter((m) => m.entersBy === 'RECORD').map((m) => m.manipulation)
+    // Stage A1 of the complete-activity package (decision R4): a stand-in for the coach's decision on a line our PROPOSED configuration opens
+    // says so; every other supplied choice is worded exactly as before.
+    const coachStandIn = (ch: SuppliedChoiceInput) => ch.lineId.startsWith('c:proposed:') && isObject(ch.value) && typeof ch.value.coachDecides === 'string'
     const choices = c.suppliedChoices.map((ch) => ({
         lineId: ch.lineId,
         value: ch.value,
-        because: ch.rulingRef ? citedWords(rulingOf(inputs, ch.rulingRef)) : `${VALUE_LABELS.ILLUSTRATIVE}: chosen among the alternatives our restatement of the form lists (CANDIDATE), for this case only`,
+        because: ch.rulingRef
+            ? citedWords(rulingOf(inputs, ch.rulingRef))
+            : coachStandIn(ch)
+              ? `${VALUE_LABELS.ILLUSTRATIVE}: a stand-in for the coach's decision on a line our PROPOSED configuration opens, its bound the PROPOSED item's words, for this case only`
+              : `${VALUE_LABELS.ILLUSTRATIVE}: chosen among the alternatives our restatement of the form lists (CANDIDATE), for this case only`,
     }))
     return {
         caseId: c.id,
