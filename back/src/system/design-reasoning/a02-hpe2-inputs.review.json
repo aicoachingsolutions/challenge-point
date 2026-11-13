@@ -1,0 +1,421 @@
+{
+    "standing": "TEST-ONLY review data for package 5, the A02 ecological revision (Christian's reply received 13 November 2026): the revised activity A02-HPE2, built at review level beside the baseline A02-HPE1, whose data (a02-inputs.review.json) is unchanged. It holds Christian's 13 November rulings, verbatim with their received date, and the one case A02-HPE2, based on a02-inputs.review.json's A02-0 (the test composes the two: the rulings of both, and A02-0 beside A02-HPE2, so the case's base is read from the baseline's data, never copied), in the shape of the handoff's own review data and held to the same validator. Nothing on the live route or the checked pathway reads this file; only a02-hpe2.unit.ts does.",
+    "rulings": [
+        {
+            "id": "A02-13NOV-REVISION",
+            "words": [
+                "Challenge Point should generate the simplest coherent learning environment that provides meaningful, recurring opportunities to encounter the intended Game Problem.",
+                "Please treat minimum necessary complexity as a design preference to evaluate, not a numerical quota or a restriction on valid combinations.",
+                "If both teams understand the rules and genuinely attempt to win, do their available opportunities and incentives make the intended learning problem likely to emerge?",
+                "This is not about compelling the defenders to press or requiring a prescribed tactical solution.",
+                "I consider this dual-team incentive coherence a necessary part of evaluating the A02 design.",
+                "Present the revised activity with concise coach-facing instructions and clear labels distinguishing approved, candidate, proposed and illustrative elements.",
+                "Please continue protecting A01 and the live application.",
+                "No changes to the A02 pathway or unapproved scoring arrangements are authorized for release.",
+                "The package should stop when a coherent A02 candidate is ready for ecological review or when a genuinely new knowledge decision prevents further progress.",
+                "Please proceed with the bounded A02 comparison and revision under these conditions.",
+                "However, because the pressing team knows this condition, it may benefit from avoiding coordinated pressure and thereby preventing its opponent from becoming eligible to score.",
+                "I do not want a broad audit, new architectural layer, or expansion into advanced engagement and adaptive feedback."
+            ],
+            "file": "christian-2026-11-13-a02-revision-package.txt (Christian's reply received 13 November 2026, headings 1, 2 and 11, the foundational principle, the critical finding and the next development package)",
+            "received": "2026-11-13",
+            "provisional": false,
+            "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+        },
+        {
+            "id": "A02-13NOV-ROLES",
+            "words": [
+                "I am comfortable retaining asymmetric escaping and pressing roles as a review-level candidate, including exchanging roles between blocks.",
+                "However, I am not yet approving the particular marked-line placement, expansive escaping-team target zone or pressing-team scoring arrangement as canonical knowledge.",
+                "First, the large target zone may make successful scoring possible through long-ball bypasses without the attacking team genuinely solving an established coordinated press.",
+                "Second, the pressing team's only scoring option—dribbling over the opponent's end line—may unnecessarily narrow its attacking solutions.",
+                "Third, because of the proposed restart, the escaping team may be able to avoid an unfavorable turnover by putting the ball over its own end line.",
+                "I'd like the next package to examine whether a more coherent relationship between defensive rewards, attacking targets and possession consequences would better support the learning intention.",
+                "These are examples from experience and current exploration, not automatically approved A02 scoring rules or verified superiority claims."
+            ],
+            "file": "christian-2026-11-13-a02-revision-package.txt (Christian's reply received 13 November 2026, heading 3, Questions 1 and 2: Roles, Line, Targets and Defensive Scoring)",
+            "received": "2026-11-13",
+            "provisional": false,
+            "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+        },
+        {
+            "id": "A02-13NOV-OFFSIDE",
+            "words": [
+                "For now, no offside may remain an isolated review assumption, but I am not approving it as a general A02 rule.",
+                "The important concern is whether players can position themselves beyond the pressure and repeatedly score through long passes without meaningfully encountering the intended game problem.",
+                "However, I don't want to fix this automatically by introducing a rule that dictates where attacking players must stand.",
+                "Please evaluate the problem within the proposed game and identify the smallest representative solution, including whether a Law 11 decision is actually necessary for the chosen game structure."
+            ],
+            "file": "christian-2026-11-13-a02-revision-package.txt (Christian's reply received 13 November 2026, heading 5, Question 3: Offside)",
+            "received": "2026-11-13",
+            "provisional": false,
+            "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+        },
+        {
+            "id": "A02-13NOV-SEQUENCE",
+            "words": [
+                "I approve the underlying principle that coordinated pressure must genuinely be encountered and that it need not remain intact after the attacking team has escaped it.",
+                "A qualifying High Press Escape sequence should not automatically be equated with the entire attacking possession.",
+                "The important relationship is between encountering established coordinated pressure and subsequently escaping it while preserving attacking continuity.",
+                "Facing coordinated pressure earlier in possession should not automatically qualify an unrelated later scoring event.",
+                "Please preserve that distinction without introducing unnecessary phase machinery or elaborate referee-like conditions for coaches.",
+                "I would also hold the four High Press Escape coach-facing scoring rules until we settle the game structure and review the resulting wording.",
+                "\"Pressing team\" is an acceptable role description.",
+                "I would avoid instructions such as \"set to press together\" if they become prescriptions for defensive behavior rather than descriptions of a representative starting condition.",
+                "Please use the existing approved High Press Escape coach translation wherever appropriate rather than independently adding lengthy explanations.",
+                "The coach should understand the activity quickly without needing to understand the system's internal reasoning.",
+                "I would prefer concise Setup, Rules, Scoring and Learning Explanation sections, with technical qualifications kept in the underlying representation where possible.",
+                "Clarity is more important than achieving an arbitrary word count, but the current 326-word review presentation can be simplified."
+            ],
+            "file": "christian-2026-11-13-a02-revision-package.txt (Christian's reply received 13 November 2026, heading 6, Questions 4 and 5: Coach Wording and Qualifying Sequences)",
+            "received": "2026-11-13",
+            "provisional": false,
+            "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+        },
+        {
+            "id": "A02-13NOV-RESTART",
+            "words": [
+                "I would not approve an automatic restart to the escaping team after every end-line ball, regardless of who last touched it.",
+                "That can weaken possession consequences and potentially reward deliberate clearances or avoidance of pressure.",
+                "My preference remains to preserve meaningful possession consequences and reasonable coach discretion.",
+                "A representative coach-managed restart can be useful when the activity needs to recreate the relevant pressure situation, but it should not automatically become the only permitted way a qualifying sequence begins.",
+                "Please propose a simple, practical restart arrangement compatible with the selected scoring structure and intended game problem.",
+                "We shouldn't spend another development cycle optimizing every possible restart case.",
+                "We need something coherent, representative and manageable."
+            ],
+            "file": "christian-2026-11-13-a02-revision-package.txt (Christian's reply received 13 November 2026, heading 7, Question 6: Restarts)",
+            "received": "2026-11-13",
+            "provisional": false,
+            "scope": "ISOLATED_DEVELOPMENT_PATHWAY"
+        }
+    ],
+    "cases": [
+        {
+            "id": "A02-HPE2",
+            "basedOn": "A02-0",
+            "label": "A02-HPE2: our PROPOSED revised configuration A02-HPE2 (package 5, Christian's reply received 13 November 2026) with its PROPOSED LAW-11 departure (Q3) and our CANDIDATE coach wording, over our CANDIDATE restatement with the revised origin and progression values: the review-level run, beside the baseline A02-HPE1",
+            "resultStanding": "PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW",
+            "chain": {
+                "records": "PRODUCTION",
+                "draftStore": "a02-hpe2-composition",
+                "supplement": false,
+                "vehicle": null
+            },
+            "rulings": [
+                {
+                    "ref": "A02-10NOV-AUTHORIZATION",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the authority for the isolated experiment and for the chain's TEST-ONLY consumption of Steps 1 and 2 (TT-CONSUMED-STEPS); none of its words enters the chain as a value"
+                },
+                {
+                    "ref": "A02-10NOV-CANDIDATE",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "our restatement of RPC-002 in the TEST-ONLY draft store is printed as CANDIDATE, item by item beside the approved row it restates; what the item grammar cannot express is declared and listed as UNRESOLVED"
+                },
+                {
+                    "ref": "A02-10NOV-GF2",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "Step 2's form is consumed as compatibility only: its Game Problem cell keeps its CANDIDATE grade; no run is reported as representative sufficiency"
+                },
+                {
+                    "ref": "A02-10NOV-ERR",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the Essential Representative Relationships table: each relationship with the rows that state it, the CAR rating, whether it is executable and what the engine does with it"
+                },
+                {
+                    "ref": "A02-10NOV-TREATMENTS",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the starting-state and Laws questions stay explicit limitations; every TEST-ONLY treatment is labelled, and no run with one is the A02 configuration"
+                },
+                {
+                    "ref": "A02-10NOV-SOURCES",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the smallest specific source material, as questions only, in order of consequence"
+                },
+                {
+                    "ref": "A02-08NOV-RESTART",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "answered for the start by A02-12NOV-PRESSURE (a qualifying sequence may begin in normal play, after a turnover or through a representative restart); the distinction still governs the coach's word for the sequence: the coach text says 'possession', never 'attack' (stage A2)"
+                },
+                {
+                    "ref": "A02-07NOV-CONSERVATIVE",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "a refusal resting only on our restatement is printed as a conservative refusal, not as a finding that the configuration violates approved knowledge"
+                },
+                {
+                    "ref": "HO-07NOV-ILLUSTRATIVE",
+                    "entersAs": "ILLUSTRATIVE_PERMISSION",
+                    "how": "the basis for the labelled illustrative session (borrowed from the handoff's data, as its TA01 case uses it)"
+                },
+                {
+                    "ref": "HO-07NOV-PURPOSE",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the purpose's source and approval evidence printed apart"
+                },
+                {
+                    "ref": "HO-23OCT-LAWS",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the Laws apply by default: nothing enters; the chain's laws account reports each law"
+                },
+                {
+                    "ref": "HO-07NOV-OFFSIDE-SCOPE",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the provisional no-offside ruling is scoped to the initial small-sided realization: nothing enters; the LAW-11 stand-in of A02-2 and A02-D is a TEST-ONLY treatment, never this ruling generalized"
+                },
+                {
+                    "ref": "HO-07NOV-K2",
+                    "entersAs": "EMPTY_CONSTRAINT_SET",
+                    "how": "the review pathway's K2 result (no manipulation proposed) handed to the chain in place of a per-goal authorization record (TT-K2-RETAIN-FORM): the empty set only, never an authorization of any manipulation; its rule and its limit are carried into the account and the report"
+                },
+                {
+                    "ref": "A02-03NOV-DESIGN-AUTHORIZATION",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "E5: our reading of it, that the review pathway needs no separately authored record per Learning Goal, is why K2's result stands in for one; the DRAFT-record comparison arm is kept so Christian can reverse that reading"
+                },
+                {
+                    "ref": "A02-12NOV-PRESSURE",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the authority for our CANDIDATE restatement of the origin clause (RPC-002-02.b on V6, judged in play at the sequence's start; V5 origin NO_FURTHER_VALUE) and of the WHOLE_GAME scope; none of its words enters the chain as a value (the value is RPC-PROP-133's own words), and the restatement stays CANDIDATE until Christian has reviewed it"
+                },
+                {
+                    "ref": "A02-12NOV-NEXT-ACTION",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the authority for our CANDIDATE restatement of the control clause (RPC-002-04.b verbatim; V5 control NO_FURTHER_VALUE: the continuation names no place); none of its words enters the chain as a value, and no type of action is prescribed"
+                },
+                {
+                    "ref": "A02-12NOV-PACKAGE",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the authority for the package (one complete A02 activity through the checked pathway, at review level) and for our PROPOSED configuration A02-HPE1, put to Christian for approval; none of its words enters the chain as a value"
+                },
+                {
+                    "ref": "A02-12NOV-COMMUNICATION",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the standard our CANDIDATE coach text answers (the four parts; concise, with clarity before brevity; nothing essential to running the activity removed; conditions, not player solutions); none of its words enters the chain as a value"
+                },
+                {
+                    "ref": "A02-13NOV-REVISION",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the authority for package 5 (the bounded A02 comparison and revision, at review level, beside the baseline) and the standard the revised activity answers (the simplest coherent environment; both teams trying to win; concise, labelled coach text); none of its words enters the chain as a value"
+                },
+                {
+                    "ref": "A02-13NOV-ROLES",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the asymmetric roles and their exchange kept as a review-level candidate; the line's placement, the expansive zone and the pressing team's scoring not approved as canonical knowledge, and Christian's three concerns, which the revised targets and restart answer as PROPOSED; none of its words enters the chain as a value"
+                },
+                {
+                    "ref": "A02-13NOV-OFFSIDE",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "no offside kept only as the isolated review assumption Christian permits (the PROPOSED laws block, Q3); none of its words enters the chain as a value"
+                },
+                {
+                    "ref": "A02-13NOV-SEQUENCE",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the refinement our CANDIDATE origin value restates (the crossing that escapes the press, without phase machinery), the hold on the four High Press Escape coach rules (COACH_RULES unchanged), the role name and the wording standard; none of its words enters the chain as a value"
+                },
+                {
+                    "ref": "A02-13NOV-RESTART",
+                    "entersAs": "REPORT_ONLY",
+                    "how": "the restart arrangement our PROPOSED items answer (Q6): no automatic restart to the escaping team after an end-line ball; a coach-managed restart that is one way among several; none of its words enters the chain as a value"
+                }
+            ],
+            "suppliedChoices": [
+                {
+                    "lineId": "c:proposed:A02-HPE2:A02-HPE2-T1-1::T4",
+                    "value": {
+                        "coachDecides": "near the escaping team's own end, outside the end zone"
+                    },
+                    "rulingRef": null,
+                    "standing": "ILLUSTRATIVE",
+                    "provisional": false
+                },
+                {
+                    "lineId": "c:proposed:A02-HPE2:A02-HPE2-T1-2::T4",
+                    "value": {
+                        "coachDecides": "near the escaping team's own end, outside the end zone"
+                    },
+                    "rulingRef": null,
+                    "standing": "ILLUSTRATIVE",
+                    "provisional": false
+                },
+                {
+                    "lineId": "c:proposed:A02-HPE2:A02-HPE2-T1-4::T4",
+                    "value": {
+                        "coachDecides": "near the escaping team's own end, outside the end zone"
+                    },
+                    "rulingRef": null,
+                    "standing": "ILLUSTRATIVE",
+                    "provisional": false
+                },
+                {
+                    "lineId": "c:proposed:A02-HPE2:A02-HPE2-T1-3::T4",
+                    "value": {
+                        "coachDecides": "for the escaping team near its own end, outside the end zone; for the pressing team on the marked line"
+                    },
+                    "rulingRef": null,
+                    "standing": "ILLUSTRATIVE",
+                    "provisional": false
+                }
+            ],
+            "notCarried": [
+                {
+                    "id": "UN-PRESSING-LINE",
+                    "what": "the referent of the progression clause: the pressing line",
+                    "rulingRefs": [
+                        "A02-10NOV-CANDIDATE",
+                        "A02-12NOV-PACKAGE"
+                    ],
+                    "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart (C54: Christian's ruling that A01's progression reference and its pressure reference are two distinct references); not typed by us in the restatement. The value 'beyond' is carried (RPC-002-03.c). Now PROPOSED in A02-HPE1 and A02-HPE2 (N1): a marked line placed by a qualitative rule, for Christian's approval (docs/audits/drafts/a02-proposed)",
+                    "label": "UNRESOLVED"
+                },
+                {
+                    "id": "UN-WORDING",
+                    "what": "coach wording for the condition",
+                    "rulingRefs": [
+                        "A02-10NOV-CANDIDATE"
+                    ],
+                    "where": "none approved: A02-2 is refused at communication, awaiting approved wording for the control condition's type and value",
+                    "label": "UNRESOLVED"
+                },
+                {
+                    "id": "UN-RESTART-POSSESSION",
+                    "what": "the restart and change-of-possession half of the starting state",
+                    "rulingRefs": [
+                        "A02-08NOV-RESTART",
+                        "A02-10NOV-TREATMENTS"
+                    ],
+                    "where": "answered by Christian's ruling received 12 November 2026, item 1 (A02-12NOV-PRESSURE): a qualifying sequence may emerge during normal play, following a turnover, or through a representative restart, and the coach chooses the starting arrangement; so our CANDIDATE restatement requires no restart, set-up, transition or episode, and GF2's own start (the coach's choice of which team starts) stays. Still not carried by GF2 alone: each team attacks the end opposite its own (GF2-08.c, GF2-08.e: the per-team directional arrangement, by Christian's ruling of 9 October), the same for both teams, so nothing in GF2 makes one team the pressing team (OURS); which team presses is PROPOSED in A02-HPE1 and A02-HPE2 (N3), for Christian's approval",
+                    "label": "ANSWERED (A02-12NOV-PRESSURE); the pressing role PROPOSED"
+                },
+                {
+                    "id": "UN-LAWS",
+                    "what": "the Laws for A02, offside (LAW-11)",
+                    "rulingRefs": [
+                        "A02-10NOV-TREATMENTS",
+                        "HO-07NOV-OFFSIDE-SCOPE"
+                    ],
+                    "where": "our DRAFT classification reads LAW-11 MATERIAL (its reason: players could wait there and bypass the interaction with opposition pressure), so A02-1b is refused at validation on it; A02-2 and A02-D pass only under the TEST-ONLY stand-in TT-LAW-11-STAND-IN; Christian's provisional no-offside ruling applies to the initial small-sided realization and is not generalized here; no ruling settles LAW-11 for A02",
+                    "label": "UNRESOLVED"
+                },
+                {
+                    "id": "UN-IDENTITY",
+                    "what": "the identity rows RPC-ID-006, RPC-ID-007, RPC-ID-008 and RPC-ID-010",
+                    "rulingRefs": [
+                        "A02-10NOV-CANDIDATE"
+                    ],
+                    "where": "RPC-ID-006 and RPC-ID-008 are recorded as items outside the boundary (RPC-002-05, RPC-002-06), which establish nothing; RPC-ID-007 and RPC-ID-010 have no row to be recorded on; none is enforced: RPC-002 has no requirement bindings (the requirement account is REPORT_ONLY with no scoring-condition component)",
+                    "label": "UNRESOLVED"
+                },
+                {
+                    "id": "UN-PRESSURE-CARRIER",
+                    "what": "established opposition pressure",
+                    "rulingRefs": [
+                        "A02-10NOV-CANDIDATE",
+                        "A02-12NOV-PRESSURE"
+                    ],
+                    "where": "no register row carries pressing, its intensity or its establishment, and none needs to: whether the sequence began under established coordinated pressure is judged in play at its start (Christian's ruling received 12 November 2026, item 1), carried as the origin condition's value (RPC-002-02.b, CANDIDATE); what in the game makes coordinated pressure arise is the configuration's (PROPOSED in A02-HPE1 and A02-HPE2: the pressing role and its scoring consequence, N2 and N3)",
+                    "label": "UNRESOLVED"
+                },
+                {
+                    "id": "UN-AFFORDANCE-TARGETS",
+                    "what": "RPC-002's affordance targets (RPC-MAP-097..102)",
+                    "rulingRefs": [
+                        "A02-10NOV-CANDIDATE"
+                    ],
+                    "where": "deferred by Christian on 13 September (not to be inferred to reach runtime) and not inferred here; the chain's wording-scored lenses are engine inputs (ENGINE_LENS), not RPC-002's affordance targets",
+                    "label": "UNRESOLVED"
+                }
+            ],
+            "testOnlyTreatments": [
+                {
+                    "id": "TT-CONSUMED-STEPS",
+                    "kind": "CONSUMED_STEPS",
+                    "what": "Step 1's resolved primary Game Problem and Step 2's SELECTED form, as the handoff ran them, handed to the chain's TEST-ONLY upstream option (the isolated pathway of stage 9, slice S1)",
+                    "effect": "the chain's candidate forms are the routed context's declared forms filtered to Step 2's form; its constraints come only from the record route or, under TT-K2-RETAIN-FORM, from the review pathway's K2 result; Step 1's Game Problem is carried beside the chain's own reading, never in its place, and governs its lens hints (stage W1 (a)); nothing is placed",
+                    "why": "the downstream pathway consumes Step 1 and Step 2 rather than selecting them from the goal's wording; the option exists only in TEST-ONLY code no route passes",
+                    "label": "TEST-ONLY",
+                    "rulingRefs": [
+                        "A02-10NOV-AUTHORIZATION"
+                    ]
+                },
+                {
+                    "id": "TT-DRAFT-STORE",
+                    "kind": "DRAFT_STORE",
+                    "what": "the context's CANDIDATE restatement read from the TEST-ONLY draft store a02-hpe2-composition (a02-composition's, with the origin and progression values revised for HPE-2, every quotation unchanged); the store's DRAFT A02 record (no ruling field filled, an empty set, our finding) is held to the store's gate and set aside under TT-K2-RETAIN-FORM",
+                    "effect": "the context's items enter derivation as DRAFT knowledge (ours, unreviewed: CANDIDATE, the two revised values carrying PROPOSED words of ours); the constraints come from the review pathway's K2 result (TT-K2-RETAIN-FORM)",
+                    "why": "RPC-002 has no production contract and A02 no production record; writing either would change the live route",
+                    "label": "TEST-ONLY",
+                    "rulingRefs": [
+                        "A02-10NOV-CANDIDATE"
+                    ]
+                },
+                {
+                    "id": "TT-K2-RETAIN-FORM",
+                    "kind": "K2_RETAIN_FORM",
+                    "what": "the review pathway's K2 result for A02 (no manipulation proposed: none has an authorized basis) handed to the chain in place of a per-goal authorization record, with K2's rule and its limit; the draft store's DRAFT A02 record is set aside",
+                    "effect": "the chain's constraints are the empty set under the authority REVIEW_PATHWAY_K2 (never relabelled AUTHORIZATION_RECORD), read under the general principle of 15 October 2026, so the zero branch commits Step 2's form alone; K2's rule and limit are carried into the account; refused beside a record, with a non-empty set and with the size-rule bypass",
+                    "why": "our reading of E5 and K2 for the isolated review pathway, kept reversible by the DRAFT-record comparison arm: no separately authored record per Learning Goal, and K2 retains a compatible form where no manipulation has an authorized basis; it connects two authorized stages and adds no knowledge",
+                    "label": "TEST-ONLY",
+                    "rulingRefs": [
+                        "HO-07NOV-K2",
+                        "A02-03NOV-DESIGN-AUTHORIZATION"
+                    ],
+                    "k2": {
+                        "rulingRef": "HO-07NOV-K2",
+                        "rule": 1,
+                        "limit": 2
+                    }
+                },
+                {
+                    "id": "TT-PROPOSED-HPE2-LAWS",
+                    "kind": "PROPOSED_CONFIGURATION",
+                    "proposed": {
+                        "file": "docs/audits/drafts/a02-proposed/hpe2.PROPOSED.json",
+                        "basis": {
+                            "rulingRef": "A02-13NOV-REVISION",
+                            "words": [
+                                0,
+                                5,
+                                9
+                            ]
+                        },
+                        "lawDepartures": true
+                    },
+                    "what": "our PROPOSED configuration A02-HPE2 (the revised activity beside the baseline A02-HPE1), carried with the PROPOSED departure of its laws block (LAW-11, no offside, said once to the coach, the isolated review assumption Christian permits; question Q3) and the configuration's own REPORT check of the Laws, which the harness holds to our DRAFT classification",
+                    "effect": "the configuration departs from LAW-11 on itself, so the chain's laws account reads the departure (DEPARTED, removed by the configuration) and the existing DRAFT sentence 'There is no offside' is said once; an owed adaptation our DRAFT reading classes MATERIAL still refuses (held by the harness)",
+                    "why": "Christian asked for the revised activity at review level, beside the baseline, with every element labelled; built as our proposal, never as a ruling",
+                    "label": "PROPOSED: our proposal, for Christian's approval; not knowledge, not approved",
+                    "rulingRefs": [
+                        "A02-13NOV-REVISION",
+                        "A02-13NOV-OFFSIDE"
+                    ]
+                },
+                {
+                    "id": "TT-PROPOSED-PENDING",
+                    "kind": "PROPOSED_PENDING",
+                    "what": "a context-scoring finding whose only ground is that a PROPOSED item's basis is not OWNER_RULING (the pressing team's own event, A02-HPE2-B9-1, which truthfully claims no ruling) moved to the build's review-level account (pendingApproval), with the item, the question it waits on and the finding's own words",
+                    "effect": "that one finding does not refuse; it is carried, named and counted; every other finding refuses as before, the same finding on a CANDIDATE, ILLUSTRATIVE or knowledge item among them",
+                    "why": "the guard admits a role's own event only on Christian's ruling (OWNER_RULING), which a proposal truthfully lacks until Christian answers Q2; without this treatment the build refuses exactly as before",
+                    "label": "TEST-ONLY: awaiting Christian's approval (Q2); never a pass",
+                    "rulingRefs": [
+                        "A02-13NOV-REVISION"
+                    ]
+                },
+                {
+                    "id": "TT-CANDIDATE-WORDING",
+                    "kind": "CANDIDATE_WORDING",
+                    "wording": {
+                        "file": "docs/audits/drafts/a02-hpe2-composition/a02-hpe2-coach-wording.CANDIDATE.json"
+                    },
+                    "what": "our CANDIDATE coach wording for A02-HPE2 (one entry saying the escaping team's scoring and its condition once, matched to the revised exact values; printed-only sentences giving the coach text in Christian's four parts), held to its gate (every restated row and every quote of Christian's verbatim, no approval, no live origin sentence), read by the chain's renderer and fidelity beside the approved table, never in it",
+                    "effect": "the condition's fields are said in our CANDIDATE words, each sentence marked CANDIDATE (never APPROVED); without it the fields stay withheld and the build refuses at communication; as for A02-HPE1, the same treatment has the renderer and fidelity read the register the game was derived over (a TEST-ONLY scoped override) and lets fidelity read our sentences with approved wording's exemptions",
+                    "why": "Christian asked for concise Setup, Rules, Scoring and Learning Explanation sections, with technical qualifications kept in the underlying representation; no approved wording exists for the condition",
+                    "label": "CANDIDATE: our wording, for Christian's review; not approved, not live",
+                    "rulingRefs": [
+                        "A02-13NOV-SEQUENCE",
+                        "A02-12NOV-NEXT-ACTION"
+                    ]
+                }
+            ]
+        }
+    ]
+}

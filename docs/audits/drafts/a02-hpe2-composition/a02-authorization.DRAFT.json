@@ -1,0 +1,15 @@
+{
+  "standing": "DRAFT - TEST-ONLY, NOT RULED, NOT APPROVED. A DRAFT authorization record for A02 that we drafted for the isolated A02 experiment. No field claims a ruling of Christian's: ruledOn, by and ruling are empty, as the record gate requires of a record we drafted. Its Game Problem is Step 1's resolved primary only because the gate requires one. Its authorized set is empty, and its finding is ours: not an authorization of zero and not evidence that the form alone is sufficient.",
+  "record": {
+    "learningGoalId": "A02",
+    "contextId": "RPC-002",
+    "gameProblemId": "GP-015",
+    "ruledOn": "",
+    "by": "",
+    "ruling": [],
+    "authorizedConstraints": [],
+    "authorizedConstraintsFinding": "OURS: no manipulation has an authorized relationship to RPC-002 and GP-015 in held knowledge; not an authorization of zero and not evidence that GF2 alone is sufficient",
+    "excluded": [],
+    "manipulations": []
+  }
+}
