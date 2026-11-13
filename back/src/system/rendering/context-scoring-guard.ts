@@ -41,16 +41,16 @@ export const EPISODE_REACHABLE_CHECK = 'GA-EPISODE-REACHABLE'
 
 /**
  * **An episode-scoped condition is confirmed to govern the game where the game is shown to begin that episode** — 15 October 2026
- * (stage K7). His reply received 15 October 2026 (16 October, 9.3): *"Build-out condition applies only to build-out episodes:
- * Approved."* (SD-36, ruling C52). Until this the guard below confirmed only whole-game conditions, so every game carrying his
+ * (stage K7). Christian's reply received 15 October 2026 (16 October, 9.3): *"Build-out condition applies only to build-out episodes:
+ * Approved."* (SD-36, ruling C52). Until this the guard below confirmed only whole-game conditions, so every game carrying Christian's
  * approved scope was refused at validation however completely it carried it: the K6 review measured A01 stopping there in both
- * blocks with no decision of his behind the stop, and named what would move it — the guard confirming an episode-scoped
+ * blocks with no decision of Christian's behind the stop, and named what would move it — the guard confirming an episode-scoped
  * condition against the episode the game carries.
  *
  * Confirmed only where ALL of this holds, read from the Gate A check rerun on the CONCRETE game (post-realization, so every value
  * it reads is the realized one): the scope is one that check decides (`EPISODE_SCOPES`, gates.ts); the check PASSES as a whole —
  * a typed begin condition (C58) is met by at least one transition (non-vacuously: it ranged over at least one condition), every
- * such transition is awarded to one team (his D7), and every re-established start placement names an episode a transition
+ * such transition is awarded to one team (Christian's D7), and every re-established start placement names an episode a transition
  * begins. A deferred, withheld, failed or vacuous verdict confirms nothing, and with no check given (any other caller) the guard
  * reads exactly as before. Nothing here applies the condition to every score: `conditionScopeNotEvaluable` still says so to every
  * reader that would.
@@ -63,12 +63,12 @@ export function episodeConfirmed(scope: unknown, check: CheckResult | undefined)
 }
 
 /**
- * **Another occurrence counted as the context's primary event stands only on his explicit ruling** — 17 October 2026 (stage M2,
- * register version 14, row V27 `value.primaryEvent.alsoCounts[]`). The context's approved scoring governs (his 14 October words
+ * **Another occurrence counted as the context's primary event stands only on Christian's explicit ruling** — 17 October 2026 (stage M2,
+ * register version 14, row V27 `value.primaryEvent.alsoCounts[]`). The context's approved scoring governs (Christian's 14 October words
  * above), and an occurrence that also counts as its primary event is a further way to score that the context's own scoring events
  * may not approve: the design verifier read that RPC-001 approves the zone entry but not the regain (approved only for other
- * contexts). It is admitted beside the context's event only on his explicit ruling, under his answer 9 of 15 October 2026:
- * *"Specific knowledge governs where it explicitly defines or specializes a condition."* The ruling is his reply filed 19 October
+ * contexts). It is admitted beside the context's event only on Christian's explicit ruling, under Christian's answer 9 of 15 October 2026:
+ * *"Specific knowledge governs where it explicitly defines or specializes a condition."* The ruling is Christian's reply filed 19 October
  * 2026, item 2: *"For the previously flagged
  * corner case, I favor allowing a controlled regain inside that area to count as a score, provided the pressing team genuinely
  * establishes possession."* So every item that establishes such an element or fills one of its fields must be an OWNER_RULING
@@ -82,11 +82,11 @@ export interface AlsoCountsSupport {
 }
 
 /**
- * **A role's own scoring event stands only on his explicit ruling** — stage A, 22 October 2026 (register version 16, row B9), on the
+ * **A role's own scoring event stands only on Christian's explicit ruling** — stage A, 22 October 2026 (register version 16, row B9), on the
  * pattern of `alsoCountsFindings` below. Christian, reply filed 25 October 2026, item 2: *"Please implement this as a general role-specific
- * scoring capability, preserving structural validation and knowledge authorization."* The context's approved scoring governs (his 14
+ * scoring capability, preserving structural validation and knowledge authorization."* The context's approved scoring governs (Christian's 14
  * October words above), and a role scoring by an event of its own is a way to score the context's own scoring events may not approve
- * (his item 3 approves such an event for one role of one context, and is not yet recorded among that context's events). So every item
+ * (Christian's item 3 approves such an event for one role of one context, and is not yet recorded among that context's events). So every item
  * that writes a role's own event must be an OWNER_RULING item; any other basis is named and refuses the
  * game, and a game holding such an event with no support given cannot be confirmed, and says so. Whether the event departs from a
  * permitted set is GA-ROLE-EVENTS clause 6's; this guard only refuses. Read through `eventKindOf`; names no kind, role or sport term.
@@ -117,11 +117,11 @@ export interface ScoringAuthority {
 /**
  * **An event the context does not approve stands only on a confirmed scoring relationship of that context, for that role and that event**
  * (stage A review fix, 22 October 2026). Until this fix the context's approved events were read only into the message, so a role's own
- * event outside them rested entirely on GA-ROLE-EVENTS clause 6 finding a REQUIRED list on the event row in some contract. His 14 October
- * words (above) make the context's approved scoring govern; his 15 October answer 9 lets specific knowledge depart only "through an
+ * event outside them rested entirely on GA-ROLE-EVENTS clause 6 finding a REQUIRED list on the event row in some contract. Christian's 14 October
+ * words (above) make the context's approved scoring govern; Christian's 15 October answer 9 lets specific knowledge depart only "through an
  * authorized relationship". So such an event is confirmed only where an item writing it cites (`authorizedBy`) a CONFIRMED relationship of
  * this context naming exactly this event and this role (`relationships`, the records' context relationships of every kind); otherwise it
- * is named here and refuses the game. An event the context approves needs none (his OWNER_RULING basis is still required, above).
+ * is named here and refuses the game. An event the context approves needs none (Christian's OWNER_RULING basis is still required, above).
  *
  * **What a citation must also be, as the role yields require it** (stage A re-review fix, 23 October 2026): the relationship authorizes the
  * event row (`roleScoring.eventRow` among its `rows`), and the citing item's own contribution realizes this context (`realizes`) — the two
@@ -137,13 +137,13 @@ export function roleEventFindings(contextId: string, game: any, approvedEvents: 
         if (!own.byRole) continue
         const found = (support ?? []).find(entry => entry.elementId === id)
         if (!found || !found.items.length) {
-            findings.push(`the role ${role} (${id}) scores by its own event "${String(own.kind)}", and what writes it was not given, so it cannot be confirmed to stand on his ruling`)
+            findings.push(`the role ${role} (${id}) scores by its own event "${String(own.kind)}", and what writes it was not given, so it cannot be confirmed to stand on Christian's ruling`)
             continue
         }
         for (const item of found.items) {
             if (item.basis === 'OWNER_RULING') continue
             findings.push(
-                `the role ${role} (${id}) scores by its own event "${String(own.kind)}" on ${item.contractId}::${item.itemId}, whose basis is ${item.basis}: the Representative Performance Context ${contextId} approves ${approvedEvents.join(', ') || 'nothing'}, so a role's own way to score stands only on his explicit ruling (OWNER_RULING)`,
+                `the role ${role} (${id}) scores by its own event "${String(own.kind)}" on ${item.contractId}::${item.itemId}, whose basis is ${item.basis}: the Representative Performance Context ${contextId} approves ${approvedEvents.join(', ') || 'nothing'}, so a role's own way to score stands only on Christian's explicit ruling (OWNER_RULING)`,
             )
         }
         if (approvedEvents.includes(String(own.kind))) continue
@@ -178,13 +178,13 @@ export function alsoCountsFindings(contextId: string, game: any, approvedEvents:
         const id = String(element?.elementId)
         const found = (support ?? []).find(entry => entry.elementId === id)
         if (!found || !found.items.length) {
-            findings.push(`the occurrence ${id} also counts as the primary event, and what establishes it was not given, so it cannot be confirmed to stand on his ruling`)
+            findings.push(`the occurrence ${id} also counts as the primary event, and what establishes it was not given, so it cannot be confirmed to stand on Christian's ruling`)
             continue
         }
         for (const item of found.items) {
             if (item.basis === 'OWNER_RULING') continue
             findings.push(
-                `the occurrence ${id} also counts as the primary event on ${item.contractId}::${item.itemId}, whose basis is ${item.basis}: the Representative Performance Context ${contextId} approves ${approvedEvents.join(', ') || 'nothing'}, so a further way to score stands only on his explicit ruling (OWNER_RULING)`,
+                `the occurrence ${id} also counts as the primary event on ${item.contractId}::${item.itemId}, whose basis is ${item.basis}: the Representative Performance Context ${contextId} approves ${approvedEvents.join(', ') || 'nothing'}, so a further way to score stands only on Christian's explicit ruling (OWNER_RULING)`,
             )
         }
     }
@@ -202,7 +202,7 @@ export function constitutedConditionTypes(contract: LoadedContract): { type: str
 
 /**
  * **One condition item, read exactly as the guard reads it** — 29 October 2026, moved out of `contextScoringFindings` unchanged (the
- * requirement account's R-3; his reply filed 3 November 2026, section 2: *"accounting for each component of a scoring condition rather than
+ * requirement account's R-3; Christian's reply filed 3 November 2026, section 2: *"accounting for each component of a scoring condition rather than
  * simply confirming that the condition exists"*). `why` is EXACTLY the finding the guard pushes for this item today, in the same branch
  * order — the type absent from the primary event, then a scope that did not arrive as authored, then a scope narrower than the whole game
  * that the concrete game is not shown to begin — or null where the guard pushes none; `governs` is `why === null`. The rest is what the
@@ -250,7 +250,7 @@ export function conditionReadingOf(
      * **Present is not yet governing, where the condition was authored for less than every score** — 15 October
      * 2026. The constituting item's own scope must have arrived on the condition (a projection is proved by its
      * consumer), and a scope narrower than the whole game cannot be confirmed by a check that reads only whether
-     * the condition is there: it would be passing a condition on every score that was authored for some. His
+     * the condition is there: it would be passing a condition on every score that was authored for some. Christian's
      * SD-36 and 16 October 9.3 ("Build-out condition applies only to build-out episodes: Approved.").
      */
     const authored = item?.scope

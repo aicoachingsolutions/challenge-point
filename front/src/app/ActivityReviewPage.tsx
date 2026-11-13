@@ -442,11 +442,11 @@ export default function ActivityReviewPage() {
                     </div>
                 )}
 
-                {/* Which pathway built it, and whether the live app serves it (stage K7, his 18 October item 7). */}
+                {/* Which pathway built it, and whether the live app serves it (stage K7, Christian's 18 October item 7). */}
                 {result && <PathwayNote result={result} />}
                 {/*
                   * Which of the goal's alternative versions was built, and why the others were not, is in the closed account panel below
-                  * (RealizationVersions), never here: it quotes his citations and the record's gap descriptions, and his 13 October rule
+                  * (RealizationVersions), never here: it quotes Christian's citations and the record's gap descriptions, and Christian's 13 October rule
                   * keeps the activity primary and everything technical secondary (Stage G review fix, 23 October 2026).
                   */}
 
@@ -536,7 +536,7 @@ function RefusalBlock({ refusal }: { refusal: RefusedActivity }) {
  * **The build's question about the session's objects, answered for this review only** — stage E, 23 October 2026 (wording DRAFT).
  *
  * Christian, reply filed 25 October 2026, item 4: goal availability is its own session resource, never inferred from the goalkeepers, and
- * (the note sent to him) asked only when the activity it would build needs one. So nothing about objects is asked above: this appears only
+ * (the note sent to Christian) asked only when the activity it would build needs one. So nothing about objects is asked above: this appears only
  * when the server stopped to ask (`question`), with the server's own sentence, and the kind is the server's (no kind is named in this file).
  * Blank means not answered: nothing is sent until the coach gives a whole number (and, where there is at least one, a width in metres
  * above zero). The session itself is not changed.
@@ -668,8 +668,8 @@ function ObjectQuestionBlock({
  *
  * Every result on this page comes through the checked review pathway, so that is said for every result.
  *
- * **Restated 22 October 2026 (the live-app fix; his reply filed 25 October 2026, item 8).** Until then, where a Learning Goal's selection held
- * no library constraint, the live app refused it before any activity was made, and this note said so with his 18 October words. The live
+ * **Restated 22 October 2026 (the live-app fix; Christian's reply filed 25 October 2026, item 8).** Until then, where a Learning Goal's selection held
+ * no library constraint, the live app refused it before any activity was made, and this note said so with Christian's 18 October words. The live
  * app now builds a goal whose selection draws its constraints from its authorization record through this same checked pathway, with no
  * library constraint added, so for such a goal the note says that the live app shows this activity too; for every other goal it says, as
  * before, that the live app does not build it this way. Read from the account the server sent (whose authority the selected constraints
@@ -697,15 +697,15 @@ function PathwayNote({ result }: { result: ActivityReviewResult }) {
 /**
  * **Which version of the activity was built, and why the others were not — Stage G, 23 October 2026 (wording DRAFT).** Christian, reply
  * filed 25 October 2026, item 4: "These should be alternative knowledge-authorized realizations, not separate hardcoded implementations of
- * the same Learning Goal."; his reply filed 26 October 2026, item 11: "Automatic selection between appropriately authorized goal and zone
- * versions is acceptable for this first implementation." The note sent to him said the review "shows which version was used and why". Shown
+ * the same Learning Goal."; Christian's reply filed 26 October 2026, item 11: "Automatic selection between appropriately authorized goal and zone
+ * versions is acceptable for this first implementation." The note sent to Christian said the review "shows which version was used and why". Shown
  * only where the goal's record authorizes more than one version, read from the server's own account (`realizationSelection`, each entry
- * with his words for its place in the order, its outcome and why) and the record's own gap descriptions (`authorization.gaps`): the built
- * version in his words, then each other version and why it was not built. Nothing here chooses or names a version: every word of a
- * version is his, every reason the server's.
+ * with Christian's words for its place in the order, its outcome and why) and the record's own gap descriptions (`authorization.gaps`): the built
+ * version in Christian's words, then each other version and why it was not built. Nothing here chooses or names a version: every word of a
+ * version is Christian's, every reason the server's.
  *
- * **Where it is shown — the Stage G review fix, 23 October 2026.** It was first a note above the activity, for every reader. It quotes his
- * citations and the record's internal gap descriptions, so it broke his 13 October rule this page is built on ("Please keep the actual
+ * **Where it is shown — the Stage G review fix, 23 October 2026.** It was first a note above the activity, for every reader. It quotes Christian's
+ * citations and the record's internal gap descriptions, so it broke Christian's 13 October rule this page is built on ("Please keep the actual
  * coach-facing activity primary, with its selection rationale and technical evidence available separately.") and the page's own contract
  * that everything technical stays in one panel closed until the reader opens it; it also changed what a coach saw above the zone version
  * where no snapshot could see it. It is now one field of that closed panel (`ArrivedAt`), beside the technical list of the same entries,
@@ -836,7 +836,7 @@ function Facts({ facts }: { facts: ReviewFact[] }) {
     )
 }
 
-/** A quotation of Christian's, with where he said it. */
+/** A quotation of Christian's, with where Christian said it. */
 function His({ words, citedAs }: { words: string; citedAs: string }) {
     return (
         <p className='text-xs text-gray-700'>
@@ -864,7 +864,7 @@ function pairingSizes(pairing: ReviewBoundRegionPairing): string {
  * **The figures of a pairing that are provisional, shown as the server sent them** — P2, 25 October 2026 (labels DRAFT). Christian, reply filed
  * 28 October 2026, item 8: "Please preserve source traceability and treat the 9 m dimension as provisional until we can verify the authoritative
  * specification." Each figure: its status and the one value applied, why that value is applied, every source's statement of it (its document,
- * edition, where in it, what it states and that in metres), and his words. Nothing for a pairing marking no figure provisional.
+ * edition, where in it, what it states and that in metres), and Christian's words. Nothing for a pairing marking no figure provisional.
  */
 export function ProvisionalFigures({ pairing }: { pairing: ReviewBoundRegionPairing }) {
     if (!pairing.provisional?.length) return null
@@ -935,7 +935,7 @@ function pairingSaid(pairing: ReviewBoundRegionPairing): string {
 
 /**
  * H3 (23 October 2026): the regions bound to the games' objects, shown as sent. Z (25 October 2026): and a region bound to a performer's end
- * (his reply filed 28 October 2026, item 7), its requirement shown as permitted there, never as needed, and its binding as the end of the team
+ * (Christian's reply filed 28 October 2026, item 7), its requirement shown as permitted there, never as needed, and its binding as the end of the team
  * holding that row with what it borrows of its pairing. Labels are DRAFTS.
  */
 export function BoundRegionEvidence({ account, blockLabel }: { account: ReviewBoundRegionAccount; blockLabel: (blockId: string) => string }) {
@@ -1000,8 +1000,8 @@ function EvidencePart({ title, children }: { title: string; children: React.Reac
 /**
  * **The review evidence, for an administrator only — stage K8, 15 October 2026 (labels DRAFT).** The server attaches it only to an
  * administrator's review of a goal whose record carries Christian's review request. Technical and secondary: the activity (or its draft)
- * stays primary above. Everything is shown as the server sent it — facts read from the generated game, the gates' own verdicts, his
- * words from the record — and nothing here claims how the activity plays; that judgement is his, and the panel says so in his words.
+ * stays primary above. Everything is shown as the server sent it — facts read from the generated game, the gates' own verdicts, Christian's
+ * words from the record — and nothing here claims how the activity plays; that judgement is Christian's, and the panel says so in Christian's words.
  */
 function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
     const blockLabel = (blockId: string) => {
@@ -1137,8 +1137,8 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                 </EvidencePart>
                 {/*
                   * H2 (23 October 2026): the default-laws account as the server computed it, shown as sent - the strictness the realization
-                  * declares, his words for the principle, each law per block and place with its status and why, the items that depart from it
-                  * (with his words), and the DRAFT sentence held for the coach (never served). Labels are DRAFTS.
+                  * declares, Christian's words for the principle, each law per block and place with its status and why, the items that depart from it
+                  * (with Christian's words), and the DRAFT sentence held for the coach (never served). Labels are DRAFTS.
                   */}
                 {evidence.defaultLaws && (
                     <EvidencePart title='Normal rules: default and adaptations'>
@@ -1182,10 +1182,10 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                 {/*
                   * H3 (23 October 2026): the regions bound to the games' objects, shown as sent - each region, the object it is bound to and
                   * who defends it, where it lies, and the authorized pairing it cites whole: its document and citation, its format conditions
-                  * (shown, never matched), the object's type and size, the region's size, its mark, what it borrows, and his words. Present only
+                  * (shown, never matched), the object's type and size, the region's size, its mark, what it borrows, and Christian's words. Present only
                   * where a game holds one (no production activity does). Labels are DRAFTS.
                   * AMENDED 25 October 2026 (Z): both versions of Play Out from the Back now hold one (the goal version's at its goal since P1, the
-                  * zone version's at the goalkeeper's own end since his reply filed 28 October 2026, item 7); the part is `BoundRegionEvidence`.
+                  * zone version's at the goalkeeper's own end since Christian's reply filed 28 October 2026, item 7); the part is `BoundRegionEvidence`.
                   */}
                 {evidence.boundRegions && (
                     <EvidencePart title='Regions bound to objects or to a performer’s end'>
@@ -1194,7 +1194,7 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                 )}
                 {/*
                   * Stage 4: the Coach Overview's agreement check as the server ran it (stage 3D-3F), shown as sent: served or withheld, the
-                  * verdict and every finding, the table and readings record it rests on (C1: each with which of its rules or readings he
+                  * verdict and every finding, the table and readings record it rests on (C1: each with which of its rules or readings Christian
                   * approved and which remain PROPOSED, as the server names them), the reading evidence (never a gate), and each team's material
                   * elements with the overview sentence(s) stating each. Labels are DRAFTS.
                   */}
@@ -1310,28 +1310,28 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
     )
 }
 
-/** How a carrier's contract is named on the panel (DRAFT words). "His provisional choice" only where the item's basis is his ruling (N3). */
+/** How a carrier's contract is named on the panel (DRAFT words). 'Christian's provisional choice' only where the item's basis is Christian's ruling (N3). */
 function carrierKindSaid(kind: string, basis: string): string {
     if (kind === 'CONTEXT') return "the context's knowledge"
-    if (kind === 'REALIZATION') return basis === 'OWNER_RULING' ? "this activity's realization (his provisional choice)" : basis ? `this activity's realization (basis ${basis})` : "this activity's realization"
+    if (kind === 'REALIZATION') return basis === 'OWNER_RULING' ? "this activity's realization (Christian's provisional choice)" : basis ? `this activity's realization (basis ${basis})` : "this activity's realization"
     if (kind === 'GAME_FORM') return 'the game form'
     return kind
 }
 
-/** What a coach-observed part's observable is, and whose words (DRAFT labels). The choice of his row or his expected evidence as the observable is ours; a HIS_REPLY observable is one he approved as such (round 3b, R2 N9). */
+/** What a coach-observed part's observable is, and whose words (DRAFT labels). The choice of Christian's row or Christian's expected evidence as the observable is ours; a HIS_REPLY observable is one Christian approved as such (round 3b, R2 N9). */
 function observableSourceSaid(observable: NonNullable<RequirementPart['observable']>): string {
     const cited = observable.citedAs
-    if (observable.source === 'WORKBOOK_EXPECTED_EVIDENCE') return "his workbook's expected evidence, chosen by us as the observable"
-    if (observable.source === 'KNOWLEDGE_ROW') return `his words (${cited && 'rowId' in cited ? cited.rowId : 'a knowledge row'}), chosen by us as the observable`
-    // Round 3: his words from a reply, which he approved as an observation criterion (his reply filed 4 November 2026, item 6).
-    if (observable.source === 'HIS_REPLY') return cited && 'reply' in cited ? `his words (${cited.reply}), approved by him as an observation criterion (${cited.approvedBy})` : 'his words, approved by him as an observation criterion'
-    return 'drafted by us from his row text, not his words, awaiting his review'
+    if (observable.source === 'WORKBOOK_EXPECTED_EVIDENCE') return "the expected evidence in Christian's workbook, chosen by us as the observable"
+    if (observable.source === 'KNOWLEDGE_ROW') return `Christian's words (${cited && 'rowId' in cited ? cited.rowId : 'a knowledge row'}), chosen by us as the observable`
+    // Round 3: Christian's words from a reply, which Christian approved as an observation criterion (Christian's reply filed 4 November 2026, item 6).
+    if (observable.source === 'HIS_REPLY') return cited && 'reply' in cited ? `Christian's words (${cited.reply}), approved by Christian as an observation criterion (${cited.approvedBy})` : "Christian's words, approved by Christian as an observation criterion"
+    return "drafted by us from Christian's row text, not Christian's words, awaiting Christian's review"
 }
 
 /**
- * **An account as a chip: his words for the category, quoted, and then — apart, and labelled ours — what this account does with it** (round 2,
- * R2 M1). His category 3 is never followed by a sentence of ours in his voice: our rule is said as ours, beside his words it reads. Round 3
- * (his reply filed 4 November 2026, item 3): a flag kept says what it means and what is still to be verified, ours, beside his words.
+ * **An account as a chip: Christian's words for the category, quoted, and then — apart, and labelled ours — what this account does with it** (round 2,
+ * R2 M1). Christian's category 3 is never followed by a sentence of ours in Christian's voice: our rule is said as ours, beside Christian's words it reads. Round 3
+ * (Christian's reply filed 4 November 2026, item 3): a flag kept says what it means and what is still to be verified, ours, beside Christian's words.
  */
 function AccountChip({ flag, account, words, rule }: { flag?: RequirementPart['flag']; account: number; words: string; rule: RequirementAccount['coachObservationRule'] }) {
     const tone = account === 4 ? 'bg-red-50 text-red-800 border-red-200' : account === 3 ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-gray-50 text-gray-700 border-gray-200'
@@ -1340,12 +1340,12 @@ function AccountChip({ flag, account, words, rule }: { flag?: RequirementPart['f
             {account} · &ldquo;{words}&rdquo;
             {account === 3 && (
                 <span className='block'>
-                    {rule.rule} (ours, DRAFT; his words: &ldquo;{rule.his.words}&rdquo;)
+                    {rule.rule} (ours, DRAFT; Christian&apos;s words: &ldquo;{rule.his.words}&rdquo;)
                 </span>
             )}
             {flag && (
                 <span className='block'>
-                    {flag.ours} His words: &ldquo;{flag.his.words.join(' ')}&rdquo; ({flag.his.citedAs})
+                    {flag.ours} Christian&apos;s words: &ldquo;{flag.his.words.join(' ')}&rdquo; ({flag.his.citedAs})
                 </span>
             )}
         </span>
@@ -1354,16 +1354,16 @@ function AccountChip({ flag, account, words, rule }: { flag?: RequirementPart['f
 
 /** What the account's status means, in plain DRAFT words (round 3b): a report, and what of it is enforced on this build. */
 function accountStatusSaid(account: RequirementAccount): string {
-    if (account.status === 'REPORT_AND_ENFORCEMENT') return "A report; on this build the approved scoring condition's components quoting his words were enforced (ours, DRAFT)."
+    if (account.status === 'REPORT_AND_ENFORCEMENT') return "A report; on this build the approved scoring condition's components quoting Christian's words were enforced (ours, DRAFT)."
     if (account.status === 'REPORT_ONLY') return "A report only: nothing was enforced on this build (the context's contract is a draft)."
     // Round 3c (the recheck's NIT d): as the server's own headline says — a merge failure carries no findings, so the refusal's reasons are the record.
     return `No report could be computed (${account.status === 'BINDINGS_REFUSED' ? 'the bindings were refused' : 'the reader failed'}); whether the build refused on a component of the approved scoring condition is in the refusal's reasons.`
 }
 
 /**
- * **What the enforcement found, in his two classes** — round 4 (his reply filed 5 November 2026, item 1: *"Both should prevent an activity from
- * being served as checked, but the diagnostic report should clearly distinguish them."*). One group per class that holds a finding, in his
- * order, under his label, with his definition quoted and cited and how many it holds; each finding's reason as the server gave it, and why it
+ * **What the enforcement found, in Christian's two classes** — round 4 (Christian's reply filed 5 November 2026, item 1: *"Both should prevent an activity from
+ * being served as checked, but the diagnostic report should clearly distinguish them."*). One group per class that holds a finding, in Christian's
+ * order, under Christian's label, with Christian's definition quoted and cited and how many it holds; each finding's reason as the server gave it, and why it
  * is in its class (ours, DRAFT). Read defensively: a back without the classes shows the plain red list, as before round 4. Nothing on a build
  * that was served. Exported for its rendering test only.
  */
@@ -1433,15 +1433,15 @@ class RequirementAccountBoundary extends Component<{ children: React.ReactNode }
 }
 
 /**
- * **The requirement account, for an administrator only — 29 October 2026 (labels DRAFT).** Christian, his reply filed 3 November 2026, section
+ * **The requirement account, for an administrator only — 29 October 2026 (labels DRAFT).** Christian, reply filed 3 November 2026, section
  * 2: *"Missing components of approved scoring conditions should not silently pass."* So the approved scoring condition comes first, outside
  * any collapsible part, and a component that is missing — or a condition not accounted at all — is in a red box that cannot be missed. Then
- * every requirement, part by part, with its account in his words (quoted), its standard, its carriers or observable or cause, and its DRAFT
- * standing. His words are quoted and cited; ours are labelled ours. The panel's own words name no goal, demonstration or role; the evidence
- * lines quote contract ids as the server sent them. It decides nothing: it shows the server's account as sent. Round 3 (his reply filed 4
+ * every requirement, part by part, with its account in Christian's words (quoted), its standard, its carriers or observable or cause, and its DRAFT
+ * standing. Christian's words are quoted and cited; ours are labelled ours. The panel's own words name no goal, demonstration or role; the evidence
+ * lines quote contract ids as the server sent them. It decides nothing: it shows the server's account as sent. Round 3 (Christian's reply filed 4
  * November 2026): what the build enforces, and what it found, comes next (item 7); every part says whether it is satisfied and where its
- * authority originates, two pieces of information side by side (item 2). Round 4 (his reply filed 5 November 2026, item 1): what it found is
- * grouped in his two classes (`EnforcementFindings`), and a failing facet says what of it could not be established.
+ * authority originates, two pieces of information side by side (item 2). Round 4 (Christian's reply filed 5 November 2026, item 1): what it found is
+ * grouped in Christian's two classes (`EnforcementFindings`), and a failing facet says what of it could not be established.
  */
 function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
     const words = (id: number) => account.accounts.find((entry) => entry.id === id)?.words ?? String(id)
@@ -1493,9 +1493,9 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                         <p className='text-sm text-gray-800'>{account.summary.headline}</p>
                     </div>
                 )}
-                {/* Round 3, his item 7: what the build enforces (ours, DRAFT), beside his words; what it found on this build, in red. Round 4 (his reply
-                    filed 5 November 2026, item 1): the safeguard he approved, in his words, and what was found in his two classes, each group under his
-                    label and his definition; a back without the classes shows the plain list as before. */}
+                {/* Round 3, Christian's item 7: what the build enforces (ours, DRAFT), beside Christian's words; what it found on this build, in red. Round 4 (Christian's reply
+                    filed 5 November 2026, item 1): the safeguard Christian approved, in Christian's words, and what was found in Christian's two classes, each group under Christian's
+                    label and Christian's definition; a back without the classes shows the plain list as before. */}
                 <div className='space-y-0.5'>
                     <p className='text-xs font-medium text-gray-700'>
                         Enforcement ({account.enforcement.applied ? 'applied to this build' : "not applied: the context's contract is a draft"}; which parts are components, and which class each finding is: ours, DRAFT)
@@ -1516,9 +1516,9 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                     ))}
                     <EnforcementFindings account={account} blockLabel={blockLabel} />
                 </div>
-                {/* His categories and standards, quoted and cited once, so every chip below reads as his words (R3 NIT 7). */}
+                {/* Christian's categories and standards, quoted and cited once, so every chip below reads as Christian's words (R3 NIT 7). */}
                 <div className='space-y-0.5'>
-                    <p className='text-xs text-gray-500'>His four categories and three standards:</p>
+                    <p className='text-xs text-gray-500'>Christian&apos;s four categories and three standards:</p>
                     {account.accounts.map((entry) => (
                         <His key={`account-${entry.id}`} words={`${entry.id}. ${entry.words}`} citedAs={account.citedAs} />
                     ))}
@@ -1528,13 +1528,13 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                 </div>
                 {scoring?.rowText && (
                     <div className='space-y-1'>
-                        <p className='text-xs text-gray-500'>Approved scoring condition (his workbook, {scoring.rowId})</p>
+                        <p className='text-xs text-gray-500'>Approved scoring condition (Christian&apos;s workbook, {scoring.rowId})</p>
                         <p className='text-xs text-gray-700'>&ldquo;{scoring.rowText}&rdquo;</p>
                         <ul className='space-y-1'>
                             {scoring.components.map((component) => (
                                 <li key={component.component} className='text-xs text-gray-700'>
                                     <span className='font-medium'>{component.label}</span>
-                                    {component.rowSpans.length > 0 && <span className='text-gray-500'> — his words: &ldquo;{component.rowSpans.join('”; “')}&rdquo;</span>}{' '}
+                                    {component.rowSpans.length > 0 && <span className='text-gray-500'> — Christian&apos;s words: &ldquo;{component.rowSpans.join('”; “')}&rdquo;</span>}{' '}
                                     <span className='block mt-0.5'>
                                         structural <AccountChip flag={componentFlag(component.component)} account={component.account} words={words(component.account)} rule={rule} />
                                         {component.inPlay !== null && (
@@ -1550,7 +1550,7 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                                 </li>
                             ))}
                         </ul>
-                        {scoring.uncoveredWords && <p className='text-xs text-red-800'>Words of his row no component stands for: &ldquo;{scoring.uncoveredWords}&rdquo;</p>}
+                        {scoring.uncoveredWords && <p className='text-xs text-red-800'>Words of Christian&apos;s row no component stands for: &ldquo;{scoring.uncoveredWords}&rdquo;</p>}
                         {scoring.notStructurallyRepresented.length > 0 && (
                             <p className='text-xs text-gray-500'>Only observed in play, never structurally represented: {scoring.notStructurallyRepresented.map((entry) => entry.label).join('; ')}</p>
                         )}
@@ -1558,7 +1558,7 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                 )}
                 {reported && (
                     <>
-                        {/* Counts under his category words, quoted; what is ours is labelled ours (R2 M1, S7, N6). */}
+                        {/* Counts under Christian's category words, quoted; what is ours is labelled ours (R2 M1, S7, N6). */}
                         <ul className='space-y-0.5'>
                             <li className='text-xs text-gray-600'>
                                 1 &ldquo;{words(1)}&rdquo;: {account.summary.counts['1']}
@@ -1568,7 +1568,7 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                                 2 &ldquo;{words(2)}&rdquo;: {account.summary.counts['2']}
                             </li>
                             <li className='text-xs text-gray-600'>
-                                3 &ldquo;{words(3)}&rdquo;: {account.summary.counts['3']} (not counted as satisfied here: our DRAFT reading of his &ldquo;{rule.his.words}&rdquo;)
+                                3 &ldquo;{words(3)}&rdquo;: {account.summary.counts['3']} (not counted as satisfied here: our DRAFT reading of Christian&apos;s &ldquo;{rule.his.words}&rdquo;)
                             </li>
                             <li className='text-xs text-gray-600'>
                                 4 &ldquo;{words(4)}&rdquo;: {account.summary.counts['4']}
@@ -1599,12 +1599,12 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                                                 <span className='font-medium'>{part.partLabel}</span> <AccountChip flag={part.flag} account={part.account} words={part.accountWords} rule={rule} />
                                             </p>
                                             <p className='text-xs text-gray-500'>&ldquo;{part.standardWords}&rdquo;</p>
-                                            {/* Round 3, his item 2: satisfied, and where its authority originates, side by side (DRAFT labels). */}
+                                            {/* Round 3, Christian's item 2: satisfied, and where its authority originates, side by side (DRAFT labels). */}
                                             <p className='text-xs text-gray-600'>
                                                 {part.satisfiedWords} Where its authority originates (ours, DRAFT): {part.authority.words}
                                                 {part.enforced ? ' · Enforced: missing or altered, or not verifiable, it refuses the activity (ours, DRAFT).' : ''}
                                             </p>
-                                            {part.rowSpan && <p className='text-xs text-gray-500'>His words it stands for: &ldquo;{part.rowSpan}&rdquo;</p>}
+                                            {part.rowSpan && <p className='text-xs text-gray-500'>Christian&apos;s words it stands for: &ldquo;{part.rowSpan}&rdquo;</p>}
                                             {part.facets.map((facet, facetAt) => (
                                                 <div key={`${facet.facetId}:${facetAt}`} className='pl-3'>
                                                     <p className='text-xs text-gray-600'>
@@ -1711,7 +1711,7 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                                 </p>
                             ))}
                             <p className='text-xs text-gray-400'>
-                                Bindings: {account.bindings.file ?? 'none'} ({account.bindings.mode ?? 'no mode'}, {account.bindings.version ?? 'no version'}); the context&rsquo;s contract: {account.contract}. His words: {account.citedAs}.
+                                Bindings: {account.bindings.file ?? 'none'} ({account.bindings.mode ?? 'no mode'}, {account.bindings.version ?? 'no version'}); the context&rsquo;s contract: {account.contract}. Christian&rsquo;s words: {account.citedAs}.
                             </p>
                         </EvidencePart>
                     </>
@@ -1741,7 +1741,7 @@ function Mark({ positive, children }: { positive: boolean; children: React.React
  *
  * Christian's approved translation is the only thing that may be shown as a goal's Game Problem. Where
  * none is approved the line says so in fixed words and stops: `inferredFromWording` is what the goal's
- * wording alone implies, it is not his decision, and printing it under this heading would present an
+ * wording alone implies, it is not Christian's decision, and printing it under this heading would present an
  * inference as the answer. It appears only beside an APPROVED Game Problem it disagrees with, labelled
  * as the wording's reading, because that disagreement is what the field is recorded for.
  */
@@ -1905,7 +1905,7 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                             </AccountField>
                         )}
 
-                        {/* Stage G (moved here by its review fix): which version was built in his words, and why each other was not. */}
+                        {/* Stage G (moved here by its review fix): which version was built in Christian's words, and why each other was not. */}
                         <RealizationVersions result={result} />
 
                         {/*
@@ -1939,11 +1939,11 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                   * Christian, 14 October: "If no appropriate shaping constraint is available,
                                   * please report that as a knowledge gap … keep those gaps visible rather than
                                   * compensating through fallback selection." Each role no designated candidate
-                                  * fills is said before the list, and so is each candidate his ruling holds.
+                                  * fills is said before the list, and so is each candidate Christian's ruling holds.
                                   * Wording is a DRAFT.
                                   *
                                   * 15 October 2026, later: where the goal's record evaluated its constraints and found
-                                  * none justified, his general principle governs ("A library constraint is not mandatory
+                                  * none justified, Christian's general principle governs ("A library constraint is not mandatory
                                   * unless its inclusion is justified by the approved knowledge and intended learning
                                   * environment"), so an unfilled role is not a gap and is not shown as one; the
                                   * principle is said instead, read from the account. Wording is a DRAFT.
@@ -2026,7 +2026,7 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                           * authorized by existing knowledge from what remains a provisional design choice" — and, item
                           * 10, "a clear refusal and a narrowly described gap". Three lists, each read from the record
                           * as the server sorted it by category; nothing is restated here. The decision and capability
-                          * descriptions are our wording, as put to him. Technical account only. Labels are DRAFTS.
+                          * descriptions are our wording, as put to Christian. Technical account only. Labels are DRAFTS.
                           */}
                         {account.authorizationLists && (
                             <AccountField label='What the record says'>
@@ -2040,7 +2040,7 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                         </li>
                                     ))}
                                 </ul>
-                                <p className='mb-1 text-xs font-semibold text-gray-700'>Provisional choices (his, for this activity)</p>
+                                <p className='mb-1 text-xs font-semibold text-gray-700'>Provisional choices (Christian&apos;s, for this activity)</p>
                                 <ul className='mb-3 space-y-1'>
                                     {account.authorizationLists.provisionalChoices.map((entry, index) => (
                                         <li key={index} className='text-xs'>
@@ -2061,8 +2061,8 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                 </ul>
                                 {/*
                                   * 17 October 2026 (stage M4). Every decision and capability the record named had been ruled on by
-                                  * his 19 October reply, and this list still read "still needed" for all of them. Split: a gap is
-                                  * settled only where the record carries his words settling it (`settledBy`) and no entry waits on it;
+                                  * Christian's 19 October reply, and this list still read "still needed" for all of them. Split: a gap is
+                                  * settled only where the record carries Christian's words settling it (`settledBy`) and no entry waits on it;
                                   * everything else stays under "still needed". Labels are DRAFTS.
                                   */}
                                 <p className='mb-1 text-xs font-semibold text-gray-700'>Gaps: decisions and capabilities still needed</p>
@@ -2106,8 +2106,8 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                         {/*
                           * 15 October 2026 (stage K4). Christian, reply filed 17 October 2026, D6: "please document it as a
                           * knowledge-authorized realization, preserving equal numbers as an alternative." The allocation's
-                          * authority as the server sent it — his principle, the relationship he confirmed (18 October, item
-                          * 5), what defers to it, his adjustments in his words, the testing boundaries. Technical account
+                          * authority as the server sent it — Christian's principle, the relationship Christian confirmed (18 October, item
+                          * 5), what defers to it, Christian's adjustments in Christian's words, the testing boundaries. Technical account
                           * only. Labels are DRAFTS.
                           */}
                         {account.allocation && (
@@ -2183,7 +2183,7 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                     <p className='mb-1 text-xs'>Constraints authorized: {account.authorization.authorizedConstraints.join(', ')}</p>
                                 )}
                                 {/*
-                                  * His provisional choices for this activity (15 October 2026), each labelled provisional
+                                  * Christian's provisional choices for this activity (15 October 2026), each labelled provisional
                                   * and cited — never presented as a general rule. Wording is a DRAFT.
                                   */}
                                 {(account.authorization.provisionalChoices ?? []).map((choice, index) => (
@@ -2268,7 +2268,7 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                         )}
 
                         {/*
-                          * Role blocks (15 October 2026, his M1): each block was built as its own complete game, so each has
+                          * Role blocks (15 October 2026, Christian's M1): each block was built as its own complete game, so each has
                           * its own checks; the cross-block checks prove the two are the exchange of each other. Labels are
                           * DRAFTS. Shown only for an activity played in role blocks.
                           */}
