@@ -844,7 +844,7 @@
     "A02-0+GPCL~reversed",
     "A02-0+GPCL~neutral"
    ],
-   "evidence": "build-activity.ts:684 reads only whether the context's contract is selected; on these runs no clause is carried, or only the control clause (its referent NO_FURTHER_VALUE in our CANDIDATE restatement since stage B1, under a declared treatment before); the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass"
+   "evidence": "build-activity.ts:689 reads only whether the context's contract is selected; on these runs no clause is carried, or only the control clause (its referent NO_FURTHER_VALUE in our CANDIDATE restatement since stage B1, under a declared treatment before); the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass"
   },
   {
    "id": "OD-PACKAGE-LENSES",
@@ -1117,7 +1117,7 @@
     "TA02-0",
     "TA02-D"
    ],
-   "evidence": "build-activity.ts:684 reads only whether the context's contract is selected; on these runs no clause is carried, or only the control clause (its referent NO_FURTHER_VALUE in our CANDIDATE restatement since stage B1, under a declared treatment before); the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass"
+   "evidence": "build-activity.ts:689 reads only whether the context's contract is selected; on these runs no clause is carried, or only the control clause (its referent NO_FURTHER_VALUE in our CANDIDATE restatement since stage B1, under a declared treatment before); the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass"
   }
  ],
  "w5": {
@@ -1649,19 +1649,17 @@
      "A configuration or rendering implementation limitation."
     ],
     "owner": "CHRISTIAN",
-    "whose": "approved coach wording for the condition (question 2 of item 2); the review-level run A02-HPE1 says the condition in our CANDIDATE wording, held for Christian's review; the escape line's sentence is the renderer limit of the class below",
+    "whose": "approved coach wording for the condition (question 2 of item 2); the review-level run A02-HPE1 says the condition in our CANDIDATE wording, held for Christian's review; the escape line's sentence needs the register the game was derived over, which only a build given our CANDIDATE wording reads (stage A1, TEST-ONLY)",
     "runs": [
      "A02-HPE1-S"
     ]
    },
    {
-    "id": "renderer-limits",
-    "stop": "communication: the review-level run passes structure, realization and validation, says the condition in our CANDIDATE wording, and is refused on four limits of the production renderer (the escape line never set out, the renderer reading the production register; the pressing team's sentence citing the first objective's role; no sentence saying what each team attacks for a zone beside a line; the pressing team's target named only in Role exchange)",
-    "categories": [
-     "A configuration or rendering implementation limitation."
-    ],
-    "owner": "ENGINEERING",
-    "whose": "three renderer changes, measured in stage B2 and not committed, serve the run with no fidelity violation and the behaviour snapshot unchanged: one TEST-ONLY, two on the production path (one adding a DRAFT sentence, which may be Christian's); whether to apply them is the lead's decision, Christian's for the sentence",
+    "id": "served-review-level",
+    "stop": "served at review level (TEST-ONLY): the PROPOSED configuration A02-HPE1 with its PROPOSED restart and LAW-11 departure, our CANDIDATE restatement and our CANDIDATE wording; every PROPOSED element waits on Christian's questions (Q1, Q2, Q3, Q6) and every CANDIDATE sentence on Christian's review; never released",
+    "categories": [],
+    "owner": "CHRISTIAN",
+    "whose": "no stop in the chain: the activity is served at review level only because every PROPOSED element and CANDIDATE sentence is read under a declared TEST-ONLY treatment; releasing any of it needs Christian's approval",
     "runs": [
      "A02-HPE1",
      "A02-HPE1~reversed",
@@ -2665,20 +2663,16 @@
    {
     "id": "A02-HPE1",
     "group": "PROPOSED configuration A02-HPE1, TEST-ONLY",
-    "stage": "communication",
-    "cited": [
-     "GF2-03.f::undefined"
-    ],
+    "stage": "served",
+    "cited": [],
     "rules": [],
-    "cls": "renderer-limits"
+    "cls": "served-review-level"
    },
    {
     "id": "A02-HPE1-S",
     "group": "PROPOSED configuration A02-HPE1, TEST-ONLY",
     "stage": "communication",
-    "cited": [
-     "GF2-03.f::undefined"
-    ],
+    "cited": [],
     "rules": [],
     "cls": "proposed-awaiting-wording"
    },
@@ -2701,22 +2695,18 @@
    {
     "id": "A02-HPE1~reversed",
     "group": "PROPOSED configuration A02-HPE1, TEST-ONLY",
-    "stage": "communication",
-    "cited": [
-     "GF2-03.f::undefined"
-    ],
+    "stage": "served",
+    "cited": [],
     "rules": [],
-    "cls": "renderer-limits"
+    "cls": "served-review-level"
    },
    {
     "id": "A02-HPE1~neutral",
     "group": "PROPOSED configuration A02-HPE1, TEST-ONLY",
-    "stage": "communication",
-    "cited": [
-     "GF2-03.f::undefined"
-    ],
+    "stage": "served",
+    "cited": [],
     "rules": [],
-    "cls": "renderer-limits"
+    "cls": "served-review-level"
    }
   ]
  },
@@ -3069,7 +3059,7 @@
     "stage": "knowledge",
     "reason": "the game form GF3 has no contribution contract",
     "kind": "PATH",
-    "within": 1710,
+    "within": 1722,
     "categories": [
      4
     ],
@@ -3083,7 +3073,7 @@
     "stage": "knowledge",
     "reason": "the Representative Performance Context RPC-002 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game",
     "kind": "PATH",
-    "within": 1777,
+    "within": 1789,
     "categories": [
      3,
      5
@@ -28488,8 +28478,8 @@
   "runs": [
    {
     "id": "A02-HPE1",
-    "outcome": "refused",
-    "stage": "communication",
+    "outcome": "served",
+    "stage": null,
     "treatments": [
      "TT-CONSUMED-STEPS",
      "TT-DRAFT-STORE",
@@ -28576,8 +28566,8 @@
    },
    {
     "id": "A02-HPE1~reversed",
-    "outcome": "refused",
-    "stage": "communication",
+    "outcome": "served",
+    "stage": null,
     "treatments": [
      "TT-CONSUMED-STEPS",
      "TT-DRAFT-STORE",
@@ -28601,8 +28591,8 @@
    },
    {
     "id": "A02-HPE1~neutral",
-    "outcome": "refused",
-    "stage": "communication",
+    "outcome": "served",
+    "stage": null,
     "treatments": [
      "TT-CONSUMED-STEPS",
      "TT-DRAFT-STORE",
@@ -29101,17 +29091,17 @@
      "facet": "each block's realized game (sha-256)",
      "governed": true,
      "own": [
-      "f350bb6c296c",
-      "b954e7a5a7e7"
+      "4430bf7a004a",
+      "514252000e48"
      ],
      "reworded": {
       "reversed": [
-       "f350bb6c296c",
-       "b954e7a5a7e7"
+       "4430bf7a004a",
+       "514252000e48"
       ],
       "neutral": [
-       "f350bb6c296c",
-       "b954e7a5a7e7"
+       "4430bf7a004a",
+       "514252000e48"
       ]
      },
      "moves": []
@@ -29119,10 +29109,10 @@
     {
      "facet": "the configuration lines (sha-256)",
      "governed": true,
-     "own": "76d38991c705",
+     "own": "a672dde7d582",
      "reworded": {
-      "reversed": "76d38991c705",
-      "neutral": "76d38991c705"
+      "reversed": "a672dde7d582",
+      "neutral": "a672dde7d582"
      },
      "moves": []
     },
@@ -29130,20 +29120,20 @@
      "facet": "the stop",
      "governed": true,
      "own": [
-      "refused",
-      "communication",
-      "43c95f1a4ef5"
+      "served",
+      null,
+      "4f53cda18c2b"
      ],
      "reworded": {
       "reversed": [
-       "refused",
-       "communication",
-       "43c95f1a4ef5"
+       "served",
+       null,
+       "4f53cda18c2b"
       ],
       "neutral": [
-       "refused",
-       "communication",
-       "43c95f1a4ef5"
+       "served",
+       null,
+       "4f53cda18c2b"
       ]
      },
      "moves": []
@@ -29151,10 +29141,10 @@
     {
      "facet": "every sentence said (sha-256 of section, block, text, marker)",
      "governed": true,
-     "own": "1759bffda681",
+     "own": "694ece11bf73",
      "reworded": {
-      "reversed": "1759bffda681",
-      "neutral": "1759bffda681"
+      "reversed": "694ece11bf73",
+      "neutral": "694ece11bf73"
      },
      "moves": []
     },
@@ -29289,7 +29279,7 @@
       "row": "SELECTION_OUTCOME",
       "clause": null,
       "verdict": "LEGITIMATE_CHAIN_DECISION",
-      "why": "the selection committed; the chain's own checks then stopped the run at communication",
+      "why": "the selection committed and the chain served the run",
       "consulted": null
      },
      {
@@ -29568,7 +29558,7 @@
       "row": "SELECTION_OUTCOME",
       "clause": null,
       "verdict": "LEGITIMATE_CHAIN_DECISION",
-      "why": "the selection committed; the chain's own checks then stopped the run at communication",
+      "why": "the selection committed and the chain served the run",
       "consulted": null
      },
      {
@@ -29661,7 +29651,7 @@
       "row": "SELECTION_OUTCOME",
       "clause": null,
       "verdict": "LEGITIMATE_CHAIN_DECISION",
-      "why": "the selection committed; the chain's own checks then stopped the run at communication",
+      "why": "the selection committed and the chain served the run",
       "consulted": null
      },
      {

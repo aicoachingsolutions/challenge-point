@@ -432,11 +432,14 @@ test('statically: production cannot reach the option (identifiers, positional ar
     // Stage B1 of the A02 complete-activity package (12 November 2026): the PROPOSED configuration's option, its type and its overlay helper, the
     // treatment PROPOSED_PENDING's record and sink, and the review-level account join the scan.
     // Stage B2 (12 November 2026): our CANDIDATE wording's option, its type and the table it makes join the scan.
-    const NAMES = new Set(['upstream', 'consumedGameProblem', 'consumed', 'quotaBypass', 'quotaBypassOwnSize', 'UpstreamDecisions', 'step1GameProblemId', 'hintsGameProblem', 'hintsGameProblemId', 'hintsGoverned', 'lensCandidateIds', 'hintsSignals', 'reviewManipulations', 'ReviewManipulations', 'reviewManipulationRefusals', 'reviewPathwayK2EmptySet', 'coverageLenses', 'coverageRowLenses', 'hintsLensesFrom', 'foundationPresenceBypass', 'foundationPresenceBypassed', 'FoundationPresenceBypass', 'FoundationOptionalPackage', 'switchChecks', 'SwitchChecks', 'switchChecksFor', 'wholePool', 'everyMemberValidated', 'refuseAbsentMembers', 'ABSENT_MEMBER_WORDS', 'proposedRealization', 'ProposedRealizationHandoff', 'withProposedRoles', 'PendingApprovalEntry', 'basisGrounds', 'BasisGround', 'reviewLevel', 'ReviewLevelAccount', 'candidateWording', 'CandidateWordingHandoff', 'wordingTable'])
+    // Stage A1 (13 November 2026): the TEST-ONLY register override (decision R1) and our CANDIDATE templates (decision R3) join the scan: the
+    // override and its variable, the templates' parameter, field, table and reader, and the renderer's template name, its slots and its reading.
+    const NAMES = new Set(['upstream', 'consumedGameProblem', 'consumed', 'quotaBypass', 'quotaBypassOwnSize', 'UpstreamDecisions', 'step1GameProblemId', 'hintsGameProblem', 'hintsGameProblemId', 'hintsGoverned', 'lensCandidateIds', 'hintsSignals', 'reviewManipulations', 'ReviewManipulations', 'reviewManipulationRefusals', 'reviewPathwayK2EmptySet', 'coverageLenses', 'coverageRowLenses', 'hintsLensesFrom', 'foundationPresenceBypass', 'foundationPresenceBypassed', 'FoundationPresenceBypass', 'FoundationOptionalPackage', 'switchChecks', 'SwitchChecks', 'switchChecksFor', 'wholePool', 'everyMemberValidated', 'refuseAbsentMembers', 'ABSENT_MEMBER_WORDS', 'proposedRealization', 'ProposedRealizationHandoff', 'withProposedRoles', 'PendingApprovalEntry', 'basisGrounds', 'BasisGround', 'reviewLevel', 'ReviewLevelAccount', 'candidateWording', 'CandidateWordingHandoff', 'wordingTable', 'underDerivationRegister', 'derivedOverRegister', 'candidateTemplates', 'templateTable', 'CANDIDATE_TARGETS_BY_ROLE', 'CANDIDATE_TARGETS_BY_ROLE_SLOTS', 'targetsByRole'])
     // Stage W2: a fourth argument to the package builder or validator is the treatment's (only the package check may pass it).
     // Stage B1, re-pinned openly: `build` takes a nineteenth argument (was 18), the TEST-ONLY sink of the treatment PROPOSED_PENDING (null in production).
     // Stage B2, re-pinned openly: BEFORE 19, AFTER 20: `build` takes a twentieth argument, our CANDIDATE wording's entries (null in production).
-    const POSITION: Record<string, number> = { selectFor: 6, generateSelection: 3, build: 20, buildConstraintPackage: 4, validateConstraintPackage: 4 }
+    // Stage A1, re-pinned openly: BEFORE 20, AFTER 21: `build` takes a twenty-first argument, our CANDIDATE templates (null in production).
+    const POSITION: Record<string, number> = { selectFor: 6, generateSelection: 3, build: 21, buildConstraintPackage: 4, validateConstraintPackage: 4 }
     const named = new Map<string, Map<string, number>>()
     const namedLines = new Map<string, Map<number, string>>()
     const linesOfNamed = (file: string) => [...(namedLines.get(file) ?? new Map<number, string>()).entries()].sort((a, b) => a[0] - b[0]).map(entry => entry[1])
@@ -570,9 +573,11 @@ test('statically: production cannot reach the option (identifiers, positional ar
     // the package builder and validator theirs, under that treatment. Stage B1, re-pinned openly: BEFORE 'build 18', AFTER 'build 19' (the one
     // call of `build` hands it the sink of PROPOSED_PENDING; production calls pass none and so reach no new position). Stage B2, re-pinned openly:
     // BEFORE 'build 19', AFTER 'build 20' (the one call of `build` also hands it our CANDIDATE wording's entries; production calls pass none).
+    // Stage A1, re-pinned openly: BEFORE 'build 20', AFTER 'build 21' (the same one call also hands it our CANDIDATE templates; production calls
+    // pass none).
     assert.deepEqual(calls.sort(), [
         'system/derivation/run-bounded-selection.ts generateSelection 4',
-        'system/rendering/build-activity.ts build 20',
+        'system/rendering/build-activity.ts build 21',
         'system/rendering/build-activity.ts selectFor 6',
         'system/test-library/selection-compatibility.ts buildConstraintPackage 4',
         'system/test-library/selection-compatibility.ts validateConstraintPackage 4',
@@ -592,7 +597,9 @@ test('statically: production cannot reach the option (identifiers, positional ar
     // Stage W2, re-pinned openly: the package builder, its validator and the package check join them (their TEST-ONLY parameters and helpers).
     // Stage B1, re-pinned openly: the context-scoring guard joins them (its TEST-ONLY sink `basisGrounds` and its type `BasisGround`, which only
     // the build given the treatment PROPOSED_PENDING hands it; every production caller passes none).
-    assert.deepEqual([...named.keys()].filter((file) => !file.startsWith(REVIEW_PATHWAY)).sort(), ['system/build-constraint-package.ts', 'system/derivation/run-bounded-selection.ts', 'system/rendering/build-activity.ts', 'system/rendering/context-scoring-guard.ts', 'system/sport-module/guided-selection.ts', 'system/test-library/generateSelection.ts', 'system/test-library/selection-compatibility.ts', 'system/validate-constraint-package.ts'])
+    // Stage A1, re-pinned openly: the renderer (the TEST-ONLY register override and the CANDIDATE template's name, slots and reading), the review
+    // draft (the CANDIDATE templates' parameter) and the tests-only reader (the template name, its slots and `candidateTemplates`) join them.
+    assert.deepEqual([...named.keys()].filter((file) => !file.startsWith(REVIEW_PATHWAY)).sort(), ['system/build-constraint-package.ts', 'system/derivation/run-bounded-selection.ts', 'system/rendering/build-activity.ts', 'system/rendering/candidate-coach-wording.ts', 'system/rendering/context-scoring-guard.ts', 'system/rendering/render-concrete-game.ts', 'system/rendering/review-draft.ts', 'system/sport-module/guided-selection.ts', 'system/test-library/generateSelection.ts', 'system/test-library/selection-compatibility.ts', 'system/validate-constraint-package.ts'])
     assert.deepEqual([...named.keys()].filter((file) => file.startsWith(REVIEW_PATHWAY)).sort(), ['system/design-reasoning/handoff-report.ts', 'system/design-reasoning/handoff.ts', 'system/design-reasoning/safeguards.ts'])
     // Counted per file (measured 10 November 2026, B1), so a new reference anywhere is a visible change; the selector names none but its boolean.
     const countsOf = (file: string) => Object.fromEntries([...(named.get(file) ?? new Map<string, number>()).entries()].sort((a, b) => a[0].localeCompare(b[0])))
@@ -613,7 +620,17 @@ test('statically: production cannot reach the option (identifiers, positional ar
     // reviewLevel 3, ReviewLevelAccount 3), and upstream 6 -> 7 (the one read of the PROPOSED configuration from the TEST-ONLY entry's option).
     // Stage B2, re-pinned openly. BEFORE: the object above. AFTER: our CANDIDATE wording's option, type and table join (candidateWording 6,
     // CandidateWordingHandoff 2, wordingTable 5), and reviewLevel 3 -> 6 (the account's three assignments of the wording standing, file and entries).
-    assert.deepEqual(countsOf('system/rendering/build-activity.ts'), { BasisGround: 2, CandidateWordingHandoff: 2, candidateWording: 6, consumed: 7, consumedGameProblem: 7, PendingApprovalEntry: 4, proposedRealization: 1, reviewLevel: 6, ReviewLevelAccount: 3, upstream: 7, UpstreamDecisions: 4, wordingTable: 5 })
+    // Stage A1, re-pinned openly. BEFORE: the object above. AFTER: the TEST-ONLY register override and our CANDIDATE templates join
+    // (candidateTemplates 12: the copy, the argument, the parameter, the context field, its threading, the destructuring, the table and the two
+    // review drafts; templateTable 2; underDerivationRegister 3: the import and the two calls), candidateWording 6 -> 8 (the copy of the
+    // templates reads the option twice) and reviewLevel 6 -> 7 (the account names each CANDIDATE template said).
+    assert.deepEqual(countsOf('system/rendering/build-activity.ts'), { BasisGround: 2, candidateTemplates: 12, CandidateWordingHandoff: 2, candidateWording: 8, consumed: 7, consumedGameProblem: 7, PendingApprovalEntry: 4, proposedRealization: 1, reviewLevel: 7, ReviewLevelAccount: 3, templateTable: 2, underDerivationRegister: 3, upstream: 7, UpstreamDecisions: 4, wordingTable: 5 })
+    // Stage A1: the renderer names only the TEST-ONLY register override (set by build-activity.ts only beside our CANDIDATE wording) and the
+    // CANDIDATE template's name, its slots and its reading (said only where a TEST-ONLY build hands in a template carrying candidateBy and no
+    // approval); the review draft only the templates' parameter (production passes none); the tests-only reader the name, slots and reader.
+    assert.deepEqual(countsOf('system/rendering/render-concrete-game.ts'), { CANDIDATE_TARGETS_BY_ROLE: 2, CANDIDATE_TARGETS_BY_ROLE_SLOTS: 1, derivedOverRegister: 6, targetsByRole: 6, underDerivationRegister: 1 })
+    assert.deepEqual(countsOf('system/rendering/review-draft.ts'), { candidateTemplates: 2 })
+    assert.deepEqual(countsOf('system/rendering/candidate-coach-wording.ts'), { CANDIDATE_TARGETS_BY_ROLE: 3, CANDIDATE_TARGETS_BY_ROLE_SLOTS: 3, candidateTemplates: 1 })
     // Stage B1: the context-scoring guard names only its TEST-ONLY sink and its type (production callers pass none).
     assert.deepEqual(countsOf('system/rendering/context-scoring-guard.ts'), { BasisGround: 7, basisGrounds: 6 })
     // Stage W1 (a), re-pinned openly: run-bounded-selection.ts was { consumed: 7, consumedGameProblem: 10, quotaBypass: 7, upstream: 23, UpstreamDecisions: 4 }.
@@ -628,6 +645,8 @@ test('statically: production cannot reach the option (identifiers, positional ar
     assert.deepEqual(linesOf('system/rendering/build-activity.ts'), [
         `import type { ConsumedGameProblem, ConsumedRecord, UpstreamDecisions } from '../derivation/run-bounded-selection'`,
         `import { BasisGround, contextScoringFindings, EPISODE_REACHABLE_CHECK, eventKindReadingOf, splitProposedPending } from './context-scoring-guard'`,
+        // Stage A1, re-pinned openly: the renderer's import names the TEST-ONLY register override (decision R1).
+        `import { Instruction, RenderedActivity, renderConcreteGame, underDerivationRegister } from './render-concrete-game'`,
         'consumedGameProblem?: ConsumedGameProblem',
         'consumed?: ConsumedRecord',
         'reviewLevel?: ReviewLevelAccount',
@@ -647,20 +666,48 @@ test('statically: production cannot reach the option (identifiers, positional ar
         'const pending = proposed?.pending ? { treatmentId: proposed.pending.treatmentId, entries: [] as PendingApprovalEntry[] } : null',
         "if (options.candidateWording && !proposed) throw new Error('our CANDIDATE coach wording is read only at review level, beside a PROPOSED configuration (upstream.proposedRealization)')",
         'const candidate = options.candidateWording ? (JSON.parse(JSON.stringify(options.candidateWording.entries)) as ApprovedWording[]) : null',
+        // Stage A1, re-pinned openly: our CANDIDATE templates' copy, argument, account line, parameter, context field, review drafts, context
+        // type, destructuring and table join, and the two calls of the renderer and fidelity read the derived register (each line listed).
+        'const candidateTemplates = options.candidateWording?.templates?.length ? (JSON.parse(JSON.stringify(options.candidateWording.templates)) as ApprovedTemplateSentence[]) : null',
         'options.upstream ? (JSON.parse(JSON.stringify(options.upstream)) as UpstreamDecisions) : null,',
+        'candidateTemplates,',
         'built.activity.reviewLevel = {',
         'if (options.candidateWording && candidate) {',
         "built.activity.reviewLevel.wording = 'CANDIDATE_FOR_CHRISTIANS_REVIEW'",
         'built.activity.reviewLevel.candidateFile = options.candidateWording.file',
         'built.activity.reviewLevel.candidateEntries = candidate.filter(entry => said.has(entry.sentence)).map(entry => entry.id)',
+        `for (const template of candidateTemplates ?? []) if (said.has(template.sentence.replace(/\\.$/, ''))) built.activity.reviewLevel.candidateEntries.push(String((template as { candidateId?: unknown }).candidateId ?? template.id))`,
         'upstream: UpstreamDecisions | null = null,',
+        "candidateTemplates: GameContext['candidateTemplates'] = null,",
         'upstream ?? undefined,',
         'const observedOnly = upstream ? JSON.stringify(goalSelection) : null',
+        'const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements, supplement, ...(pending ? { pending } : {}), ...(candidate ? { candidate } : {}), ...(candidateTemplates ? { candidateTemplates } : {}) }',
+        'if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations], games.flatMap(entry => entry.contracts), candidate ?? [], candidateTemplates ?? [])',
+        'if (review.includeDrafts && one.communication) (refusal.activity as RefusedActivity).draft = reviewDraftOf([one.fixture], one.communication.rendered, one.communication.violations, one.communication.contracts, candidate ?? [], candidateTemplates ?? [])',
         'pending?: { treatmentId: string; entries: PendingApprovalEntry[] } | null',
+        'candidateTemplates?: ApprovedTemplateSentence[] | null',
+        'function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements, supplement, pending, candidate, candidateTemplates }: GameContext): GameOutcome {',
         'const grounds: BasisGround[] = []',
         'const wordingTable = candidate ? [...approvedWording(), ...candidate] : null',
-        'const said = wordingTable ? renderConcreteGame(assembled, wordingTable) : renderConcreteGame(assembled)',
-        'const report = wordingTable ? checkFidelity(assembled, rendered, wordingTable) : checkFidelity(assembled, rendered)',
+        'const templateTable = candidateTemplates ? [...approvedTemplateSentences(), ...candidateTemplates] : undefined',
+        'const said = wordingTable ? underDerivationRegister(index, () => renderConcreteGame(assembled, wordingTable, templateTable)) : renderConcreteGame(assembled)',
+        'const report = wordingTable ? underDerivationRegister(index, () => checkFidelity(assembled, rendered, wordingTable)) : checkFidelity(assembled, rendered)',
+    ])
+    // Stage A1: the renderer's lines naming the TEST-ONLY register override and the CANDIDATE template (each listed).
+    assert.deepEqual(linesOf('system/rendering/render-concrete-game.ts'), [
+        'let derivedOverRegister: RegisterIndex | null = null',
+        'export function underDerivationRegister<T>(index: RegisterIndex | null, run: () => T): T {',
+        'const before = derivedOverRegister',
+        'derivedOverRegister = index',
+        'derivedOverRegister = before',
+        'if (derivedOverRegister) return derivedOverRegister',
+        "export const CANDIDATE_TARGETS_BY_ROLE = 'CANDIDATE_TARGETS_BY_ROLE'",
+        "export const CANDIDATE_TARGETS_BY_ROLE_SLOTS = ['zoneTeam', 'zoneNoun', 'lineTeam'] as const",
+        'const targetsByRole = ((): { text: string; from: string[] } | null => {',
+        "const template = templates.find(t => t.id === CANDIDATE_TARGETS_BY_ROLE && !('approvedBy' in t) && (t as { candidateBy?: { who?: unknown } }).candidateBy?.who === 'ours')",
+        'const targetWord: string | null = sayableNoun ?? (differentTargets || targetsByRole ? GENERIC_TARGET : null)',
+        'const targetWordPaths: string[] = sayableNoun ? targetNounPaths : differentTargets || targetsByRole ? objectives.map(o => `objectives[${o.elementId}].reference`) : []',
+        "else if (targetsByRole) say('How to score', statusAt(provenance, 'DERIVED'), targetsByRole.text, targetsByRole.from)",
     ])
     // The selector's lines: the size rule's own-size bound, the parameter, the guard, the sizes, and the size rule's call. Stage W2, re-pinned
     // openly: the own-size bound admits exactly the set's size (was 'if (nc < 1 || nc > quotaBypassOwnSize) ... expected 1–n'); the sizes are

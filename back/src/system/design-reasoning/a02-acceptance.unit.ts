@@ -564,9 +564,16 @@ export function appendixF(from: Map<string, Made> = B3): string[] {
         const m = at(id, from)
         out.push(`- ${id}: ${m.answer.outcome}${m.answer.stage ? ` at ${m.answer.stage}` : ''}; treatments ${m.result.testOnlyTreatments.map((t) => t.id).join(', ')}; ${m.answer.reasons.length} reasons${m.answer.reasons.length ? `, the first: ${plain(m.answer.reasons[0])}` : ''}`)
     }
-    out.push(`The review-level run ${REVIEW_RUN} passes structure, realization and validation and is refused at communication on four limits of the production renderer (stage B2): the escape line is never set out (the renderer reads the production register, which holds no escaping role); the pressing team's sentence cites the first objective's role; a zone target beside a line target has no sentence saying what each team attacks; so the pressing team's end-line target is named only in Role exchange. Three measured renderer changes serve it (stage B2, not committed): the lead's decision; one adds a DRAFT sentence. It is therefore printed below as the draft an administrator sees, never as served.`)
+    // Stage A1 (13 November 2026), re-pinned openly: this paragraph said the run is refused at communication on four limits of the production
+    // renderer and is printed as the draft an administrator sees; since the lead's decisions R1 to R4 it is served at review level.
+    out.push(
+        review.answer.outcome === 'served'
+            ? `The review-level run ${REVIEW_RUN} is served at review level (stage A1, 13 November 2026; TEST-ONLY, never released), with ${review.built?.activity?.integrity?.fidelityViolations ?? 'unknown'} fidelity violations: the renderer and fidelity read the register the game was derived over (TEST-ONLY, only on a build given our CANDIDATE wording); each role's own-event sentence cites its own objective's role; the two targets (the zone beyond the marked line, the escaping team's end line) are named in one sentence read only from our CANDIDATE wording file; and the PROPOSED restart (question Q6) starts play, and restarts it after each point and when the ball goes over an end line, the ball to the escaping team. Fidelity reads our CANDIDATE wording beside the approved table, as it reads approved wording (stage B2).`
+            : `The review-level run ${REVIEW_RUN} is refused at ${review.answer.stage}; it is printed below as the draft an administrator sees, never as served.`,
+    )
     out.push(`Pending (awaiting Christian's approval, never a pass): ${(review.answer.reviewLevel?.pendingApproval ?? []).map((e) => `${e.item} (question ${e.questionId}), in ${e.blocks.length} blocks: ${withoutGenderedPronouns(plain(e.finding))}`).join('; ') || 'none'} (the guard's words, printed without a gendered pronoun)`)
-    out.push('F2. THE REVIEW-LEVEL ACTIVITY IN FOUR PARTS (the administrator\'s draft of the refused run; every sentence marked; every ILLUSTRATIVE quantity labelled where it shows):')
+    // Stage A1, re-pinned openly: the heading said 'the administrator's draft of the refused run'.
+    out.push(`F2. THE REVIEW-LEVEL ACTIVITY IN FOUR PARTS (${review.answer.outcome === 'served' ? 'the text served at review level' : "the administrator's draft of the refused run"}; every sentence marked; every ILLUSTRATIVE quantity labelled where it shows):`)
     out.push(...p.print.text.split('\n').map((l) => `   ${l}`))
     out.push(`Concision (measured): ${p.said.length} sentences and ${p.words} words in the engine's text, beside the printed-only sentences; A01's served Details hold ${A01_SENTENCES} sentences.`)
     out.push('F3. THE ELEMENT TABLE (generated from the build: every configuration line of the review-level run, by element, each with the labels of what it rests on, read from the item\'s category by the handoff\'s grading; never typed by hand):')
@@ -577,7 +584,7 @@ export function appendixF(from: Map<string, Made> = B3): string[] {
     out.push(...walkthroughLines(control).map((l) => `   ${l}`))
     out.push(`   what a coach would read in ${GF2W} (the wording claims what no element carries):`)
     out.push(...gf2wPrint(at(GF2W, from)).text.split('\n').map((l) => `      ${l}`))
-    out.push(`Limits kept visible (each is Christian's ecological review or a field trial, not this walkthrough): whether the pressing team presses together, and how often a qualifying start arises; whether the line's place (the schematic 12 m, ILLUSTRATIVE) serves the problem, and whether a coach can apply the placement rule; whether an escaping team, which cannot score unpressed, waits for or invites pressure; that after a point no element restarts play (the realized game holds no restart after a score and no dead-ball policy; the coach's optional restart is printed only, CANDIDATE), so an escaping team already beyond the line scores again only by entering the region again; whether a coach can judge the start under pressure in play; the pressing team's reward (question 2); offside (question 3); and Christian's concern, ${christian('A02-12NOV-NEXT-ACTION', 14)} (OURS: in A02-HPE1 the escaping team has no goal, so no shot arises; the concern stays visible for the ecological review). No player-learning effect is claimed (Christian asks for none yet, received 12 November 2026, item 6).`)
+    out.push(`Limits kept visible (each is Christian's ecological review or a field trial, not this walkthrough): whether the pressing team presses together, and how often a qualifying start arises; whether the line's place (the schematic 12 m, ILLUSTRATIVE) serves the problem, and whether a coach can apply the placement rule; whether an escaping team, which cannot score unpressed, waits for or invites pressure; whether the PROPOSED restart (question Q6, stage A1: the ball to an escaping player near their own end at the start, after each point and when the ball goes over an end line) recreates the pressure conditions, which it never stands in for (the coach still judges the pressure in play; a ball given at a restart is not assumed to create organized opposition, Christian's caution received 5 November 2026); that no item writes the restart policy row, so every other dead ball keeps the normal Laws, and the kick-off stays owed in the laws account (PROCEDURAL under our DRAFT reading, reported); whether a coach can judge the start under pressure in play; the pressing team's reward (question 2); offside (question 3); and Christian's concern, ${christian('A02-12NOV-NEXT-ACTION', 14)} (OURS: in A02-HPE1 the escaping team has no goal, so no shot arises; the concern stays visible for the ecological review). No player-learning effect is claimed (Christian asks for none yet, received 12 November 2026, item 6).`)
     out.push(`F5. THE REWORDINGS (A02-HPE1 under the reversed and the neutral wording, the A02-2~ family's method; Christian's item 7: context routing and lens ranking where alternative wording could change a knowledge-governed result): ${material.length === 0 ? 'no material effect: no knowledge-governed result moves; the engine lenses move (ENGINE_LENS, report only), and nothing built reads them on this run' : `MATERIAL: ${material.join('; ')}`}. OD-WORDING-FLIP and OD-WORDING-LENSES stay open as recorded.`)
     for (const r of rows) out.push(`- ${r.facet}${r.governed ? '' : ' (not knowledge-governed)'}: own ${show(r.own)}; ${REWORDINGS.map((name) => `${name} ${show(r.reworded[name])}`).join('; ')}; ${r.moves.length ? `MOVES under ${r.moves.join(' and ')}` : 'the same'}`)
     out.push('F6. THE SAFEGUARD CHECK ON THE HPE-1 RUNS (the same pure check as appendix B; the progression clause read through the configuration\'s replacement of RPC-002-03.b by A02-HPE1-03.b, read from the configuration file: our CANDIDATE item typing the pressing line to the PROPOSED escape line, contingent on question 1, so the clause is carried, not approved; OD-CONTEXT carried by these runs too):')
@@ -596,16 +603,19 @@ export function appendixF(from: Map<string, Made> = B3): string[] {
 // The tests (every value pinned below was measured first: scratchpad pkg3/B3)
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-test('the stops (measured): A02-HPE1 refused at communication (four renderer limits), A02-HPE1-S at communication, A02-HPE1-L at validation on LAW-11, A02-GF2W served (plain GF2), A02-HPE1 under each rewording where A02-HPE1 stops', () => {
+// Stage A1 (13 November 2026), re-pinned openly: A02-HPE1 and its two rewordings were refused at communication on four renderer limits; the
+// lead's decisions R1 to R4 (the register the game was derived over, each role citing its own objective, the two targets in our CANDIDATE words,
+// the PROPOSED restart) serve them at review level (measured, scratchpad pkg4/A1). A02-HPE1-S and A02-HPE1-L keep their stops.
+test('the stops (measured): A02-HPE1 served at review level (stage A1), A02-HPE1-S at communication, A02-HPE1-L at validation on LAW-11, A02-GF2W served (plain GF2), A02-HPE1 under each rewording served as A02-HPE1 is', () => {
     assert.deepEqual(
         B3_RUN_IDS.map((id) => [id, at(id).answer.outcome, at(id).answer.stage]),
         [
-            ['A02-HPE1', 'refused', 'communication'],
+            ['A02-HPE1', 'served', null],
             ['A02-HPE1-S', 'refused', 'communication'],
             ['A02-HPE1-L', 'refused', 'validation'],
             ['A02-GF2W', 'served', null],
-            ['A02-HPE1~reversed', 'refused', 'communication'],
-            ['A02-HPE1~neutral', 'refused', 'communication'],
+            ['A02-HPE1~reversed', 'served', null],
+            ['A02-HPE1~neutral', 'served', null],
         ],
     )
     // The review-level run's realized game exists in both role blocks (the walkthrough reads it), and its pending entry names Q2 only.
@@ -729,12 +739,15 @@ test("the review-level run's LAW-11 departure is graded PROPOSED (our configurat
     assert.ok(lawPremiseRefusals(regraded).some((x) => x.includes("LAW_DEPARTURE 'RULING, provisional'")), json(lawPremiseRefusals(regraded)))
 })
 
-test("the four-part print of the review-level run (the administrator's draft): every sentence in exactly one part with its marker, every ILLUSTRATIVE quantity labelled; 15 sentences, 276 words, as stage B2 measured", () => {
+// Stage A1, re-pinned openly: the print was the administrator's draft of the refused run, 15 sentences and 276 words (stage B2); it is the
+// served text, 19 sentences and 377 words (measured): the escape line and the two targets are now said, the opening pick is replaced by the
+// PROPOSED restart's three sentences, and Christian's possession sentence is said whole.
+test('the four-part print of the review-level run (served at review level, stage A1): every sentence in exactly one part with its marker, every ILLUSTRATIVE quantity labelled; 19 sentences, 377 words', () => {
     const { print, said, illustrativeOf, words } = reviewPrint(at(REVIEW_RUN))
     assert.deepEqual(printRefusals(print, said, illustrativeOf), [])
     assert.deepEqual(print.findings, [])
-    assert.deepEqual([said.length, words], [15, 276])
-    assert.ok(print.text.startsWith('REVIEW LEVEL, TEST-ONLY.') && print.text.includes('REFUSED AT COMMUNICATION'))
+    assert.deepEqual([said.length, words], [19, 377])
+    assert.ok(print.text.startsWith('REVIEW LEVEL, TEST-ONLY.') && print.text.includes('SERVED at review level') && !print.text.includes('REFUSED AT'))
 })
 
 test('appendix F: generated twice from two builds, identical; double quotation marks only around Christian\'s words; no gendered pronoun', () => {

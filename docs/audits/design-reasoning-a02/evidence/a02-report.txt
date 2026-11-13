@@ -104,6 +104,7 @@ KEY (the identifiers the frame and the seven items use; names read from the know
 - A02-HPE1: the PROPOSED configuration of stage B1 for A02 (TEST-ONLY, never knowledge, for Christian's review): roles held for a block, an escape line realizing the pressing line, the escaping team's target beyond it, the pressing team's own PROPOSED scoring event; with stage B2's CANDIDATE wording and PROPOSED LAW-11 departure, the review-level run; measured by its own registered tests and in appendix F
 - B2: stage B2 of the A02 complete-activity package (engineering Christian delegated, received 11 November 2026, second reply), built 12 November 2026: our CANDIDATE coach wording, the PROPOSED LAW-11 departure, the APPROVED / CANDIDATE / DRAFT markers and the review-level label
 - B3: stage B3 of the A02 complete-activity package (engineering Christian delegated, received 11 November 2026, second reply), built 12 November 2026: the review-level activity in four parts, Christian's acceptance walkthrough read from the built game's structure, the rewordings and the safeguard check on the PROPOSED configuration's runs (appendix F)
+- A1: stage A1 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 13 November 2026: the review-level run A02-HPE1 served at review level (the renderer and fidelity reading the register the game was derived over, TEST-ONLY; each role citing its own objective; the two targets named in our CANDIDATE words; the PROPOSED restart, asked of Christian in appendix F)
 - A02-GF2W: the walkthrough's negative control (stage B3): GF2 as A02-D builds it, without the PROPOSED configuration, our CANDIDATE wording printed beside its text, entering no structure
 - A02-12NOV-...: a ruling of Christian's received 12 November 2026, quoted in appendix A (A02-12NOV-PRESSURE: the start under pressure; A02-12NOV-NEXT-ACTION: the next action)
 - GA-...: a Gate A check of the derivation engine (GA-ONE-PRIMARY-EVENT: one primary scoring event; GA-REFERENCE-INTEGRITY: each reference names an element of the game; GA-RELATIVE-PLACEMENT: each relative position holds of the realized geometry)
@@ -186,7 +187,7 @@ Ecological suitability: not established; consuming GF2 shows structural compatib
 
 2. HIGH PRESS ESCAPE'S IDENTITY AND SCORING
 Christian asked: "Whether the existing High Press Escape identity and scoring relationships can be carried into configuration, and what remains unsupported." (reply about A02, pasted 10 November 2026)
-Answer (OURS): partly. As the knowledge stands no game is built: A02-0 stops at structure on the progression clause's referent, the pressing line (open text), the origin and control clauses being carried by our CANDIDATE restatement of Christian's rulings received 12 November 2026. A game is built here only under labelled TEST-ONLY treatments of the condition (A02-1, A02-1b, A02-2, A02-D); there the approved scoring events bound the event line, and the value within them is our realization choice, not knowledge. Nothing in such a game carries established pressure. Under the PROPOSED configuration A02-HPE1 (stages B1 and B2, TEST-ONLY, never knowledge, for Christian's review; appendix F, stage B3) a game is realized in both role blocks, and the review-level run, our CANDIDATE wording said, is refused at communication on four limits of the production renderer, so it is printed as the draft an administrator sees, never as served; read from that game's structure, Christian's acceptance walkthrough finds 4 of 4 questions established (the negative control A02-GF2W, plain GF2 with our wording beside it, 0 of 4), and the two rewordings move no knowledge-governed result.
+Answer (OURS): partly. As the knowledge stands no game is built: A02-0 stops at structure on the progression clause's referent, the pressing line (open text), the origin and control clauses being carried by our CANDIDATE restatement of Christian's rulings received 12 November 2026. A game is built here only under labelled TEST-ONLY treatments of the condition (A02-1, A02-1b, A02-2, A02-D); there the approved scoring events bound the event line, and the value within them is our realization choice, not knowledge. Nothing in such a game carries established pressure. Under the PROPOSED configuration A02-HPE1 (stages B1, B2 and A1, TEST-ONLY, never knowledge, for Christian's review; appendix F, stage B3) a game is realized in both role blocks, and the review-level run, our CANDIDATE wording said, is served at review level (TEST-ONLY, never released; stage A1), with its PROPOSED restart; read from that game's structure, Christian's acceptance walkthrough finds 4 of 4 questions established (the negative control A02-GF2W, plain GF2 with our wording beside it, 0 of 4), and the two rewordings move no knowledge-governed result.
 Implemented and tested:
 - Our CANDIDATE restatement of RPC-002 in the TEST-ONLY draft store: 10 items, each quoting its approved row verbatim (the store's gate refuses a copy that does not); none of it is in production knowledge. Rows restated: RPC-REL-075, RPC-REL-076, RPC-REL-077, RPC-REL-078, RPC-PROP-133, RPC-ID-006, RPC-PROP-018, RPC-ID-008.
 - Carried (only on A02-1, A02-1b, A02-2, A02-D, each with TEST-ONLY treatments): the four approved events, narrowed with GF2's own to ['line_crossed', 'target_zone_entered'] on the built event line (the chain records our item as narrowing it); the value 'line_crossed' within that pair is a realization choice of ours (class 6), not knowledge. The values 'established coordinated pressure' and 'beyond' and 'retains possession through the next action' enter derivation.
@@ -1488,7 +1489,7 @@ OPEN DISCONNECTIONS (9; printed as open disconnections, never as safeguards pass
 - OD-CONTEXT [experiment path] the context is read by the chain from the planning routing itself; no record of consuming Step 1's context exists (equal by agreement: both read the same routing row): CONTEXT AGREES_INDEPENDENTLY on A02-0, A02-1, A02-1b, A02-2, A02-D, S4-NP, S4-WZA, S4-TR, S4-CDC, S4-NP+WZA, S4-NP+TR, S4-CDC+IR, S4-NP@A02-D, S4-NP+WZA@A02-D, S4-NP+CDC, S4-WZA+TR, S4-NP+WZA+TR, S4-NP+WZA+CDC, GP-002, GF7-CELL, A02-2/narrowed, A02-2/no-line-crossed, NO-RESTATEMENT, A02-0~reversed, A02-1~reversed, A02-2~reversed, S4-NP~reversed, S4-WZA~reversed, S4-TR~reversed, S4-CDC~reversed, S4-NP+WZA~reversed, S4-NP+TR~reversed, S4-CDC+IR~reversed, A02-0~neutral, A02-1~neutral, A02-2~neutral, S4-NP~neutral, S4-WZA~neutral, S4-TR~neutral, S4-CDC~neutral, S4-NP+WZA~neutral, S4-NP+TR~neutral, S4-CDC+IR~neutral, A02-0~pressure, A02-0+GPCL, A02-0+GPCL~reversed, A02-0+GPCL~neutral
    evidence: every A02 run: the account names RPC-002, Step 1 resolves RPC-002; the upstream option carries no context (DESIGN-9 section 1 consumes the Game Problem and the form only)
 - OD-DISPLAY [experiment path] the account displays the approved scoring condition as in this activity (inThisActivity true) whenever the context's contract is among those the build reads, whether or not any clause is carried: SCORING_DISPLAY CITED_NOT_CARRIED on A02-0, A02-1, A02-1b, A02-2, A02-D, S4-NP, S4-NP+WZA, S4-NP+TR, S4-NP@A02-D, S4-NP+WZA@A02-D, S4-WZA+TR, S4-NP+WZA+TR, GP-002, GF7-CELL, A02-2/narrowed, A02-2/no-line-crossed, A02-0~reversed, A02-1~reversed, A02-2~reversed, S4-NP~reversed, S4-NP+WZA~reversed, A02-0~neutral, A02-1~neutral, A02-2~neutral, S4-NP~neutral, S4-NP+WZA~neutral, A02-0~pressure, A02-0+GPCL, A02-0+GPCL~reversed, A02-0+GPCL~neutral
-   evidence: build-activity.ts:684 reads only whether the context's contract is selected; on these runs no clause is carried, or only the control clause (its referent NO_FURTHER_VALUE in our CANDIDATE restatement since stage B1, under a declared treatment before); the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass
+   evidence: build-activity.ts:689 reads only whether the context's contract is selected; on these runs no clause is carried, or only the control clause (its referent NO_FURTHER_VALUE in our CANDIDATE restatement since stage B1, under a declared treatment before); the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass
 - OD-PACKAGE-LENSES [experiment path] after the form is consumed, a kept package check that reads the wording-derived lenses decides the selection (row o, row k and the other package checks on the members present, and every selected member validated): SELECTION_OUTCOME: ENGINE_RULE_DECIDED (PACKAGE_OTHER) on S4-WZA, S4-WZA~reversed, S4-WZA~neutral; ENGINE_RULE_DECIDED (PACKAGE_ROW_K+PACKAGE_ROW_O) on S4-TR; ENGINE_RULE_DECIDED (PACKAGE_ROW_O) on S4-CDC, S4-CDC+IR, S4-CDC~reversed, S4-CDC+IR~reversed, S4-CDC~neutral, S4-CDC+IR~neutral; ENGINE_RULE_DECIDED (MEMBER_PRESENCE) on S4-NP+CDC, S4-NP+WZA+CDC; ENGINE_RULE_DECIDED (PACKAGE_ROW_K) on S4-TR~reversed, S4-TR~neutral
    evidence: attributed by re-running the exported isSelectionPackageCompatible on GF2 and each of the 4 lens combinations, with the selector's options on the run (under the switch every selected member validated; foundation presence not required under FOUNDATION_PRESENCE_BYPASS): a lone Wide Zone Advantage is first refused as one-sided (the other package checks) on every combination; a lone Turnover Reward by row k on one of the goal's combinations and row o on the other three (row k on every reworded one); Central Density Condition alone and with Interception Reward first by row o; Neutral Player with Central Density Condition, and with Wide Zone Advantage too, by MEMBER_PRESENCE, Central Density Condition absent from the checked package (the check returns the first reason it meets; the members present are checked before every member's presence); the role mix refuses no set run here: under the switch a set is enumerated only whole (stage W2), and its role needs are read over the pool, which is the set (generateSelection.ts:832, :840-841, :591-613; the inertness test pins it)
 - OD-WORDING-FLIP [experiment path] wording alone decides the selection of a non-empty authorized set on the consumed form: Neutral Player with Turnover Reward is selected under the goal's wording and refused under a reworded one: SELECTION_OUTCOME: ENGINE_RULE_DECIDED (PACKAGE_ROW_K) on S4-NP+TR~reversed, S4-NP+TR~neutral
@@ -3644,9 +3645,9 @@ How to read: each run stops at the first stage whose check refuses it, or is ser
    A02-1b (A02 experiment path), A02-1b/draft-record (A02 control), A02-HPE1-L (PROPOSED configuration A02-HPE1, TEST-ONLY)
 - coach-wording (5 runs): communication: a clause of the condition awaits approved wording, and no sentence carries it [Missing knowledge; and A configuration or rendering implementation limitation]; Christian's knowledge: approved coach wording for the condition's clauses (question 2 of item 2; none is held for RPC-002, and our CANDIDATE through the next action is not approved wording); the rendering part (no sentence carries a clause) is engineering that waits on that wording and on question 1 of item 2
    A02-2 (A02 experiment path), A02-2/draft-record (A02 control), A02-2/CAR (A02 control), A02-2~reversed (A02 experiment path), A02-2~neutral (A02 experiment path)
-- proposed-awaiting-wording (1 run): communication: in each role block of the PROPOSED configuration's realized game, the condition's fields await approved wording (the run carries none of our CANDIDATE wording), and fidelity finds the escape line set out by no sentence [Missing knowledge; and A configuration or rendering implementation limitation]; Christian's knowledge: approved coach wording for the condition (question 2 of item 2); the review-level run A02-HPE1 says the condition in our CANDIDATE wording, held for Christian's review; the escape line's sentence is the renderer limit of the class below
+- proposed-awaiting-wording (1 run): communication: in each role block of the PROPOSED configuration's realized game, the condition's fields await approved wording (the run carries none of our CANDIDATE wording), and fidelity finds the escape line set out by no sentence [Missing knowledge; and A configuration or rendering implementation limitation]; Christian's knowledge: approved coach wording for the condition (question 2 of item 2); the review-level run A02-HPE1 says the condition in our CANDIDATE wording, held for Christian's review; the escape line's sentence needs the register the game was derived over, which only a build given our CANDIDATE wording reads (stage A1, TEST-ONLY)
    A02-HPE1-S (PROPOSED configuration A02-HPE1, TEST-ONLY)
-- renderer-limits (3 runs): communication: the review-level run passes structure, realization and validation, says the condition in our CANDIDATE wording, and is refused on four limits of the production renderer (the escape line never set out, the renderer reading the production register; the pressing team's sentence citing the first objective's role; no sentence saying what each team attacks for a zone beside a line; the pressing team's target named only in Role exchange) [A configuration or rendering implementation limitation]; engineering: three renderer changes, measured in stage B2 and not committed, serve the run with no fidelity violation and the behaviour snapshot unchanged: one TEST-ONLY, two on the production path (one adding a DRAFT sentence, which may be Christian's); whether to apply them is the lead's decision, Christian's for the sentence
+- served-review-level (3 runs): served at review level (TEST-ONLY): the PROPOSED configuration A02-HPE1 with its PROPOSED restart and LAW-11 departure, our CANDIDATE restatement and our CANDIDATE wording; every PROPOSED element waits on Christian's questions (Q1, Q2, Q3, Q6) and every CANDIDATE sentence on Christian's review; never released [no failure category]; Christian's knowledge: no stop in the chain: the activity is served at review level only because every PROPOSED element and CANDIDATE sentence is read under a declared TEST-ONLY treatment; releasing any of it needs Christian's approval
    A02-HPE1 (PROPOSED configuration A02-HPE1, TEST-ONLY), A02-HPE1~reversed (PROPOSED configuration A02-HPE1, TEST-ONLY), A02-HPE1~neutral (PROPOSED configuration A02-HPE1, TEST-ONLY)
 - served-diagnostic (8 runs): served: every condition item withheld (TEST-ONLY) [no failure category]; neither (a control's or a stand-in's intended effect, a TEST copy of the knowledge, or another goal): no stop: structural compatibility only, never representative sufficiency and never the A02 configuration
    A02-D (A02 experiment path), A02-D/draft-record (A02 control), S4-NP@A02-D (A02 experiment path), S4-NP+WZA@A02-D (A02 experiment path), TA02-D (TA02), A02-D/swap (swap control), TA02-D/swap (swap control), A02-GF2W (PROPOSED configuration A02-HPE1, TEST-ONLY)
@@ -3682,32 +3683,33 @@ THE EARLIEST STOP BY ARM:
 - A02 with the TEST-ONLY treatments of the condition: A02-1 laws-unclassified; A02-1b law-11; A02-2 coach-wording; A02-D served-diagnostic
 - A02 with the ILLUSTRATIVE carriers on (stage W4, rebased in stage B1: the progression clause carried by the carriers, the origin and control clauses by our CANDIDATE restatement): A02-IL-2 carrier-placement; A02-IL-2L carrier-placement
 - TA02, the knowledge as it stands (TA02-0): ta02-origin; its diagnostic (TA02-D): served-diagnostic
-- A02 under the PROPOSED configuration (stages B1 to B3, TEST-ONLY, for Christian's review): the review-level run A02-HPE1 renderer-limits; without our CANDIDATE wording (A02-HPE1-S) proposed-awaiting-wording; without the PROPOSED LAW-11 departure (A02-HPE1-L) law-11; under the rewordings A02-HPE1~reversed renderer-limits; A02-HPE1~neutral renderer-limits; the walkthrough's negative control A02-GF2W served-diagnostic
+- A02 under the PROPOSED configuration (stages B1 to B3, TEST-ONLY, for Christian's review): the review-level run A02-HPE1 served-review-level; without our CANDIDATE wording (A02-HPE1-S) proposed-awaiting-wording; without the PROPOSED LAW-11 departure (A02-HPE1-L) law-11; under the rewordings A02-HPE1~reversed served-review-level; A02-HPE1~neutral served-review-level; the walkthrough's negative control A02-GF2W served-diagnostic
 WHOSE EACH STOP IS:
-- Christian's knowledge: 56 runs (pressing-line, laws-unclassified, ta02-origin, law-11, coach-wording, proposed-awaiting-wording, wording-flip, kept-check, constraint-contract, context-contract)
-- engineering: 16 runs (carrier-placement, example-made-required, renderer-limits, member-presence, size-rule, foundation-clause, own-form, production-record)
+- Christian's knowledge: 59 runs (pressing-line, laws-unclassified, ta02-origin, law-11, coach-wording, proposed-awaiting-wording, served-review-level, wording-flip, kept-check, constraint-contract, context-contract)
+- engineering: 13 runs (carrier-placement, example-made-required, member-presence, size-rule, foundation-clause, own-form, production-record)
 - neither (a control's or a stand-in's intended effect, a TEST copy of the knowledge, or another goal): 25 runs (served-diagnostic, test-copy-form, test-copy-no-basis, event-line-control, another-goal)
 - the 18 A02 runs of the knowledge as it stands, under TEST-ONLY treatments of its condition only, or with the carriers on (A02-0, A02-1, A02-1b, A02-2, A02-D, NO-RESTATEMENT, A02-0+GPCL, A02-0~reversed, A02-1~reversed, A02-2~reversed, A02-0+GPCL~reversed, A02-0~neutral, A02-1~neutral, A02-2~neutral, A02-0+GPCL~neutral, A02-0~pressure, A02-IL-2, A02-IL-2L): ENGINEERING OR UNCLASSIFIED STOPS REMAIN: A02-IL-2 carrier-placement; A02-IL-2L carrier-placement
-- the 6 runs of the PROPOSED configuration (stage B3): engineering stops on A02-HPE1 renderer-limits, A02-HPE1~reversed renderer-limits, A02-HPE1~neutral renderer-limits (the lead's decision on the measured renderer changes, appendix F); the others A02-HPE1-S proposed-awaiting-wording, A02-HPE1-L law-11, A02-GF2W served-diagnostic
+- the 6 runs of the PROPOSED configuration (stage B3): no engineering stop; the others A02-HPE1 served-review-level, A02-HPE1-S proposed-awaiting-wording, A02-HPE1-L law-11, A02-GF2W served-diagnostic, A02-HPE1~reversed served-review-level, A02-HPE1~neutral served-review-level
 Development findings only: no stop here, and no run served, validates an activity ecologically.
 
 APPENDIX F: THE COMPLETE-ACTIVITY PACKAGE (stage B3, 12 November 2026): the review-level activity A02-HPE1, Christian's acceptance walkthrough read from the built game's structure, the rewordings, the safeguard check on the HPE-1 runs (TEST-ONLY; for Christian's review; nothing here is served or live)
 Christian asked: "Produce one complete A02 activity through the checked pathway, at review level, with all required conditions grounded in approved knowledge." (received 12 November 2026) "The resulting activity must make the intended High Press Escape problem recognizable and actionable for a coach." (received 12 November 2026)
 F1. THE RUNS AND THEIR STOPS (measured):
-- A02-HPE1: refused at communication; treatments TT-CONSUMED-STEPS, TT-DRAFT-STORE, TT-K2-RETAIN-FORM, TT-PROPOSED-HPE1-LAWS, TT-PROPOSED-PENDING, TT-CANDIDATE-WORDING; 13 reasons, the first: block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: objectives[c:restated:GF2:GF2-08.c].reference (J2)
-- A02-HPE1-S: refused at communication; treatments TT-CONSUMED-STEPS, TT-DRAFT-STORE, TT-K2-RETAIN-FORM, TT-LAW-11-STAND-IN, TT-PROPOSED-HPE1, TT-PROPOSED-PENDING; 41 reasons, the first: block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: objectives[c:restated:GF2:GF2-08.c].reference (J2)
+- A02-HPE1: served; treatments TT-CONSUMED-STEPS, TT-DRAFT-STORE, TT-K2-RETAIN-FORM, TT-PROPOSED-HPE1-LAWS, TT-PROPOSED-PENDING, TT-CANDIDATE-WORDING; 0 reasons
+- A02-HPE1-S: refused at communication; treatments TT-CONSUMED-STEPS, TT-DRAFT-STORE, TT-K2-RETAIN-FORM, TT-LAW-11-STAND-IN, TT-PROPOSED-HPE1, TT-PROPOSED-PENDING; 38 reasons, the first: block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: objectives[c:restated:GF2:GF2-08.c].reference (J2)
 - A02-HPE1-L: refused at validation; treatments TT-CONSUMED-STEPS, TT-DRAFT-STORE, TT-K2-RETAIN-FORM, TT-LAWS-DRAFT, TT-PROPOSED-HPE1, TT-PROPOSED-PENDING; 5 reasons, the first: the sport's default-laws check (BY_MATERIALITY, [Christian's] reply filed 30 October 2026, item 4) holds this composed activity: 2 material adaptations are owed, which prevent approval
 - A02-GF2W: served; treatments TT-CONSUMED-STEPS, TT-DRAFT-STORE, TT-K2-RETAIN-FORM, TT-WITHHOLD-CONDITION, TT-LAW-11-STAND-IN; 0 reasons
-- A02-HPE1~reversed: refused at communication; treatments TT-CONSUMED-STEPS, TT-DRAFT-STORE, TT-K2-RETAIN-FORM, TT-PROPOSED-HPE1-LAWS, TT-PROPOSED-PENDING, TT-CANDIDATE-WORDING; 13 reasons, the first: block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: objectives[c:restated:GF2:GF2-08.c].reference (J2)
-- A02-HPE1~neutral: refused at communication; treatments TT-CONSUMED-STEPS, TT-DRAFT-STORE, TT-K2-RETAIN-FORM, TT-PROPOSED-HPE1-LAWS, TT-PROPOSED-PENDING, TT-CANDIDATE-WORDING; 13 reasons, the first: block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: objectives[c:restated:GF2:GF2-08.c].reference (J2)
-The review-level run A02-HPE1 passes structure, realization and validation and is refused at communication on four limits of the production renderer (stage B2): the escape line is never set out (the renderer reads the production register, which holds no escaping role); the pressing team's sentence cites the first objective's role; a zone target beside a line target has no sentence saying what each team attacks; so the pressing team's end-line target is named only in Role exchange. Three measured renderer changes serve it (stage B2, not committed): the lead's decision; one adds a DRAFT sentence. It is therefore printed below as the draft an administrator sees, never as served.
+- A02-HPE1~reversed: served; treatments TT-CONSUMED-STEPS, TT-DRAFT-STORE, TT-K2-RETAIN-FORM, TT-PROPOSED-HPE1-LAWS, TT-PROPOSED-PENDING, TT-CANDIDATE-WORDING; 0 reasons
+- A02-HPE1~neutral: served; treatments TT-CONSUMED-STEPS, TT-DRAFT-STORE, TT-K2-RETAIN-FORM, TT-PROPOSED-HPE1-LAWS, TT-PROPOSED-PENDING, TT-CANDIDATE-WORDING; 0 reasons
+The review-level run A02-HPE1 is served at review level (stage A1, 13 November 2026; TEST-ONLY, never released), with 0 fidelity violations: the renderer and fidelity read the register the game was derived over (TEST-ONLY, only on a build given our CANDIDATE wording); each role's own-event sentence cites its own objective's role; the two targets (the zone beyond the marked line, the escaping team's end line) are named in one sentence read only from our CANDIDATE wording file; and the PROPOSED restart (question Q6) starts play, and restarts it after each point and when the ball goes over an end line, the ball to the escaping team. Fidelity reads our CANDIDATE wording beside the approved table, as it reads approved wording (stage B2).
 Pending (awaiting Christian's approval, never a pass): proposed:A02-HPE1::A02-HPE1-B9-1 (question Q2), in 2 blocks: the role PRESSING (c:proposed:A02-HPE1:A02-HPE1-B1-2) scores by its own event 'line_crossed' on proposed:A02-HPE1::A02-HPE1-B9-1, whose basis is AUTHORED: the Representative Performance Context RPC-002 approves line_crossed, target_zone_entered, gate, target_player, so a role's own way to score stands only on [Christian's] explicit ruling (OWNER_RULING) (the guard's words, printed without a gendered pronoun)
-F2. THE REVIEW-LEVEL ACTIVITY IN FOUR PARTS (the administrator's draft of the refused run; every sentence marked; every ILLUSTRATIVE quantity labelled where it shows):
-   REVIEW LEVEL, TEST-ONLY. Built through the checked pathway for Christian's review; REFUSED AT COMMUNICATION, so this is the draft an administrator sees, never served to any coach; nothing here is live.
+F2. THE REVIEW-LEVEL ACTIVITY IN FOUR PARTS (the text served at review level; every sentence marked; every ILLUSTRATIVE quantity labelled where it shows):
+   REVIEW LEVEL, TEST-ONLY. Built through the checked pathway for Christian's review; SERVED at review level, never served to any coach; nothing here is live.
    Markers: [A] APPROVED, [C] CANDIDATE (ours, for review), [D] DRAFT (the renderer's own words), [P] PROPOSED (new knowledge of ours, for approval).
    
    SETUP
      [D] Mark out an area 40 m long by 30 m wide [ILLUSTRATIVE: session value, a test value]
+     [D] Mark a line across the area, 12 m from the escaping team's end line [ILLUSTRATIVE: the schematic 12 m of this 40 m area; the placement rule governs (PROPOSED)]
      [D] Mark a line across one end of the area, 30 m long, on the end line itself
      [D] Mark the escaping team's target zone from the marked line to the pressing team's end line, across the full width
      [D] Divide 12 players into 2 teams of 6, with no goalkeepers [ILLUSTRATIVE: session value, a test value]
@@ -3715,26 +3717,29 @@ F2. THE REVIEW-LEVEL ACTIVITY IN FOUR PARTS (the administrator's draft of the re
      [C] For a quick start or restart, you may pass a ball to an escaping player near their own end, with the pressing team close enough to press straight away.
    
    RULES
-     [D] Pick which team starts with the ball and tell both teams before you start
-     [D] When possession changes, play carries on without a stoppage
+     [A] When possession changes, play carries on without a stoppage, and each team keeps attacking the same target
+     [D] A player of the escaping team restarts play: at the start and after either team scores
      [D] There is no offside
      [D] Play for 18 minutes [ILLUSTRATIVE: session value, a test value]
      [D] Play in blocks: in each block one team is the escaping team and the other is the pressing team
      [D] Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends, and you move the marked line to the same distance from the new escaping team's end line; there is no set block length [ILLUSTRATIVE: the schematic 12 m of this 40 m area; the placement rule governs (PROPOSED)]
+     [D] A player of the escaping team restarts play from the feet, with the ball still or moving
+     [D] You choose where a player of the escaping team restarts play, near the escaping team's own end, with the pressing team set to press together
+     [D] If the ball goes out over either end line, a player of the escaping team restarts play, from the feet, with the ball still or moving; you choose where (near the escaping team's own end, with the pressing team set to press together)
    
    SCORING
-     [D] Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside {block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END}
+     [D] Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside
      [D] Pressing team: Score by getting the ball across the line it is attacking
      [D] Each score is worth 1 point
+     [C] The escaping team attacks the zone beyond the marked line; the pressing team attacks the escaping team's end line
      [C] An escaping team's score counts only if its attack started against the pressing team pressing together (players closing down the ball and cutting off passes together; one player chasing alone usually is not), the ball gets past the marked line, and the escaping team keeps it through its next action.
-     [D] Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside {block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START}
      [C] Receiving and controlling the ball past the line is part of getting there; the next action is what follows. A player who dribbles past the line and keeps going needs to do nothing extra.
      [C] No point if the ball is lost on that next action or play stops first; for an unusual stoppage, use your judgement. Judge the pressure only at the start of the attack.
    
    LEARNING EXPLANATION
      [C] The pressing team can score only by winning the ball and taking it over the escaping team's end line, so pressure keeps coming; the escaping team scores only by getting past that pressure and keeping the ball.
      [A] Continue progressing while under immediate pressure. (the Learning Goal's Coach Definition, verbatim: the source Christian chose (received 21 October 2026); its Active status is not a dated approval)
-Concision (measured): 15 sentences and 276 words in the engine's text, beside the printed-only sentences; A01's served Details hold 27 sentences.
+Concision (measured): 19 sentences and 377 words in the engine's text, beside the printed-only sentences; A01's served Details hold 27 sentences.
 F3. THE ELEMENT TABLE (generated from the build: every configuration line of the review-level run, by element, each with the labels of what it rests on, read from the item's category by the handoff's grading; never typed by hand):
 - activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-1]
    activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-1].activityRole = 'ESCAPING' [PROPOSED]
@@ -3752,6 +3757,29 @@ F3. THE ELEMENT TABLE (generated from the build: every configuration line of the
    space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across = {term: 'full extent (of an axis)', asAuthored: 'PROPOSED: across the full width of the area'} [PROPOSED]
    space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].functions not established (not constrained) [NOT_ESTABLISHED]
    space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].ofObject not established (no coverage) [NOT_ESTABLISHED]
+- transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].awardedTo = 'ROLE_HOLDER_ESCAPING' [PROPOSED]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].placement.actor = 'a player of the team in this element's T2' [PROPOSED]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].placement.method = 'FROM_THE_FEET' [PROPOSED]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].playState = 'STOP_RESUME' [PROPOSED]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].startsEpisode = true [RULING (a standing decision recording Christian's)]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].placement.region = {coachDecides: 'near the escaping team's own end, with the pressing team set to press together'} [the coach decides]
+- transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].awardedTo = 'ROLE_HOLDER_ESCAPING' [PROPOSED]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].placement.actor = 'a player of the team in this element's T2' [PROPOSED]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].placement.method = 'FROM_THE_FEET' [PROPOSED]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].playState = 'STOP_RESUME' [PROPOSED]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].startsEpisode = true [RULING (a standing decision recording Christian's)]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].placement.region = {coachDecides: 'near the escaping team's own end, with the pressing team set to press together'} [the coach decides]
+- transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].qualifiers.endLine = 'EACH_TEAM' [PROPOSED]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].awardedTo = 'ROLE_HOLDER_ESCAPING' [PROPOSED]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].placement.actor = 'a player of the team in this element's T2' [PROPOSED]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].placement.method = 'FROM_THE_FEET' [PROPOSED]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].playState = 'STOP_RESUME' [PROPOSED]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].placement.region = {coachDecides: 'near the escaping team's own end, with the pressing team set to press together'} [the coach decides]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].qualifiers.lastTouch not established (coverage) [NOT_ESTABLISHED]
+   transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].startsEpisode not established (coverage) [NOT_ESTABLISHED]
 - space.regions[c:restated:GF2:GF2-03.e]
    space.regions[c:restated:GF2:GF2-03.e].noun = 'line' [PROPOSED]
    space.regions[c:restated:GF2:GF2-03.e].position.along = 'attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior' [CANDIDATE (our restatement of the knowledge workbooks)]
@@ -3796,13 +3824,13 @@ F3. THE ELEMENT TABLE (generated from the build: every configuration line of the
    envelope.area.width_m = 30 [ILLUSTRATIVE (session value)]
    envelope.duration_min = 18 [ILLUSTRATIVE (session value)]
    envelope.roles = {goalkeeper: 0} [ILLUSTRATIVE (session value)]
+- possession
+   possession.team = 'ROLE_HOLDER_ESCAPING' [PROPOSED]
 - space
    space.axis = 'the longer envelope dimension' [RULING (a standing decision recording Christian's)]
 - value
    value.primaryEvent.kind = 'target_zone_entered' [PROPOSED]
    value.primaryEvent.value = 1 [RULING (a standing decision recording Christian's)]
-- possession
-   possession.team = 'c:restated:GF2:GF2-14.a#1' [the coach decides]
 - blocks
    blocks.endAssignment not established (no coverage) [NOT_ESTABLISHED]
 - performers
@@ -3980,17 +4008,17 @@ The negative control A02-GF2W (plain GF2 as A02-D builds it, with our CANDIDATE 
       LEARNING EXPLANATION
         [C] The pressing team can score only by winning the ball and taking it over the escaping team's end line, so pressure keeps coming; the escaping team scores only by getting past that pressure and keeping the ball.
         [A] Continue progressing while under immediate pressure. (the Learning Goal's Coach Definition, verbatim: the source Christian chose (received 21 October 2026); its Active status is not a dated approval)
-Limits kept visible (each is Christian's ecological review or a field trial, not this walkthrough): whether the pressing team presses together, and how often a qualifying start arises; whether the line's place (the schematic 12 m, ILLUSTRATIVE) serves the problem, and whether a coach can apply the placement rule; whether an escaping team, which cannot score unpressed, waits for or invites pressure; that after a point no element restarts play (the realized game holds no restart after a score and no dead-ball policy; the coach's optional restart is printed only, CANDIDATE), so an escaping team already beyond the line scores again only by entering the region again; whether a coach can judge the start under pressure in play; the pressing team's reward (question 2); offside (question 3); and Christian's concern, "There may be situations, such as an immediate shot after escaping pressure, where the requirement creates an undesirable incentive." (received 12 November 2026) (OURS: in A02-HPE1 the escaping team has no goal, so no shot arises; the concern stays visible for the ecological review). No player-learning effect is claimed (Christian asks for none yet, received 12 November 2026, item 6).
+Limits kept visible (each is Christian's ecological review or a field trial, not this walkthrough): whether the pressing team presses together, and how often a qualifying start arises; whether the line's place (the schematic 12 m, ILLUSTRATIVE) serves the problem, and whether a coach can apply the placement rule; whether an escaping team, which cannot score unpressed, waits for or invites pressure; whether the PROPOSED restart (question Q6, stage A1: the ball to an escaping player near their own end at the start, after each point and when the ball goes over an end line) recreates the pressure conditions, which it never stands in for (the coach still judges the pressure in play; a ball given at a restart is not assumed to create organized opposition, Christian's caution received 5 November 2026); that no item writes the restart policy row, so every other dead ball keeps the normal Laws, and the kick-off stays owed in the laws account (PROCEDURAL under our DRAFT reading, reported); whether a coach can judge the start under pressure in play; the pressing team's reward (question 2); offside (question 3); and Christian's concern, "There may be situations, such as an immediate shot after escaping pressure, where the requirement creates an undesirable incentive." (received 12 November 2026) (OURS: in A02-HPE1 the escaping team has no goal, so no shot arises; the concern stays visible for the ecological review). No player-learning effect is claimed (Christian asks for none yet, received 12 November 2026, item 6).
 F5. THE REWORDINGS (A02-HPE1 under the reversed and the neutral wording, the A02-2~ family's method; Christian's item 7: context routing and lens ranking where alternative wording could change a knowledge-governed result): no material effect: no knowledge-governed result moves; the engine lenses move (ENGINE_LENS, report only), and nothing built reads them on this run. OD-WORDING-FLIP and OD-WORDING-LENSES stay open as recorded.
 - routed context (Step 1): own 'RPC-002'; reversed 'RPC-002'; neutral 'RPC-002'; the same
 - the context in the chain's account: own 'RPC-002'; reversed 'RPC-002'; neutral 'RPC-002'; the same
 - Game Problem (Step 1): own ['GP-015']; reversed ['GP-015']; neutral ['GP-015']; the same
 - Game Form (consumed): own 'GF2'; reversed 'GF2'; neutral 'GF2'; the same
 - constraint set and its authority: own [[], 'REVIEW_PATHWAY_K2']; reversed [[], 'REVIEW_PATHWAY_K2']; neutral [[], 'REVIEW_PATHWAY_K2']; the same
-- each block's realized game (sha-256): own ['f350bb6c296c', 'b954e7a5a7e7']; reversed ['f350bb6c296c', 'b954e7a5a7e7']; neutral ['f350bb6c296c', 'b954e7a5a7e7']; the same
-- the configuration lines (sha-256): own '76d38991c705'; reversed '76d38991c705'; neutral '76d38991c705'; the same
-- the stop: own ['refused', 'communication', '43c95f1a4ef5']; reversed ['refused', 'communication', '43c95f1a4ef5']; neutral ['refused', 'communication', '43c95f1a4ef5']; the same
-- every sentence said (sha-256 of section, block, text, marker): own '1759bffda681'; reversed '1759bffda681'; neutral '1759bffda681'; the same
+- each block's realized game (sha-256): own ['4430bf7a004a', '514252000e48']; reversed ['4430bf7a004a', '514252000e48']; neutral ['4430bf7a004a', '514252000e48']; the same
+- the configuration lines (sha-256): own 'a672dde7d582'; reversed 'a672dde7d582'; neutral 'a672dde7d582'; the same
+- the stop: own ['served', none, '4f53cda18c2b']; reversed ['served', none, '4f53cda18c2b']; neutral ['served', none, '4f53cda18c2b']; the same
+- every sentence said (sha-256 of section, block, text, marker): own '694ece11bf73'; reversed '694ece11bf73'; neutral '694ece11bf73'; the same
 - the pending entries: own [['proposed:A02-HPE1::A02-HPE1-B9-1', 'Q2']]; reversed [['proposed:A02-HPE1::A02-HPE1-B9-1', 'Q2']]; neutral [['proposed:A02-HPE1::A02-HPE1-B9-1', 'Q2']]; the same
 - engine lenses committed (ENGINE_LENS, report only) (not knowledge-governed): own ['tl-v0-lens-possession-stability-opportunity', 'tl-v0-lens-space-creation-opportunity', 'tl-v0-lens-regain-opportunity']; reversed ['tl-v0-lens-line-breaking-opportunity', 'tl-v0-lens-possession-stability-opportunity', 'tl-v0-lens-space-creation-opportunity']; neutral ['tl-v0-lens-line-breaking-opportunity', 'tl-v0-lens-possession-stability-opportunity', 'tl-v0-lens-space-creation-opportunity']; MOVES under reversed and neutral
 - engine lens candidates (ENGINE_LENS, report only) (not knowledge-governed): own ['tl-v0-lens-possession-stability-opportunity', 'tl-v0-lens-regain-opportunity', 'tl-v0-lens-space-creation-opportunity']; reversed ['tl-v0-lens-possession-stability-opportunity', 'tl-v0-lens-space-creation-opportunity', 'tl-v0-lens-space-exploitation-opportunity', 'tl-v0-lens-line-breaking-opportunity', 'tl-v0-lens-regain-opportunity']; neutral ['tl-v0-lens-possession-stability-opportunity', 'tl-v0-lens-space-creation-opportunity', 'tl-v0-lens-space-exploitation-opportunity', 'tl-v0-lens-line-breaking-opportunity', 'tl-v0-lens-regain-opportunity']; MOVES under reversed and neutral
@@ -4001,7 +4029,7 @@ F6. THE SAFEGUARD CHECK ON THE HPE-1 RUNS (the same pure check as appendix B; th
    CONTEXT: AGREES_INDEPENDENTLY [VIOLATION]: the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context
    GAME_FORM: CONSUMED [PASS]: the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)
    CONSTRAINTS: CONSUMED [PASS]: the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)
-   SELECTION_OUTCOME: LEGITIMATE_CHAIN_DECISION [PASS]: the selection committed; the chain's own checks then stopped the run at communication
+   SELECTION_OUTCOME: LEGITIMATE_CHAIN_DECISION [PASS]: the selection committed and the chain served the run
    SCORING (origin): CARRIED [PASS]: RPC-002-02.a, RPC-002-02.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-02.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)
    SCORING (progression): CARRIED [PASS]: RPC-002-03.a, A02-HPE1-03.b, RPC-002-03.c entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED
    SCORING (control): CARRIED [PASS]: RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-04.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)
@@ -4037,7 +4065,7 @@ F6. THE SAFEGUARD CHECK ON THE HPE-1 RUNS (the same pure check as appendix B; th
    CONTEXT: AGREES_INDEPENDENTLY [VIOLATION]: the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context
    GAME_FORM: CONSUMED [PASS]: the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)
    CONSTRAINTS: CONSUMED [PASS]: the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)
-   SELECTION_OUTCOME: LEGITIMATE_CHAIN_DECISION [PASS]: the selection committed; the chain's own checks then stopped the run at communication
+   SELECTION_OUTCOME: LEGITIMATE_CHAIN_DECISION [PASS]: the selection committed and the chain served the run
    SCORING (origin): CARRIED [PASS]: RPC-002-02.a, RPC-002-02.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-02.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)
    SCORING (progression): CARRIED [PASS]: RPC-002-03.a, A02-HPE1-03.b, RPC-002-03.c entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED
    SCORING (control): CARRIED [PASS]: RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-04.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)
@@ -4049,7 +4077,7 @@ F6. THE SAFEGUARD CHECK ON THE HPE-1 RUNS (the same pure check as appendix B; th
    CONTEXT: AGREES_INDEPENDENTLY [VIOLATION]: the chain reads the routing itself (RPC-002); it equals Step 1's, and no record of consumption exists for the context
    GAME_FORM: CONSUMED [PASS]: the account's form GF2 is Step 2's, and the chain's scorer was handed only it (read from SELECTION_TRACE_RANKING)
    CONSTRAINTS: CONSUMED [PASS]: the review pathway's K2 result (no manipulation proposed; basis K2_REVIEW_ONLY, review-only), taken in place of a per-goal authorization record: candidates none; built none; K2's limit carried with it into the account (HO-07NOV-K2, received 7 November 2026, first reply)
-   SELECTION_OUTCOME: LEGITIMATE_CHAIN_DECISION [PASS]: the selection committed; the chain's own checks then stopped the run at communication
+   SELECTION_OUTCOME: LEGITIMATE_CHAIN_DECISION [PASS]: the selection committed and the chain served the run
    SCORING (origin): CARRIED [PASS]: RPC-002-02.a, RPC-002-02.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-02.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)
    SCORING (progression): CARRIED [PASS]: RPC-002-03.a, A02-HPE1-03.b, RPC-002-03.c entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED
    SCORING (control): CARRIED [PASS]: RPC-002-04.a, RPC-002-04.b entered derivation and lines of the built game rest on them; none of their lines is NOT_ESTABLISHED but c:restated:RPC-002:RPC-002-04.a::V5, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)
@@ -4306,20 +4334,7 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    none proposed: nothing is added (K2, approved for review-only use); the configuration is the form's own
 
 6. The checked chain
-   outcome: refused at communication: Part of this activity is still waiting for approved coach wording, so it is not being shown.
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: objectives[c:restated:GF2:GF2-08.c].reference (J2)
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across is established by the game and no instruction carries it
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].role is established by the game and no instruction carries it
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].team is needed to understand and begin the activity, and only a section consulted when needed carries it
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].reference is needed to understand and begin the activity, and only a section consulted when needed carries it
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along is needed to understand and begin the activity, and only a section consulted when needed carries it
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q2: 'Pressing team: Score by getting the ball across the line it is attacking' calls a team's target a line, and it cites objectives[c:restated:GF2:GF2-08.c], whose target is the region c:restated:GF2:GF2-03.f, whose noun is 'zone': no line
-   - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: objectives[c:restated:GF2:GF2-08.e].reference (J2)
-   - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across is established by the game and no instruction carries it
-   - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].role is established by the game and no instruction carries it
-   - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.c].team is needed to understand and begin the activity, and only a section consulted when needed carries it
-   - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.c].reference is needed to understand and begin the activity, and only a section consulted when needed carries it
-   - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along is needed to understand and begin the activity, and only a section consulted when needed carries it
+   outcome: the chain would serve it (a TEST-ONLY run; nothing here reaches a coach)
    context: the chain's context equals Step 1's (RPC-002)
    Game Problems: the chain's account reads APPROVED GP-015 'Maintain Possession' (inferred from wording: GP-015 'Maintain Possession'); Step 1: primary GP-015, secondary none; no line of the chain reads a Game Problem; a difference is reported, never switched
    affordance lenses: Possession Stability Opportunity; Space Creation Opportunity; Regain Opportunity: the chain's vocabulary lenses, not contracted knowledge, not a selection
@@ -4336,7 +4351,7 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
      the selection hook only observed: yes; the build's own label for a build from the draft store: BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED
      draft store items that entered derivation (10): restated:RPC-002 RPC-002-01.a, restated:RPC-002 RPC-002-02.a, restated:RPC-002 RPC-002-02.b, restated:RPC-002 RPC-002-03.a, restated:RPC-002 A02-HPE1-03.b, restated:RPC-002 RPC-002-03.c, restated:RPC-002 RPC-002-04.a, restated:RPC-002 RPC-002-04.b, restated:RPC-002 RPC-002-05, restated:RPC-002 RPC-002-06
 
-7. Configuration lines (80)
+7. Configuration lines (100)
    c:proposed:A02-HPE1:A02-HPE1-B1-1::B2 | activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-1].activityRole | 'ESCAPING'
      class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
      premise: proposed:A02-HPE1 A02-HPE1-B1-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
@@ -4361,6 +4376,51 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    c:proposed:A02-HPE1:A02-HPE1-S2-1::S6 | space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across | {term: 'full extent (of an axis)', asAuthored: 'PROPOSED: across the full width of the area'}
      class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
      premise: proposed:A02-HPE1 A02-HPE1-S6-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T2 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].awardedTo | 'ROLE_HOLDER_ESCAPING'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T2-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T3 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].placement.actor | 'a player of the team in this element's T2'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T3-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T5 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].placement.method | 'FROM_THE_FEET'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T5-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T6 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].playState | 'STOP_RESUME'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T6-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T7 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].startsEpisode | true
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: SD-14 (records Christian's decisions of 18 September on revision 2): class 2: An explicit scoped ruling; RULING
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T2 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].awardedTo | 'ROLE_HOLDER_ESCAPING'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T2-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T3 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].placement.actor | 'a player of the team in this element's T2'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T3-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T5 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].placement.method | 'FROM_THE_FEET'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T5-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T6 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].playState | 'STOP_RESUME'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T6-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T7 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].startsEpisode | true
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: SD-14 (records Christian's decisions of 18 September on revision 2): class 2: An explicit scoped ruling; RULING
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T1b | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].qualifiers.endLine | 'EACH_TEAM'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T1b-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T2 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].awardedTo | 'ROLE_HOLDER_ESCAPING'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T2-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T3 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].placement.actor | 'a player of the team in this element's T2'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T3-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T5 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].placement.method | 'FROM_THE_FEET'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T5-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T6 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].playState | 'STOP_RESUME'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T6-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
    c:restated:GF2:GF2-03.e::S3 | space.regions[c:restated:GF2:GF2-03.e].noun | 'line'
      class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
      premise: proposed:A02-HPE1 A02-HPE1-S3-2: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
@@ -4434,6 +4494,9 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    game::E4 | envelope.duration_min | 18
      class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind B
      premise: session input: E4 = 18: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+   game::PS1 | possession.team | 'ROLE_HOLDER_ESCAPING'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T2-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
    game::S1 | space.axis | 'the longer envelope dimension'
      class 2: An explicit scoped ruling; RULING | decision kind B
      premise: SD-11 (records Christian's decisions of 18 September on revision 2): class 2: An explicit scoped ruling; RULING
@@ -4443,9 +4506,15 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    game::V2 | value.primaryEvent.value | 1
      class 2: An explicit scoped ruling; RULING | decision kind B
      premise: SD-25 (records Christian's rulings of 20 September closing the collision exercise): class 2: An explicit scoped ruling; RULING
-   game::PS1 | possession.team | 'c:restated:GF2:GF2-14.a#1'
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T4 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].placement.region | {coachDecides: 'near the escaping team's own end, with the pressing team set to press together'}
      no class claimed; the coach decides | decision kind C
-     premise: game::PS1: the coach decides: no class claimed; the coach decides
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-1::T4: the coach decides: no class claimed; the coach decides
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T4 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].placement.region | {coachDecides: 'near the escaping team's own end, with the pressing team set to press together'}
+     no class claimed; the coach decides | decision kind C
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-2::T4: the coach decides: no class claimed; the coach decides
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T4 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].placement.region | {coachDecides: 'near the escaping team's own end, with the pressing team set to press together'}
+     no class claimed; the coach decides | decision kind C
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-3::T4: the coach decides: no class claimed; the coach decides
    c:restated:GF2:GF2-03.e::S6 | space.regions[c:restated:GF2:GF2-03.e].position.across | 'extends across the axis: the target lies across the direction of progression'
      class 6: An unsupported or unresolved relationship; OURS: assumption in our restatement | decision kind B | a justified default (ONLY_MEMBER_OF_AUTHORED_BOUND), resting on an ASSUMED bound
      premise: the one value the line's authored bound admits, a bound ASSUMED in our restatement, closed by the justified-default rule ONLY_MEMBER_OF_AUTHORED_BOUND: class 6: An unsupported or unresolved relationship; OURS: assumption in our restatement
@@ -4467,6 +4536,12 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    c:proposed:A02-HPE1:A02-HPE1-S2-1::S7 | space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].ofObject | none
      class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
      premise: c:proposed:A02-HPE1:A02-HPE1-S2-1::S7: nothing establishes it (no coverage): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T1a | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].qualifiers.lastTouch | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-3::T1a: nothing establishes it (coverage): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T7 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].startsEpisode | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-3::T7: nothing establishes it (coverage): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
    c:restated:GF2:GF2-03.e::S4 | space.regions[c:restated:GF2:GF2-03.e].functions | none
      class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
      premise: c:restated:GF2:GF2-03.e::S4: nothing establishes it (not constrained): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
@@ -4598,10 +4673,14 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
      class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind B
      premise: session input: specialized roles = 0: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
 
-8. Coach text (15 sentences; the review draft of a communication refusal: DRAFT, NOT SERVED)
+8. Coach text (19 sentences; the text the chain would serve, in a TEST-ONLY run)
    [Set up] Mark out an area 40 m long by 30 m wide
      wording DRAFT; status DERIVED; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
      joins: game::E2, game::E3
+   [Set up] Mark a line across the area, 12 m from the escaping team's end line
+     wording DRAFT; status DERIVED; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+     other classes and labels among its lines: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use): a TEST-ONLY carrier, not knowledge
+     joins: c:proposed:A02-HPE1:A02-HPE1-S2-1::S3, c:proposed:A02-HPE1:A02-HPE1-S2-1::S5, c:proposed:A02-HPE1:A02-HPE1-S2-1::S6
    [Set up] Mark a line across one end of the area, 30 m long, on the end line itself
      wording DRAFT; status DERIVED; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling / OURS: assumption in our restatement
      other classes and labels among its lines: class 3: Candidate or provisional knowledge; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json)
@@ -4614,35 +4693,37 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
      wording DRAFT; status DERIVED; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
      other classes and labels among its lines: class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)
      joins: game::E1, c:restated:GF2:GF2-14.a::members, assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2, assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2, session::roles, assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P3, assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P3
-   [How it works] Pick which team starts with the ball and tell both teams before you start
-     wording DRAFT; status COACH_CHOICE; class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)
-     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
-     joins: game::PS1, c:restated:GF2:GF2-14.a::members, c:sport-profile:soccer:SPORT-SOCCER-01::O2
-   [How it works] When possession changes, play carries on without a stoppage
-     wording DRAFT; status STARTING; class 3: Candidate or provisional knowledge; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)
-     joins: c:restated:GF2:GF2-07.a::T6
+   [How it works] When possession changes, play carries on without a stoppage, and each team keeps attacking the same target
+     wording APPROVED; status STARTING; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling / UNRESOLVED: no authorized value; needs a knowledge decision
+     other classes and labels among its lines: class 3: Candidate or provisional knowledge; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json) / class 2: An explicit scoped ruling; RULING
+     joins: c:restated:GF2:GF2-07.a::T6, c:restated:GF2:GF2-08.c::J3, c:proposed:A02-HPE1:A02-HPE1-T1-1::T2, c:proposed:A02-HPE1:A02-HPE1-T1-1::T3, c:proposed:A02-HPE1:A02-HPE1-T1-1::T5, c:proposed:A02-HPE1:A02-HPE1-T1-1::T6, c:proposed:A02-HPE1:A02-HPE1-T1-1::T7, c:proposed:A02-HPE1:A02-HPE1-T1-2::T2, c:proposed:A02-HPE1:A02-HPE1-T1-2::T3, c:proposed:A02-HPE1:A02-HPE1-T1-2::T5, c:proposed:A02-HPE1:A02-HPE1-T1-2::T6, c:proposed:A02-HPE1:A02-HPE1-T1-2::T7, c:proposed:A02-HPE1:A02-HPE1-T1-3::T1b, c:proposed:A02-HPE1:A02-HPE1-T1-3::T2, c:proposed:A02-HPE1:A02-HPE1-T1-3::T3, c:proposed:A02-HPE1:A02-HPE1-T1-3::T5, c:proposed:A02-HPE1:A02-HPE1-T1-3::T6, c:restated:GF2:GF2-07.a::T7, c:proposed:A02-HPE1:A02-HPE1-T1-1::T4, c:proposed:A02-HPE1:A02-HPE1-T1-2::T4, c:proposed:A02-HPE1:A02-HPE1-T1-3::T4, c:proposed:A02-HPE1:A02-HPE1-T1-3::T1a, c:proposed:A02-HPE1:A02-HPE1-T1-3::T7, c:restated:GF2:GF2-08.c::J2, c:restated:GF2:GF2-08.e::J2
      through its element: transitions[c:restated:GF2:GF2-07.a].selector (the element of c:restated:GF2:GF2-07.a; class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json))
+   [How it works] A player of the escaping team restarts play: at the start and after either team scores
+     wording DRAFT; status DERIVED; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+     joins: c:proposed:A02-HPE1:A02-HPE1-T1-1::T2, c:proposed:A02-HPE1:A02-HPE1-T1-1::T3, c:proposed:A02-HPE1:A02-HPE1-T1-2::T2, c:proposed:A02-HPE1:A02-HPE1-T1-2::T3, c:proposed:A02-HPE1:A02-HPE1-T1-1::T6, c:proposed:A02-HPE1:A02-HPE1-T1-2::T6, game::PS1
+     through its element: transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].selector (the element of c:proposed:A02-HPE1:A02-HPE1-T1-1; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling)
+     through its element: transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].selector (the element of c:proposed:A02-HPE1:A02-HPE1-T1-2; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling)
    [How it works] There is no offside
      wording DRAFT; status DERIVED; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
      joins: defaultLaws:LAW-11
-   [How to score | ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END] Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside
+   [How to score] Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside
      wording DRAFT; status STARTING; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
      other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
      joins: game::V1, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:restated:GF2:GF2-03.f::S3, c:restated:GF2:GF2-08.c::J4
    [How to score] Pressing team: Score by getting the ball across the line it is attacking
      wording DRAFT; status DERIVED; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
      other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
-     joins: c:proposed:A02-HPE1:A02-HPE1-B1-2::B9, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:restated:GF2:GF2-08.c::J4
+     joins: c:proposed:A02-HPE1:A02-HPE1-B1-2::B9, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:restated:GF2:GF2-08.e::J4
    [How to score] Each score is worth 1 point
      wording DRAFT; status DERIVED; class 2: An explicit scoped ruling; RULING
      joins: game::V2
+   [How to score] The escaping team attacks the zone beyond the marked line; the pressing team attacks the escaping team's end line
+     wording CANDIDATE; status DERIVED; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
+     joins: c:restated:GF2:GF2-08.c::J3, c:restated:GF2:GF2-08.c::J2, c:restated:GF2:GF2-08.c::J4, c:restated:GF2:GF2-08.e::J3, c:restated:GF2:GF2-08.e::J2, c:restated:GF2:GF2-08.e::J4, c:restated:GF2:GF2-03.f::S3, c:restated:GF2:GF2-03.e::S3, c:proposed:A02-HPE1:A02-HPE1-S2-1::S3
    [How to score] An escaping team's score counts only if its attack started against the pressing team pressing together (players closing down the ball and cutting off passes together; one player chasing alone usually is not), the ball gets past the marked line, and the escaping team keeps it through its next action.
      wording CANDIDATE; status DERIVED; class 3: Candidate or provisional knowledge; DRAFT knowledge (ours, unreviewed)
      joins: c:restated:RPC-002:RPC-002-02.a::V4, c:restated:RPC-002:RPC-002-02.a::V6, c:restated:RPC-002:RPC-002-03.a::V4, c:restated:RPC-002:RPC-002-03.a::V5, c:restated:RPC-002:RPC-002-03.a::V6, c:restated:RPC-002:RPC-002-04.a::V4, c:restated:RPC-002:RPC-002-04.a::V6
-   [How to score | ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START] Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside
-     wording DRAFT; status STARTING; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
-     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
-     joins: game::V1, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:restated:GF2:GF2-03.e::S3, c:restated:GF2:GF2-08.c::J4
    [When it ends] Play for 18 minutes
      wording DRAFT; status DERIVED; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
      joins: game::E4
@@ -4654,12 +4735,24 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
      other classes and labels among its lines: class 2: An explicit scoped ruling; RULING / class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use): a TEST-ONLY carrier, not knowledge / class 3: Candidate or provisional knowledge; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json)
      joins: c:proposed:A02-HPE1:A02-HPE1-B1-1::B3, c:proposed:A02-HPE1:A02-HPE1-B1-2::B3, c:restated:GF2:GF2-08.c::J3, c:restated:GF2:GF2-08.c::J2, c:restated:GF2:GF2-08.e::J3, c:restated:GF2:GF2-08.e::J2, c:proposed:A02-HPE1:A02-HPE1-S2-1::S5, c:restated:GF2:GF2-03.e::S5, c:restated:GF2:GF2-03.f::S5, c:proposed:A02-HPE1:A02-HPE1-S2-1::S3
      joins no line: remarking.changes[change-1]
-   withheld fields (said only in approved wording):
-   - objectives[c:restated:GF2:GF2-08.c].reference: AWAITING_APPROVED_WORDING
-   - objectives[c:restated:GF2:GF2-08.e].reference: AWAITING_APPROVED_WORDING
+   [Restarts and ball out] A player of the escaping team restarts play from the feet, with the ball still or moving
+     wording DRAFT; status DERIVED; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
+     joins: c:proposed:A02-HPE1:A02-HPE1-T1-1::T2, c:proposed:A02-HPE1:A02-HPE1-T1-1::T3, c:proposed:A02-HPE1:A02-HPE1-T1-2::T2, c:proposed:A02-HPE1:A02-HPE1-T1-2::T3, c:proposed:A02-HPE1:A02-HPE1-T1-1::T5, c:proposed:A02-HPE1:A02-HPE1-T1-2::T5, c:sport-profile:soccer:SPORT-SOCCER-01::O2
+   [Restarts and ball out] You choose where a player of the escaping team restarts play, near the escaping team's own end, with the pressing team set to press together
+     wording DRAFT; status COACH_CHOICE; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+     joins: c:proposed:A02-HPE1:A02-HPE1-T1-1::T4, c:proposed:A02-HPE1:A02-HPE1-T1-2::T4, c:proposed:A02-HPE1:A02-HPE1-T1-1::T2, c:proposed:A02-HPE1:A02-HPE1-T1-1::T3, c:proposed:A02-HPE1:A02-HPE1-T1-2::T2, c:proposed:A02-HPE1:A02-HPE1-T1-2::T3
+   [Restarts and ball out] If the ball goes out over either end line, a player of the escaping team restarts play, from the feet, with the ball still or moving; you choose where (near the escaping team's own end, with the pressing team set to press together)
+     wording DRAFT; status COACH_CHOICE; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
+     joins: c:proposed:A02-HPE1:A02-HPE1-T1-3::T1b, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:proposed:A02-HPE1:A02-HPE1-T1-3::T2, c:proposed:A02-HPE1:A02-HPE1-T1-3::T3, c:proposed:A02-HPE1:A02-HPE1-T1-3::T6, c:proposed:A02-HPE1:A02-HPE1-T1-3::T5, c:proposed:A02-HPE1:A02-HPE1-T1-3::T4
+     through its element: transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].selector (the element of c:proposed:A02-HPE1:A02-HPE1-T1-3; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling)
 
 9. Diagram
-   none
+   the checked chain's diagram verdict: would be served (a TEST-ONLY run; nothing here reaches a coach); the review model's verdict: DRAWN
+   area {lengthM: 40, widthM: 30}; counts ['2 teams of 6']; legend ['marked line', 'target zone', 'target line', 'team colour, kept in every block', 'role in this block', 'attacking direction']
+   zones [{zone: 'c:restated:GF2:GF2-03.f', along: {from: 12, to: 40}, across: {from: 0, to: 30}}]
+   illustrative values on this diagram: players '12, no specialized role' (IL-PLAYERS); area '40 x 30 m' (IL-AREA) (see 14. Illustrative values)
 
 10. Laws account
    mode REPORT (the PROPOSED configuration's (ours, not a ruling) check), held by the harness to our DRAFT classification
@@ -4684,31 +4777,16 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    no scoring-condition component is carried
 
 12. Refusal
-   stage communication
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: objectives[c:restated:GF2:GF2-08.c].reference (J2)
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across is established by the game and no instruction carries it
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].role is established by the game and no instruction carries it
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].team is needed to understand and begin the activity, and only a section consulted when needed carries it
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].reference is needed to understand and begin the activity, and only a section consulted when needed carries it
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along is needed to understand and begin the activity, and only a section consulted when needed carries it
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q2: 'Pressing team: Score by getting the ball across the line it is attacking' calls a team's target a line, and it cites objectives[c:restated:GF2:GF2-08.c], whose target is the region c:restated:GF2:GF2-03.f, whose noun is 'zone': no line
-   - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: objectives[c:restated:GF2:GF2-08.e].reference (J2)
-   - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across is established by the game and no instruction carries it
-   - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].role is established by the game and no instruction carries it
-   - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.c].team is needed to understand and begin the activity, and only a section consulted when needed carries it
-   - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.c].reference is needed to understand and begin the activity, and only a section consulted when needed carries it
-   - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along is needed to understand and begin the activity, and only a section consulted when needed carries it
-   what it rests on (OURS): MIXED: at least one cited item rests on a ruling of Christian's (1 OWNER_RULING (ruling item)); codes communication refusal
-     basis mix of the cited items: 1 OWNER_RULING (ruling item)
-     cites c:restated:GF2:GF2-03.f (found in its reasons): its element is established by item GF2-03.f of restated:GF2 (knowledge), basis OWNER_RULING; graded KNOWLEDGE_RULING_ITEM, class 2, 'RULING' (the item's evidence, verbatim: Christian, 2026-10-09: 'allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure', with the designation pair approved the same day as 'distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity' and 'each team attacks the target opposite its own assigned end, regardless of possession changes'. New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.)
+   none: the chain would serve it (a TEST-ONLY run; nothing here reaches a coach)
 
-13. Gaps (28)
-   - the chain refused at communication: block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: objectives[c:restated:GF2:GF2-08.c].reference (J2); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].role is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].team is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].reference is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q2: 'Pressing team: Score by getting the ball across the line it is attacking' calls a team's target a line, and it cites objectives[c:restated:GF2:GF2-08.c], whose target is the region c:restated:GF2:GF2-03.f, whose noun is 'zone': no line; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: objectives[c:restated:GF2:GF2-08.e].reference (J2); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].role is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.c].team is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.c].reference is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along is needed to understand and begin the activity, and only a section consulted when needed carries it
+13. Gaps (29)
    - c:proposed:A02-HPE1:A02-HPE1-B1-1::B8 (activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-1].creditedWithin): not established
    - c:proposed:A02-HPE1:A02-HPE1-B1-1::B9 (activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-1].scoresBy): not established
    - c:proposed:A02-HPE1:A02-HPE1-B1-2::B8 (activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-2].creditedWithin): not established
    - c:proposed:A02-HPE1:A02-HPE1-S2-1::S4 (space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].functions): not established
    - c:proposed:A02-HPE1:A02-HPE1-S2-1::S7 (space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].ofObject): not established
+   - c:proposed:A02-HPE1:A02-HPE1-T1-3::T1a (transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].qualifiers.lastTouch): not established
+   - c:proposed:A02-HPE1:A02-HPE1-T1-3::T7 (transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].startsEpisode): not established
    - c:restated:GF2:GF2-03.e::S4 (space.regions[c:restated:GF2:GF2-03.e].functions): not established
    - c:restated:GF2:GF2-03.e::S7 (space.regions[c:restated:GF2:GF2-03.e].ofObject): not established
    - c:restated:GF2:GF2-03.f::S4 (space.regions[c:restated:GF2:GF2-03.f].functions): not established
@@ -4812,7 +4890,6 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].type (V4)
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value (V6)
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across is established by the game and no instruction carries it
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].role is established by the game and no instruction carries it
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type is established by the game and no instruction carries it
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value is established by the game and no instruction carries it
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].type is established by the game and no instruction carries it
@@ -4823,7 +4900,6 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].team is needed to understand and begin the activity, and only a section consulted when needed carries it
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].reference is needed to understand and begin the activity, and only a section consulted when needed carries it
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along is needed to understand and begin the activity, and only a section consulted when needed carries it
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q2: 'Pressing team: Score by getting the ball across the line it is attacking' calls a team's target a line, and it cites objectives[c:restated:GF2:GF2-08.c], whose target is the region c:restated:GF2:GF2-03.f, whose noun is 'zone': no line
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: objectives[c:restated:GF2:GF2-08.e].reference (J2)
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type (V4)
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value (V6)
@@ -4833,7 +4909,6 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].type (V4)
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value (V6)
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across is established by the game and no instruction carries it
-   - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].role is established by the game and no instruction carries it
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type is established by the game and no instruction carries it
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value is established by the game and no instruction carries it
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].type is established by the game and no instruction carries it
@@ -4860,7 +4935,7 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
      the selection hook only observed: yes; the build's own label for a build from the draft store: BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED
      draft store items that entered derivation (10): restated:RPC-002 RPC-002-01.a, restated:RPC-002 RPC-002-02.a, restated:RPC-002 RPC-002-02.b, restated:RPC-002 RPC-002-03.a, restated:RPC-002 A02-HPE1-03.b, restated:RPC-002 RPC-002-03.c, restated:RPC-002 RPC-002-04.a, restated:RPC-002 RPC-002-04.b, restated:RPC-002 RPC-002-05, restated:RPC-002 RPC-002-06
 
-7. Configuration lines (63)
+7. Configuration lines (83)
    c:proposed:A02-HPE1:A02-HPE1-B1-1::B2 | activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-1].activityRole | 'ESCAPING'
      class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
      premise: proposed:A02-HPE1 A02-HPE1-B1-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
@@ -4885,6 +4960,51 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    c:proposed:A02-HPE1:A02-HPE1-S2-1::S6 | space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across | {term: 'full extent (of an axis)', asAuthored: 'PROPOSED: across the full width of the area'}
      class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
      premise: proposed:A02-HPE1 A02-HPE1-S6-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T2 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].awardedTo | 'ROLE_HOLDER_ESCAPING'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T2-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T3 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].placement.actor | 'a player of the team in this element's T2'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T3-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T5 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].placement.method | 'FROM_THE_FEET'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T5-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T6 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].playState | 'STOP_RESUME'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T6-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T7 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].startsEpisode | true
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: SD-14 (records Christian's decisions of 18 September on revision 2): class 2: An explicit scoped ruling; RULING
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T2 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].awardedTo | 'ROLE_HOLDER_ESCAPING'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T2-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T3 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].placement.actor | 'a player of the team in this element's T2'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T3-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T5 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].placement.method | 'FROM_THE_FEET'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T5-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T6 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].playState | 'STOP_RESUME'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T6-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T7 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].startsEpisode | true
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: SD-14 (records Christian's decisions of 18 September on revision 2): class 2: An explicit scoped ruling; RULING
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T1b | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].qualifiers.endLine | 'EACH_TEAM'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T1b-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T2 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].awardedTo | 'ROLE_HOLDER_ESCAPING'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T2-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T3 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].placement.actor | 'a player of the team in this element's T2'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T3-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T5 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].placement.method | 'FROM_THE_FEET'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T5-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T6 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].playState | 'STOP_RESUME'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T6-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
    c:restated:GF2:GF2-03.e::S3 | space.regions[c:restated:GF2:GF2-03.e].noun | 'line'
      class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
      premise: proposed:A02-HPE1 A02-HPE1-S3-2: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
@@ -4958,6 +5078,9 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    game::E4 | envelope.duration_min | 18
      class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind B
      premise: session input: E4 = 18: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+   game::PS1 | possession.team | 'ROLE_HOLDER_ESCAPING'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T2-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
    game::S1 | space.axis | 'the longer envelope dimension'
      class 2: An explicit scoped ruling; RULING | decision kind B
      premise: SD-11 (records Christian's decisions of 18 September on revision 2): class 2: An explicit scoped ruling; RULING
@@ -4967,9 +5090,15 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    game::V2 | value.primaryEvent.value | 1
      class 2: An explicit scoped ruling; RULING | decision kind B
      premise: SD-25 (records Christian's rulings of 20 September closing the collision exercise): class 2: An explicit scoped ruling; RULING
-   game::PS1 | possession.team | 'c:restated:GF2:GF2-14.a#1'
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T4 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].placement.region | {coachDecides: 'near the escaping team's own end, with the pressing team set to press together'}
      no class claimed; the coach decides | decision kind C
-     premise: game::PS1: the coach decides: no class claimed; the coach decides
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-1::T4: the coach decides: no class claimed; the coach decides
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T4 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].placement.region | {coachDecides: 'near the escaping team's own end, with the pressing team set to press together'}
+     no class claimed; the coach decides | decision kind C
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-2::T4: the coach decides: no class claimed; the coach decides
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T4 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].placement.region | {coachDecides: 'near the escaping team's own end, with the pressing team set to press together'}
+     no class claimed; the coach decides | decision kind C
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-3::T4: the coach decides: no class claimed; the coach decides
    c:restated:GF2:GF2-03.e::S6 | space.regions[c:restated:GF2:GF2-03.e].position.across | 'extends across the axis: the target lies across the direction of progression'
      class 6: An unsupported or unresolved relationship; OURS: assumption in our restatement | decision kind B | a justified default (ONLY_MEMBER_OF_AUTHORED_BOUND), resting on an ASSUMED bound
      premise: the one value the line's authored bound admits, a bound ASSUMED in our restatement, closed by the justified-default rule ONLY_MEMBER_OF_AUTHORED_BOUND: class 6: An unsupported or unresolved relationship; OURS: assumption in our restatement
@@ -4991,6 +5120,12 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    c:proposed:A02-HPE1:A02-HPE1-S2-1::S7 | space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].ofObject | none
      class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
      premise: c:proposed:A02-HPE1:A02-HPE1-S2-1::S7: nothing establishes it (no coverage): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T1a | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].qualifiers.lastTouch | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-3::T1a: nothing establishes it (coverage): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T7 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].startsEpisode | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-3::T7: nothing establishes it (coverage): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
    c:restated:GF2:GF2-03.e::S4 | space.regions[c:restated:GF2:GF2-03.e].functions | none
      class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
      premise: c:restated:GF2:GF2-03.e::S4: nothing establishes it (not constrained): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
@@ -5056,7 +5191,7 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
      class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind B
      premise: session input: specialized roles = 0: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
 
-8. Coach text (13 sentences; the review draft of a communication refusal: DRAFT, NOT SERVED)
+8. Coach text (15 sentences; the review draft of a communication refusal: DRAFT, NOT SERVED)
    [Set up] Mark out an area 40 m long by 30 m wide
      wording DRAFT; status DERIVED; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
      joins: game::E2, game::E3
@@ -5072,29 +5207,26 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
      wording DRAFT; status DERIVED; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
      other classes and labels among its lines: class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)
      joins: game::E1, c:restated:GF2:GF2-14.a::members, assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2, assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2, session::roles, assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P3, assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P3
-   [How it works] Pick which team starts with the ball and tell both teams before you start
-     wording DRAFT; status COACH_CHOICE; class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)
-     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
-     joins: game::PS1, c:restated:GF2:GF2-14.a::members, c:sport-profile:soccer:SPORT-SOCCER-01::O2
    [How it works] When possession changes, play carries on without a stoppage
      wording DRAFT; status STARTING; class 3: Candidate or provisional knowledge; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)
      joins: c:restated:GF2:GF2-07.a::T6
      through its element: transitions[c:restated:GF2:GF2-07.a].selector (the element of c:restated:GF2:GF2-07.a; class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json))
-   [How to score | ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END] Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside
+   [How it works] A player of the escaping team restarts play: at the start and after either team scores
+     wording DRAFT; status DERIVED; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+     joins: c:proposed:A02-HPE1:A02-HPE1-T1-1::T2, c:proposed:A02-HPE1:A02-HPE1-T1-1::T3, c:proposed:A02-HPE1:A02-HPE1-T1-2::T2, c:proposed:A02-HPE1:A02-HPE1-T1-2::T3, c:proposed:A02-HPE1:A02-HPE1-T1-1::T6, c:proposed:A02-HPE1:A02-HPE1-T1-2::T6, game::PS1
+     through its element: transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].selector (the element of c:proposed:A02-HPE1:A02-HPE1-T1-1; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling)
+     through its element: transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].selector (the element of c:proposed:A02-HPE1:A02-HPE1-T1-2; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling)
+   [How to score] Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside
      wording DRAFT; status STARTING; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
      other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
      joins: game::V1, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:restated:GF2:GF2-03.f::S3, c:restated:GF2:GF2-08.c::J4
    [How to score] Pressing team: Score by getting the ball across the line it is attacking
      wording DRAFT; status DERIVED; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
      other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
-     joins: c:proposed:A02-HPE1:A02-HPE1-B1-2::B9, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:restated:GF2:GF2-08.c::J4
+     joins: c:proposed:A02-HPE1:A02-HPE1-B1-2::B9, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:restated:GF2:GF2-08.e::J4
    [How to score] Each score is worth 1 point
      wording DRAFT; status DERIVED; class 2: An explicit scoped ruling; RULING
      joins: game::V2
-   [How to score | ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START] Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside
-     wording DRAFT; status STARTING; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
-     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
-     joins: game::V1, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:restated:GF2:GF2-03.e::S3, c:restated:GF2:GF2-08.c::J4
    [When it ends] Play for 18 minutes
      wording DRAFT; status DERIVED; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
      joins: game::E4
@@ -5106,6 +5238,18 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
      other classes and labels among its lines: class 2: An explicit scoped ruling; RULING / class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use): a TEST-ONLY carrier, not knowledge / class 3: Candidate or provisional knowledge; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json)
      joins: c:proposed:A02-HPE1:A02-HPE1-B1-1::B3, c:proposed:A02-HPE1:A02-HPE1-B1-2::B3, c:restated:GF2:GF2-08.c::J3, c:restated:GF2:GF2-08.c::J2, c:restated:GF2:GF2-08.e::J3, c:restated:GF2:GF2-08.e::J2, c:proposed:A02-HPE1:A02-HPE1-S2-1::S5, c:restated:GF2:GF2-03.e::S5, c:restated:GF2:GF2-03.f::S5, c:proposed:A02-HPE1:A02-HPE1-S2-1::S3
      joins no line: remarking.changes[change-1]
+   [Restarts and ball out] A player of the escaping team restarts play from the feet, with the ball still or moving
+     wording DRAFT; status DERIVED; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
+     joins: c:proposed:A02-HPE1:A02-HPE1-T1-1::T2, c:proposed:A02-HPE1:A02-HPE1-T1-1::T3, c:proposed:A02-HPE1:A02-HPE1-T1-2::T2, c:proposed:A02-HPE1:A02-HPE1-T1-2::T3, c:proposed:A02-HPE1:A02-HPE1-T1-1::T5, c:proposed:A02-HPE1:A02-HPE1-T1-2::T5, c:sport-profile:soccer:SPORT-SOCCER-01::O2
+   [Restarts and ball out] You choose where a player of the escaping team restarts play, near the escaping team's own end, with the pressing team set to press together
+     wording DRAFT; status COACH_CHOICE; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+     joins: c:proposed:A02-HPE1:A02-HPE1-T1-1::T4, c:proposed:A02-HPE1:A02-HPE1-T1-2::T4, c:proposed:A02-HPE1:A02-HPE1-T1-1::T2, c:proposed:A02-HPE1:A02-HPE1-T1-1::T3, c:proposed:A02-HPE1:A02-HPE1-T1-2::T2, c:proposed:A02-HPE1:A02-HPE1-T1-2::T3
+   [Restarts and ball out] If the ball goes out over either end line, a player of the escaping team restarts play, from the feet, with the ball still or moving; you choose where (near the escaping team's own end, with the pressing team set to press together)
+     wording DRAFT; status COACH_CHOICE; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
+     joins: c:proposed:A02-HPE1:A02-HPE1-T1-3::T1b, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:proposed:A02-HPE1:A02-HPE1-T1-3::T2, c:proposed:A02-HPE1:A02-HPE1-T1-3::T3, c:proposed:A02-HPE1:A02-HPE1-T1-3::T6, c:proposed:A02-HPE1:A02-HPE1-T1-3::T5, c:proposed:A02-HPE1:A02-HPE1-T1-3::T4
+     through its element: transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].selector (the element of c:proposed:A02-HPE1:A02-HPE1-T1-3; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling)
    withheld fields (said only in approved wording):
    - objectives[c:restated:GF2:GF2-08.c].reference: AWAITING_APPROVED_WORDING
    - value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type: AWAITING_APPROVED_WORDING
@@ -5153,7 +5297,6 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].type (V4)
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value (V6)
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across is established by the game and no instruction carries it
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].role is established by the game and no instruction carries it
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type is established by the game and no instruction carries it
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value is established by the game and no instruction carries it
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].type is established by the game and no instruction carries it
@@ -5164,7 +5307,6 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].team is needed to understand and begin the activity, and only a section consulted when needed carries it
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].reference is needed to understand and begin the activity, and only a section consulted when needed carries it
    - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along is needed to understand and begin the activity, and only a section consulted when needed carries it
-   - block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q2: 'Pressing team: Score by getting the ball across the line it is attacking' calls a team's target a line, and it cites objectives[c:restated:GF2:GF2-08.c], whose target is the region c:restated:GF2:GF2-03.f, whose noun is 'zone': no line
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: objectives[c:restated:GF2:GF2-08.e].reference (J2)
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type (V4)
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value (V6)
@@ -5174,7 +5316,6 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].type (V4)
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value (V6)
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across is established by the game and no instruction carries it
-   - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].role is established by the game and no instruction carries it
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type is established by the game and no instruction carries it
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value is established by the game and no instruction carries it
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].type is established by the game and no instruction carries it
@@ -5185,17 +5326,18 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.c].team is needed to understand and begin the activity, and only a section consulted when needed carries it
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.c].reference is needed to understand and begin the activity, and only a section consulted when needed carries it
    - block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along is needed to understand and begin the activity, and only a section consulted when needed carries it
-   what it rests on (OURS): MIXED: at least one cited item rests on a ruling of Christian's (1 OWNER_RULING (ruling item)); codes communication refusal
-     basis mix of the cited items: 1 OWNER_RULING (ruling item)
-     cites c:restated:GF2:GF2-03.f (found in its reasons): its element is established by item GF2-03.f of restated:GF2 (knowledge), basis OWNER_RULING; graded KNOWLEDGE_RULING_ITEM, class 2, 'RULING' (the item's evidence, verbatim: Christian, 2026-10-09: 'allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure', with the designation pair approved the same day as 'distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity' and 'each team attacks the target opposite its own assigned end, regardless of possession changes'. New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.)
+   what it rests on (OURS): NOT KNOWLEDGE: the refusal cites no item: an engine check (communication refusal); codes communication refusal
+     basis mix of the cited items: none
 
-13. Gaps (27)
-   - the chain refused at communication: block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: objectives[c:restated:GF2:GF2-08.c].reference (J2); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type (V4); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value (V6); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].type (V4); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].referents (V5); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].value (V6); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].type (V4); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value (V6); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].role is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].type is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].referents is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].value is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].type is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].team is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].reference is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q2: 'Pressing team: Score by getting the ball across the line it is attacking' calls a team's target a line, and it cites objectives[c:restated:GF2:GF2-08.c], whose target is the region c:restated:GF2:GF2-03.f, whose noun is 'zone': no line; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: objectives[c:restated:GF2:GF2-08.e].reference (J2); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type (V4); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value (V6); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].type (V4); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].referents (V5); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].value (V6); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].type (V4); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value (V6); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].role is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].type is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].referents is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].value is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].type is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.c].team is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.c].reference is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along is needed to understand and begin the activity, and only a section consulted when needed carries it
+13. Gaps (29)
+   - the chain refused at communication: block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: objectives[c:restated:GF2:GF2-08.c].reference (J2); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type (V4); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value (V6); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].type (V4); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].referents (V5); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].value (V6); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].type (V4); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value (V6); block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].type is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].referents is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].value is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].type is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].team is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: objectives[c:restated:GF2:GF2-08.e].reference is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: objectives[c:restated:GF2:GF2-08.e].reference (J2); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type (V4); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value (V6); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].type (V4); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].referents (V5); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].value (V6); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].type (V4); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value (V6); block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].type is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].referents is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-03.a].value is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].type is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-04.a].value is established by the game and no instruction carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.c].team is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: objectives[c:restated:GF2:GF2-08.c].reference is needed to understand and begin the activity, and only a section consulted when needed carries it; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along is needed to understand and begin the activity, and only a section consulted when needed carries it
    - c:proposed:A02-HPE1:A02-HPE1-B1-1::B8 (activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-1].creditedWithin): not established
    - c:proposed:A02-HPE1:A02-HPE1-B1-1::B9 (activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-1].scoresBy): not established
    - c:proposed:A02-HPE1:A02-HPE1-B1-2::B8 (activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-2].creditedWithin): not established
    - c:proposed:A02-HPE1:A02-HPE1-S2-1::S4 (space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].functions): not established
    - c:proposed:A02-HPE1:A02-HPE1-S2-1::S7 (space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].ofObject): not established
+   - c:proposed:A02-HPE1:A02-HPE1-T1-3::T1a (transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].qualifiers.lastTouch): not established
+   - c:proposed:A02-HPE1:A02-HPE1-T1-3::T7 (transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].startsEpisode): not established
    - c:restated:GF2:GF2-03.e::S4 (space.regions[c:restated:GF2:GF2-03.e].functions): not established
    - c:restated:GF2:GF2-03.e::S7 (space.regions[c:restated:GF2:GF2-03.e].ofObject): not established
    - c:restated:GF2:GF2-03.f::S4 (space.regions[c:restated:GF2:GF2-03.f].functions): not established
@@ -5309,7 +5451,7 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
      the selection hook only observed: yes; the build's own label for a build from the draft store: BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED
      draft store items that entered derivation (10): restated:RPC-002 RPC-002-01.a, restated:RPC-002 RPC-002-02.a, restated:RPC-002 RPC-002-02.b, restated:RPC-002 RPC-002-03.a, restated:RPC-002 A02-HPE1-03.b, restated:RPC-002 RPC-002-03.c, restated:RPC-002 RPC-002-04.a, restated:RPC-002 RPC-002-04.b, restated:RPC-002 RPC-002-05, restated:RPC-002 RPC-002-06
 
-7. Configuration lines (63)
+7. Configuration lines (83)
    c:proposed:A02-HPE1:A02-HPE1-B1-1::B2 | activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-1].activityRole | 'ESCAPING'
      class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
      premise: proposed:A02-HPE1 A02-HPE1-B1-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
@@ -5334,6 +5476,51 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    c:proposed:A02-HPE1:A02-HPE1-S2-1::S6 | space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.across | {term: 'full extent (of an axis)', asAuthored: 'PROPOSED: across the full width of the area'}
      class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
      premise: proposed:A02-HPE1 A02-HPE1-S6-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T2 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].awardedTo | 'ROLE_HOLDER_ESCAPING'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T2-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T3 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].placement.actor | 'a player of the team in this element's T2'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T3-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T5 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].placement.method | 'FROM_THE_FEET'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T5-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T6 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].playState | 'STOP_RESUME'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T6-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T7 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].startsEpisode | true
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: SD-14 (records Christian's decisions of 18 September on revision 2): class 2: An explicit scoped ruling; RULING
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T2 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].awardedTo | 'ROLE_HOLDER_ESCAPING'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T2-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T3 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].placement.actor | 'a player of the team in this element's T2'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T3-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T5 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].placement.method | 'FROM_THE_FEET'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T5-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T6 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].playState | 'STOP_RESUME'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T6-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T7 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].startsEpisode | true
+     class 2: An explicit scoped ruling; RULING | decision kind B
+     premise: SD-14 (records Christian's decisions of 18 September on revision 2): class 2: An explicit scoped ruling; RULING
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T1b | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].qualifiers.endLine | 'EACH_TEAM'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T1b-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T2 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].awardedTo | 'ROLE_HOLDER_ESCAPING'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T2-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T3 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].placement.actor | 'a player of the team in this element's T2'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T3-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T5 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].placement.method | 'FROM_THE_FEET'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T5-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T6 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].playState | 'STOP_RESUME'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T6-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
    c:restated:GF2:GF2-03.e::S3 | space.regions[c:restated:GF2:GF2-03.e].noun | 'line'
      class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
      premise: proposed:A02-HPE1 A02-HPE1-S3-2: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
@@ -5407,6 +5594,9 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    game::E4 | envelope.duration_min | 18
      class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind B
      premise: session input: E4 = 18: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
+   game::PS1 | possession.team | 'ROLE_HOLDER_ESCAPING'
+     class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling | decision kind B
+     premise: proposed:A02-HPE1 A02-HPE1-T2-1: class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
    game::S1 | space.axis | 'the longer envelope dimension'
      class 2: An explicit scoped ruling; RULING | decision kind B
      premise: SD-11 (records Christian's decisions of 18 September on revision 2): class 2: An explicit scoped ruling; RULING
@@ -5416,9 +5606,15 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    game::V2 | value.primaryEvent.value | 1
      class 2: An explicit scoped ruling; RULING | decision kind B
      premise: SD-25 (records Christian's rulings of 20 September closing the collision exercise): class 2: An explicit scoped ruling; RULING
-   game::PS1 | possession.team | 'c:restated:GF2:GF2-14.a#1'
+   c:proposed:A02-HPE1:A02-HPE1-T1-1::T4 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].placement.region | {coachDecides: 'near the escaping team's own end, with the pressing team set to press together'}
      no class claimed; the coach decides | decision kind C
-     premise: game::PS1: the coach decides: no class claimed; the coach decides
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-1::T4: the coach decides: no class claimed; the coach decides
+   c:proposed:A02-HPE1:A02-HPE1-T1-2::T4 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].placement.region | {coachDecides: 'near the escaping team's own end, with the pressing team set to press together'}
+     no class claimed; the coach decides | decision kind C
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-2::T4: the coach decides: no class claimed; the coach decides
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T4 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].placement.region | {coachDecides: 'near the escaping team's own end, with the pressing team set to press together'}
+     no class claimed; the coach decides | decision kind C
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-3::T4: the coach decides: no class claimed; the coach decides
    c:restated:GF2:GF2-03.e::S6 | space.regions[c:restated:GF2:GF2-03.e].position.across | 'extends across the axis: the target lies across the direction of progression'
      class 6: An unsupported or unresolved relationship; OURS: assumption in our restatement | decision kind B | a justified default (ONLY_MEMBER_OF_AUTHORED_BOUND), resting on an ASSUMED bound
      premise: the one value the line's authored bound admits, a bound ASSUMED in our restatement, closed by the justified-default rule ONLY_MEMBER_OF_AUTHORED_BOUND: class 6: An unsupported or unresolved relationship; OURS: assumption in our restatement
@@ -5440,6 +5636,12 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    c:proposed:A02-HPE1:A02-HPE1-S2-1::S7 | space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].ofObject | none
      class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
      premise: c:proposed:A02-HPE1:A02-HPE1-S2-1::S7: nothing establishes it (no coverage): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T1a | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].qualifiers.lastTouch | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-3::T1a: nothing establishes it (coverage): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
+   c:proposed:A02-HPE1:A02-HPE1-T1-3::T7 | transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].startsEpisode | none
+     class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
+     premise: c:proposed:A02-HPE1:A02-HPE1-T1-3::T7: nothing establishes it (coverage): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
    c:restated:GF2:GF2-03.e::S4 | space.regions[c:restated:GF2:GF2-03.e].functions | none
      class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision | decision kind none (no configuration value)
      premise: c:restated:GF2:GF2-03.e::S4: nothing establishes it (not constrained): class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision
@@ -5505,7 +5707,7 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
      class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use) | decision kind B
      premise: session input: specialized roles = 0: class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
 
-8. Coach text (13 sentences; the review draft of a communication refusal: DRAFT, NOT SERVED)
+8. Coach text (15 sentences; the review draft of a communication refusal: DRAFT, NOT SERVED)
    [Set up] Mark out an area 40 m long by 30 m wide
      wording DRAFT; status DERIVED; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
      joins: game::E2, game::E3
@@ -5521,29 +5723,26 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
      wording DRAFT; status DERIVED; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
      other classes and labels among its lines: class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)
      joins: game::E1, c:restated:GF2:GF2-14.a::members, assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2, assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2, session::roles, assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P3, assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P3
-   [How it works] Pick which team starts with the ball and tell both teams before you start
-     wording DRAFT; status COACH_CHOICE; class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)
-     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
-     joins: game::PS1, c:restated:GF2:GF2-14.a::members, c:sport-profile:soccer:SPORT-SOCCER-01::O2
    [How it works] When possession changes, play carries on without a stoppage
      wording DRAFT; status STARTING; class 3: Candidate or provisional knowledge; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json) / our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json)
      joins: c:restated:GF2:GF2-07.a::T6
      through its element: transitions[c:restated:GF2:GF2-07.a].selector (the element of c:restated:GF2:GF2-07.a; class 3: Candidate or provisional knowledge; our restatement of the Game Archetype Workbook (game-archetype-workbook.rc1.1.json))
-   [How to score | ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END] Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside
+   [How it works] A player of the escaping team restarts play: at the start and after either team scores
+     wording DRAFT; status DERIVED; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+     joins: c:proposed:A02-HPE1:A02-HPE1-T1-1::T2, c:proposed:A02-HPE1:A02-HPE1-T1-1::T3, c:proposed:A02-HPE1:A02-HPE1-T1-2::T2, c:proposed:A02-HPE1:A02-HPE1-T1-2::T3, c:proposed:A02-HPE1:A02-HPE1-T1-1::T6, c:proposed:A02-HPE1:A02-HPE1-T1-2::T6, game::PS1
+     through its element: transitions[c:proposed:A02-HPE1:A02-HPE1-T1-1].selector (the element of c:proposed:A02-HPE1:A02-HPE1-T1-1; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling)
+     through its element: transitions[c:proposed:A02-HPE1:A02-HPE1-T1-2].selector (the element of c:proposed:A02-HPE1:A02-HPE1-T1-2; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling)
+   [How to score] Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside
      wording DRAFT; status STARTING; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
      other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
      joins: game::V1, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:restated:GF2:GF2-03.f::S3, c:restated:GF2:GF2-08.c::J4
    [How to score] Pressing team: Score by getting the ball across the line it is attacking
      wording DRAFT; status DERIVED; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
      other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
-     joins: c:proposed:A02-HPE1:A02-HPE1-B1-2::B9, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:restated:GF2:GF2-08.c::J4
+     joins: c:proposed:A02-HPE1:A02-HPE1-B1-2::B9, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:restated:GF2:GF2-08.e::J4
    [How to score] Each score is worth 1 point
      wording DRAFT; status DERIVED; class 2: An explicit scoped ruling; RULING
      joins: game::V2
-   [How to score | ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START] Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside
-     wording DRAFT; status STARTING; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
-     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
-     joins: game::V1, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:restated:GF2:GF2-03.e::S3, c:restated:GF2:GF2-08.c::J4
    [When it ends] Play for 18 minutes
      wording DRAFT; status DERIVED; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)
      joins: game::E4
@@ -5555,6 +5754,18 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
      other classes and labels among its lines: class 2: An explicit scoped ruling; RULING / class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use): a TEST-ONLY carrier, not knowledge / class 3: Candidate or provisional knowledge; our restatement of the Soccer Module workbook (soccer-module.rc1-v3.json)
      joins: c:proposed:A02-HPE1:A02-HPE1-B1-1::B3, c:proposed:A02-HPE1:A02-HPE1-B1-2::B3, c:restated:GF2:GF2-08.c::J3, c:restated:GF2:GF2-08.c::J2, c:restated:GF2:GF2-08.e::J3, c:restated:GF2:GF2-08.e::J2, c:proposed:A02-HPE1:A02-HPE1-S2-1::S5, c:restated:GF2:GF2-03.e::S5, c:restated:GF2:GF2-03.f::S5, c:proposed:A02-HPE1:A02-HPE1-S2-1::S3
      joins no line: remarking.changes[change-1]
+   [Restarts and ball out] A player of the escaping team restarts play from the feet, with the ball still or moving
+     wording DRAFT; status DERIVED; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
+     joins: c:proposed:A02-HPE1:A02-HPE1-T1-1::T2, c:proposed:A02-HPE1:A02-HPE1-T1-1::T3, c:proposed:A02-HPE1:A02-HPE1-T1-2::T2, c:proposed:A02-HPE1:A02-HPE1-T1-2::T3, c:proposed:A02-HPE1:A02-HPE1-T1-1::T5, c:proposed:A02-HPE1:A02-HPE1-T1-2::T5, c:sport-profile:soccer:SPORT-SOCCER-01::O2
+   [Restarts and ball out] You choose where a player of the escaping team restarts play, near the escaping team's own end, with the pressing team set to press together
+     wording DRAFT; status COACH_CHOICE; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+     joins: c:proposed:A02-HPE1:A02-HPE1-T1-1::T4, c:proposed:A02-HPE1:A02-HPE1-T1-2::T4, c:proposed:A02-HPE1:A02-HPE1-T1-1::T2, c:proposed:A02-HPE1:A02-HPE1-T1-1::T3, c:proposed:A02-HPE1:A02-HPE1-T1-2::T2, c:proposed:A02-HPE1:A02-HPE1-T1-2::T3
+   [Restarts and ball out] If the ball goes out over either end line, a player of the escaping team restarts play, from the feet, with the ball still or moving; you choose where (near the escaping team's own end, with the pressing team set to press together)
+     wording DRAFT; status COACH_CHOICE; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling
+     other classes and labels among its lines: class 2: An explicit scoped ruling; RULING
+     joins: c:proposed:A02-HPE1:A02-HPE1-T1-3::T1b, c:sport-profile:soccer:SPORT-SOCCER-01::O2, c:proposed:A02-HPE1:A02-HPE1-T1-3::T2, c:proposed:A02-HPE1:A02-HPE1-T1-3::T3, c:proposed:A02-HPE1:A02-HPE1-T1-3::T6, c:proposed:A02-HPE1:A02-HPE1-T1-3::T5, c:proposed:A02-HPE1:A02-HPE1-T1-3::T4
+     through its element: transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].selector (the element of c:proposed:A02-HPE1:A02-HPE1-T1-3; class 6: An unsupported or unresolved relationship; PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling)
    withheld fields (said only in approved wording):
    - objectives[c:restated:GF2:GF2-08.c].reference: AWAITING_APPROVED_WORDING
    - value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type: AWAITING_APPROVED_WORDING
@@ -5599,13 +5810,15 @@ Result standing: PROPOSED_CONFIGURATION_FOR_CHRISTIANS_REVIEW
    what it rests on (OURS): NOT KNOWLEDGE: the refusal cites no item: an engine check (validation refusal); codes validation refusal
      basis mix of the cited items: none
 
-13. Gaps (27)
+13. Gaps (29)
    - the chain refused at validation: the sport's default-laws check (BY_MATERIALITY, [Christian's] reply filed 30 October 2026, item 4) holds this composed activity: 2 material adaptations are owed, which prevent approval; block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: LAW-11 (Law 11 (Offside)) at the game: an adaptation is owed - the representation holds no row for it: a fixed halfway line: no register row holds the halfway line of Law 1, and the build-out activities' only halfway marking is the marked line the coach may move; nothing departs from the whole of it [MATERIAL, as classified in docs/audits/drafts/laws-materiality.DRAFT.json, standing DRAFT - OUR READING of [Christian's] materiality test, for [Christian's] review: not [Christian's] classification, and not production knowledge]; block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: LAW-11 (Law 11 (Offside)) at the game: an adaptation is owed - the representation holds no row for it: a fixed halfway line: no register row holds the halfway line of Law 1, and the build-out activities' only halfway marking is the marked line the coach may move; nothing departs from the whole of it [MATERIAL, as classified in docs/audits/drafts/laws-materiality.DRAFT.json, standing DRAFT - OUR READING of [Christian's] materiality test, for [Christian's] review: not [Christian's] classification, and not production knowledge]; reported for review, not refused: block ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: LAW-8 (Law 8 (The Start and Restart of Play), the kick-off) at the game: an adaptation is owed - the representation holds no row for it: the centre mark a kick-off is taken from: no register row holds it; nothing departs from the whole of it [PROCEDURAL, as classified in docs/audits/drafts/laws-materiality.DRAFT.json, standing DRAFT - OUR READING of [Christian's] materiality test, for [Christian's] review: not [Christian's] classification, and not production knowledge]; reported for review, not refused: block ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: LAW-8 (Law 8 (The Start and Restart of Play), the kick-off) at the game: an adaptation is owed - the representation holds no row for it: the centre mark a kick-off is taken from: no register row holds it; nothing departs from the whole of it [PROCEDURAL, as classified in docs/audits/drafts/laws-materiality.DRAFT.json, standing DRAFT - OUR READING of [Christian's] materiality test, for [Christian's] review: not [Christian's] classification, and not production knowledge]
    - c:proposed:A02-HPE1:A02-HPE1-B1-1::B8 (activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-1].creditedWithin): not established
    - c:proposed:A02-HPE1:A02-HPE1-B1-1::B9 (activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-1].scoresBy): not established
    - c:proposed:A02-HPE1:A02-HPE1-B1-2::B8 (activityRoles[c:proposed:A02-HPE1:A02-HPE1-B1-2].creditedWithin): not established
    - c:proposed:A02-HPE1:A02-HPE1-S2-1::S4 (space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].functions): not established
    - c:proposed:A02-HPE1:A02-HPE1-S2-1::S7 (space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].ofObject): not established
+   - c:proposed:A02-HPE1:A02-HPE1-T1-3::T1a (transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].qualifiers.lastTouch): not established
+   - c:proposed:A02-HPE1:A02-HPE1-T1-3::T7 (transitions[c:proposed:A02-HPE1:A02-HPE1-T1-3].startsEpisode): not established
    - c:restated:GF2:GF2-03.e::S4 (space.regions[c:restated:GF2:GF2-03.e].functions): not established
    - c:restated:GF2:GF2-03.e::S7 (space.regions[c:restated:GF2:GF2-03.e].ofObject): not established
    - c:restated:GF2:GF2-03.f::S4 (space.regions[c:restated:GF2:GF2-03.f].functions): not established

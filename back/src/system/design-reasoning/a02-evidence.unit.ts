@@ -883,16 +883,21 @@ const STOP_CLASSES: StopClass[] = [
         stop: 'communication: in each role block of the PROPOSED configuration\'s realized game, the condition\'s fields await approved wording (the run carries none of our CANDIDATE wording), and fidelity finds the escape line set out by no sentence',
         categories: [1, 5],
         owner: 'CHRISTIAN',
-        whose: `approved coach wording for the condition (${question(2)}); the review-level run A02-HPE1 says the condition in our CANDIDATE wording, held for Christian's review; the escape line's sentence is the renderer limit of the class below`,
+        whose: `approved coach wording for the condition (${question(2)}); the review-level run A02-HPE1 says the condition in our CANDIDATE wording, held for Christian's review; the escape line's sentence needs the register the game was derived over, which only a build given our CANDIDATE wording reads (stage A1, TEST-ONLY)`,
         matches: (r) => r.stage === 'communication' && r.treatments.indexOf('TT-CANDIDATE-WORDING') < 0 && r.reasons.some((x) => x.indexOf(': awaiting approved wording: value.primaryEvent.conditions') > 0),
     },
+    /*
+     * Stage A1 (13 November 2026), re-pinned openly: this class was 'renderer-limits' (communication: the review-level run refused on four limits
+     * of the production renderer; engineering, the lead's decision on three measured changes). The lead's decisions R1 to R4 made the run served:
+     * nothing stops it, and what remains is Christian's approval of every PROPOSED and CANDIDATE element it carries.
+     */
     {
-        id: 'renderer-limits',
-        stop: 'communication: the review-level run passes structure, realization and validation, says the condition in our CANDIDATE wording, and is refused on four limits of the production renderer (the escape line never set out, the renderer reading the production register; the pressing team\'s sentence citing the first objective\'s role; no sentence saying what each team attacks for a zone beside a line; the pressing team\'s target named only in Role exchange)',
-        categories: [5],
-        owner: 'ENGINEERING',
-        whose: 'three renderer changes, measured in stage B2 and not committed, serve the run with no fidelity violation and the behaviour snapshot unchanged: one TEST-ONLY, two on the production path (one adding a DRAFT sentence, which may be Christian\'s); whether to apply them is the lead\'s decision, Christian\'s for the sentence',
-        matches: (r) => r.stage === 'communication' && r.treatments.indexOf('TT-CANDIDATE-WORDING') >= 0 && r.reasons.some((x) => x.indexOf(': fidelity Q') > 0),
+        id: 'served-review-level',
+        stop: 'served at review level (TEST-ONLY): the PROPOSED configuration A02-HPE1 with its PROPOSED restart and LAW-11 departure, our CANDIDATE restatement and our CANDIDATE wording; every PROPOSED element waits on Christian\'s questions (Q1, Q2, Q3, Q6) and every CANDIDATE sentence on Christian\'s review; never released',
+        categories: [],
+        owner: 'CHRISTIAN',
+        whose: 'no stop in the chain: the activity is served at review level only because every PROPOSED element and CANDIDATE sentence is read under a declared TEST-ONLY treatment; releasing any of it needs Christian\'s approval',
+        matches: (r) => r.stage === 'served' && r.treatments.indexOf('TT-CANDIDATE-WORDING') >= 0,
     },
     {
         id: 'served-diagnostic',
@@ -1063,7 +1068,9 @@ function appendixE(): string[] {
     out.push(`- the ${A02_CONDITION_RUNS.length} A02 runs of the knowledge as it stands, under TEST-ONLY treatments of its condition only, or with the carriers on (${A02_CONDITION_RUNS.map((r) => r.id).join(', ')}): ${engineeringOnA02.length === 0 ? `none stops on engineering; each stops on Christian's knowledge or is the served diagnostic (${[...new Set(A02_CONDITION_RUNS.map((r) => r.cls))].join(', ')})` : `ENGINEERING OR UNCLASSIFIED STOPS REMAIN: ${engineeringOnA02.map((r) => `${r.id} ${r.cls}`).join('; ')}`}`)
     // Stage B3: the PROPOSED configuration's runs, told apart from the runs of the knowledge as it stands.
     const b3Rows = STOPS.rows.filter((r) => r.group === B3_GROUP)
-    out.push(`- the ${b3Rows.length} runs of the PROPOSED configuration (stage B3): ${b3Rows.filter((r) => openStop(r)).length ? `engineering stops on ${b3Rows.filter((r) => openStop(r)).map((r) => `${r.id} ${r.cls}`).join(', ')} (the lead's decision on the measured renderer changes, appendix F)` : 'no engineering stop'}; the others ${b3Rows.filter((r) => !openStop(r)).map((r) => `${r.id} ${r.cls}`).join(', ')}`)
+    // Stage A1, re-pinned openly: an engineering stop here was named 'the lead's decision on the measured renderer changes'; since stage A1 it
+    // would be a new engineering stop, named as such.
+    out.push(`- the ${b3Rows.length} runs of the PROPOSED configuration (stage B3): ${b3Rows.filter((r) => openStop(r)).length ? `ENGINEERING STOPS on ${b3Rows.filter((r) => openStop(r)).map((r) => `${r.id} ${r.cls}`).join(', ')}` : 'no engineering stop'}; the others ${b3Rows.filter((r) => !openStop(r)).map((r) => `${r.id} ${r.cls}`).join(', ')}`)
     out.push('Development findings only: no stop here, and no run served, validates an activity ecologically.')
     out.push('')
     return out
@@ -1193,6 +1200,8 @@ const KEY: Array<{ id: string; family?: boolean; means: string }> = [
     { id: 'A02-HPE1', means: 'the PROPOSED configuration of stage B1 for A02 (TEST-ONLY, never knowledge, for Christian\'s review): roles held for a block, an escape line realizing the pressing line, the escaping team\'s target beyond it, the pressing team\'s own PROPOSED scoring event; with stage B2\'s CANDIDATE wording and PROPOSED LAW-11 departure, the review-level run; measured by its own registered tests and in appendix F' },
     { id: 'B2', means: 'stage B2 of the A02 complete-activity package (engineering Christian delegated, received 11 November 2026, second reply), built 12 November 2026: our CANDIDATE coach wording, the PROPOSED LAW-11 departure, the APPROVED / CANDIDATE / DRAFT markers and the review-level label' },
     { id: 'B3', means: 'stage B3 of the A02 complete-activity package (engineering Christian delegated, received 11 November 2026, second reply), built 12 November 2026: the review-level activity in four parts, Christian\'s acceptance walkthrough read from the built game\'s structure, the rewordings and the safeguard check on the PROPOSED configuration\'s runs (appendix F)' },
+    // Stage A1 (13 November 2026): the stage that serves the review-level run.
+    { id: 'A1', means: 'stage A1 of the A02 package (engineering Christian delegated, received 11 November 2026, second reply), built 13 November 2026: the review-level run A02-HPE1 served at review level (the renderer and fidelity reading the register the game was derived over, TEST-ONLY; each role citing its own objective; the two targets named in our CANDIDATE words; the PROPOSED restart, asked of Christian in appendix F)' },
     { id: 'A02-GF2W', means: 'the walkthrough\'s negative control (stage B3): GF2 as A02-D builds it, without the PROPOSED configuration, our CANDIDATE wording printed beside its text, entering no structure' },
     { id: 'A02-12NOV-', family: true, means: 'a ruling of Christian\'s received 12 November 2026, quoted in appendix A (A02-12NOV-PRESSURE: the start under pressure; A02-12NOV-NEXT-ACTION: the next action)' },
     { id: 'GA-', family: true, means: 'a Gate A check of the derivation engine (GA-ONE-PRIMARY-EVENT: one primary scoring event; GA-REFERENCE-INTEGRITY: each reference names an element of the game; GA-RELATIVE-PLACEMENT: each relative position holds of the realized geometry)' },
@@ -1357,7 +1366,10 @@ function b3Sentence(): string {
     const w = walkthroughOf(review)
     const control = walkthroughOf(B3.get(GF2W)!)
     const material = materialEffects(rewordingRows())
-    return `Under the PROPOSED configuration A02-HPE1 (stages B1 and B2, TEST-ONLY, never knowledge, for Christian's review; appendix F, stage B3) a game is realized in both role blocks, and the review-level run, our CANDIDATE wording said, is refused at ${review.answer.stage} on four limits of the production renderer, so it is printed as the draft an administrator sees, never as served; read from that game's structure, Christian's acceptance walkthrough finds ${w.count} of 4 questions established (the negative control A02-GF2W, plain GF2 with our wording beside it, ${control.count} of 4), and the two rewordings move ${material.length === 0 ? 'no knowledge-governed result' : `KNOWLEDGE-GOVERNED RESULTS: ${material.join('; ')}`}.`
+    // Stage A1, re-pinned openly: the run 'is refused at communication on four limits of the production renderer, so it is printed as the draft
+    // an administrator sees, never as served'; since stage A1 (the lead's decisions R1 to R4) it is served at review level, as built.
+    const stop = review.answer.outcome === 'served' ? 'is served at review level (TEST-ONLY, never released; stage A1), with its PROPOSED restart' : `is refused at ${review.answer.stage}`
+    return `Under the PROPOSED configuration A02-HPE1 (stages B1, B2 and A1, TEST-ONLY, never knowledge, for Christian's review; appendix F, stage B3) a game is realized in both role blocks, and the review-level run, our CANDIDATE wording said, ${stop}; read from that game's structure, Christian's acceptance walkthrough finds ${w.count} of 4 questions established (the negative control A02-GF2W, plain GF2 with our wording beside it, ${control.count} of 4), and the two rewordings move ${material.length === 0 ? 'no knowledge-governed result' : `KNOWLEDGE-GOVERNED RESULTS: ${material.join('; ')}`}.`
 }
 
 function bodyLines(): string[] {
@@ -2046,6 +2058,8 @@ test(`W5 (A02 package, 12 November 2026). reuse after the merge of the program b
 // Stage B3, re-pinned openly (measured, scratchpad pkg3/B3): the six stage-B3 runs are added to the rows. law-11 gains A02-HPE1-L (was
 // A02-1b, A02-1b/draft-record); served-diagnostic gains A02-GF2W (was the seven above); the two new classes hold A02-HPE1-S
 // (proposed-awaiting-wording) and A02-HPE1 with its two rewordings (renderer-limits). No other class moves.
+// Stage A1, re-pinned openly (measured, scratchpad pkg4/A1): the class renderer-limits is replaced by served-review-level, which holds the
+// same three runs, now served at review level (the lead's decisions R1 to R4). No other class moves.
 const STOP_CLASS_RUNS: Record<string, string[]> = {
     'pressing-line': ['A02-0', 'A02-0/draft-record', 'S4-NP', 'S4-NP+WZA', 'S4-NP+WZA/no-bypass', 'L3', 'A02-0+GPCL', 'A02-0~reversed', 'S4-NP~reversed', 'S4-NP+WZA~reversed', 'L2~reversed', 'A02-0+GPCL~reversed', 'A02-0~neutral', 'S4-NP~neutral', 'S4-NP+WZA~neutral', 'L2~neutral', 'A02-0+GPCL~neutral', 'A02-0~pressure', 'L2~pressure', 'W-DROPS-UPSTREAM', 'TA02-0/swap'],
     'laws-unclassified': ['A02-1', 'A02-1/draft-record', 'A02-1~reversed', 'A02-1~neutral'],
@@ -2055,7 +2069,7 @@ const STOP_CLASS_RUNS: Record<string, string[]> = {
     'law-11': ['A02-1b', 'A02-1b/draft-record', 'A02-HPE1-L'],
     'coach-wording': ['A02-2', 'A02-2/draft-record', 'A02-2/CAR', 'A02-2~reversed', 'A02-2~neutral'],
     'proposed-awaiting-wording': ['A02-HPE1-S'],
-    'renderer-limits': ['A02-HPE1', 'A02-HPE1~reversed', 'A02-HPE1~neutral'],
+    'served-review-level': ['A02-HPE1', 'A02-HPE1~reversed', 'A02-HPE1~neutral'],
     'served-diagnostic': ['A02-D', 'A02-D/draft-record', 'S4-NP@A02-D', 'S4-NP+WZA@A02-D', 'TA02-D', 'A02-D/swap', 'TA02-D/swap', 'A02-GF2W'],
     'wording-flip': ['S4-NP+TR~reversed', 'S4-NP+TR~neutral'],
     'kept-check': ['S4-WZA', 'S4-TR', 'S4-CDC', 'S4-CDC+IR', 'S4-WZA~reversed', 'S4-TR~reversed', 'S4-CDC~reversed', 'S4-CDC+IR~reversed', 'S4-WZA~neutral', 'S4-TR~neutral', 'S4-CDC~neutral', 'S4-CDC+IR~neutral'],
@@ -2089,13 +2103,14 @@ test('W6 (A02 package, 12 November 2026). every run\'s earliest stop (the safegu
     )
     // Stage B3: the earliest stop of each stage-B3 run (measured): the review-level run and its rewordings on the renderer's limits
     // (engineering, the lead's decision), A02-HPE1-S awaiting approved wording, A02-HPE1-L on LAW-11, the negative control served.
+    // Stage A1, re-pinned openly: the review-level run and its rewordings were renderer-limits; they are served at review level.
     assert.deepEqual(B3_RUN_IDS.map((id) => [id, clsOf(id)]), [
-        ['A02-HPE1', 'renderer-limits'],
+        ['A02-HPE1', 'served-review-level'],
         ['A02-HPE1-S', 'proposed-awaiting-wording'],
         ['A02-HPE1-L', 'law-11'],
         ['A02-GF2W', 'served-diagnostic'],
-        ['A02-HPE1~reversed', 'renderer-limits'],
-        ['A02-HPE1~neutral', 'renderer-limits'],
+        ['A02-HPE1~reversed', 'served-review-level'],
+        ['A02-HPE1~neutral', 'served-review-level'],
     ])
     // What item 2, item 5 and the A02-0 stop's why say of the carriers, held to the runs: each gets past structure and realization.
     for (const id of CARRIER_RUN_IDS) assert.ok(['validation', 'communication'].indexOf(String(carrierResult(id).chain?.stage)) >= 0, id)

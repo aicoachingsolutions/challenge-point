@@ -397,14 +397,28 @@ test('T4 the PROPOSED gate: the file admitted whole, every item stamped PROPOSED
         ['A02-HPE1-B9-1', PROPOSED, 'Q2'],
         ['A02-HPE1-S3-2', PROPOSED, 'Q2'],
         ['A02-HPE1-S5-3', PROPOSED, 'Q2'],
+        // Stage A1 (13 November 2026), re-pinned openly: the PROPOSED restart's nine items join (decision R4, question Q6): the start, a score and
+        // the ball over either end line, each stopping and restarting play, awarded to the escaping team, taken by one of its players from the
+        // feet at a place the coach chooses (BEFORE: the twelve items above).
+        ['A02-HPE1-T1-1', PROPOSED, 'Q6'],
+        ['A02-HPE1-T1-2', PROPOSED, 'Q6'],
+        ['A02-HPE1-T1-3', PROPOSED, 'Q6'],
+        ['A02-HPE1-T1b-1', PROPOSED, 'Q6'],
+        ['A02-HPE1-T6-1', PROPOSED, 'Q6'],
+        ['A02-HPE1-T2-1', PROPOSED, 'Q6'],
+        ['A02-HPE1-T3-1', PROPOSED, 'Q6'],
+        ['A02-HPE1-T5-1', PROPOSED, 'Q6'],
+        ['A02-HPE1-T4-1', PROPOSED, 'Q6'],
     ])
     assert.ok(configuration.realization.items.every((i) => i.basis === 'AUTHORED'), 'AUTHORED so it establishes; its category says what it is')
     assert.deepEqual(configuration.roles, [{ token: 'ESCAPING', noun: 'escaping team' }, { token: 'PRESSING', noun: null }])
     assert.deepEqual(configuration.replacements.map((x) => [x.contractId, x.replaces, x.item.itemId, x.item.category]), [[C, 'RPC-002-03.b', 'A02-HPE1-03.b', 'DRAFT_KNOWLEDGE']])
-    assert.deepEqual(configuration.setsAsideChoices, ['game::V1', 'c:restated:GF2:GF2-03.e::S3', 'c:restated:GF2:GF2-03.f::S3'])
+    // Stage A1, re-pinned openly: the opening holder of possession (game::PS1) joins, entailed by the PROPOSED start's awardee (was the three).
+    assert.deepEqual(configuration.setsAsideChoices, ['game::V1', 'c:restated:GF2:GF2-03.e::S3', 'c:restated:GF2:GF2-03.f::S3', 'game::PS1'])
     assert.deepEqual((configuration.realization.items.find((i) => i.itemId === 'A02-HPE1-S5-1')!.value as any).offsetM, { from: 12, to: 12 }, 'never A01\'s 20 m')
-    // Every request quoted is Christian's, verbatim (the package ruling's words), with its received date.
-    const words = wordsOf('A02-12NOV-PACKAGE')
+    // Every request quoted is Christian's, verbatim (the package ruling's words), with its received date. Stage A1, re-pinned openly: or the
+    // pressure ruling's words of the same reply, which the PROPOSED restart (question Q6) answers (was the package ruling's words only).
+    const words = [...wordsOf('A02-12NOV-PACKAGE'), ...wordsOf('A02-12NOV-PRESSURE')]
     const raw = readJson(PROPOSED_HPE1_FILE)
     for (const text of [...raw.proposed.questions.map((q: any) => q.askedFor), ...raw.proposed.realization.items.map((i: any) => i.askedFor)]) {
         const quoted = String(text).split('"')[1]

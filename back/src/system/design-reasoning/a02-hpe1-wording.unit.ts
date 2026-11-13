@@ -68,6 +68,8 @@ const readJson = (file: string): any => JSON.parse(fs.readFileSync(file, 'utf8')
 const SOURCES = candidateWordingSourcesOf(a02Inputs.rulings.map((r) => ({ id: r.id, words: r.words, received: r.received })))
 const W1 = 'A02-HPE1-W1'
 const NO_OFFSIDE = 'There is no offside'
+/** Stage A1 (decision R3): our CANDIDATE template's sentence as the renderer says it (a coach-facing sentence carries no full stop). */
+const TARGETS_SENTENCE = "The escaping team attacks the zone beyond the marked line; the pressing team attacks the escaping team's end line"
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // The runs: the three HPE-1 cases through the handoff and the real chain, each request, answer and built activity captured (read-only wraps).
@@ -144,16 +146,17 @@ const STOP_REASONS = (block: string, escapingObjective: string, pressingObjectiv
     `block ${block}: fidelity Q3: space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along is needed to understand and begin the activity, and only a section consulted when needed carries it`,
 ]
 
-test('the stop: A02-HPE1 (the review-level run) passes structure, realization and validation, says the condition in our CANDIDATE words, and is refused at communication on four limits of the production renderer', () => {
+/*
+ * Stage A1 (13 November 2026), re-pinned openly. BEFORE: A02-HPE1 refused at communication with the thirteen reasons STOP_REASONS lists (and
+ * the Q2 finding on the pressing team's sentence), the zone objective's reference withheld in each block. AFTER: served at review level, no
+ * reason and nothing withheld: the lead's decisions R1 (the register the game was derived over), R2 (each role's own objective), R3 (the two
+ * targets in our CANDIDATE words) and R4 (the PROPOSED restart). STOP_REASONS stays as the record of what the four limits were.
+ */
+void STOP_REASONS
+test('the run: A02-HPE1 (the review-level run) passes structure, realization and validation, says the condition in our CANDIDATE words, and is served at review level (stage A1; was refused at communication on four limits of the production renderer)', () => {
     const a = at('A02-HPE1').answer
-    assert.deepEqual([a.outcome, a.stage], ['refused', 'communication'])
-    const block1 = 'ESCAPING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END'
-    const block2 = 'ESCAPING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START'
-    const q2 = `block ${block1}: fidelity Q2: "Pressing team: Score by getting the ball across the line it is attacking" calls a team's target a line, and it cites objectives[c:restated:GF2:GF2-08.c], whose target is the region c:restated:GF2:GF2-03.f, whose noun is "zone": no line`
-    const [one, two] = [STOP_REASONS(block1, 'GF2-08.c', 'GF2-08.e'), STOP_REASONS(block2, 'GF2-08.e', 'GF2-08.c')]
-    assert.deepEqual(a.reasons, [...one.slice(0, 6), q2, ...two])
-    // Nothing of the condition is withheld: our CANDIDATE sentence says each of its fields (before stage B2, A02-HPE1-S: seven fields per block).
-    assert.deepEqual(a.withheld.map((w) => w.path), ['objectives[c:restated:GF2:GF2-08.c].reference', 'objectives[c:restated:GF2:GF2-08.e].reference'])
+    assert.deepEqual([a.outcome, a.stage, a.reasons, a.withheld], ['served', null, [], []])
+    assert.equal(at('A02-HPE1').built.activity.integrity.fidelityViolations, 0)
     assert.equal(at('A02-HPE1-S').answer.withheld.filter((w) => w.path.startsWith('value.primaryEvent.conditions')).length, 14, 'without our wording, the seven condition fields of each block are withheld (A02-HPE1-S)')
     // Validation passed: the configuration's own REPORT check, held by the harness to our DRAFT classification, owes LAW-8 only, PROCEDURAL.
     assert.deepEqual(a.laws?.owed, ['LAW-8'])
@@ -203,7 +206,8 @@ test('W1 the CANDIDATE wording passes its gate whole; each defect refuses the fi
     assert.equal(answer.stage, 'communication')
     assert.ok(answer.withheld.some((w) => w.path === 'value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].value'), 'the origin value is withheld')
     assert.ok(answer.reasons.some((r) => r.endsWith('awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-002:RPC-002-02.a].type (V4)')))
-    assert.deepEqual(built.activity.reviewLevel.candidateEntries, [], 'no candidate entry was said')
+    // Stage A1, re-pinned openly (was []): our CANDIDATE template naming the two targets is still said; the stale entry is not.
+    assert.deepEqual(built.activity.reviewLevel.candidateEntries, ['A02-HPE1-T1'], 'no candidate entry was said')
 })
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -220,9 +224,14 @@ test('W2 markers: our CANDIDATE sentence reads CANDIDATE, never APPROVED; the re
     assert.equal(w1[0].section, 'How to score')
     const noCandidateApproved = (list: { text: string; wording: string }[]) => !list.some((s) => candidateTexts.has(s.text) && s.wording === 'APPROVED')
     assert.ok(noCandidateApproved(said))
-    assert.deepEqual([...new Set(said.map((s) => s.wording))].sort(), ['CANDIDATE', 'DRAFT'], 'every other sentence the draft holds is DRAFT')
+    // Stage A1, re-pinned openly (was CANDIDATE and DRAFT only): served, Christian's approved possession sentence is said whole (APPROVED, the
+    // approved template's own word 'target'), and our CANDIDATE template's sentence naming the two targets reads CANDIDATE.
+    assert.deepEqual([...new Set(said.map((s) => s.wording))].sort(), ['APPROVED', 'CANDIDATE', 'DRAFT'], 'every other sentence is DRAFT')
+    assert.deepEqual(said.filter((s) => s.wording === 'APPROVED').map((s) => s.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same target'])
+    assert.deepEqual(said.filter((s) => s.wording === 'CANDIDATE').map((s) => s.text), [TARGETS_SENTENCE, wording.entries[0].sentence])
     const level = at('A02-HPE1').built.activity.reviewLevel
-    assert.deepEqual([level.status, level.wording, level.candidateFile, level.candidateEntries], ['REVIEW_LEVEL_NOT_CHECKED_FOR_RELEASE', 'CANDIDATE_FOR_CHRISTIANS_REVIEW', 'a02-coach-wording.CANDIDATE.json', [W1]])
+    // Stage A1, re-pinned openly (was [W1]): the template's id joins.
+    assert.deepEqual([level.status, level.wording, level.candidateFile, level.candidateEntries], ['REVIEW_LEVEL_NOT_CHECKED_FOR_RELEASE', 'CANDIDATE_FOR_CHRISTIANS_REVIEW', 'a02-coach-wording.CANDIDATE.json', [W1, 'A02-HPE1-T1']])
     // Without our wording (A02-HPE1-S) the account carries no wording standing.
     assert.equal(at('A02-HPE1-S').built.activity.reviewLevel.wording, undefined)
     // Bite: a marker computed with the candidate table merged into the approved one reads our sentence APPROVED, and the check catches it.
@@ -275,17 +284,23 @@ test("W3 production never sees it: the coach's and the review route's builds (A0
 // W4: team names, as measured
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-test("W4 team names, as measured: each role sentence, the escaping team's target zone and the role exchange name the teams by their role nouns; the escape line and the pressing team's end-line target name none (limits (1) and (4) of the stop)", () => {
+/*
+ * Stage A1 (13 November 2026), re-pinned openly. BEFORE (limits (1) and (4) of the stop): no sentence set out the escape line, which only the
+ * exchange sentence placed, and the pressing team's end-line target was named by no team outside Role exchange. AFTER: the escape line is set
+ * out from the escaping team's end line (decision R1), and the pressing team's target is named in How to score by our CANDIDATE template
+ * (decision R3). The end line's own marking sentence still names no team (it marks the line, not whose target it is).
+ */
+test("W4 team names, as measured (stage A1): each role sentence, the escaping team's target zone, the escape line, the two targets and the role exchange name the teams by their role nouns", () => {
     const texts = textsOf('A02-HPE1')
     assert.ok(texts.includes("Mark the escaping team's target zone from the marked line to the pressing team's end line, across the full width"))
     assert.ok(texts.includes('Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside'))
     assert.ok(texts.includes('Pressing team: Score by getting the ball across the line it is attacking'))
     assert.ok(texts.includes('Play in blocks: in each block one team is the escaping team and the other is the pressing team'))
-    // The limits, measured: the escape line has no Set up sentence; the pressing team's target line names no team.
-    assert.ok(!texts.some((t) => t.startsWith('Mark a line across the area,')), 'no sentence sets out the escape line (limit 1)')
-    assert.ok(texts.includes('Mark a line across one end of the area, 30 m long, on the end line itself'), "the pressing team's target is set out naming no team (limit 4)")
+    assert.ok(texts.includes("Mark a line across the area, 12 m from the escaping team's end line"), 'the escape line is set out (decision R1)')
+    assert.ok(texts.includes(TARGETS_SENTENCE), "the pressing team's target is named, beside the escaping team's (decision R3)")
+    assert.ok(texts.includes('Mark a line across one end of the area, 30 m long, on the end line itself'), 'the end line is marked, naming no team (as before)')
     const escapeLine = 'space.regions[c:proposed:A02-HPE1:A02-HPE1-S2-1].position.along'
-    assert.deepEqual(sentences('A02-HPE1').filter((s) => s.from.includes(escapeLine)).map((s) => s.section), ['Role exchange'], 'the escape line is placed only by the exchange sentence')
+    assert.deepEqual(sentences('A02-HPE1').filter((s) => s.from.includes(escapeLine)).map((s) => s.section), ['Set up', 'Role exchange'], 'the escape line is set out, and placed again at the exchange')
 })
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -354,7 +369,9 @@ test('W6 conditions, not solutions: our condition sentence asks the escaping tea
 // W7: the four-part print
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-test("W7 the four-part print of A02-HPE1's draft (refused at communication): every sentence in exactly one part with its marker, every ILLUSTRATIVE quantity labelled where it shows; printed with the CANDIDATE and PROPOSED printed-only sentences and the Coach Definition", () => {
+// Stage A1, re-pinned openly: the print was of the draft of the run refused at communication (heading 'REFUSED AT COMMUNICATION, so this is
+// the draft an administrator sees', 15 sentences and 276 words); it is of the text served at review level, 19 sentences and 377 words.
+test("W7 the four-part print of A02-HPE1 (served at review level, stage A1): every sentence in exactly one part with its marker, every ILLUSTRATIVE quantity labelled where it shows; printed with the CANDIDATE and PROPOSED printed-only sentences and the Coach Definition", () => {
     const m = at('A02-HPE1')
     const wording = loadCandidateWording(SOURCES)
     // The ILLUSTRATIVE paths: the session's values (HO-07NOV-ILLUSTRATIVE) and every line resting on an item the chain received ILLUSTRATIVE.
@@ -368,7 +385,7 @@ test("W7 the four-part print of A02-HPE1's draft (refused at communication): eve
     const purpose = displayCell(committedKnowledge(), { source: 'planning', table: 'learning_goals', row: 'A02', column: 'Coach Definition' }).text
     const print = fourPartPrint({
         heading: [
-            "REVIEW LEVEL, TEST-ONLY. Built through the checked pathway for Christian's review; REFUSED AT COMMUNICATION, so this is the draft an administrator sees, never served to any coach; nothing here is live.",
+            "REVIEW LEVEL, TEST-ONLY. Built through the checked pathway for Christian's review; SERVED at review level, never served to any coach; nothing here is live.",
             'Markers: [A] APPROVED, [C] CANDIDATE (ours, for review), [D] DRAFT (the renderer\'s own words), [P] PROPOSED (new knowledge of ours, for approval).',
         ],
         said,
@@ -385,7 +402,7 @@ test("W7 the four-part print of A02-HPE1's draft (refused at communication): eve
     assert.ok(print.lines.some((l) => l.marker === 'P' && l.part === 'Setup'), 'the placement rule is printed PROPOSED')
     // Concision, measured: the draft's sentences and words (A01's served Details hold 27 sentences: goal-version-communication.unit.ts).
     const words = said.reduce((n, s) => n + s.text.split(/\s+/).length, 0)
-    assert.deepEqual([said.length, words], [15, 276])
+    assert.deepEqual([said.length, words], [19, 377])
     quiet(print.text.split('\n').map((l) => `      ${l}`).join('\n'))
 })
 
