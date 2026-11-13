@@ -135,7 +135,7 @@
                 {
                     "ref": "A02-08NOV-RESTART",
                     "entersAs": "REPORT_ONLY",
-                    "how": "answered for the start by A02-12NOV-PRESSURE (a qualifying sequence may begin in normal play, after a turnover or through a representative restart); the distinction still governs the coach's word for the sequence: the coach text says 'possession', never 'attack' (stage A2)"
+                    "how": "answered for the start by A02-12NOV-PRESSURE (a qualifying sequence may begin in normal play, after a turnover or through a representative restart); the distinction still governs the coach's word for the sequence: HPE-1's coach text says 'possession', never 'attack' (stage A2); HPE-2's scoring sentence names no sequence at all (the point is the escape from the press, and Christian's reply received 13 November 2026 asks that a qualifying sequence not automatically be equated with the whole attacking possession), and 'attempt' is only the coach's word in the coach's restart"
                 },
                 {
                     "ref": "A02-07NOV-CONSERVATIVE",
@@ -264,7 +264,7 @@
                         "A02-10NOV-CANDIDATE",
                         "A02-12NOV-PACKAGE"
                     ],
-                    "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart (C54: Christian's ruling that A01's progression reference and its pressure reference are two distinct references); not typed by us in the restatement. The value 'beyond' is carried (RPC-002-03.c). Now PROPOSED in A02-HPE1 and A02-HPE2 (N1): a marked line placed by a qualitative rule, for Christian's approval (docs/audits/drafts/a02-proposed)",
+                    "where": "open text in our restatement (RPC-002-03.b); RPC-002 authors no marked pressing line, the defenders' line in play is a player position (excluded from V5), and typing it as the target the scoring team attacks would replace the pressing line by the target, which the C54 distinction keeps apart (C54: Christian's ruling that A01's progression reference and its pressure reference are two distinct references); not typed by us in the restatement. The value is carried (RPC-002-03.c): HPE-1's 'beyond', RPC-PROP-133's own word; HPE-2's 'over', our PROPOSED crossing reading of it (a02-hpe2-composition). Now PROPOSED in A02-HPE1 (N1) and A02-HPE2 (Q1): a marked line placed by a qualitative rule, for Christian's approval (docs/audits/drafts/a02-proposed)",
                     "label": "UNRESOLVED"
                 },
                 {
@@ -283,7 +283,7 @@
                         "A02-08NOV-RESTART",
                         "A02-10NOV-TREATMENTS"
                     ],
-                    "where": "answered by Christian's ruling received 12 November 2026, item 1 (A02-12NOV-PRESSURE): a qualifying sequence may emerge during normal play, following a turnover, or through a representative restart, and the coach chooses the starting arrangement; so our CANDIDATE restatement requires no restart, set-up, transition or episode, and GF2's own start (the coach's choice of which team starts) stays. Still not carried by GF2 alone: each team attacks the end opposite its own (GF2-08.c, GF2-08.e: the per-team directional arrangement, by Christian's ruling of 9 October), the same for both teams, so nothing in GF2 makes one team the pressing team (OURS); which team presses is PROPOSED in A02-HPE1 and A02-HPE2 (N3), for Christian's approval",
+                    "where": "answered by Christian's ruling received 12 November 2026, item 1 (A02-12NOV-PRESSURE): a qualifying sequence may emerge during normal play, following a turnover, or through a representative restart, and the coach chooses the starting arrangement; so our CANDIDATE restatement requires no restart, set-up, transition or episode, and GF2's own start (the coach's choice of which team starts) stays. Still not carried by GF2 alone: each team attacks the end opposite its own (GF2-08.c, GF2-08.e: the per-team directional arrangement, by Christian's ruling of 9 October), the same for both teams, so nothing in GF2 makes one team the pressing team (OURS); which team presses is PROPOSED in A02-HPE1 (N3) and A02-HPE2 (Q1), for Christian's approval",
                     "label": "ANSWERED (A02-12NOV-PRESSURE); the pressing role PROPOSED"
                 },
                 {

@@ -11,5 +11,11 @@ this folder, in unit tests (`a02-hpe2.unit.ts`); no route reads it, and none of 
 | `a02-authorization.DRAFT.json` | `a02-composition`'s DRAFT authorization record for A02, copied unchanged (no ruling field filled, the authorized set empty); set aside under the TEST-ONLY treatment TT-K2-RETAIN-FORM, as in HPE-1's runs. |
 | `a02-hpe2-coach-wording.CANDIDATE.json` | Our CANDIDATE coach wording for A02-HPE2 (not a draft store file: the store reads only `.DRAFT.` files). One entry says the escaping team's scoring and its condition, matched to the revised exact values; the printed-only sentences give the coach text in Christian's four parts, each standing for the engine sentences it states. Read only by the tests-only reader `back/src/system/rendering/candidate-coach-wording.ts`, handed to a TEST-ONLY build beside the approved table and never in it. |
 
+How a quotation from a library row is cited: a double-quoted span followed by a row id in brackets, for example `(RPC-PROP-133)` in
+`rpc-002-contract.DRAFT.json` and in the CANDIDATE replacement of `a02-proposed/hpe2.PROPOSED.json`, quotes that row of the RPC library
+(`back/src/system/sport-module/rpc-library.rc1.json`) verbatim; the row id stands for the source and its date, which is the row's
+provenance (RPC-PROP-133: Christian's Primary Scoring Event approval, RC1.1, 13 September 2026). The store's spans are `a02-composition`'s,
+unchanged; a quotation from one of Christian's replies carries the date the reply was received.
+
 How to read the build's labels: every DRAFT, DRAFT_KNOWLEDGE and BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED label the build writes for these items
 means CANDIDATE restatement (ours, unreviewed) of an APPROVED row, the two revised values carrying PROPOSED words of ours as their fitNotes say.

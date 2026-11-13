@@ -54,7 +54,7 @@
                 "contractId": "proposed:A02-HPE2",
                 "itemId": "A02-HPE2-S2-1"
               },
-              "asAuthored": "the pressing line, as the marked line PROPOSED in A02-HPE2 (N1)"
+              "asAuthored": "the pressing line, as the marked line PROPOSED in A02-HPE2 (Q1)"
             }
           },
           "element": {
@@ -97,7 +97,7 @@
           }
         }
       ],
-      "sentence": "The escaping team scores a point when, in an attempt that starts with the pressing team pressing together, a player dribbles over the line, or receives and controls the ball beyond it, and the team keeps the ball through its next action. One player closing down alone does not necessarily count as pressing together. No point if play stops first; use your judgment for unusual stoppages.",
+      "sentence": "The escaping team scores a point when it escapes the pressing team pressing together: a player dribbles over the line, or receives and controls a ball played over it, and the team keeps the ball through its next action. One player closing down alone does not necessarily count as pressing together. No point if play stops first; use your judgment for unusual stoppages.",
       "section": "How to score",
       "standsFor": [
         "Escaping team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside",
@@ -279,7 +279,7 @@
       "id": "A02-HPE2-R2",
       "part": "Rules",
       "label": "PROPOSED",
-      "sentence": "If the ball goes over an end line, the team that did not touch it last restarts from the feet: the escaping team as at the start, the pressing team on the line, where you choose. Throw-ins and free kicks as normal; no offside.",
+      "sentence": "If the ball goes over an end line, the team that did not touch it last restarts from the feet: the escaping team as at the start, the pressing team on the marked line, where you choose. Throw-ins and free kicks as normal; no offside.",
       "standsFor": [
         "If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play, from the feet, with the ball still or moving; you choose where (for the escaping team near its own end, outside the end zone; for the pressing team on the marked line)",
         "There is no offside"
