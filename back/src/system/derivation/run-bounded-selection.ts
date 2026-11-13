@@ -29,7 +29,7 @@ import { runDerivation, runStages0to10 } from './engine'
 import { knowledgeKey } from './knowledge-key'
 import { indexRegister } from './register'
 import { assembleResolvedGame } from './resolved-game'
-import { DerivationInput, DRAFT_KNOWLEDGE_VERSION, LoadedContract } from './types'
+import { DerivationInput, DRAFT_KNOWLEDGE_VERSION, ILLUSTRATIVE, LoadedContract, PROPOSED } from './types'
 
 /**
  * Library ids and contract ids spell the same object differently; neither is rewritten.
@@ -193,10 +193,38 @@ export interface UpstreamDecisions {
     /** Stage W1 (c1), the declared TEST-ONLY treatment GP_COVERAGE_LENSES: the lens candidates and signal groups from Step 1's Coverage row in both branches. */
     coverageLenses?: boolean
     /**
+     * Stage B1 of the A02 complete-activity package (12 November 2026), the declared TEST-ONLY treatment PROPOSED_CONFIGURATION: our PROPOSED
+     * configuration for the routed context (the TEST-ONLY draft store's PROPOSED loader, every item stamped PROPOSED or ILLUSTRATIVE), set as
+     * the selection's realization on this isolated path only, beside K2's empty set (refused without K2's result, beside a record, and without
+     * a draft store), with the role vocabulary of the register copy the build derives over (`RegisterOverlay.roles`). Christian, received 12
+     * November 2026: "Please propose the simplest representative configuration that makes the relevant defensive pressure and escape target
+     * observable to the coach." Never a ruling: a PROPOSED item is never read as Christian's choice (`isDraftCategory`). `pending`, the
+     * declared TEST-ONLY treatment PROPOSED_PENDING: a context-scoring finding whose only ground is that a PROPOSED item's basis is not
+     * OWNER_RULING is moved to the build's `reviewLevel.pendingApproval` (never dropped); absent, every finding refuses as before.
+     */
+    proposedRealization?: ProposedRealizationHandoff
+    /**
      * Stage W2 (11 November 2026, E3), the declared TEST-ONLY treatment FOUNDATION_PRESENCE_BYPASS: the package check need find no foundation
      * member. Honoured only with `quotaBypass` (refused otherwise); `generateSelection` then validates every selected member (E4).
      */
     foundationPresenceBypass?: boolean
+}
+
+/**
+ * TEST-ONLY (stage B1 of the A02 complete-activity package): a PROPOSED configuration as a selection consumes it. Plain data, produced only by
+ * the TEST-ONLY draft store's PROPOSED loader (no production module imports the store); declared here so no production module needs to import it.
+ */
+export interface ProposedRealizationHandoff {
+    /** The realization-shaped contract, `proposed:<id>`, its items stamped PROPOSED (or ILLUSTRATIVE where so marked); never a provisional realization of Christian's. */
+    realization: ProvisionalRealization
+    /** The role vocabulary the register copy holds for this configuration, in order (`RegisterOverlay.roles`). */
+    roles: { token: string; noun: string | null }[]
+    /** The declared treatment that hands it in. */
+    treatmentId: string
+    /** The declared treatment PROPOSED_PENDING, where the case declares it. */
+    pending?: { treatmentId: string }
+    /** Christian's words the review-level build rests on, each with its received date (carried into `reviewLevel.basis`, never into the game). */
+    basis?: { words: string; received: string }[]
 }
 
 /** TEST-ONLY (stage W1 (b)): the review pathway's K2 result as the chain consumes it: an empty set, K2's rule and its limit, and their citation. */
@@ -259,6 +287,19 @@ function upstreamRefusals(upstream: UpstreamDecisions): string[] {
     if (upstream?.coverageLenses !== undefined && typeof upstream.coverageLenses !== 'boolean') errors.push('coverageLenses as a boolean')
     if (upstream?.foundationPresenceBypass !== undefined && (typeof upstream.foundationPresenceBypass !== 'boolean' || (upstream.foundationPresenceBypass && upstream.quotaBypass !== true)))
         errors.push('foundationPresenceBypass as a boolean, true only beside quotaBypass')
+    // Stage B1 (TEST-ONLY): a PROPOSED configuration is read only whole: its contract `proposed:<id>` labelled PROPOSED, every item PROPOSED or
+    // ILLUSTRATIVE, its roles and the treatment that hands it in; beside K2's result only (never beside a record or the quota bypass).
+    const proposed = upstream?.proposedRealization
+    if (proposed !== undefined) {
+        const r: any = proposed?.realization
+        const items: any[] = Array.isArray(r?.items) ? r.items : []
+        if (!r || typeof r.contractId !== 'string' || r.contractId !== `proposed:${String(r.provisionalId)}` || r.category !== PROPOSED || !items.length || !items.every(i => i?.category === PROPOSED || i?.category === ILLUSTRATIVE))
+            errors.push(`a PROPOSED configuration whole: its contract proposed:<id> labelled ${PROPOSED}, and every item labelled ${PROPOSED} or ${ILLUSTRATIVE}`)
+        if (!Array.isArray(proposed?.roles) || !proposed.roles.length || !proposed.roles.every(x => filled(x?.token) && (x.noun === null || filled(x.noun)))) errors.push('the roles of the PROPOSED configuration (each a token, with a noun or null)')
+        if (!filled(proposed?.treatmentId)) errors.push('the treatment that hands the PROPOSED configuration in')
+        if (proposed?.pending !== undefined && !filled(proposed.pending?.treatmentId)) errors.push('the treatment PROPOSED_PENDING, named, where it is handed')
+        if (!upstream.reviewManipulations || upstream.quotaBypass === true) errors.push(`a PROPOSED configuration only beside the review pathway's K2 result (never beside the quota bypass)`)
+    }
     return errors
 }
 
@@ -394,6 +435,10 @@ export function selectFor(
              */
             const refused = reviewManipulationRefusals(goalId, k2, upstream.quotaBypass === true, guided.authorization)
             if (refused) throw new Error(refused)
+            // Stage B1 (TEST-ONLY): a PROPOSED configuration realizes the routed context, and is read over the draft store that restates it.
+            const proposed = upstream.proposedRealization
+            if (proposed && proposed.realization.realizes !== guided.contextId) throw new Error(`${goalId}: the PROPOSED configuration ${proposed.realization.contractId} realizes ${proposed.realization.realizes}, and the goal routes to ${guided.contextId}`)
+            if (proposed && !drafts) throw new Error(`${goalId}: the PROPOSED configuration ${proposed.realization.contractId} is read only over the TEST-ONLY draft store that restates its context`)
             const principle = libraryConstraintPrinciple()
             hints = {
                 ...guided.hints,
@@ -518,6 +563,8 @@ export function selectFor(
         ...contractCoverage(selected, drafts?.contracts ?? []),
         // B2, TEST-ONLY: carried so every later reader of this selection (derivation's input, its stamp) reads the same draft contracts.
         ...(drafts ? { draftContracts: JSON.parse(JSON.stringify(drafts.contracts)) as LoadedContract[] } : {}), ...(drafts?.registerOverlay ? { draftRegisterOverlay: JSON.parse(JSON.stringify(drafts.registerOverlay)) as RegisterOverlay } : {}), // W4 (TEST-ONLY): the overlay only of a carrier-composed store
+        // Stage B1 (TEST-ONLY): a PROPOSED configuration is this selection's realization (never a record's), and its roles join the overlay.
+        ...(upstream?.proposedRealization ? { realization: JSON.parse(JSON.stringify(upstream.proposedRealization.realization)) as ProvisionalRealization, draftRegisterOverlay: withProposedRoles(drafts?.registerOverlay, upstream.proposedRealization) } : {}),
         practiceSituations: (sessionPlanningModel.practiceSituationsFor(goalId) as any[]).map(p => ({ id: p.ID, name: p['Practice Situation'] })),
         chosenSituation,
         gameProblem: guided.gameProblem,
@@ -669,6 +716,19 @@ if (runAsScript) {
 export interface RegisterOverlay {
     episodeScopes: string[]
     treatmentId: string
+    /**
+     * Stage B1 of the A02 complete-activity package (TEST-ONLY): the role vocabulary of the copy, in order, for a PROPOSED configuration
+     * (`ProposedRealizationHandoff`): a token the register holds keeps its noun (null here); a token it does not hold comes with the noun the
+     * configuration proposes. `registerWith` writes them to the copy's role vocabulary and coach nouns only, and stamps its version.
+     */
+    roles?: { token: string; noun: string | null }[]
+    rolesTreatmentId?: string
+}
+
+/** TEST-ONLY (stage B1): the overlay a PROPOSED configuration's selection derives over: the store's own (its episode scopes), with the roles. */
+function withProposedRoles(overlay: RegisterOverlay | undefined, proposed: ProposedRealizationHandoff): RegisterOverlay {
+    const base: RegisterOverlay = overlay ? (JSON.parse(JSON.stringify(overlay)) as RegisterOverlay) : { episodeScopes: [], treatmentId: '' }
+    return { ...base, roles: proposed.roles.map(role => ({ token: role.token, noun: role.noun })), rolesTreatmentId: proposed.treatmentId }
 }
 
 /** TEST-ONLY (W4): the ILLUSTRATIVE carriers one treatment added to a draft store (`DraftStoreContents.illustrative`), in the order applied. */
@@ -693,7 +753,31 @@ export function registerWith(register: any, overlay: RegisterOverlay | undefined
         if (enums.scope.includes(scope)) throw new Error(`the ILLUSTRATIVE episode scope ${scope} is already a scope of the register`)
         enums.scope.push(scope)
     }
-    enums.illustrativeEpisodeScope = [...overlay.episodeScopes]
-    copy.version = `${String(register.version)}+ILLUSTRATIVE(${overlay.treatmentId})`
+    const stamps: string[] = []
+    if (overlay.episodeScopes.length) {
+        enums.illustrativeEpisodeScope = [...overlay.episodeScopes]
+        stamps.push(`+ILLUSTRATIVE(${overlay.treatmentId})`)
+    }
+    /*
+     * Stage B1 (TEST-ONLY): a PROPOSED configuration's roles, on the copy only: the role vocabulary the register's role-block block names becomes
+     * the configuration's tokens, in order, and each new token's coach noun is the one proposed (CANDIDATE); a token the register holds keeps
+     * its noun. A new token the register already holds, a held token given another noun, or a vocabulary that is not two roles is refused.
+     */
+    if (overlay.roles) {
+        const block = copy.roleBlocks
+        const name = String(block?.roleVocabulary ?? '')
+        const held: string[] = Array.isArray(copy.vocabularies?.[name]) ? copy.vocabularies[name].map(String) : []
+        if (!block || !held.length) throw new Error('the register holds no role vocabulary for a PROPOSED configuration\'s roles')
+        if (overlay.roles.length !== 2 || new Set(overlay.roles.map(role => role.token)).size !== 2) throw new Error('a PROPOSED configuration names exactly two roles, one per team')
+        for (const role of overlay.roles) {
+            if (held.includes(role.token) && role.noun !== null) throw new Error(`the role ${role.token} is held by the register, so it keeps the register's noun`)
+            if (!held.includes(role.token) && !(typeof role.noun === 'string' && role.noun.trim())) throw new Error(`the role ${role.token} is not held by the register, so it comes with the noun proposed for it`)
+        }
+        copy.vocabularies[name] = overlay.roles.map(role => role.token)
+        const nouns = { ...(block.coachNouns?.nouns ?? {}) }
+        block.coachNouns = { ...(block.coachNouns ?? {}), nouns: Object.fromEntries(overlay.roles.map(role => [role.token, role.noun ?? String(nouns[role.token])])) }
+        stamps.push(`+PROPOSED(${overlay.rolesTreatmentId ?? overlay.treatmentId})`)
+    }
+    copy.version = `${String(register.version)}${stamps.join('')}`
     return copy
 }

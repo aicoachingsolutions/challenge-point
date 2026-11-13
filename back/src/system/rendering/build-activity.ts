@@ -47,7 +47,7 @@ import { MissingParticipant, missingParticipantsIn, PARTICIPANTS_CHECK } from '.
 import { roleBlocksOf } from '../derivation/role-blocks'
 import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, DraftStoreContents, GoalSelectionGap, knowledgeKey, KnowledgeSelection, realizationOf, selectFor } from '../derivation/run-bounded-selection'
 import type { ConsumedGameProblem, ConsumedRecord, UpstreamDecisions } from '../derivation/run-bounded-selection'
-import { DRAFT_KNOWLEDGE, DRAFT_KNOWLEDGE_VERSION, ILLUSTRATIVE, isDraftCategory, LoadedContract, RoleBlock } from '../derivation/types'
+import { ContractItem, DRAFT_KNOWLEDGE, DRAFT_KNOWLEDGE_VERSION, ILLUSTRATIVE, isDraftCategory, LoadedContract, PROPOSED, RoleBlock } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, ObjectAvailabilityRefusal, objectAvailabilityRefusal, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
 import { boundRegionAccountOf, BoundRegionRefusal, boundRegionRefusalAfter, boundRegionRefusalBefore } from '../realization/bound-region-check'
@@ -69,7 +69,7 @@ import { CoachOverviewDraft, failedOverviewDraft } from './coach-overview'
 import { CoachDiagram, DiagramOutcome, diagramForServing } from './coach-diagram'
 import { failedDiagramDraft, FieldDiagramDraft } from './field-diagram'
 import { CoachOverview, OverviewEvidence, overviewEvidenceOf, overviewForServing, OverviewOutcome } from './overview-fidelity'
-import { contextScoringFindings, EPISODE_REACHABLE_CHECK, eventKindReadingOf } from './context-scoring-guard'
+import { BasisGround, contextScoringFindings, EPISODE_REACHABLE_CHECK, eventKindReadingOf, splitProposedPending } from './context-scoring-guard'
 import {
     BlockRequirementAccount,
     blockRequirementAccountOf,
@@ -457,6 +457,8 @@ export interface ServedActivity {
     diagram?: CoachDiagram
     /** TEST-ONLY (B2, 28 October 2026): the account of a build made from the draft store; see `DraftKnowledgeAccount`. */
     draftKnowledge?: DraftKnowledgeAccount
+    /** TEST-ONLY (stage B1 of the A02 complete-activity package): a build made with a PROPOSED configuration; see `ReviewLevelAccount`. */
+    reviewLevel?: ReviewLevelAccount
     /** TEST-ONLY (B3, 28 October 2026): the relevance trace of a composition-test build or a demonstration; see `relevanceOfBuilt`. */
     relevance?: RelevanceTrace
     /**
@@ -502,6 +504,32 @@ export interface DraftKnowledgeAccount {
      * no game was assembled.
      */
     elements: ElementProvenance[] | null
+}
+
+/**
+ * **TEST-ONLY: what a build made with a PROPOSED configuration rested on** — stage B1 of the A02 complete-activity package, 12 November 2026.
+ * Present only on a build `buildActivityUnderAuthorizationRecords` made with `upstream.proposedRealization`, served or refused, and never on
+ * any route (no route calls that entry). Christian, received 12 November 2026: "Produce one complete A02 activity through the checked
+ * pathway, at review level, with all required conditions grounded in approved knowledge." and "The final interpretation and any
+ * consequential new knowledge should remain subject to my approval."
+ *   - `proposedElements`: the configuration's contract and every item of it the build derived from, each with its stamp (PROPOSED or
+ *     ILLUSTRATIVE) and the question it waits on;
+ *   - `pendingApproval`: each context-scoring finding whose only ground is that a PROPOSED item's basis is not OWNER_RULING, moved here by
+ *     the declared treatment PROPOSED_PENDING (never dropped), with the item, the question it waits on and the finding's own words; every
+ *     other finding refused the build as it always does. Empty without the treatment.
+ */
+export interface ReviewLevelAccount {
+    status: 'REVIEW_LEVEL_NOT_CHECKED_FOR_RELEASE'
+    proposedElements: { contractId: string; treatmentId: string; items: { itemId: string; category: string; waitsOn: string | null }[] }
+    pendingApproval: PendingApprovalEntry[]
+    basis: { words: string; received: string }[]
+}
+export interface PendingApprovalEntry {
+    treatmentId: string
+    item: string
+    questionId: string | null
+    finding: string
+    blocks: string[]
 }
 
 /** The role blocks of a served activity, for the technical account (stage K3). */
@@ -570,6 +598,8 @@ export interface RefusedActivity {
     evidence?: ReviewEvidence
     /** TEST-ONLY (B2, 28 October 2026): the account of a build made from the draft store; see `DraftKnowledgeAccount`. */
     draftKnowledge?: DraftKnowledgeAccount
+    /** TEST-ONLY (stage B1 of the A02 complete-activity package): a build made with a PROPOSED configuration; see `ReviewLevelAccount`. */
+    reviewLevel?: ReviewLevelAccount
     /** TEST-ONLY (B3, 28 October 2026): the relevance trace of a composition-test build or a demonstration; see `relevanceOfBuilt`. */
     relevance?: RelevanceTrace
     /** B4 (28 October 2026), for an administrator only: the sport's check of a composed activity; see `ServedActivity.lawsCheck`. */
@@ -1332,6 +1362,9 @@ export function buildActivityUnderAuthorizationRecords(
     // records exactly as the live route runs it over the file's (`live-activity.ts`); nothing that serves a coach calls this.
     const drafts = options.drafts ? { store: JSON.parse(JSON.stringify(options.drafts)) as DraftStoreContents, seen: { contracts: null as LoadedContract[] | null } } : null
     const observed = options.relevance ? { contracts: null as LoadedContract[] | null } : null
+    // Stage B1 (TEST-ONLY): with a PROPOSED configuration and the declared treatment PROPOSED_PENDING, where the findings it moves are recorded.
+    const proposed = options.upstream?.proposedRealization
+    const pending = proposed?.pending ? { treatmentId: proposed.pending.treatmentId, entries: [] as PendingApprovalEntry[] } : null
     const built = build(
         request,
         options.alter ?? null,
@@ -1351,8 +1384,27 @@ export function buildActivityUnderAuthorizationRecords(
         options.requirementBindingsFile ?? null,
         options.communicationSupplement ?? null,
         options.upstream ? (JSON.parse(JSON.stringify(options.upstream)) as UpstreamDecisions) : null,
+        pending,
     )
     if (drafts) built.activity.draftKnowledge = draftKnowledgeAccountOf(drafts.store, built, drafts.seen.contracts)
+    /*
+     * Stage B1 (TEST-ONLY): a build made with a PROPOSED configuration says so, served or refused: the configuration's items as derivation
+     * received them (each stamp and the question it waits on), the findings PROPOSED_PENDING moved, and Christian's words it rests on. Read
+     * from the derivation input the build last assembled where it assembled one, else from the configuration handed in.
+     */
+    if (proposed) {
+        const received = (drafts?.seen.contracts ?? []).find(c => c.contractId === proposed.realization.contractId) ?? proposed.realization
+        built.activity.reviewLevel = {
+            status: 'REVIEW_LEVEL_NOT_CHECKED_FOR_RELEASE',
+            proposedElements: {
+                contractId: proposed.realization.contractId,
+                treatmentId: proposed.treatmentId,
+                items: received.items.map(item => ({ itemId: item.itemId, category: String(item.category), waitsOn: typeof (item as { waitsOn?: unknown }).waitsOn === 'string' ? String((item as { waitsOn?: unknown }).waitsOn) : null })),
+            },
+            pendingApproval: pending ? JSON.parse(JSON.stringify(pending.entries)) : [],
+            basis: JSON.parse(JSON.stringify(proposed.basis ?? [])),
+        }
+    }
     if (options.relevance && observed) built.activity.relevance = relevanceOfBuilt(built, observed.contracts, request.goalId, options.relevance)
     return built
 }
@@ -1489,6 +1541,8 @@ function build(
     supplement: GameContext['supplement'] = null,
     /** TEST-ONLY, the isolated A02 experiment (`buildActivityUnderAuthorizationRecords` `upstream`): handed to the goal's `selectFor`. Null: nothing is. */
     upstream: UpstreamDecisions | null = null,
+    /** TEST-ONLY (stage B1, the treatment PROPOSED_PENDING): where the findings it moves are recorded (`GameContext.pending`). Null: none is moved. */
+    pending: GameContext['pending'] = null,
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const boundRegions: SportBoundRegions | null = boundRegionsGiven === undefined ? loadSportBoundRegions() : boundRegionsGiven
     // B2 (28 October 2026): the playing environment's elements, read once for every game of this build (the guard in `buildOneGame`).
@@ -1860,7 +1914,7 @@ function build(
             ...(movers.has(entry.id) ? { moves: { role: movers.get(entry.id)! } } : {}),
         }))
         const alternatives = deferral.deferred.map(alternativeOf)
-        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements, supplement }
+        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements, supplement, ...(pending ? { pending } : {}) }
         /**
          * A game built through to communication becomes the served activity; one refused on the way says where. `games` are the games it was
          * rendered from, each with its block id, for the input digests the live save compares (L3, 22 October 2026); nothing served carries them.
@@ -2520,6 +2574,12 @@ interface GameContext {
     }
     /** 7 November 2026, tests only (the option of `buildActivityUnderAuthorizationRecords` that injects it): adds review-only sentences to the rendering before fidelity. Null on every other build. */
     supplement: ((fixture: Record<string, unknown>, rendered: RenderedActivity) => RenderedActivity) | null
+    /**
+     * TEST-ONLY (stage B1 of the A02 complete-activity package): where a PROPOSED configuration was handed with the declared treatment
+     * PROPOSED_PENDING, the treatment and where the findings it moves are recorded (`ReviewLevelAccount.pendingApproval`). Absent on every
+     * other build, which refuses on every context-scoring finding exactly as before.
+     */
+    pending?: { treatmentId: string; entries: PendingApprovalEntry[] } | null
 }
 
 /**
@@ -2613,7 +2673,7 @@ const STAGE_ORDER: ActivityStage[] = ['session', 'selection', 'knowledge', 'stru
  * K3) so that a game played in role blocks runs it once per block. Every refusal sentence, reason and order is what it
  * was: measured, every goal and demonstration answers byte-identically through the review route.
  */
-function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements, supplement }: GameContext): GameOutcome {
+function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements, supplement, pending }: GameContext): GameOutcome {
     let fixture: any = null
     /** 29 October 2026: this block's requirement account, read right after the context-scoring guard; null where the build is not an administrator's review, or stopped before the guard. */
     let blockRequirements: BlockRequirementAccount | null = null
@@ -2907,7 +2967,28 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
                           }
                       })
                 : []
-        invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport, roleEventSupport, index, contextRelationships()))
+        if (!pending) invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport, roleEventSupport, index, contextRelationships()))
+        else {
+            /*
+             * TEST-ONLY (stage B1, the declared treatment PROPOSED_PENDING; absent on every other build): the same findings, and each one whose
+             * only ground is that an item writing a role's own event is not OWNER_RULING, where that item is PROPOSED (our proposal, which
+             * truthfully claims no ruling), is moved to the review-level account with the question it waits on: never dropped. Every other
+             * finding refuses as before, the same finding on a CANDIDATE, ILLUSTRATIVE or knowledge item among them.
+             */
+            const grounds: BasisGround[] = []
+            const found = contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport, roleEventSupport, index, contextRelationships(), grounds)
+            const itemOf = (ref: { contractId: string; itemId: string }) => (input.contracts as LoadedContract[]).find(c => c.contractId === ref.contractId)?.items.find(i => i.itemId === ref.itemId) as (ContractItem & { waitsOn?: unknown }) | undefined
+            const blockId = input.roleBlock?.blockId ?? ONE_GAME
+            const split = splitProposedPending(found, grounds, ref => itemOf(ref)?.category === PROPOSED)
+            for (const ground of split.moved) {
+                const waitsOn = itemOf(ground)?.waitsOn
+                const key = `${ground.contractId}::${ground.itemId}`
+                const entry = pending.entries.find(e => e.item === key && e.finding === ground.finding)
+                if (entry) entry.blocks.push(blockId)
+                else pending.entries.push({ treatmentId: pending.treatmentId, item: key, questionId: typeof waitsOn === 'string' ? waitsOn : null, finding: ground.finding, blocks: [blockId] })
+            }
+            invalid.push(...split.refusing)
+        }
         /**
          * **The requirement account of this block** (29 October 2026; `requirement-account.ts`): read after the guard, from the same realized
          * game, the same episode check and the same readings of the event and of each condition (`eventKindReadingOf`, `conditionReadingOf`),

@@ -30,6 +30,7 @@ import {
     ItemRef,
     LoadedContract,
     PartialResult,
+    PROPOSED,
     RefusalRecord,
     ResolutionLine,
     SpecClause,
@@ -667,6 +668,8 @@ export function runDerivation(input: DerivationInput): DerivationResult | Stampe
         draftItems: new Set(input.contracts.flatMap(contract => (contract.items ?? []).filter(item => isDraftCategory(item.category)).map(item => `${contract.contractId}:${item.itemId}`))),
         // W4 (A02 package, TEST-ONLY): those stamped ILLUSTRATIVE, so the shaping they record is labelled ILLUSTRATIVE.
         illustrativeItems: new Set(input.contracts.flatMap(contract => (contract.items ?? []).filter(item => item.category === ILLUSTRATIVE).map(item => `${contract.contractId}:${item.itemId}`))),
+        // Stage B1 (A02 complete-activity package, TEST-ONLY): those stamped PROPOSED, so the shaping they record is labelled PROPOSED.
+        proposedItems: new Set(input.contracts.flatMap(contract => (contract.items ?? []).filter(item => item.category === PROPOSED).map(item => `${contract.contractId}:${item.itemId}`))),
     })
 }
 

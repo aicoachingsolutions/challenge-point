@@ -53,13 +53,14 @@ import { RelevanceJoinRules, relevanceJoinRulesRefusals } from '../rendering/rel
 import { RequirementBindings, RequirementBindingsRefused, requirementBindingsRefusals } from '../rendering/requirement-bindings'
 import { PRIMARY_SCORING_CONDITION } from '../sport-module/rpc-library'
 import { learningGoalAuthorizations, LearningGoalAuthorization, validateLearningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
+import type { ProvisionalRealization } from './corpus'
 import { loadCorpusContracts, loadProvisionalRealizations, loadRegister, loadSportDefaultLaws, loadSportProfile, objectIdOf } from './corpus'
 import { LawsMateriality, lawsMaterialityRefusals } from './default-laws'
 import { knowledgeKey } from './knowledge-key'
 import { AUDITS_DIR } from './knowledge-root'
 import { indexRegister } from './register'
 import { DraftStoreContents } from './run-bounded-selection'
-import { ContractItem, DRAFT_KNOWLEDGE, DRAFT_KNOWLEDGE_VERSION, ILLUSTRATIVE, LoadedContract, ROLE_YIELD_KEY } from './types'
+import { ContractItem, DRAFT_KNOWLEDGE, DRAFT_KNOWLEDGE_VERSION, ILLUSTRATIVE, LoadedContract, PROPOSED, ROLE_YIELD_KEY } from './types'
 
 export const DRAFTS_DIR = path.join(AUDITS_DIR, 'drafts')
 
@@ -655,6 +656,205 @@ export function withIllustrativeCarriers(store: DraftStoreContents, carriers: Il
     next.illustrative = [...(store.illustrative ?? []), { treatmentId, file: carriers.file, groups: [...groupIds], items, setsAsideChoices }]
     const scopes = [...new Set([...(store.registerOverlay?.episodeScopes ?? []), ...carriers.episodeScopes.filter(s => used.has(s))])]
     if (scopes.length) next.registerOverlay = { episodeScopes: scopes, treatmentId: [...new Set([...(store.registerOverlay ? store.registerOverlay.treatmentId.split('+') : []), ...(used.size ? [treatmentId] : [])])].join('+') }
+    return next
+}
+
+/**
+ * **TEST-ONLY: a PROPOSED configuration — our proposal of new knowledge for Christian's approval, carried as a realization-shaped contract,
+ * never knowledge and never a ruling** — stage B1 of the A02 complete-activity package, 12 November 2026. Christian, received 12 November 2026:
+ * "Please propose the simplest representative configuration that makes the relevant defensive pressure and escape target observable to the
+ * coach." "The final interpretation and any consequential new knowledge should remain subject to my approval." The A01 precedent's engine path
+ * (a realization-shaped contract handed to the chain) with one label changed: every item is stamped PROPOSED (ILLUSTRATIVE where its evidence
+ * says so), and it reaches a build only through the TEST-ONLY upstream option (`UpstreamDecisions.proposedRealization`), beside K2's result.
+ *
+ * One file of its own folder (`docs/audits/drafts/a02-proposed/`, so no draft store's contents change), held to this gate and refused WHOLE on
+ * any defect: a standing that does not begin DRAFT and say PROPOSED and TEST-ONLY; a realization whose contract is not `proposed:<id>`, whose
+ * id or contract id a production contract, the Sport Profile or a provisional realization uses, holding a declaration, a relationship rule,
+ * a realization-choices file or any key a ruled realization writes (`ruledOn`, `by`, `citedAs`, `words`, `departsFrom`, `defaultLawsCheck`);
+ * an item basis other than AUTHORED (OWNER_RULING claims a ruling, refused by name), an item carrying what only a ruled restatement or a
+ * provisional realization writes (`FORBIDDEN_ITEM_KEYS`: `authorizedBy`, the role-yield marker, an item-level `departsFrom`, ...), or any
+ * key a proposal never writes (a source, his words); an item without our reasoning (`fitNote`), without a question id the file asks
+ * (`waitsOn`), without the request it answers in Christian's words with the received date (`askedFor`), or whose `basisEvidence` does not begin
+ * 'PROPOSED:' or 'ILLUSTRATIVE:'; an item on a participant row (a P row: no placement relationship exists for the context), naming a
+ * library constraint, scoped to anything but the whole game, or carrying a value or offset a production provisional realization holds on
+ * the same row and selector (A01's rulings are A01's alone); a role token the register already holds proposed as new, a held token given
+ * another noun, or not two roles; a restatement replacement that is not typed to an item of this configuration. Every item admitted is
+ * stamped PROPOSED or ILLUSTRATIVE (`types.ts`), never DRAFT_KNOWLEDGE and never PROVISIONAL_REALIZATION_CHOICE.
+ */
+export interface ProposedConfiguration {
+    file: string
+    /** The realization-shaped contract (a `ProvisionalRealization` in shape only): category PROPOSED, every item PROPOSED or ILLUSTRATIVE. */
+    realization: ProvisionalRealization
+    /** The roles of the register copy (`RegisterOverlay.roles`), in order. */
+    roles: { token: string; noun: string | null }[]
+    /** Each item of the context's restatement this configuration replaces on the chain's copy, with the typed item that replaces it (CANDIDATE, contingent on the configuration). */
+    replacements: { contractId: string; replaces: string; item: ContractItem }[]
+    /** The questions the configuration waits on, each with the request it answers. */
+    questions: { id: string; asks: string; askedFor: string }[]
+    /**
+     * Lines the configuration's items entail, so the game form's realization-choices file's choice for them is set aside on the chain's copy
+     * (a choice for a line no longer open is refused), as an ILLUSTRATIVE carrier group's are (W4's `setsAsideChoices`).
+     */
+    setsAsideChoices: string[]
+}
+export const PROPOSED_HPE1_FILE = path.join(DRAFTS_DIR, 'a02-proposed', 'hpe1.PROPOSED.json')
+const PROPOSED_ITEM_KEYS = ['id', 'row', 'selector', 'requirement', 'value', 'valueStatus', 'strictness', 'scope', 'basis', 'basisEvidence', 'checkability', 'structuralClause', 'fitNote', 'typedBound', 'waitsOn', 'askedFor']
+const PROPOSED_REALIZATION_KEYS = ['id', 'contractId', 'realizes', 'realizationChoices', 'notWithPracticeSituations', 'items', 'declarations', 'relationshipRules', 'setsAsideChoices', 'note']
+/** What a proposal never writes on the realization: the keys of a ruled realization (his words, his date, his departures, his check). */
+const RULED_REALIZATION_KEYS = ['ruledOn', 'by', 'citedAs', 'words', 'departsFrom', 'defaultLawsCheck', 'category', 'testingBoundaries', 'objectSuitability', 'basedOn', 'withdraws']
+const RECEIVED_12_NOV = '(received 12 November 2026)'
+
+export function loadProposedRealization(file: string = PROPOSED_HPE1_FILE): ProposedConfiguration {
+    const reasons: string[] = []
+    let raw: any
+    try {
+        raw = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^﻿/, ''))
+    } catch (error) {
+        throw new DraftStoreRefused(file, [`the PROPOSED configuration does not parse: ${error instanceof Error ? error.message : String(error)}`])
+    }
+    const standing = String(raw?.standing ?? '')
+    if (!standing.startsWith('DRAFT') || !standing.includes('PROPOSED') || !standing.includes('TEST-ONLY')) reasons.push(`the standing does not begin DRAFT and say PROPOSED and TEST-ONLY (${JSON.stringify(raw?.standing ?? null)})`)
+    const body = raw?.proposed
+    if (!isObject(body) || body.label !== PROPOSED) reasons.push(`the file holds no proposed block labelled ${PROPOSED}`)
+    // The questions the configuration waits on: each an id, what it asks, and the request it answers in Christian's words with the date.
+    const questions: ProposedConfiguration['questions'] = []
+    for (const q of Array.isArray(body?.questions) ? body.questions : []) {
+        if (!filled(q?.id) || !filled(q?.asks) || !filled(q?.askedFor) || !quotationsIn(String(q.askedFor)).length || !String(q.askedFor).includes(RECEIVED_12_NOV)) reasons.push(`a question names its id, what it asks, and the request it answers quoted with ${RECEIVED_12_NOV} (${JSON.stringify(q)})`)
+        else questions.push({ id: String(q.id), asks: String(q.asks), askedFor: String(q.askedFor) })
+    }
+    if (!questions.length) reasons.push('the file asks no question, so no item can say what it waits on')
+    const questionIds = new Set(questions.map(q => q.id))
+    const production = [...loadCorpusContracts(), ...loadSportProfile(), ...loadProvisionalRealizations()]
+    const productionItems = new Set(production.flatMap(contract => (contract.items ?? []).map(item => String(item.itemId))))
+    const productionIds = new Set([...production.map(contract => contract.contractId), ...loadProvisionalRealizations().map(r => r.provisionalId)])
+    const realizationValues = new Map<string, string[]>()
+    for (const item of loadProvisionalRealizations().flatMap(contract => contract.items ?? [])) realizationValues.set(`${String(item.row)}|${String(item.selector)}`, [...(realizationValues.get(`${String(item.row)}|${String(item.selector)}`) ?? []), JSON.stringify(item.value)])
+    const offsetsOf = (value: unknown): string[] => (isObject(value) && isObject(value.offsetM) ? [JSON.stringify(value.offsetM)] : [])
+    const realizationOffsets = new Set(loadProvisionalRealizations().flatMap(contract => (contract.items ?? []).flatMap(item => offsetsOf(item.value).map(offset => `${String(item.row)}|${String(item.selector)}|${offset}`))))
+
+    /** One item of the configuration (or a replacement), gated; its stamp read from its evidence. */
+    const gateItem = (item: any, at: (what: string) => string, idPrefix: string | null, seen: Set<string>): ContractItem | null => {
+        const id = String(item?.id ?? '')
+        const where = (what: string) => at(`item ${id || '(no id)'} ${what}`)
+        const before = reasons.length
+        for (const key of Object.keys(item ?? {})) if (!PROPOSED_ITEM_KEYS.includes(key) && !FORBIDDEN_ITEM_KEYS.includes(key)) reasons.push(where(`carries ${key}, which a PROPOSED item never writes`))
+        for (const key of FORBIDDEN_ITEM_KEYS) if (item && typeof item === 'object' && key in item) reasons.push(where(`carries ${key}, which only a ruled restatement or a provisional realization writes`))
+        if (!filled(item?.id) || !filled(item?.row)) reasons.push(where('has no id or row'))
+        else if (idPrefix !== null && !id.startsWith(idPrefix)) reasons.push(where(`does not begin ${idPrefix}`))
+        if (productionItems.has(id)) reasons.push(where('uses an id a production contract, the Sport Profile or a provisional realization already uses'))
+        else if (seen.has(id)) reasons.push(where('is used twice in the file'))
+        seen.add(id)
+        if (item?.basis === 'OWNER_RULING') reasons.push(where("claims OWNER_RULING: a PROPOSED item never claims a ruling of Christian's"))
+        else if (item?.basis !== 'AUTHORED') reasons.push(where(`has basis ${JSON.stringify(item?.basis ?? null)}: a PROPOSED item is AUTHORED so it establishes what it proposes; its category, never its basis, says what it is`))
+        if (!filled(item?.fitNote)) reasons.push(where('carries no reasoning of ours (fitNote)'))
+        if (!filled(item?.waitsOn) || !questionIds.has(String(item.waitsOn))) reasons.push(where(`names no question of the file it waits on (waitsOn: ${JSON.stringify(item?.waitsOn ?? null)})`))
+        if (idPrefix !== null && (!filled(item?.askedFor) || !quotationsIn(String(item.askedFor)).length || !String(item.askedFor).includes(RECEIVED_12_NOV))) reasons.push(where(`does not quote the request it answers with ${RECEIVED_12_NOV} (askedFor)`))
+        const evidence = String(item?.basisEvidence ?? '')
+        if (idPrefix !== null && !evidence.startsWith('PROPOSED:') && !evidence.startsWith('ILLUSTRATIVE:')) reasons.push(where("has basisEvidence that does not begin 'PROPOSED:' or 'ILLUSTRATIVE:'"))
+        if (/^P[0-9]/.test(String(item?.row ?? ''))) reasons.push(where(`is on the participant row ${item.row}: no placement relationship exists for the context, so a PROPOSED configuration places no one`))
+        if (JSON.stringify(item ?? null).includes('tl-v0-constraint')) reasons.push(where('names a library constraint: K2 retains the form without additional manipulation'))
+        if (item?.scope !== 'WHOLE_GAME') reasons.push(where(`is scoped ${JSON.stringify(item?.scope ?? null)}: a PROPOSED item is scoped to the whole game`))
+        // As the ILLUSTRATIVE gate holds it: a geometric value (where an element sits or how far it runs) copied from A01's realization.
+        if (['S5', 'S6', 'P10'].includes(String(item?.row)) && (realizationValues.get(`${String(item?.row)}|${String(item?.selector)}`) ?? []).includes(JSON.stringify(item?.value))) reasons.push(where(`copies the value a production provisional realization holds on ${item.row} for the same element`))
+        if (offsetsOf(item?.value).some(offset => realizationOffsets.has(`${String(item.row)}|${String(item.selector)}|${offset}`))) reasons.push(where(`copies an offset a production provisional realization holds for the same element (${offsetsOf(item.value).join(', ')})`))
+        if (reasons.length > before) return null
+        const { id: _id, ...rest } = item
+        return { itemId: id, ...rest, category: idPrefix === null ? DRAFT_KNOWLEDGE : evidence.startsWith('ILLUSTRATIVE:') ? ILLUSTRATIVE : PROPOSED } as ContractItem
+    }
+
+    const r = body?.realization
+    const id = String(r?.id ?? '')
+    const at = (what: string) => `realization ${id || '(no id)'}: ${what}`
+    if (!isObject(r)) reasons.push('the file holds no realization')
+    for (const key of Object.keys(r ?? {})) if (!PROPOSED_REALIZATION_KEYS.includes(key)) reasons.push(at(RULED_REALIZATION_KEYS.includes(key) ? `carries ${key}, which only a ruled realization writes` : `carries ${key}, which a PROPOSED configuration never writes`))
+    if (!filled(r?.id) || r?.contractId !== `proposed:${id}`) reasons.push(at(`its contract id must be proposed:${id}`))
+    if (productionIds.has(id) || productionIds.has(String(r?.contractId))) reasons.push(at('uses an id a production contract or provisional realization uses'))
+    if (!filled(r?.realizes)) reasons.push(at('names no context it realizes'))
+    if (r?.realizationChoices !== null) reasons.push(at('names a realization-choices file; a PROPOSED configuration closes no line by a choices file'))
+    if (!Array.isArray(r?.notWithPracticeSituations)) reasons.push(at('lists no practice situations it was not designed for (an empty list says it was designed for all)'))
+    if (!Array.isArray(r?.declarations) || r.declarations.length) reasons.push(at('holds a declaration; a PROPOSED configuration says what its activity does, never what knowledge does not constrain'))
+    if (!Array.isArray(r?.relationshipRules) || r.relationshipRules.length) reasons.push(at('holds a relationship rule'))
+    if (r?.setsAsideChoices !== undefined && (!Array.isArray(r.setsAsideChoices) || !r.setsAsideChoices.every(filled))) reasons.push(at('setsAsideChoices is a list of line ids'))
+    const seen = new Set<string>()
+    const items: ContractItem[] = []
+    for (const item of Array.isArray(r?.items) ? r.items : []) {
+        const gated = gateItem(item, at, `${id}-`, seen)
+        if (gated) items.push(gated)
+    }
+    if (!Array.isArray(r?.items) || !r.items.length) reasons.push(at('holds no item'))
+
+    // The roles of the register copy: two, in order; a new token comes with its proposed noun and is not the register's; a held one keeps its noun.
+    const register = indexRegister(loadRegister())
+    const heldRoles = register.roleBlocks?.roles ?? []
+    const roles: ProposedConfiguration['roles'] = []
+    for (const role of Array.isArray(body?.roles) ? body.roles : []) {
+        const token = String(role?.token ?? '')
+        if (!filled(role?.token)) reasons.push(`a role names no token (${JSON.stringify(role)})`)
+        else if (role?.noun !== null && heldRoles.includes(token)) reasons.push(`the role token ${token} is already in the register: a PROPOSED configuration proposes a new token only where the register holds none, and keeps a held token's noun`)
+        else if (role?.noun === null && !heldRoles.includes(token)) reasons.push(`the role token ${token} is not in the register, so it comes with the noun proposed for it`)
+        else if (role?.noun !== null && (!filled(role?.noun) || role?.label !== 'CANDIDATE' || !questionIds.has(String(role?.waitsOn)))) reasons.push(`the new role ${token} comes with its noun, labelled CANDIDATE, and the question it waits on`)
+        roles.push({ token, noun: role?.noun === null ? null : String(role?.noun ?? '') })
+    }
+    if (roles.length !== 2) reasons.push(`the configuration names ${roles.length} roles; a role block holds exactly two, one per team`)
+
+    // Each replacement of an item of the context's restatement: typed to an item of this configuration (the configuration's own element).
+    const replacements: ProposedConfiguration['replacements'] = []
+    for (const x of Array.isArray(body?.restatementReplacements) ? body.restatementReplacements : []) {
+        const where = (what: string) => `replacement of ${String(x?.replaces ?? '(none)')}: ${what}`
+        if (!filled(x?.contractId) || !filled(x?.replaces) || !isObject(x?.item)) {
+            reasons.push(where('names the contract, the item it replaces and the item that replaces it'))
+            continue
+        }
+        const ref = isObject(x.item.value) && isObject(x.item.value.structuralRef) ? x.item.value.structuralRef : null
+        if (!ref || ref.contractId !== `proposed:${id}` || !items.some(i => i.itemId === ref.itemId)) reasons.push(where(`is not typed to an item of proposed:${id}`))
+        if (!String(x.item.basisEvidence ?? '').startsWith('CANDIDATE')) reasons.push(where("has basisEvidence that does not begin 'CANDIDATE' (our restatement, contingent on the configuration)"))
+        const gated = gateItem(x.item, where, null, seen)
+        if (gated) replacements.push({ contractId: String(x.contractId), replaces: String(x.replaces), item: gated })
+    }
+    if (reasons.length) throw new DraftStoreRefused(file, reasons)
+    const repository = path.resolve(SYSTEM_DIR, '..', '..', '..')
+    const shown = path.relative(repository, path.resolve(file)).split(path.sep).join('/')
+    const realization = {
+        contractId: `proposed:${id}`,
+        objectId: `proposed:${id}`,
+        knowledgeVersion: DRAFT_KNOWLEDGE_VERSION,
+        items,
+        declarations: [],
+        relationshipRules: [],
+        provisionalId: id,
+        category: PROPOSED,
+        realizes: String(r.realizes),
+        // Never a ruling: these four fields say so where a reader of a realization reads them (no ruled realization's words are carried).
+        ruledOn: 'NOT RULED',
+        by: 'PROPOSED (ours), for Christian\'s approval: not a ruling',
+        citedAs: 'PROPOSED (ours): not a ruling of Christian\'s',
+        words: [],
+        realizationChoices: null,
+        notWithPracticeSituations: (r.notWithPracticeSituations as any[]).map(s => ({ id: String(s.id), basis: String(s.basis), because: String(s.because) })),
+        testingBoundaries: null,
+    } as unknown as ProvisionalRealization
+    return { file: shown.startsWith('..') ? path.basename(file) : shown, realization, roles, replacements, questions, setsAsideChoices: Array.isArray(r.setsAsideChoices) ? r.setsAsideChoices.map(String) : [] }
+}
+
+/**
+ * **TEST-ONLY: the draft store with a PROPOSED configuration's restatement replacements made, on a copy** (stage B1). Each replaced item must
+ * be in the contract it names; the typed item that replaces it keeps the replaced item's sources (it restates the same approved row), and
+ * every quotation in its evidence must be verbatim in them (the store's own rule). Stamped DRAFT_KNOWLEDGE (CANDIDATE, contingent on the
+ * configuration). Throws, naming the defect, on a contract the store does not hold, a replaced item it does not hold, or an id clash.
+ */
+export function withProposedReplacements(store: DraftStoreContents, proposed: ProposedConfiguration, treatmentId: string): DraftStoreContents {
+    const next = JSON.parse(JSON.stringify(store)) as DraftStoreContents
+    for (const x of proposed.replacements) {
+        const contract = next.contracts.find(c => c.contractId === x.contractId)
+        if (!contract) throw new Error(`treatment ${treatmentId}: the PROPOSED configuration replaces an item of ${x.contractId}, which the draft store ${store.folder} does not hold`)
+        const replaced = contract.items.find(i => i.itemId === x.replaces)
+        if (!replaced) throw new Error(`treatment ${treatmentId}: the PROPOSED configuration replaces ${x.replaces}, which ${x.contractId} does not hold`)
+        if (contract.items.some(i => i.itemId === x.item.itemId)) throw new Error(`treatment ${treatmentId}: ${x.contractId} already holds ${x.item.itemId}`)
+        const sources = JSON.parse(JSON.stringify((replaced as any).source ?? [])) as any[]
+        const cited = sources.map(s => String(s?.text ?? ''))
+        for (const quotation of quotationsIn(String(x.item.basisEvidence ?? ''))) if (!verbatimIn(quotation, cited)) throw new Error(`treatment ${treatmentId}: ${x.item.itemId} quotes "${quotation}", which is not verbatim in the rows ${x.replaces} cites`)
+        contract.items = contract.items.map(i => (i.itemId === x.replaces ? ({ ...JSON.parse(JSON.stringify(x.item)), source: sources, standing: 'DRAFT' } as ContractItem) : i))
+    }
     return next
 }
 

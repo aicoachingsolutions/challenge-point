@@ -12,11 +12,13 @@
  *   - the draft store folder is admitted whole by the store's own gate, and its gate refuses a copy whose quotation is not verbatim, whose
  *     condition items are gone, or whose record claims a ruling; nothing of it is in production knowledge;
  *   - the review data's new treatment kinds are held to the validator (each defect refuses the file);
- *   - A02-0 (the knowledge as it stands): Steps 1 and 2 run by the handoff and consumed by the chain, refused at structure on our
- *     restatement's own two lines, RESTATEMENT-ONLY; the same case with the handoff placing the form instead (no consumption) reaches the same
- *     refusal over the chain's own pick of another form, so the consumption, not the refusal, is what S1 changed;
- *   - A02-1, A02-1b, A02-2 (each with labelled TEST-ONLY treatments, never the A02 configuration): structure on the control line; validation
- *     on LAW-11 under our DRAFT classification; communication (no approved wording for the condition);
+ *   - A02-0 (the knowledge as it stands, with our CANDIDATE restatement of Christian's rulings received 12 November 2026 since stage B1):
+ *     Steps 1 and 2 run by the handoff and consumed by the chain, refused at structure, Gate A NOT_EVALUABLE on the pressing line's open text;
+ *     the same case with the handoff placing the form instead (no consumption) reaches the same refusal over the chain's own pick of another
+ *     form, so the consumption, not the refusal, is what S1 changed;
+ *   - A02-1, A02-1b, A02-2 (each with labelled TEST-ONLY treatments, never the A02 configuration): validation on the owed laws (the fail safe);
+ *     validation on LAW-11 under our DRAFT classification; communication (no approved wording for the condition); A02-HPE1-S and A02-HPE1-L
+ *     (our PROPOSED configuration, stage B1): a realized game, communication; validation on LAW-11 (a02-hpe1.unit.ts pins them);
  *   - A02-D (diagnostic): plain GF2, which the chain would serve: structural compatibility only, not representative sufficiency;
  *   - on every run the chain's own account recorded the consumption, nothing was placed, the selection hook only observed, and a structure
  *     refusal carries the chain's own account behind it;
@@ -177,7 +179,9 @@ test('the TEST-ONLY draft store folder: admitted whole by its own gate; every it
         [
             ['RPC-002-01.a', 'V1', '*', 'EQUALS', ['line_crossed', 'target_zone_entered', 'gate', 'target_player'], 'AUTHORED', 'DRAFT_KNOWLEDGE'],
             ['RPC-002-02.a', 'V3', 'type=origin', 'EXISTS', 'N/A', 'AUTHORED', 'DRAFT_KNOWLEDGE'],
-            ['RPC-002-02.b', 'V5', 'type=origin', 'EQUALS', 'established coordinated pressure', 'AUTHORED', 'DRAFT_KNOWLEDGE'],
+            // Re-pinned openly (stage B1 of the A02 complete-activity package, 12 November 2026): BEFORE on V5 (the origin's referent, open text);
+            // AFTER on V6, the origin condition's value, judged in play (our CANDIDATE restatement of Christian's ruling received 12 November 2026, item 1).
+            ['RPC-002-02.b', 'V6', 'type=origin', 'EQUALS', 'established coordinated pressure', 'AUTHORED', 'DRAFT_KNOWLEDGE'],
             ['RPC-002-03.a', 'V3', 'type=progression', 'EXISTS', 'N/A', 'AUTHORED', 'DRAFT_KNOWLEDGE'],
             ['RPC-002-03.b', 'V5', 'type=progression', 'EQUALS', 'the pressing line', 'AUTHORED', 'DRAFT_KNOWLEDGE'],
             ['RPC-002-03.c', 'V6', 'type=progression', 'EQUALS', 'beyond', 'AUTHORED', 'DRAFT_KNOWLEDGE'],
@@ -187,13 +191,21 @@ test('the TEST-ONLY draft store folder: admitted whole by its own gate; every it
             ['RPC-002-06', 'P1', '*', 'EXISTS', 'pressure that meaningfully compresses time, space and available action (play)', 'AUTHORED', 'DRAFT_KNOWLEDGE'],
         ],
     )
-    assert.ok(contract!.items.every((i: any) => i.scope === 'WHOLE_GAME'), 'every item is scoped WHOLE_GAME (OURS, over-applying)')
+    assert.ok(contract!.items.every((i: any) => i.scope === 'WHOLE_GAME'), 'every item is scoped WHOLE_GAME (since stage B1 our CANDIDATE reading of the scope ruling received 12 November 2026)')
+    // Re-pinned openly (stage B1): BEFORE V4 UNDECLARED, V5 control UNDECLARED and V6 origin NOT_AUTHORED; AFTER V4 alone, the origin and the
+    // control declared to name no place (V5 NON_CLAIMED NO_FURTHER_VALUE, CANDIDATE) and the origin's value carried (V6 CLAIMED). WHY: Christian's
+    // rulings received 12 November 2026, items 1 and 2 (UA2's restatement).
     assert.deepEqual(
         ((contract!.declarations ?? []) as any[]).filter((d) => d.declaration === 'UNDECLARED' || d.declaration === 'NOT_AUTHORED').map((d) => [d.row, d.selector, d.declaration]),
+        [['V4', '*', 'UNDECLARED']],
+    )
+    assert.deepEqual(
+        ((contract!.declarations ?? []) as any[]).filter((d) => d.qualifier === 'NO_FURTHER_VALUE' || (d.declaration === 'CLAIMED' && ['V5', 'V6'].includes(d.row))).map((d) => [d.row, d.selector, d.declaration, d.qualifier ?? null]),
         [
-            ['V4', '*', 'UNDECLARED'],
-            ['V5', 'type=control', 'UNDECLARED'],
-            ['V6', 'type=origin', 'NOT_AUTHORED'],
+            ['V5', 'type=progression', 'CLAIMED', null],
+            ['V6', 'type ∈ {origin, progression, control}', 'CLAIMED', null],
+            ['V5', 'type=control', 'NON_CLAIMED', 'NO_FURTHER_VALUE'],
+            ['V5', 'type=origin', 'NON_CLAIMED', 'NO_FURTHER_VALUE'],
         ],
     )
     // The gate's bites, on TEST-ONLY copies of the folder in a temporary directory.
@@ -258,8 +270,20 @@ test(`the review data: held to the handoff's own validator with its borrowed rul
     refuses((x) => delete authorization(x).dateBasis, /a dateBasis and the name a citation gives the reply \(citedAs\) come together/)
     refuses((x) => (authorization(x).citedAs = ' '), /a dateBasis and the name a citation gives the reply \(citedAs\) come together/)
     const treatment = (x: any, caseIndex: number, id: string) => x.cases[caseIndex].testOnlyTreatments.find((t: any) => t.id === id)
-    refuses((x) => delete treatment(x, 2, 'TT-CONTROL-NO-FURTHER-VALUE').declaration, /replaces a declaration: it names its contract and the declaration/)
-    refuses((x) => (treatment(x, 2, 'TT-CONTROL-NO-FURTHER-VALUE').itemIds = ['RPC-002-04.a']), /replaces a declaration: it names its contract and the declaration/)
+    // Re-pinned openly (stage B1): BEFORE these two bites read A02-1b's TT-CONTROL-NO-FURTHER-VALUE; AFTER no case declares a REPLACE_DECLARATION
+    // (the declaration is our CANDIDATE restatement's own since 12 November 2026), so the bites add one to A02-1b, as it stood, and break it.
+    const declarationTreatment = { id: 'TT-BITE-DECLARATION', kind: 'REPLACE_DECLARATION', contractId: 'restated:RPC-002', declaration: { row: 'V5', selector: 'type=control', from: 'UNDECLARED', to: 'NON_CLAIMED', qualifier: 'NO_FURTHER_VALUE' }, what: 'w', effect: 'e', why: 'y', label: 'TEST-ONLY', rulingRefs: ['A02-10NOV-TREATMENTS'] }
+    refuses((x) => x.cases[2].testOnlyTreatments.push({ ...copy(declarationTreatment), declaration: undefined }), /replaces a declaration: it names its contract and the declaration/)
+    refuses((x) => x.cases[2].testOnlyTreatments.push({ ...copy(declarationTreatment), itemIds: ['RPC-002-04.a'] }), /replaces a declaration: it names its contract and the declaration/)
+    // Stage B1: the PROPOSED configuration's kinds, each defect refusing the file: labelled otherwise, naming no file, beside no K2 result,
+    // declared twice, and PROPOSED_PENDING without the configuration.
+    const hpe1 = 5
+    refuses((x) => (treatment(x, hpe1, 'TT-PROPOSED-HPE1').label = 'TEST-ONLY'), /a PROPOSED configuration belongs only to PROPOSED_CONFIGURATION/)
+    refuses((x) => delete treatment(x, hpe1, 'TT-PROPOSED-HPE1').proposed.file, /a PROPOSED configuration belongs only to PROPOSED_CONFIGURATION/)
+    refuses((x) => (treatment(x, hpe1, 'TT-PROPOSED-HPE1').proposed.basis.words = [99]), /a PROPOSED configuration belongs only to PROPOSED_CONFIGURATION/)
+    refuses((x) => (x.cases[hpe1].testOnlyTreatments = x.cases[hpe1].testOnlyTreatments.filter((t: any) => t.kind !== 'K2_RETAIN_FORM')), /PROPOSED_CONFIGURATION is declared at most once, only beside CONSUMED_STEPS and K2_RETAIN_FORM/)
+    refuses((x) => x.cases[hpe1].testOnlyTreatments.push({ ...treatment(x, hpe1, 'TT-PROPOSED-HPE1'), id: 'TT-PROPOSED-AGAIN' }), /PROPOSED_CONFIGURATION is declared at most once/)
+    refuses((x) => (x.cases[hpe1].testOnlyTreatments = x.cases[hpe1].testOnlyTreatments.filter((t: any) => t.kind !== 'PROPOSED_CONFIGURATION')), /PROPOSED_PENDING is declared at most once, and only beside PROPOSED_CONFIGURATION/)
     refuses((x) => (treatment(x, 2, 'TT-LAWS-DRAFT').declaration = { row: 'V5', selector: '*', from: 'A', to: 'B' }), /names a declaration, and only REPLACE_DECLARATION replaces one/)
     refuses((x) => (treatment(x, 0, 'TT-DRAFT-STORE').standIn = { law: 'LAW-11', materiality: 'PROCEDURAL' }), /a stand-in for one law's materiality belongs only to LAWS_CLASSIFICATION/)
     refuses((x) => (treatment(x, 3, 'TT-LAW-11-STAND-IN').standIn.materiality = 'MINOR'), /a stand-in for one law's materiality belongs only to LAWS_CLASSIFICATION/)
@@ -293,21 +317,24 @@ function sharedOf(r: HandoffResult): void {
     // the review pathway's K2 result in place of a per-goal record, REVIEW_PATHWAY_K2, the empty set, with K2's limit carried.
     assert.deepEqual([x.form?.formId, x.form?.cells.find((c) => c.cell.endsWith('game_forms GF2'))?.grade, x.formCandidatesScored, x.formCandidatesFrom, x.constraintAuthority, x.constraintCandidateIds, x.sizeRuleBypassed, x.selectionObservedOnly, x.draftStatus], ['GF2', 'CANDIDATE', ['GF2'], 'SELECTION_TRACE_RANKING', 'REVIEW_PATHWAY_K2', [], false, true, 'BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED'], r.caseId)
     assert.equal(x.reviewManipulations?.limit, inputs.rulings.find((ruling) => ruling.id === 'HO-07NOV-K2')?.words[2], `${r.caseId}: K2's limit carried`)
-    assert.deepEqual(r.notCarried.map((n) => n.id), ['UN-ORIGIN', 'UN-PRESSING-LINE', 'UN-CONTROL-REFERENT', 'UN-SCOPE', 'UN-WORDING', 'UN-RESTART-POSSESSION', 'UN-LAWS', 'UN-IDENTITY', 'UN-PRESSURE-CARRIER', 'UN-AFFORDANCE-TARGETS'], r.caseId)
+    // Re-pinned openly (stage B1): BEFORE ten entries; AFTER seven: UN-ORIGIN, UN-CONTROL-REFERENT and UN-SCOPE leave (carried by our CANDIDATE
+    // restatement of Christian's rulings received 12 November 2026); UN-RESTART-POSSESSION is kept, answered by item 1.
+    assert.deepEqual(r.notCarried.map((n) => n.id), ['UN-PRESSING-LINE', 'UN-WORDING', 'UN-RESTART-POSSESSION', 'UN-LAWS', 'UN-IDENTITY', 'UN-PRESSURE-CARRIER', 'UN-AFFORDANCE-TARGETS'], r.caseId)
 }
 const itemRefs = items.map((i) => `${CONTRACT} ${i.itemId}`)
 const withoutOriginProgression = itemRefs.filter((x) => ['02.a', '02.b', '03.a', '03.b', '03.c'].every((s) => !x.endsWith(`RPC-002-${s}`)))
 
-test(`A02-0, the knowledge as it stands: Steps 1 and 2 by the handoff and consumed by the chain; refused at structure on our restatement's own two lines (origin value, control referent); RESTATEMENT-ONLY; placed instead of consumed, the same refusal over the chain's own GF3`, () => {
+test(`A02-0, the knowledge as it stands with our CANDIDATE restatement: Steps 1 and 2 by the handoff and consumed by the chain; refused at structure, Gate A NOT_EVALUABLE on the progression clause's open text (the pressing line, PROPOSED in A02-HPE1); placed instead of consumed, the same refusal over the chain's own GF3`, () => {
     const r = byCase('A02-0')
     sharedOf(r)
     assert.deepEqual([r.resultStanding, r.chain?.outcome, r.chain?.stage], ['KNOWLEDGE_AS_IT_STANDS_WITH_A_CANDIDATE_RESTATEMENT', 'refused', 'structure'])
-    assert.deepEqual(r.chain?.reasons, [...STRUCTURE, `2 unresolved properties are neither an authorized choice nor an authorized claim: ${CONTROL_LINE}, ${ORIGIN_LINE}`])
-    assert.deepEqual([r.refusalBasis?.verdict, r.refusalBasis?.mix, r.refusalBasis?.cited.map((c) => [c.ref, c.itemId, c.premiseKind]), r.refusalBasis?.gaps], ['RESTATEMENT-ONLY', '2 AUTHORED (DRAFT store item)', [[CONTROL_LINE, 'RPC-002-04.a', 'DRAFT_ITEM'], [ORIGIN_LINE, 'RPC-002-02.a', 'DRAFT_ITEM']], []])
-    // Which declaration owes each line (the chain's own reach and scope, read by the handoff): V5 by the form's NOT_AUTHORED applied row-wide
-    // (our restatement leaves the control referent UNDECLARED); V6 by our restatement's own NOT_AUTHORED on the origin value.
-    assert.match(r.refusalBasis?.cited[0].owedBy ?? '', /^the requirement declaration reaching the element: restated:GF2 NOT_AUTHORED \(\*\), a declaration of another contract; applied row-wide/)
-    assert.equal(r.refusalBasis?.cited[1].owedBy, 'the requirement declaration reaching the element: restated:RPC-002 NOT_AUTHORED (type=origin), a declaration of the contract establishing the element')
+    // RE-PINNED OPENLY (stage B1 of the A02 complete-activity package, 12 November 2026). BEFORE: Gate A FAIL, GA-NO-FAILED-LINE, on our
+    // restatement's own two lines (the control referent, 04.a::V5, UNDECLARED; the origin value, 02.a::V6, NOT_AUTHORED), RESTATEMENT-ONLY.
+    // AFTER: Gate A NOT_EVALUABLE (GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY) on the one open text left, 03.b, the pressing line; the refusal
+    // cites no item (an engine check). WHY: our CANDIDATE restatement of Christian's rulings received 12 November 2026 carries the origin's words
+    // on V6 and declares that the origin and the continuation name no place (UA2), so the earliest stop moves to the pressing line (item 6).
+    assert.deepEqual(r.chain?.reasons, ['Gate A is NOT_EVALUABLE', 'a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied: GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY'])
+    assert.deepEqual([r.refusalBasis?.verdict, r.refusalBasis?.mix, r.refusalBasis?.cited, r.refusalBasis?.gaps, r.refusalBasis?.why], ['NOT KNOWLEDGE', 'none', [], [], 'the refusal cites no item: an engine check (GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY)'])
     assert.deepEqual([r.lines.length, r.sentences.length, r.requirementAccount, r.laws], [0, 0, null, null])
     assert.deepEqual(r.consumption?.draftItemsDerived, itemRefs)
     assert.deepEqual(r.consumption?.draftShaped, [])
@@ -323,17 +350,22 @@ test(`A02-0, the knowledge as it stands: Steps 1 and 2 by the handoff and consum
     assert.equal('consumption' in placed, false, 'no consumption is recorded on the placed route')
 })
 
-test('A02-1 (TEST-ONLY: origin and progression withheld): refused at structure on the control line alone, RESTATEMENT-ONLY', () => {
+test('A02-1 (TEST-ONLY: origin and progression withheld): past structure (the control referent names no place in our CANDIDATE restatement); refused at validation by the sport\'s check, both owed laws MATERIAL by the fail safe (no classification read)', () => {
     const r = byCase('A02-1')
     sharedOf(r)
-    assert.deepEqual([r.resultStanding, r.chain?.outcome, r.chain?.stage], ['TEST_ONLY_TREATMENT_NEVER_THE_A02_CONFIGURATION', 'refused', 'structure'])
-    assert.deepEqual(r.chain?.reasons, [...STRUCTURE, `1 unresolved property is neither an authorized choice nor an authorized claim: ${CONTROL_LINE}`])
-    assert.deepEqual([r.refusalBasis?.verdict, r.refusalBasis?.mix, r.refusalBasis?.cited.map((c) => c.ref)], ['RESTATEMENT-ONLY', '1 AUTHORED (DRAFT store item)', [CONTROL_LINE]])
-    assert.equal(r.refusalBasis?.cited[0].owedBy, byCase('A02-0').refusalBasis?.cited[0].owedBy)
+    // RE-PINNED OPENLY (stage B1). BEFORE: refused at structure on the control line (04.a::V5 UNDECLARED), RESTATEMENT-ONLY. AFTER: past structure
+    // (V5 control NO_FURTHER_VALUE in our CANDIDATE restatement), refused at validation: the composed activity owes LAW-8 and LAW-11 and, with no
+    // classification handed to it, the sport's check counts each MATERIAL (its fail safe). WHY: Christian's ruling received 12 November 2026, item 2.
+    assert.deepEqual([r.resultStanding, r.chain?.outcome, r.chain?.stage], ['TEST_ONLY_TREATMENT_NEVER_THE_A02_CONFIGURATION', 'refused', 'validation'])
+    const reasons = r.chain?.reasons ?? []
+    assert.equal(reasons[0], `the sport's default-laws check (BY_MATERIALITY, [Christian's] reply filed 30 October 2026, item 4) holds this composed activity: 2 material adaptations are owed, which prevent approval`)
+    assert.ok(reasons[1].startsWith('LAW-8 ') && reasons[1].endsWith('[MATERIAL: no classification names LAW-8, so it counts as material (fail safe)]'), reasons[1])
+    assert.ok(reasons[2].startsWith('LAW-11 ') && reasons[2].endsWith('[MATERIAL: no classification names LAW-11, so it counts as material (fail safe)]'), reasons[2])
+    assert.deepEqual([r.refusalBasis?.verdict, r.refusalBasis?.why], ['NOT KNOWLEDGE', 'the refusal cites no item: an engine check (validation refusal)'])
     assert.deepEqual(r.consumption?.draftItemsDerived, withoutOriginProgression)
 })
 
-test('A02-1b (TEST-ONLY: + the control referent declared NO_FURTHER_VALUE, the C55 analog, not ruled; the Laws held to our DRAFT classification): refused at validation on LAW-11, MATERIAL by our DRAFT reading; LAW-8 reported', () => {
+test('A02-1b (TEST-ONLY: + the Laws held to our DRAFT classification): refused at validation on LAW-11, MATERIAL by our DRAFT reading; LAW-8 reported', () => {
     const r = byCase('A02-1b')
     sharedOf(r)
     assert.deepEqual([r.chain?.outcome, r.chain?.stage], ['refused', 'validation'])
@@ -417,24 +449,37 @@ test(`every run: the request consumes Steps 1 and 2 and places nothing; the chai
         assert.deepEqual([q.records, q.draftStore], ['PRODUCTION', STORE], id)
         assert.equal(a.consumption?.selectionObservedOnly, true, id)
         assert.equal(a.scorerPick?.join(','), 'GF2', `${id}: the selection the hook observed holds Step 2's form`)
-        if (a.stage === 'structure') assert.ok(a.refusalDetail && a.refusalDetail.failingChecks.length && a.refusalDetail.owedLines.length, `${id}: the structure refusal carries the chain's own account`)
+        // Re-pinned openly (stage B1): BEFORE a structure refusal carried a failing check and an owed line; AFTER A02-0's carries the chain's
+        // account with neither (Gate A NOT_EVALUABLE on open text: no check FAILS and no line is owed), measured and pinned.
+        if (a.stage === 'structure') assert.ok(a.refusalDetail, `${id}: the structure refusal carries the chain's own account`)
     }
-    // The declaration treatment and the laws classification reached the request exactly where the cases declare them.
-    assert.deepEqual(experiment.runOrder.map((id) => [id, (requests.get(id)?.replaceDeclarations ?? []).map((d) => d.treatmentId), requests.get(id)?.laws ?? null]), [
-        ['A02-0', [], null],
-        ['A02-1', [], null],
-        ['A02-1b', ['TT-CONTROL-NO-FURTHER-VALUE'], { standIn: null, treatmentId: 'TT-LAWS-DRAFT' }],
-        ['A02-2', ['TT-CONTROL-NO-FURTHER-VALUE'], { standIn: { law: 'LAW-11', materiality: 'PROCEDURAL' }, treatmentId: 'TT-LAW-11-STAND-IN' }],
-        ['A02-D', [], { standIn: { law: 'LAW-11', materiality: 'PROCEDURAL' }, treatmentId: 'TT-LAW-11-STAND-IN' }],
+    assert.deepEqual([answers.get('A02-0')!.refusalDetail!.failingChecks, answers.get('A02-0')!.refusalDetail!.owedLines], [[], []])
+    // The declaration treatment, the laws classification and the PROPOSED configuration reached the request exactly where the cases declare them.
+    // Re-pinned openly (stage B1): A02-1b and A02-2 no longer carry TT-CONTROL-NO-FURTHER-VALUE (our CANDIDATE restatement declares it); the
+    // two HPE-1 runs join, each handing the chain the PROPOSED configuration and PROPOSED_PENDING.
+    assert.deepEqual(experiment.runOrder.map((id) => [id, (requests.get(id)?.replaceDeclarations ?? []).map((d) => d.treatmentId), requests.get(id)?.laws ?? null, requests.get(id)?.proposed ? [requests.get(id)!.proposed!.treatmentId, requests.get(id)!.proposed!.pendingTreatmentId] : null]), [
+        ['A02-0', [], null, null],
+        ['A02-1', [], null, null],
+        ['A02-1b', [], { standIn: null, treatmentId: 'TT-LAWS-DRAFT' }, null],
+        ['A02-2', [], { standIn: { law: 'LAW-11', materiality: 'PROCEDURAL' }, treatmentId: 'TT-LAW-11-STAND-IN' }, null],
+        ['A02-D', [], { standIn: { law: 'LAW-11', materiality: 'PROCEDURAL' }, treatmentId: 'TT-LAW-11-STAND-IN' }, null],
+        ['A02-HPE1-S', [], { standIn: { law: 'LAW-11', materiality: 'PROCEDURAL' }, treatmentId: 'TT-LAW-11-STAND-IN' }, ['TT-PROPOSED-HPE1', 'TT-PROPOSED-PENDING']],
+        ['A02-HPE1-L', [], { standIn: null, treatmentId: 'TT-LAWS-DRAFT' }, ['TT-PROPOSED-HPE1', 'TT-PROPOSED-PENDING']],
     ])
 })
 
 test('the wiring refuses a consuming request that places anything, a declaration treatment naming a declaration the contract does not hold, and two classifications of the laws', () => {
     const base = copy(once().requests.get('A02-1b')!)
     assert.throws(() => realChain.build({ ...copy(base), place: [{ id: 'tl-v0-constraint-neutral-player-condition', manipulationId: 'PM-X', relationshipRef: 'R' }] }), /a request that consumes Steps 1 and 2 places nothing, and this one places tl-v0-constraint-neutral-player-condition/)
+    // Re-pinned openly (stage B1): the request no longer carries a declaration treatment, so the bite hands it one naming a declaration the
+    // restatement does not hold (was A02-1b's own TT-CONTROL-NO-FURTHER-VALUE with its 'from' changed).
     const wrong = copy(base)
-    wrong.replaceDeclarations = [{ ...wrong.replaceDeclarations![0], from: 'CLAIMED' }]
-    assert.throws(() => realChain.build(wrong), /treatment TT-CONTROL-NO-FURTHER-VALUE: restated:RPC-002 holds 0 declarations CLAIMED on V5 \(type=control\), and a treatment replaces exactly one/)
+    wrong.replaceDeclarations = [{ contractId: 'restated:RPC-002', row: 'V5', selector: 'type=control', from: 'CLAIMED', to: 'NON_CLAIMED', qualifier: 'NO_FURTHER_VALUE', treatmentId: 'TT-BITE-DECLARATION' }]
+    assert.throws(() => realChain.build(wrong), /treatment TT-BITE-DECLARATION: restated:RPC-002 holds 0 declarations CLAIMED on V5 \(type=control\), and a treatment replaces exactly one/)
+    // Stage B1: a PROPOSED configuration handed to a request without K2's result is refused by the wiring.
+    const noK2 = copy(once().requests.get('A02-HPE1-S')!)
+    delete noK2.consume!.k2
+    assert.throws(() => realChain.build(noK2), /a PROPOSED configuration is handed only to a consuming request that reads a draft store, beside K2's result/)
     const both = copy(base)
     both.vehicle = { goalId: 'A02', removeContext: false, lawsStandIn: { law: 'LAW-11', materiality: 'PROCEDURAL' }, treatmentRef: 'TT-X' }
     assert.throws(() => realChain.build(both), /a classification of the laws is given either by the vehicle or by the request, not both/)
@@ -449,12 +494,14 @@ test(`the report: the runs and what each refusal rests on, the CANDIDATE mapping
     const lines = text.split('\n')
     const has = (line: string) => assert.ok(lines.includes(line), `the report holds: ${line}`)
     // The runs.
-    has(`THE RUNS (5; the knowledge as it stands: A02-0; every other run carries a TEST-ONLY treatment)`)
+    // Re-pinned openly (stage B1): BEFORE 5 runs, A02-0 and A02-1 RESTATEMENT-ONLY (their refusals cited only our restatement's items), 4
+    // treatment runs; AFTER 7 runs (A02-HPE1-S and A02-HPE1-L join), no refusal rests only on our restatement (A02-0 is an engine check on open
+    // text, A02-1 a validation refusal), 6 treatment runs. WHY: our CANDIDATE restatement of Christian's rulings received 12 November 2026.
+    has(`THE RUNS (7; the knowledge as it stands: A02-0; every other run carries a TEST-ONLY treatment)`)
     has('- A02-0: refused at structure [the knowledge as it stands, with our CANDIDATE restatement]')
-    has(`   ${experiment.restatementOnlyWords}`)
-    assert.equal(lines.filter((l) => l === `   ${experiment.restatementOnlyWords}`).length, 2, 'A02-0 and A02-1 rest only on our restatement')
-    assert.equal(lines.filter((l) => l === `   ${experiment.treatmentRunWords}`).length, 4, 'every treatment run says it is never the A02 configuration')
-    has('   what it rests on (OURS): RESTATEMENT-ONLY; basis mix 2 AUTHORED (DRAFT store item); every cited item is ours and unreviewed (2 AUTHORED (DRAFT store item)), with no ruling of Christian\'s among them')
+    assert.equal(lines.filter((l) => l === `   ${experiment.restatementOnlyWords}`).length, 0, 'no refusal rests only on our restatement')
+    assert.equal(lines.filter((l) => l === `   ${experiment.treatmentRunWords}`).length, 6, 'every treatment run says it is never the A02 configuration')
+    has('   what it rests on (OURS): NOT KNOWLEDGE; basis mix none; the refusal cites no item: an engine check (GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY)')
     has(`   the laws check read: our DRAFT classification (TT-LAWS-DRAFT), a reading of ours for Christian's review, not a ruling`)
     // The mapping line.
     has(`HOW TO READ THE BUILD'S LABELS: ${experiment.candidateMapping}`)
@@ -463,22 +510,30 @@ test(`the report: the runs and what each refusal rests on, the CANDIDATE mapping
         const at = lines.indexOf(`- ${i.itemId}`)
         assert.ok(at > 0, i.itemId)
         assert.ok(lines[at + 1].startsWith('   source row and its standing: ') && lines[at + 2].startsWith('   our interpretation: '), i.itemId)
-        assert.deepEqual(lines.slice(at + 3, at + 8).map((l) => l.split(':')[0]), experiment.runOrder.map((id) => `   effect in ${id}`), i.itemId)
+        assert.deepEqual(lines.slice(at + 3, at + 3 + experiment.runOrder.length).map((l) => l.split(':')[0]), experiment.runOrder.map((id) => `   effect in ${id}`), i.itemId)
     }
     const effect = (itemId: string, run: string) => lines[lines.indexOf(`- ${itemId}`) + 3 + experiment.runOrder.indexOf(run)]
     assert.equal(effect('RPC-002-01.a', 'A02-0'), '   effect in A02-0: entered derivation; no line of the built game rests on it (no game was built: refused at structure)')
     assert.equal(effect('RPC-002-01.a', 'A02-D'), `   effect in A02-D: carried: game::V1 resolved to 'line_crossed', which the chain records it NARROWS`)
-    assert.equal(effect('RPC-002-02.a', 'A02-0'), `   effect in A02-0: refused on ${ORIGIN_LINE} (at structure)`)
-    assert.equal(effect('RPC-002-04.a', 'A02-1'), `   effect in A02-1: refused on ${CONTROL_LINE} (at structure)`)
-    assert.equal(effect('RPC-002-04.a', 'A02-1b'), '   effect in A02-1b: carried: c:restated:RPC-002:RPC-002-04.a::V4 rest on it (the run then stopped: refused at validation) (its V5 line declared NON_CLAIMED NO_FURTHER_VALUE by treatment TT-CONTROL-NO-FURTHER-VALUE)')
+    // Re-pinned openly (stage B1): BEFORE 02.a refused A02-0 on its V6 line and 04.a refused A02-1 on its V5 line, and 04.a was carried in A02-1b
+    // only under TT-CONTROL-NO-FURTHER-VALUE; AFTER neither line is owed (our CANDIDATE restatement), so 02.a only entered A02-0's derivation,
+    // 04.a is carried in A02-1 and A02-1b with no treatment, and the origin is carried in the HPE-1 runs (its V6 line rests on it).
+    assert.equal(effect('RPC-002-02.a', 'A02-0'), '   effect in A02-0: entered derivation; no line of the built game rests on it (no game was built: refused at structure)')
+    assert.equal(effect('RPC-002-02.a', 'A02-HPE1-S'), '   effect in A02-HPE1-S: carried: c:restated:RPC-002:RPC-002-02.a::V4 rest on it (the run then stopped: refused at communication)')
+    assert.equal(effect('RPC-002-02.b', 'A02-HPE1-S'), '   effect in A02-HPE1-S: carried: c:restated:RPC-002:RPC-002-02.a::V6 rest on it (the run then stopped: refused at communication)')
+    assert.equal(effect('RPC-002-04.a', 'A02-1'), '   effect in A02-1: carried: c:restated:RPC-002:RPC-002-04.a::V4 rest on it (the run then stopped: refused at validation)')
+    assert.equal(effect('RPC-002-04.a', 'A02-1b'), '   effect in A02-1b: carried: c:restated:RPC-002:RPC-002-04.a::V4 rest on it (the run then stopped: refused at validation)')
     assert.equal(effect('RPC-002-03.c', 'A02-D'), '   effect in A02-D: withheld by treatment TT-WITHHOLD-CONDITION')
     assert.equal(lines.indexOf('- RPC-002-01.b'), -1, 'the ASSUMED count is dropped (measured: no run needs it)')
     assert.equal(items.filter((i) => i.basis === 'ASSUMED' || !i.sources.length).length, 0, 'every item restates a row it quotes')
     assert.ok(lines[lines.indexOf('- RPC-002-01.a') + 1].startsWith('   source row and its standing: RPC-REL-075 (relationships, line 1232): APPROVED: '), 'the source row and its standing come first')
     // UNRESOLVED, the questions, the relationships.
-    has('UNRESOLVED (10; kept explicit, never closed by an assumption; the same list stands on every run)')
+    // Re-pinned openly (stage B1): 10 -> 7 (UN-ORIGIN, UN-CONTROL-REFERENT and UN-SCOPE are carried by our CANDIDATE restatement).
+    has('UNRESOLVED (7; kept explicit, never closed by an assumption; the same list stands on every run)')
     const q1 = lines.find((l) => l.startsWith('1. '))
-    assert.ok(q1 && q1.includes('[the next consequential gap]') && q1.includes('the sequence begins under established coordinated pressure'), q1)
+    // Re-pinned openly (stage B1): the first question was the origin clause's observable start, which Christian's ruling received 12 November
+    // 2026 answers; the pressing line, where A02-0 now stops, is first.
+    assert.ok(q1 && q1.includes('[the next consequential gap]') && q1.includes('whether the pressing line may be realized'), q1)
     assert.equal(lines.filter((l) => l.includes('[the next consequential gap]')).length, 1)
     const Q = String.fromCharCode(34)
     const named = inputs.rulings.find((r) => r.id === 'A02-10NOV-ERR')!.words[1]

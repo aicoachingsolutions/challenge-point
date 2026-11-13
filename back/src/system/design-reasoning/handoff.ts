@@ -146,7 +146,7 @@ export interface StandInInput {
  * 2026), FOUNDATION_PRESENCE_BYPASS acts on the request, only beside SIZE_RULE_BYPASS: the package check need find no foundation member (our
  * classification of foundation presence as a quota, reversible by removing it; every selected member is still validated under the switch).
  */
-export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION', 'SIZE_RULE_BYPASS', 'K2_RETAIN_FORM', 'GP_COVERAGE_LENSES', 'FOUNDATION_PRESENCE_BYPASS', 'ILLUSTRATIVE_CARRIERS'] as const
+export const TREATMENT_KINDS = ['IN_MEMORY_RECORD', 'IN_MEMORY_REALIZATION', 'DRAFT_STORE', 'LAWS_CHECK', 'WITHHOLD_ITEMS', 'VEHICLE', 'REPLACE_DECLARATION', 'CONSUMED_STEPS', 'LAWS_CLASSIFICATION', 'SIZE_RULE_BYPASS', 'K2_RETAIN_FORM', 'GP_COVERAGE_LENSES', 'FOUNDATION_PRESENCE_BYPASS', 'ILLUSTRATIVE_CARRIERS', 'PROPOSED_CONFIGURATION', 'PROPOSED_PENDING'] as const
 
 export interface TreatmentInput {
     id: string
@@ -170,6 +170,13 @@ export interface TreatmentInput {
      * chain's copy only. Only beside CONSUMED_STEPS and a draft store; its label begins ILLUSTRATIVE.
      */
     carriers?: { file: string; groups: string[] }
+    /**
+     * PROPOSED_CONFIGURATION only (stage B1 of the complete-activity package, 12 November 2026): our PROPOSED configuration's file
+     * (`draft-store.ts` `loadProposedRealization`, a path under docs/audits/drafts), and the ruling words (by index) it is put to Christian
+     * under, carried into the build's review-level account. Only beside CONSUMED_STEPS, K2_RETAIN_FORM and a draft store; its label begins
+     * PROPOSED. PROPOSED_PENDING (the same stage) names nothing: it is declared only beside PROPOSED_CONFIGURATION.
+     */
+    proposed?: { file: string; basis: { rulingRef: string; words: number[] } }
 }
 
 export interface ProposedManipulation {
@@ -325,6 +332,9 @@ function citedRefs(c: Record<string, unknown>): string[] {
     return [...new Set(refs)]
 }
 
+/** Stage B1: whether a case's treatments declare K2's result (a PROPOSED configuration is read only beside it). */
+const k2Declared = (treatments: Record<string, unknown>[]): boolean => treatments.some((t) => t.kind === 'K2_RETAIN_FORM')
+
 const CASE_KEYS = ['id', 'basedOn', 'label', 'resultStanding', 'goalId', 'form', 'session', 'purpose', 'chain', 'record', 'realization', 'rulings', 'suppliedChoices', 'standIns', 'illustrative', 'testOnlyTreatments', 'proposedManipulations', 'decisionKindOverrides', 'notCarried', 'proposedChoices', 'gameProblemOverride', 'reportNotes', 'qualifierRulingRef']
 const NOTE_SECTIONS = ['standing', 'text', 'diagram']
 const RULING_KEYS = ['id', 'words', 'file', 'received', 'replyOfDay', 'dateBasis', 'citedAs', 'provisional', 'scope']
@@ -442,6 +452,16 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
                 if (t.kind !== 'ILLUSTRATIVE_CARRIERS' || !isObject(k) || !filled(k.file) || !Array.isArray(k.groups) || !k.groups.length || !(k.groups as unknown[]).every(filled) || !String(t.label).startsWith('ILLUSTRATIVE'))
                     errors.push(`${at}: treatment ${String(t.id)}: ILLUSTRATIVE carriers belong only to ILLUSTRATIVE_CARRIERS, which names its file and at least one group (carriers: file, groups) and is labelled ILLUSTRATIVE`)
             }
+            // Stage B1 (complete-activity package): a PROPOSED configuration names its file and the ruling words it is put under, and is
+            // labelled PROPOSED; only this kind names one.
+            if (isObject(t) && (t.proposed !== undefined || t.kind === 'PROPOSED_CONFIGURATION')) {
+                const p = t.proposed as Record<string, unknown> | undefined
+                const b = isObject(p) ? (p.basis as Record<string, unknown> | undefined) : undefined
+                const ruled = isObject(b) ? (rulings.find((r) => isObject(r) && r.id === b.rulingRef) as Record<string, unknown> | undefined) : undefined
+                const inWords = (n: unknown) => typeof n === 'number' && Number.isInteger(n) && !!ruled && Array.isArray(ruled.words) && n >= 0 && n < (ruled.words as unknown[]).length
+                if (t.kind !== 'PROPOSED_CONFIGURATION' || !isObject(p) || !filled(p.file) || !isObject(b) || !ruled || !Array.isArray(b.words) || !b.words.length || !(b.words as unknown[]).every(inWords) || !String(t.label).startsWith('PROPOSED'))
+                    errors.push(`${at}: treatment ${String(t.id)}: a PROPOSED configuration belongs only to PROPOSED_CONFIGURATION, which names its file and the words of a ruling the file holds it is put under (proposed: file, basis: rulingRef, words) and is labelled PROPOSED`)
+            }
             if (isObject(t) && t.standIn !== undefined && (t.kind !== 'LAWS_CLASSIFICATION' || !isObject(t.standIn) || !filled(t.standIn.law) || (t.standIn.materiality !== 'PROCEDURAL' && t.standIn.materiality !== 'MATERIAL')))
                 errors.push(`${at}: treatment ${String(t.id)}: a stand-in for one law's materiality belongs only to LAWS_CLASSIFICATION and names the law and PROCEDURAL or MATERIAL`)
         }
@@ -473,6 +493,11 @@ export function validateHandoffInputs(raw: unknown): HandoffInputs {
         if (ofKind('GP_COVERAGE_LENSES').length > 1 || (ofKind('GP_COVERAGE_LENSES').length && !ofKind('CONSUMED_STEPS').length)) errors.push(`${at}: GP_COVERAGE_LENSES is declared at most once, and only beside CONSUMED_STEPS`)
         // W4 (foundational package): ILLUSTRATIVE carriers are added only to a consuming run's draft store.
         if (ofKind('ILLUSTRATIVE_CARRIERS').length && (!ofKind('CONSUMED_STEPS').length || !isObject(merged.chain) || !filled(merged.chain.draftStore))) errors.push(`${at}: ILLUSTRATIVE_CARRIERS adds to a draft store, only on a run that consumes Steps 1 and 2 and reads one`)
+        // Stage B1 (complete-activity package): a PROPOSED configuration once, only beside K2's result on a consuming run that reads a draft
+        // store; PROPOSED_PENDING once, only beside it.
+        if (ofKind('PROPOSED_CONFIGURATION').length > 1 || (ofKind('PROPOSED_CONFIGURATION').length && (!ofKind('CONSUMED_STEPS').length || !k2Declared(treatments) || !isObject(merged.chain) || !filled(merged.chain.draftStore))))
+            errors.push(`${at}: PROPOSED_CONFIGURATION is declared at most once, only beside CONSUMED_STEPS and K2_RETAIN_FORM on a run that reads a draft store`)
+        if (ofKind('PROPOSED_PENDING').length > 1 || (ofKind('PROPOSED_PENDING').length && !ofKind('PROPOSED_CONFIGURATION').length)) errors.push(`${at}: PROPOSED_PENDING is declared at most once, and only beside PROPOSED_CONFIGURATION`)
         if (k2.length && ofKind('SIZE_RULE_BYPASS').length) errors.push(`${at}: K2_RETAIN_FORM is never declared beside SIZE_RULE_BYPASS (K2's result is the empty set; the bypass is for a record's evaluated set)`)
         if (k2.length && (merged.record !== null && merged.record !== undefined || (isObject(merged.chain) && merged.chain.records === 'TEST_ONLY'))) errors.push(`${at}: K2_RETAIN_FORM stands in place of a per-goal authorization record, never beside one (the case has a TEST-ONLY record)`)
         if (k2.length && manipulations.some((m) => m.relationship !== undefined)) errors.push(`${at}: K2_RETAIN_FORM is handed only where no proposed manipulation has a relationship (placed or entering by the record route): K2 yields no manipulation`)
@@ -635,6 +660,13 @@ export interface ChainRequest {
     laws?: { standIn: { law: string; materiality: string } | null; treatmentId: string }
     /** Present only where the case declares ILLUSTRATIVE_CARRIERS treatments (W4): each adds its groups to the draft store, on the chain's copy. */
     illustrative?: Array<{ file: string; groups: string[]; treatmentId: string }>
+    /**
+     * Present only where the case declares PROPOSED_CONFIGURATION (stage B1 of the complete-activity package): our PROPOSED configuration's
+     * file, the treatment, PROPOSED_PENDING's id where the case declares it, and the ruling words it is put to Christian under (each with its
+     * received date). The chain loads it through its gate, makes its restatement replacements on the draft store's copy and hands it to the
+     * entry's TEST-ONLY upstream option, beside K2's result.
+     */
+    proposed?: { file: string; treatmentId: string; pendingTreatmentId: string | null; basis: Array<{ words: string; received: string }> }
 }
 
 /** One configuration line as the chain answered it (from the realized game's fixture), in the chain's own words. */
@@ -661,6 +693,12 @@ export interface ChainLine {
     draftShapedBy?: Array<{ contractId: string; itemId: string; relation: string }>
     /** NOT_ESTABLISHED */
     reason?: string
+    /**
+     * NOT_ESTABLISHED, stage B1 of the complete-activity package: present only where every non-claim that decided the line states that the
+     * field needs no further value (classify.ts `nonClaimState`: an established absence, Christian's M6), with the contracts whose declarations
+     * those are. Read by the safeguards (a clause line declared so by the restatement itself is carried, never a gap); never graded here.
+     */
+    nonClaim?: { state: 'NO_FURTHER_VALUE'; by: string[] }
     /** ENTAILED / INSTANTIATION: the element class it belongs to. */
     classId?: string
     /** DERIVED geometry: the term that bounded its extent, where one did. */
@@ -704,7 +742,7 @@ export interface ChainAnswer {
      * The contracts the chain derived from, item by item. `evidenceWithheld`, where the wiring sets it, says why the item's evidence is not to
      * be printed verbatim (the report then names the item and does not print it).
      */
-    contracts: Array<{ contractId: string; origin: 'KNOWLEDGE' | 'DRAFT_STORE' | 'REALIZATION'; items: Array<{ itemId: string; row: string; basis: string; category: string | null; basisEvidence: string; provisional?: boolean | null; evidenceWithheld?: string | null }> }>
+    contracts: Array<{ contractId: string; origin: 'KNOWLEDGE' | 'DRAFT_STORE' | 'REALIZATION' | 'PROPOSED'; items: Array<{ itemId: string; row: string; basis: string; category: string | null; basisEvidence: string; provisional?: boolean | null; evidenceWithheld?: string | null }> }>
     lines: ChainLine[]
     sentences: ChainSentence[]
     /** True where the sentences are the served text; false where they are the review draft of a communication refusal; none otherwise. */
@@ -785,6 +823,8 @@ export interface ChainAnswer {
      * gap), from the account's constraint source; `lensIds`, the engine's lenses by id; `contextInThisActivity`, the account's display of the
      * context's approved condition; `scoringCondition`, the requirement account's state for the approved condition (review builds only).
      */
+    /** Stage B1: present only on a request carrying a PROPOSED configuration (`ChainReviewLevel`). */
+    reviewLevel?: ChainReviewLevel
     observed?: {
         constraintAuthority: string | null
         constraintGap: string | null
@@ -792,6 +832,18 @@ export interface ChainAnswer {
         contextInThisActivity: boolean | null
         scoringCondition: { state: string; rowId: string | null; carried: boolean } | null
     }
+}
+
+/**
+ * Stage B1 of the complete-activity package: the build's review-level account of a request carrying a PROPOSED configuration
+ * (`ChainRequest.proposed`), read from the build (never from the request); absent elsewhere. Read by the tests only, never printed whole (a
+ * pending finding is the guard's own sentence, which may hold a gendered pronoun).
+ */
+export interface ChainReviewLevel {
+    status: string
+    proposedElements: { contractId: string; treatmentId: string; items: Array<{ itemId: string; category: string; waitsOn: string | null }> }
+    pendingApproval: Array<{ treatmentId: string; item: string; questionId: string | null; finding: string; blocks: string[] }>
+    basis: Array<{ words: string; received: string }>
 }
 
 export interface HandoffChain {
@@ -809,6 +861,7 @@ export const PREMISE_KINDS = [
     'ENGINE_ONLY_ITEM',
     'DRAFT_ITEM',
     'ILLUSTRATIVE_ITEM',
+    'PROPOSED_ITEM',
     'REALIZATION_ITEM',
     'STANDING_DECISION',
     'CASE_CHOICE_RULING',
@@ -843,6 +896,8 @@ export const GRADING_MAP: Record<PremiseKind, { standing: Standing | null; label
     ENGINE_ONLY_ITEM: { standing: 'OURS', label: 'OURS: engine convention', what: 'a contract item with basis ENGINE_ONLY' },
     DRAFT_ITEM: { standing: 'CANDIDATE', label: 'DRAFT knowledge (ours, unreviewed)', what: 'an item of a DRAFT contract read from the TEST-ONLY draft store' },
     ILLUSTRATIVE_ITEM: { standing: 'ILLUSTRATIVE', label: `${VALUE_LABELS.ILLUSTRATIVE}: a TEST-ONLY carrier, not knowledge`, what: 'an item an ILLUSTRATIVE carrier treatment added to the draft store (category ILLUSTRATIVE, W4): graded by its category, never by its basis' },
+    // Stage B1 (complete-activity package): graded OURS (class 6), the class of what needs Christian's confirmation, never above it.
+    PROPOSED_ITEM: { standing: 'OURS', label: "PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling", what: 'an item of a PROPOSED configuration (category PROPOSED, stage B1): graded by its category, never by its basis' },
     REALIZATION_ITEM: { standing: 'RULING', label: 'RULING', what: 'an item of a provisional realization quoting Christian, graded by its ruling (class 3 where provisional)' },
     STANDING_DECISION: { standing: 'RULING', label: 'RULING', what: 'an engine standing decision that records a ruling of Christian\'s (the table is data, checked against the specification); one that records none is OURS: engine convention' },
     CASE_CHOICE_RULING: { standing: 'RULING', label: 'RULING', what: 'a choice the case supplies for an open line, on a ruling of Christian\'s (class 3 where provisional)' },
@@ -1218,6 +1273,15 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
     const lawsTreatment = c.testOnlyTreatments.find((t) => t.kind === 'LAWS_CLASSIFICATION')
     // W4 (foundational package): each ILLUSTRATIVE carrier treatment, in the case's order, with its file and groups.
     const illustrative = c.testOnlyTreatments.filter((t) => t.kind === 'ILLUSTRATIVE_CARRIERS' && t.carriers).map((t) => ({ file: t.carriers!.file, groups: [...t.carriers!.groups], treatmentId: t.id }))
+    // Stage B1 (complete-activity package): the PROPOSED configuration, where the case declares it, with the ruling words it is put under.
+    const proposedTreatment = c.testOnlyTreatments.find((t) => t.kind === 'PROPOSED_CONFIGURATION' && t.proposed)
+    const pendingTreatment = c.testOnlyTreatments.find((t) => t.kind === 'PROPOSED_PENDING')
+    const proposed: ChainRequest['proposed'] = proposedTreatment
+        ? (() => {
+              const r = rulingOf(inputs, proposedTreatment.proposed!.basis.rulingRef)
+              return { file: proposedTreatment.proposed!.file, treatmentId: proposedTreatment.id, pendingTreatmentId: pendingTreatment ? pendingTreatment.id : null, basis: proposedTreatment.proposed!.basis.words.map((n) => ({ words: r.words[n], received: r.received })) }
+          })()
+        : undefined
     let consume: ChainRequest['consume'] | undefined
     if (c.testOnlyTreatments.some((t) => t.kind === 'CONSUMED_STEPS')) {
         const g = s1?.gameForm
@@ -1271,6 +1335,7 @@ function chainRequest(c: CaseInput, s1: Stage1Result | null, formId: string, inp
         ...(replaceDeclarations.length ? { replaceDeclarations } : {}),
         ...(lawsTreatment ? { laws: { standIn: lawsTreatment.standIn ? { ...lawsTreatment.standIn } : null, treatmentId: lawsTreatment.id } } : {}),
         ...(illustrative.length ? { illustrative } : {}),
+        ...(proposed ? { proposed } : {}),
     }
 }
 
@@ -1326,6 +1391,8 @@ function itemPremise(ctx: GradingContext, contractId: string, itemId: string): P
     const cited = sourcesCited(ctx, item.basisEvidence)
     // W4 (foundational package): an ILLUSTRATIVE carrier is graded by its category before anything else (never as a draft restatement).
     if (item.category === 'ILLUSTRATIVE') return premise('ILLUSTRATIVE_ITEM', ref)
+    // Stage B1 (complete-activity package): a PROPOSED item likewise, by its category, never as a realization in Christian's words.
+    if (item.category === 'PROPOSED') return premise('PROPOSED_ITEM', ref)
     if (contract.origin === 'DRAFT_STORE') return premise('DRAFT_ITEM', ref, cited)
     const labelled = ctx.labelled.find((l) => l.contractId === contractId && l.itemIds.indexOf(itemId) >= 0)
     if (labelled) {
@@ -1606,6 +1673,7 @@ const MIX_WORDS: Partial<Record<PremiseKind, string>> = {
     RESTATED_ITEM: 'restated item',
     DRAFT_ITEM: 'DRAFT store item',
     ILLUSTRATIVE_ITEM: 'ILLUSTRATIVE carrier',
+    PROPOSED_ITEM: 'PROPOSED item',
     ASSUMED_ITEM: 'assumed item',
     ASSUMED_BOUND: 'assumed bound',
     KNOWLEDGE_RULING_ITEM: 'ruling item',

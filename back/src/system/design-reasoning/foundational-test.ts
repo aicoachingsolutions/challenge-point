@@ -163,7 +163,10 @@ export function effectOf(contractId: string, item: RestatedItem, r: HandoffResul
 /** Our interpretation of an item, said in the middle column. */
 function interpretationOf(i: RestatedItem): string {
     const who = i.basis === 'ASSUMED' ? 'ASSUMED, OURS (an assumption in our restatement; no source row states it)' : 'CANDIDATE: authored by us, unreviewed'
-    return `${i.row} ${i.selector} ${i.requirement} ${show(i.value)}; ${who}; scope ${i.scope} (OURS, over-applying: the scope stays UNRESOLVED); checkability ${i.checkability}`
+    // Stage B1 of the complete-activity package (12 November 2026): an item's scope is our CANDIDATE reading of the ruling its restatement's fit
+    // note cites (this stage code names no goal, context or ruling); it read 'OURS, over-applying: the scope stays UNRESOLVED' before a scope
+    // ruling was received.
+    return `${i.row} ${i.selector} ${i.requirement} ${show(i.value)}; ${who}; scope ${i.scope} (CANDIDATE: our reading of the scope ruling the restatement's fit note cites, for Christian's review); checkability ${i.checkability}`
 }
 
 /** The left column: each source row with its standing and evidence, or, for an item with no source row, its own evidence. */

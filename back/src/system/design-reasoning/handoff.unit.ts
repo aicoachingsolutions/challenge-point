@@ -456,6 +456,10 @@ test('the grading map, pinned per kind', () => {
             'DRAFT_ITEM CANDIDATE',
             // Re-pinned openly (A02 package W4, 11 November 2026): the ILLUSTRATIVE carrier, graded by its category, class 5, never knowledge.
             'ILLUSTRATIVE_ITEM ILLUSTRATIVE',
+            // Re-pinned openly (stage B1 of the A02 complete-activity package, 12 November 2026): BEFORE no PROPOSED kind; AFTER a PROPOSED
+            // configuration's item, graded by its category, OURS (class 6, the class of what needs Christian's confirmation), labelled PROPOSED.
+            // WHY: our proposals of new knowledge must never grade as a ruling or a realization in Christian's words.
+            'PROPOSED_ITEM OURS',
             'REALIZATION_ITEM RULING',
             'STANDING_DECISION RULING',
             'CASE_CHOICE_RULING RULING',

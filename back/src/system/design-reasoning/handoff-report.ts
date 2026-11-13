@@ -50,7 +50,7 @@ const classWords = (c: number | null): string => (c === null ? 'no class claimed
 export function basisLines(b: RefusalBasis): string[] {
     const out = [`what it rests on (OURS): ${b.verdict}: ${plain(b.why)}; codes ${b.codes.join(', ')}`, `  basis mix of the cited items: ${b.mix}`]
     for (const c of b.cited) {
-        const where = c.origin === 'DRAFT_STORE' ? 'the TEST-ONLY draft store' : c.origin === 'REALIZATION' ? 'a provisional realization' : c.origin === 'KNOWLEDGE' ? 'knowledge' : c.origin
+        const where = c.origin === 'DRAFT_STORE' ? 'the TEST-ONLY draft store' : c.origin === 'REALIZATION' ? 'a provisional realization' : c.origin === 'PROPOSED' ? 'our PROPOSED configuration (TEST-ONLY)' : c.origin === 'KNOWLEDGE' ? 'knowledge' : c.origin
         const whose = c.elementNotBounding ? 'the line is bounded by' : 'its element is established by'
         out.push(`  cites ${c.ref} (found in ${plain(c.via)}): ${whose} item ${c.itemId} of ${c.contractId} (${where}), basis ${c.basis}; graded ${c.premiseKind}, ${c.sixClass === null ? 'no class claimed' : `class ${c.sixClass}`}, '${plain(c.label)}'${c.source ? `; source: ${plain(c.source)}; the source's standing as the review pathway reads its status fields (OURS): ${plain(c.sourceStanding ?? 'not recorded')}` : ''}${c.note ? ` (${plain(c.note)})` : ''}`)
         if (c.elementNotBounding) out.push(`    ${plain(c.elementNotBounding)}`)

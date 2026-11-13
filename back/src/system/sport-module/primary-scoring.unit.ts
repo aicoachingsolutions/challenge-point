@@ -572,7 +572,8 @@ function actionWordFindings(rules: CoachRuleTable, grounds: CoachRuleGrounds, de
  * clauses; it read 'keeps the ball with the next pass' as possession kept, grounded on the row's retention, and passed it: the action word
  * inside the clause was never read. This test reads it, over every coach rule key, through the one tests-only reader (action-words.ts):
  * (i) and (ii) as actionWordFindings says, (iii) the findings equal the pinned list, each with why it stands, (iv) the reader finds 'pass'
- * in today's High Press Escape rule. Its limit is the reader's: it sees words, not meaning ('with the next touch' passes unread).
+ * in today's High Press Escape rule. Its limit is the reader's: it sees words, not meaning ('with the next play' passes unread; 'touch' and
+ * 'turn' are read since stage B1 of the A02 complete-activity package, 12 November 2026).
  */
 function testAnActionWordKeepsItsClass(): void {
     // (iv) The reader, on today's rule and on every form of every class.
@@ -587,6 +588,11 @@ function testAnActionWordKeepsItsClass(): void {
         clearance: ['clearance', 'clearances', 'clears', 'cleared'],
         header: ['header', 'headers', 'headed'],
         carry: ['carry', 'carries', 'carried', 'carrying'],
+        // Stage B1 of the A02 complete-activity package (12 November 2026, UA2 E5): 'touch' and 'turn' are specific classes, so a
+        // continuation narrowed to a touch is read (Christian, received 12 November 2026, item 2: "For a player already carrying or dribbling,
+        // please avoid introducing an artificial extra touch, distance or time requirement simply to create a separate action.").
+        touch: ['touch', 'touches', 'touched', 'touching'],
+        turn: ['turn', 'turns', 'turned', 'turning'],
     }
     assert.deepEqual(Object.keys(FORMS), [...ACTION_CLASSES], 'the fixture covers every class, in the reader\'s order')
     assert.deepEqual(Object.keys(ACTION_WORD_FORMS), [...ACTION_CLASSES])
@@ -595,7 +601,9 @@ function testAnActionWordKeepsItsClass(): void {
             for (const written of [form, form.toUpperCase(), form[0]!.toUpperCase() + form.slice(1)]) assert.deepEqual(actionClassesIn(`and then ${written}.`), [actionClass], `'${written}' reads as ${actionClass}`)
         }
     }
-    for (const word of ['past', 'across', 'passive', 'bypass', 'carrier', 'clear', 'clearly', 'heading', 'head', 'touch', 'line_crossed', 'action', 'actions'])
+    // RE-PINNED OPENLY (stage B1, 12 November 2026). BEFORE: 'touch' was in this list (it named no class). AFTER: 'touch' is a class, so it
+    // leaves the list; 'touchline', 'turnover' and 'turnaround' join it (other words, which whole-word reading never takes for 'touch' or 'turn').
+    for (const word of ['past', 'across', 'passive', 'bypass', 'carrier', 'clear', 'clearly', 'heading', 'head', 'touchline', 'turnover', 'turnaround', 'line_crossed', 'action', 'actions'])
         assert.deepEqual(actionClassesIn(`and then ${word}.`), [], `'${word}' names no specific class`)
     assert.equal(namesGenericAction('through the next action'), true)
     assert.equal(namesGenericAction('a transaction'), false)
@@ -753,10 +761,17 @@ function testHighPressEscapeCandidateWording(): void {
         assert.deepEqual(actionWordFindings(overlaidCoachRules(doctored), groundsUnder(doctored)).map((f) => f.id).filter((id) => id.startsWith('RPC-002|')), HIGH_PRESS_ESCAPE_KEYS.map((key) => `${key} (i) ${actionClass}`), `'${other}' fails 2c`)
         assert.ok(candidateCoachRulesRefusals(doctored).some((why) => why.includes(`the new words "${other}" are not verbatim in RPC-PROP-133`)), `'${other}' is refused by the gate`)
     }
-    // The reader's limit, measured: an action named outside its classes passes 2c unread; the gate still refuses it (not the row's words).
+    // RE-PINNED OPENLY (stage B1 of the A02 complete-activity package, 12 November 2026; UA2 E5). BEFORE: the reader's limit was measured
+    // here, 'through the next touch' passed 2c unread ([] findings). AFTER: 'touch' is a specific class, so the same doctored wording fails 2c
+    // (i) on all four, as 'dribble' and 'pass' do above. WHY: Christian, received 12 November 2026, item 2, rules out "an artificial extra
+    // touch"; a continuation narrowed to a touch must be caught, not passed unread. The gate still refuses it (not the row's words).
     const touch = overlayWith(overlay, 'through the next touch')
-    assert.deepEqual(actionWordFindings(overlaidCoachRules(touch), groundsUnder(touch)).map((f) => f.id).filter((id) => id.startsWith('RPC-002|')), [], "the limit: 'touch' is not read")
+    assert.deepEqual(actionWordFindings(overlaidCoachRules(touch), groundsUnder(touch)).map((f) => f.id).filter((id) => id.startsWith('RPC-002|')), HIGH_PRESS_ESCAPE_KEYS.map((key) => `${key} (i) touch`), "'touch' is read and fails 2c")
     assert.ok(candidateCoachRulesRefusals(touch).length > 0)
+    // The reader's limit, measured again: an action named outside its classes still passes 2c unread ('play' is no class); the gate refuses it.
+    const play = overlayWith(overlay, 'through the next play')
+    assert.deepEqual(actionWordFindings(overlaidCoachRules(play), groundsUnder(play)).map((f) => f.id).filter((id) => id.startsWith('RPC-002|')), [], "the limit: 'play' is not read")
+    assert.ok(candidateCoachRulesRefusals(play).length > 0)
     // The gate: a paraphrase, a drifted live text, a missing rule, an APPROVED label, a wrong line, a clause not verbatim, a narrowing left in place.
     const gateRefuses = (alter: (copy: any) => void, expected: string) => {
         const copy: any = JSON.parse(JSON.stringify(overlay))

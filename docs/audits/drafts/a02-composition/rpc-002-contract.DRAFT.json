@@ -1,6 +1,6 @@
 {
-  "standing": "DRAFT - TEST-ONLY, NOT APPROVED. A CANDIDATE restatement (ours, unreviewed) of the APPROVED rows of RPC-002 High Press Escape that state its primary scoring events (RPC-REL-075..078) and its primary scoring condition (RPC-PROP-133), with two of its REQUIRED identity rows recorded outside the boundary (RPC-ID-006, RPC-ID-008), written for the isolated A02 experiment Christian authorized in the reply about A02, pasted 10 November 2026. Every item quotes the approved row it restates verbatim; the restatement into items and the WHOLE_GAME scope are ours. The count of primary events (V0, ASSUMED from SD-06) was dropped in review: measured, no run differs without it but for the item's own presence (stage 9, batch A2). Nothing here is in the engine's knowledge: only the TEST-ONLY draft store (back/src/system/derivation/draft-store.ts) reads it, in unit tests; it is not in contracts.json or corpus-restatements.json, and no route reads it. The build labels what it reads from here DRAFT, DRAFT_KNOWLEDGE and BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED: read each of those labels as CANDIDATE restatement of an APPROVED row.",
-  "about": "The smallest restatement the item grammar expresses (stage 9 understanding, V2): the events, the three clauses of the approved condition as conditions of type origin, progression and control with their verbatim values, and the expressible identity rows recorded only. What the grammar cannot carry stays UNRESOLVED and is declared so: the origin clause has no carrier (V6 origin NOT_AUTHORED; V5 origin open text), the pressing line is open text, the control referent is UNDECLARED. The draft store refuses a drafted context whose primary scoring condition no constituting item cites, so the three condition items are the smallest admissible.",
+  "standing": "DRAFT - TEST-ONLY, NOT APPROVED. A CANDIDATE restatement (ours, unreviewed) of the APPROVED rows of RPC-002 High Press Escape that state its primary scoring events (RPC-REL-075..078) and its primary scoring condition (RPC-PROP-133), with two of its REQUIRED identity rows recorded outside the boundary (RPC-ID-006, RPC-ID-008), written for the isolated A02 experiment Christian authorized in the reply about A02, pasted 10 November 2026, and restated on Christian's rulings received 12 November 2026 (items 1 and 2), its CANDIDATE status preserved until Christian has reviewed it. Every item quotes the approved row it restates verbatim; the restatement into items and the WHOLE_GAME scope are ours. The count of primary events (V0, ASSUMED from SD-06) was dropped in review: measured, no run differs without it but for the item's own presence (stage 9, batch A2). Nothing here is in the engine's knowledge: only the TEST-ONLY draft store (back/src/system/derivation/draft-store.ts) reads it, in unit tests; it is not in contracts.json or corpus-restatements.json, and no route reads it. The build labels what it reads from here DRAFT, DRAFT_KNOWLEDGE and BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED: read each of those labels as CANDIDATE restatement of an APPROVED row.",
+  "about": "The smallest restatement the item grammar expresses (stage 9 understanding, V2; restated by stage B1 of the A02 complete-activity package, 12 November 2026, on Christian's two rulings received 12 November 2026, items 1 and 2): the events, the three clauses of the approved condition as conditions of type origin, progression and control with their verbatim values, and the expressible identity rows recorded only. The origin clause's words are the origin condition's value (V6, a qualitative term judged in play at the sequence's start), and the origin names no place (V5 origin NO_FURTHER_VALUE); the continuation names no place (V5 control NO_FURTHER_VALUE); WHOLE_GAME is our CANDIDATE reading of the scope ruling. What the grammar cannot carry stays UNRESOLVED and is declared so: the pressing line is open text (PROPOSED in A02-HPE1, N1, for Christian's approval). The draft store refuses a drafted context whose primary scoring condition no constituting item cites, so the three condition items are the smallest admissible.",
   "contractEntry": {
     "kind": "restated",
     "name": "RPC-002 High Press Escape",
@@ -76,7 +76,7 @@
           "basis": "AUTHORED",
           "basisEvidence": "\"The sequence begins under established coordinated pressure\" (RPC-PROP-133)",
           "checkability": "STRUCTURAL",
-          "fitNote": "CANDIDATE, OURS, unreviewed: the origin clause of the approved condition as a condition of type origin, the analog of RPC-001-18.a. SCOPE WHOLE_GAME (OURS, over-applying; the scope stays UNRESOLVED): the approved condition says the sequence begins under established coordinated pressure, so the faithful scope is a High Press Escape sequence; the only episode scope the register holds, BUILD_OUT_EPISODE, belongs to RPC-001 (SD-36) and is not borrowed; WHOLE_GAME holds every score of the game to the condition.",
+          "fitNote": "CANDIDATE, OURS, unreviewed: the origin clause of the approved condition as a condition of type origin, the analog of RPC-001-18.a. SCOPE WHOLE_GAME (CANDIDATE, OURS: our reading of Christian's ruling received 12 November 2026, item 1, that every score must occur within a sequence that began under coordinated pressure; an episode scope would hold the condition only inside such a sequence and leave a score outside it unconditioned).",
           "source": [
             {
               "rowId": "RPC-PROP-133",
@@ -112,10 +112,10 @@
           "origId": "RPC-002-02",
           "strictness": "REQUIRED",
           "scope": "WHOLE_GAME",
-          "structuralClause": "Structural: none. No typed carrier exists: register V5 admits regions, objects or placements (never a player's position during play), the relational form and the begin condition of a restart (C58); established pressure is none of these. Outside: whether pressure is established and coordinated, judged in play.",
+          "structuralClause": "Structural: the origin condition is on every score (WHOLE_GAME) and names no place (V5 NO_FURTHER_VALUE). Outside: whether the sequence began under established coordinated pressure, judged in play at the sequence's start.",
           "standing": "DRAFT",
           "id": "RPC-002-02.b",
-          "row": "V5",
+          "row": "V6",
           "selector": "type=origin",
           "requirement": "EQUALS",
           "value": "established coordinated pressure",
@@ -123,7 +123,7 @@
           "basis": "AUTHORED",
           "basisEvidence": "\"under established coordinated pressure\" (RPC-PROP-133)",
           "checkability": "PARTLY_STRUCTURAL",
-          "fitNote": "CANDIDATE, OURS, unreviewed: the referent as authored, kept as open text and never typed by us. SCOPE WHOLE_GAME (OURS, over-applying; the scope stays UNRESOLVED): the approved condition says the sequence begins under established coordinated pressure, so the faithful scope is a High Press Escape sequence; the only episode scope the register holds, BUILD_OUT_EPISODE, belongs to RPC-001 (SD-36) and is not borrowed; WHOLE_GAME holds every score of the game to the condition.",
+          "fitNote": "CANDIDATE, OURS, unreviewed: the authored words carried as the origin condition's value, a qualitative term (V6, RC-5), judged in play at the start of the sequence (Christian's ruling received 12 November 2026, item 1, A02-12NOV-PRESSURE); no restart, set-up or episode is required. SCOPE WHOLE_GAME (CANDIDATE, OURS: our reading of Christian's ruling received 12 November 2026, item 1, that every score must occur within a sequence that began under coordinated pressure; an episode scope would hold the condition only inside such a sequence and leave a score outside it unconditioned).",
           "source": [
             {
               "rowId": "RPC-PROP-133",
@@ -170,7 +170,7 @@
           "basis": "AUTHORED",
           "basisEvidence": "\"the event occurs beyond the pressing line\" (RPC-PROP-133)",
           "checkability": "STRUCTURAL",
-          "fitNote": "CANDIDATE, OURS, unreviewed: the progression clause as a condition of type progression, the analog of RPC-001-18.c. SCOPE WHOLE_GAME (OURS, over-applying; the scope stays UNRESOLVED): the approved condition says the sequence begins under established coordinated pressure, so the faithful scope is a High Press Escape sequence; the only episode scope the register holds, BUILD_OUT_EPISODE, belongs to RPC-001 (SD-36) and is not borrowed; WHOLE_GAME holds every score of the game to the condition.",
+          "fitNote": "CANDIDATE, OURS, unreviewed: the progression clause as a condition of type progression, the analog of RPC-001-18.c. SCOPE WHOLE_GAME (CANDIDATE, OURS: our reading of Christian's ruling received 12 November 2026, item 1, that every score must occur within a sequence that began under coordinated pressure; an episode scope would hold the condition only inside such a sequence and leave a score outside it unconditioned).",
           "source": [
             {
               "rowId": "RPC-PROP-133",
@@ -217,7 +217,7 @@
           "basis": "AUTHORED",
           "basisEvidence": "\"beyond the pressing line\" (RPC-PROP-133)",
           "checkability": "PARTLY_STRUCTURAL",
-          "fitNote": "CANDIDATE, OURS, unreviewed: the referent as authored, kept as open text and never typed by us. SCOPE WHOLE_GAME (OURS, over-applying; the scope stays UNRESOLVED): the approved condition says the sequence begins under established coordinated pressure, so the faithful scope is a High Press Escape sequence; the only episode scope the register holds, BUILD_OUT_EPISODE, belongs to RPC-001 (SD-36) and is not borrowed; WHOLE_GAME holds every score of the game to the condition.",
+          "fitNote": "CANDIDATE, OURS, unreviewed: the referent as authored, kept as open text and never typed by us (the pressing line is PROPOSED in A02-HPE1, N1, for Christian's approval). SCOPE WHOLE_GAME (CANDIDATE, OURS: our reading of Christian's ruling received 12 November 2026, item 1, that every score must occur within a sequence that began under coordinated pressure; an episode scope would hold the condition only inside such a sequence and leave a score outside it unconditioned).",
           "source": [
             {
               "rowId": "RPC-PROP-133",
@@ -264,7 +264,7 @@
           "basis": "AUTHORED",
           "basisEvidence": "\"beyond the pressing line\" (RPC-PROP-133)",
           "checkability": "STRUCTURAL",
-          "fitNote": "CANDIDATE, OURS, unreviewed: the verbatim value, the analog of RPC-001-18.e. SCOPE WHOLE_GAME (OURS, over-applying; the scope stays UNRESOLVED): the approved condition says the sequence begins under established coordinated pressure, so the faithful scope is a High Press Escape sequence; the only episode scope the register holds, BUILD_OUT_EPISODE, belongs to RPC-001 (SD-36) and is not borrowed; WHOLE_GAME holds every score of the game to the condition.",
+          "fitNote": "CANDIDATE, OURS, unreviewed: the verbatim value, the analog of RPC-001-18.e. SCOPE WHOLE_GAME (CANDIDATE, OURS: our reading of Christian's ruling received 12 November 2026, item 1, that every score must occur within a sequence that began under coordinated pressure; an episode scope would hold the condition only inside such a sequence and leave a score outside it unconditioned).",
           "source": [
             {
               "rowId": "RPC-PROP-133",
@@ -311,7 +311,7 @@
           "basis": "AUTHORED",
           "basisEvidence": "\"the attacking team retains possession through the next action\" (RPC-PROP-133)",
           "checkability": "STRUCTURAL",
-          "fitNote": "CANDIDATE, OURS, unreviewed: the control clause as a condition of type control, the analog of RPC-001-18.f. SCOPE WHOLE_GAME (OURS, over-applying; the scope stays UNRESOLVED): the approved condition says the sequence begins under established coordinated pressure, so the faithful scope is a High Press Escape sequence; the only episode scope the register holds, BUILD_OUT_EPISODE, belongs to RPC-001 (SD-36) and is not borrowed; WHOLE_GAME holds every score of the game to the condition.",
+          "fitNote": "CANDIDATE, OURS, unreviewed: the control clause as a condition of type control, the analog of RPC-001-18.f. SCOPE WHOLE_GAME (CANDIDATE, OURS: our reading of Christian's ruling received 12 November 2026, item 1, that every score must occur within a sequence that began under coordinated pressure; an episode scope would hold the condition only inside such a sequence and leave a score outside it unconditioned).",
           "source": [
             {
               "rowId": "RPC-PROP-133",
@@ -358,7 +358,7 @@
           "basis": "AUTHORED",
           "basisEvidence": "\"retains possession through the next action\" (RPC-PROP-133)",
           "checkability": "STRUCTURAL",
-          "fitNote": "CANDIDATE, OURS, unreviewed: the verbatim value, the analog of RPC-001-18.g with a different predicate (retention through the next action, not control on arrival). SCOPE WHOLE_GAME (OURS, over-applying; the scope stays UNRESOLVED): the approved condition says the sequence begins under established coordinated pressure, so the faithful scope is a High Press Escape sequence; the only episode scope the register holds, BUILD_OUT_EPISODE, belongs to RPC-001 (SD-36) and is not borrowed; WHOLE_GAME holds every score of the game to the condition.",
+          "fitNote": "CANDIDATE, OURS, unreviewed: the verbatim value, the analog of RPC-001-18.g with a different predicate (retention through the next action, not control on arrival); judged in play after the scoring event is complete, naming no place and no taxonomy of actions (Christian's ruling received 12 November 2026, item 2, A02-12NOV-NEXT-ACTION). SCOPE WHOLE_GAME (CANDIDATE, OURS: our reading of Christian's ruling received 12 November 2026, item 1, that every score must occur within a sequence that began under coordinated pressure; an episode scope would hold the condition only inside such a sequence and leave a score outside it unconditioned).",
           "source": [
             {
               "rowId": "RPC-PROP-133",
@@ -485,30 +485,32 @@
         {
           "row": "V5",
           "declaration": "CLAIMED",
-          "selector": "type ∈ {origin, progression}",
+          "selector": "type=progression",
           "scope": "WHOLE_GAME",
-          "note": "RPC-002-02.b, 03.b (open text, never typed by us)."
+          "note": "RPC-002-03.b (open text, never typed by us)."
         },
         {
           "row": "V6",
           "declaration": "CLAIMED",
-          "selector": "type ∈ {progression, control}",
+          "selector": "type ∈ {origin, progression, control}",
           "scope": "WHOLE_GAME",
-          "note": "RPC-002-03.c, 04.b."
+          "note": "RPC-002-02.b, 03.c, 04.b."
         },
         {
           "row": "V5",
-          "declaration": "UNDECLARED",
+          "declaration": "NON_CLAIMED",
+          "qualifier": "NO_FURTHER_VALUE",
           "selector": "type=control",
           "scope": "WHOLE_GAME",
-          "note": "The control clause names no place: its referent is not stated (UNRESOLVED)."
+          "note": "CANDIDATE, OURS: the continuation names no place (Christian's ruling received 12 November 2026, item 2, A02-12NOV-NEXT-ACTION: whose action, what counts, when it counts; no place)."
         },
         {
-          "row": "V6",
-          "declaration": "NOT_AUTHORED",
+          "row": "V5",
+          "declaration": "NON_CLAIMED",
+          "qualifier": "NO_FURTHER_VALUE",
           "selector": "type=origin",
           "scope": "WHOLE_GAME",
-          "note": "What makes pressure established is not authored (UNRESOLVED)."
+          "note": "CANDIDATE, OURS: the pressure the sequence begins under names no region, object or placement (register V5: never a player's position during play); judged in play (Christian's ruling received 12 November 2026, item 1, A02-12NOV-PRESSURE)."
         }
       ],
       "relationshipRules": [],

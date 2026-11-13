@@ -33,10 +33,10 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { governingDeclarations } from '../derivation/classify'
+import { governingDeclarations, nonClaimState } from '../derivation/classify'
 import { loadProvisionalRealizations } from '../derivation/corpus'
 import { LawsMateriality } from '../derivation/default-laws'
-import { loadDraftStore, loadIllustrativeCarriers, loadLawsMateriality, withIllustrativeCarriers } from '../derivation/draft-store'
+import { loadDraftStore, loadIllustrativeCarriers, loadLawsMateriality, loadProposedRealization, withIllustrativeCarriers, withProposedReplacements } from '../derivation/draft-store'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { knowledgeKey } from '../derivation/knowledge-key'
@@ -45,7 +45,7 @@ import { applyRealizationDeferrals, applyRoleYields } from '../derivation/realiz
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame } from '../derivation/resolved-game'
 import { CONTEXT_ROLE, derivationInputFor, DraftStoreContents, UpstreamDecisions } from '../derivation/run-bounded-selection'
-import { LoadedContract } from '../derivation/types'
+import { LoadedContract, NO_FURTHER_VALUE } from '../derivation/types'
 import { realizeWithJustifiedDefaults } from '../realization/justified-defaults'
 import { isRefused } from '../realization/realize'
 import { SuppliedRealization } from '../realization/supplied-realization'
@@ -147,7 +147,16 @@ function linesOf(fixture: any, request: ChainRequest, chosenBy: Map<string, stri
             ...(Array.isArray(c.draftShapedBy) && c.draftShapedBy.length ? { draftShapedBy: (c.draftShapedBy as any[]).map((d) => ({ contractId: String(d.contractId), itemId: String(d.itemId), relation: String(d.relation) })) } : {}),
         })
     }
-    for (const n of st.notEstablished ?? []) lines.push({ kind: 'NOT_ESTABLISHED', lineId: n.lineId, path: n.path, value: null, reason: n.reason })
+    // Stage B1: a line every deciding non-claim of which states no further value says so, with whose declarations they are (never graded).
+    for (const n of st.notEstablished ?? [])
+        lines.push({
+            kind: 'NOT_ESTABLISHED',
+            lineId: n.lineId,
+            path: n.path,
+            value: null,
+            reason: n.reason,
+            ...(nonClaimState(n.reason, n.governedBy) === NO_FURTHER_VALUE ? { nonClaim: { state: 'NO_FURTHER_VALUE' as const, by: [...new Set(((n.governedBy ?? []) as any[]).filter((g) => g.declaration === 'NON_CLAIMED').map((g) => String(g.contractId)))] } } : {}),
+        })
     const instantiations = (st.instantiations ?? []) as Array<{ path: string; classId: string; handle: string }>
     for (const e of st.entailed ?? []) lines.push({ kind: 'ENTAILED', lineId: e.lineId, path: e.path, value: e.value, because: e.because, classId: instantiations.find((i) => i.handle === e.handle)?.classId })
     const classes = [...new Set(instantiations.map((i) => `${i.classId}|${i.path}`))]
@@ -448,6 +457,22 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
         // W4 (A02 package): each ILLUSTRATIVE carrier treatment adds its groups to the store, on this copy, in the case's order (held to the gate first).
         if (request.illustrative && (!drafts || !consume)) throw new Error(`case ${request.caseId}: ILLUSTRATIVE carriers are added only to a consuming request's draft store`)
         for (const t of request.illustrative ?? []) drafts = withIllustrativeCarriers(drafts!, loadIllustrativeCarriers(path.resolve(WT, t.file)), t.groups, t.treatmentId)
+        // Stage B1 (A02 complete-activity package): the PROPOSED configuration, held to its gate, its restatement replacements made on this copy,
+        // handed to the entry's TEST-ONLY upstream option beside K2's result (the selection refuses it otherwise).
+        if (request.proposed && (!drafts || !consume?.k2 || !upstream)) throw new Error(`case ${request.caseId}: a PROPOSED configuration is handed only to a consuming request that reads a draft store, beside K2's result`)
+        let proposedSetsAside: string[] = []
+        if (request.proposed) {
+            const configuration = loadProposedRealization(path.resolve(WT, request.proposed.file))
+            proposedSetsAside = [...configuration.setsAsideChoices]
+            drafts = withProposedReplacements(drafts!, configuration, request.proposed.treatmentId)
+            upstream!.proposedRealization = {
+                realization: configuration.realization,
+                roles: copy(configuration.roles),
+                treatmentId: request.proposed.treatmentId,
+                ...(request.proposed.pendingTreatmentId ? { pending: { treatmentId: request.proposed.pendingTreatmentId } } : {}),
+                basis: copy(request.proposed.basis),
+            }
+        }
         // W5 (A02 package): the swap control, on this copy, after both stores' gates (see `RestatementSwap`).
         if (opts.swap) {
             if (!drafts || !consume) throw new Error(`case ${request.caseId}: the swap control exchanges restatements only in a consuming request's draft store`)
@@ -502,7 +527,7 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
             derivedFrom = copy(contracts)
             seen = contracts.map((c) => ({
                 contractId: c.contractId,
-                origin: draftIds.has(c.contractId) ? ('DRAFT_STORE' as const) : c.contractId.startsWith('provisional:') ? ('REALIZATION' as const) : ('KNOWLEDGE' as const),
+                origin: draftIds.has(c.contractId) ? ('DRAFT_STORE' as const) : c.contractId.startsWith('provisional:') ? ('REALIZATION' as const) : c.contractId.startsWith('proposed:') ? ('PROPOSED' as const) : ('KNOWLEDGE' as const),
                 items: c.items.map((i: any) => ({
                     itemId: String(i.itemId),
                     row: String(i.row),
@@ -519,7 +544,8 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
             chosenBy = choicesFileOf(supplied)
             // W4 (A02 package): a line an ILLUSTRATIVE carrier entails (the opening possession its START awards) is no longer open, so a choices
             // file's choice for it is set aside on this copy, named by the carrier group; nothing else is removed.
-            for (const lineId of (drafts?.illustrative ?? []).flatMap((x) => x.setsAsideChoices)) {
+            // Stage B1: likewise a line a PROPOSED configuration's items entail (named by the configuration, `setsAsideChoices`).
+            for (const lineId of [...(drafts?.illustrative ?? []).flatMap((x) => x.setsAsideChoices), ...proposedSetsAside]) {
                 supplied.choices = supplied.choices.filter((c) => c.lineId !== lineId)
                 chosenBy.delete(lineId)
             }
@@ -555,7 +581,10 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
         let reasons = activity.outcome === 'refused' ? activity.reasons.map(withoutGenderedPronouns) : []
         let laws: ChainAnswer['laws'] = activity.lawsCheck ? { mode: activity.lawsCheck.mode, owed: activity.lawsCheck.owed.map(withoutGenderedPronouns), reportedForReview: (activity.lawsCheck.materiality?.reportedForReview ?? []).map(withoutGenderedPronouns) } : null
         // Read before the harness's hold can restate the outcome: only a refusal the chain itself met before any game exists.
-        const refusalDetail = activity.outcome === 'refused' && (activity.stage === 'structure' || activity.stage === 'realization') && selected && derivedFrom ? refusalDetailOf(selected, derivedFrom, sessionOf(request.session), activity.stage, activity.reasons, suppliedUsed) : null
+        // Stage B1: a refusal a game played in role blocks met (its reasons named by block) is not re-derived here: the refusal detail re-runs one
+        // game with no role block, so it could not reproduce a block's refusal; such an answer carries no refusal detail (named, never guessed).
+        const blockScoped = activity.outcome === 'refused' && activity.reasons.some((reason) => reason.startsWith('block '))
+        const refusalDetail = activity.outcome === 'refused' && !blockScoped && (activity.stage === 'structure' || activity.stage === 'realization') && selected && derivedFrom ? refusalDetailOf(selected, derivedFrom, sessionOf(request.session), activity.stage, activity.reasons, suppliedUsed) : null
         if (request.holdReportedLawsToMateriality && fixture) {
             const held = heldLaws(fixture, opts.heldTo)
             laws = { mode: 'REPORT (the TEST-ONLY realization\'s check), held by the harness to our DRAFT classification', owed: held.owed, reportedForReview: held.reported }
@@ -663,6 +692,8 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
             refusalDetail,
             ...(consume ? { consumption } : {}),
             ...(recordSet ? { recordSet } : {}),
+            // Stage B1: the build's own review-level account, only where the request carried a PROPOSED configuration.
+            ...(activity.reviewLevel ? { reviewLevel: copy(activity.reviewLevel) } : {}),
             observed,
         }
     },

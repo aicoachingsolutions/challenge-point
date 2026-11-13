@@ -22,6 +22,7 @@ The grading map (OURS, for Christian's review): each line takes the weakest clas
    ENGINE_ONLY_ITEM: OURS; printed 'OURS: engine convention'; a contract item with basis ENGINE_ONLY
    DRAFT_ITEM: CANDIDATE; printed 'DRAFT knowledge (ours, unreviewed)'; an item of a DRAFT contract read from the TEST-ONLY draft store
    ILLUSTRATIVE_ITEM: ILLUSTRATIVE; printed 'ILLUSTRATIVE (for this offline test only; to be replaced before any production use): a TEST-ONLY carrier, not knowledge'; an item an ILLUSTRATIVE carrier treatment added to the draft store (category ILLUSTRATIVE, W4): graded by its category, never by its basis
+   PROPOSED_ITEM: OURS; printed 'PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling'; an item of a PROPOSED configuration (category PROPOSED, stage B1): graded by its category, never by its basis
    REALIZATION_ITEM: RULING; printed 'RULING'; an item of a provisional realization quoting Christian, graded by its ruling (class 3 where provisional)
    STANDING_DECISION: RULING; printed 'RULING'; an engine standing decision that records a ruling of Christian's (the table is data, checked against the specification); one that records none is OURS: engine convention
    CASE_CHOICE_RULING: RULING; printed 'RULING'; a choice the case supplies for an open line, on a ruling of Christian's (class 3 where provisional)

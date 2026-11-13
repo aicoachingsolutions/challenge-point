@@ -187,8 +187,19 @@ export const DRAFT_KNOWLEDGE_VERSION = 'draft'
  * way (`isDraftCategory`); the store refuses OWNER_RULING on it. No production item, declaration or contract carries it.
  */
 export const ILLUSTRATIVE = 'ILLUSTRATIVE'
-/** A category the TEST-ONLY draft store stamps (DRAFT_KNOWLEDGE, or ILLUSTRATIVE): never approved knowledge, whatever the item's basis. */
-export const isDraftCategory = (category: unknown): boolean => category === DRAFT_KNOWLEDGE || category === ILLUSTRATIVE
+/**
+ * **TEST-ONLY: a PROPOSED configuration item, our proposal of new knowledge for Christian's approval, never knowledge** — stage B1 of the A02
+ * complete-activity package, 12 November 2026. Christian, received 12 November 2026: "Please propose the simplest representative
+ * configuration that makes the relevant defensive pressure and escape target observable to the coach." and "The final interpretation and
+ * any consequential new knowledge should remain subject to my approval." The category the TEST-ONLY draft store's PROPOSED loader
+ * (`draft-store.ts`, its PROPOSED loader) stamps on every item of a proposed configuration (ILLUSTRATIVE where an item is marked so):
+ * not a ruling, not a restatement of one, not approved. It travels as DRAFT_KNOWLEDGE does and every reader that treats a draft item as
+ * unapproved treats it the same way (`isDraftCategory`), so no PROPOSED item can read as Christian's choice. No production item, declaration
+ * or contract carries it.
+ */
+export const PROPOSED = 'PROPOSED'
+/** A category the TEST-ONLY draft store stamps (DRAFT_KNOWLEDGE, ILLUSTRATIVE or PROPOSED): never approved knowledge, whatever the item's basis. */
+export const isDraftCategory = (category: unknown): boolean => category === DRAFT_KNOWLEDGE || category === ILLUSTRATIVE || category === PROPOSED
 export const ROLE_YIELD_MARKERS = ['AUTHORIZED_ROLE_SCORING'] as const
 
 /**

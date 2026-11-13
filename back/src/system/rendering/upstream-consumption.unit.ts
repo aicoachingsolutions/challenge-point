@@ -99,7 +99,12 @@ const A01_HINTS = {
 // Stage W1 (c1), re-pinned openly: upstream 30 -> 34; coverageLenses 6 and hintsLensesFrom 2 join it (the treatment GP_COVERAGE_LENSES).
 // Stage W2, re-pinned openly: upstream 34 -> 40, quotaBypass 10 -> 11; foundationPresenceBypass 8 joins it (the treatment FOUNDATION_PRESENCE_BYPASS:
 // its field, its shape check beside the switch, its record and its hand-on to the selector).
-const RUN_BOUNDED_SELECTION_NAMES: Record<string, number> = { consumed: 7, consumedGameProblem: 10, coverageLenses: 6, foundationPresenceBypass: 8, hintsGameProblem: 3, hintsGameProblemId: 2, hintsGoverned: 2, hintsLensesFrom: 2, hintsSignals: 2, lensCandidateIds: 2, quotaBypass: 11, reviewManipulationRefusals: 2, reviewManipulations: 7, ReviewManipulations: 5, step1GameProblemId: 1, upstream: 40, UpstreamDecisions: 4 }
+// Stage B1 of the A02 complete-activity package (12 November 2026), re-pinned openly (measured by scratchpad pkg3/B1/scripts/measure-names.ts).
+// BEFORE: { ..., quotaBypass: 11, reviewManipulations: 7, upstream: 40, ... }. AFTER: the PROPOSED configuration's option and type
+// (proposedRealization 6, ProposedRealizationHandoff 3, withProposedRoles 2) join; quotaBypass 11 -> 12, reviewManipulations 7 -> 8 and upstream
+// 40 -> 47 by its refusal (a PROPOSED configuration only beside K2's result, never beside the quota bypass) and its threading in selectFor's
+// upstream branch. WHY: the option is TEST-ONLY and threaded only where `upstream` already is; production passes no upstream.
+const RUN_BOUNDED_SELECTION_NAMES: Record<string, number> = { consumed: 7, consumedGameProblem: 10, coverageLenses: 6, foundationPresenceBypass: 8, hintsGameProblem: 3, hintsGameProblemId: 2, hintsGoverned: 2, hintsLensesFrom: 2, hintsSignals: 2, lensCandidateIds: 2, proposedRealization: 6, ProposedRealizationHandoff: 3, quotaBypass: 12, reviewManipulationRefusals: 2, reviewManipulations: 8, ReviewManipulations: 5, step1GameProblemId: 1, upstream: 47, UpstreamDecisions: 4, withProposedRoles: 2 }
 // Stage W1 (c1), re-pinned openly: was { hintsGameProblem: 2, step1GameProblemId: 3 }; the treatment's option and helper join it.
 const GUIDED_SELECTION_NAMES: Record<string, number> = { coverageLenses: 2, coverageRowLenses: 2, hintsGameProblem: 2, step1GameProblemId: 4 }
 /**
@@ -108,11 +113,15 @@ const GUIDED_SELECTION_NAMES: Record<string, number> = { coverageLenses: 2, cove
  * and :698 -> :748, generateSelection.ts:1194 -> :1206. Stage W4 (11 November 2026), re-pinned openly the same way: safeguards.ts:471 -> :476
  * and :748 -> :759 (the same two literals, moved by the CARRIED_UNDER_ILLUSTRATION hunks above them).
  */
-const K2_WRITTEN: string[] = ['system/derivation/run-bounded-selection.ts:402 WRITTEN in selectFor under upstream']
+// Stage B1 of the A02 complete-activity package, re-pinned openly: BEFORE line 402, AFTER line 447 (the same one write, moved down by the
+// PROPOSED configuration's type and refusal added above it in run-bounded-selection.ts; still the only write, in selectFor under upstream).
+const K2_WRITTEN: string[] = ['system/derivation/run-bounded-selection.ts:447 WRITTEN in selectFor under upstream']
+// Stage B1, re-pinned openly the same way: safeguards.ts:476 -> :488 and :759 -> :773 (the same two literals, moved by the NO_FURTHER_VALUE
+// reading's hunks above them, safeguards.ts:222 and :256-266).
 const K2_LITERALS: string[] = [
-    'system/derivation/run-bounded-selection.ts:402 WRITTEN in selectFor under upstream',
-    'system/design-reasoning/safeguards.ts:476 READ',
-    'system/design-reasoning/safeguards.ts:759 READ',
+    'system/derivation/run-bounded-selection.ts:447 WRITTEN in selectFor under upstream',
+    'system/design-reasoning/safeguards.ts:488 READ',
+    'system/design-reasoning/safeguards.ts:773 READ',
     'system/rendering/build-activity.ts:171 TYPE',
     'system/test-library/generateSelection.ts:1206 READ',
     'system/test-library/types.ts:134 TYPE',
@@ -419,9 +428,12 @@ test('statically: production cannot reach the option (identifiers, positional ar
     // Stage W1 (b): the review pathway's K2 result handed in place of a record (the field, its type and its refusal function).
     // Stage W2 (11 November 2026): the switch's checks and the treatment FOUNDATION_PRESENCE_BYPASS (the selector's, the package check's, the
     // package builder's and validator's TEST-ONLY parameters, fields and helpers, and the review pathway's record of the treatment).
-    const NAMES = new Set(['upstream', 'consumedGameProblem', 'consumed', 'quotaBypass', 'quotaBypassOwnSize', 'UpstreamDecisions', 'step1GameProblemId', 'hintsGameProblem', 'hintsGameProblemId', 'hintsGoverned', 'lensCandidateIds', 'hintsSignals', 'reviewManipulations', 'ReviewManipulations', 'reviewManipulationRefusals', 'reviewPathwayK2EmptySet', 'coverageLenses', 'coverageRowLenses', 'hintsLensesFrom', 'foundationPresenceBypass', 'foundationPresenceBypassed', 'FoundationPresenceBypass', 'FoundationOptionalPackage', 'switchChecks', 'SwitchChecks', 'switchChecksFor', 'wholePool', 'everyMemberValidated', 'refuseAbsentMembers', 'ABSENT_MEMBER_WORDS'])
+    // Stage B1 of the A02 complete-activity package (12 November 2026): the PROPOSED configuration's option, its type and its overlay helper, the
+    // treatment PROPOSED_PENDING's record and sink, and the review-level account join the scan.
+    const NAMES = new Set(['upstream', 'consumedGameProblem', 'consumed', 'quotaBypass', 'quotaBypassOwnSize', 'UpstreamDecisions', 'step1GameProblemId', 'hintsGameProblem', 'hintsGameProblemId', 'hintsGoverned', 'lensCandidateIds', 'hintsSignals', 'reviewManipulations', 'ReviewManipulations', 'reviewManipulationRefusals', 'reviewPathwayK2EmptySet', 'coverageLenses', 'coverageRowLenses', 'hintsLensesFrom', 'foundationPresenceBypass', 'foundationPresenceBypassed', 'FoundationPresenceBypass', 'FoundationOptionalPackage', 'switchChecks', 'SwitchChecks', 'switchChecksFor', 'wholePool', 'everyMemberValidated', 'refuseAbsentMembers', 'ABSENT_MEMBER_WORDS', 'proposedRealization', 'ProposedRealizationHandoff', 'withProposedRoles', 'PendingApprovalEntry', 'basisGrounds', 'BasisGround', 'reviewLevel', 'ReviewLevelAccount'])
     // Stage W2: a fourth argument to the package builder or validator is the treatment's (only the package check may pass it).
-    const POSITION: Record<string, number> = { selectFor: 6, generateSelection: 3, build: 18, buildConstraintPackage: 4, validateConstraintPackage: 4 }
+    // Stage B1, re-pinned openly: `build` takes a nineteenth argument (was 18), the TEST-ONLY sink of the treatment PROPOSED_PENDING (null in production).
+    const POSITION: Record<string, number> = { selectFor: 6, generateSelection: 3, build: 19, buildConstraintPackage: 4, validateConstraintPackage: 4 }
     const named = new Map<string, Map<string, number>>()
     const namedLines = new Map<string, Map<number, string>>()
     const linesOfNamed = (file: string) => [...(namedLines.get(file) ?? new Map<number, string>()).entries()].sort((a, b) => a[0] - b[0]).map(entry => entry[1])
@@ -552,10 +564,11 @@ test('statically: production cannot reach the option (identifiers, positional ar
 
     // 7a. The only calls with an argument in the new position: the threading itself, one per file. Stage W2, re-pinned openly: selectFor hands
     // the selector a fourth argument (was 'generateSelection 3'), the treatment FOUNDATION_PRESENCE_BYPASS; and only the package check passes
-    // the package builder and validator theirs, under that treatment.
+    // the package builder and validator theirs, under that treatment. Stage B1, re-pinned openly: BEFORE 'build 18', AFTER 'build 19' (the one
+    // call of `build` hands it the sink of PROPOSED_PENDING; production calls pass none and so reach no new position).
     assert.deepEqual(calls.sort(), [
         'system/derivation/run-bounded-selection.ts generateSelection 4',
-        'system/rendering/build-activity.ts build 18',
+        'system/rendering/build-activity.ts build 19',
         'system/rendering/build-activity.ts selectFor 6',
         'system/test-library/selection-compatibility.ts buildConstraintPackage 4',
         'system/test-library/selection-compatibility.ts validateConstraintPackage 4',
@@ -573,7 +586,9 @@ test('statically: production cannot reach the option (identifiers, positional ar
     // TEST-ONLY `step1GameProblemId` option and the `hintsGameProblem` it returns), and the review pathway's handoff, report and safeguards
     // read the consumption record's new fields (they were not named before because the scan's names did not include those fields).
     // Stage W2, re-pinned openly: the package builder, its validator and the package check join them (their TEST-ONLY parameters and helpers).
-    assert.deepEqual([...named.keys()].filter((file) => !file.startsWith(REVIEW_PATHWAY)).sort(), ['system/build-constraint-package.ts', 'system/derivation/run-bounded-selection.ts', 'system/rendering/build-activity.ts', 'system/sport-module/guided-selection.ts', 'system/test-library/generateSelection.ts', 'system/test-library/selection-compatibility.ts', 'system/validate-constraint-package.ts'])
+    // Stage B1, re-pinned openly: the context-scoring guard joins them (its TEST-ONLY sink `basisGrounds` and its type `BasisGround`, which only
+    // the build given the treatment PROPOSED_PENDING hands it; every production caller passes none).
+    assert.deepEqual([...named.keys()].filter((file) => !file.startsWith(REVIEW_PATHWAY)).sort(), ['system/build-constraint-package.ts', 'system/derivation/run-bounded-selection.ts', 'system/rendering/build-activity.ts', 'system/rendering/context-scoring-guard.ts', 'system/sport-module/guided-selection.ts', 'system/test-library/generateSelection.ts', 'system/test-library/selection-compatibility.ts', 'system/validate-constraint-package.ts'])
     assert.deepEqual([...named.keys()].filter((file) => file.startsWith(REVIEW_PATHWAY)).sort(), ['system/design-reasoning/handoff-report.ts', 'system/design-reasoning/handoff.ts', 'system/design-reasoning/safeguards.ts'])
     // Counted per file (measured 10 November 2026, B1), so a new reference anywhere is a visible change; the selector names none but its boolean.
     const countsOf = (file: string) => Object.fromEntries([...(named.get(file) ?? new Map<string, number>()).entries()].sort((a, b) => a[0].localeCompare(b[0])))
@@ -589,7 +604,12 @@ test('statically: production cannot reach the option (identifiers, positional ar
     // Stage W1 (b): the authority REVIEW_PATHWAY_K2 is written only in selectFor's upstream branch; elsewhere it is only read or typed.
     assert.deepEqual(k2Literals.filter((entry) => entry.indexOf(' WRITTEN') >= 0), K2_WRITTEN)
     assert.deepEqual(k2Literals, K2_LITERALS)
-    assert.deepEqual(countsOf('system/rendering/build-activity.ts'), { consumed: 7, consumedGameProblem: 7, upstream: 6, UpstreamDecisions: 4 })
+    // Stage B1, re-pinned openly. BEFORE: { consumed: 7, consumedGameProblem: 7, upstream: 6, UpstreamDecisions: 4 }. AFTER: the review-level
+    // account and the treatment PROPOSED_PENDING's record and sink join (BasisGround 2, PendingApprovalEntry 4, proposedRealization 1,
+    // reviewLevel 3, ReviewLevelAccount 3), and upstream 6 -> 7 (the one read of the PROPOSED configuration from the TEST-ONLY entry's option).
+    assert.deepEqual(countsOf('system/rendering/build-activity.ts'), { BasisGround: 2, consumed: 7, consumedGameProblem: 7, PendingApprovalEntry: 4, proposedRealization: 1, reviewLevel: 3, ReviewLevelAccount: 3, upstream: 7, UpstreamDecisions: 4 })
+    // Stage B1: the context-scoring guard names only its TEST-ONLY sink and its type (production callers pass none).
+    assert.deepEqual(countsOf('system/rendering/context-scoring-guard.ts'), { BasisGround: 7, basisGrounds: 6 })
     // Stage W1 (a), re-pinned openly: run-bounded-selection.ts was { consumed: 7, consumedGameProblem: 10, quotaBypass: 7, upstream: 23, UpstreamDecisions: 4 }.
     assert.deepEqual(countsOf('system/derivation/run-bounded-selection.ts'), RUN_BOUNDED_SELECTION_NAMES)
     assert.deepEqual(countsOf('system/sport-module/guided-selection.ts'), GUIDED_SELECTION_NAMES)
@@ -597,19 +617,32 @@ test('statically: production cannot reach the option (identifiers, positional ar
     assert.deepEqual(linesOfNamed('system/sport-module/guided-selection.ts'), GUIDED_SELECTION_LINES)
     const linesOf = linesOfNamed
     // The build's lines: the type import, the two optional account fields and their copies, and the option's declaration, threading and guard.
+    // Stage B1, re-pinned openly: the guard's import, the review-level account's type and its two optional keys, the PROPOSED configuration's
+    // one read, the pending sink (its creation, its parameter and its use) and the account's assignment join, each line listed.
     assert.deepEqual(linesOf('system/rendering/build-activity.ts'), [
         `import type { ConsumedGameProblem, ConsumedRecord, UpstreamDecisions } from '../derivation/run-bounded-selection'`,
+        `import { BasisGround, contextScoringFindings, EPISODE_REACHABLE_CHECK, eventKindReadingOf, splitProposedPending } from './context-scoring-guard'`,
         'consumedGameProblem?: ConsumedGameProblem',
         'consumed?: ConsumedRecord',
+        'reviewLevel?: ReviewLevelAccount',
+        'export interface ReviewLevelAccount {',
+        'pendingApproval: PendingApprovalEntry[]',
+        'export interface PendingApprovalEntry {',
+        'reviewLevel?: ReviewLevelAccount',
         '...(goal?.consumedGameProblem ? { consumedGameProblem: JSON.parse(JSON.stringify(goal.consumedGameProblem)) as ConsumedGameProblem } : {}),',
         '...(goal?.consumed ? { consumed: JSON.parse(JSON.stringify(goal.consumed)) as ConsumedRecord } : {}),',
         '...(gap.consumedGameProblem ? { consumedGameProblem: JSON.parse(JSON.stringify(gap.consumedGameProblem)) as ConsumedGameProblem } : {}),',
         '...(gap.consumed ? { consumed: JSON.parse(JSON.stringify(gap.consumed)) as ConsumedRecord } : {}),',
         'upstream?: UpstreamDecisions',
+        'const proposed = options.upstream?.proposedRealization',
+        'const pending = proposed?.pending ? { treatmentId: proposed.pending.treatmentId, entries: [] as PendingApprovalEntry[] } : null',
         'options.upstream ? (JSON.parse(JSON.stringify(options.upstream)) as UpstreamDecisions) : null,',
+        'built.activity.reviewLevel = {',
         'upstream: UpstreamDecisions | null = null,',
         'upstream ?? undefined,',
         'const observedOnly = upstream ? JSON.stringify(goalSelection) : null',
+        'pending?: { treatmentId: string; entries: PendingApprovalEntry[] } | null',
+        'const grounds: BasisGround[] = []',
     ])
     // The selector's lines: the size rule's own-size bound, the parameter, the guard, the sizes, and the size rule's call. Stage W2, re-pinned
     // openly: the own-size bound admits exactly the set's size (was 'if (nc < 1 || nc > quotaBypassOwnSize) ... expected 1–n'); the sizes are

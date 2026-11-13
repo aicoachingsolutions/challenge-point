@@ -218,6 +218,8 @@ export interface SafeguardRun {
         resting: string[]
         /** The lines of an item (line id c:<contract>:<item>::<row>) that establish nothing (NOT_ESTABLISHED). */
         unestablished: Array<{ itemId: string; lineId: string }>
+        /** Stage B1: lines the restatement itself declares to need no further value (an established absence, M6); absent where there is none. */
+        noFurther?: Array<{ itemId: string; lineId: string }>
         /** Items resolved: resting, and no line of the item establishes nothing. */
         resolved: string[]
         /** Items withheld by a declared TEST-ONLY treatment, with the treatment. */
@@ -251,7 +253,17 @@ export function safeguardRunOf(r: HandoffResult, a: ChainAnswer | null, experime
     const illustrative = scoring && a ? allItems.filter((id) => a.contracts.some((c) => c.contractId === scoring.contractId && c.items.some((i) => i.itemId === id && i.category === 'ILLUSTRATIVE'))) : []
     const resting = scoring ? allItems.filter((id) => r.lines.some((l) => l.kind !== 'NOT_ESTABLISHED' && l.premises.some((p) => p.ref === ref(id))) || (r.consumption?.draftShaped ?? []).some((s) => s.by.some((b) => b.split(' ').slice(0, 2).join(' ') === ref(id)))) : []
     const lineOf = (itemId: string) => (scoring ? `c:${scoring.contractId}:${itemId}::` : '')
-    const unestablished = scoring ? allItems.flatMap((id) => r.lines.filter((l) => l.kind === 'NOT_ESTABLISHED' && l.lineId.indexOf(lineOf(id)) === 0).map((l) => ({ itemId: id, lineId: l.lineId }))) : []
+    // Stage B1 of the complete-activity package: a line the restatement itself declares to need no further value (every deciding non-claim
+    // NO_FURTHER_VALUE and the restatement's own, read from the chain's answer) is an established absence (Christian's M6), never a line that
+    // establishes nothing; one a TEST-ONLY treatment declared so stays as before (the treatment replaced the restatement's declaration on the
+    // chain's copy, and the clause reads CARRIED_UNDER_TREATMENT).
+    const declaredNoFurther = (lineId: string): boolean => {
+        const line = (a?.lines ?? []).find((l) => l.lineId === lineId && l.kind === 'NOT_ESTABLISHED')
+        const replaced = r.testOnlyTreatments.some((t) => t.kind === 'REPLACE_DECLARATION' && scoring && t.contractId === scoring.contractId && t.declaration && lineId.endsWith(`::${t.declaration.row}`))
+        return !!scoring && !!line?.nonClaim && line.nonClaim.by.length > 0 && line.nonClaim.by.every((c) => c === scoring.contractId) && !replaced
+    }
+    const unestablished = scoring ? allItems.flatMap((id) => r.lines.filter((l) => l.kind === 'NOT_ESTABLISHED' && l.lineId.indexOf(lineOf(id)) === 0 && !declaredNoFurther(l.lineId)).map((l) => ({ itemId: id, lineId: l.lineId }))) : []
+    const noFurther = scoring ? allItems.flatMap((id) => r.lines.filter((l) => l.kind === 'NOT_ESTABLISHED' && l.lineId.indexOf(lineOf(id)) === 0 && declaredNoFurther(l.lineId)).map((l) => ({ itemId: id, lineId: l.lineId }))) : []
     // DESIGN-9 section 3, 'its lines resolved': an item is resolved only when a line rests on it and no line of it establishes nothing.
     const resolved = resting.filter((id) => !unestablished.some((u) => u.itemId === id))
     const withheld = scoring
@@ -323,7 +335,7 @@ export function safeguardRunOf(r: HandoffResult, a: ChainAnswer | null, experime
                       scoringCondition: a.observed?.scoringCondition ? { ...a.observed.scoringCondition } : null,
                   }
                 : null,
-        scoring: scoring ? { rowId: scoring.rowId, clauses: scoring.clauses.map((c) => ({ clause: c.clause, items: [...c.items] })), derived, resting, unestablished, resolved, withheld, declarationTreatments, refusedOn, ...(illustrative.length ? { illustrative } : {}) } : null,
+        scoring: scoring ? { rowId: scoring.rowId, clauses: scoring.clauses.map((c) => ({ clause: c.clause, items: [...c.items] })), derived, resting, unestablished, resolved, withheld, declarationTreatments, refusedOn, ...(illustrative.length ? { illustrative } : {}), ...(noFurther.length ? { noFurther } : {}) } : null,
         engineRule: facts.engineRule ? { ...facts.engineRule } : null,
     }
 }
@@ -570,7 +582,9 @@ export function ownershipOf(run: SafeguardRun): Finding[] {
                     why = `${open.join(', ')} entered derivation and lines of the built game rest on ${open.length === 1 ? 'it' : 'them'}, and ${illustrated.join(', ')} ${illustrated.length === 1 ? 'is an ILLUSTRATIVE carrier' : 'are ILLUSTRATIVE carriers'} (TEST-ONLY, not knowledge)${declared.length ? `, with a declaration replaced by ${treatments}` : ''} (a detected disconnection, never a pass)`
                 } else if (!notCarried.length && !declared.length) {
                     v = 'CARRIED'
-                    why = `${carried.join(', ')} entered derivation and lines of the built game rest on ${carried.length === 1 ? 'it' : 'them'}; none of ${carried.length === 1 ? 'its' : 'their'} lines is NOT_ESTABLISHED`
+                    // Stage B1: a line the restatement declares to need no further value is said, never hidden (an established absence, M6).
+                    const absent = (s.noFurther ?? []).filter((x) => open.indexOf(x.itemId) >= 0).map((x) => x.lineId)
+                    why = `${carried.join(', ')} entered derivation and lines of the built game rest on ${carried.length === 1 ? 'it' : 'them'}; none of ${carried.length === 1 ? 'its' : 'their'} lines is NOT_ESTABLISHED${absent.length ? ` but ${absent.join(', ')}, which our CANDIDATE restatement declares to need no further value (NO_FURTHER_VALUE, an established absence)` : ''}`
                 } else if (declared.length && notCarried.every(underTreatment)) {
                     v = 'CARRIED_UNDER_TREATMENT'
                     why = `${open.join(', ')} entered derivation and lines of the built game rest on ${open.length === 1 ? 'it' : 'them'}, carried only under ${treatments}, a declaration replaced${notCarried.length ? `: line(s) ${notCarried.flatMap(linesOf).join(', ')} establish nothing` : ''} (a detected disconnection, never a pass)`
@@ -726,7 +740,7 @@ export const DISPOSITION: DispositionRow[] = [
     { id: 'LENS_SEARCH', check: 'the bounded search over lenses: the top 3 lenses by score', where: 'generateSelection.ts:636, :643-653, applied :1055', origin: 'ded8aaa, 13 May 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine performance heuristic, reported (stage W2 splits it from the bounded search over constraints, unchanged); with the ranking by the wording\'s tokens it decides which lenses the kept checks read, Christian\'s question Q-a2', authority: 'none found; engine heuristic', readsLenses: true, reads: 'the lens scores (the wording\'s tokens)', path: 'EVERY_SELECTION', marks: [], control: 'every committed selection holds lenses of the top 3 (the lens arms of stage W1 (c1))' },
     { id: 'LENS_RULE', check: 'the lens rule: 2 or 3 lenses', where: 'generateSelection.ts:707-712, :806', origin: '3980188, 3 May 2026', disposition: 'KEPT_ENFORCED', reported: 'a numerical engine rule on lenses, reported (the authorization\'s section 5 names manipulations only)', authority: 'none found; engine rule', readsLenses: true, reads: 'the lens candidates', path: 'COMMITTED_SELECTION', marks: [], control: 'every committed selection holds 3 lenses' },
     { id: 'COMMIT_RULE', check: 'the commit rule: the highest-scoring possibility, ties to the smallest key', where: 'generateSelection.ts:875-883', origin: '1f01d41, 8 July 2026', disposition: 'KEPT_ENFORCED', reported: 'an engine heuristic, reported; under the switch, since stage W2, it chooses among lens combinations only, the set being whole, so never how many or which of the record\'s constraints; without the switch it still chooses among sizes 2 to 4 (whether a record may be a menu: Christian\'s question Q-a1)', authority: 'none found; engine heuristic', readsLenses: true, reads: 'the lens and constraint scores', path: 'COMMITTED_SELECTION', marks: [], control: 'every committed non-empty set was committed whole (asserted); a built strict subset of the record\'s set reads UNAUTHORIZED_SOURCE (stage W2)' },
-    { id: 'RESOLUTION_STATUS', check: 'the resolution status: a selection that did not resolve is refused', where: 'run-bounded-selection.ts:472', origin: '3a5aeed, 8 October 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed (the matched signals)', authority: 'Christian\'s ruling of 8 October 2026 (unresolved selections must not proceed)', readsLenses: false, reads: 'the matched signals of the wording', path: 'COMMITTED_SELECTION', marks: [], control: 'none refused in these runs' },
+    { id: 'RESOLUTION_STATUS', check: 'the resolution status: a selection that did not resolve is refused', where: 'run-bounded-selection.ts:517', origin: '3a5aeed, 8 October 2026', disposition: 'KEPT_ENFORCED', reported: 'wording-keyed (the matched signals)', authority: 'Christian\'s ruling of 8 October 2026 (unresolved selections must not proceed)', readsLenses: false, reads: 'the matched signals of the wording', path: 'COMMITTED_SELECTION', marks: [], control: 'none refused in these runs' },
 ]
 
 /** The rule a package refusal is recognized by: the one disposition row whose marks every given reason holds, or null. */

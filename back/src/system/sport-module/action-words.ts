@@ -10,20 +10,26 @@
  * through this one module, so they cannot drift apart: primary-scoring.unit.ts (Test 2c: an action word of a coach rule keeps its class)
  * and requirement-bindings.unit.ts (B13c: no restatement names an action word its cited rows lack).
  *
- * THE READING. 'action' is GENERIC: it names any action and never grounds a specific one. Eight classes are SPECIFIC, each read in the
+ * THE READING. 'action' is GENERIC: it names any action and never grounds a specific one. Ten classes are SPECIFIC, each read in the
  * forms listed in ACTION_WORD_FORMS, in any letter case, as whole words: pass, dribble, shot (shot, shoot), kick, cross, clearance,
- * header and carry. Two words are not read because their common senses are not actions: a bare 'clear' (an adjective as often as a
+ * header, carry, touch and turn. Two words are not read because their common senses are not actions: a bare 'clear' (an adjective as often as a
  * verb) and 'heading' (a heading); 'head' is not read either. It sees words, not meaning: 'crosses the protected line' reads as 'cross'
  * (moving over a line, not crossing the ball), 'Passing it around' reads as 'pass' wherever it stands, and an action named by a word
- * outside these classes ('with the next touch', 'with the next play') is not read at all, so it passes unread. The list supports
- * review; it does not replace it.
+ * outside these classes ('with the next play') is not read at all, so it passes unread. The list supports review; it does not replace it.
+ *
+ * 'touch' and 'turn' added 12 November 2026 (stage B1 of the A02 complete-activity package; UA2 E5). Christian's reply received 12
+ * November 2026, item 2: "For a player already carrying or dribbling, please avoid introducing an artificial extra touch, distance or time
+ * requirement simply to create a separate action." and "What counts: A meaningful continuation such as a pass, dribble, carry, turn, or
+ * another legitimate interaction that maintains attacking possession." (received 12 November 2026). Until this, 'with the next touch'
+ * passed unread (measured by U2), so a continuation narrowed to a touch could not be caught; read as a specific class, it now is. Whole
+ * words only: 'touchline', 'turnover' and 'turnaround' are other words and are not read.
  *
  * Pure. Sport-specific (soccer action vocabulary), so it sits in the sport layer and is declared in the sport-coupling guard's
  * SPORT_LAYER_FILES. Imported by unit tests only; no engine module reads it (primary-scoring.unit.ts holds that by a scan).
  */
 
 /** The specific action classes this reader knows. */
-export type ActionClass = 'pass' | 'dribble' | 'shot' | 'kick' | 'cross' | 'clearance' | 'header' | 'carry'
+export type ActionClass = 'pass' | 'dribble' | 'shot' | 'kick' | 'cross' | 'clearance' | 'header' | 'carry' | 'touch' | 'turn'
 
 /** Each class's word forms, read whole-word in any letter case. */
 export const ACTION_WORD_FORMS: Readonly<Record<ActionClass, RegExp>> = {
@@ -35,6 +41,8 @@ export const ACTION_WORD_FORMS: Readonly<Record<ActionClass, RegExp>> = {
     clearance: /\b(clearance|clearances|clears|cleared)\b/gi,
     header: /\b(header|headers|headed)\b/gi,
     carry: /\b(carry|carries|carried|carrying)\b/gi,
+    touch: /\b(touch|touches|touched|touching)\b/gi,
+    turn: /\b(turn|turns|turned|turning)\b/gi,
 }
 
 /** The generic action word, read whole-word in any letter case. */

@@ -694,7 +694,8 @@ export const OPEN_DISCONNECTIONS: OpenDisconnection[] = [
         rows: ['SCORING_DISPLAY'],
         verdicts: ['CITED_NOT_CARRIED'],
         runs: DISPLAYED,
-        evidence: 'build-activity.ts:641 reads only whether the context\'s contract is selected; on these runs no clause is carried, or only the control clause under a declared treatment; the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass',
+        // Stage B1, re-pinned openly: build-activity.ts:641 -> :671 (the same literal, moved by the review-level account's hunks above it).
+        evidence: 'build-activity.ts:671 reads only whether the context\'s contract is selected; on these runs no clause is carried, or only the control clause (its referent NO_FURTHER_VALUE in our CANDIDATE restatement since stage B1, under a declared treatment before); the requirement account reads NOT_CLASSIFIED (no requirement bindings for RPC-PROP-133), never a pass',
     },
     {
         id: 'OD-PACKAGE-LENSES',
@@ -782,7 +783,11 @@ export const OPEN_DISCONNECTIONS: OpenDisconnection[] = [
  * stage W1 (c1): of 41 -> of 44, each row reached by the three Coverage-row runs (refused at structure on the origin and control lines, as
  * A02-0) gains 3; progression and realization unchanged. Re-pinned in stage W2: of 44 -> of 48, each decision row gains the 4 runs of
  * W2_SETS (all reach the chain), SCORING_DISPLAY gains the 2 of them selected (WZA+TR, NP+WZA+TR, refused at knowledge, whose account
- * displays the condition); no clause row moves (none of the 4 is refused on a clause's line or builds a game).
+ * displays the condition); no clause row moves (none of the 4 is refused on a clause's line or builds a game). Re-pinned openly in stage B1
+ * (12 November 2026): origin 25 -> 12 and control 23 -> 10 (the 13 runs refused at structure as A02-0 now stop on the pressing line's open
+ * text, citing none of the origin's or the control's lines, so neither clause is reached: A02-0, S4-NP, S4-NP+WZA, the 3 Coverage-row runs,
+ * the 6 rewordings of the first three, A02-0~pressure); REALIZATION 9 -> 12 (A02-1 and its 2 rewordings now pass structure: the control
+ * referent NO_FURTHER_VALUE in our CANDIDATE restatement). Measured, not chosen.
  */
 const REACH: Record<string, number> = {
     GAME_PROBLEM: 47,
@@ -791,11 +796,11 @@ const REACH: Record<string, number> = {
     GAME_FORM: 47,
     CONSTRAINTS: 47,
     SELECTION_OUTCOME: 47,
-    'SCORING(origin)': 25,
+    'SCORING(origin)': 12,
     'SCORING(progression)': 12,
-    'SCORING(control)': 23,
+    'SCORING(control)': 10,
     SCORING_DISPLAY: 30,
-    REALIZATION: 9,
+    REALIZATION: 12,
 }
 /** Test 1's assertion on the legacy route with the production records (measured): it fails, naming the form first among the owned decisions. */
 const L1_FAILURE = [
@@ -837,18 +842,27 @@ const STAND_IN_COUNTS: Array<[string, number]> = [
  * violation verdicts (CONTEXT, and SELECTION_OUTCOME: the foundation clause, a bypassed rule, deciding). Every other run's counts unchanged
  * (S4-WZA, S4-TR and their rewordings stay one detected ENGINE_RULE_DECIDED each, now attributed to kept checks).
  */
-const REPORT_COUNTS: number[] = [156, 102]
-const DETECTED_BY_VERDICT = 'ENGINE_RULE_DECIDED 16, CARRIED_UNDER_TREATMENT 7, WITHHELD_BY_TREATMENT 38, REFUSED_ON_CLAUSE_LINE 36, K2_NOT_TAKEN 5'
+/*
+ * Re-pinned openly in stage B1 (12 November 2026): [156, 102] -> [156, 59]; the violation verdicts unchanged in every group; the detected fall
+ * by 43: REFUSED_ON_CLAUSE_LINE 36 -> none (the 16 runs refused on the origin's and the control's lines, as A02-0, now stop at structure on the
+ * pressing line's open text, citing no line: each clause reads NOT_REACHED; the 4 runs refused on the control's line, as A02-1, now build and
+ * read the control CARRIED), CARRIED_UNDER_TREATMENT 7 -> none (TT-CONTROL-NO-FURTHER-VALUE retired: our CANDIDATE restatement of Christian's
+ * rulings received 12 November 2026 declares the control referent NO_FURTHER_VALUE, so the 7 runs read the control CARRIED without a treatment).
+ * SCORING_DISPLAY stays a violation on each (origin and progression are not carried). Measured, not chosen.
+ */
+const REPORT_COUNTS: number[] = [156, 59]
+const DETECTED_BY_VERDICT = 'ENGINE_RULE_DECIDED 16, WITHHELD_BY_TREATMENT 38, K2_NOT_TAKEN 5'
 /**
  * The same counts per group, in the order the runs are built: the experiment path, the controls, the legacy route (runs, violations, detected).
  * Re-pinned in stage W1 (a): experiment [41, 105, 108] -> [41, 65, 68]; controls [4, 15, 10] -> [4, 12, 7]; legacy unchanged. Stage W1 (b):
  * controls [4, 12, 7] -> [9, 22, 26] (the five DRAFT-record controls); the experiment path and the legacy route unchanged. Stage W1 (c1):
  * experiment [41, 65, 68] -> [44, 71, 74] (the three Coverage-row runs). Stage W2: experiment [44, 71, 74] -> [48, 77, 76] (the four runs of
- * W2_SETS); controls [9, 22, 26] -> [12, 28, 26] (the three reversal-arm controls); the legacy route unchanged.
+ * W2_SETS); controls [9, 22, 26] -> [12, 28, 26] (the three reversal-arm controls); the legacy route unchanged. Stage B1 (REPORT_COUNTS
+ * above): experiment [48, 77, 76] -> [48, 77, 43]; controls [12, 28, 26] -> [12, 28, 16]; the legacy route unchanged.
  */
 const COUNTS_BY_GROUP: number[][] = [
-    [48, 77, 76],
-    [12, 28, 26],
+    [48, 77, 43],
+    [12, 28, 16],
     [21, 51, 0],
 ]
 const Q = String.fromCharCode(34)
@@ -937,25 +951,24 @@ test('1. every experiment run: the Game Form, the constraints, the Game Problem 
     // Every clause the run's refusal cites by its own line (REFUSED_ON_CLAUSE_LINE), and every clause carried only under a replaced declaration
     // (CARRIED_UNDER_TREATMENT), pinned per run (detected disconnections, never passes).
     const clausesWith = (id: string, verdict: string) => at(id).findings.filter((f) => f.row === 'SCORING' && f.verdict === verdict).map((f) => String(f.clause))
-    const OC = 'origin+control'
+    // RE-PINNED OPENLY (stage B1, 12 November 2026). BEFORE: 16 experiment runs REFUSED_ON_CLAUSE_LINE (origin+control on A02-0 and its kin,
+    // control on A02-1 and its rewordings), 4 CARRIED_UNDER_TREATMENT (the control, under TT-CONTROL-NO-FURTHER-VALUE), none CARRIED. AFTER: none
+    // refused on a clause's line (A02-0 and its kin stop on the pressing line's open text, citing no line; A02-1 builds); none carried under a
+    // treatment (the treatment retired); the control CARRIED on 7 experiment runs. WHY: our CANDIDATE restatement of Christian's rulings received
+    // 12 November 2026 declares that the origin and the control name no place (NO_FURTHER_VALUE) and carries the origin on V6.
+    assert.deepEqual(EXPERIMENT_RUNS.filter((id) => clausesWith(id, 'REFUSED_ON_CLAUSE_LINE').length), [])
+    assert.deepEqual(EXPERIMENT_RUNS.filter((id) => clausesWith(id, 'CARRIED_UNDER_TREATMENT').length), [])
     assert.deepEqual(
-        EXPERIMENT_RUNS.filter((id) => clausesWith(id, 'REFUSED_ON_CLAUSE_LINE').length).map((id) => [id, clausesWith(id, 'REFUSED_ON_CLAUSE_LINE').join('+')]),
-        [
-            ['A02-0', OC], ['A02-1', 'control'], ['S4-NP', OC], ['S4-NP+WZA', OC],
-            // Stage W1 (c1): each Coverage-row run, refused on the same two lines as A02-0 (built after the goal's wording runs and within
-            // each rewording's runs).
-            [GPCL_RUNS[0], OC],
-            ['A02-0~reversed', OC], ['A02-1~reversed', 'control'], ['S4-NP~reversed', OC], ['S4-NP+WZA~reversed', OC], [GPCL_RUNS[1], OC],
-            ['A02-0~neutral', OC], ['A02-1~neutral', 'control'], ['S4-NP~neutral', OC], ['S4-NP+WZA~neutral', OC], [GPCL_RUNS[2], OC],
-            ['A02-0~pressure', OC],
-        ],
+        EXPERIMENT_RUNS.filter((id) => clausesWith(id, 'CARRIED').length).map((id) => [id, clausesWith(id, 'CARRIED').join('+')]),
+        [['A02-1', 'control'], ['A02-1b', 'control'], ['A02-2', 'control'], ['A02-1~reversed', 'control'], ['A02-2~reversed', 'control'], ['A02-1~neutral', 'control'], ['A02-2~neutral', 'control']],
+        'the control clause carried on our CANDIDATE restatement, without a treatment',
     )
-    assert.deepEqual(EXPERIMENT_RUNS.filter((id) => clausesWith(id, 'CARRIED_UNDER_TREATMENT').length).map((id) => [id, clausesWith(id, 'CARRIED_UNDER_TREATMENT').join('+')]), [['A02-1b', 'control'], ['A02-2', 'control'], ['A02-2~reversed', 'control'], ['A02-2~neutral', 'control']])
-    assert.equal(experimentFindings.filter((f) => f.row === 'SCORING' && f.verdict === 'CARRIED').length, 0, 'no clause is carried without a treatment on the experiment path')
-    // What it rests on (A02-2, measured): the control referent's line holds no value, so RPC-002-04.a is not resolved although a line rests on it.
+    // What it rests on (A02-2, measured): the control referent's line holds no value, and our CANDIDATE restatement declares it needs none
+    // (NO_FURTHER_VALUE, an established absence), so RPC-002-04.a is resolved; the line is kept in its own list, never dropped. Re-pinned openly
+    // in stage B1 (resolved was ['RPC-002-04.b'] and the line was unestablished).
     assert.deepEqual(
-        [at('A02-2').run.scoring?.resting, at('A02-2').run.scoring?.resolved, at('A02-2').run.scoring?.unestablished],
-        [['RPC-002-04.a', 'RPC-002-04.b'], ['RPC-002-04.b'], [{ itemId: 'RPC-002-04.a', lineId: 'c:restated:RPC-002:RPC-002-04.a::V5' }]],
+        [at('A02-2').run.scoring?.resting, at('A02-2').run.scoring?.resolved, at('A02-2').run.scoring?.unestablished, at('A02-2').run.scoring?.noFurther],
+        [['RPC-002-04.a', 'RPC-002-04.b'], ['RPC-002-04.a', 'RPC-002-04.b'], [], [{ itemId: 'RPC-002-04.a', lineId: 'c:restated:RPC-002:RPC-002-04.a::V5' }]],
     )
     // No clause is CITED_NOT_CARRIED on the experiment path (only the display is, listed above).
     assert.equal(experimentFindings.filter((f) => f.row === 'SCORING' && f.verdict === 'CITED_NOT_CARRIED').length, 0)
@@ -1415,13 +1428,20 @@ test('S4. zero, one, two and three manipulations only through the DRAFT record\'
 /**
  * The base runs as the committed evidence held them when stage W2 began (8d5a3f3): sha-256 of each run's handoff result and of its findings
  * (compact JSON of a02-results.json's a02Cases and safeguardRuns entries). Row 0 of U3's runs table: the empty set, untouched by the stage.
+ *
+ * RE-PINNED OPENLY (stage B1 of the A02 complete-activity package, 12 November 2026). BEFORE: the five hashes at 8d5a3f3 (A02-0 ff86c208.../
+ * b0151c96..., A02-1 25d70953.../023a3bcd..., A02-1b 3f55ca0d.../91faebdf..., A02-2 e375900d.../ad1ab834..., A02-D 82c19b23.../bc230e66...).
+ * AFTER: re-measured at B1 (scratchpad pkg3/B1/safeguard-measure.txt). WHY: stage B1 restates RPC-002 on Christian's rulings received 12 November
+ * 2026 (the origin's words on V6, the origin and the continuation NO_FURTHER_VALUE), so A02-0, A02-1, A02-1b and A02-2 change by design (A02-0 now
+ * stops at structure on the pressing line's open text, A02-1 at validation); A02-D's findings are unchanged. The claim this pin holds is
+ * unchanged: the quota stage (W2) touches no base run; the base runs now are B1's.
  */
 const BASE_AT_8D5A3F3: Record<string, [string, string]> = {
-    'A02-0': ['ff86c208f7d05206e392975127d2a580c8c5215469a17fae266d749da8e8ec08', 'b0151c96ccd104825bff8ab71ac4237b7e49ef5994543c03f72b7a2dbf584adb'],
-    'A02-1': ['25d709538291307eefcafba8dd63ef3ffc5ce130426e88291c8a3d25e3bb01ce', '023a3bcde50990726d513c7634cb41fdbe181ee0be6d0ac03352565e4899641f'],
-    'A02-1b': ['3f55ca0dd4527625f6cbb735a2a64cea5292a1b2a01fdfdba71a37ac3242188e', '91faebdf8aa6bed12d562f29b578f35ebc7fafceca38dda34c25613acda260d4'],
-    'A02-2': ['e375900d723672a66c32536ddd0b4ea0c8cc3180eb40ce9b2c59cbab501df8d7', 'ad1ab834a167059c505e2fcefa1217ddcb483f1ab4ed65d9643a6ce2d8bd6a68'],
-    'A02-D': ['82c19b23627b7a06b4eddcca69acff3425507a6e183e42b3197070fb950849ec', 'bc230e663b31ceea22c7aedf40100c71137dc5126ab936ea30c709a0a6a1d5d9'],
+    'A02-0': ['cf0ee7dadcc3a4baf23d9a489a612d01e8b9eac0fe9d92d9ea42987f002dde36', '1f7fbd1057884f9ca701069a793dad2faa6e3f24e13b3ead6e3e557312d0b535'],
+    'A02-1': ['9a0839e81e4b46fa8662885fe33235bb6b5b4186746b23109aa2e952ccc3b477', '8c7164d8cb7b6e60d4e943dbb5dcc1aa6019263013935e563a7d553219f7874a'],
+    'A02-1b': ['92a3b8342fa8096312e4eadc3ba24343fa368057dea654a6cc6e85bf2e7f0940', '139bd70d9b6fa0d7f32d598e6b9ebcb27b1193a5a031cef4a5188e5e68bd0346'],
+    'A02-2': ['f12be29aaa1b67da7eb8205fc7e5d26b2f87a927a82ce4658cd170b29d0a5482', '0f282c0409980f19d42e82c806c80c55b4899c385bb752fe8f3b6fc0b0222bba'],
+    'A02-D': ['49236ec9f719e3bf56b91017522e8399b1758613cedff79da5334c7394466d8d', 'bc230e663b31ceea22c7aedf40100c71137dc5126ab936ea30c709a0a6a1d5d9'],
 }
 const sha = (v: unknown) => crypto.createHash('sha256').update(json(v)).digest('hex')
 /**
@@ -1431,7 +1451,8 @@ const sha = (v: unknown) => crypto.createHash('sha256').update(json(v)).digest('
  */
 export const W2_RUNS_TABLE: Array<[string, number, string, string]> = [
     ['A02-0', 0, 'structure', 'selected (the empty set, the zero branch)'],
-    ['A02-1', 0, 'structure', 'selected (the empty set, the zero branch)'],
+    // Re-pinned openly (stage B1): A02-1 'structure' -> 'validation' (its control line is no longer owed: our CANDIDATE restatement).
+    ['A02-1', 0, 'validation', 'selected (the empty set, the zero branch)'],
     ['A02-1b', 0, 'validation', 'selected (the empty set, the zero branch)'],
     ['A02-2', 0, 'communication', 'selected (the empty set, the zero branch)'],
     ['A02-D', 0, 'served', 'selected (the empty set, the zero branch)'],
@@ -1508,7 +1529,7 @@ function productionSelections(): Array<{ goal: string; formId: string; lensIds: 
 
 test('W2. quotas versus justified validation (U3 (a)): the runs table, each run selected whole or refused by a named kept check, never by the size rule, foundation presence, the role mix or the bounded search; E1 the set whole (a strict subset reads UNAUTHORIZED_SOURCE); E2 the pool whole (probe: the whole set reaches the package check); E3 FOUNDATION_PRESENCE_BYPASS (declared, refused off the switch; its reversal arm the controls); E4 every selected member validated (its invariant over every committed run, the production hole measured and reported only); the role mix inert; the base runs byte-identical to the evidence', () => {
     // Row 0: the base runs are the committed evidence's, byte for byte (result and findings).
-    for (const id of BASE_IDS) assert.deepEqual([sha(at(id).result), sha(at(id).findings)], BASE_AT_8D5A3F3[id], `${id}: byte-identical to the evidence at 8d5a3f3`)
+    for (const id of BASE_IDS) assert.deepEqual([sha(at(id).result), sha(at(id).findings)], BASE_AT_8D5A3F3[id], `${id}: byte-identical to the base runs as stage B1 left them (8d5a3f3's before B1; see the re-pin above)`)
     // The table: each run's size, stop and the check that refused it (or selected, the whole set committed).
     const measured = W2_RUNS_TABLE.map(([id]) => {
         const r = at(id)
@@ -1873,9 +1894,10 @@ test('the disposition table: every selection check kept and enforced except, und
     // Re-pinned openly in stage W1 (a) (lines moved by the TEST-ONLY hunks added above them): 384 -> 398, 212 -> 218, 228 -> 238; and the
     // TEST-ONLY call with Step 1's Game Problem, 246. Stage W1 (b): 398 -> 452 (K2's hunks above it); K2's authority written at 386 only, and
     // the selector's zero branch admitting K2's empty set at 1029. Stage W1 (c1): 452 -> 459 and 386 -> 391 (the treatment's field above).
-    // Stage W2: 459 -> 472, 391 -> 402, 1029 -> 1039 (the stage's hunks above them).
-    holds('derivation/run-bounded-selection.ts', 472, `if (resolutionStatus !== 'matched')`)
-    holds('derivation/run-bounded-selection.ts', 402, `constraintAuthority: { authority: 'REVIEW_PATHWAY_K2', learningGoalId: goalId`)
+    // Stage W2: 459 -> 472, 391 -> 402, 1029 -> 1039 (the stage's hunks above them). Stage B1 of the A02 complete-activity package, re-pinned
+    // openly: 472 -> 517, 402 -> 447 (the PROPOSED configuration's type, refusal and threading added above them; the lines themselves unchanged).
+    holds('derivation/run-bounded-selection.ts', 517, `if (resolutionStatus !== 'matched')`)
+    holds('derivation/run-bounded-selection.ts', 447, `constraintAuthority: { authority: 'REVIEW_PATHWAY_K2', learningGoalId: goalId`)
     holds('test-library/generateSelection.ts', 1039, 'const authorizesNone = (recordBacked || reviewPathwayK2EmptySet(constraintPool)) && constraintPool.candidateIds.length === 0')
     holds('sport-module/guided-selection.ts', 218, 'export function guidedSelectionHints')
     holds('sport-module/guided-selection.ts', 238, 'governByApprovedGameProblem(learningGoalId')
@@ -1913,7 +1935,10 @@ test('the disposition table: every selection check kept and enforced except, und
 // S6: the earliest consequential blocker
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-const firstNext = (raw.experiment.questions as Array<{ order: number; question: string; next: boolean }>).find((q) => q.next)!
+// Stage B1, re-pinned openly: A02-0's stop names the question on the pressing line, found by its text (was the question marked next, the
+// origin clause's, which our CANDIDATE restatement of Christian's ruling received 12 November 2026, item 1, now carries; the questions' order is
+// left as it stood for stage B3).
+const pressingLineQuestion = (raw.experiment.questions as Array<{ order: number; question: string; next: boolean }>).find((q) => q.question.includes('pressing line'))!
 export function stopsOf(): Stop[] {
     // A reason that already begins with its stage's name is printed without it (the renderers print the stage before the reason: R4-10).
     const reason = (id: string, n = 0) => {
@@ -1933,7 +1958,7 @@ export function stopsOf(): Stop[] {
             kind: 'PATH',
             // Batch A4 (the lead's decision, from the delivery review): read as decision authority [4], no longer Missing knowledge [1].
             categories: [4],
-            why: 'the production route accepts manipulations only on a per-goal authorization record\'s authority (the live route hands it only a record-backed selection, live-activity.ts:55-56), and A02 has none; called on the production records, its candidates are A02\'s own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal\'s candidates), and they cannot be combined on any of RPC-002\'s declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the production route is unchanged. On the isolated pathway, since stage W1 (b), the chain takes the review pathway\'s K2 result in place of a per-goal record (no manipulation proposed for A02; K2 approved for review-only use; our reading of E5, reversible: the DRAFT-record arm is kept as comparison and reads K2_NOT_TAKEN), and without K2 or a record it still refuses (run-bounded-selection.ts:394-395); L2 passes this stop on our TEST-ONLY DRAFT record (nothing consumed), NO-RESTATEMENT and A02-0 on K2\'s result with no record of ours; the category is OURS (an assumption)',
+            why: 'the production route accepts manipulations only on a per-goal authorization record\'s authority (the live route hands it only a record-backed selection, live-activity.ts:55-56), and A02 has none; called on the production records, its candidates are A02\'s own candidate constraints, which no record authorizes (the engine labels their authority VOCABULARY_POOL; nothing is drawn from outside the goal\'s candidates), and they cannot be combined on any of RPC-002\'s declared forms (GF2, GF3, GF7 each refused NO_COMPATIBLE_COMBINATION, unfilled roles: shaping); the production route is unchanged. On the isolated pathway, since stage W1 (b), the chain takes the review pathway\'s K2 result in place of a per-goal record (no manipulation proposed for A02; K2 approved for review-only use; our reading of E5, reversible: the DRAFT-record arm is kept as comparison and reads K2_NOT_TAKEN), and without K2 or a record it still refuses (run-bounded-selection.ts:436-437); L2 passes this stop on our TEST-ONLY DRAFT record (nothing consumed), NO-RESTATEMENT and A02-0 on K2\'s result with no record of ours; the category is OURS (an assumption)',
         },
         {
             id: 'L2',
@@ -1941,14 +1966,15 @@ export function stopsOf(): Stop[] {
             stage: String(at('L2').result.chain?.stage),
             reason: reason('L2'),
             kind: 'PATH',
-            within: 1617,
+            // Stage B1, re-pinned openly: 1617 -> 1671, 1684 -> 1738 (the same checks, moved by the review-level account's hunks above them).
+            within: 1671,
             categories: [4],
             why: 'the chain selects its own GF3 from the wording against Step 2\'s SELECTED form (GAME_FORM CONTRADICTED); the consumption (S1) closes it',
         },
-        { id: 'NO-RESTATEMENT', path: 'consumed, on the review pathway\'s K2 result (no record of ours) and without the restatement', stage: String(at('NO-RESTATEMENT').result.chain?.stage), reason: reason('NO-RESTATEMENT'), kind: 'PATH', within: 1684, categories: [3, 5], why: 'the context\'s approved rows have no executable form in the engine: no contribution contract joins them to the configuration' },
-        { id: 'A02-0', path: 'consumed, on the review pathway\'s K2 result, with our CANDIDATE restatement (the knowledge as it stands)', stage: String(at('A02-0').result.chain?.stage), reason: reason('A02-0', 2), kind: 'PATH', categories: [1, 5], why: `of the two lines this stop cites together, the origin clause, placed first by us (OURS: the condition is what distinguishes High Press Escape from the contexts sharing its events): no operational interpretation of the clause is held (question ${firstNext.order} of the smallest source material, the next consequential gap), and no carrier for it exists in knowledge or in the production register (a begin condition is a restart, and the register's only episode scope is the build-out one); since stage W4 an ILLUSTRATIVE carrier (TEST-ONLY, never knowledge) carries it executably, standing for what an approved answer must supply, and with it the runs pass structure (appendix E)` },
-        { id: 'A02-1', path: 'A02-1 (origin and progression withheld, TEST-ONLY)', stage: String(at('A02-1').result.chain?.stage), reason: reason('A02-1', 2), kind: 'DOWNSTREAM', categories: [1], why: 'the control referent is not stated' },
-        { id: 'A02-1b', path: 'A02-1b (+ the control referent declared NO_FURTHER_VALUE, TEST-ONLY)', stage: String(at('A02-1b').result.chain?.stage), reason: reason('A02-1b', 1), kind: 'DOWNSTREAM', categories: [2, 1], why: 'the refusal rests on our DRAFT classification of the laws; no ruling settles the Laws for A02' },
+        { id: 'NO-RESTATEMENT', path: 'consumed, on the review pathway\'s K2 result (no record of ours) and without the restatement', stage: String(at('NO-RESTATEMENT').result.chain?.stage), reason: reason('NO-RESTATEMENT'), kind: 'PATH', within: 1738, categories: [3, 5], why: 'the context\'s approved rows have no executable form in the engine: no contribution contract joins them to the configuration' },
+        { id: 'A02-0', path: 'consumed, on the review pathway\'s K2 result, with our CANDIDATE restatement (the knowledge as it stands)', stage: String(at('A02-0').result.chain?.stage), reason: reason('A02-0', 1), kind: 'PATH', categories: [1, 5], why: `the progression clause's referent, the pressing line (RPC-002-03.b, open text, the one open text left): Gate A cannot evaluate it, and the refusal cites no item (an engine check); nothing in knowledge places the line (question ${pressingLineQuestion.order} of the smallest source material), and no register row carries it; the origin clause, which this stop cited before stage B1, is carried by our CANDIDATE restatement of Christian's rulings received 12 November 2026 (on V6, judged in play at the sequence's start; the origin and the control name no place); since stage B1 the PROPOSED configuration A02-HPE1 (TEST-ONLY, never knowledge) realizes the line as an escape line, and with it the run passes structure, realization and validation and stops at communication` },
+        { id: 'A02-1', path: 'A02-1 (origin and progression withheld, TEST-ONLY)', stage: String(at('A02-1').result.chain?.stage), reason: reason('A02-1', 2), kind: 'DOWNSTREAM', categories: [1], why: 'no classification of the Laws for A02 is held, so LAW-8 and LAW-11 count as material (fail safe); stage B1, re-pinned openly (was at structure: the control referent is not stated; our CANDIDATE restatement now declares that it names no place)' },
+        { id: 'A02-1b', path: 'A02-1b (+ the Laws held to our DRAFT classification, TEST-ONLY)', stage: String(at('A02-1b').result.chain?.stage), reason: reason('A02-1b', 1), kind: 'DOWNSTREAM', categories: [2, 1], why: 'the refusal rests on our DRAFT classification of the laws; no ruling settles the Laws for A02' },
         { id: 'A02-2', path: 'A02-2 (+ the LAW-11 stand-in, TEST-ONLY)', stage: String(at('A02-2').result.chain?.stage), reason: reason('A02-2'), kind: 'DOWNSTREAM', categories: [1, 5], why: 'no approved coach wording for the condition, and the checked renderer has no sentence for it' },
     ]
 }
@@ -1964,8 +1990,14 @@ test('S6. the earliest consequential blocker, computed from the runs: the stops 
     ])
     assert.equal(seq.earliest.id, 'A02-0')
     assert.deepEqual(seq.earliest.categories.map((i) => CATEGORIES[i]), ['Missing knowledge.', 'A configuration or rendering implementation limitation.'])
-    assert.ok(seq.earliest.reason.includes('c:restated:RPC-002:RPC-002-02.a::V6'), 'the origin clause\'s line is among the lines it stops on')
-    assert.deepEqual(seq.downstream.map((s) => [s.id, s.stage]), [['A02-1', 'structure'], ['A02-1b', 'validation'], ['A02-2', 'communication']])
+    // Stage B1, re-pinned openly. BEFORE: the earliest stop's reason named the origin clause's line (c:restated:RPC-002:RPC-002-02.a::V6, with the
+    // control referent's). AFTER: Gate A NOT_EVALUABLE on the pressing line's open text, citing no line or item. WHY: our CANDIDATE restatement of
+    // Christian's rulings received 12 November 2026 carries the origin on V6 and declares that the origin and the control name no place.
+    assert.equal(seq.earliest.reason, 'a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied: GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY')
+    assert.ok(!seq.earliest.reason.includes('RPC-002-02.a') && pressingLineQuestion.question.includes('pressing line'), 'the origin clause is no longer among what it stops on')
+    assert.deepEqual([at('A02-0').result.refusalBasis?.verdict, at('A02-0').result.refusalBasis?.cited], ['NOT KNOWLEDGE', []])
+    // Stage B1, re-pinned openly: A02-1 'structure' -> 'validation' (the control referent NO_FURTHER_VALUE in our CANDIDATE restatement).
+    assert.deepEqual(seq.downstream.map((s) => [s.id, s.stage]), [['A02-1', 'validation'], ['A02-1b', 'validation'], ['A02-2', 'communication']])
     // Batch A4, re-pinned openly (was [1] Missing knowledge): L1 is read as decision authority, our assignment: the checked pathway takes its
     // manipulations only from a per-goal authorization record and does not take the review pathway's proposal of no manipulation under K2.
     assert.deepEqual(seq.sequence[0].categories.map((i) => CATEGORIES[i]), ['Incorrect reasoning chronology or decision authority.'])

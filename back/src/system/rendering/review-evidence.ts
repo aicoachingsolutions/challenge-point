@@ -31,7 +31,7 @@ import { roleHolderNames } from '../derivation/designation'
 import type { BoundRegionAccount } from '../realization/bound-region-check'
 import type { DefaultLawsAccount } from '../realization/default-laws-check'
 import { CREDIT_BEGINS_CLAUSE, CREDIT_ENDS_CLAUSE } from '../derivation/gates'
-import { DRAFT_KNOWLEDGE, ILLUSTRATIVE, LoadedContract } from '../derivation/types'
+import { DRAFT_KNOWLEDGE, ILLUSTRATIVE, LoadedContract, PROPOSED } from '../derivation/types'
 import { contractCoverage } from '../derivation/run-bounded-selection'
 import { loadCorpusContracts } from '../derivation/corpus'
 import { parseSelector } from '../derivation/selector'
@@ -160,7 +160,7 @@ export type Layer = ReviewLayer | 'SESSION_INPUT'
  *
  * `CANDIDATE` (7 November 2026): an item with basis AUTHORED, our restatement of a source's quoted words. See `itemSource`.
  */
-export type Standing = 'DRAFT' | 'APPROVED' | 'PROVISIONAL' | 'CANDIDATE' | 'GAP' | 'OUR_READING' | 'SESSION'
+export type Standing = 'DRAFT' | 'PROPOSED' | 'APPROVED' | 'PROVISIONAL' | 'CANDIDATE' | 'GAP' | 'OUR_READING' | 'SESSION'
 
 /** One source of an element: its layer, its standing and what it is. */
 export interface EvidenceSource {
@@ -413,6 +413,11 @@ const overlaps = (a: { from: number; to: number } | null, b: { from: number; to:
 export function itemSource(ref: { contractId: string; itemId: string }, items: Map<string, any>, category: unknown): EvidenceSource {
     const item = items.get(`${ref.contractId}::${ref.itemId}`)
     const basis = item?.basis ? String(item.basis) : null
+    // Stage B1 of the A02 complete-activity package (TEST-ONLY data only): a PROPOSED item is PROPOSED before anything else is read (never DRAFT,
+    // CANDIDATE or APPROVED, whatever its basis): our proposal of new knowledge, for Christian's approval.
+    if (category === PROPOSED || item?.category === PROPOSED) {
+        return { layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROPOSED', ref: `${ref.contractId}::${ref.itemId}`, detail: `PROPOSED: our proposal of new knowledge, for Christian's approval; not knowledge, not approved, not a ruling${typeof item?.waitsOn === 'string' ? ` (waits on ${item.waitsOn})` : ''}` }
+    }
     // W4 (A02 package, TEST-ONLY data only): an ILLUSTRATIVE carrier is DRAFT before anything else is read, and says it is not knowledge.
     if (category === ILLUSTRATIVE || item?.category === ILLUSTRATIVE) {
         return { layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'DRAFT', ref: `${ref.contractId}::${ref.itemId}`, detail: 'ILLUSTRATIVE: a TEST-ONLY carrier of ours, not knowledge, standing for what an approved answer must supply' }
@@ -533,6 +538,8 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
         for (const ref of (choice.draftShapedBy ?? []) as { contractId?: string; itemId?: string; category?: string }[]) {
             // W4 (A02 package): a shaping ILLUSTRATIVE carrier is named as one (absent elsewhere, so every other line reads as before).
             if (ref.category === ILLUSTRATIVE) found.push({ ...itemSource({ contractId: String(ref.contractId), itemId: String(ref.itemId) }, items, ILLUSTRATIVE), detail: `narrows or bounds what choice ${choice.lineId} may take: ILLUSTRATIVE, a TEST-ONLY carrier of ours, not knowledge` })
+            // Stage B1 (A02 complete-activity package, TEST-ONLY data only): a shaping PROPOSED item is named as one, never as a draft restatement.
+            else if (ref.category === PROPOSED) found.push({ ...itemSource({ contractId: String(ref.contractId), itemId: String(ref.itemId) }, items, PROPOSED), detail: `narrows or bounds what choice ${choice.lineId} may take: PROPOSED, our proposal for Christian's approval, not knowledge` })
             else found.push({ ...itemSource({ contractId: String(ref.contractId), itemId: String(ref.itemId) }, items, DRAFT_KNOWLEDGE), detail: `narrows or bounds what choice ${choice.lineId} may take: DRAFT knowledge awaiting his review` })
         }
         if (choice.category === DRAFT_KNOWLEDGE) found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'DRAFT', ref: `choice ${choice.lineId}`, detail: 'a DRAFT realization choice awaiting his review' })
@@ -708,7 +715,8 @@ const LAYER_ORDER: Layer[] = ['GENERAL_ENGINE_MECHANISM', 'SPORT_KNOWLEDGE_AND_A
 // B2 (28 October 2026; the review's M1): DRAFT first, so an element or sentence resting on a draft says so before anything else, and a
 // standing missing here can never be dropped silently (`standingsOf` keeps only the standings listed).
 // CANDIDATE (7 November 2026) is listed for the same reason.
-const STANDING_ORDER: Standing[] = ['DRAFT', 'APPROVED', 'PROVISIONAL', 'CANDIDATE', 'OUR_READING', 'SESSION', 'GAP']
+// PROPOSED (stage B1 of the A02 complete-activity package, TEST-ONLY data only) is listed beside DRAFT for the same reason.
+const STANDING_ORDER: Standing[] = ['DRAFT', 'PROPOSED', 'APPROVED', 'PROVISIONAL', 'CANDIDATE', 'OUR_READING', 'SESSION', 'GAP']
 const layersOf = (sources: EvidenceSource[]): Layer[] => LAYER_ORDER.filter(layer => sources.some(s => s.layer === layer))
 const standingsOf = (sources: EvidenceSource[]): Standing[] => STANDING_ORDER.filter(standing => sources.some(s => s.standing === standing))
 
