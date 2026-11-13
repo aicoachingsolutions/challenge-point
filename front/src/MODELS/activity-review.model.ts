@@ -228,6 +228,18 @@ export interface ReviewAuthorization {
     manipulations: ReviewManipulation[]
 }
 
+/**
+ * A committed constraint the package does not hold (12 November 2026): never validated, never in the activity. `rule` names the existing
+ * package rule that left it out; `kept` is the member of its role the package holds instead, or null where it holds none.
+ */
+export interface ReviewConstraintNotApplied {
+    id: string
+    title: string
+    role: 'foundation' | 'shaping' | 'consequence'
+    rule: 'ONE_MEMBER_PER_ROLE' | 'CONSEQUENCE_SCORE_AT_OR_BELOW_12' | 'NO_ROLE_MATCH'
+    kept: { id: string; title: string } | null
+}
+
 export interface ActivityAccount {
     /** Null for a mechanism demonstration, which is built from no Learning Goal. */
     gameProblem: {
@@ -253,6 +265,11 @@ export interface ActivityAccount {
      * since 14 October, when selection stopped borrowing from the whole library; null for a demonstration.
      */
     constraints: { id: string; title: string; contracted: boolean; fromGoalCandidates?: boolean | null }[]
+    /**
+     * Each constraint selection committed and did not apply (12 November 2026), with the existing package rule that left it out and the
+     * member kept. `constraints` above lists those applied. Optional: present only where there is one, and older accounts lack it.
+     */
+    constraintsNotApplied?: ReviewConstraintNotApplied[]
     /**
      * What selection drew its constraints from (since 14 October, always the goal's own candidates):
      * `unfilledRoles` are roles no designated candidate fills — knowledge gaps, reported and never filled;

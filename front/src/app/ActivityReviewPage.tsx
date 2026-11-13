@@ -55,6 +55,7 @@ import {
     RequirementPart,
     ReviewBoundRegionAccount,
     ReviewBoundRegionPairing,
+    ReviewConstraintNotApplied,
     ReviewDraft,
     ReviewDraftInstruction,
     ReviewEvidence,
@@ -1352,6 +1353,18 @@ function AccountChip({ flag, account, words, rule }: { flag?: RequirementPart['f
     )
 }
 
+/**
+ * **A constraint selection committed and did not use, in plain words — 12 November 2026 (wording DRAFT, for Christian's review).** Christian,
+ * received 12 November 2026: the system must distinguish "Constraints considered or eligible." "Constraints actually selected for
+ * application." "Constraints validated." "Constraints included in the final activity." The list above holds the constraints applied; each
+ * line here names one that was considered and not used, and the existing rule that left it out, as the server sent it.
+ */
+function notAppliedSaid(entry: ReviewConstraintNotApplied): string {
+    if (entry.rule === 'ONE_MEMBER_PER_ROLE') return `Considered, not used: ${entry.title} (one ${entry.role} constraint is used; ${entry.kept?.title ?? 'another'} was chosen).`
+    if (entry.rule === 'CONSEQUENCE_SCORE_AT_OR_BELOW_12') return `Considered, not used: ${entry.title} (a consequence constraint is used only where it fits this game closely enough; none did).`
+    return `Considered, not used: ${entry.title} (no ${entry.role} constraint fits this game).`
+}
+
 /** What the account's status means, in plain DRAFT words (round 3b): a report, and what of it is enforced on this build. */
 function accountStatusSaid(account: RequirementAccount): string {
     if (account.status === 'REPORT_AND_ENFORCEMENT') return "A report; on this build the approved scoring condition's components quoting his words were enforced (ours, DRAFT)."
@@ -1998,6 +2011,12 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                 ) : (
                                     'None selected'
                                 )}
+                                {/* 12 November 2026: each constraint committed and not used, after those applied (wording DRAFT, `notAppliedSaid`). */}
+                                {(account.constraintsNotApplied ?? []).map((entry) => (
+                                    <p key={entry.id} className='mt-1 text-xs text-gray-600'>
+                                        {notAppliedSaid(entry)} <span className='text-gray-500'>({entry.id})</span>
+                                    </p>
+                                ))}
                             </AccountField>
                         )}
 
