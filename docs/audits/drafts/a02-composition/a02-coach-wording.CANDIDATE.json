@@ -130,5 +130,24 @@
         ]
       }
     }
+  ],
+  "templates": [
+    {
+      "id": "A02-HPE1-T1",
+      "template": "CANDIDATE_TARGETS_BY_ROLE",
+      "renders": "Stage A1 (13 November 2026, decision R3): where the two teams' targets differ (one a region beginning beyond the marked line, the other the first team's end line), the one sentence naming each target with the team that attacks it; the renderer fills the slots from the game after reading each claim from it (render-concrete-game.ts targetsByRole). CANDIDATE, for Christian's wording question Q4.",
+      "parts": ["The {zoneTeam} attacks the {zoneNoun} beyond the marked line; the {lineTeam} attacks the {zoneTeam}'s end line"],
+      "example": { "zoneTeam": "escaping team", "zoneNoun": "zone", "lineTeam": "pressing team" },
+      "sentence": "The escaping team attacks the zone beyond the marked line; the pressing team attacks the escaping team's end line.",
+      "candidateBy": {
+        "who": "ours",
+        "date": "2026-11-13",
+        "restates": [],
+        "rulings": [
+          { "ruling": "A02-12NOV-PACKAGE", "quote": "Resolve the identified renderer issue concerning the attacking team's name.", "received": "2026-11-12" },
+          { "ruling": "A02-12NOV-PACKAGE", "quote": "Please propose the simplest representative configuration that makes the relevant defensive pressure and escape target observable to the coach.", "received": "2026-11-12" }
+        ]
+      }
+    }
   ]
 }

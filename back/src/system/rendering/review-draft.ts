@@ -21,7 +21,7 @@
  */
 import { isDraftCategory } from '../derivation/types'
 import { FidelityFinding } from './fidelity'
-import { ApprovedWording, approvedTemplateSentences } from './approved-wording'
+import { ApprovedTemplateSentence, ApprovedWording, approvedTemplateSentences } from './approved-wording'
 import { approvedSentences, Instruction, RenderedActivity, WithheldField } from './render-concrete-game'
 
 /** One sentence as the reviewer reads it: the instruction, whose wording it is, and the provisional choices behind it. */
@@ -135,6 +135,8 @@ export function reviewDraftOf(
     contracts: { contractId: string; items?: { itemId: string; category?: unknown }[] }[] = [],
     /** TEST-ONLY (stage B2): our CANDIDATE wording's entries, where the build was given them; read apart from the approved table. Empty: none. */
     candidate: ApprovedWording[] = [],
+    /** TEST-ONLY (stage A1, decision R3): our CANDIDATE templates, where the build was given them; read apart from the approved ones. Empty: none. */
+    candidateTemplates: ApprovedTemplateSentence[] = [],
 ): ReviewDraft {
     const draftItems = new Set(contracts.flatMap(contract => (contract.items ?? []).filter(item => isDraftCategory(item.category)).map(item => `${contract.contractId}::${item.itemId}`)))
     const approved = fixtures.flatMap(fixture => approvedSentences(fixture?.game ?? {}))
@@ -146,7 +148,10 @@ export function reviewDraftOf(
     const isApproved = (instruction: Instruction) => templates.includes(instruction.text) || said(approved, instruction)
     // Stage B2 (TEST-ONLY): the sentences our CANDIDATE wording says for these games, from that table alone (never merged into the approved one).
     const candidates = candidate.length ? fixtures.flatMap(fixture => approvedSentences(fixture?.game ?? {}, candidate)) : []
-    const isCandidate = (instruction: Instruction) => candidates.length > 0 && said(candidates, instruction)
+    // Stage A1 (TEST-ONLY, decision R3): a sentence that IS one of our CANDIDATE template sentences, word for word, reads CANDIDATE, as an approved
+    // template's reads APPROVED (above); the same template filled with any other value stays DRAFT. Checked after APPROVED, so never APPROVED.
+    const candidateTemplateTexts = candidateTemplates.map(template => template.sentence.replace(/\.$/, ''))
+    const isCandidate = (instruction: Instruction) => (candidates.length > 0 && said(candidates, instruction)) || candidateTemplateTexts.includes(instruction.text)
     return {
         status: 'DRAFT_NOT_SERVED',
         instructions: rendered.instructions.map(instruction => {

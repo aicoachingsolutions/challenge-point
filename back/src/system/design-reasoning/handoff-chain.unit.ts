@@ -49,9 +49,9 @@ import { LoadedContract, NO_FURTHER_VALUE } from '../derivation/types'
 import { realizeWithJustifiedDefaults } from '../realization/justified-defaults'
 import { isRefused } from '../realization/realize'
 import { SuppliedRealization } from '../realization/supplied-realization'
-import { ApprovedWording } from '../rendering/approved-wording'
+import { ApprovedTemplateSentence, ApprovedWording } from '../rendering/approved-wording'
 import { buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from '../rendering/build-activity'
-import { CandidateWordingSources, candidateTable, loadCandidateWording } from '../rendering/candidate-coach-wording'
+import { CandidateWordingSources, candidateTable, candidateTemplates, loadCandidateWording } from '../rendering/candidate-coach-wording'
 import { reviewDraftOf } from '../rendering/review-draft'
 import { citationUnusableBecause } from '../sport-module/candidate-coach-rules'
 import { COACH_RULES } from '../sport-module/primary-scoring'
@@ -192,10 +192,11 @@ function linesOf(fixture: any, request: ChainRequest, chosenBy: Map<string, stri
     return lines
 }
 
-function sentencesOf(activity: ServedActivity | RefusedActivity, fixture: any, candidate: ApprovedWording[] = []): { sentences: ChainAnswer['sentences']; served: boolean | null; withheld: ChainAnswer['withheld'] } {
+function sentencesOf(activity: ServedActivity | RefusedActivity, fixture: any, candidate: ApprovedWording[] = [], templates: ApprovedTemplateSentence[] = []): { sentences: ChainAnswer['sentences']; served: boolean | null; withheld: ChainAnswer['withheld'] } {
     if (activity.outcome === 'served') {
-        // Stage B2: with our CANDIDATE wording, its sentences read CANDIDATE (read apart from the approved table, never APPROVED).
-        const draft = reviewDraftOf([fixture], activity.rendered, [], [], candidate)
+        // Stage B2: with our CANDIDATE wording, its sentences read CANDIDATE (read apart from the approved table, never APPROVED). Stage A1: and
+        // its templates' sentences, word for word.
+        const draft = reviewDraftOf([fixture], activity.rendered, [], [], candidate, templates)
         return {
             served: true,
             withheld: [],
@@ -597,7 +598,8 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
             ...(lawsGiven ? { lawsMateriality: lawsGiven } : {}),
             ...(request.supplement ? { communicationSupplement: withReviewStructureWording } : {}),
             ...(upstream ? { upstream } : {}),
-            ...(candidateWording ? { candidateWording: { file: candidateWording.file, entries: candidateTable(candidateWording) } } : {}),
+            // Stage A1 (decision R3): with its CANDIDATE templates (the renderer reads them after the approved ones).
+            ...(candidateWording ? { candidateWording: { file: candidateWording.file, entries: candidateTable(candidateWording), templates: candidateTemplates(candidateWording) } } : {}),
         })
         const activity = built.activity
         const fixture = built.fixture
@@ -624,7 +626,7 @@ export function chainWith(opts: { heldTo?: LawsMateriality; observeOnly?: boolea
                 reasons = held.material
             }
         }
-        const read = sentencesOf(activity, fixture, candidateWording ? candidateTable(candidateWording) : [])
+        const read = sentencesOf(activity, fixture, candidateWording ? candidateTable(candidateWording) : [], candidateWording ? candidateTemplates(candidateWording) : [])
         const account = activity.account
         const diagramDraft = (activity as ServedActivity).diagramDraft
         const block = diagramDraft?.diagram?.blocks?.[0] as any

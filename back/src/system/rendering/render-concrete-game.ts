@@ -692,7 +692,24 @@ const OUT_OF_PLAY_TRIGGERS = ['OUT_TOUCHLINE', 'OUT_END_LINE']
  * gates cannot disagree about who a value names. Read once: the register is versioned data.
  */
 let participantRegister: RegisterIndex | null = null
+/**
+ * **TEST-ONLY: the register a review-level game was derived over, while it is rendered and checked** — stage A1 of the A02 package, 13
+ * November 2026 (decision R1). Set only by `underDerivationRegister`, which build-activity.ts calls only on a build given the TEST-ONLY
+ * `candidateWording` option (itself refused without a PROPOSED configuration). Null on every other build, so the production register is read
+ * exactly as before.
+ */
+let derivedOverRegister: RegisterIndex | null = null
+export function underDerivationRegister<T>(index: RegisterIndex | null, run: () => T): T {
+    const before = derivedOverRegister
+    derivedOverRegister = index
+    try {
+        return run()
+    } finally {
+        derivedOverRegister = before
+    }
+}
 const participants = (): RegisterIndex => {
+    if (derivedOverRegister) return derivedOverRegister
     if (!participantRegister) participantRegister = indexRegister(loadRegister())
     return participantRegister
 }
@@ -755,6 +772,14 @@ export const CENTRAL = 'central'
  * team's target say "target", citing what each objective references, and never call either a line.
  */
 const GENERIC_TARGET = 'target'
+/**
+ * TEST-ONLY (stage A1 of the A02 package, 13 November 2026, decision R3): the id of our CANDIDATE template naming two region targets of two
+ * nouns, each with the team that attacks it (`targetsByRole` in `produceRendering`). A name, never words: the words come only from our CANDIDATE
+ * wording file, handed in by a TEST-ONLY build; a template under this id that carries an approval is never read.
+ */
+export const CANDIDATE_TARGETS_BY_ROLE = 'CANDIDATE_TARGETS_BY_ROLE'
+/** The slots `targetsByRole` fills from the game: the region target's team and noun, and the line target's team. */
+export const CANDIDATE_TARGETS_BY_ROLE_SLOTS = ['zoneTeam', 'zoneNoun', 'lineTeam'] as const
 
 const fieldOf = (element: any, field: string): unknown => field.split('.').reduce<any>((node, key) => (node == null ? undefined : node[key]), element)
 const present = (value: unknown): boolean => value !== undefined && value !== null
@@ -2839,8 +2864,54 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * a noun, or are all lines, says exactly what it did, and one whose objective references nothing the game holds is withheld as before.
      */
     const differentTargets = !sayableNoun && objectives.length > 1 && objectives.every(o => !!targetOfObjective(o) || !!objectTargetOf(o)) && objectives.some(o => !!objectTargetOf(o))
-    const targetWord: string | null = sayableNoun ?? (differentTargets ? GENERIC_TARGET : null)
-    const targetWordPaths: string[] = sayableNoun ? targetNounPaths : differentTargets ? objectives.map(o => `objectives[${o.elementId}].reference`) : []
+    /**
+     * **TEST-ONLY: two region targets of two nouns, each named with the team that attacks it, in our CANDIDATE words** — stage A1 of the A02
+     * package, 13 November 2026 (decision R3). Where one team's target is a region beginning beyond the marked line and the other team's target is
+     * the first team's end line, no one noun names both, and production withholds the sentences that would (`withholdTargetNouns`). Said only
+     * where the template list holds our CANDIDATE template `CANDIDATE_TARGETS_BY_ROLE`: one carrying `candidateBy` (ours) and no approval, which
+     * only a TEST-ONLY build hands in (build-activity.ts `candidateWording`, refused without a PROPOSED configuration). No approved table can
+     * hold it (an approved template must carry its approval), so production reads none. Each claim of its words is read from the realized game
+     * first: two objectives, each attacked by a team the block names by its role; one target a region that begins where the marked line is
+     * realized (RC-21 "beyond X (for team T)") and runs to the other team's end; the other a line on the end line the first team defends; the
+     * parts filled from the game with the three slots this reading fills. Anything else: null, and production's withholding stands, exactly as
+     * before. Where it is said, every target is named, so Christian's approved possession sentence takes the approved template's own word
+     * (Christian's reply filed 28 October 2026, item 5), as for targets of different kinds.
+     */
+    const targetsByRole = ((): { text: string; from: string[] } | null => {
+        if (sayableNoun || differentTargets || objectives.length !== 2) return null
+        const template = templates.find(t => t.id === CANDIDATE_TARGETS_BY_ROLE && !('approvedBy' in t) && (t as { candidateBy?: { who?: unknown } }).candidateBy?.who === 'ours')
+        if (!template) return null
+        const read = objectives.map(o => ({ o, region: targetOfObjective(o), team: teamNoun(o.team), role: roleOfDesignation(o.team) }))
+        if (read.some(r => !r.region || !r.team || !r.role) || read[0].role === read[1].role) return null
+        const zone = read.find(r => r.region.noun !== 'line')
+        const line = read.find(r => r.region.noun === 'line')
+        if (!zone || !line || typeof zone.region.noun !== 'string' || markedLines.has(String(line.region.elementId))) return null
+        // The region target begins where the marked line is realized and runs to the end the other team defends.
+        const along = geometryFor(zone.region.elementId, 'along')
+        const span = along?.geometry?.interval
+        const of = along?.geometry?.relation?.of
+        const referent = of ? `c:${of.contractId}:${of.itemId}` : null
+        const zoneEnd = targetEnd(zone.o.team)
+        if (!span || !referent || !markedLines.has(referent) || along.geometry.relation.term !== BEYOND || zoneEnd === null) return null
+        if (!(zoneEnd === 0 ? span.from === 0 : span.to === areaLength) || (zoneEnd === 0 ? span.to : span.from) !== geometryFor(referent, 'along')?.geometry?.interval?.from) return null
+        // The line target lies on the end line the region's team defends, the end the line's team attacks.
+        const lineEnd = targetEnd(line.o.team)
+        const at = geometryFor(line.region.elementId, 'along')?.geometry?.interval
+        if (lineEnd === null || lineEnd === zoneEnd || !at || at.from !== lineEnd || at.to !== lineEnd) return null
+        const text = fillTemplate(template.parts, { zoneTeam: zone.team!, zoneNoun: String(zone.region.noun), lineTeam: line.team! })
+        if (!text) return null
+        return {
+            text,
+            from: [
+                ...objectives.flatMap(o => [`objectives[${o.elementId}].team`, `objectives[${o.elementId}].reference`, `objectives[${o.elementId}].role`]),
+                `space.regions[${zone.region.elementId}].noun`,
+                `space.regions[${line.region.elementId}].noun`,
+                `space.regions[${referent}].noun`,
+            ],
+        }
+    })()
+    const targetWord: string | null = sayableNoun ?? (differentTargets || targetsByRole ? GENERIC_TARGET : null)
+    const targetWordPaths: string[] = sayableNoun ? targetNounPaths : differentTargets || targetsByRole ? objectives.map(o => `objectives[${o.elementId}].reference`) : []
     const withholdTargetNouns = (sentence: string) => {
         const notLines = objectives.filter(o => targetOfObjective(o)?.noun !== 'line')
         const objectTargets = notLines.filter(o => !targetOfObjective(o))
@@ -3533,7 +3604,15 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                     withholdKind(event.path)
                     continue
                 }
-                sayScoring(said, statusAt([event.path], 'DERIVED'), `${capital(noun)}: Score ${said.lead}`, [event.path, ...said.paths])
+                /**
+                 * Stage A1 of the A02 package, 13 November 2026 (decision R2; part of the team-name issue, Christian's item 6, received 12
+                 * November 2026: "Resolve the identified renderer issue concerning the attacking team's name."): in this own-event branch only,
+                 * each role's sentence cites its OWN objective's role, never the first objective's. The bounded-credit branch above (A01's) is
+                 * untouched, and a game whose first objective is the role's own cites exactly what it did.
+                 */
+                const own = ownObjectiveOf(element.activityRole)
+                const ownPaths = said.paths.map(p => (objective && own && p === `objectives[${objective.elementId}].role` ? `objectives[${own.elementId}].role` : p))
+                sayScoring({ ...said, paths: ownPaths }, statusAt([event.path], 'DERIVED'), `${capital(noun)}: Score ${said.lead}`, [event.path, ...ownPaths])
             }
             say('How to score', statusOf.get('value.primaryEvent.value') ?? statusOf.get(kindPath) ?? 'DERIVED', `Each score is worth ${primary.value} point`, ['value.primaryEvent.value'], [{ quantity: primary.value, path: 'value.primaryEvent.value' }])
         } else if (!how) withholdKind(kindPath)
@@ -3591,6 +3670,8 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                 if (targetNoun) say('How to score', statusAt(provenance, 'DERIVED'), `Each team attacks the ${targetNoun} at the other team's end. Decide which team starts at which end${stay}`, [...provenance, ...targetNounPaths])
                 // The integration review fix (above): "defends one line" only where every target is a line.
                 else if (lineTargets) say('How to score', statusAt(provenance, 'DERIVED'), `Each team defends one line and attacks the other. Decide which team starts at which end${stay}`, provenance)
+                // Stage A1 (TEST-ONLY, decision R3): two region targets of two nouns, named each with its team in our CANDIDATE words (above).
+                else if (targetsByRole) say('How to score', statusAt(provenance, 'DERIVED'), targetsByRole.text, targetsByRole.from)
                 else withholdTargetNouns('"Each team defends one line and attacks the other. Decide which team starts at which end"')
             }
             // Said with the possession-change sentence where there is one; on its own otherwise.

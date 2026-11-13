@@ -11,6 +11,10 @@
  *     beside the approved table and never in it: an entry here carries no approval, so the approved table's own loader would refuse it.
  *   - `printerOnly`: sentences the engine never says (the placement rule of a PROPOSED configuration, an optional restart arrangement, scoring
  *     details, a learning explanation), printed by the review print beside the served text, each with its label.
+ *   - `templates` (stage A1, 13 November 2026, decision R3): sentences the renderer says from its own reading of the game, in the approved
+ *     template's shape (`parts`, `example`, `sentence`), under the one template name the renderer reads our CANDIDATE words by
+ *     (render-concrete-game.ts `CANDIDATE_TARGETS_BY_ROLE`), each carrying `candidateBy` and never `approvedBy`. Handed to the renderer only
+ *     by a TEST-ONLY build (`candidateTemplates`); a sentence one of them says word for word reads CANDIDATE (`review-draft.ts`).
  *
  * NOT LIVE, NOT APPROVED. No route, no engine module and no approved table reads this module or the file (a scan in a02-hpe1.unit.ts; the
  * production bundle test names both as absent). Sport-neutral: what a quote must be verbatim in (the rows, the recorded rulings) and the words
@@ -25,14 +29,16 @@
  *   - a `candidateBy` that is not ours, or not dated, or restates no row and rests on no ruling; a restated row whose words are not verbatim
  *     in it at the line named; a ruling quote not verbatim in that recorded ruling, or with another received date;
  *   - a sentence holding any of the words the caller names as never to be said (the live origin sentence our rulings replace);
- *   - a printed sentence with no part of the four, or labelled other than PROPOSED or CANDIDATE; an id used twice.
+ *   - a printed sentence with no part of the four, or labelled other than PROPOSED or CANDIDATE; an id used twice;
+ *   - (stage A1) a template naming a template the renderer does not read our words by, carrying `approvedBy`, with a slot the renderer does not
+ *     fill, or whose parts filled with its example do not reproduce its sentence (a final full stop aside).
  */
 import fs from 'node:fs'
 import path from 'node:path'
 
 import { AUDITS_DIR } from '../derivation/knowledge-root'
-import { ApprovedWording } from './approved-wording'
-import { wordedOnlyRows } from './render-concrete-game'
+import { ApprovedTemplateSentence, ApprovedWording, fillTemplate } from './approved-wording'
+import { CANDIDATE_TARGETS_BY_ROLE, CANDIDATE_TARGETS_BY_ROLE_SLOTS, wordedOnlyRows } from './render-concrete-game'
 
 export const CANDIDATE_COACH_WORDING_FILE = path.join(AUDITS_DIR, 'drafts', 'a02-composition', 'a02-coach-wording.CANDIDATE.json')
 
@@ -74,11 +80,23 @@ export interface PrintedOnlySentence {
     sentence: string
     candidateBy: CandidateBy
 }
+/** A sentence the renderer says from its reading of the game (stage A1): the approved template's shape, with `candidateBy` in place of `approvedBy`. */
+export interface CandidateTemplateEntry {
+    id: string
+    /** The template name the renderer reads it by (render-concrete-game.ts `CANDIDATE_TARGETS_BY_ROLE`). */
+    template: string
+    renders: string
+    parts: string[]
+    example: Record<string, string>
+    sentence: string
+    candidateBy: CandidateBy
+}
 export interface CandidateWording {
     file: string
     standing: string
     entries: CandidateWordingEntry[]
     printerOnly: PrintedOnlySentence[]
+    templates: CandidateTemplateEntry[]
 }
 
 /** What the gate holds the file's quotes and sentences to, handed in by the caller (so this module names no sport file or term). */
@@ -180,6 +198,26 @@ export function candidateWordingRefusals(raw: any, sources: CandidateWordingSour
         else neverIn(sentence.sentence, at)
         reasons.push(...candidateByRefusals(sentence?.candidateBy, at, sources))
     }
+    // Stage A1 (decision R3): the templates the renderer reads our words by, each in the approved template's shape, never approved.
+    const templates: any[] = Array.isArray(raw?.templates) ? raw.templates : []
+    if (raw?.templates !== undefined && !Array.isArray(raw.templates)) reasons.push('templates is not a list')
+    for (const template of templates) {
+        const at = `template ${idOf(template, 'a template') || '(no id)'}`
+        if (isObject(template) && 'approvedBy' in template) reasons.push(`${at} carries approvedBy: a candidate template is never approved wording`)
+        if (template?.template !== CANDIDATE_TARGETS_BY_ROLE) reasons.push(`${at} names the template ${JSON.stringify(template?.template ?? null)}, and the renderer reads our words only as ${CANDIDATE_TARGETS_BY_ROLE}`)
+        if (!filled(template?.renders)) reasons.push(`${at} does not say what it renders`)
+        const parts: unknown[] = Array.isArray(template?.parts) ? template.parts : []
+        if (!parts.length || !parts.every(filled)) reasons.push(`${at} has no parts`)
+        const slots = parts.filter(filled).flatMap(part => [...part.matchAll(/\{(\w+)\}/g)].map(match => match[1]))
+        for (const slot of slots) if (!(CANDIDATE_TARGETS_BY_ROLE_SLOTS as readonly string[]).includes(slot)) reasons.push(`${at}: the slot {${slot}} is none the renderer fills (${CANDIDATE_TARGETS_BY_ROLE_SLOTS.join(', ')})`)
+        if (!filled(template?.sentence)) reasons.push(`${at} has no sentence`)
+        else {
+            neverIn(template.sentence, at)
+            const reproduced = isObject(template?.example) && parts.length && parts.every(filled) ? fillTemplate(parts as string[], template.example) : null
+            if (reproduced !== template.sentence.replace(/\.$/, '')) reasons.push(`${at}: its parts with its example values read ${JSON.stringify(reproduced)}, not its sentence`)
+        }
+        reasons.push(...candidateByRefusals(template?.candidateBy, at, sources))
+    }
     return reasons
 }
 
@@ -194,8 +232,27 @@ export function loadCandidateWording(sources: CandidateWordingSources, file: str
     const reasons = candidateWordingRefusals(raw, sources)
     if (reasons.length) throw new CandidateWordingRefused(reasons)
     const copy = JSON.parse(JSON.stringify(raw))
-    return { file: path.basename(file), standing: String(copy.standing), entries: copy.entries, printerOnly: copy.printerOnly ?? [] }
+    return { file: path.basename(file), standing: String(copy.standing), entries: copy.entries, printerOnly: copy.printerOnly ?? [], templates: copy.templates ?? [] }
 }
+
+/**
+ * Stage A1 (decision R3): the templates as the renderer reads them (`renderConcreteGame`'s `templates`, after the approved ones): copies in the
+ * approved template's shape under the template name the renderer reads, each keeping its `candidateBy` and its own id (`candidateId`), and
+ * carrying no approval. Never added to the approved table's file.
+ */
+export const candidateTemplates = (wording: CandidateWording): ApprovedTemplateSentence[] =>
+    wording.templates.map(
+        entry =>
+            ({
+                id: entry.template,
+                renders: entry.renders,
+                parts: [...entry.parts],
+                example: { ...entry.example },
+                sentence: entry.sentence,
+                candidateBy: JSON.parse(JSON.stringify(entry.candidateBy)),
+                candidateId: entry.id,
+            }) as unknown as ApprovedTemplateSentence,
+    )
 
 /**
  * The entries as a table the renderer and fidelity read beside the approved one (`renderConcreteGame`, `checkFidelity`): copies, in the
