@@ -709,7 +709,14 @@ const PROPOSED_ITEM_KEYS = ['id', 'row', 'selector', 'requirement', 'value', 'va
 const PROPOSED_REALIZATION_KEYS = ['id', 'contractId', 'realizes', 'realizationChoices', 'notWithPracticeSituations', 'items', 'declarations', 'relationshipRules', 'setsAsideChoices', 'note']
 /** What a proposal never writes on the realization: the keys of a ruled realization (Christian's words, Christian's date, Christian's departures, Christian's check). */
 const RULED_REALIZATION_KEYS = ['ruledOn', 'by', 'citedAs', 'words', 'departsFrom', 'defaultLawsCheck', 'category', 'testingBoundaries', 'objectSuitability', 'basedOn', 'withdraws']
-const RECEIVED_12_NOV = '(received 12 November 2026)'
+/**
+ * The received dates a PROPOSED configuration may quote Christian's request with (stage B1: 12 November 2026). Package 5 (13 November 2026,
+ * the lead's build item B2, probe B2 measured): made a list, so a configuration answering Christian's reply received 13 November 2026 may quote
+ * it with its own received date; a quotation with any other date, or none, is still refused.
+ */
+const RECEIVED_DATES = ['(received 12 November 2026)', '(received 13 November 2026)']
+const RECEIVED_WORDS = RECEIVED_DATES.join(' or ')
+const quotesReceived = (text: string): boolean => RECEIVED_DATES.some(date => text.includes(date))
 
 export function loadProposedRealization(file: string = PROPOSED_HPE1_FILE, options: { lawDepartures?: boolean } = {}): ProposedConfiguration {
     const reasons: string[] = []
@@ -726,7 +733,7 @@ export function loadProposedRealization(file: string = PROPOSED_HPE1_FILE, optio
     // The questions the configuration waits on: each an id, what it asks, and the request it answers in Christian's words with the date.
     const questions: ProposedConfiguration['questions'] = []
     for (const q of Array.isArray(body?.questions) ? body.questions : []) {
-        if (!filled(q?.id) || !filled(q?.asks) || !filled(q?.askedFor) || !quotationsIn(String(q.askedFor)).length || !String(q.askedFor).includes(RECEIVED_12_NOV)) reasons.push(`a question names its id, what it asks, and the request it answers quoted with ${RECEIVED_12_NOV} (${JSON.stringify(q)})`)
+        if (!filled(q?.id) || !filled(q?.asks) || !filled(q?.askedFor) || !quotationsIn(String(q.askedFor)).length || !quotesReceived(String(q.askedFor))) reasons.push(`a question names its id, what it asks, and the request it answers quoted with ${RECEIVED_WORDS} (${JSON.stringify(q)})`)
         else questions.push({ id: String(q.id), asks: String(q.asks), askedFor: String(q.askedFor) })
     }
     if (!questions.length) reasons.push('the file asks no question, so no item can say what it waits on')
@@ -755,7 +762,7 @@ export function loadProposedRealization(file: string = PROPOSED_HPE1_FILE, optio
         else if (item?.basis !== 'AUTHORED') reasons.push(where(`has basis ${JSON.stringify(item?.basis ?? null)}: a PROPOSED item is AUTHORED so it establishes what it proposes; its category, never its basis, says what it is`))
         if (!filled(item?.fitNote)) reasons.push(where('carries no reasoning of ours (fitNote)'))
         if (!filled(item?.waitsOn) || !questionIds.has(String(item.waitsOn))) reasons.push(where(`names no question of the file it waits on (waitsOn: ${JSON.stringify(item?.waitsOn ?? null)})`))
-        if (idPrefix !== null && (!filled(item?.askedFor) || !quotationsIn(String(item.askedFor)).length || !String(item.askedFor).includes(RECEIVED_12_NOV))) reasons.push(where(`does not quote the request it answers with ${RECEIVED_12_NOV} (askedFor)`))
+        if (idPrefix !== null && (!filled(item?.askedFor) || !quotationsIn(String(item.askedFor)).length || !quotesReceived(String(item.askedFor)))) reasons.push(where(`does not quote the request it answers with ${RECEIVED_WORDS} (askedFor)`))
         const evidence = String(item?.basisEvidence ?? '')
         if (idPrefix !== null && !evidence.startsWith('PROPOSED:') && !evidence.startsWith('ILLUSTRATIVE:')) reasons.push(where("has basisEvidence that does not begin 'PROPOSED:' or 'ILLUSTRATIVE:'"))
         if (/^P[0-9]/.test(String(item?.row ?? ''))) reasons.push(where(`is on the participant row ${item.row}: no placement relationship exists for the context, so a PROPOSED configuration places no one`))
@@ -844,8 +851,8 @@ export function loadProposedRealization(file: string = PROPOSED_HPE1_FILE, optio
             reasons.push(...refusedDepartures)
             for (const basis of [check?.basis, ...(Array.isArray(departures) ? departures.map((d: any) => d?.basis) : [])]) {
                 const cited = String(basis?.citedAs ?? '')
-                if (!cited.startsWith('PROPOSED') || !cited.includes('not a ruling') || !cited.includes(RECEIVED_12_NOV))
-                    reasons.push(where(`a basis is cited ${JSON.stringify(basis?.citedAs ?? null)}: a PROPOSED check or departure is ours, says it is not a ruling, and names the request it answers ${RECEIVED_12_NOV}`))
+                if (!cited.startsWith('PROPOSED') || !cited.includes('not a ruling') || !quotesReceived(cited))
+                    reasons.push(where(`a basis is cited ${JSON.stringify(basis?.citedAs ?? null)}: a PROPOSED check or departure is ours, says it is not a ruling, and names the request it answers ${RECEIVED_WORDS}`))
             }
             if (!refusedCheck && !refusedDepartures.length && defaultLaws) laws = { check: JSON.parse(JSON.stringify(check)), departures: JSON.parse(JSON.stringify(departures)) }
         }
