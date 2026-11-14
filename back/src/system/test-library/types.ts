@@ -205,14 +205,21 @@ export const isAuthorizedSetKindDeclaration = (value: unknown): value is Authori
 
 /**
  * **Which existing step of the selector left a member of an ELIGIBLE_ALTERNATIVES set out of the committed combination** (13 November
- * 2026). Read on the lenses the selector committed, and never a new rule: each names a step that ran before this record existed.
- *   - `NOT_AMONG_TWO_PER_ROLE`: the bounded search keeps the two highest-scoring members of each role (`boundedConstraintCandidates`), and
- *     this member was not one of them, so no combination held it (Christian's finding kept for later, received 13 November 2026, heading 8:
- *     "The two-per-role candidate cutoff may exclude alternatives before they are fully recorded."; the cut is unchanged);
- *   - `IN_NO_ADMITTED_COMBINATION`: among the bounded candidates, and no combination holding it passed the size rule, the role mix and the
- *     package checks;
- *   - `ANOTHER_COMBINATION_COMMITTED`: an admitted combination holds it, and the selector committed another (`commitDesignChoice`: the
- *     highest total, ties broken by the combination's key).
+ * 2026). Read on the lenses the selector committed, and never a new rule: each names a step that ran before this record existed. Each
+ * step is true on the committed lenses only: on another lens combination the bounded candidates and the admitted combinations can differ,
+ * so a member recorded here may have been a candidate there, or in a combination admitted there (measured 13 November 2026, the VSK
+ * verification, F1: a TEST-ONLY copy of A01's record over all 21 usable constraints records `wide-utilization-bonus` as
+ * `NOT_AMONG_TWO_PER_ROLE` on the committed lens triple; on the pair possession-stability and space-creation it is in the combination that
+ * pair commits).
+ *   - `NOT_AMONG_TWO_PER_ROLE`: on the committed lenses the bounded search keeps the two highest-scoring members of each role
+ *     (`boundedConstraintCandidates`), and this member was not one of them, so no combination on the committed lenses held it; on another
+ *     lens combination it may have been a candidate (Christian's finding kept for later, received 13 November 2026, heading 8: "The
+ *     two-per-role candidate cutoff may exclude alternatives before they are fully recorded."; the cut is unchanged);
+ *   - `IN_NO_ADMITTED_COMBINATION`: among the bounded candidates on the committed lenses, and no combination on those lenses holding it
+ *     passed the size rule, the role mix and the package checks; on another lens combination one may have (measured and pinned in
+ *     live-selection-records.unit.ts T7, 'the lens reading');
+ *   - `ANOTHER_COMBINATION_COMMITTED`: an admitted combination on the committed lenses holds it, and the selector committed another
+ *     (`commitDesignChoice`: the highest total, ties broken by the combination's key).
  */
 export type AuthorizedMemberNotCommittedRule = 'NOT_AMONG_TWO_PER_ROLE' | 'IN_NO_ADMITTED_COMBINATION' | 'ANOTHER_COMBINATION_COMMITTED'
 

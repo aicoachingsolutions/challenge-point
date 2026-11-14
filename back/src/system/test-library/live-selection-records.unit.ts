@@ -474,7 +474,8 @@ check("T6 a set's kind is declared with the source's words, or the record is ref
     }
 
     // (d) Hints made by hand from a record that names a constraint and declares no kind (the gate bypassed): the selector refuses them, and no
-    // kind is assumed; the same for hints whose declaration lost its words.
+    // kind is assumed; the same for hints whose declaration lost its words, and for hints whose kind is neither of the two (13 November 2026,
+    // from the VSK verification, F2: the gate has its own kind check, so only this case shows the selector's pool asks the kind too).
     for (const ids of [WHOLE, PAIR]) {
         const undeclared = recordsWith(ids, NO_KIND).find(record => record.learningGoalId === GOAL)!
         const hints = hintsUnderAuthorization(guidedSelectionHints(GOAL, text).hints, undeclared)
@@ -483,6 +484,8 @@ check("T6 a set's kind is declared with the source's words, or the record is ref
         assert.throws(() => quietly(() => generateSelection({ learningGoals: [text], challengeLevel: 'medium', learningGoalId: GOAL }, hints)), refused, `${ids.length}: undeclared hints`)
         const unsourced = { ...hints, constraintAuthority: { ...hints.constraintAuthority!, setKind: { ...JOINTLY, words: '' } } }
         assert.throws(() => quietly(() => generateSelection({ learningGoals: [text], challengeLevel: 'medium', learningGoalId: GOAL }, unsourced)), refused, `${ids.length}: unsourced hints`)
+        const unknownKind = { ...hints, constraintAuthority: { ...hints.constraintAuthority!, setKind: { ...JOINTLY, kind: 'ALL_OF' } as unknown as AuthorizedSetKindDeclaration } }
+        assert.throws(() => quietly(() => generateSelection({ learningGoals: [text], challengeLevel: 'medium', learningGoalId: GOAL }, unknownKind)), refused, `${ids.length}: hints with an unknown kind`)
     }
 
     // (e) The declaration travels with the set as the record declares it: on the pool account of both routes, and in the record the account
@@ -591,6 +594,21 @@ check('T7 an eligible set: fewer may apply, nothing outside it, every member not
     assert.ok(!aliasGap.message.includes('taken whole or refused'), 'an eligible set is not called jointly required')
     const aliasedReview = reviewWith(ALIASED, ELIGIBLE)
     assert.ok(aliasedReview instanceof GoalSelectionGap && aliasedReview.gap.message === aliasGap.message, 'the review route refuses it with the same gap')
+
+    // The not-committed step is read on the committed lenses only (13 November 2026, from the VSK verification, F1; the set found by the
+    // FIX-SK search over every set of two to four usable constraints, pinned to the measurement). On the committed lens triple Final Third
+    // Value is in no admitted combination; with the hints' lenses restricted to the pair possession-stability and space-creation (the
+    // enumeration on that pair alone), the whole set is committed. Read on every lens combination, the step would say another combination
+    // was committed instead.
+    const lens = (name: string) => `tl-v0-lens-${name}`
+    const LENS_READ = [c('central-density-condition'), c('final-third-value'), c('transition-bonus')]
+    const lensRead = liveWith(LENS_READ, ELIGIBLE) as TestLibrarySelectionResult
+    assert.deepEqual(sorted(lensRead.affordanceLenses.map(entry => entry.id)), sorted([lens('possession-stability-opportunity'), lens('line-breaking-opportunity'), lens('space-creation-opportunity')]), 'the lens reading: the committed lens triple')
+    assert.deepEqual(lensRead.selectionTrace.committedConstraints.map(short), ['central-density-condition', 'transition-bonus'], 'the lens reading: committed on the triple')
+    assert.deepEqual(lensRead.selectionTrace.authorizedSetNotCommitted?.map(short3), [['final-third-value', 'consequence', 'IN_NO_ADMITTED_COMBINATION']], 'the lens reading: the step on the committed lenses')
+    const onPair = { ...guidedSelectionHints(GOAL, text, recordsWith(LENS_READ, ELIGIBLE)).hints, candidateAffordanceLensIds: [lens('possession-stability-opportunity'), lens('space-creation-opportunity')] }
+    const pairRead = quietly(() => generateSelection({ learningGoals: [text], challengeLevel: 'medium', learningGoalId: GOAL }, onPair))
+    assert.deepEqual(sorted(pairRead.selectionTrace.committedConstraints), sorted(LENS_READ), 'the lens reading: on the pair alone the whole set is committed')
 
     // The account carries the record (technical evidence, never coach-facing): A01 built under the FIVE copy. Measured: the build refuses at
     // `knowledge`, because the members applied have no contribution contract (an existing refusal, unchanged); the account still says what

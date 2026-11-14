@@ -1185,7 +1185,9 @@ export function generateSelection(
      */
     const recordSet = recordBacked && !zeroConstraintCommitment
     const setKind: AuthorizedSetKind | null = recordSet ? (constraintPool.constraintSetKind?.kind ?? null) : null
-    if (recordSet && !setKind) throw new Error(`${input.learningGoalId}: an authorization record's set reached selection with no declared kind of set; refused, no kind is assumed`)
+    // The guard asks the one predicate the gate and the pool ask (a kind of the two, with words and a citation), not only that some kind is
+    // there, so a kind nobody declared is never read here (13 November 2026, from the VSK verification, F2).
+    if (recordSet && !isAuthorizedSetKindDeclaration(constraintPool.constraintSetKind)) throw new Error(`${input.learningGoalId}: an authorization record's set reached selection with no declared kind of set; refused, no kind is assumed`)
     const eligibleRecordSet = setKind === 'ELIGIBLE_ALTERNATIVES'
     const wholeSetRefusals: string[] = []
     const designPossibilities = enumerateDesignPossibilities({
